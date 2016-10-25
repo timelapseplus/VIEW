@@ -474,11 +474,11 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             if (callback) callback("invalid value for " + item);
             return;
         } else {
-            console.log('error', "item not found in list: " + item + " = [" + value + "]");
-            /*camera.setConfigValue(item, value, function(err) {
+            console.log('error', "item not found in list: " + item + " = [" + value + "] (trying anyway)");
+            camera.setConfigValue(item, value, function(err) {
                 if (err) sendEvent('error', err);
                 if (callback) callback(err);
-            });*/
+            });
         }
     });
 }
