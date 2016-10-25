@@ -1,0 +1,524 @@
+sensor init completed
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289446,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.15
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 241,
+      "addr_0x0D": 1,
+      "addr_0x0E": 102,
+      "addr_0x0F": 1
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289447,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 13.37
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 124,
+      "addr_0x0D": 0,
+      "addr_0x0E": 90,
+      "addr_0x0F": 0
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289448,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 15.92
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 17,
+      "addr_0x0D": 0,
+      "addr_0x0E": 12,
+      "addr_0x0F": 0
+    }
+  }
+}
+gain mode is now: 16
+timing mode is now: 402ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289449,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.17
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 206,
+      "addr_0x0D": 30,
+      "addr_0x0E": 39,
+      "addr_0x0F": 22
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289450,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.27
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 199,
+      "addr_0x0D": 7,
+      "addr_0x0E": 151,
+      "addr_0x0F": 5
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289451,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.13
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 16,
+      "addr_0x0D": 1,
+      "addr_0x0E": 196,
+      "addr_0x0F": 0
+    }
+  }
+}
+null
+finished
+pi@pi4lcd ~/node_tsl2561 $ node examples/timinggainchangevalues.js 
+sensor init completed
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289520,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.11
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 242,
+      "addr_0x0D": 1,
+      "addr_0x0E": 103,
+      "addr_0x0F": 1
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289521,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.18
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 125,
+      "addr_0x0D": 0,
+      "addr_0x0E": 90,
+      "addr_0x0F": 0
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289522,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 15.92
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 17,
+      "addr_0x0D": 0,
+      "addr_0x0E": 12,
+      "addr_0x0F": 0
+    }
+  }
+}
+gain mode is now: 16
+timing mode is now: 402ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289523,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.23
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 227,
+      "addr_0x0D": 30,
+      "addr_0x0E": 53,
+      "addr_0x0F": 22
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289524,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.22
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 198,
+      "addr_0x0D": 7,
+      "addr_0x0E": 151,
+      "addr_0x0F": 5
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289525,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.28
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 14,
+      "addr_0x0D": 1,
+      "addr_0x0E": 194,
+      "addr_0x0F": 0
+    }
+  }
+}
+null
+finished
+pi@pi4lcd ~/node_tsl2561 $ node examples/timinggainchangevalues.js 
+sensor init completed
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289570,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.15
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 241,
+      "addr_0x0D": 1,
+      "addr_0x0E": 102,
+      "addr_0x0F": 1
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289571,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.18
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 125,
+      "addr_0x0D": 0,
+      "addr_0x0E": 90,
+      "addr_0x0F": 0
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289572,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 15.92
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 17,
+      "addr_0x0D": 0,
+      "addr_0x0E": 12,
+      "addr_0x0F": 0
+    }
+  }
+}
+gain mode is now: 16
+timing mode is now: 402ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289573,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.1
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 176,
+      "addr_0x0D": 30,
+      "addr_0x0E": 19,
+      "addr_0x0F": 22
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289574,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.04
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 180,
+      "addr_0x0D": 7,
+      "addr_0x0E": 139,
+      "addr_0x0F": 5
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389289575,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 14.28
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 14,
+      "addr_0x0D": 1,
+      "addr_0x0E": 194,
+      "addr_0x0F": 0
+    }
+  }
+}
+null
+finished
+pi@pi4lcd ~/node_tsl2561 $ 
+
+**** CS *****
+
+pi@pi4lcd ~/node_tsl2561 $ node examples/timinggainchangevalues.js 
+sensor init completed
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293530,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 20.82
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 219,
+      "addr_0x0D": 1,
+      "addr_0x0E": 86,
+      "addr_0x0F": 1
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293531,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 20.37
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 119,
+      "addr_0x0D": 0,
+      "addr_0x0E": 86,
+      "addr_0x0F": 0
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293532,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 16.49
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 16,
+      "addr_0x0D": 0,
+      "addr_0x0E": 12,
+      "addr_0x0F": 0
+    }
+  }
+}
+gain mode is now: 16
+timing mode is now: 402ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293533,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 20.99
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 126,
+      "addr_0x0D": 29,
+      "addr_0x0E": 43,
+      "addr_0x0F": 21
+    }
+  }
+}
+timing mode is now: 101ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293534,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 21
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 106,
+      "addr_0x0D": 7,
+      "addr_0x0E": 82,
+      "addr_0x0F": 5
+    }
+  }
+}
+timing mode is now: 13.7ms
+{
+  "addr": 57,
+  "type": "TSL2561",
+  "ts": 1389293535,
+  "error": null,
+  "sensValues": {
+    "devData": {
+      "light": {
+        "unit": "lx",
+        "value": 21.49
+      }
+    },
+    "rawData": {
+      "addr_0x0C": 4,
+      "addr_0x0D": 1,
+      "addr_0x0E": 186,
+      "addr_0x0F": 0
+    }
+  }
+}
+null
+finished
+pi@pi4lcd ~/node_tsl2561 $ 

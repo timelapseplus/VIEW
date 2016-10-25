@@ -1,0 +1,2 @@
+#!/bin/sh
+gcc -O3 ../oled.c ../lib/lib_gpio.c ../lib/lib_png.c ../lib/lib_spi.c ../lib/lib_oled.c ../lib/lib_ui.c ../lib/lib_jpeg.c -I../lib/ -std=gnu11 -o ../oled $(pkg-config --cflags --libs cairo) && mv ../oled ../../bin/

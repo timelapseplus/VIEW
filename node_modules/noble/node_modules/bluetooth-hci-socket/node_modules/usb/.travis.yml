@@ -1,0 +1,37 @@
+branches:
+  only:
+    - master
+    - /^v?[0-9]/
+
+language: objective-c
+
+env:
+  matrix:
+  - NODE_VERSION="0.12"
+  - NODE_VERSION="4"
+  - NODE_VERSION="5"
+  - NODE_VERSION="6"
+
+before_install:
+- brew update
+- brew install nvm
+- mkdir ~/.nvm
+- export NVM_DIR=~/.nvm
+- source $(brew --prefix nvm)/nvm.sh
+- nvm install $NODE_VERSION
+- node --version
+- npm --version
+
+install:
+- export PATH=./node_modules/.bin/:$PATH
+- npm install -g node-pre-gyp-github
+
+script:
+- npm install --build-from-source --node-gyp=$(which pangyp)
+- "./node_modules/.bin/node-pre-gyp package"
+- echo $TRAVIS_TAG
+- echo $TRAVIS_PULL_REQUEST
+- >
+    ([[ "$TRAVIS_TAG" =~ ^v?[0-9] ]] &&
+    test "$TRAVIS_PULL_REQUEST" = false &&
+    node-pre-gyp-github publish) || true

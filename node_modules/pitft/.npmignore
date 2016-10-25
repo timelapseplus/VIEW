@@ -1,0 +1,13 @@
+*.log
+
+.idea/
+*.iml
+*.iws
+
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+build/
+node_modules

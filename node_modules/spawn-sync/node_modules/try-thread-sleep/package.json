@@ -1,0 +1,50 @@
+{
+  "name": "try-thread-sleep",
+  "version": "1.0.0",
+  "description": "Use thread-sleep if native compilation succeeded, otherwise it's a noop",
+  "keywords": [],
+  "dependencies": {
+    "thread-sleep": "*"
+  },
+  "optionalDependencies": {
+    "thread-sleep": "*"
+  },
+  "devDependencies": {
+    "thread-sleep": "*"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ForbesLindesay/try-thread-sleep.git"
+  },
+  "author": {
+    "name": "ForbesLindesay"
+  },
+  "license": "MIT",
+  "gitHead": "cf437ae062e39db27e7d74abe0c50536ed60c46b",
+  "bugs": {
+    "url": "https://github.com/ForbesLindesay/try-thread-sleep/issues"
+  },
+  "homepage": "https://github.com/ForbesLindesay/try-thread-sleep",
+  "_id": "try-thread-sleep@1.0.0",
+  "_shasum": "68fa1e1fee02fdc2f0c1a2cb3c7bfc981f7c09c0",
+  "_from": "try-thread-sleep@^1.0.0",
+  "_npmVersion": "1.5.0-alpha-4",
+  "_npmUser": {
+    "name": "forbeslindesay",
+    "email": "forbes@lindesay.co.uk"
+  },
+  "maintainers": [
+    {
+      "name": "forbeslindesay",
+      "email": "forbes@lindesay.co.uk"
+    }
+  ],
+  "dist": {
+    "shasum": "68fa1e1fee02fdc2f0c1a2cb3c7bfc981f7c09c0",
+    "tarball": "http://registry.npmjs.org/try-thread-sleep/-/try-thread-sleep-1.0.0.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/try-thread-sleep/-/try-thread-sleep-1.0.0.tgz",
+  "readme": "ERROR: No README data found!"
+}

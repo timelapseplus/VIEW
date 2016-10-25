@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "private": "true",
+  "devDependencies": {
+    "ionic": "driftyco/ionic-bower#1.0.0-beta.14"
+  },
+  "dependencies": {
+    "angular-websocket": "~1.0.13",
+    "angular-chart": "~0.3.2",
+    "chartjs": "~1.0.2",
+    "moment": "^2.13.0",
+    "angular-local-storage": "^0.5.2"
+  }
+}
