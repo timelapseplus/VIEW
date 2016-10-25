@@ -34,7 +34,7 @@ function download(href, path, callback) {
 	var options = url.parse(href);
 	options.headers = {'user-agent': 'VIEW-app'};
 	options.method = "GET";
-	options.auth = username+':'+accessToken;
+	//options.auth = username+':'+accessToken;
 
 	var req = https.get(options, function(res) {
 		//console.log(`STATUS: ${res.statusCode}`);
