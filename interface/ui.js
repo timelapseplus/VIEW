@@ -165,6 +165,16 @@ exports.enter = function(alt) {
         exports.back();
     }
 }
+exports.help = function() {
+    activity();
+    if (currentProgram.help) {
+        exports.load({
+            type: "textDisplay",
+            name: currentProgram.name,
+            value: currentProgram.help
+        });
+    }
+}
 exports.button3 = function() {
     if (currentProgram.type == "menu" && currentProgram.items[menu.selected].button3) {
         currentProgram.items[menu.selected].button3(currentProgram.items[menu.selected]);

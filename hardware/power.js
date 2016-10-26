@@ -25,21 +25,23 @@ power.init = function(disableLight) {
     }
 }
 
-function setPower() {
+function setPower(callback) {
     var setting = powerControlBase;
     if(power.gpsEnabled) setting |= powerGps;
     if(power.wifiEnabled) setting |= powerWifi;
-    exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16)); // set power switches
+    exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16), callback); // set power switches
 }
 
-power.gps = function(enable) {
+power.gps = function(enable, callback) {
     power.gpsEnabled = enable;
-    setPower();
+    setPower(callback);
 }
 
-power.wifi = function(enable) {
+power.wifi = function(enable, callback) {
     power.wifiEnabled = enable;
-    setPower();
+    setPower(function(){
+        setTimeout(callback, 3000); // give time for modules to load/unload
+    });
 }
 
 power.update = function(noEvents) {

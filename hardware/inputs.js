@@ -23,6 +23,8 @@ inputs.button[2] = false;
 inputs.button[3] = false;
 inputs.button[4] = false;
 
+var powerButtonPressedTimer = null;
+
 inputs.start = function() {
     stop = false;
     inputsProcess = spawn(INPUTS_BIN_PATH);
@@ -51,6 +53,14 @@ inputs.start = function() {
                         inputs.button[i] = pressed[i];
                         if(inputs.button[i]) inputs.emit('B', i + 1);
                     }
+                }
+                if(powerButtonPressedTimer === null && inputs.button[i]) {
+                    powerButtonPressedTimer = setTimeout(function(){
+                        inputs.emit('B', 6); // power button held
+                    }, 1500);
+                } else if(powerButtonPressedTimer !== null && !inputs.button[i]) {
+                    clearTimeout(powerButtonPressedTimer);
+                    powerButtonPressedTimer = null;
                 }
             }
         }

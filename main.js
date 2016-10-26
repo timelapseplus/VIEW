@@ -34,6 +34,7 @@ if (VIEW_HARDWARE) {
 intervalometer.addNmx(nmx);
 
 var wifi = require('./system/wifi.js');
+wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
 var db = require("./system/db.js");
 
@@ -794,6 +795,7 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Time-lapse",
             action: timelapseMenu,
+            help: "This is a long help text to describe various features of the VIEW intervalometer and provide an in-line help system for ease of use.\nThe main things it will describe include the ramping settings and specific features."
         }, {
             name: "Capture",
             action: captureMenu,
@@ -859,7 +861,11 @@ if (VIEW_HARDWARE) {
             ui.enter(true);
         }
 
-        if (move == 5) {
+        if (move == "5") {
+            ui.help();
+        }
+
+        if (move == 6) {
             ui.load(powerConfirm);
         }
     });

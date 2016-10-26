@@ -39,6 +39,18 @@ wifi.list = [];
 
 fs.writeFileSync(HOSTAPD_CONFIG_PATH, hostapdConfig);
 
+function powerControl(enable, callback) {
+	if(wifi.power) {
+		wifi.power.wifi(enable, callback);
+	} else {
+		if(enable) {
+			exec(WIFI_POWERON, callback);
+		} else {
+			exec(WIFI_SHUTDOWN, callback);
+		}
+	}
+}
+
 function updateExportedList() {
 	wifi.list = [];
 	for(var i in list) {
@@ -107,7 +119,13 @@ iw.on('leave', function() {
 		}
 	}
 	wifi.connected = false;
-	if(reconnect && reconnect.address) wifi.connect(reconnect);
+	if(reconnect && reconnect.address) {
+		wifi.disable(function(){
+			wifi.enable(function(){
+				wifi.connect(reconnect);
+			});
+		})
+	}
 });
 
 iw.on('stop', function() {
@@ -139,7 +157,7 @@ wifi.stop = function() {
 }
 
 wifi.enable = function(cb) {
-	exec(WIFI_POWERON, function(err) {
+	powerControl(true, function(err) {
 		iw.enable(function(err) {
 			if(!err) {
 				exec("iw wlan0 set power_save off", function(err) {
@@ -160,7 +178,7 @@ wifi.disable = function(callback) {
 		wifi.stop();
 		iw.disable(function(){
 			wifi.enabled = false;
-			exec(WIFI_SHUTDOWN, function(err) {
+			powerControl(false, function(err) {
 				if(callback) callback(err);
 			});
 		});
