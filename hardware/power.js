@@ -7,6 +7,10 @@ power.lightDisabled = false;
 power.gpsEnabled = null;
 power.wifiEnabled = true;
 
+var powerControlBase = 0x17; // gps off, wifi off
+var powerWifi = 0x40;
+var powerGps = 0x8;
+
 power.init = function(disableLight) {
     exec("sudo i2cset -y -f 0 0x34 0x34 0x57"); // set chgled to blink
     exec("sudo i2cset -y -f 0 0x34 0x33 0xdc"); // set charge rate to 1.5A
@@ -21,14 +25,21 @@ power.init = function(disableLight) {
     }
 }
 
+function setPower() {
+    var setting = powerControlBase;
+    if(power.gpsEnabled) setting |= powerGps;
+    if(power.wifiEnabled) setting |= powerWifi;
+    exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16)); // set power switches
+}
+
 power.gps = function(enable) {
-    if(enable) {
-        power.gpsEnabled = true;
-        exec("sudo i2cset -y -f 0 0x34 0x12 0x5f"); // enable gps power
-    } else {
-        power.gpsEnabled = false;
-        exec("sudo i2cset -y -f 0 0x34 0x12 0x57"); // disable gps power
-    }
+    power.gpsEnabled = enable;
+    setPower();
+}
+
+power.wifi = function(enable) {
+    power.wifiEnabled = enable;
+    setPower();
 }
 
 power.update = function(noEvents) {

@@ -197,10 +197,10 @@ oled.writeMenu = function() {
         color("secondary");
         fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
 
-        color("alert");
-        fb.text(160 - 10, MENU_STATUS_YOFFSET, "x");
-
         fb.font(MENU_TEXT_FONT_SIZE, false, false);
+        color("alert");
+        fb.text(160 - 10, 12, "x");
+
         color("primary");
         for(var i = 0; i < 8; i++) {
             if(i + oled.selected >= oled.textLines.length) break;
@@ -409,6 +409,7 @@ oled.displayText = function(title, text) {
     var maxWidth = 158;
     var words = text.replace(/[\n\t\s]+/g, ' ').split(' ');
     oled.textLines = [];
+    fb.font(MENU_TEXT_FONT_SIZE, false, false);
     var i = 0;
     var line = "";
     for(i = 0; i < words.length; i++) {
@@ -421,6 +422,7 @@ oled.displayText = function(title, text) {
             line = (words[i]).trim();
         }
     }
+    oled.textLines.push(line);
     oled.selected = 0;
     oled.writeMenu();
 }
