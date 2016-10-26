@@ -55,11 +55,42 @@ if (VIEW_HARDWARE) {
     menu.init();
     inputs.start();
 
-    db.get('wifi-status', function(err, wifiStatus) {
-        if(wifiStatus) {
-            if(wifiStatus.enabled) {
+    var configureWifi = function() {
+        db.get('wifi-status', function(err, wifiStatus) {
+            if(wifiStatus) {
+                if(wifiStatus.enabled) {
+                    wifi.enable(function(){
+                        db.get('bt-status', function(err, status) {
+                            if(status && status.enabled) {
+                                wifi.enableBt();
+                            } else {
+                                wifi.disableBt();
+                            }
+                        });
+                        setTimeout(function(){
+                            if(!wifi.connected) {
+                                if(wifiStatus.apMode) {
+                                    wifi.enableAP();
+                                } else if(wifiStatus.connect) {
+                                    wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                }
+                            }
+                        },5000);
+                    });
+                } else {
+                    wifi.disable();
+                }
+            } else {
                 wifi.enable(function(){
                     setTimeout(function(){
+                        db.get('bt-status', function(err, status) {
+                            if(status && status.enabled) {
+                                wifi.enableBt();
+                            } else {
+                                wifi.disableBt();
+                            }
+                        });
+
                         if(!wifi.connected) {
                             if(wifiStatus.apMode) {
                                 wifi.enableAP();
@@ -69,30 +100,22 @@ if (VIEW_HARDWARE) {
                         }
                     },5000);
                 });
-            } else {
-                wifi.disable();
             }
-        } else {
-            wifi.enable(function(){
-                setTimeout(function(){
-                    if(!wifi.connected) {
-                        if(wifiStatus.apMode) {
-                            wifi.enableAP();
-                        } else if(wifiStatus.connect) {
-                            wifi.connect(wifiStatus.connect, wifiStatus.password);
-                        }
-                    }
-                },5000);
-            });
-        }
-    });
+        });
+    }
+    configureWifi();
 
     wifi.on('connect', function(ssid) {
         menu.status('wifi connected to ' + ssid);
         ui.reload();
     });
-    wifi.on('disconnect', function() {
+    wifi.on('disconnect', function(previousConnection) {
         menu.status('wifi disconnected');
+        if(previousConnection && previousConnection.address) {
+            wifi.disable(function(){
+                setTimeout(configureWifi, 2000);
+            });
+        }
         ui.reload();
     });
 

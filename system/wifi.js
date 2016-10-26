@@ -9,6 +9,8 @@ var ENABLE_AP = "/bin/sh /home/view/current/bin/enable_ap.sh";
 var DISABLE_AP = "/bin/sh /home/view/current/bin/disable_ap.sh";
 var WIFI_SHUTDOWN = "sudo modprobe -r 8723bu";
 var WIFI_POWERON = "sudo modprobe 8723bu";
+var BT_DISABLE = "sudo modprobe -r btusb";
+var BT_ENABLE = "sudo modprobe btusb";
 
 var iw = new Wireless({ iface:'wlan0', updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -110,22 +112,8 @@ iw.on('former', function(address) {
 
 iw.on('leave', function() {
 	console.log("[Wifi] Leave");
-	wifi.emit("disconnect");
-	var reconnect = false;
-	if(wifi.connected) {
-		reconnect = {};
-		for(var key in wifi.connected) {
-			if(wifi.connected.hasOwnProperty[key]) reconnect[key] = wifi.connected[key];
-		}
-	}
+	wifi.emit("disconnect", wifi.connected);
 	wifi.connected = false;
-	if(reconnect && reconnect.address) {
-		wifi.disable(function(){
-			wifi.enable(function(){
-				wifi.connect(reconnect);
-			});
-		})
-	}
 });
 
 iw.on('stop', function() {
@@ -154,6 +142,18 @@ wifi.scan = function() {
 wifi.stop = function() {
 	iw.scanning = false;
 	iw.stop();
+}
+
+wifi.enableBt = function(cb) {
+	exec(BT_ENABLE, function(err) {
+		if(callback) callback(err);
+	});
+}
+
+wifi.disableBt = function(cb) {
+	exec(BT_DISABLE, function(err) {
+		if(callback) callback(err);
+	});
 }
 
 wifi.enable = function(cb) {
