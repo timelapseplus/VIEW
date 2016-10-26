@@ -204,7 +204,7 @@ oled.writeMenu = function() {
         color("primary");
         for(var i = 0; i < 8; i++) {
             if(i + oled.selected >= oled.textLines.length) break;
-            fb.text(0, 24 + i * 16, oled.textLines[i + oled.selected]);
+            fb.text(0, 26 + i * 16, oled.textLines[i + oled.selected]);
         }
     } else if (oled.textInput) { // text input mode
         var name = oled.textInput || '';

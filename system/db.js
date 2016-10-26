@@ -33,7 +33,7 @@ dbCache.serialize(function(){
 function serialize(object) {
 	var data = {data: object};
 	try {
-		return ns.serialize(object).replace(/'/g, '`');
+		return ns.serialize(data).replace(/'/g, '`~`');
 	} catch(e) {
 		console.log("error serializing object", e);
 		return "";
@@ -42,7 +42,7 @@ function serialize(object) {
 
 function unserialize(string) {
 	try {
-		var data = ns.unserialize(string.replace(/`/g, "'"));
+		var data = ns.unserialize(string.replace(/`~`/g, "'"));
 		if(data && data.hasOwnProperty('data')) return data.data;
 		return false;
 	} catch(e) {
