@@ -1,4 +1,5 @@
 var EventEmitter = require("events").EventEmitter;
+var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var image = require('camera/image/image.js');
