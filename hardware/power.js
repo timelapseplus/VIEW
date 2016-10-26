@@ -5,6 +5,7 @@ var power = new EventEmitter();
 
 power.lightDisabled = false;
 power.gpsEnabled = null;
+power.wifiEnabled = true;
 
 power.init = function(disableLight) {
     exec("sudo i2cset -y -f 0 0x34 0x34 0x57"); // set chgled to blink
@@ -23,7 +24,7 @@ power.init = function(disableLight) {
 power.gps = function(enable) {
     if(enable) {
         power.gpsEnabled = true;
-        exec("sudo i2cset -y -f 0 0x34 0x12 0x5f"); // disable chgled
+        exec("sudo i2cset -y -f 0 0x34 0x12 0x5f"); // enable gps power
     } else {
         power.gpsEnabled = false;
         exec("sudo i2cset -y -f 0 0x34 0x12 0x57"); // disable gps power

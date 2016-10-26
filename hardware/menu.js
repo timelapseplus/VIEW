@@ -194,10 +194,14 @@ oled.writeMenu = function() {
 
     } else if (oled.textLines) { // text display mode
         fb.font(MENU_STATUS_FONT_SIZE, false, false);
-        color("primary");
+        color("secondary");
         fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
-        fb.font(MENU_TEXT_FONT_SIZE, false, false);
 
+        color("alert");
+        fb.text(160 - 10, MENU_STATUS_YOFFSET, "x");
+
+        fb.font(MENU_TEXT_FONT_SIZE, false, false);
+        color("primary");
         for(var i = 0; i < 8; i++) {
             if(i + oled.selected >= oled.textLines.length) break;
             fb.text(0, 24 + i * 16, oled.textLines[i + oled.selected]);
