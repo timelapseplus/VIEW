@@ -174,7 +174,7 @@ exports.help = function() {
             exports.load({
                 type: "textDisplay",
                 origin: "help",
-                name: currentProgram.items[menu.selected].name || currentProgram.name,
+                name: "HELP - " + currentProgram.items[menu.selected].name || currentProgram.name,
                 value: currentProgram.items[menu.selected].help
             });
         }
@@ -182,7 +182,7 @@ exports.help = function() {
         exports.load({
             type: "textDisplay",
             origin: "help",
-            name: currentProgram.name,
+            name: "HELP - " + currentProgram.name,
             value: currentProgram.help
         });
     }
