@@ -789,7 +789,7 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Charge Indicator LED",
             value: "enabled",
-            help: help.chargeIndicatorMenu
+            help: help.chargeIndicatorMenu,
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
@@ -803,7 +803,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Charge Indicator LED",
             value: "disabled",
-            help: help.chargeIndicatorMenu
+            help: help.chargeIndicatorMenu,
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
@@ -832,7 +832,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Software Version",
             action: softwareMenu,
-            help: help.softwareMenu
+            help: help.softwareMenu,
             condition: function() {
                 return wifi.connected;
             }
