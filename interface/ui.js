@@ -167,10 +167,13 @@ exports.enter = function(alt) {
 }
 exports.help = function() {
     activity();
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
+    if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
+        exports.back();
+    } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if (currentProgram.items[menu.selected] && currentProgram.items[menu.selected].help) {
             exports.load({
                 type: "textDisplay",
+                origin: "help",
                 name: currentProgram.items[menu.selected].name || currentProgram.name,
                 value: currentProgram.items[menu.selected].help
             });
@@ -178,6 +181,7 @@ exports.help = function() {
     } else if(currentProgram.help) {
         exports.load({
             type: "textDisplay",
+            origin: "help",
             name: currentProgram.name,
             value: currentProgram.help
         });

@@ -110,10 +110,12 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Timelapse Mode",
             value: "Basic - Fixed",
+            help: help.rampingOptions,
             action: ui.set(intervalometer.currentProgram, 'rampMode', 'fixed')
         }, {
             name: "Timelapse Mode",
             value: "Auto Ramping",
+            help: help.rampingOptions,
             action: ui.set(intervalometer.currentProgram, 'rampMode', 'auto')
         }]
     }
@@ -124,27 +126,63 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Frames",
             value: "100",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 100)
         }, {
             name: "Frames",
             value: "200",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 200)
         }, {
             name: "Frames",
             value: "300",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 300)
         }, {
             name: "Frames",
             value: "400",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 400)
         }, {
             name: "Frames",
             value: "500",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 500)
         }, {
             name: "Frames",
             value: "600",
+            help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 600)
+        }, {
+            name: "Frames",
+            value: "700",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 700)
+        }, {
+            name: "Frames",
+            value: "800",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 800)
+        }, {
+            name: "Frames",
+            value: "900",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 900)
+        }, {
+            name: "Frames",
+            value: "1200",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 1200)
+        }, {
+            name: "Frames",
+            value: "1500",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 1500)
+        }, {
+            name: "Frames",
+            value: "1800",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', 1800)
         }]
     }
 
@@ -378,9 +416,11 @@ if (VIEW_HARDWARE) {
         },
         items: [{
             name: valueDisplay("Exposure", camera.ptp.settings.stats, 'ev'),
+            help: help.exposureMenu,
             action: exposureMenu
         }, {
             name: valueDisplay("Timelapse Mode", intervalometer.currentProgram, 'rampMode'),
+            help: help.rampingOptions,
             action: rampingOptions
         }, {
             name: valueDisplay("Interval Mode", intervalometer.currentProgram, 'intervalMode'),
@@ -409,6 +449,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: valueDisplay("Frames", intervalometer.currentProgram, 'frames'),
             action: framesOptions,
+            help: help.framesOptions,
             condition: function() {
                 return intervalometer.currentProgram.intervalMode == 'fixed';
             }
@@ -442,6 +483,7 @@ if (VIEW_HARDWARE) {
                 for (var i = 0; i < clips.length; i++) {
                     if (clips[i]) cm.items.push({
                         name: clips[i].name + " (" + clips[i].frames + ")",
+                        help: help.clipsMenu,
                         action: {
                             type: "function",
                             arg: clips[i],
@@ -504,6 +546,7 @@ if (VIEW_HARDWARE) {
     var captureMenu = {
         name: "capture",
         type: "function",
+        help: help.captureMenu
         alternate: function() {
             if (camera.ptp.connected) {
                 return false;
@@ -511,7 +554,8 @@ if (VIEW_HARDWARE) {
                 return {
                     name: "connect camera",
                     type: "png",
-                    file: "/home/view/current/media/view-usb-oled.png"
+                    file: "/home/view/current/media/view-usb-oled.png",
+                    help: help.captureMenu
                 }
             }
         },
@@ -578,6 +622,7 @@ if (VIEW_HARDWARE) {
                 for (var i = 0; i < versions.length; i++) {
                     if (versions[i]) sm.items.push({
                         name: versions[i].version + (versions[i].current ? " (current)" : ""),
+                        help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versions[i].notes,
                         action: {
                             type: "function",
                             arg: versions[i],
@@ -642,6 +687,7 @@ if (VIEW_HARDWARE) {
     var wifiListHandler = function(list){
         wifiConnectMenu.items = list.map(function(item){return {
             name:item.ssid + ((wifi.connected && wifi.connected.address == item.address) ? "~connected" : ""), 
+            help: help.wifiConnect,
             action: {
                 type: 'function',
                 fn: function(res, cb){
@@ -689,11 +735,13 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Connect to AP",
             action: wifiConnectMenu,
+            help: help.wifiConnectMenu,
             condition: function() {
                 return wifi.enabled;// && !wifi.connected && !wifi.apMode;
             }
         }, {
             name: "Enable Wifi",
+            help: help.wifiEnableMenu,
             action: function(){
                 wifi.enable(function(){
                     ui.back();
@@ -704,6 +752,7 @@ if (VIEW_HARDWARE) {
             }
         }, {
             name: "Enable TL+VIEW AP",
+            help: help.wifiApMenu,
             action: function(){
                 wifi.enableAP(function(){
                     db.set('wifi-status', {
@@ -718,6 +767,7 @@ if (VIEW_HARDWARE) {
             }
         }, {
             name: "Disable Wifi",
+            help: help.wifiDisableMenu,
             action: function(){
                 wifi.disable(function(){
                     db.set('wifi-status', {
@@ -739,6 +789,7 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Charge Indicator LED",
             value: "enabled",
+            help: help.chargeIndicatorMenu
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
@@ -752,6 +803,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Charge Indicator LED",
             value: "disabled",
+            help: help.chargeIndicatorMenu
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
@@ -771,13 +823,16 @@ if (VIEW_HARDWARE) {
         type: "menu",
         items: [{
             name: "Wifi Setup",
-            action: wifiMenu
+            action: wifiMenu,
+            help: help.wifiMenu
         }, {
             name: "Charge Indicator", //~" + power.lightDisabled === false ? "off" : "on",
-            action: chargeIndicatorMenu
+            action: chargeIndicatorMenu,
+            help: help.chargeIndicatorMenu
         }, {
             name: "Software Version",
             action: softwareMenu,
+            help: help.softwareMenu
             condition: function() {
                 return wifi.connected;
             }
