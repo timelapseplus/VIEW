@@ -142,8 +142,10 @@ wifi.enable = function(cb) {
 	exec(WIFI_POWERON, function(err) {
 		iw.enable(function(err) {
 			if(!err) {
-				wifi.enabled = true;
-				wifi.scan();
+				exec("iw wlan0 set power_save off", function(err), {
+					wifi.enabled = true;
+					wifi.scan();
+				});
 			} else {
 				console.log("Error Enabling WiFi:", err);
 			}

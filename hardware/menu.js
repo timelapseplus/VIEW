@@ -47,6 +47,7 @@ var MENU_XOFFSET = 5;
 var MENU_YOFFSET = 35;
 var MENU_LINE_HEIGHT = 25;
 var MENU_FONT_SIZE = 14;
+var MENU_TEXT_FONT_SIZE = 10;
 var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
 var MENU_STATUS_YOFFSET = 10;
@@ -169,7 +170,6 @@ function textScrollDown() {
     textUpdateCurrent();
 }
 
-
 oled.writeMenu = function() {
     if(oled.blocked) return;
     var itemArray = oled.items;
@@ -192,6 +192,16 @@ oled.writeMenu = function() {
         color("primary");
         fb.text(MENU_XOFFSET, 128 / 2 + 5, value);
 
+    } else if (oled.textLines) { // text display mode
+        fb.font(MENU_STATUS_FONT_SIZE, false, false);
+        color("primary");
+        fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
+        fb.font(MENU_TEXT_FONT_SIZE, false, false);
+
+        for(var i = 0; i < 10; i++) {
+            if(i + oled.selected > oled.textLines.length) break;
+            fb.text(0, 12 + i * 12, oled.textLines[i + oled.selected]);
+        }
     } else if (oled.textInput) { // text input mode
         var name = oled.textInput || '';
 
@@ -360,6 +370,7 @@ oled.writeMenu = function() {
 var screenTimeout = null;
 oled.create = function(itemArray, selected) {
     oled.textInput = null;
+    oled.textLines = null;
     oled.setting = null;
     oled.items = itemArray;
     oled.selected = selected || 0;
@@ -368,6 +379,7 @@ oled.create = function(itemArray, selected) {
 
 oled.value = function(pairs, selected) {
     oled.textInput = null;
+    oled.textLines = null;
     oled.setting = pairs;
     oled.selected = selected || 0;
     oled.writeMenu();
@@ -376,11 +388,35 @@ oled.value = function(pairs, selected) {
 oled.text = function(name, value) {
     console.log("setting up text input: ", name, value);
     oled.setting = null;
+    oled.textLines = null;
     oled.textInput = name;
     oled.selected = 0;
     textValue = value || "";
     textMode = 'ucase';
     textInitPos(true);
+    oled.writeMenu();
+}
+
+oled.displayText = function(title, text) {
+    oled.textInput = null;
+    oled.textLines = null;
+    oled.setting = null;
+    oled.textTitle = title;
+    var maxWidth = 158;
+    var words = text.replace(/[\n\t\s]+/g, ' ').split(' ');
+    oled.textLines = [];
+    var i = 0;
+    var line = "";
+    for(i = 0; i < words.length; i++) {
+        var size = fb.textSize(line + ' ' + words[i]);
+        if(size.width <= maxWidth) {
+            line += ' ' + words[i];
+        } else {
+            oled.textLines.push(line);
+            line = "";
+        }
+    }
+    oled.selected = 0;
     oled.writeMenu();
 }
 
@@ -420,6 +456,12 @@ oled.down = function() {
         textScrollUp();
         oled.writeMenu();
         oled.update();
+    } else if (oled.textLines) {
+        if(oled.selected < oled.textLines.length - 3) {
+            oled.selected++;
+            oled.writeMenu();
+            oled.update();
+        }
     } else if (oled.setting || oled.selected < oled.items.length - 1) {
         oled.selected++;
         oled.select(oled.selected);

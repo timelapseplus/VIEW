@@ -782,6 +782,12 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
+    var helpText = {
+        name: "Help Text Test",
+        type: "textDisplay",
+        value: "This is a long help text to describe various features of the VIEW intervalometer and provide an in-line help system for ease of use.  The main things it will describe include the ramping settings and specific features."
+    }
+
     var mainMenu = {
         name: "main menu",
         type: "menu",
@@ -797,6 +803,9 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Time-lapse Clips",
             action: clipsMenu
+        }, {
+            name: "Text Display",
+            action: helpText
         }, {
             name: "Settings",
             action: settingsMenu

@@ -75,6 +75,10 @@ function load(program, selected) {
         menu.text(currentProgram.name, currentProgram.value);
         menu.update();
     }
+    if (currentProgram.type == "textDisplay") {
+        menu.displayText(currentProgram.name, currentProgram.value);
+        menu.update();
+    }
     if (currentProgram.type == "png" && currentProgram.file) {
         menu.png(currentProgram.file);
     }
@@ -123,7 +127,7 @@ exports.reload = function() {
 
 exports.up = function(alt) {
     activity();
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
+    if (currentProgram.type == "menu" || currentProgram.type == "options" || currentProgram.type == "textDisplay") {
         menu.up();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
@@ -135,7 +139,7 @@ exports.up = function(alt) {
 }
 exports.down = function(alt) {
     activity();
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
+    if (currentProgram.type == "menu" || currentProgram.type == "options" || currentProgram.type == "textDisplay") {
         menu.down();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
@@ -157,7 +161,7 @@ exports.enter = function(alt) {
             if(currentProgram.onSave) currentProgram.onSave(menu.getTextValue());
             exports.back();
         }
-    } else if (currentProgram.type == "png") {
+    } else if (currentProgram.type == "png" || currentProgram.type == "textDisplay") {
         exports.back();
     }
 }

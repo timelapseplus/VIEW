@@ -31,10 +31,9 @@ dbCache.serialize(function(){
 });
 
 function serialize(object) {
+	var data = {data: object};
 	try {
-		if(typeof object === "object") return "O" + ns.serialize(object).replace(/'/g, '`');
-		if(typeof object === "string") return "S" + object.replace(/'/g, '`');
-		return "N" + object.toString().replace(/'/g, '`');
+		return ns.serialize(object).replace(/'/g, '`');
 	} catch(e) {
 		console.log("error serializing object", e);
 		return "";
@@ -43,9 +42,9 @@ function serialize(object) {
 
 function unserialize(string) {
 	try {
-		if(string.charAt(0) == 'O') return ns.unserialize(string.substr(1).replace(/`/g, "'"));
-		if(string.charAt(0) == 'S') return string.substr(1).replace(/`/g, "'");
-		return string.substr(1).replace(/`/g, "'");
+		var data = ns.unserialize(string.replace(/`/g, "'"));
+		if(data && data.hasOwnProperty('data')) return data.data;
+		return false;
 	} catch(e) {
 		console.log("error unserializing object", e);
 		return false;
@@ -100,7 +99,11 @@ exports.getWifi = function(address, callback) {
 	});
 }
 
-
+// WARNING! This erases all saved settings! //
+exports.factoryReset = function() {
+	dbSys.run("DELETE FROM wifi WHERE 1");
+	dbSys.run("DELETE FROM settings WHERE 1");
+}
 
 
 var testObject = {
