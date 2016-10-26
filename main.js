@@ -546,7 +546,7 @@ if (VIEW_HARDWARE) {
     var captureMenu = {
         name: "capture",
         type: "function",
-        help: help.captureMenu
+        help: help.captureMenu,
         alternate: function() {
             if (camera.ptp.connected) {
                 return false;
