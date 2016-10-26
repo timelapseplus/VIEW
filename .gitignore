@@ -1,4 +1,8 @@
 log.txt
 npm-debug.log
 /logs/log*
+frontend/node_modules/*
+frontend/DEV/*
+.DS_Store
+*/.DS_Store
 
