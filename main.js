@@ -836,6 +836,35 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var factoryResetConfirmMenu = {
+        name: "Erase all Settings?",
+        type: "options",
+        items: [{
+            name: "Erase all Settings?",
+            value: "No - cancel",
+            help: help.eraseAllSettingsMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    cb();
+                }
+            }
+        }, {
+            name: "Erase all Settings?",
+            value: "Yes - erase all",
+            help: help.eraseAllSettingsMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    db.eraseAll();
+                    intervalometer.eraseAll();
+                    exec("sudo rm /etc/udev/rules.d/70-persistent-net.rules");
+                    setTimeout(cb, 500);
+                }
+            }
+        }]
+    }
+
 
     var settingsMenu = {
         name: "settings",
@@ -855,6 +884,10 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return wifi.connected;
             }
+        }, {
+            name: "Factory Reset",
+            action: factoryResetConfirmMenu,
+            help: help.eraseAllSettingsMenu
         }, ]
     }
 

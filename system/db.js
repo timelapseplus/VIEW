@@ -100,7 +100,7 @@ exports.getWifi = function(address, callback) {
 }
 
 // WARNING! This erases all saved settings! //
-exports.factoryReset = function() {
+exports.eraseAll = function() {
 	dbSys.run("DELETE FROM wifi WHERE 1");
 	dbSys.run("DELETE FROM settings WHERE 1");
 }

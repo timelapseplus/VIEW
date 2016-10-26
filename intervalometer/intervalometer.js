@@ -541,6 +541,12 @@ intervalometer.saveXMPsToCard = function(clipNumber, callback) {
     }
 }
 
+intervalometer.eraseAll = function() {
+    exec("sudo rm -rf " + TLROOT + "/*", function() {
+        exec("cp -r /home/view/current/demo/* " + TLROOT + "/");
+    });
+}
+
 intervalometer.getTimelapseData = function (clipNumber, callback) {
     var name = "tl-" + clipNumber;
     var folder = TLROOT + "/" + name;
