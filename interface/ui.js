@@ -161,7 +161,7 @@ exports.enter = function(alt) {
             if(currentProgram.onSave) currentProgram.onSave(menu.getTextValue());
             exports.back();
         }
-    } else if (currentProgram.type == "png" || currentProgram.type == "textDisplay") {
+    } else if (currentProgram.type == "png") {
         exports.back();
     }
 }

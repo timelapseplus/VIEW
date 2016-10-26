@@ -407,7 +407,7 @@ oled.displayText = function(title, text) {
     oled.setting = null;
     oled.textTitle = title;
     var maxWidth = 158;
-    var words = text.replace(/[\n]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
+    var words = text.replace(/[\n\r]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
     oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     var i = 0;

@@ -192,10 +192,12 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Interval Mode",
             value: "Fixed Length",
+            help: help.intervalOptions,
             action: ui.set(intervalometer.currentProgram, 'intervalMode', 'fixed')
         }, {
             name: "Interval Mode",
             value: "Auto Variable",
+            help: help.intervalOptions,
             action: ui.set(intervalometer.currentProgram, 'intervalMode', 'auto')
         }]
     }
@@ -206,10 +208,12 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "Save To",
             value: "Camera",
+            help: help.destinationOptions,
             action: ui.set(intervalometer.currentProgram, 'destination', 'camera')
         }, {
             name: "Save To",
             value: "SD Card",
+            help: help.destinationOptions,
             action: ui.set(intervalometer.currentProgram, 'destination', 'sd')
         }]
     }
@@ -221,16 +225,19 @@ if (VIEW_HARDWARE) {
     }
     for (var i = 6; i < 12; i++) nightInterval.items.push({
         name: "Night Interval",
+        help: help.nightInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
     });
     for (var i = 12; i < 35; i += 2) nightInterval.items.push({
         name: "Night Interval",
+        help: help.nightInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
     });
     for (var i = 35; i < 90; i += 5) nightInterval.items.push({
         name: "Night Interval",
+        help: help.nightInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
     });
@@ -242,16 +249,19 @@ if (VIEW_HARDWARE) {
     }
     for (var i = 2; i < 12; i++) dayInterval.items.push({
         name: "Day Interval",
+        help: help.dayInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
     });
     for (var i = 12; i < 35; i += 2) dayInterval.items.push({
         name: "Day Interval",
+        help: help.dayInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
     });
     for (var i = 35; i < 90; i += 5) dayInterval.items.push({
         name: "Day Interval",
+        help: help.dayInterval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
     });
@@ -263,16 +273,19 @@ if (VIEW_HARDWARE) {
     }
     for (var i = 2; i < 12; i++) interval.items.push({
         name: "Interval",
+        help: help.interval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'interval', i)
     });
     for (var i = 12; i < 35; i += 2) interval.items.push({
         name: "Interval",
+        help: help.interval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'interval', i)
     });
     for (var i = 35; i < 90; i += 5) interval.items.push({
         name: "Interval",
+        help: help.interval,
         value: i + " seconds",
         action: ui.set(intervalometer.currentProgram, 'interval', i)
     });
@@ -424,6 +437,7 @@ if (VIEW_HARDWARE) {
             action: rampingOptions
         }, {
             name: valueDisplay("Interval Mode", intervalometer.currentProgram, 'intervalMode'),
+            help: help.intervalOptions,
             action: intervalOptions,
             condition: function() {
                 return intervalometer.currentProgram.rampMode != 'fixed';
@@ -431,18 +445,21 @@ if (VIEW_HARDWARE) {
         }, {
             name: valueDisplay("Interval", intervalometer.currentProgram, 'interval'),
             action: interval,
+            help: help.interval,
             condition: function() {
                 return intervalometer.currentProgram.intervalMode == 'fixed';
             }
         }, {
             name: valueDisplay("Day Interval", intervalometer.currentProgram, 'dayInterval'),
             action: dayInterval,
+            help: help.dayInterval,
             condition: function() {
                 return intervalometer.currentProgram.intervalMode == 'auto';
             }
         }, {
             name: valueDisplay("Night Interval", intervalometer.currentProgram, 'nightInterval'),
             action: nightInterval,
+            help: help.nightInterval,
             condition: function() {
                 return intervalometer.currentProgram.intervalMode == 'auto';
             }
@@ -456,11 +473,13 @@ if (VIEW_HARDWARE) {
         }, {
             name: valueDisplay("Destination", intervalometer.currentProgram, 'destination'),
             action: destinationOptions,
+            help: help.destinationOptions,
             condition: function() {
                 return camera.ptp.sdPresent;
             }
         }, {
             name: "START",
+            help: help.startTimelapse,
             action: {
                 type: "function",
                 fn: function(arg, cb) {
