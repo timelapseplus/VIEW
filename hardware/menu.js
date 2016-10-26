@@ -407,12 +407,17 @@ oled.displayText = function(title, text) {
     oled.setting = null;
     oled.textTitle = title;
     var maxWidth = 158;
-    var words = text.replace(/[\n\t\s]+/g, ' ').split(' ');
+    var words = text.replace(/[\n]+/g, ' \n ').replace(/[\t\s]+/g, ' ').split(' ');
     oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     var i = 0;
     var line = "";
     for(i = 0; i < words.length; i++) {
+        if(words[i] == "\n") {
+            if(line.length > 0) oled.textLines.push(line);
+            line = "";
+            oled.textLines.push(' ');
+        }
         var newLine = (line + ' ' + words[i]).trim();
         var size = fb.textSize(newLine);
         if(size.width <= maxWidth) {
@@ -422,7 +427,7 @@ oled.displayText = function(title, text) {
             line = (words[i]).trim();
         }
     }
-    oled.textLines.push(line);
+    if(line.length > 0) oled.textLines.push(line);
     oled.selected = 0;
     oled.writeMenu();
 }
