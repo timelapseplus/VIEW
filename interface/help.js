@@ -21,6 +21,6 @@ exports.dayInterval = "This is the interval length (the time from the start of o
 exports.interval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds.";
 exports.startTimelapse = "Are all the settings correct?  This will get it started!  Once it's going, you can navigate to other menus, view the time-lapse, or if you let the screen go blank for a little while, wave your hand across the front of the screen twice to activate a hands-free preview of the time-lapse while its running.";
 exports.eraseAllSettingsMenu = "Warning! This will erase all stored settings, including time-lapse settings, wifi passwords, and saved time-lapse clips.";
-exports.wifiPassword = "Enter the WiFi password here. Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turing to move the cursor.\nWhen complete, press the middle right button to save and connect, or use the top right to cancel.";
+exports.wifiPassword = "Enter the WiFi password here. Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turning to move the cursor.\nWhen complete, press the middle right button to save and connect, or use the top right to cancel.";
 
 
