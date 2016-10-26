@@ -407,7 +407,7 @@ oled.displayText = function(title, text) {
     oled.setting = null;
     oled.textTitle = title;
     var maxWidth = 158;
-    var words = text.replace(/[\n]+/g, ' \n ').replace(/[\t\s]+/g, ' ').split(' ');
+    var words = text.replace(/[\n]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
     oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     var i = 0;
@@ -417,6 +417,7 @@ oled.displayText = function(title, text) {
             if(line.length > 0) oled.textLines.push(line);
             line = "";
             oled.textLines.push(' ');
+            continue;
         }
         var newLine = (line + ' ' + words[i]).trim();
         var size = fb.textSize(newLine);
