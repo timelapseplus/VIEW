@@ -178,7 +178,7 @@ exports.help = function() {
     } else if(currentProgram.help) {
         exports.load({
             type: "textDisplay",
-            name: currentProgram..name,
+            name: currentProgram.name,
             value: currentProgram.help
         });
     }
