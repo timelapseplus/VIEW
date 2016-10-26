@@ -47,7 +47,7 @@ var MENU_XOFFSET = 5;
 var MENU_YOFFSET = 35;
 var MENU_LINE_HEIGHT = 25;
 var MENU_FONT_SIZE = 14;
-var MENU_TEXT_FONT_SIZE = 11;
+var MENU_TEXT_FONT_SIZE = 12;
 var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
 var MENU_STATUS_YOFFSET = 10;
@@ -198,9 +198,9 @@ oled.writeMenu = function() {
         fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
         fb.font(MENU_TEXT_FONT_SIZE, false, false);
 
-        for(var i = 0; i < 10; i++) {
+        for(var i = 0; i < 8; i++) {
             if(i + oled.selected >= oled.textLines.length) break;
-            fb.text(0, 20 + i * 14, oled.textLines[i + oled.selected]);
+            fb.text(0, 24 + i * 16, oled.textLines[i + oled.selected]);
         }
     } else if (oled.textInput) { // text input mode
         var name = oled.textInput || '';
