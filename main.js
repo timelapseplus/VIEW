@@ -715,6 +715,7 @@ if (VIEW_HARDWARE) {
                         db.getWifi(item.address, function(err, password) {
                             cb(null, {
                                 name: "WiFi password for " + item.ssid,
+                                help: help.wifiPassword,
                                 type: "textInput",
                                 value: password || "",
                                 onSave: function(result) {
