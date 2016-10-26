@@ -28,6 +28,7 @@ if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
     var menu = require('./hardware/menu.js');
     var ui = require('./interface/ui.js');
+    var help = require('./interface/help.js');
     var inputs = require('./hardware/inputs.js');
     var power = require('./hardware/power.js');
 }
@@ -783,38 +784,29 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
-    var helpText = {
-        name: "Help Text Test",
-        type: "textDisplay",
-        value: "This is a long help text to describe various features of the VIEW intervalometer and provide an in-line help system for ease of use.\nThe main things it will describe include the ramping settings and specific features."
-    }
-
     var mainMenu = {
         name: "main menu",
         type: "menu",
         items: [{
             name: "Time-lapse",
             action: timelapseMenu,
-            help: "This is a long help text to describe various features of the VIEW intervalometer and provide an in-line help system for ease of use.\nThe main things it will describe include the ramping settings and specific features."
+            help: help.timelapseMenu
         }, {
             name: "Capture",
             action: captureMenu,
+            help: help.captureMenu,
             condition: function() {
                 return !intervalometer.status.running;
             }
         }, {
             name: "Time-lapse Clips",
-            action: clipsMenu
-        }, {
-            name: "Text Display",
-            action: helpText
+            action: clipsMenu,
+            help: help.clipsMenu
         }, {
             name: "Settings",
-            action: settingsMenu
-        }, {
-            name: "Power Off",
-            action: powerConfirm
-        }, ]
+            action: settingsMenu,
+            help: help.settingsMenu
+        } ]
     }
 
     ui.init(menu);

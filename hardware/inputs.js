@@ -54,11 +54,11 @@ inputs.start = function() {
                         if(inputs.button[i]) inputs.emit('B', i + 1);
                     }
                 }
-                if(powerButtonPressedTimer === null && inputs.button[i]) {
+                if(powerButtonPressedTimer === null && inputs.button[4]) {
                     powerButtonPressedTimer = setTimeout(function(){
                         inputs.emit('B', 6); // power button held
                     }, 1500);
-                } else if(powerButtonPressedTimer !== null && !inputs.button[i]) {
+                } else if(powerButtonPressedTimer !== null && !inputs.button[4]) {
                     clearTimeout(powerButtonPressedTimer);
                     powerButtonPressedTimer = null;
                 }

@@ -1,0 +1,5 @@
+
+exports.timelapseMenu = "Welcome to the VIEW Intervalometer!  The Time-lapse menu is the intervalometer, where you setup a simple time-lapse or automatic exposure ramp.\n To leave this help screen, press the top button on the right.  Then, press the knob or the middle button on the right to enter the Time-lapse menu.";
+exports.captureMenu = "The Capture menu puts the camera into live-view mode and captures photos to the camera's memory card when the knob is pressed. Turning the knob will adjust the exposure.  Pressing the middle knob will enter focus mode, where the knob will then adjust focus if supported. \n At present, the Capture menu only works with Canon and Nikon cameras.";
+exports.clipsMenu = "This is where you can playback your time-lapse clips, even while they're still recording. \n To save XMP data to an SD card, enter the Time-lapse Clips menu, insert an SD card and use the bottom right button to save the XMPs for the selected clip.";
+exports.settingsMenu = "Various settings including WiFi and software updates can be found here. \n  More options and settings are planned to be added soon.";
