@@ -166,6 +166,7 @@ wifi.enable = function(cb) {
 				if(!wifi.btEnabled) wifi.disableBt();
 				exec("iw wlan0 set power_save off", function(err) {
 					wifi.enabled = true;
+					wifi.emit('enabled', true);
 					wifi.scan();
 				});
 			} else {
@@ -183,6 +184,7 @@ wifi.disable = function(cb) {
 		iw.disable(function(){
 			wifi.enabled = false;
 			powerControl(false, function(err) {
+				wifi.emit('enabled', false);
 				if(cb) cb(err);
 			});
 		});

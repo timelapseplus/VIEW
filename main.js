@@ -792,7 +792,13 @@ if (VIEW_HARDWARE) {
             });
         } else {
             console.log("Getting cached versions from DB...");
-            db.get('versions-installed', function(err, versions) {
+            db.get('versions-installed', function(err, dbVersions) {
+                var versions = [];
+                for(var key in dbVersions) {
+                    if(dbVersions.hasOwnProperty(key)) {
+                        versions.push(dbVersions[key]);
+                    }
+                }
                 if(!err && versions) {
                     for(var i = 0; i < versions.length; i++) {
                         if(updates.version == versions[i].version) {
