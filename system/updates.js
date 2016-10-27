@@ -48,7 +48,7 @@ function download(href, path, callback) {
 		res.on('data', function(chunk) {
 			var bytes = 0;
 			if(fd) bytes = fs.writeSync(fd, chunk, 0, chunk.length);
-			console.log("Writing " + bytes + " bytes to file ", fd, chunk.length);
+			//console.log("Writing " + bytes + " bytes to file ", fd, chunk.length);
 		});
 		res.on('end', function() {
 			if(fd) {

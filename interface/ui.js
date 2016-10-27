@@ -127,8 +127,10 @@ exports.reload = function() {
 
 exports.up = function(alt) {
     activity();
-    if (currentProgram.type == "menu" || currentProgram.type == "options" || currentProgram.type == "textDisplay") {
+    if (currentProgram.type == "menu" || currentProgram.type == "options") {
         menu.up();
+    } else if(currentProgram.type == "textDisplay") {
+        menu.down();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
             menu.textMoveBackward();
@@ -139,8 +141,10 @@ exports.up = function(alt) {
 }
 exports.down = function(alt) {
     activity();
-    if (currentProgram.type == "menu" || currentProgram.type == "options" || currentProgram.type == "textDisplay") {
+    if (currentProgram.type == "menu" || currentProgram.type == "options") {
         menu.down();
+    } else if(currentProgram.type == "textDisplay") {
+        menu.up();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
             menu.textMoveForward();

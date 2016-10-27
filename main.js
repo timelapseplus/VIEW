@@ -998,6 +998,57 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var rampingOptions = {
+        name: "timelapse mode",
+        type: "options",
+        items: [{
+            name: "Night Exposure Compensation",
+            value: "0 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', 0)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1/3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2/3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 stop",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 1 / 3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 2 / 3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-2 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2)
+        }]
+    }
+
+    var rampingOptionsMenu = {
+        name: "Ramping Options",
+        type: "menu",
+        items: [{
+            name: valueDisplay("Night Exposure", intervalometer.currentProgram, 'nightCompensation'),
+            action: rampingNightCompensation,
+            help: help.rampingNightCompensation,
+        }, ]
+    }
+
     var settingsMenu = {
         name: "settings",
         type: "menu",
@@ -1013,6 +1064,10 @@ if (VIEW_HARDWARE) {
             name: "Software Version",
             action: softwareMenu,
             help: help.softwareMenu
+        }, {
+            name: "Ramping Options",
+            action: rampingOptionsMenu,
+            help: help.rampingOptionsMenu
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
