@@ -152,7 +152,7 @@ wifi.enableBt = function(cb) {
 
 wifi.disableBt = function(cb) {
 	exec(BT_DISABLE, function(err) {
-		if(callback) callback(err);
+		if(cb) callback(err);
 	});
 }
 
