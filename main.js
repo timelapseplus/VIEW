@@ -109,6 +109,9 @@ if (VIEW_HARDWARE) {
         menu.status('wifi connected to ' + ssid);
         ui.reload();
     });
+    wifi.on('enabled', function(enabled) {
+        ui.reload();
+    });
     wifi.on('disconnect', function(previousConnection) {
         menu.status('wifi disconnected');
         if(previousConnection && previousConnection.address) {
