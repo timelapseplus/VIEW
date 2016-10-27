@@ -653,70 +653,72 @@ if (VIEW_HARDWARE) {
     }
 
     var versionUpdateConfirmMenuBuild = function(versionTarget) {
-        name: "Install version " + versionTarget.version + "?",
-        type: "options",
-        items: [{
+        return {
             name: "Install version " + versionTarget.version + "?",
-            value: "No - cancel",
-            help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
-            action: {
-                type: 'function',
-                fn: function(arg, cb) {
-                    cb();
-                }
-            }
-        }, {
-            name: "Install version " + versionTarget.version + "?",
-            value: "Yes - erase all",
-            help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
-            action: {
-                type: 'function',
-                fn: function(arg, cb) {
-                    if(updates.installing) {
-                        menu.value([{
-                            name: "Error",
-                            value: "Install in progress"
-                        }]);
-                        menu.update();
-                    } else if(version.installed) {
-                        updates.setVersion(version, function(){
-                            menu.value([{
-                                name: "Reloading app...",
-                                value: "Please Wait"
-                            }]);
-                            menu.update();
-                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
-                        });
-                    } else {
-                        updates.installVersion(version, function(err){
-                            if(!err) {
-                                updates.setVersion(version, function(){
-                                    menu.status('update successful');
-                                    menu.value([{
-                                        name: "Reloading app...",
-                                        value: "Please Wait"
-                                    }]);
-                                    menu.update();
-                                    exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
-                                });
-                            } else {
-                                menu.status('error updating');
-                                if(cb) cb();
-                                //ui.back();
-                            }
-                        }, function(statusUpdate) {
-                            menu.value([{
-                                name: statusUpdate,
-                                value: "Please Wait"
-                            }]);
-                            menu.status(statusUpdate);
-                            menu.update();
-                            menu.activity();
-                        });
+            type: "options",
+            items: [{
+                name: "Install version " + versionTarget.version + "?",
+                value: "No - cancel",
+                help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+                action: {
+                    type: 'function',
+                    fn: function(arg, cb) {
+                        cb();
                     }
                 }
-            }
-        }]
+            }, {
+                name: "Install version " + versionTarget.version + "?",
+                value: "Yes - erase all",
+                help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+                action: {
+                    type: 'function',
+                    fn: function(arg, cb) {
+                        if(updates.installing) {
+                            menu.value([{
+                                name: "Error",
+                                value: "Install in progress"
+                            }]);
+                            menu.update();
+                        } else if(version.installed) {
+                            updates.setVersion(version, function(){
+                                menu.value([{
+                                    name: "Reloading app...",
+                                    value: "Please Wait"
+                                }]);
+                                menu.update();
+                                exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                            });
+                        } else {
+                            updates.installVersion(version, function(err){
+                                if(!err) {
+                                    updates.setVersion(version, function(){
+                                        menu.status('update successful');
+                                        menu.value([{
+                                            name: "Reloading app...",
+                                            value: "Please Wait"
+                                        }]);
+                                        menu.update();
+                                        exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                    });
+                                } else {
+                                    menu.status('error updating');
+                                    if(cb) cb();
+                                    //ui.back();
+                                }
+                            }, function(statusUpdate) {
+                                menu.value([{
+                                    name: statusUpdate,
+                                    value: "Please Wait"
+                                }]);
+                                menu.status(statusUpdate);
+                                menu.update();
+                                menu.activity();
+                            });
+                        }
+                    }
+                }
+            }]
+        }
     }
 
     var softwareMenu = function(cb) {
