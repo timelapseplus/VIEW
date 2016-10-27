@@ -729,7 +729,7 @@ if (VIEW_HARDWARE) {
                     type: "menu",
                     items: [],
                     alternate: function(){
-                        if(updates.installing || update.installStatus) {
+                        if(updates.installing || updates.installStatus) {
                             return {
                                 name: "Installing version " + versionTarget.version + "?",
                                 type: "options",
