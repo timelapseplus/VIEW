@@ -801,7 +801,7 @@ if (VIEW_HARDWARE) {
                             versions[i].current = false;
                         }
                     }
-                    console.log("Building menu from cache", dbVersions);
+                    console.log("Building menu from cache", versions);
                     buildUpdateMenu(err, versions);
                 } else {
                     console.log("ERROR: no cached versions available");
