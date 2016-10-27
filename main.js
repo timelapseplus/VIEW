@@ -652,8 +652,7 @@ if (VIEW_HARDWARE) {
         }
     }
 
-    var versionTarget = null;
-    var versionUpdateConfirmMenu = {
+    var versionUpdateConfirmMenuBuild = function(versionTarget) {
         name: "Install version " + versionTarget.version + "?",
         type: "options",
         items: [{
@@ -759,8 +758,7 @@ if (VIEW_HARDWARE) {
                             arg: versions[i],
                             fn: function(version, cb) {
                                 if(version && !version.current) {
-                                    versionTarget = version;
-                                    ui.load(versionUpdateConfirmMenu);
+                                    ui.load(versionUpdateConfirmMenuBuild(version));
                                     cb();
                                 } else {
                                     menu.status('already installed');
