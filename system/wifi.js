@@ -38,6 +38,7 @@ wifi.apMode = false;
 wifi.enabled = false;
 wifi.connected = false;
 wifi.list = [];
+wifi.btEnabled = false;
 
 fs.writeFileSync(HOSTAPD_CONFIG_PATH, hostapdConfig);
 
@@ -145,12 +146,14 @@ wifi.stop = function() {
 }
 
 wifi.enableBt = function(cb) {
+	wifi.btEnabled = true;
 	exec(BT_ENABLE, function(err) {
 		if(callback) callback(err);
 	});
 }
 
 wifi.disableBt = function(cb) {
+	wifi.btEnabled = false;
 	exec(BT_DISABLE, function(err) {
 		if(cb) callback(err);
 	});

@@ -446,6 +446,7 @@ if (VIEW_HARDWARE) {
                 return {
                     name: "connect camera",
                     type: "png",
+                    help: help.connectCamera,
                     file: "/home/view/current/media/view-usb-oled.png"
                 }
             }
@@ -809,6 +810,34 @@ if (VIEW_HARDWARE) {
                 return wifi.enabled && !wifi.apMode;
             }
         }, {
+            name: "Disable Bluetooth",
+            help: help.btDisableMenu,
+            action: function(){
+                wifi.disableBt(function(){
+                    db.set('bt-status', {
+                        enabled: false
+                    });
+                    ui.back();
+                });
+            },
+            condition: function() {
+                return wifi.btEnabled;
+            }
+        }, {
+            name: "Enable Bluetooth",
+            help: help.btEnableMenu,
+            action: function(){
+                wifi.enableBt(function(){
+                    db.set('bt-status', {
+                        enabled: true
+                    });
+                    ui.back();
+                });
+            },
+            condition: function() {
+                return !wifi.btEnabled;
+            }
+        }, {
             name: "Disable Wifi",
             help: help.wifiDisableMenu,
             action: function(){
@@ -889,12 +918,11 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-
     var settingsMenu = {
         name: "settings",
         type: "menu",
         items: [{
-            name: "Wifi Setup",
+            name: "Wireless Setup",
             action: wifiMenu,
             help: help.wifiMenu
         }, {
