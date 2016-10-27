@@ -668,7 +668,7 @@ if (VIEW_HARDWARE) {
                 }
             }, {
                 name: "Install version " + versionTarget.version + "?",
-                value: "Yes - erase all",
+                value: "Yes - install",
                 help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
                 action: {
                     type: 'function',
@@ -679,8 +679,8 @@ if (VIEW_HARDWARE) {
                                 value: "Install in progress"
                             }]);
                             menu.update();
-                        } else if(version.installed) {
-                            updates.setVersion(version, function(){
+                        } else if(versionTarget.installed) {
+                            updates.setVersion(versionTarget, function(){
                                 menu.value([{
                                     name: "Reloading app...",
                                     value: "Please Wait"
@@ -689,9 +689,9 @@ if (VIEW_HARDWARE) {
                                 exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
                             });
                         } else {
-                            updates.installVersion(version, function(err){
+                            updates.installVersion(versionTarget, function(err){
                                 if(!err) {
-                                    updates.setVersion(version, function(){
+                                    updates.setVersion(versionTarget, function(){
                                         menu.status('update successful');
                                         menu.value([{
                                             name: "Reloading app...",
