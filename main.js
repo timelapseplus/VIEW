@@ -761,7 +761,6 @@ if (VIEW_HARDWARE) {
                             fn: function(version, cb) {
                                 if(version && !version.current) {
                                     ui.load(versionUpdateConfirmMenuBuild(version));
-                                    cb();
                                 } else {
                                     menu.status('already installed');
                                     if(cb) cb();
