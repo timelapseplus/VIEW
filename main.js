@@ -998,8 +998,8 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var rampingOptions = {
-        name: "timelapse mode",
+    var rampingNightCompensation = {
+        name: "Night Exposure Compensation",
         type: "options",
         items: [{
             name: "Night Exposure Compensation",
