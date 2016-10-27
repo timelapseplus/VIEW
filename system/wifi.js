@@ -148,14 +148,14 @@ wifi.stop = function() {
 wifi.enableBt = function(cb) {
 	wifi.btEnabled = true;
 	exec(BT_ENABLE, function(err) {
-		if(callback) callback(err);
+		if(cb) cb(err);
 	});
 }
 
 wifi.disableBt = function(cb) {
 	wifi.btEnabled = false;
 	exec(BT_DISABLE, function(err) {
-		if(cb) callback(err);
+		if(cb) cb(err);
 	});
 }
 
@@ -175,14 +175,14 @@ wifi.enable = function(cb) {
 	});
 }
 
-wifi.disable = function(callback) {
+wifi.disable = function(cb) {
 	var disable = function() {
 		wifi.disconnect();
 		wifi.stop();
 		iw.disable(function(){
 			wifi.enabled = false;
 			powerControl(false, function(err) {
-				if(callback) callback(err);
+				if(cb) cb(err);
 			});
 		});
 	}
