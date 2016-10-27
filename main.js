@@ -652,7 +652,73 @@ if (VIEW_HARDWARE) {
         }
     }
 
-//    var installMenu = function(cb)
+    var versionTarget = null;
+    var versionUpdateConfirmMenu = {
+        name: "Install version " + versionTarget.version + "?",
+        type: "options",
+        items: [{
+            name: "Install version " + versionTarget.version + "?",
+            value: "No - cancel",
+            help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    cb();
+                }
+            }
+        }, {
+            name: "Install version " + versionTarget.version + "?",
+            value: "Yes - erase all",
+            help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    if(updates.installing) {
+                        menu.value([{
+                            name: "Error",
+                            value: "Install in progress"
+                        }]);
+                        menu.update();
+                    } else if(version.installed) {
+                        updates.setVersion(version, function(){
+                            menu.value([{
+                                name: "Reloading app...",
+                                value: "Please Wait"
+                            }]);
+                            menu.update();
+                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                        });
+                    } else {
+                        updates.installVersion(version, function(err){
+                            if(!err) {
+                                updates.setVersion(version, function(){
+                                    menu.status('update successful');
+                                    menu.value([{
+                                        name: "Reloading app...",
+                                        value: "Please Wait"
+                                    }]);
+                                    menu.update();
+                                    exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                });
+                            } else {
+                                menu.status('error updating');
+                                if(cb) cb();
+                                //ui.back();
+                            }
+                        }, function(statusUpdate) {
+                            menu.value([{
+                                name: statusUpdate,
+                                value: "Please Wait"
+                            }]);
+                            menu.status(statusUpdate);
+                            menu.update();
+                            menu.activity();
+                        });
+                    }
+                }
+            }
+        }]
+    }
 
     var softwareMenu = function(cb) {
         var buildUpdateMenu = function(err, versions) {
@@ -660,7 +726,29 @@ if (VIEW_HARDWARE) {
                 var sm = {
                     name: "software update",
                     type: "menu",
-                    items: []
+                    items: [],
+                    alternate: {
+                        if(updates.installing || update.installStatus) {
+                            return {
+                                name: "Installing version " + versionTarget.version + "?",
+                                type: "options",
+                                items: [{
+                                    name: "Installing version " + versionTarget.version + "?",
+                                    value: updates.installStatus,
+                                    help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+                                    action: {
+                                        type: 'function',
+                                        fn: function(arg, cb) {
+                                            if(!updates.installing) updates.installStatus = null;
+                                            cb();
+                                        }
+                                    }
+                                }]
+                            }
+                        } else {
+                            return false;
+                        }
+                    }
                 };
                 for (var i = 0; i < versions.length; i++) {
                     if (versions[i]) sm.items.push({
@@ -671,53 +759,12 @@ if (VIEW_HARDWARE) {
                             arg: versions[i],
                             fn: function(version, cb) {
                                 if(version && !version.current) {
-                                    menu.status('updating system');
-                                    menu.value([{
-                                        name: "Starting install...",
-                                        value: "Please Wait"
-                                    }]);
-                                    menu.update();
-
-                                    if(version.installed) {
-                                        updates.setVersion(version, function(){
-                                            menu.value([{
-                                                name: "Reloading app...",
-                                                value: "Please Wait"
-                                            }]);
-                                            menu.update();
-                                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
-                                        });
-                                    } else {
-                                        updates.installVersion(version, function(err){
-                                            if(!err) {
-                                                updates.setVersion(version, function(){
-                                                    menu.status('update successful');
-                                                    menu.value([{
-                                                        name: "Reloading app...",
-                                                        value: "Please Wait"
-                                                    }]);
-                                                    menu.update();
-                                                    exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
-                                                });
-                                            } else {
-                                                menu.status('error updating');
-                                                if(cb) cb();
-                                                //ui.back();
-                                            }
-                                        }, function(statusUpdate) {
-                                            menu.value([{
-                                                name: statusUpdate,
-                                                value: "Please Wait"
-                                            }]);
-                                            menu.status(statusUpdate);
-                                            menu.update();
-                                            menu.activity();
-                                        });
-                                    }
+                                    versionTarget = version;
+                                    ui.load(versionUpdateConfirmMenu);
+                                    cb();
                                 } else {
                                     menu.status('already installed');
                                     if(cb) cb();
-                                    //ui.back();
                                 }
 
                             }
@@ -960,7 +1007,7 @@ if (VIEW_HARDWARE) {
             action: wifiMenu,
             help: help.wifiMenu
         }, {
-            name: "Charge Indicator~" + ((power.lightDisabled === false) ? "off" : "on"),
+            name: "Charge Indicator",
             action: chargeIndicatorMenu,
             help: help.chargeIndicatorMenu
         }, {
