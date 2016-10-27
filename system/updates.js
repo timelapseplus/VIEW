@@ -134,25 +134,34 @@ exports.getVersions = function(callback){
 	}
 };
 
+exports.installing = false;
+exports.installStatus = null;
 exports.installVersion = function(versionInfo, callback, statusCallback) {
+	exports.installing = true;
 	var updateStatus = function(status) {
 		console.log("INSTALL:", status);
+		exports.installStatus = status;
 		if(statusCallback) statusCallback(status);
 	}
 	if(versionInfo.version && versionInfo.url) {
 		updateStatus('downloading...');
 		download(versionInfo.url, baseInstallPath + "tmp.zip", function(err, info){
 			if(err) {
+				updateStatus('download failed.');
+				exports.installing = false;
 				callback(err);
 			} else {
 				updateStatus('extracting...');
 				extract(baseInstallPath + "tmp.zip", baseInstallPath + versionInfo.version, function(err) {
 					if(err) {
+						updateStatus('extract failed.');
+						exports.installing = false;
 						callback(err);
 					} else {
 						fs.unlink(baseInstallPath + "tmp.zip");
 						fs.writeFile(baseInstallPath + versionInfo.version + "/version.json", JSON.stringify(versionInfo), function(){
 							updateStatus('done.');
+							exports.installing = false;
 							callback();
 						});
 					}

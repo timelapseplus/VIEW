@@ -655,7 +655,7 @@ if (VIEW_HARDWARE) {
 //    var installMenu = function(cb)
 
     var softwareMenu = function(cb) {
-        updates.getVersions(function(err, versions) {
+        var buildUpdateMenu = function(err, versions) {
             if (versions) {
                 var sm = {
                     name: "software update",
@@ -679,7 +679,14 @@ if (VIEW_HARDWARE) {
                                     menu.update();
 
                                     if(version.installed) {
-                                        updates.setVersion(version, cb);
+                                        updates.setVersion(version, function(){
+                                            menu.value([{
+                                                name: "Reloading app...",
+                                                value: "Please Wait"
+                                            }]);
+                                            menu.update();
+                                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                        });
                                     } else {
                                         updates.installVersion(version, function(err){
                                             if(!err) {
@@ -719,7 +726,34 @@ if (VIEW_HARDWARE) {
                 }
                 cb(err, sm);
             }
-        });
+        }
+
+        if(wifi.connected) {
+            updates.getVersions(function(err, versions) {
+                var dbVersions = versions.filter(function(v){return v.installed;});
+                db.set('versions-installed', dbVersions);
+                buildUpdateMenu(err, versions);
+            });
+        } else {
+            db.get('versions-installed', function(err, versions) {
+                if(!err && versions) {
+                    for(var i = 0; i < versions.length; i++) {
+                        if(updates.version == versions[i].version) {
+                            versions[i].current = true;
+                        } else {
+                            versions[i].current = false;
+                        }
+                    }
+                    buildUpdateMenu(err, versions);
+                } else {
+                    menu.value([{
+                        name: "Version Update",
+                        value: "WiFi Required"
+                    }]);
+                    menu.update();
+                }
+            });
+        }
     }    
 
     var wifiConnectMenu = {
@@ -926,16 +960,13 @@ if (VIEW_HARDWARE) {
             action: wifiMenu,
             help: help.wifiMenu
         }, {
-            name: "Charge Indicator", //~" + power.lightDisabled === false ? "off" : "on",
+            name: "Charge Indicator~" + ((power.lightDisabled === false) ? "off" : "on"),
             action: chargeIndicatorMenu,
             help: help.chargeIndicatorMenu
         }, {
             name: "Software Version",
             action: softwareMenu,
-            help: help.softwareMenu,
-            condition: function() {
-                return wifi.connected;
-            }
+            help: help.softwareMenu
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,

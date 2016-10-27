@@ -443,7 +443,7 @@ oled.select = function(index) {
 
 oled.activity = function() {
     if (screenTimeout) clearTimeout(screenTimeout);
-    screenTimeout = setTimeout(oled.hide, 15000);
+    screenTimeout = setTimeout(oled.hide, 30000);
     if (!oled.visible) oled.show();
 }
 
