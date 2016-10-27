@@ -727,7 +727,7 @@ if (VIEW_HARDWARE) {
                     name: "software update",
                     type: "menu",
                     items: [],
-                    alternate: {
+                    alternate: function(){
                         if(updates.installing || update.installStatus) {
                             return {
                                 name: "Installing version " + versionTarget.version + "?",
