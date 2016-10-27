@@ -776,11 +776,21 @@ if (VIEW_HARDWARE) {
 
         if(wifi.connected) {
             updates.getVersions(function(err, versions) {
-                var dbVersions = versions.filter(function(v){return v.installed;});
-                db.set('versions-installed', dbVersions);
-                buildUpdateMenu(err, versions);
+                if(!err && versions) {
+                    var dbVersions = versions.filter(function(v){return v.installed;});
+                    db.set('versions-installed', dbVersions);
+                    buildUpdateMenu(err, versions);
+                } else {
+                    console.log("ERROR: no versions available");
+                    menu.value([{
+                        name: "Version Update Error",
+                        value: "Not Available"
+                    }]);
+                    menu.update();
+                }
             });
         } else {
+            console.log("Getting cached versions from DB...");
             db.get('versions-installed', function(err, versions) {
                 if(!err && versions) {
                     for(var i = 0; i < versions.length; i++) {
@@ -790,10 +800,12 @@ if (VIEW_HARDWARE) {
                             versions[i].current = false;
                         }
                     }
+                    console.log("Building menu from cache");
                     buildUpdateMenu(err, versions);
                 } else {
+                    console.log("ERROR: no cached versions available");
                     menu.value([{
-                        name: "Version Update",
+                        name: "Version Update Error",
                         value: "WiFi Required"
                     }]);
                     menu.update();

@@ -163,6 +163,7 @@ wifi.enable = function(cb) {
 	powerControl(true, function(err) {
 		iw.enable(function(err) {
 			if(!err) {
+				if(!wifi.btEnabled) wifi.disableBt();
 				exec("iw wlan0 set power_save off", function(err) {
 					wifi.enabled = true;
 					wifi.scan();
