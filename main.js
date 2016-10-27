@@ -778,6 +778,7 @@ if (VIEW_HARDWARE) {
             updates.getVersions(function(err, versions) {
                 if(!err && versions) {
                     var dbVersions = versions.filter(function(v){return v.installed;});
+                    console.log("saving installed versions", dbVersions);
                     db.set('versions-installed', dbVersions);
                     buildUpdateMenu(err, versions);
                 } else {
