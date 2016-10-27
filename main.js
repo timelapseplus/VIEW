@@ -901,7 +901,7 @@ if (VIEW_HARDWARE) {
                 });
             },
             condition: function() {
-                return wifi.btEnabled;
+                return wifi.btEnabled && wifi.enabled;
             }
         }, {
             name: "Enable Bluetooth",
@@ -915,7 +915,7 @@ if (VIEW_HARDWARE) {
                 });
             },
             condition: function() {
-                return !wifi.btEnabled;
+                return !wifi.btEnabled && wifi.enabled;
             }
         }, {
             name: "Disable Wifi",
@@ -1322,20 +1322,20 @@ function startScan() {
             noble.stopScanning();
         }, 500);
         setTimeout(function() {
-            noble.startScanning(['b8e0606762ad41ba9231206ae80ab550']);
+            if (noble.state == "poweredOn") noble.startScanning(['b8e0606762ad41ba9231206ae80ab550']);
         }, 5000);
-    } else {
-        noble.on('stateChange', function(state) {
-            console.log("BLE state changed to", state);
-            if (state == "poweredOn") {
-                setTimeout(function() {
-                    startScan()
-                });
-            }
-        });
     }
 }
 startScan();
+
+noble.on('stateChange', function(state) {
+    console.log("BLE state changed to", state);
+    if (state == "poweredOn") {
+        setTimeout(function() {
+            startScan()
+        });
+    }
+});
 
 noble.on('discover', function(peripheral) {
     //console.log('ble', peripheral);
