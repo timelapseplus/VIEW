@@ -92,11 +92,7 @@ if (VIEW_HARDWARE) {
                         });
 
                         if(!wifi.connected) {
-                            if(wifiStatus.apMode) {
-                                wifi.enableAP();
-                            } else if(wifiStatus.connect) {
-                                wifi.connect(wifiStatus.connect, wifiStatus.password);
-                            }
+                            wifi.enableAP();
                         }
                     },5000);
                 });
