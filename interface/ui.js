@@ -130,7 +130,7 @@ exports.up = function(alt) {
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         menu.up();
     } else if(currentProgram.type == "textDisplay") {
-        menu.down();
+        menu.up();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
             menu.textMoveBackward();
@@ -144,7 +144,7 @@ exports.down = function(alt) {
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         menu.down();
     } else if(currentProgram.type == "textDisplay") {
-        menu.up();
+        menu.down();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
             menu.textMoveForward();
