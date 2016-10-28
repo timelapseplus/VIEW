@@ -1,0 +1,47 @@
+problem:
+
+If LDO3, the power supply for the wifi module was powered off and then powered back on, the system would shut down (on wifi power on), but only on devices that had not been previously booted with linux 3.4 (which has a real AXP driver)
+
+
+axptest.js:
+
+////////////////////////////////////////
+
+var exec = require("child_process").exec;
+var res = "";
+var i = 0x12;
+ 
+function read() {
+        exec("i2cget -y -f 0 0x34 0x" + i.toString(16), function(err, output){
+                res += output.trim() + " ";
+                addrs += "0x" + i.toString(16) + " ";
+                i++;
+                if(i > 0x8f) console.log(res, "\n", addrs); else setTimeout(read);
+        });
+ 
+}
+read();
+
+///////////////////////////////////////
+
+results (RW registers that are different):
+
+addrs : 0x31 0x36 0x3a 0x3b 0x81 0x84 0x8f
+works : 0x07 0x9f 0x71 0x67 0xf9 0xb2 0xa
+faulty: 0x03 0x9d 0x68 0x5f 0xfd 0x32 0x21 
+
+details:
+
+addr   works  faulty  desc 
+0x31   0x7    0x3     Cutoff voltage
+0x3a   0x71   0x68    IPSout warning voltage
+0x3b   0x67   0x5f    IPSout warning voltage
+0x36   0x9f   0x9d    PEK Parameter setting
+0x81   0xf9   0xfd    VOUT monitor <<<<<<<<<<< this was the issue!
+0x84   0xb2   0x32    ADC Sample rate settings
+0x8f   0x0a   0x21    Over temperature shutdown control
+
+
+solution:
+
+0x81 is not documented in the AXPO209 datasheet, but the linux driver defines it as POWER19_VOUT_MONITOR.  The odd thing is that I cannot find anywhere in the linux or u-boot code where this register is even set.  Setting it to 0x9f makes it possible to power wifi on and off with no issues.  Maybe powering on the wifi module causes a slight momentary drop which was triggering an over-sensitive monitor.

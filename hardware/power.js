@@ -12,6 +12,7 @@ var powerWifi = 0x40;
 var powerGps = 0x8;
 
 power.init = function(disableLight) {
+    exec("sudo i2cset -y -f 0 0x34 0x81 0xf9"); // fix issue with wifi power on
     exec("sudo i2cset -y -f 0 0x34 0x34 0x57"); // set chgled to blink
     exec("sudo i2cset -y -f 0 0x34 0x33 0xdc"); // set charge rate to 1.5A
     exec("sudo i2cset -y -f 0 0x34 0x30 0x60"); // set system current limit to 900mA
