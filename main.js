@@ -1239,6 +1239,7 @@ if (VIEW_HARDWARE) {
     }
 
     app.on('auth-required', function(code) {
+        if(updates.installing) return;
         if(authDisplayed) {
             ui.back();
             authDisplayed = false;
