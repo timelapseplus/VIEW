@@ -1178,6 +1178,7 @@ if (VIEW_HARDWARE) {
             items: [{
                 name: "Save new XMPs to SD?",
                 value: "write to SD",
+                help: help.saveXMPs,
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
@@ -1194,6 +1195,7 @@ if (VIEW_HARDWARE) {
             }, {
                 name: "Save new XMPs to SD?",
                 value: "cancel",
+                help: help.saveXMPs,
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
@@ -1213,6 +1215,7 @@ if (VIEW_HARDWARE) {
             items: [{
                 name: "Enter code on app",
                 value: code,
+                help: help.appCode,
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
@@ -1223,6 +1226,7 @@ if (VIEW_HARDWARE) {
             }, {
                 name: "Enter code on app",
                 value: "cancel",
+                help: help.appCode,
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
