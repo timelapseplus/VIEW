@@ -51,9 +51,9 @@ function loginUser(email, password, callback) {
                         sid: uid(64) + user.id
                     }
                     db.query("INSERT INTO `sessions` SET ?", session, function(err) {
-                    updateSessions(function(){
-                        callback(null, session);
-                    });
+                        updateSessions(function(){
+                            callback(null, session);
+                        });
                     });
                 } else {
                     callback("invalid username or password");
@@ -117,7 +117,7 @@ function addDeviceToDb(viewId, userId, callback) {
 
 function findSession(sid, subdomain) {
     for(var i = 0; i < sessions.length; i++) {
-        if(sid === sessions[i].sid && subdomain === sessions[i].subdomain) {
+        if(sid === sessions[i].sid) { //} && subdomain === sessions[i].subdomain) {
             // valid session
             return sessions[i];
         }
@@ -132,7 +132,8 @@ function validateSession(req, res, callback) {
     var session = findSession(sid, subdomain);
     if(session) {
         return callback(session)
-    }    
+    }
+    console.log("session not found: ", sid, subdomain);
     res.send({
         action: 'login_required',
         message: "access denied, login required"
@@ -184,15 +185,18 @@ app.post('/api/login', function(req, res) {
 });
 
 app.post('/api/register', function(req, res) {
+    console.log("trying to register ", req.body.email);
     updateUser(req.body.email, req.body.subdomain, req.body.password, function(err) {
         loginUser(req.body.email, req.body.password, function(err, session) {
             if(!err && session) {
+                console.log("registered ", req.body.email, req.body.subdomain);
                 res.send({
                     action: 'login',
                     session: session.sid,
                     message: "successfully logged in"
                 });
             } else {
+                console.log("ERROR: failed to register ", req.body.email, err);
                 res.send({
                     action: 'login_failed',
                     message: err
@@ -217,6 +221,7 @@ app.post('/api/email', function(req, res) {
                 });
             }
         } else {
+            console.log("ERROR: error occurred while checking email ", req.body.email, err);
             res.send({
                 action: 'error',
                 message: err
@@ -276,6 +281,8 @@ app.post('/api/device/new', function(req, res) {
                     message: 'device not found or code expired, please try again'
                 });
             }
+        } else {
+            console.log("error: no code included for add device");
         }
     });
 });
