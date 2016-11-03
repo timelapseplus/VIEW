@@ -1353,7 +1353,7 @@ function startScan() {
             noble.stopScanning();
         }, 500);
         setTimeout(function() {
-            if (noble.state == "poweredOn") noble.startScanning(['b8e0606762ad41ba9231206ae80ab550']);
+            if (noble.state == "poweredOn") noble.startScanning();//['b8e0606762ad41ba9231206ae80ab550']);
         }, 5000);
     }
 }
