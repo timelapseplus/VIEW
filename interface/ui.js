@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var menu = null;
+var oled = null;
 var currentProgram = null;
 var backupProgram = null;
 var currentName = "";
@@ -9,13 +9,13 @@ var screenSaverHandle = null;
 function activity() {
     if (screenSaverHandle) clearTimeout(screenSaverHandle);
     screenSaverHandle = setTimeout(function() {
-        if (menu.visible) menu.hide();
+        if (oled.visible) oled.hide();
     }, 30000);
-    if (!menu.visible) menu.show();
+    if (!oled.visible) oled.show();
 }
 
 exports.init = function(menuController) {
-    menu = menuController;
+    oled = menuController;
 }
 
 function load(program, selected) {
@@ -62,25 +62,25 @@ function load(program, selected) {
         }
     }
     if (currentProgram.type == "menu") {
-        menu.create(currentProgram.items.map(function(item) {
+        oled.create(currentProgram.items.map(function(item) {
             return item.name;
         }), selected || 0);
-        menu.update();
+        oled.update();
     }
     if (currentProgram.type == "options") {
-        menu.value(currentProgram.items, selected || 0);
-        menu.update();
+        oled.value(currentProgram.items, selected || 0);
+        oled.update();
     }
     if (currentProgram.type == "textInput") {
-        menu.text(currentProgram.name, currentProgram.value);
-        menu.update();
+        oled.text(currentProgram.name, currentProgram.value);
+        oled.update();
     }
     if (currentProgram.type == "textDisplay") {
-        menu.displayText(currentProgram.name, currentProgram.value);
-        menu.update();
+        oled.displayText(currentProgram.name, currentProgram.value);
+        oled.update();
     }
     if (currentProgram.type == "png" && currentProgram.file) {
-        menu.png(currentProgram.file);
+        oled.png(currentProgram.file);
     }
     if (currentProgram.type == "function" && currentProgram.fn) {
         currentProgram.fn(currentProgram.arg, function(err, program) {
@@ -103,7 +103,7 @@ exports.load = function(menuProgram, noPush, selected) {
     if (backupProgram !== null && !noPush && backupProgram.type != "options") {
         stack.push({
             program: backupProgram,
-            selected: menu.selected,
+            selected: oled.selected,
             name: currentName
         });
     }
@@ -121,48 +121,48 @@ exports.load = function(menuProgram, noPush, selected) {
 
 exports.reload = function() {
     if (backupProgram.type == "menu" || backupProgram.type == "options") {
-        exports.load(backupProgram, true, menu.selected);
+        exports.load(backupProgram, true, oled.selected);
     }
 }
 
 exports.up = function(alt) {
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        menu.up();
+        oled.up();
     } else if(currentProgram.type == "textDisplay") {
-        menu.up();
+        oled.up();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
-            menu.textMoveBackward();
+            oled.textMoveBackward();
         } else {
-            menu.up();
+            oled.up();
         }
     }
 }
 exports.down = function(alt) {
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        menu.down();
+        oled.down();
     } else if(currentProgram.type == "textDisplay") {
-        menu.down();
+        oled.down();
     } else if(currentProgram.type == "textInput") {
         if(alt) {
-            menu.textMoveForward();
+            oled.textMoveForward();
         } else {
-            menu.down();
+            oled.down();
         }
     }
 }
 exports.enter = function(alt) {
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        if(currentProgram.items[menu.selected]) exports.load(currentProgram.items[menu.selected].action);
+        if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
     } else if (currentProgram.type == "textInput") {
         if(alt) {
-            menu.textMoveForward();
+            oled.textMoveForward();
         } else {
-            console.log("resulting string", menu.getTextValue());
-            if(currentProgram.onSave) currentProgram.onSave(menu.getTextValue());
+            console.log("resulting string", oled.getTextValue());
+            if(currentProgram.onSave) currentProgram.onSave(oled.getTextValue());
             exports.back();
         }
     } else if (currentProgram.type == "png") {
@@ -174,12 +174,12 @@ exports.help = function() {
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
         exports.back();
     } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        if (currentProgram.items[menu.selected] && currentProgram.items[menu.selected].help) {
+        if (currentProgram.items[oled.selected] && currentProgram.items[oled.selected].help) {
             exports.load({
                 type: "textDisplay",
                 origin: "help",
-                name: "HELP - " + currentProgram.items[menu.selected].name || currentProgram.name,
-                value: currentProgram.items[menu.selected].help
+                name: "HELP - " + currentProgram.items[oled.selected].name || currentProgram.name,
+                value: currentProgram.items[oled.selected].help
             });
         }
     } else if(currentProgram.help) {
@@ -192,10 +192,10 @@ exports.help = function() {
     }
 }
 exports.button3 = function() {
-    if (currentProgram.type == "menu" && currentProgram.items[menu.selected].button3) {
-        currentProgram.items[menu.selected].button3(currentProgram.items[menu.selected]);
+    if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
+        currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
     } else if (currentProgram.type == "textInput") {
-        menu.textCycleMode();
+        oled.textCycleMode();
     }
 }
 exports.back = function() {
@@ -205,7 +205,7 @@ exports.back = function() {
         console.log("BACK to " + b.name);
         exports.load(b.program, true, b.selected);
     } else {
-        if (menu.visible) menu.hide();
+        if (oled.visible) oled.hide();
     }
 }
 

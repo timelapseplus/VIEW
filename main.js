@@ -26,7 +26,7 @@ var nmx = require('./drivers/nmx.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
-    var menu = require('./hardware/menu.js');
+    var oled = require('./hardware/oled.js');
     var ui = require('./interface/ui.js');
     var help = require('./interface/help.js');
     var inputs = require('./hardware/inputs.js');
@@ -52,7 +52,7 @@ console.log('Modules loaded.');
 var scanIntervalHandle = null;
 
 if (VIEW_HARDWARE) {
-    menu.init();
+    oled.init();
     inputs.start();
 
     var configureWifi = function() {
@@ -101,29 +101,37 @@ if (VIEW_HARDWARE) {
     }
     configureWifi();
 
+    var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
-        menu.status('wifi connected to ' + ssid);
+        wifiConnectionTime = new Date().getTime();
+        oled.status('wifi connected to ' + ssid);
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {
         ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
-        menu.status('wifi disconnected');
+        oled.status('wifi disconnected');
         if(previousConnection && previousConnection.address) {
-            wifi.disable(function(){
-                setTimeout(configureWifi, 2000);
-            });
+            var currentTime = wifiConnectionTime = new Date().getTime();
+            if(currentTime - wifiConnectionTime < 30 * 1000) {
+                // show alert -- authentication probably failed
+            } else {
+                wifiConnectionTime = new Date().getTime();
+                wifi.disable(function(){
+                    setTimeout(configureWifi, 2000);
+                });
+            }
         }
         ui.reload();
     });
 
     power.on('charging', function(status) {
-        menu.chargeStatus(status);
+        oled.chargeStatus(status);
     });
 
     power.on('percentage', function(percentage) {
-        menu.batteryPercentage(percentage);
+        oled.batteryPercentage(percentage);
     });
 
     var rampingOptions = {
@@ -328,7 +336,7 @@ if (VIEW_HARDWARE) {
             var stats, ev;
 
             function captureButtonHandler(b) {
-                menu.activity();
+                oled.activity();
                 if (b == 1 || b == 4) {
                     liveviewOn = false;
                     blockInputs = false;
@@ -345,7 +353,7 @@ if (VIEW_HARDWARE) {
             }
 
             function captureDialHandler(d) {
-                menu.activity();
+                oled.activity();
                 //console.log("captureDialHandler", d, stats, ev);
                 if (camera.ptp.photo && camera.zoomed) {
                     var f = 0;
@@ -423,7 +431,7 @@ if (VIEW_HARDWARE) {
                 type: "function",
                 fn: function(arg, cb) {
                     var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) menu.video(timelapse.path, timelapse.frames, 24, cb);
+                        if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, cb);
                     });
                 }
             }
@@ -530,7 +538,7 @@ if (VIEW_HARDWARE) {
                             type: "function",
                             arg: clips[i],
                             fn: function(clip, cb) {
-                                menu.video(clip.path, clip.frames, 24, cb);
+                                oled.video(clip.path, clip.frames, 24, cb);
                             }
                         },
                         button3: function(item) {
@@ -563,11 +571,11 @@ if (VIEW_HARDWARE) {
             action: {
                 type: 'function',
                 fn: function() {
-                    menu.value([{
+                    oled.value([{
                         name: "Timelapse+",
                         value: "Shutting Down"
                     }]);
-                    menu.update();
+                    oled.update();
                     if (!intervalometer.status.running) {
                         closeSystem(function(){
                             exec('init 0', function() {});
@@ -606,7 +614,7 @@ if (VIEW_HARDWARE) {
             var stats, ev;
 
             function captureButtonHandler(b) {
-                menu.activity();
+                oled.activity();
                 if (b == 1) {
                     liveviewOn = false;
                     blockInputs = false;
@@ -619,7 +627,7 @@ if (VIEW_HARDWARE) {
             }
 
             function captureDialHandler(d) {
-                menu.activity();
+                oled.activity();
                 //console.log("captureDialHandler", d, stats, ev);
                 if (d == 'U') {
                     if (stats.ev < stats.maxEv) {
@@ -673,45 +681,45 @@ if (VIEW_HARDWARE) {
                     type: 'function',
                     fn: function(arg, cb) {
                         if(updates.installing) {
-                            menu.value([{
+                            oled.value([{
                                 name: "Error",
                                 value: "Install in progress"
                             }]);
-                            menu.update();
+                            oled.update();
                         } else if(versionTarget.installed) {
                             updates.setVersion(versionTarget, function(){
-                                menu.value([{
+                                oled.value([{
                                     name: "Reloading app...",
                                     value: "Please Wait"
                                 }]);
-                                menu.update();
+                                oled.update();
                                 exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
                             });
                         } else {
                             updates.installVersion(versionTarget, function(err){
                                 if(!err) {
                                     updates.setVersion(versionTarget, function(){
-                                        menu.status('update successful');
-                                        menu.value([{
+                                        oled.status('update successful');
+                                        oled.value([{
                                             name: "Reloading app...",
                                             value: "Please Wait"
                                         }]);
-                                        menu.update();
+                                        oled.update();
                                         exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
                                     });
                                 } else {
-                                    menu.status('error updating');
+                                    oled.status('error updating');
                                     if(cb) cb();
                                     //ui.back();
                                 }
                             }, function(statusUpdate) {
-                                menu.value([{
+                                oled.value([{
                                     name: statusUpdate,
                                     value: "Please Wait"
                                 }]);
-                                menu.status(statusUpdate);
-                                menu.update();
-                                menu.activity();
+                                oled.status(statusUpdate);
+                                oled.update();
+                                oled.activity();
                             });
                         }
                     }
@@ -761,7 +769,7 @@ if (VIEW_HARDWARE) {
                                 if(version && !version.current) {
                                     ui.load(versionUpdateConfirmMenuBuild(version));
                                 } else {
-                                    menu.status('already installed');
+                                    oled.status('already installed');
                                     if(cb) cb();
                                 }
 
@@ -782,11 +790,11 @@ if (VIEW_HARDWARE) {
                     buildUpdateMenu(err, versions);
                 } else {
                     console.log("ERROR: no versions available");
-                    menu.value([{
+                    oled.value([{
                         name: "Version Update Error",
                         value: "Not Available"
                     }]);
-                    menu.update();
+                    oled.update();
                 }
             });
         } else {
@@ -810,11 +818,11 @@ if (VIEW_HARDWARE) {
                     buildUpdateMenu(err, versions);
                 } else {
                     console.log("ERROR: no cached versions available");
-                    menu.value([{
+                    oled.value([{
                         name: "Version Update Error",
                         value: "WiFi Required"
                     }]);
-                    menu.update();
+                    oled.update();
                 }
             });
         }
@@ -841,7 +849,7 @@ if (VIEW_HARDWARE) {
                                 type: "textInput",
                                 value: password || "",
                                 onSave: function(result) {
-                                    menu.status('connecting to ' + item.ssid);
+                                    oled.status('connecting to ' + item.ssid);
                                     wifi.connect(item, result);
                                     db.setWifi(item.address, result);
                                     db.set('wifi-status', {
@@ -855,7 +863,7 @@ if (VIEW_HARDWARE) {
                             });
                         });
                     } else {
-                        menu.status('connecting to ' + item.ssid);
+                        oled.status('connecting to ' + item.ssid);
                         wifi.connect(item);
                         db.set('wifi-status', {
                             apMode: false,
@@ -1118,11 +1126,11 @@ if (VIEW_HARDWARE) {
         } ]
     }
 
-    ui.init(menu);
+    ui.init(oled);
     ui.load(mainMenu);
 
     inputs.on('D', function(move) {
-        if(menu.videoRunning) return;
+        if(oled.videoRunning) return;
 
         blockGestureTimer();
         if (blockInputs) return;
@@ -1142,8 +1150,8 @@ if (VIEW_HARDWARE) {
     });
 
     inputs.on('B', function(move) {
-        if(menu.videoRunning) {
-            menu.stopVideo();
+        if(oled.videoRunning) {
+            oled.stopVideo();
             return;
         }
         blockGestureTimer();
@@ -1182,11 +1190,11 @@ if (VIEW_HARDWARE) {
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
-                        menu.value([{
+                        oled.value([{
                             name: "Writing to card",
                             value: "please wait"
                         }]);
-                        menu.update();
+                        oled.update();
                         if(clip) intervalometer.saveXMPsToCard(clip.index, function(err) {
                             cb();
                         }); else cb();
@@ -1244,7 +1252,7 @@ if (VIEW_HARDWARE) {
             ui.back();
             authDisplayed = false;
         }
-        menu.activity();
+        oled.activity();
         displayAuthCode(code);
     });
 
@@ -1253,13 +1261,13 @@ if (VIEW_HARDWARE) {
             ui.back();
             authDisplayed = false;
         }
-        menu.activity();
-        menu.status('connected to view.tl');
+        oled.activity();
+        oled.status('connected to view.tl');
     });
 
     camera.ptp.on('media', function(type) {
         console.log("media inserted: ", type);
-        menu.activity();
+        oled.activity();
         intervalometer.getLastTimelapse(function(err, timelapse) {
             confirmSaveXMPs(timelapse);
         });
@@ -1283,13 +1291,13 @@ if (VIEW_HARDWARE) {
         if (gestureModeHandle) clearTimeout(gestureModeHandle);
         if (!gestureMode) {
             gestureMode = true;
-            menu.png('/home/view/current/media/gesture-oled.png');
+            oled.png('/home/view/current/media/gesture-oled.png');
         }
         gestureModeHandle = setTimeout(function() {
             if (gestureMode) {
                 gestureMode = false;
                 ui.reload();
-                menu.hide();
+                oled.hide();
             }
         }, 5000);
     }
@@ -1302,8 +1310,8 @@ if (VIEW_HARDWARE) {
             return;
         }
         gestureModeTimer();
-        if (!menu.visible) {
-            menu.show();
+        if (!oled.visible) {
+            oled.show();
             return;
         }
 
@@ -1314,19 +1322,19 @@ if (VIEW_HARDWARE) {
             //ui.down();
         }
         if (move == "L") {
-            menu.hide();
+            oled.hide();
         }
         if (move == "R") {
-            if (!menu.visible) {
-                menu.show();
+            if (!oled.visible) {
+                oled.show();
             } else {
-                //if (menu.selected == 1) {
+                //if (oled.selected == 1) {
                 //    camera.ptp.capture();
-                //    setTimeout(menu.update, 8000);
+                //    setTimeout(oled.update, 8000);
                 //}
-                //if (menu.selected == 2) {
+                //if (oled.selected == 2) {
                 var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                    if (timelapse) menu.video(timelapse.path, timelapse.frames, 24, function() {
+                    if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function() {
                         ui.reload();
                     });
                 });
@@ -1361,10 +1369,9 @@ noble.on('stateChange', function(state) {
 });
 
 noble.on('discover', function(peripheral) {
-    //console.log('ble', peripheral);
+    console.log('ble', peripheral);
     nmx.connect(peripheral);
 });
-
 
 nmx.connect();
 
@@ -1384,7 +1391,7 @@ function closeSystem(callback) {
     //db.setCache('intervalometer.status', intervalometer.status);
     nmx.disconnect();
     if (VIEW_HARDWARE) {
-        menu.close();
+        oled.close();
         inputs.stop();
     }
     db.close(callback);
@@ -1588,7 +1595,7 @@ camera.ptp.on('photo', function() {
                 image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
-                            menu.jpeg(path);
+                            oled.jpeg(path);
                         });
                     }
                 });
@@ -1635,7 +1642,7 @@ camera.ptp.on('connected', function() {
             model: camera.ptp.model
         });
         if (VIEW_HARDWARE) {
-            menu.status(camera.ptp.model);
+            oled.status(camera.ptp.model);
             ui.reload();
         }
     }, 1000);
@@ -1647,8 +1654,8 @@ camera.ptp.on('exiting', function() {
         model: ''
     });
     if (VIEW_HARDWARE) {
-        menu.defaultStatus("Timelapse+ VIEW " + updates.version);
-        menu.status("camera disconnected");
+        oled.defaultStatus("Timelapse+ VIEW " + updates.version);
+        oled.status("camera disconnected");
         ui.reload();
     }
 });
@@ -1664,11 +1671,11 @@ camera.ptp.on('status', function(msg) {
         status: msg
     });
     if (!blockInputs && VIEW_HARDWARE) {
-        menu.status(msg);
+        oled.status(msg);
         if (camera.ptp.connected) {
-            menu.defaultStatus(camera.ptp.model);
+            oled.defaultStatus(camera.ptp.model);
         } else {
-            menu.defaultStatus("Timelapse+ VIEW " + updates.version);
+            oled.defaultStatus("Timelapse+ VIEW " + updates.version);
         }
     }
 });
