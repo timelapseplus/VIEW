@@ -946,9 +946,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalLogin = modal;
     });
     $scope.openLogin = function() {
-        $scope.loginState = "email";
-        $scope.loginBusy = false;
-        $scope.modalLogin.show();
+        if($scope.modalLogin) {
+            $scope.loginState = "email";
+            $scope.loginBusy = false;
+            $scope.modalLogin.show();
+        } else {
+            $timeout($scope.openLogin, 1000);
+        }
     };
     $scope.closeLogin = function() {
         $scope.modalLogin.hide();
