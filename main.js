@@ -1355,7 +1355,9 @@ function startScan() {
         setTimeout(function() {
             if (noble.state == "poweredOn") {
                 console.log("Starting BLE scan...");
-                noble.startScanning(['b8e0606762ad41ba9231206ae80ab550']);
+                noble.startScanning(['b8e0606762ad41ba9231206ae80ab550'], true, function(err){
+                    console.log("BLE scan started. ", err);
+                });
             }
         }, 5000);
     }
