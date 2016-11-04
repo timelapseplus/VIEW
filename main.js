@@ -59,6 +59,7 @@ if (VIEW_HARDWARE) {
         db.get('wifi-status', function(err, wifiStatus) {
             if(wifiStatus) {
                 if(wifiStatus.enabled) {
+                    wifi.btEnabled = true;
                     wifi.enable(function(){
                         db.get('bt-status', function(err, status) {
                             if(status && status.enabled) {
@@ -81,6 +82,7 @@ if (VIEW_HARDWARE) {
                     wifi.disable();
                 }
             } else {
+                wifi.btEnabled = true;
                 wifi.enable(function(){
                     setTimeout(function(){
                         db.get('bt-status', function(err, status) {
@@ -1345,7 +1347,6 @@ if (VIEW_HARDWARE) {
 
 }
 
-
 function startScan() {
     if (!scanIntervalHandle) scanIntervalHandle = setInterval(startScan, 60000);
     if (noble.state == "poweredOn") {
@@ -1375,8 +1376,9 @@ noble.on('stateChange', function(state) {
 
 noble.on('discover', function(peripheral) {
     console.log('ble', peripheral);
-    nmx.connect(peripheral);
+    //nmx.connect(peripheral);
 });
+
 
 nmx.connect();
 
