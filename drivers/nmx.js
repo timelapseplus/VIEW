@@ -1,9 +1,33 @@
-var CMD_MOVE_MOTOR = 0x0F
-var CMD_ENABLE_MOTOR = 0x03
-var CMD_MOTOR_STATUS = 0x6B
-var CMD_MOTOR_POSITION = 0x6A
-var CMD_MOTOR_RESET = 0x1B
-var CMD_FIRMWARE_VERSION = 0x64
+var CMD_MOVE_MOTOR = {
+    cmd: 0x0F,
+    responseType: false,
+    delay: 0
+}
+var CMD_ENABLE_MOTOR = {
+    cmd: 0x03,
+    responseType: false,
+    delay: 0
+}
+var CMD_MOTOR_STATUS = {
+    cmd: 0x6B,
+    responseType: 0,
+    delay: 0
+}
+var CMD_MOTOR_POSITION = {
+    cmd: 0x6A,
+    responseType: 2,
+    delay: 0
+}
+var CMD_MOTOR_RESET = {
+    0x1B,
+    responseType: false,
+    delay: 0
+}
+var CMD_FIRMWARE_VERSION = {
+    cmd: 0x64,
+    responseType: 1,
+    delay: 0
+}
 
 var COMMAND_SPACING_MS = 100
 
@@ -80,8 +104,7 @@ function move(motorId, steps, callback) {
 function checkMotorRunning(motorId, callback) {
     var cmd = {
         motor: motorId,
-        command: CMD_MOTOR_STATUS,
-        readback: true
+        command: CMD_MOTOR_STATUS
     }
     _queueCommand(cmd, function(err, moving) {
         console.log("motor moving (" + motorId + "): ", moving);
@@ -324,7 +347,7 @@ function _connectBt(btPeripheral, callback) {
                         }
                         if (ch.uuid == "f897177baee847678ecccc694fd5fcee") {
                             _nmxReadCh = ch;
-                            console.log("NMX read ch:", ch);
+                            //console.log("NMX read ch:", ch);
                         }
                     }
                     if (_nmxReadCh && _nmxCommandCh) {
@@ -364,8 +387,9 @@ function _queueCommand(object, callback) {
     var motor = object.motor; // required
     var command = object.command; // required
     var dataBuf = object.dataBuf || null;
-    var readback = object.readback || false;
-    var readbackDelayMs = object.readbackDelayMs || 100;
+    var readback = object.command.responseType !== false;
+    var readbackDelayMs = object.command.delay || 100;
+    var responseType = object.command.responseType;
 
     var template = new Buffer("0000000000FF03000000", 'hex');
     var len = dataBuf ? dataBuf.length : 0;
@@ -374,7 +398,7 @@ function _queueCommand(object, callback) {
     var DATALEN = 9;
 
     template[MOTOR] = parseInt(motor);
-    template[COMMAND] = parseInt(command);
+    template[COMMAND] = parseInt(command.cmd);
     template[DATALEN] = len;
 
     var cmd;
@@ -388,6 +412,7 @@ function _queueCommand(object, callback) {
         buffer: cmd,
         readback: readback,
         readbackDelayMs: readbackDelayMs,
+        responseType: responseType,
         callback: callback
     };
     _runQueue(queueItem);
@@ -433,7 +458,7 @@ function _runQueue(queueItem, rec) {
                                 _nmxReadCh.read(function(err, data) {
                                     if(err) console.log("NMX: error reading:", err);
                                     console.log("read data:", data);
-                                    item.callback(null, _parseNMXData(data));
+                                    item.callback(null, _parseNMXData(data, item.responseType));
                                 });
                             }, item.readbackDelayMs);
                         //}
@@ -463,20 +488,13 @@ function _runQueue(queueItem, rec) {
     }
 }
 
-function _parseNMXData(dataBuf) {
-    var dataOffset = 2;
+function _parseNMXData(dataBuf, type) {
+    var dataOffset = 0;
     if (!dataBuf) return null;
-    //if (dataBuf[0] == 0 && dataBuf.length == 2) return dataBuf.readUInt8(1); // special case for firmware version?
-    //if (dataBuf[0] == 0xff && dataBuf.length == 3) return dataBuf.readInt16BE(1); // special case for firmware version?
     if (dataBuf.length < dataOffset) return null;
 
-    var len = dataBuf[dataOffset - 2];
-    var type = dataBuf[dataOffset - 1];
-
-    if (len != dataBuf.length - (dataOffset - 1)) {
-        console.log("NMX data length mismatch (expected: " + len + ", actual: " + (dataBuf.length - dataOffset - 1) + ")");
-        return null;
-    }
+    var len = dataBuf.length;//[dataOffset - 2];
+    //var type = dataBuf[dataOffset - 1];
 
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
     if (type == 1 && dataBuf.length >= dataOffset + 2) return dataBuf.readUInt16BE(dataOffset);
@@ -485,6 +503,8 @@ function _parseNMXData(dataBuf) {
     if (type == 4 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset);
     if (type == 5 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset) / 100;
     if (type == 6 && dataBuf.length >= dataOffset + 1) return dataBuf.toString('ascii', dataOffset);
+
+    console.log("NMX data length mismatch (type: " + type + ", length: " + dataBuf.length + ")");
 
     return null;
 }
