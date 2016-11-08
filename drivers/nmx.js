@@ -173,7 +173,10 @@ function connect(device, callback) {
     }
 }
 
+var legacyNMX =  "b8e0606762ad41ba9231206ae80ab550";
+var currentNMX = "a3a9eb86c0fd4a5cb191bff60a7f9ea7";
 
+nmx.btServiceId = currentNMX;
 nmx.connect = connect;
 nmx.disconnect = disconnect;
 nmx.disable = disable;
@@ -307,7 +310,7 @@ function _connectBt(btPeripheral, callback) {
             return;
         }
         console.log('BLE Connected!');
-        btPeripheral.discoverServices(["b8e0606762ad41ba9231206ae80ab550"], function(err2, services) {
+        btPeripheral.discoverServices([nmx.btServiceId], function(err2, services) {
             if (services && services[0]) {
                 services[0].discoverCharacteristics([], function(err, characteristics) {
                     //console.log("characteristics:", characteristics);
