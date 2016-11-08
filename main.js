@@ -1347,8 +1347,11 @@ if (VIEW_HARDWARE) {
 
 }
 
+var btleScanStarting = false;
 function startScan() {
-    if (!scanIntervalHandle) scanIntervalHandle = setInterval(startScan, 60000);
+    if(btleScanStarting) return;
+    btleScanStarting = true;
+    if (scanIntervalHandle === null) scanIntervalHandle = setInterval(startScan, 60000);
     if (noble.state == "poweredOn") {
         setTimeout(function() {
             noble.stopScanning();
@@ -1356,11 +1359,14 @@ function startScan() {
         setTimeout(function() {
             if (noble.state == "poweredOn") {
                 console.log("Starting BLE scan...");
-                noble.startScanning([nmx.btServiceId], false, function(err){
-                    console.log("BLE scan started. Error: ", err);
+                noble.startScanning(nmx.btServiceIds, false, function(err){
+                    console.log("BLE scan started: ", err);
                 });
             }
+            btleScanStarting = false;
         }, 5000);
+    } else {
+        btleScanStarting = false;
     }
 }
 startScan();
