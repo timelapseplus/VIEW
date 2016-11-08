@@ -19,7 +19,7 @@ var CMD_MOTOR_POSITION = {
     delay: 0
 }
 var CMD_MOTOR_RESET = {
-    0x1B,
+    cmd: 0x1B,
     responseType: false,
     delay: 0
 }
