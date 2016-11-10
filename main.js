@@ -970,30 +970,42 @@ if (VIEW_HARDWARE) {
             name: "Charge Indicator LED",
             value: "enabled",
             help: help.chargeIndicatorMenu,
-            action: {
-                type: 'function',
-                fn: function(arg, cb) {
-                    if(power.lightDisabled !== false) {
-                        db.set('chargeLightDisabled', "no");
-                        power.init(false);
-                    }
-                    cb();
-                }
-            }
+            action: ui.set(power, 'lightDisabled', false, function(cb){
+                db.set('chargeLightDisabled', "no");
+                power.init(false);
+                cb && cb();
+            })
         }, {
             name: "Charge Indicator LED",
             value: "disabled",
             help: help.chargeIndicatorMenu,
-            action: {
-                type: 'function',
-                fn: function(arg, cb) {
-                    if(power.lightDisabled !== true) {
-                        db.set('chargeLightDisabled', "yes");
-                        power.init(true);
-                    }
-                    cb();
-                }
-            }
+            action: ui.set(power, 'lightDisabled', true, function(cb){
+                db.set('chargeLightDisabled', "yes");
+                power.init(true);
+                cb && cb();
+            })
+        }]
+    }
+
+    var developerModeMenu = {
+        name: "Developer Mode",
+        type: "options",
+        items: [{
+            name: "Developer Mode",
+            value: "disabled",
+            help: help.developerModeMenu,
+            action: ui.set(updates, 'developerMode', false, function(cb){
+                db.set('developerMode', "no");
+                cb && cb();
+            })
+        }, {
+            name: "Developer Mode",
+            value: "enabled",
+            help: help.developerModeMenu,
+            action: ui.set(updates, 'developerMode', true, function(cb){
+                db.set('developerMode', "yes");
+                cb && cb();
+            })
         }]
     }
 
@@ -1100,6 +1112,10 @@ if (VIEW_HARDWARE) {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
+        }, {
+            name: "Developer Mode",
+            action: developerModeMenu,
+            help: help.developerModeMenu
         }, ]
     }
 
@@ -1426,6 +1442,12 @@ db.get('intervalometer.currentProgram', function(err, data) {
 db.get('chargeLightDisabled', function(err, en) {
     if(!err) {
         power.init(en == "yes");
+    }
+});
+
+db.get('developerMode', function(err, en) {
+    if(!err) {
+        updates.developerMode = (en == "yes");
     }
 });
 

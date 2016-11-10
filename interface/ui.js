@@ -209,12 +209,16 @@ exports.back = function() {
     }
 }
 
-exports.set = function(object, key, value) {
+exports.set = function(object, key, value, callback) {
     return {
         type: "function",
         fn: function(arg, cb) {
             object[key] = value;
-            if (cb) cb();
+            if(callback) {
+                callback(cb);
+            } else {
+                cb && cb();
+            }
         },
         selected: exports.select(object, key, value)
     }

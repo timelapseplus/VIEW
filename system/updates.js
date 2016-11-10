@@ -93,7 +93,7 @@ if(installs.indexOf('current') !== -1) {
 	exports.version = current;
 }
 
-exports.includeBeta = false;
+exports.developerMode = false;
 var cachedVersions = null;
 exports.getVersions = function(callback){
 	if(cachedVersions) {
@@ -111,7 +111,7 @@ exports.getVersions = function(callback){
 				}
 				var list = [];
 				for(var i = 0; i < res.length; i++) {
-					if(!res[i].prerelease || exports.includeBeta) list.push({
+					if(!res[i].prerelease || exports.developerMode) list.push({
 						version: res[i].tag_name,
 						description: res[i].name,
 						notes: res[i].body,
