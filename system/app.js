@@ -126,7 +126,6 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
 
 
 function send_message(type, object, socket) {
-    if(!app.remote) return;
     if (!object) object = {};
     if (typeof(type) === "string") {
         object.type = type;
