@@ -465,33 +465,22 @@ function _runQueue(queueItem, rec) {
                 console.log("checking callback");
                 if (item.callback) {
                     if (item.readback) {
-                        //if(_nmxCommandCh._noble) {
-                        //    _nmxReadCh.once('data', function(data) {
-                        //        console.log("read data:", data);
-                        //        item.callback(null, _parseNMXData(data));
-                        //    });
-                        //} else {
-                            setTimeout(function() {
-                                console.log("NMX: reading data...");
-                                readData(function(err, data) {
-                                    if(err) console.log("NMX: error reading:", err);
-                                    console.log("read data:", data);
-                                    item.callback(null, _parseNMXData(data));
-                                });
-                            }, item.readbackDelayMs);
-                        //}
-                    } else {
-                        if(_nmxCommandCh._noble) {
-                            item.callback(null);
-                        } else {
+                        setTimeout(function() {
+                            console.log("NMX: reading data...");
                             readData(function(err, data) {
-                                console.log("read data (discarded):", data);
-                                item.callback(null);
+                                if(err) console.log("NMX: error reading:", err);
+                                console.log("read data:", data);
+                                item.callback(null, _parseNMXData(data));
                             });
-                        }
+                        }, item.readbackDelayMs);
+                    } else {
+                        readData(function(err, data) {
+                            console.log("read data (discarded):", data);
+                            item.callback(null);
+                        });
                     }
                 } else {
-                    if(!_nmxCommandCh._noble) readData(function(err, data) {
+                    readData(function(err, data) {
                         console.log("read data (discarded) (ncb):", data);
                     });
                 }
@@ -511,7 +500,7 @@ function _parseNMXData(dataBuf) {
     if (!dataBuf) return null;
     if (dataBuf.length < dataOffset) return null;
 
-    var len = dataBuf.length;//[dataOffset - 2];
+    var len = dataBuf[dataOffset - 2];
     var type = dataBuf[dataOffset - 1];
 
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
