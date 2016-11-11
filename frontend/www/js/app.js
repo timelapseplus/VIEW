@@ -744,9 +744,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     }
 
-    $scope.setupMove = function() {
-        $ionicActionSheet.show({
-            buttons: [{
+    $scope.moveType = ['M1', 'M2', 'M3'];
+    $scope.moveSteps = [1000, 1000, 1000];
+    $scope.moveStepsName = '1000 steps';
+
+    $scope.setupMoveSteps = function(axis) {
+        var buttons;
+        if($scope.moveType[axis - 1] == 'Pan' || $scope.moveType[axis - 1] == 'Tilt' ) {
+            buttons = [{
                 text: '1&deg;'
             }, {
                 text: '5&deg;'
@@ -754,13 +759,57 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 text: '10&deg;'
             }, {
                 text: '15&deg;'
-            }],
-            titleText: 'degrees/step',
+            }]
+        } else {
+            buttons = [{
+                text: '250 steps'
+            }, {
+                text: '500 steps'
+            }, {
+                text: '1000 steps'
+            }, {
+                text: '2500 steps'
+            }]
+        }
+        $ionicActionSheet.show({
+            buttons: buttons,
+            titleText: 'axis ' + axis + 'move increments',
             buttonClicked: function(index) {
-                if (index == 0) $scope.moveDegrees = 1;
-                if (index == 1) $scope.moveDegrees = 5;
-                if (index == 2) $scope.moveDegrees = 10;
-                if (index == 3) $scope.moveDegrees = 15;
+                $scope.moveStepsName = buttons[index].text;
+                if($scope.moveType[axis - 1] == 'Pan' || $scope.moveType[axis - 1] == 'Tilt' ) {
+                    if (index == 0) $scope.moveSteps[axis - 1] = 1 * 560;
+                    if (index == 1) $scope.moveSteps[axis - 1] = 5 * 560;
+                    if (index == 2) $scope.moveSteps[axis - 1] = 10 * 560;
+                    if (index == 3) $scope.moveSteps[axis - 1] = 15 * 560;
+                    return true;
+                } else {
+                    if (index == 0) $scope.moveSteps[axis - 1] = 250;
+                    if (index == 1) $scope.moveSteps[axis - 1] = 500;
+                    if (index == 2) $scope.moveSteps[axis - 1] = 1000;
+                    if (index == 3) $scope.moveSteps[axis - 1] = 2500;
+                    return true;
+                }
+            }
+        });
+    }
+
+    $scope.setupMoveType = function(axis) {
+        $ionicActionSheet.show({
+            buttons: [{
+                text: 'Pan'
+            }, {
+                text: 'Tilt'
+            }, {
+                text: 'Slide'
+            }, {
+                text: 'M' + axis
+            }],
+            titleText: 'Axis ' + axis + ' Function',
+            buttonClicked: function(index) {
+                if (index == 0) $scope.moveType[axis - 1] = "Pan";
+                if (index == 1) $scope.moveType[axis - 1] = "Tilt";
+                if (index == 2) $scope.moveType[axis - 1] = "Slide";
+                if (index == 3) $scope.moveType[axis - 1] = "M" + axis;
                 return true;
             }
         });

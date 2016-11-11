@@ -89,17 +89,27 @@
                 </div>
             </div>
             <div class="row" ng-show="nmx.connected">
-                <div class="button-bar" ng-show="nmx.motor2">
-                    <button class="button button-dark button-block" ng-disabled="moving2" ng-click="move(2, -(moveDegrees * 560))"><i class="icon ion-skip-backward"></i></button>
-                    <button class="button button-dark button-block" ng-click="setupMove()">{{moveDegrees}}&deg;</button>
-                    <button class="button button-dark button-block" ng-disabled="moving2" ng-click="move(2, (moveDegrees * 560))"><i class="icon ion-skip-forward"></i></button>
-                </div>
-            </div>                
-            <div class="row" ng-show="nmx.connected">
                 <div class="button-bar" ng-show="nmx.motor1">
-                    <button class="button button-dark button-block" ng-disabled="moving1" ng-click="move(1, -1000)"><i class="icon ion-skip-backward"></i></button>
-                    SLIDE
-                    <button class="button button-dark button-block" ng-disabled="moving1" ng-click="move(1, 1000)"><i class="icon ion-skip-forward"></i></button>
+                    <button class="button button-dark button-block" ng-disabled="moving1" ng-click="move(1, -(moveSteps[0]))"><i class="icon ion-skip-backward"></i></button>
+                    <button class="button button-dark button-block" ng-click="setupMoveType(1)">{{moveType[0]}}</button>
+                    <button class="button button-dark button-block" ng-click="setupMoveSteps(1)">{{moveStepsName[1]}}</button>
+                    <button class="button button-dark button-block" ng-disabled="moving1" ng-click="move(1, (moveSteps[0]))"><i class="icon ion-skip-forward"></i></button>
+                </div>
+            </div>
+            <div class="row" ng-show="nmx.connected">
+                <div class="button-bar" ng-show="nmx.motor2">
+                    <button class="button button-dark button-block" ng-disabled="moving2" ng-click="move(2, -(moveSteps[1]))"><i class="icon ion-skip-backward"></i></button>
+                    <button class="button button-dark button-block" ng-click="setupMoveType(2)">{{moveType[1]}}</button>
+                    <button class="button button-dark button-block" ng-click="setupMoveSteps(2)">{{moveStepsName[1]}}</button>
+                    <button class="button button-dark button-block" ng-disabled="moving2" ng-click="move(2, (moveSteps[1]))"><i class="icon ion-skip-forward"></i></button>
+                </div>
+            </div>
+            <div class="row" ng-show="nmx.connected">
+                <div class="button-bar" ng-show="nmx.motor3">
+                    <button class="button button-dark button-block" ng-disabled="moving3" ng-click="move(3, -(moveSteps[2]))"><i class="icon ion-skip-backward"></i></button>
+                    <button class="button button-dark button-block" ng-click="setupMoveType(3)">{{moveType[2]}}</button>
+                    <button class="button button-dark button-block" ng-click="setupMoveSteps(3)">{{moveStepsName[2]}}</button>
+                    <button class="button button-dark button-block" ng-disabled="moving3" ng-click="move(3, (moveSteps[2]))"><i class="icon ion-skip-forward"></i></button>
                 </div>
             </div>
         </div>
