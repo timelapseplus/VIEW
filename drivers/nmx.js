@@ -354,6 +354,12 @@ function _connectBt(btPeripheral, callback) {
                         //_nmxReadCh.subscribe(function(){
                             _dev = btPeripheral;
                             _dev.connected = true;
+                            _nmxReadCh.subscribe();
+                            _nmxCommandCh.on('data', function(data, isNotification) {
+                                if(isNotification) {
+                                    console.log("NMX DATA:", data);
+                                }
+                            });
                             console.log("NMX connected!");
                             nmx.emit("status", getStatus());
                             firmwareVersion(function(err, version) {

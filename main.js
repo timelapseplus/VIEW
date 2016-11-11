@@ -1365,7 +1365,7 @@ if (VIEW_HARDWARE) {
 
 var btleScanStarting = false;
 function startScan() {
-    if(btleScanStarting) return;
+    if(btleScanStarting || updates.installing) return;
     btleScanStarting = true;
     if (scanIntervalHandle === null) scanIntervalHandle = setInterval(startScan, 60000);
     if (noble.state == "poweredOn") {
