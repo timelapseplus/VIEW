@@ -473,10 +473,10 @@ function _runQueue(queueItem, rec) {
                         //} else {
                             setTimeout(function() {
                                 console.log("NMX: reading data...");
-                                _nmxReadCh.read(function(err, data) {
+                                readData(function(err, data) {
                                     if(err) console.log("NMX: error reading:", err);
                                     console.log("read data:", data);
-                                    item.callback(null, _parseNMXData(data, item.responseType));
+                                    item.callback(null, _parseNMXData(data));
                                 });
                             }, item.readbackDelayMs);
                         //}
@@ -484,14 +484,14 @@ function _runQueue(queueItem, rec) {
                         if(_nmxCommandCh._noble) {
                             item.callback(null);
                         } else {
-                            _nmxReadCh.read(function(err, data) {
+                            readData(function(err, data) {
                                 console.log("read data (discarded):", data);
                                 item.callback(null);
                             });
                         }
                     }
                 } else {
-                    if(!_nmxCommandCh._noble) _nmxReadCh.read(function(err, data) {
+                    if(!_nmxCommandCh._noble) readData(function(err, data) {
                         console.log("read data (discarded) (ncb):", data);
                     });
                 }
@@ -506,13 +506,13 @@ function _runQueue(queueItem, rec) {
     }
 }
 
-function _parseNMXData(dataBuf, type) {
-    var dataOffset = 0;
+function _parseNMXData(dataBuf) {
+    var dataOffset = 2;
     if (!dataBuf) return null;
     if (dataBuf.length < dataOffset) return null;
 
     var len = dataBuf.length;//[dataOffset - 2];
-    //var type = dataBuf[dataOffset - 1];
+    var type = dataBuf[dataOffset - 1];
 
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
     if (type == 1 && dataBuf.length >= dataOffset + 2) return dataBuf.readUInt16BE(dataOffset);
