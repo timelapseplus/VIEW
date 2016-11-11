@@ -228,7 +228,7 @@ function parseIncoming() {
             var motor = buf[header.length];
             var length = buf[header.length + 1];
             if (buf.length >= header.length + 1 + length) {
-                var responseData = buf.slice(header.length + 1, header.length + 2 + length);
+                var responseData = buf.slice(header.length + 1, header.length + 3 + length);
                 console.log("NMX DATA:", buf);//responseData);
                 receiveBuf.push(responseData);
                 buf = buf.slice(header.length + 2 + length);
