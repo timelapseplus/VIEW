@@ -49,8 +49,6 @@ Segfault.registerHandler("segfault.log");
 
 console.log('Modules loaded.');
 
-var scanIntervalHandle = null;
-
 if (VIEW_HARDWARE) {
     oled.init();
     inputs.start();
@@ -1363,16 +1361,30 @@ if (VIEW_HARDWARE) {
 
 }
 
+var scanTimerHandle = null;
+var scanTimerHandle2 = null;
+var scanTimerHandle3 = null;
 var btleScanStarting = false;
+
+function clearScanTimeouts() {
+    if(scanTimerHandle) clearTimeout(scanTimerHandle);
+    if(scanTimerHandle2) clearTimeout(scanTimerHandle2);
+    if(scanTimerHandle3) clearTimeout(scanTimerHandle3);
+    scanTimerHandle = null;
+    scanTimerHandle2 = null;
+    scanTimerHandle3 = null;
+}
+
 function startScan() {
     if(btleScanStarting || updates.installing) return;
     btleScanStarting = true;
-    if (scanIntervalHandle === null) scanIntervalHandle = setInterval(startScan, 60000);
+    clearScanTimeouts()
+    scanTimerHandle = setTimeout(startScan, 60000);
     if (noble.state == "poweredOn") {
-        setTimeout(function() {
+        scanTimerHandle2 = setTimeout(function() {
             noble.stopScanning();
         }, 500);
-        setTimeout(function() {
+        scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 console.log("Starting BLE scan...");
                 noble.startScanning(nmx.btServiceIds, false, function(err){
@@ -1387,6 +1399,11 @@ function startScan() {
 }
 startScan();
 
+function stopScan() {
+    clearScanTimeouts();
+    noble.stopScanning();
+}
+
 noble.on('stateChange', function(state) {
     console.log("BLE state changed to", state);
     if (state == "poweredOn") {
@@ -1398,9 +1415,7 @@ noble.on('stateChange', function(state) {
 
 noble.on('discover', function(peripheral) {
     //console.log('ble', peripheral);
-    noble.stopScanning();
-    clearInterval(scanIntervalHandle);
-    scanIntervalHandle = null;
+    stopScan();
     nmx.connect(peripheral);
 });
 
@@ -1409,9 +1424,7 @@ nmx.connect();
 
 nmx.on('status', function(status) {
     if (status.connected) {
-        noble.stopScanning();
-        clearInterval(scanIntervalHandle);
-        scanIntervalHandle = null;
+        stopScan();
     } else {
         startScan();
     }
