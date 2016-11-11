@@ -227,14 +227,15 @@ function parseIncoming() {
         if (eq) {
             var motor = buf[header.length];
             var length = buf[header.length + 1];
-            if (buf.length >= header.length + 1 + length) {
-                var responseData = buf.slice(header.length + 1, header.length + 3 + length);
-                console.log("NMX DATA:", buf);//responseData);
+            if (buf.length >= header.length + 2 + length) {
+                var responseData = buf.slice(header.length + 1, header.length + 2 + length);
+                console.log("NMX DATA (" + length + "):", buf);//responseData);
                 receiveBuf.push(responseData);
                 buf = buf.slice(header.length + 2 + length);
                 parseIncoming();
             }
         } else {
+            console.log("NMX: discarding data to resync");
             buf = buf.slice(1); // take a byte off the front and try again to match header
             parseIncoming();
         }
