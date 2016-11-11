@@ -351,11 +351,11 @@ function _connectBt(btPeripheral, callback) {
                         }
                     }
                     if (_nmxReadCh && _nmxCommandCh) {
-                        //_nmxReadCh.subscribe(function(){
+                        _nmxReadCh.subscribe(function(){
                             _dev = btPeripheral;
                             _dev.connected = true;
                             _nmxReadCh.subscribe();
-                            _nmxCommandCh.on('data', function(data, isNotification) {
+                            _nmxReadCh.on('data', function(data, isNotification) {
                                 if(isNotification) {
                                     console.log("NMX DATA:", data);
                                 }
@@ -367,7 +367,7 @@ function _connectBt(btPeripheral, callback) {
                                 resetMotorPosition(1);
                             });
                             if (callback) callback(true);
-                        //});
+                        });
                     } else {
                         btPeripheral.disconnect();
                         if (callback) callback(false);
