@@ -1,32 +1,37 @@
 var CMD_MOVE_MOTOR = {
     cmd: 0x0F,
-    responseType: false,
+    hasReponse: false,
     delay: 0
 }
 var CMD_ENABLE_MOTOR = {
     cmd: 0x03,
-    responseType: false,
+    hasReponse: false,
     delay: 0
 }
 var CMD_MOTOR_STATUS = {
     cmd: 0x6B,
-    responseType: 0,
-    delay: 0
+    hasReponse: true,
+    delay: 10
 }
 var CMD_MOTOR_POSITION = {
     cmd: 0x6A,
-    responseType: 2,
-    delay: 0
+    hasReponse: true,
+    delay: 50
 }
 var CMD_MOTOR_RESET = {
     cmd: 0x1B,
-    responseType: false,
+    hasReponse: false,
     delay: 0
 }
 var CMD_FIRMWARE_VERSION = {
     cmd: 0x64,
-    responseType: 1,
+    hasReponse: true,
     delay: 0
+}
+var CMD_CONNECTED_MOTORS = {
+    cmd: 0x7C,
+    hasReponse: true,
+    delay: 200
 }
 
 var COMMAND_SPACING_MS = 100
@@ -39,6 +44,7 @@ var nmx = new EventEmitter();
 
 var motorRunning = [];
 var motorPos = [];
+var motorConnected = [false, false, false];
 
 var _nmxQueue = [];
 var _queueRunning = false;
@@ -50,9 +56,9 @@ var _nmxReadCh = null;
 function getStatus() {
     return {
         connected: _dev && _dev.connected,
-        motor1: true,
-        motor2: true,
-        motor3: false
+        motor1: motorConnected[0],
+        motor2: motorConnected[1],
+        motor3: motorConnected[2]
     }   
 }
 
@@ -109,6 +115,22 @@ function checkMotorRunning(motorId, callback) {
     _queueCommand(cmd, function(err, moving) {
         console.log("motor moving (" + motorId + "): ", moving);
         if (callback) callback(moving);
+    });
+}
+
+function checkMotorAttachment(callback) {
+    var cmd = {
+        motor: 0,
+        command: CMD_CONNECTED_MOTORS
+    }
+    _queueCommand(cmd, function(err, status) {
+        if(!err) {
+            motorConnected[0] = (status & 1<<0) ? true : false;
+            motorConnected[1] = (status & 1<<1) ? true : false;
+            motorConnected[2] = (status & 1<<2) ? true : false;
+            console.log("NMX: motors connected", motorConnected);
+        }
+        if (callback) callback(motorConnected);
     });
 }
 
@@ -406,9 +428,8 @@ function _queueCommand(object, callback) {
     var motor = object.motor; // required
     var command = object.command; // required
     var dataBuf = object.dataBuf || null;
-    var readback = object.command.responseType !== false;
+    var readback = object.command.hasReponse !== false;
     var readbackDelayMs = object.command.delay || 100;
-    var responseType = object.command.responseType;
 
     var template = new Buffer("0000000000FF03000000", 'hex');
     var len = dataBuf ? dataBuf.length : 0;
@@ -431,7 +452,6 @@ function _queueCommand(object, callback) {
         buffer: cmd,
         readback: readback,
         readbackDelayMs: readbackDelayMs,
-        responseType: responseType,
         callback: callback
     };
     _runQueue(queueItem);
@@ -476,13 +496,13 @@ function _runQueue(queueItem, rec) {
                         }, item.readbackDelayMs);
                     } else {
                         readData(function(err, data) {
-                            console.log("read data (discarded):", data);
+                            //console.log("read data (discarded):", data);
                             item.callback(null);
                         });
                     }
                 } else {
                     readData(function(err, data) {
-                        console.log("read data (discarded) (ncb):", data);
+                        //console.log("read data (discarded) (ncb):", data);
                     });
                 }
                 setTimeout(function() {
@@ -491,7 +511,7 @@ function _runQueue(queueItem, rec) {
             });
         })(nextItem);
     } else {
-        console.log("NMX: queue complete");
+        //console.log("NMX: queue complete");
         _queueRunning = false;
     }
 }
