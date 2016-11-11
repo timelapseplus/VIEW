@@ -211,12 +211,61 @@ module.exports = nmx;
 
 // private functions //
 
+var receiveBuf = [];
+var buf = null;
+var header = Buffer("0000000000FF0000", 'hex');
+
+function parseIncoming() {
+    if (buf.length > header.length + 1) {
+        var eq = true;
+        for (var i = 0; i < header.length; i++) {
+            if (header[i] != buf[i]) {
+                eq = false;
+                break;
+            }
+        }
+        if (eq) {
+            var motor = buf[header.length];
+            var length = buf[header.length + 1];
+            if (buf.length >= header.length + 1 + length) {
+                var responseData = buf.slice(header.length + 1, header.length + 2 + length);
+                console.log("NMX DATA:", responseData);
+                receiveBuf.push(responseData);
+                buf = buf.slice(header.length + 2 + length);
+                parseIncoming();
+            }
+        } else {
+            buf = buf.slice(1); // take a byte off the front and try again to match header
+            parseIncoming();
+        }
+    }
+}
+
+function readData(cb) {
+    if(!_dev) return cb && cb("not connected");
+    var tries = 10; // 1 second
+    var checkForData = function() {
+        if(!_dev) return cb && cb("not connected");
+        if (receiveBuf.length > 0) {
+            //console.log("receiveBuf:", receiveBuf);
+            var readData = receiveBuf.shift();
+            if (cb) cb(null, readData);
+        } else {
+            if (tries > 0) {
+                tries--;
+                setTimeout(checkForData, 100);
+            } else {
+                console.log("NMX timed out waiting for data");
+                if (cb) cb("timed out");
+            }
+        }
+    }
+    checkForData();
+}
+
 function _connectSerial(path, callback) {
     console.log("connecting to NMX via " + path);
     _dev = {};
-    _dev.receiveBuf = [];
-    var buf = null;
-    var header = Buffer("0000000000FF0000", 'hex');
     _dev.port = new SerialPort(path, {
         baudrate: 19200
     }, function() {
@@ -243,28 +292,6 @@ function _connectSerial(path, callback) {
             console.log("NMX CLOSED");
         });
 
-        var parseIncoming = function() {
-            if (buf.length > header.length + 1) {
-                var eq = true;
-                for (var i = 0; i < header.length; i++) {
-                    if (header[i] != buf[i]) {
-                        eq = false;
-                        break;
-                    }
-                }
-                if (eq) {
-                    var motor = buf[header.length];
-                    var length = buf[header.length + 1];
-                    if (buf.length >= header.length + 1 + length) {
-                        _dev.receiveBuf.push(buf.slice(header.length + 1, header.length + 2 + length));
-                        buf = buf.slice(header.length + 2 + length);
-                        //console.log(" trimmed buf: ", _dev.receiveBuf[_dev.receiveBuf.length - 1]);
-                        parseIncoming();
-                    }
-                }
-            }
-        }
-
         _dev.port.on('data', function(data) {
             //console.log("NMX received: ", data);
             //console.log("NMX buf: ", buf);
@@ -288,27 +315,7 @@ function _connectSerial(path, callback) {
             }
         }
         _nmxReadCh = {
-            read: function(cb) {
-                if(!_dev) return cb && cb("not connected");
-                var tries = 10; // 1 second
-                var checkForData = function() {
-                    if(!_dev) return cb && cb("not connected");
-                    if (_dev.receiveBuf.length > 0) {
-                        //console.log("receiveBuf:", _dev.receiveBuf);
-                        var readData = _dev.receiveBuf.shift();
-                        if (cb) cb(null, readData);
-                    } else {
-                        if (tries > 0) {
-                            tries--;
-                            setTimeout(checkForData, 100);
-                        } else {
-                            console.log("NMX timed out waiting for data");
-                            if (cb) cb("timed out");
-                        }
-                    }
-                }
-                checkForData();
-            }
+            read: readData
         }
         _dev.disconnect = function() {
             _dev.connected = false;
@@ -357,7 +364,12 @@ function _connectBt(btPeripheral, callback) {
                             _nmxReadCh.subscribe();
                             _nmxReadCh.on('data', function(data, isNotification) {
                                 if(isNotification) {
-                                    console.log("NMX DATA:", data);
+                                    if (buf && buf.length > 0) {
+                                        buf = Buffer.concat([buf, data]);
+                                    } else {
+                                        buf = data;
+                                    }
+                                    parseIncoming();
                                 }
                             });
                             console.log("NMX connected!");
