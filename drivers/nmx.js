@@ -495,7 +495,7 @@ function _runQueue(queueItem, rec) {
                 if (item.callback) {
                     if (item.readback) {
                         setTimeout(function() {
-                            console.log("NMX: reading data...");
+                            ///console.log("NMX: reading data...");
                             readData(function(err, data) {
                                 if(err) console.log("NMX: error reading:", err);
                                 console.log("read data:", data);
