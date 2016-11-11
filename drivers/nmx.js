@@ -229,7 +229,7 @@ function parseIncoming() {
             var length = buf[header.length + 1];
             if (buf.length >= header.length + 2 + length) {
                 var responseData = buf.slice(header.length + 1, header.length + 2 + length);
-                console.log("NMX DATA (" + length + "):", buf);//responseData);
+                //console.log("NMX DATA (" + length + "):", buf);//responseData);
                 receiveBuf.push(responseData);
                 buf = buf.slice(header.length + 2 + length);
                 parseIncoming();
@@ -438,7 +438,7 @@ function _queueCommand(object, callback) {
 }
 
 function _runQueue(queueItem, rec) {
-    console.log("NMX: queue starting...");
+    //console.log("NMX: queue starting...");
     if (queueItem) {
         _nmxQueue.push(queueItem);
     }
@@ -448,7 +448,7 @@ function _runQueue(queueItem, rec) {
         _queueRunning = true;
     }
 
-    console.log("NMX: running queue...");
+    //console.log("NMX: running queue...");
     var nextItem = _nmxQueue.shift();
     if (!_dev || !_dev.state || _dev.state != "connected") {
         _queueRunning = false;
@@ -463,7 +463,7 @@ function _runQueue(queueItem, rec) {
         (function(item) {
             _nmxCommandCh.write(item.buffer, true, function(err) {
                 if(err) console.log("NMX: error writing:", err);
-                console.log("checking callback");
+                //console.log("checking callback");
                 if (item.callback) {
                     if (item.readback) {
                         setTimeout(function() {
