@@ -8,6 +8,9 @@
             <p class="light padding">
               {{status}}
             </p>
+            <p ng-show="nodevice">
+                <button class="button icon-left ion-plus button-dark" ng-click="showAddDevice()">Add Device</button>
+            </p>
         </div>
         <div class="list card item-dark" ng-repeat="tl in clips" ng-show="view.connected">
             <div class="item item-divider item-dark" ng-click="showClipOptions(tl)">

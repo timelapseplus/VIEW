@@ -398,10 +398,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.camera.model = '';
                     $scope.camera.connected = false;
                     $scope.view.connected = false;
+                    $scope.nodevice = true;
                     $scope.status = "No VIEW device available. Check that the VIEW is powered on and connected via Wifi";
                     callback($scope.status, null);
                     break;
                 case 'camera':
+                    $scope.nodevice = false;
                     $scope.view.connected = true;
                     $scope.camera = {};
                     $scope.lastImage = null;
@@ -497,6 +499,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         ws.onOpen(function() {
             $scope.connected = 1;
             $scope.view.connected = false;
+            $scope.nodevice = false;
             $scope.status = '';
             setTimeout(function() {
                 sendMessage('auth', {
@@ -527,6 +530,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.camera.model = '';
             $scope.camera.connected = false;
             $scope.view.connected = false;
+            $scope.nodevice = false;
             $scope.status = "Lost connection to view.tl";
             $scope.connected = -1;
             $timeout(connect, 3000);
