@@ -1398,6 +1398,9 @@ noble.on('stateChange', function(state) {
 
 noble.on('discover', function(peripheral) {
     //console.log('ble', peripheral);
+    noble.stopScanning();
+    clearInterval(scanIntervalHandle);
+    scanIntervalHandle = null;
     nmx.connect(peripheral);
 });
 
