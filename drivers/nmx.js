@@ -346,11 +346,15 @@ function _connectSerial(path, callback) {
                 _dev.port = null;
             });
         }
-        nmx.emit("status", getStatus());
+        checkMotorAttachment(function(){
+            nmx.emit("status", getStatus());
+        });
         firmwareVersion(function(err, version) {
             console.log("NMX connected!");
             console.log("NMX firmware version: ", version);
             resetMotorPosition(1);
+            resetMotorPosition(2);
+            resetMotorPosition(3);
         });
         if (callback) callback(true);
     });
@@ -396,10 +400,14 @@ function _connectBt(btPeripheral, callback) {
                                 }
                             });
                             console.log("NMX connected!");
-                            nmx.emit("status", getStatus());
+                            checkMotorAttachment(function(){
+                                nmx.emit("status", getStatus());
+                            });
                             firmwareVersion(function(err, version) {
                                 console.log("NMX firmware version: ", version);
                                 resetMotorPosition(1);
+                                resetMotorPosition(2);
+                                resetMotorPosition(3);
                             });
                             if (callback) callback(true);
                         });
