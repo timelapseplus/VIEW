@@ -721,7 +721,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
-                driver: driver
+                driver: driver,
                 motor: motor
             });
         }
