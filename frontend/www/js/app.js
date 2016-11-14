@@ -429,8 +429,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     }
                     callback(null, $scope.axis);
                 case 'move':
-                    if (msg.complete && msg.driver && $scope.axis[msg.driver + '-' + msg.motor]) {
-                        $scope.axis[msg.driver + '-' + msg.motor].moving = false;
+                    var index = getAxisIndex(msg.driver + '-' + msg.motor);
+                    if (msg.complete && msg.driver && $scope.axis[index]) {
+                        $scope.axis[index].moving = false;
                     }
                     callback(null, msg.complete);
                 case 'settings':
@@ -710,14 +711,24 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     }
 
+    $scope.getAxisIndex = function(axisId) {
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].id == axisId) return i; 
+        }
+        return null;
+    }
+
     $scope.move = function(axisId, steps) {
+        console.log("moving ", axisId);
+        var index = getAxisIndex(axisId);
+        if(index === null) return false;
         var parts = axisId.split('-');
         if (steps && parts.length == 2) {
             var driver = parts[0];
             var motor = parts[1];
             console.log("moving motor" + axisId, steps);
-            $scope.axis[axisId].moving = true;
-            $scope.axis[axisId].pos -= steps;
+            $scope.axis[index].moving = true;
+            $scope.axis[index].pos -= steps;
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
@@ -801,7 +812,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.runProgram = function(program) {
         program.focusPos = $scope.focusPos;
         for(var i = 0; i < $scope.axis; i++) {
-            if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[$scope.axis[i].id].pos;
+            if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
         }
 
         if (program.exposureRamping) {
@@ -853,7 +864,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             for(var i = 0; i < $scope.axis; i++) {
                 if($scope.axis[i].connected) {
                     var id = $scope.axis[i].id;
-                    var diff = kf.motor[id] - $scope.axis[id].pos;
+                    var diff = kf.motor[id] - $scope.axis[i].pos;
                     $scope.move(id, 0 - diff);
                 }
             }
@@ -881,7 +892,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 for(var i = 0; i < $scope.axis; i++) {
                     if($scope.axis[i].connected) {
                         var id = $scope.axis[i].id;
-                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[id].pos;
+                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[i].pos;
                     }
                 }
             }
@@ -897,7 +908,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         for(var i = 0; i < $scope.axis; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
-                $scope.timelapse.keyframes[i].motor[id] = $scope.axis[id].pos;
+                $scope.timelapse.keyframes[i].motor[id] = $scope.axis[i].pos;
             }
         }
         $scope.currentKf.ev = $scope.camera.ev;
@@ -930,19 +941,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalMotionSetup = modal;
     });
     $scope.openMotionSetup = function(axisId) {
-        for(var i = 0; i < $scope.axis.length; i++) {
-            if($scope.axis[i].id == axisId) {
-                axisIndex = i;
-                break;
-            }
-        }
-        $scope.setupMotionAxisId = axisId;
+        var axisIndex = getAxisIndex(axisId);
+        if(axisIndex === null) return;
+        $scope.setupMotionAxisIndex = axisIndex;
         $scope.modalMotionSetup.show();
     };
     $scope.closeMotionSetup = function() {
-        if($scope.axis[$scope.setupMotionAxisId].unit == 's') $scope.axis[$scope.setupMotionAxisId].unitSteps = 1;
-        $scope.axis[$scope.setupMotionAxisId].moveSteps = $scope.axis[$scope.setupMotionAxisId].unitMove * $scope.axis[$scope.setupMotionAxisId].unitSteps;
-        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.axis[$scope.setupMotionAxisId]);
+        if($scope.axis[$scope.setupMotionAxisIndex].unit == 's') $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 1;
+        $scope.axis[$scope.setupMotionAxisIndex].moveSteps = $scope.axis[$scope.setupMotionAxisIndex].unitMove * $scope.axis[$scope.setupMotionAxisIndex].unitSteps;
+        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.axis[$scope.setupMotionAxisIndex]);
         $scope.modalMotionSetup.hide();
     };
 
@@ -952,7 +959,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var axis = localStorageService.get('motion-' + axisId);
         if(!axis) {
             axis = {
-                name: 'Motor' + axisInfo.motor,
+                name: '#' + axisInfo.motor,
                 unit: 's',
                 unitSteps: 1,
                 unitMove: 500,
@@ -966,15 +973,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         axis.driver = axisInfo.driver;
         axis.connected = axisInfo.connected;
 
-        var axisIndex = false;
-        if(!$scope.axis) $scope.axis = [];
-        for(var i = 0; i < $scope.axis.length; i++) {
-            if($scope.axis[i].id == axisId) {
-                axisIndex = i;
-                break;
-            }
-        }
-        if(axisIndex === false) {
+        var axisIndex = getAxisIndex(axisId);
+        if(!$scope.axis) $scope.axis = [];        
+        if(axisIndex === null) {
             $scope.axis.push(axis);
         } else {
             axis.pos = $scope.axis[axisIndex].pos;
