@@ -944,26 +944,28 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.openMotionSetup = function(axisId) {
         var axisIndex = $scope.getAxisIndex(axisId);
         if(axisIndex === null) return;
-        $scope.setupMotionAxisIndex = axisIndex;
+        $scope.setupAxis = $scope.axis[axisIndex];
         $scope.modalMotionSetup.show();
     };
     $scope.closeMotionSetup = function() {
-        $scope.axis[$scope.setupMotionAxisIndex].setup = true;
-        if($scope.axis[$scope.setupMotionAxisIndex].unit == 's') $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 1;
-        $scope.axis[$scope.setupMotionAxisIndex].moveSteps = $scope.axis[$scope.setupMotionAxisIndex].unitMove * $scope.axis[$scope.setupMotionAxisIndex].unitSteps;
-        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.axis[$scope.setupMotionAxisIndex]);
+        if($scope.setupAxis.name) $scope.setupAxis.setup = true;
+        if($scope.setupAxis.unit == 's') $scope.setupAxis.unitSteps = 1;
+        $scope.setupAxis.moveSteps = $scope.setupAxis.unitMove * $scope.setupAxis.unitSteps;
+        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.setupAxis);
+        var axisIndex = $scope.getAxisIndex($scope.setupAxis.id);
+        $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
     };
     $scope.changeAxisType = function(type) {
-        $scope.axis[$scope.setupMotionAxisIndex].name = type;
+        $scope.setupAxis.name = type;
         if(type == 'Pan' || type == 'Tilt') {
-            $scope.axis[$scope.setupMotionAxisIndex].unit = '°';
-            $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 560;
-            $scope.axis[$scope.setupMotionAxisIndex].unitMove = 5;
+            $scope.setupAxis.unit = '°';
+            $scope.setupAxis.unitSteps = 560;
+            $scope.setupAxis.unitMove = 5;
         } else {
-            $scope.axis[$scope.setupMotionAxisIndex].unit = 's';
-            $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 1;
-            $scope.axis[$scope.setupMotionAxisIndex].unitMove = 500;
+            $scope.setupAxis.unit = 's';
+            $scope.setupAxis.unitSteps = 1;
+            $scope.setupAxis.unitMove = 500;
         }
     }
 

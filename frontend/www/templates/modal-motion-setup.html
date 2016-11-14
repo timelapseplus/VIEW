@@ -4,7 +4,7 @@
             <button class="button button-clear" ng-click="closeMotionSetup()"><i class="icon ion-close"></i></button>
           </div>
           <h1 class="title">
-            Motion Setup ({{axis[setupMotionAxisIndex].driver}} motor {{axis[setupMotionAxisIndex].motor}})
+            Motion Setup ({{setupAxis.driver}} motor {{setupAxis.motor}})
         </h1>
     </ion-header-bar>
     <ion-content class="bg-dark">
@@ -14,19 +14,19 @@
                 <div class="input-label">
                     Axis Function
                 </div>
-                <select ng-model="axis[setupMotionAxisIndex].name" ng-select="changeAxisType(axis[setupMotionAxisIndex].name)">
+                <select ng-model="setupAxis.name" ng-select="changeAxisType(setupAxis.name)">
                     <option value="Pan">Pan</option>
                     <option value="Tilt">Tilt</option>
                     <option value="Slide">Slide</option>
                     <option value="Focus">Focus</option>
-                    <option value="#{{axis[setupMotionAxisIndex].motor}}">#{{axis[setupMotionAxisIndex].motor}}</option>
+                    <option value="#{{setupAxis.motor}}">#{{setupAxis.motor}}</option>
                 </select>
             </label>
             <label class="item item-input item-select item-dark">
                 <div class="input-label">
                     Axis Unit
                 </div>
-                <select ng-model="axis[setupMotionAxisIndex].unit">
+                <select ng-model="setupAxis.unit">
                     <option value="s">Steps</option>
                     <option value="°">Degrees</option>
                     <option value="in">Inches</option>
@@ -34,15 +34,15 @@
                     <option value="m">Meters</option>
                 </select>
             </label>
-            <label class="item item-input item-dark" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
+            <label class="item item-input item-dark" ng-hide="setupAxis.unit=='s'">
                 <span class="input-label">Steps per Unit</span>
-                <input ng-model="axis[setupMotionAxisIndex].unitSteps" type="tel">
+                <input ng-model="setupAxis.unitSteps" type="tel">
             </label>
-            <label class="item item-input item-dark" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
-                <span class="input-label">Move per click ({{axis[setupMotionAxisIndex].unit}})</span>
-                <input ng-model="axis[setupMotionAxisIndex].unitMove" type="tel">
+            <label class="item item-input item-dark">
+                <span class="input-label">Move per click ({{setupAxis.unit}})</span>
+                <input ng-model="setupAxis.unitMove" type="tel">
             </label>
-            <ion-checkbox class= "item-dark" ng-model="axis[setupMotionAxisIndex].reverse">Reverse Direction</ion-checkbox>
+            <ion-checkbox class= "item-dark" ng-model="setupAxis.reverse">Reverse Direction</ion-checkbox>
         </ion-list>
 
     </ion-content>
