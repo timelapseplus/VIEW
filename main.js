@@ -1602,14 +1602,8 @@ app.on('message', function(msg) {
                         light: light.ev()
                     });
                 } else if (msg.key == "motion") {
-                    var status = nmx.getStatus();
-                    var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
-                    var motors = [];
-                    motors.push({driver:'NMX', motor:1, connected:status.motor1});
-                    msg.reply('motion', {
-                        available: available,
-                        motors: motors
-                    });
+                    var motion = getMotionStatus();
+                    msg.reply('motion', motion);
                 } else if (msg.key == "thumbnail") {
                     if (camera.ptp.photo && camera.ptp.photo.jpeg) {
                         msg.reply('thumbnail', {
@@ -1744,10 +1738,22 @@ intervalometer.on('status', function(msg) {
     cache.intervalometerStatus = msg;
 });
 
-nmx.on('status', function(msg) {
-    app.send('nmx', {
-        status: msg
-    });
+function getMotionStatus() {
+    var status = nmx.getStatus();
+    var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
+    var motors = [];
+    motors.push({driver:'NMX', motor:1, connected:status.motor1});
+    motors.push({driver:'NMX', motor:2, connected:status.motor2});
+    motors.push({driver:'NMX', motor:3, connected:status.motor3});
+    return {
+        available: available,
+        motors: motors
+    };
+}
+
+nmx.on('status', function(){
+    var motion = getMotionStatus();
+    app.send('motion', motion);
 });
 
 // turn off blinking light once app has loaded
