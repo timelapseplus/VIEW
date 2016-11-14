@@ -726,6 +726,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (steps && parts.length == 2) {
             var driver = parts[0];
             var motor = parts[1];
+            if($scope.axis[index].reverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
             $scope.axis[index].pos -= steps;
@@ -947,11 +948,24 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalMotionSetup.show();
     };
     $scope.closeMotionSetup = function() {
+        $scope.axis[$scope.setupMotionAxisIndex].setup = true;
         if($scope.axis[$scope.setupMotionAxisIndex].unit == 's') $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 1;
         $scope.axis[$scope.setupMotionAxisIndex].moveSteps = $scope.axis[$scope.setupMotionAxisIndex].unitMove * $scope.axis[$scope.setupMotionAxisIndex].unitSteps;
         localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.axis[$scope.setupMotionAxisIndex]);
         $scope.modalMotionSetup.hide();
     };
+    $scope.changeAxisType = function(type) {
+        $scope.axis[$scope.setupMotionAxisIndex].name = type;
+        if(type == 'Pan' || type == 'Tilt') {
+            $scope.axis[$scope.setupMotionAxisIndex].unit = '°';
+            $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 560;
+            $scope.axis[$scope.setupMotionAxisIndex].unitMove = 5;
+        } else {
+            $scope.axis[$scope.setupMotionAxisIndex].unit = 's';
+            $scope.axis[$scope.setupMotionAxisIndex].unitSteps = 1;
+            $scope.axis[$scope.setupMotionAxisIndex].unitMove = 500;
+        }
+    }
 
     function setupAxis(axisInfo) {
         var axisId = axisInfo.driver + '-' + axisInfo.motor;
@@ -965,7 +979,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 unitMove: 500,
                 reverse: false,
                 pos: 0,
-                moving: false
+                moving: false,
+                setup: false
             }
         }
         axis.id = axisId;

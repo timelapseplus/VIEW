@@ -10,11 +10,11 @@
     <ion-content class="bg-dark">
 
         <ion-list>
-            <label class="item item-input item-select">
+            <label class="item item-input item-select item-dark">
                 <div class="input-label">
                     Axis Function
                 </div>
-                <select ng-model="axis[setupMotionAxisIndex].name">
+                <select ng-model="axis[setupMotionAxisIndex].name" ng-select="changeAxisType(axis[setupMotionAxisIndex].name)">
                     <option value="Pan">Pan</option>
                     <option value="Tilt">Tilt</option>
                     <option value="Slide">Slide</option>
@@ -22,7 +22,7 @@
                     <option value="#{{axis[setupMotionAxisIndex].motor}}">#{{axis[setupMotionAxisIndex].motor}}</option>
                 </select>
             </label>
-            <label class="item item-input item-select">
+            <label class="item item-input item-select item-dark">
                 <div class="input-label">
                     Axis Unit
                 </div>
@@ -34,15 +34,15 @@
                     <option value="m">Meters</option>
                 </select>
             </label>
-            <label class="item item-input" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
+            <label class="item item-input item-dark" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
                 <span class="input-label">Steps per Unit</span>
                 <input ng-model="axis[setupMotionAxisIndex].unitSteps" type="tel">
             </label>
-            <label class="item item-input" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
+            <label class="item item-input item-dark" ng-hide="axis[setupMotionAxisIndex].unit=='s'">
                 <span class="input-label">Move per click ({{axis[setupMotionAxisIndex].unit}})</span>
                 <input ng-model="axis[setupMotionAxisIndex].unitMove" type="tel">
             </label>
-            <ion-checkbox ng-model="axis[setupMotionAxisIndex].reverse">Reverse Direction</ion-checkbox>
+            <ion-checkbox class= "item-dark" ng-model="axis[setupMotionAxisIndex].reverse">Reverse Direction</ion-checkbox>
         </ion-list>
 
     </ion-content>
