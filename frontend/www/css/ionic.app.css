@@ -5288,7 +5288,7 @@ input, button, select, textarea {
   padding: 7px 10px 7px 0px;
   max-width: 200px;
   width: 35%;
-  color: #444;
+  /*color: #444;*/
   font-size: 16px; }
 
 .placeholder-icon {
@@ -5349,6 +5349,7 @@ input, button, select, textarea {
   padding-top: 8px; }
 
 input, textarea {
+  color: #fff;
   width: 100%; }
 
 textarea {

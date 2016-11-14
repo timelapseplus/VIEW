@@ -968,6 +968,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.setupAxis.unitMove = 500;
         }
     }
+    $scope.changeAxisUnit = function(unit) {
+        $scope.setupAxis.unit = unit;
+    }
+    $scope.changeAxisUnitSteps = function(unitSteps) {
+        $scope.setupAxis.unitSteps = unitSteps;
+    }
+    $scope.changeAxisUnitMove = function(unitMove) {
+        $scope.setupAxis.unitMove = unitMove;
+    }
+    $scope.changeAxisReverse = function(reverse) {
+        $scope.setupAxis.reverse = reverse;
+    }
 
     function setupAxis(axisInfo) {
         var axisId = axisInfo.driver + '-' + axisInfo.motor;
@@ -975,7 +987,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var axis = localStorageService.get('motion-' + axisId);
         if(!axis) {
             axis = {
-                name: '#' + axisInfo.motor,
+                name: '',
                 unit: 's',
                 unitSteps: 1,
                 unitMove: 500,
