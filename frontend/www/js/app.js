@@ -419,10 +419,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     break;
                 case 'motion':
                     if(msg.available) {
+                        $scope.motionAvailable = true;
                         for(var i = 0; i < msg.motors.length; i++) {
                             setupAxis(msg.motors[i]);
                         }
                     } else {
+                        $scope.motionAvailable = false;
                         for(var i = 0; i < $scope.axis.length; i++) {
                             $scope.axis[i].connected = false;
                         }
@@ -951,7 +953,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if($scope.setupAxis.name) $scope.setupAxis.setup = true;
         if($scope.setupAxis.unit == 's') $scope.setupAxis.unitSteps = 1;
         $scope.setupAxis.moveSteps = $scope.setupAxis.unitMove * $scope.setupAxis.unitSteps;
-        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.setupAxis);
+        localStorageService.set('motion-' + $scope.setupAxis.id, $scope.setupAxis);
         var axisIndex = $scope.getAxisIndex($scope.setupAxis.id);
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
