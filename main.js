@@ -1603,7 +1603,7 @@ app.on('message', function(msg) {
                     });
                 } else if (msg.key == "motion") {
                     var status = nmx.getStatus();
-                    var available = connected && (status.motor1 || status.motor2 || status.motor2);
+                    var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
                     var motors = [];
                     motors.push({driver:'NMX', motor:1, connected:status.motor1});
                     msg.reply('motion', {
