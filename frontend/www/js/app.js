@@ -930,7 +930,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalMotionSetup = modal;
     });
     $scope.openMotionSetup = function(axisId) {
-        for(var i in $scope.axis; i < $scope.axis.length; i++) {
+        for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].id == axisId) {
                 axisIndex = i;
                 break;
