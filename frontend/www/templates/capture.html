@@ -23,6 +23,15 @@
                 <button class="button button-dark button-block" ng-click="focus(1)"><i class="icon ion-arrow-right-b"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(2)"><i class="icon ion-skip-forward"></i></button>
             </div>
+
+            <div class="row" ng-hide="focusMode" ng-repeat="a in axis | filter:{'connected':true}">
+                <div class="button-bar">
+                    <button class="button button-dark button-block" ng-disabled="moving[a.id]" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-skip-backward"></i></button>
+                    <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                    <button class="button button-dark button-block" ng-disabled="moving[a.id]" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-skip-forward"></i></button>
+                </div>
+            </div>
+
             <div class="row" ng-show="nmx.connected && !focusMode">
                 <div class="button-bar" ng-show="nmx.motor1">
                     <button class="button button-dark button-block" ng-disabled="moving1" ng-click="move(1, -(moveSteps[0]))"><i class="icon ion-skip-backward"></i></button>

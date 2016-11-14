@@ -21,6 +21,7 @@ templates/timelapse.html
 templates/menu.html
 templates/view.html
 templates/modal-exposure.html
+templates/modal-motion-setup.html
 templates/modal-login.html
 templates/_connect.html
 

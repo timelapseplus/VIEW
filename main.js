@@ -1478,13 +1478,14 @@ light.start();
 app.on('message', function(msg) {
     try {
         switch(msg.type) {
-            case 'nmx':            
-                if (msg.key == "move" && msg.motor) {
+            case 'motion':            
+                if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
-                    nmx.move(msg.motor, msg.val, function() {
+                    if(msg.driver == 'NMX') nmx.move(msg.motor, msg.val, function() {
                         msg.reply('move', {
                             complete: true,
                             motor: msg.motor
+                            driver: msg.driver
                         });
                     });
                 }
@@ -1600,9 +1601,14 @@ app.on('message', function(msg) {
                     msg.reply('light', {
                         light: light.ev()
                     });
-                } else if (msg.key == "nmx") {
-                    msg.reply('nmx', {
-                        status: nmx.getStatus()
+                } else if (msg.key == "motion") {
+                    var status = nmx.getStatus();
+                    var available = connected && (status.motor1 || status.motor2 || status.motor2);
+                    var motors = [];
+                    motors.push({driver:'NMX', motor:1, connected:status.motor1});
+                    msg.reply('motion', {
+                        available: available,
+                        motors: motors
                     });
                 } else if (msg.key == "thumbnail") {
                     if (camera.ptp.photo && camera.ptp.photo.jpeg) {

@@ -91,7 +91,7 @@ function calculateIntervalMs(interval, currentEv) {
     }
 }
 
-function doKeyframeAxis(axisName, setupFirst, motionFunction) {
+function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
     var keyframes = intervalometer.currentProgram.keyframes;
     if (status.running && keyframes && keyframes.length > 0 && keyframes[0][axisName] != null) {
         var kfSet = null;
@@ -99,31 +99,44 @@ function doKeyframeAxis(axisName, setupFirst, motionFunction) {
 
         if (setupFirst) {
             keyframes[0].seconds = 0;
-            keyframes[0][axisName] = 0;
+            if(axisSubIndex !== null) {
+                keyframes[0][axisName][axisSubIndex] = 0;
+            } else {
+                keyframes[0][axisName] = 0;
+            }
             kfSet = 0;
         } else {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
             console.log("Seconds since start: " + secondsSinceStart);
             kfPoints = keyframes.map(function(kf) {
-                return {
-                    x: kf.seconds,
-                    y: kf[axisName] || 0
+                if(axisSubIndex !== null) {
+                    return {
+                        x: kf.seconds,
+                        y: kf[axisName][axisSubIndex] || 0
+                    }
+                } else {
+                    return {
+                        x: kf.seconds,
+                        y: kf[axisName] || 0
+                    }
                 }
             });
             kfSet = interpolate.linear(kfPoints, secondsSinceStart);
             console.log(axisName + " target: " + kfSet);
         }
-        kfCurrent = intervalometer.currentProgram[axisName + 'Pos'];
+        var axisNameExtension = '';
+        if(axisSubIndex !== null) axisNameExtension = '-' + axisSubIndex;
+        kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
 
         if (kfCurrent == null) {
             motionFunction(kfSet); // absolute setting (like ev)
         } else {
             var kfTarget = Math.round(kfSet);
-            if (kfTarget != intervalometer.currentProgram[axisName + 'Pos']) {
-                var relativeMove = kfTarget - intervalometer.currentProgram[axisName + 'Pos'];
+            if (kfTarget != intervalometer.currentProgram[axisName + axisNameExtension + 'Pos']) {
+                var relativeMove = kfTarget - intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
                 motionFunction(relativeMove);
-                intervalometer.currentProgram[axisName + 'Pos'] = kfTarget;
+                intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] = kfTarget;
             } else {
                 if (motionFunction) motionFunction();
             }
@@ -148,12 +161,12 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    doKeyframeAxis('ev', setupFirst, function(ev) {
+    doKeyframeAxis('ev', null, setupFirst, function(ev) {
         //if (ev !== null && camera.settings.ev != ev) camera.setEv(ev);
         checkDone();
     });
 
-    doKeyframeAxis('focus', setupFirst, function(focus) {
+    doKeyframeAxis('focus', null, setupFirst, function(focus) {
         if (focus) {
             camera.ptp.preview(function() {
                 setTimeout(function() {
@@ -170,53 +183,30 @@ function processKeyframes(setupFirst, callback) {
         }
     });
 
-    doKeyframeAxis('motor1', setupFirst, function(move) {
-        if (move) {
-            console.log("Moving motor1 by " + move + " steps");
-            if (nmx && nmx.getStatus().connected) {
-                nmx.move(1, 0 - move, function() {
+    if(intervalometer.currentProgram.keyframes[0]) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
+        doKeyframeAxis('motor', motorId, setupFirst, function(move) {
+            var parts = motorId.split('-');
+            if (move && parts.length == 2) {
+                var driver = parts[0];
+                var motor = parts[1];
+                console.log("Moving " + motorId + " by " + move + " steps");
+                if(driver == 'NMX') {
+                    if (nmx && nmx.getStatus().connected) {
+                        nmx.move(motor, 0 - move, function() {
+                            checkDone();
+                        });
+                    } else {
+                        console.log("error moving -- nmx not connected");
+                        checkDone();
+                    }
+                } else {
                     checkDone();
-                });
+                }
             } else {
-                console.log("error moving -- nmx not connected");
                 checkDone();
             }
-        } else {
-            checkDone();
-        }
-    });
-
-    doKeyframeAxis('motor2', setupFirst, function(move) {
-        if (move) {
-            console.log("Moving motor2 by " + move + " steps");
-            if (nmx && nmx.getStatus().connected) {
-                nmx.move(2, 0 - move, function() {
-                    checkDone();
-                });
-            } else {
-                console.log("error moving -- nmx not connected");
-                checkDone();
-            }
-        } else {
-            checkDone();
-        }
-    });
-
-    doKeyframeAxis('motor3', setupFirst, function(move) {
-        if (move) {
-            console.log("Moving motor3 by " + move + " steps");
-            if (nmx && nmx.getStatus().connected) {
-                nmx.move(3, 0 - move, function() {
-                    checkDone();
-                });
-            } else {
-                console.log("error moving -- nmx not connected");
-                checkDone();
-            }
-        } else {
-            checkDone();
-        }
-    });
+        });
+    }
 
 }
 

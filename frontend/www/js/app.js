@@ -253,18 +253,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         sunsetCompensation: '0',
         keyframes: [{
             focus: 0,
-            motor1: 0,
-            motor2: 0,
-            motor3: 0,
             ev: "not set"
         }]
     };
     $scope.setup = {
         state: 0
     };
-    $scope.nmx = {
-        connected: false
-    };
+    $scope.axis = [];
 
     $scope.presets = [{
         selected: true,
@@ -422,14 +417,20 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         callback("no camera", null);
                     }
                     break;
-                case 'nmx':
-                    $scope.nmx = msg.status;
-                    callback(null, $scope.nmx);
+                case 'motion':
+                    if(msg.present) {
+                        for(var i = 0; i < msg.motors.length; i++) {
+                            setupAxis(msg.motors[i]);
+                        }
+                    } else {
+                        for(var i = 0; i < $scope.axis.length; i++) {
+                            $scope.axis[i].connected = false;
+                        }
+                    }
+                    callback(null, $scope.axis);
                 case 'move':
-                    if (msg.complete) {
-                        if(msg.motor == 1)  $scope.moving1 = false;   
-                        if(msg.motor == 2)  $scope.moving2 = false;   
-                        if(msg.motor == 3)  $scope.moving3 = false;   
+                    if (msg.complete && msg.driver && $scope.axis[msg.driver + '-' + msg.motor]) {
+                        $scope.axis[msg.driver + '-' + msg.motor].moving = false;
                     }
                     callback(null, msg.complete);
                 case 'settings':
@@ -509,7 +510,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     key: 'camera'
                 });
                 sendMessage('get', {
-                    key: 'nmx'
+                    key: 'motion'
                 });
                 setTimeout(function() {
                     if ($state.current.name == "app.view") {
@@ -709,29 +710,19 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     }
 
-    $scope.motor1Pos = 0;
-    $scope.motor2Pos = 0;
-    $scope.motor3Pos = 0;
-    $scope.moveDegrees = 5;
-    $scope.move = function(motorId, steps) {
-        if (steps) {
-            console.log("moving motor" + motorId, steps);
-            if(motorId == 1) {
-                $scope.moving1 = true;
-                $scope.motor1Pos -= steps;
-            }
-            if(motorId == 2) {
-                $scope.moving2 = true;
-                $scope.motor2Pos -= steps;
-            }
-            if(motorId == 3) {
-                $scope.moving3 = true;
-                $scope.motor3Pos -= steps;
-            }
-            sendMessage('nmx', {
+    $scope.move = function(axisId, steps) {
+        var parts = axisId.split('-');
+        if (steps && parts.length == 2) {
+            var driver = parts[0];
+            var motor = parts[1];
+            console.log("moving motor" + axisId, steps);
+            $scope.axis[axisId].moving = true;
+            $scope.axis[axisId].pos -= steps;
+            sendMessage('motion', {
                 key: 'move',
                 val: steps,
-                motor: motorId
+                driver: driver
+                motor: motor
             });
         }
     }
@@ -745,77 +736,6 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             key: 'manual',
             val: dir,
             repeat: repeat
-        });
-    }
-
-    $scope.moveType = ['M1', 'M2', 'M3'];
-    $scope.moveSteps = [1000, 1000, 1000];
-    $scope.moveStepsName = '1000 steps';
-
-    $scope.setupMoveSteps = function(axis) {
-        var buttons;
-        if($scope.moveType[axis - 1] == 'Pan' || $scope.moveType[axis - 1] == 'Tilt' ) {
-            buttons = [{
-                text: '1&deg;'
-            }, {
-                text: '5&deg;'
-            }, {
-                text: '10&deg;'
-            }, {
-                text: '15&deg;'
-            }]
-        } else {
-            buttons = [{
-                text: '250 steps'
-            }, {
-                text: '500 steps'
-            }, {
-                text: '1000 steps'
-            }, {
-                text: '2500 steps'
-            }]
-        }
-        $ionicActionSheet.show({
-            buttons: buttons,
-            titleText: 'axis ' + axis + 'move increments',
-            buttonClicked: function(index) {
-                $scope.moveStepsName = buttons[index].text;
-                if($scope.moveType[axis - 1] == 'Pan' || $scope.moveType[axis - 1] == 'Tilt' ) {
-                    if (index == 0) $scope.moveSteps[axis - 1] = 1 * 560;
-                    if (index == 1) $scope.moveSteps[axis - 1] = 5 * 560;
-                    if (index == 2) $scope.moveSteps[axis - 1] = 10 * 560;
-                    if (index == 3) $scope.moveSteps[axis - 1] = 15 * 560;
-                    return true;
-                } else {
-                    if (index == 0) $scope.moveSteps[axis - 1] = 250;
-                    if (index == 1) $scope.moveSteps[axis - 1] = 500;
-                    if (index == 2) $scope.moveSteps[axis - 1] = 1000;
-                    if (index == 3) $scope.moveSteps[axis - 1] = 2500;
-                    return true;
-                }
-            }
-        });
-    }
-
-    $scope.setupMoveType = function(axis) {
-        $ionicActionSheet.show({
-            buttons: [{
-                text: 'Pan'
-            }, {
-                text: 'Tilt'
-            }, {
-                text: 'Slide'
-            }, {
-                text: 'M' + axis
-            }],
-            titleText: 'Axis ' + axis + ' Function',
-            buttonClicked: function(index) {
-                if (index == 0) $scope.moveType[axis - 1] = "Pan";
-                if (index == 1) $scope.moveType[axis - 1] = "Tilt";
-                if (index == 2) $scope.moveType[axis - 1] = "Slide";
-                if (index == 3) $scope.moveType[axis - 1] = "M" + axis;
-                return true;
-            }
         });
     }
 
@@ -880,9 +800,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.runProgram = function(program) {
         program.focusPos = $scope.focusPos;
-        program.motor1Pos = $scope.motor1Pos;
-        program.motor2Pos = $scope.motor2Pos;
-        program.motor3Pos = $scope.motor3Pos;
+        for(var i = 0; i < $scope.axis; i++) {
+            if($scope.axis[i].connected) program['motor-' $scope.axis[i].id + 'Pos'] = $scope.axis[$scope.axis[i].id].pos;
+        }
 
         if (program.exposureRamping) {
             program.rampMode = 'auto';
@@ -929,18 +849,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 var repeat = Math.abs(focusDiff);
                 if (repeat > 0) $scope.focus(dir, repeat);
             }
-            if (kf.motor1 !== null) {
-                var motor1Diff = kf.motor1 - $scope.motor1Pos;
-                $scope.move(1, 0 - motor1Diff);
+
+            for(var i = 0; i < $scope.axis; i++) {
+                if($scope.axis[i].connected) {
+                    var id = $scope.axis[i].id;
+                    var diff = kf.motor[id] - $scope.axis[id].pos;
+                    $scope.move(id, 0 - diff);
+                }
             }
-            if (kf.motor2 !== null) {
-                var motor2Diff = kf.motor2 - $scope.motor2Pos;
-                $scope.move(2, 0 - motor2Diff);
-            }
-            if (kf.motor3 !== null) {
-                var motor3Diff = kf.motor3 - $scope.motor3Pos;
-                $scope.move(3, 0 - motor3Diff);
-            }
+
         }
         $scope.preview(true);
         $scope.modalExposure.show();
@@ -960,37 +877,110 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if ($scope.currentKfIndex == 0) {
             for (var i = 1; i < $scope.timelapse.keyframes.length; i++) {
                 $scope.timelapse.keyframes[i].focus -= $scope.focusPos;
-                $scope.timelapse.keyframes[i].motor1 -= $scope.motor1Pos;
-                $scope.timelapse.keyframes[i].motor2 -= $scope.motor2Pos;
-                $scope.timelapse.keyframes[i].motor3 -= $scope.motor3Pos;
+
+                for(var i = 0; i < $scope.axis; i++) {
+                    if($scope.axis[i].connected) {
+                        var id = $scope.axis[i].id;
+                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[id].pos;
+                    }
+                }
             }
             $scope.focusPos = 0;
-            $scope.motor1Pos = 0;
-            $scope.motor2Pos = 0;
-            $scope.motor3Pos = 0;
+
+            for(var i = 0; i < $scope.axis; i++) {
+                $scope.axis[i].pos = 0;
+            }
+
         }
         $scope.currentKf.focus = $scope.focusPos;
-        $scope.currentKf.motor1 = $scope.motor1Pos;
-        $scope.currentKf.motor2 = $scope.motor2Pos;
-        $scope.currentKf.motor3 = $scope.motor3Pos;
+
+        for(var i = 0; i < $scope.axis; i++) {
+            if($scope.axis[i].connected) {
+                var id = $scope.axis[i].id;
+                $scope.timelapse.keyframes[i].motor[id] = $scope.axis[id].pos;
+            }
+        }
         $scope.currentKf.ev = $scope.camera.ev;
         $scope.modalExposure.hide();
     };
     $scope.addKeyframe = function() {
         if (!$scope.timelapse.keyframes) $scope.timelapse.keyframes = [];
         var lastKf = $scope.timelapse.keyframes[$scope.timelapse.keyframes.length - 1];
-        $scope.timelapse.keyframes.push({
+        var kf = {
             focus: lastKf.focus,
-            motor1: lastKf.motor1,
-            motor2: lastKf.motor2,
-            motor3: lastKf.motor3,
             seconds: 600
-        });
+        }
+        for(var i = 0; i < $scope.axis; i++) {
+            if($scope.axis[i].connected) {
+                var id = $scope.axis[i].id;
+                kf.motor[id] = lastKf.motor[id];
+            }
+        }
+        $scope.timelapse.keyframes.push(kf);
     }
     $scope.removeKeyframe = function(index) {
         $scope.timelapse.keyframes.splice(index, 1);
     }
 
+
+    $ionicModal.fromTemplateUrl('templates/modal-motion-setup.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.modalMotionSetup = modal;
+    });
+    $scope.openMotionSetup = function(axisId) {
+        for(var i in $scope.axis; i < $scope.axis.length; i++) {
+            if($scope.axis[i].id == axisId) {
+                axisIndex = i;
+                break;
+            }
+        }
+        $scope.setupMotionAxisId = axisId;
+        $scope.modalMotionSetup.show();
+    };
+    $scope.closeMotionSetup = function() {
+        if($scope.axis[$scope.setupMotionAxisId].unit == 's') $scope.axis[$scope.setupMotionAxisId].unitSteps = 1;
+        $scope.axis[$scope.setupMotionAxisId].moveSteps = $scope.axis[$scope.setupMotionAxisId].unitMove * $scope.axis[$scope.setupMotionAxisId].unitSteps;
+        localStorageService.set('motion-' + $scope.setupMotionAxisId, $scope.axis[$scope.setupMotionAxisId]);
+        $scope.modalMotionSetup.hide();
+    };
+
+    function setupAxis(axisInfo) {
+        var axisId = axisInfo.driver + '-' + axisInfo.motor;
+        var axis = localStorageService.get('motion-' + axisId);
+        if(!axis) {
+            axis = {
+                name: 'Motor' + axisInfo.motor,
+                unit: 's',
+                unitSteps: 1,
+                unitMove: 500,
+                reverse: false,
+                pos: 0,
+                moving: false
+            }
+        }
+        axis.id = axisId;
+        axis.motor = axisInfo.motor;
+        axis.driver = axisInfo.driver;
+        axis.connected = axisIndex.connected;
+
+        var axisIndex = false;
+        if(!$scope.axis) $scope.axis = [];
+        for(var i in $scope.axis; i < $scope.axis.length; i++) {
+            if($scope.axis[i].id == axisId) {
+                axisIndex = i;
+                break;
+            }
+        }
+        if(axisIndex === false) {
+            $scope.axis.push(axis);
+        } else {
+            axis.pos = $scope.axis[axisIndex].pos;
+            axis.moving = $scope.axis[axisIndex].moving;
+            $scope.axis[axisIndex] = axis;
+        }
+    }
 
     $ionicModal.fromTemplateUrl('templates/modal-login.html', {
         scope: $scope,
