@@ -964,7 +964,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         axis.id = axisId;
         axis.motor = axisInfo.motor;
         axis.driver = axisInfo.driver;
-        axis.connected = axisIndex.connected;
+        axis.connected = axisInfo.connected;
 
         var axisIndex = false;
         if(!$scope.axis) $scope.axis = [];
