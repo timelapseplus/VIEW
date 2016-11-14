@@ -429,7 +429,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     }
                     callback(null, $scope.axis);
                 case 'move':
-                    var index = getAxisIndex(msg.driver + '-' + msg.motor);
+                    var index = $scope.getAxisIndex(msg.driver + '-' + msg.motor);
                     if (msg.complete && msg.driver && $scope.axis[index]) {
                         $scope.axis[index].moving = false;
                     }
@@ -720,7 +720,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.move = function(axisId, steps) {
         console.log("moving ", axisId);
-        var index = getAxisIndex(axisId);
+        var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
         if (steps && parts.length == 2) {
@@ -941,7 +941,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalMotionSetup = modal;
     });
     $scope.openMotionSetup = function(axisId) {
-        var axisIndex = getAxisIndex(axisId);
+        var axisIndex = $scope.getAxisIndex(axisId);
         if(axisIndex === null) return;
         $scope.setupMotionAxisIndex = axisIndex;
         $scope.modalMotionSetup.show();
@@ -973,7 +973,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         axis.driver = axisInfo.driver;
         axis.connected = axisInfo.connected;
 
-        var axisIndex = getAxisIndex(axisId);
+        var axisIndex = $scope.getAxisIndex(axisId);
         if(!$scope.axis) $scope.axis = [];        
         if(axisIndex === null) {
             $scope.axis.push(axis);
