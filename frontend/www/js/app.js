@@ -967,7 +967,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
         var axisIndex = false;
         if(!$scope.axis) $scope.axis = [];
-        for(var i in $scope.axis; i < $scope.axis.length; i++) {
+        for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].id == axisId) {
                 axisIndex = i;
                 break;
