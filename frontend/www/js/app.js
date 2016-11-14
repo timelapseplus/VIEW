@@ -418,7 +418,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     }
                     break;
                 case 'motion':
-                    if(msg.present) {
+                    if(msg.available) {
                         for(var i = 0; i < msg.motors.length; i++) {
                             setupAxis(msg.motors[i]);
                         }
