@@ -948,6 +948,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     function setupAxis(axisInfo) {
         var axisId = axisInfo.driver + '-' + axisInfo.motor;
+        console.log("setting up axis: ", axisId);
         var axis = localStorageService.get('motion-' + axisId);
         if(!axis) {
             axis = {
@@ -980,6 +981,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             axis.moving = $scope.axis[axisIndex].moving;
             $scope.axis[axisIndex] = axis;
         }
+        console.log("$scope.axis", $scope.axis);
     }
 
     $ionicModal.fromTemplateUrl('templates/modal-login.html', {
