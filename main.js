@@ -1484,7 +1484,7 @@ app.on('message', function(msg) {
                     if(msg.driver == 'NMX') nmx.move(msg.motor, msg.val, function() {
                         msg.reply('move', {
                             complete: true,
-                            motor: msg.motor
+                            motor: msg.motor,
                             driver: msg.driver
                         });
                     });
