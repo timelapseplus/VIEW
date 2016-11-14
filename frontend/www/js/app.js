@@ -801,7 +801,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.runProgram = function(program) {
         program.focusPos = $scope.focusPos;
         for(var i = 0; i < $scope.axis; i++) {
-            if($scope.axis[i].connected) program['motor-' $scope.axis[i].id + 'Pos'] = $scope.axis[$scope.axis[i].id].pos;
+            if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[$scope.axis[i].id].pos;
         }
 
         if (program.exposureRamping) {
