@@ -1537,6 +1537,7 @@ db.get('gps', function(err, en) {
 
 db.get('autoOffMinutes', function(err, minutes) {
     if(!err) {
+        if(minutes === null) minutes = 10;
         if(!minutes) minutes = false;
         power.setAutoOff(minutes);
     }
