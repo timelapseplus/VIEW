@@ -377,9 +377,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             console.log("message received: ", msg);
 
             var callback = function() {};
-            if (message._cbId) {
+            if (msg._cbId) {
                 for (var i = 0; i < callbackList.length; i++) {
-                    if (callbackList[i]._cbId == message._cbId) {
+                    if (callbackList[i]._cbId == msg._cbId) {
                         callback = callbackList[i].callback;
                         callbackList.splice(i, 1);
                         break;
@@ -573,7 +573,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         callbackList.splice(i, 1);
                     }
                 } else {
-                    maxId = 1;
+                    maxId = 0;
                 }
                 var cbId = maxId + 1;
                 callbackList.push({
@@ -759,8 +759,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     function dbGet(key, callback) {
         sendMessage('dbGet', {
             key: key
-        }, function(res){
-            callback && callback(res.err, res.val);
+        }, function(err, res){
+            callback && callback(err, res.val);
             console.log("dbGet result", res);
         });
     }
@@ -769,8 +769,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         sendMessage('dbSet', {
             key: key,
             val: val
-        }, function(res){
-            callback && callback(res.err);
+        }, function(err){
+            callback && callback(err);
             console.log("dbSet result", res);
         });
     }

@@ -1486,9 +1486,9 @@ app.on('message', function(msg) {
                     (function(key, reply) {
                         db.get(key, function(err, val){
                             reply('dbVal', {
-                                error: err,
                                 key: key,
-                                val: val
+                                val: val,
+                                error: err
                             });
                         });
                     })(msg.key, msg.reply);
