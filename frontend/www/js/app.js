@@ -865,9 +865,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 if (repeat > 0) $scope.focus(dir, repeat);
             }
 
+            if(!kf.motor) kf.motor = {};
             for(var i = 0; i < $scope.axis.length; i++) {
                 if($scope.axis[i].connected) {
                     var id = $scope.axis[i].id;
+                    if(!kf.motor[id]) kf.motor[id] = 0;
                     var diff = kf.motor[id] - $scope.axis[i].pos;
                     $scope.move(id, 0 - diff);
                 }
