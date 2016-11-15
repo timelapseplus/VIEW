@@ -865,7 +865,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 if (repeat > 0) $scope.focus(dir, repeat);
             }
 
-            for(var i = 0; i < $scope.axis; i++) {
+            for(var i = 0; i < $scope.axis.length; i++) {
                 if($scope.axis[i].connected) {
                     var id = $scope.axis[i].id;
                     var diff = kf.motor[id] - $scope.axis[i].pos;
@@ -891,6 +891,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }, delay);
         if ($scope.currentKfIndex == 0) {
             for (var i = 1; i < $scope.timelapse.keyframes.length; i++) {
+
                 $scope.timelapse.keyframes[i].focus -= $scope.focusPos;
 
                 for(var i = 0; i < $scope.axis; i++) {
@@ -902,7 +903,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
             $scope.focusPos = 0;
 
-            for(var i = 0; i < $scope.axis; i++) {
+            for(var i = 0; i < $scope.axis.length; i++) {
                 $scope.axis[i].pos = 0;
             }
 
