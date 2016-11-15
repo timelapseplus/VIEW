@@ -62,7 +62,6 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name) {
     xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#"\n\
     xmlns:crs="http://ns.adobe.com/camera-raw-settings/1.0/"\n\
     crs:Exposure2012="{{EXP}}">\n\
-    <lrt:ExternalExposureDefault>{{EXP}}</lrt:ExternalExposureDefault>\n\
     <dc:subject>\n\
      <rdf:Bag>\n\
       <rdf:li>Timelapse+ VIEW</rdf:li>\n\
@@ -76,11 +75,16 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name) {
      </rdf:Alt>\n\
     </dc:description>\n\
   </rdf:Description>\n\
- </rdf:RDF>\n\
+  <rdf:Description rdf:about=""\n\
+    xmlns:lrt="http://lrtimelapse.com/">\n\
+    <lrt:ExternalExposureDefault>{{LRTEXP}}</lrt:ExternalExposureDefault>\n\
+  </rdf:Description>\n\
+  </rdf:RDF>\n\
 </x:xmpmeta>';
 
     var expString = (exposureCompensation >= 0 ? "+" : "") + exposureCompensation.toString();
     var xmpData = template.replace("{{EXP}}", expString);
+    xmpData = template.replace("{{LRTEXP}}", expString);
     xmpData = xmpData.replace("{{NAME}}", name);
     xmpData = xmpData.replace("{{DESC}}", description);
 
