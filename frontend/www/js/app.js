@@ -253,7 +253,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         sunsetCompensation: '0',
         keyframes: [{
             focus: 0,
-            ev: "not set"
+            ev: "not set",
+            motor: {}
         }]
     };
     $scope.setup = {
@@ -927,6 +928,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         for(var i = 0; i < $scope.axis; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
+                if(!kf.motor) kf.motor = {};
                 kf.motor[id] = lastKf.motor[id];
             }
         }
