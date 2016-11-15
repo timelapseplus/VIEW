@@ -721,7 +721,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         return null;
     }
 
-    $scope.move = function(axisId, steps) {
+    $scope.move = function(axisId, steps, noReverse) {
         console.log("moving ", axisId);
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
@@ -729,7 +729,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (steps && parts.length == 2) {
             var driver = parts[0];
             var motor = parts[1];
-            if($scope.axis[index].reverse) steps = 0 - steps;
+            if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
             $scope.axis[index].pos -= steps;
@@ -871,7 +871,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     var id = $scope.axis[i].id;
                     if(!kf.motor[id]) kf.motor[id] = 0;
                     var diff = kf.motor[id] - $scope.axis[i].pos;
-                    $scope.move(id, 0 - diff);
+                    $scope.move(id, 0 - diff, true);
                 }
             }
 
@@ -896,10 +896,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
                 $scope.timelapse.keyframes[i].focus -= $scope.focusPos;
 
-                for(var i = 0; i < $scope.axis.length; i++) {
-                    if($scope.axis[i].connected) {
-                        var id = $scope.axis[i].id;
-                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[i].pos;
+                for(var j = 0; j < $scope.axis.length; j++) {
+                    if($scope.axis[j].connected) {
+                        var id = $scope.axis[j].id;
+                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
                     }
                 }
             }
