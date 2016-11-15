@@ -62,6 +62,7 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name) {
     xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#"\n\
     xmlns:crs="http://ns.adobe.com/camera-raw-settings/1.0/"\n\
     crs:Exposure2012="{{EXP}}">\n\
+    <lrt:ExternalExposureDefault>{{EXP}}</lrt:ExternalExposureDefault>\n\
     <dc:subject>\n\
      <rdf:Bag>\n\
       <rdf:li>Timelapse+ VIEW</rdf:li>\n\

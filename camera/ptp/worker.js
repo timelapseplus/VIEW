@@ -133,7 +133,11 @@ function processRawPath(path, options, info, callback) {
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
                 fs.unlink(path);
             });
-            if (options.exposureCompensation !== null) image.writeXMP(dest, options.exposureCompensation);
+            var s = options.saveRaw.match(/(tl-[0-9]+)/i);
+            var name = "Timelapse";
+            if(s && s.length > 1) name = s[1];
+            var desc = name + " created with the Timelapse+ VIEW\nImage #" + options.index + "\nBase Exposure: " + options.exposureCompensation;
+            if (options.exposureCompensation !== null) image.writeXMP(dest, options.exposureCompensation, desc, name);
         } else {
             fs.unlink(path);
         }
