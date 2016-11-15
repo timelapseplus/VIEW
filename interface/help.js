@@ -62,5 +62,5 @@ exports.appCode = "The VIEW is connected to the internet and trying to authentic
 
 exports.developerModeMenu = "When enabled, Developer Mode enables pre-release software updates. THIS IS NOT RECOMMENDED unless you're doing software development with the VIEW, as pre-release updates could brick your device (it's always fixable, but will take some work). \nDeveloper Mode may also enable other development-related functions in the future.";
 
-exports.autoPowerOffMenu = "Sets or disables automatic power off (in minutes).  Regardless of the setting, the VIEW will not power down while a phone is connected, if it's connected to view.tl, or if a time-lapse is running.";
+exports.autoPowerOffMenu = "Sets or disables automatic power off (in minutes).  Regardless of the setting, the VIEW will not power down in the following situations:\n- While a phone is connected\n- If it's connected to view.tl\n- If it is plugged in to charge\n- If a time-lapse is running";
 
