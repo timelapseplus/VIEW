@@ -915,7 +915,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         for(var i = 0; i < $scope.axis; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
-                $scope.timelapse.keyframes[i].motor[id] = $scope.axis[i].pos;
+                $scope.currentKf.motor[id] = $scope.axis[i].pos;
             }
         }
         $scope.currentKf.ev = $scope.camera.ev;

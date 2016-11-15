@@ -1379,7 +1379,7 @@ function startScan() {
     if(btleScanStarting || updates.installing) return;
     btleScanStarting = true;
     clearScanTimeouts()
-    scanTimerHandle = setTimeout(startScan, 60000);
+    scanTimerHandle = setTimeout(startScan, 30000);
     if (noble.state == "poweredOn") {
         scanTimerHandle2 = setTimeout(function() {
             noble.stopScanning();
@@ -1392,9 +1392,12 @@ function startScan() {
                 });
             }
             btleScanStarting = false;
-        }, 5000);
+        }, 8000);
     } else {
         btleScanStarting = false;
+        if(wifi.btEnabled) {
+            wifi.resetBt();
+        }
     }
 }
 startScan();
