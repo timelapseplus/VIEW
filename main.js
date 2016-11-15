@@ -1481,16 +1481,45 @@ light.start();
 app.on('message', function(msg) {
     try {
         switch(msg.type) {
+            case 'dbGet':
+                if(msg.key) {
+                    (function(key, reply) {
+                        db.get(key, function(err, val){
+                            reply('dbVal', {
+                                error: err,
+                                key: key,
+                                val: val
+                            });
+                        });
+                    })(msg.key, msg.reply);
+                }
+                break;
+
+            case 'dbSet':
+                if(msg.key && msg.val) {
+                    (function(key, val, reply) {
+                        db.set(key, val, function(err){
+                            reply('dbSet', {
+                                error: err,
+                                key: key,
+                            });
+                        });
+                    })(msg.key, msg.val, msg.reply);
+                }
+                break;
+
             case 'motion':            
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
-                    if(msg.driver == 'NMX') nmx.move(msg.motor, msg.val, function() {
-                        msg.reply('move', {
-                            complete: true,
-                            motor: msg.motor,
-                            driver: msg.driver
+                    (function(driver, motor, steps, reply) {
+                        if(driver == 'NMX') nmx.move(motor, steps, function() {
+                            reply('move', {
+                                complete: true,
+                                motor: motor,
+                                driver: driver
+                            });
                         });
-                    });
+                    })(msg.driver, msg.motor, msg.val, msg.reply);
                 }
                 break;
 

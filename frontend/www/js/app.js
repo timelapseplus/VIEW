@@ -754,6 +754,26 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     }
 
+    function dbGet(key, callback) {
+        sendMessage('dbGet', {
+            key: key
+        }, function(res){
+            callback && callback(res.err, res.val);
+            console.log("dbGet result", res);
+        });
+    }
+
+    function dbSet(key, val, callback) {
+        sendMessage('dbSet', {
+            key: key,
+            val: val
+        }, function(res){
+            callback && callback(res.err);
+            console.log("dbSet result", res);
+        });
+    }
+
+
     $scope.testBulb = function() {
         sendMessage('test');
     }
@@ -958,7 +978,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if($scope.setupAxis.name) $scope.setupAxis.setup = true;
         if($scope.setupAxis.unit == 's') $scope.setupAxis.unitSteps = 1;
         $scope.setupAxis.moveSteps = $scope.setupAxis.unitMove * $scope.setupAxis.unitSteps;
-        localStorageService.set('motion-' + $scope.setupAxis.id, $scope.setupAxis);
+        //localStorageService.set('motion-' + $scope.setupAxis.id, $scope.setupAxis);
+        dbSet('motion-' + $scope.setupAxis.id, $scope.setupAxis);
         var axisIndex = $scope.getAxisIndex($scope.setupAxis.id);
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
@@ -991,34 +1012,36 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     function setupAxis(axisInfo) {
         var axisId = axisInfo.driver + '-' + axisInfo.motor;
         console.log("setting up axis: ", axisId);
-        var axis = localStorageService.get('motion-' + axisId);
-        if(!axis) {
-            axis = {
-                name: '',
-                unit: 's',
-                unitSteps: 1,
-                unitMove: 500,
-                reverse: false,
-                pos: 0,
-                moving: false,
-                setup: false
+        //var axis = localStorageService.get('motion-' + axisId);
+        dbGet('motion-' + axisId, function(err, axis) {
+            if(!axis) {
+                axis = {
+                    name: '',
+                    unit: 's',
+                    unitSteps: 1,
+                    unitMove: 500,
+                    reverse: false,
+                    pos: 0,
+                    moving: false,
+                    setup: false
+                }
             }
-        }
-        axis.id = axisId;
-        axis.motor = axisInfo.motor;
-        axis.driver = axisInfo.driver;
-        axis.connected = axisInfo.connected;
+            axis.id = axisId;
+            axis.motor = axisInfo.motor;
+            axis.driver = axisInfo.driver;
+            axis.connected = axisInfo.connected;
 
-        var axisIndex = $scope.getAxisIndex(axisId);
-        if(!$scope.axis) $scope.axis = [];        
-        if(axisIndex === null) {
-            $scope.axis.push(axis);
-        } else {
-            axis.pos = $scope.axis[axisIndex].pos;
-            axis.moving = $scope.axis[axisIndex].moving;
-            $scope.axis[axisIndex] = axis;
-        }
-        console.log("$scope.axis", $scope.axis);
+            var axisIndex = $scope.getAxisIndex(axisId);
+            if(!$scope.axis) $scope.axis = [];        
+            if(axisIndex === null) {
+                $scope.axis.push(axis);
+            } else {
+                axis.pos = $scope.axis[axisIndex].pos;
+                axis.moving = $scope.axis[axisIndex].moving;
+                $scope.axis[axisIndex] = axis;
+            }
+            console.log("$scope.axis", $scope.axis);
+        });
     }
 
     $ionicModal.fromTemplateUrl('templates/modal-login.html', {
