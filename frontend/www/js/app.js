@@ -572,6 +572,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     for (var i = 0; i < removeItems.length; i++) {
                         callbackList.splice(i, 1);
                     }
+                } else {
+                    maxId = 1;
                 }
                 var cbId = maxId + 1;
                 callbackList.push({
@@ -1014,6 +1016,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         console.log("setting up axis: ", axisId);
         //var axis = localStorageService.get('motion-' + axisId);
         dbGet('motion-' + axisId, function(err, axis) {
+            console.log("VIEW db err:", err);
+            console.log("VIEW db axis:", axis);
             if(!axis) {
                 axis = {
                     name: '',
