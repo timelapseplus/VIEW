@@ -815,7 +815,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.runProgram = function(program) {
         program.focusPos = $scope.focusPos;
-        for(var i = 0; i < $scope.axis; i++) {
+        for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
         }
 
@@ -912,7 +912,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
         $scope.currentKf.focus = $scope.focusPos;
 
-        for(var i = 0; i < $scope.axis; i++) {
+        for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
                 $scope.currentKf.motor[id] = $scope.axis[i].pos;
@@ -928,7 +928,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             focus: lastKf.focus,
             seconds: 600
         }
-        for(var i = 0; i < $scope.axis; i++) {
+        for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
                 if(!kf.motor) kf.motor = {};
