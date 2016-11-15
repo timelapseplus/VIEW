@@ -379,7 +379,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             var callback = function() {};
             if (msg._cbId) {
                 for (var i = 0; i < callbackList.length; i++) {
-                    if (callbackList[i]._cbId == msg._cbId) {
+                    if (callbackList[i].id == msg._cbId) {
+                        //console.log("cb found:", msg._cbId);
                         callback = callbackList[i].callback;
                         callbackList.splice(i, 1);
                         break;

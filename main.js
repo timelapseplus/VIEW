@@ -1485,6 +1485,7 @@ app.on('message', function(msg) {
                 if(msg.key) {
                     (function(key, reply) {
                         db.get(key, function(err, val){
+                            if(val === undefined) val = null;
                             reply('dbVal', {
                                 key: key,
                                 val: val,
@@ -1496,8 +1497,9 @@ app.on('message', function(msg) {
                 break;
 
             case 'dbSet':
-                if(msg.key && msg.val) {
+                if(msg.key) {
                     (function(key, val, reply) {
+                        if(val === undefined) val = null;
                         db.set(key, val, function(err){
                             reply('dbSet', {
                                 error: err,
