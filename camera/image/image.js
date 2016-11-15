@@ -84,7 +84,7 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name) {
 
     var expString = (exposureCompensation >= 0 ? "+" : "") + exposureCompensation.toString();
     var xmpData = template.replace("{{EXP}}", expString);
-    xmpData = template.replace("{{LRTEXP}}", expString);
+    xmpData = xmpData.replace("{{LRTEXP}}", expString);
     xmpData = xmpData.replace("{{NAME}}", name);
     xmpData = xmpData.replace("{{DESC}}", description);
 

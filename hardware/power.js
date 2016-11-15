@@ -49,7 +49,11 @@ power.activity = function() {
     powerDownTimerHandle = null;
     if(power.autoOffMinutes && !power.autoOffDisabled) {
         powerDownTimerHandle = setTimeout(function(){
-            power.shutdown();
+            if(power.charging || power.percentage == 100) {
+                return; // don't power down if plugged in
+            } else {
+                power.shutdown();
+            }
         }, power.autoOffMinutes * 60000);
     }
 }
