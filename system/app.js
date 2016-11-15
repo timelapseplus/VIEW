@@ -44,7 +44,7 @@ wss.broadcast = function broadcast(data) {
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
+        //console.log('received: %s', message);
         receive_message(message, ws);
     });
 });

@@ -149,8 +149,10 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
 
 function processKeyframes(setupFirst, callback) {
 
-    var numAxes = 5;
+    var numAxes = 2;
     var axesDone = 0;
+
+    if(intervalometer.currentProgram.keyframes[0]) for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
 
     var checkDone = function() {
         axesDone++;
