@@ -49,11 +49,17 @@ power.activity = function() {
     powerDownTimerHandle = null;
     if(power.autoOffMinutes && !power.autoOffDisabled) {
         powerDownTimerHandle = setTimeout(function(){
-            exec("nohup init 0;");
-        }, autoOffMinutes * 60000);
+            power.shutdown();
+        }, power.autoOffMinutes * 60000);
     }
 }
 power.activity();
+
+power.shutdown = function() {
+    process.nextTick(function(){
+        exec("nohup init 0;");
+    });
+}
 
 power.disableAutoOff = function() {
     power.autoOffDisabled = true;
