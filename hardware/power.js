@@ -6,10 +6,14 @@ var power = new EventEmitter();
 power.lightDisabled = false;
 power.gpsEnabled = null;
 power.wifiEnabled = true;
+power.autoOffMinutes = 10;
+power.autoOffDisabled = false;
 
 var powerControlBase = 0x17; // gps off, wifi off
 var powerWifi = 0x40;
 var powerGps = 0x8;
+
+var powerDownTimerHandle = null;
 
 power.init = function(disableLight) {
     exec("sudo i2cset -y -f 0 0x34 0x81 0xf9"); // fix issue with wifi power on
@@ -31,6 +35,34 @@ function setPower(callback) {
     if(power.gpsEnabled) setting |= powerGps;
     if(power.wifiEnabled) setting |= powerWifi;
     exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16), callback); // set power switches
+}
+
+power.setAutoOff = function(minutes) {
+    if(powerDownTimerHandle) clearTimeout(powerDownTimerHandle);
+    powerDownTimerHandle = null;
+    power.autoOffMinutes = minutes;
+    power.activity();
+}
+
+power.activity = function() {
+    if(powerDownTimerHandle) clearTimeout(powerDownTimerHandle);
+    powerDownTimerHandle = null;
+    if(power.autoOffMinutes && !power.autoOffDisabled) {
+        powerDownTimerHandle = setTimeout(function(){
+            exec("nohup init 0;");
+        }, autoOffMinutes * 60000);
+    }
+}
+power.activity();
+
+power.disableAutoOff = function() {
+    power.autoOffDisabled = true;
+    power.activity();
+}
+
+power.enableAutoOff = function() {
+    power.autoOffDisabled = false;
+    power.activity();
 }
 
 power.gps = function(enable, callback) {

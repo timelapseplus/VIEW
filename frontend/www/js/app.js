@@ -772,7 +772,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             val: val
         }, function(err){
             callback && callback(err);
-            console.log("dbSet result", res);
+            console.log("dbSet err", err);
         });
     }
 

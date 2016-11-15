@@ -60,5 +60,7 @@ exports.saveXMPs = "This saves the XMP files to a folder on the inserted SD card
 
 exports.appCode = "The VIEW is connected to the internet and trying to authenticate with view.tl, a service for remotely monitoring and controlling the VIEW via the internet. \n To activate, open http://app.view.tl on your phone and login or register, then press \"Add Device\" and enter the code shown here on the VIEW screen. \n You will then be able to use view.tl to access your VIEW device remotely when it's connected to the internet.";
 
-exports.developerModeMenu = "When enabled, Developer Mode enables pre-release software updates. THIS IS NOT RECOMMENDED unless you're doing software development with the VIEW, as pre-release updates could brick your device (it's always fixable, but will take some work). \nDeveloper Mode may also enable other development-related functions in the future."
+exports.developerModeMenu = "When enabled, Developer Mode enables pre-release software updates. THIS IS NOT RECOMMENDED unless you're doing software development with the VIEW, as pre-release updates could brick your device (it's always fixable, but will take some work). \nDeveloper Mode may also enable other development-related functions in the future.";
+
+exports.autoPowerOffMenu = "Sets or disables automatic power off (in minutes).  Regardless of the setting, the VIEW will not power down while a phone is connected, if it's connected to view.tl, or if a time-lapse is running.";
 

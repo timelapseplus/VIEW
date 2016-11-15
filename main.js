@@ -337,6 +337,7 @@ if (VIEW_HARDWARE) {
 
             function captureButtonHandler(b) {
                 oled.activity();
+                power.activity();
                 if (b == 1 || b == 4) {
                     liveviewOn = false;
                     blockInputs = false;
@@ -354,6 +355,7 @@ if (VIEW_HARDWARE) {
 
             function captureDialHandler(d) {
                 oled.activity();
+                power.activity();
                 //console.log("captureDialHandler", d, stats, ev);
                 if (camera.ptp.photo && camera.zoomed) {
                     var f = 0;
@@ -615,6 +617,7 @@ if (VIEW_HARDWARE) {
 
             function captureButtonHandler(b) {
                 oled.activity();
+                power.activity();
                 if (b == 1) {
                     liveviewOn = false;
                     blockInputs = false;
@@ -628,6 +631,7 @@ if (VIEW_HARDWARE) {
 
             function captureDialHandler(d) {
                 oled.activity();
+                power.activity();
                 //console.log("captureDialHandler", d, stats, ev);
                 if (d == 'U') {
                     if (stats.ev < stats.maxEv) {
@@ -696,6 +700,7 @@ if (VIEW_HARDWARE) {
                                 exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
                             });
                         } else {
+                            power.disableAutoOff();
                             updates.installVersion(versionTarget, function(err){
                                 if(!err) {
                                     updates.setVersion(versionTarget, function(){
@@ -1007,6 +1012,47 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var autoPowerOffMenu = {
+        name: "Auto Power Off",
+        type: "options",
+        items: [{
+            name: "Auto Power Off",
+            value: "disabled",
+            help: help.autoPowerOffMenu,
+            action: ui.set(power, 'autoOffMinutes', false, function(cb){
+                power.setAutoOff(power.autoOffMinutes);
+                db.set('autoOffMinutes', false);
+                cb && cb();
+            })
+        }, {
+            name: "Auto Power Off",
+            value: "10 minutes",
+            help: help.autoPowerOffMenu,
+            action: ui.set(power, 'autoOffMinutes', 10, function(cb){
+                power.setAutoOff(power.autoOffMinutes);
+                db.set('autoOffMinutes', 10);
+                cb && cb();
+            })
+        }, {
+            name: "Auto Power Off",
+            value: "20 minutes",
+            help: help.autoPowerOffMenu,
+            action: ui.set(power, 'autoOffMinutes', 20, function(cb){
+                power.setAutoOff(power.autoOffMinutes);
+                db.set('autoOffMinutes', 20);
+                cb && cb();
+            })
+        }, {
+            name: "Auto Power Off",
+            value: "30 minutes",
+            help: help.autoPowerOffMenu,
+            action: ui.set(power, 'autoOffMinutes', 30, function(cb){
+                power.setAutoOff(power.autoOffMinutes);
+                db.set('autoOffMinutes', 30);
+                cb && cb();
+            })
+        }]
+    }
     var factoryResetConfirmMenu = {
         name: "Erase all Settings?",
         type: "options",
@@ -1107,6 +1153,10 @@ if (VIEW_HARDWARE) {
             action: rampingOptionsMenu,
             help: help.rampingOptionsMenu
         }, {
+            name: "Auto Power Off",
+            action: autoPowerOffMenu,
+            help: help.autoPowerOffMenu
+        }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
@@ -1146,6 +1196,7 @@ if (VIEW_HARDWARE) {
     ui.load(mainMenu);
 
     inputs.on('D', function(move) {
+        power.activity();
         if(oled.videoRunning) return;
 
         blockGestureTimer();
@@ -1166,6 +1217,7 @@ if (VIEW_HARDWARE) {
     });
 
     inputs.on('B', function(move) {
+        power.activity();
         if(oled.videoRunning) {
             oled.stopVideo();
             return;
@@ -1269,6 +1321,7 @@ if (VIEW_HARDWARE) {
             authDisplayed = false;
         }
         oled.activity();
+        power.activity();
         displayAuthCode(code);
     });
 
@@ -1278,12 +1331,14 @@ if (VIEW_HARDWARE) {
             authDisplayed = false;
         }
         oled.activity();
+        power.activity();
         oled.status('connected to view.tl');
     });
 
     camera.ptp.on('media', function(type) {
         console.log("media inserted: ", type);
         oled.activity();
+        power.activity();
         intervalometer.getLastTimelapse(function(err, timelapse) {
             confirmSaveXMPs(timelapse);
         });
@@ -1319,6 +1374,7 @@ if (VIEW_HARDWARE) {
     }
 
     inputs.on('G', function(move) {
+        power.activity();
         if (blockInputs) return;
         console.log("Gesture: " + move);
         if (blockGesture) {
@@ -1476,9 +1532,17 @@ db.get('gps', function(err, en) {
     }
 });
 
+db.get('autoOffMinutes', function(err, minutes) {
+    if(!err) {
+        if(!minutes) minutes = false;
+        power.setAutoOff(minutes);
+    }
+});
+
 light.start();
 
 app.on('message', function(msg) {
+    power.activity();
     try {
         switch(msg.type) {
             case 'dbGet':
@@ -1766,6 +1830,11 @@ camera.ptp.on('status', function(msg) {
 });
 
 intervalometer.on('status', function(msg) {
+    if(msg.running) {
+        power.disableAutoOff();
+    } else if(cache.intervalometerStatus.running) {
+        power.enableAutoOff();
+    }
     app.send('intervalometerStatus', {
         status: msg
     });
