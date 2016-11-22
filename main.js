@@ -1186,15 +1186,15 @@ if (VIEW_HARDWARE) {
         name: "UI Preferences",
         type: "menu",
         items: [{
-            name: valueDisplay("Charge Indicator", power, 'chargeLight'),
+            name: valueDisplay("Charge LED", power, 'chargeLight'),
             action: chargeIndicatorMenu,
             help: help.chargeIndicatorMenu
         },{
-            name: valueDisplay("Gesture Sensor", power, 'chargeLight'),
-            action: chargeIndicatorMenu,
-            help: help.chargeIndicatorMenu
+            name: valueDisplay("Gesture Sense", power, 'chargeLight'),
+            action: gestureEnableMenu,
+            help: help.gestureEnableMenu
         },{
-            name: valueDisplay("Color Theme", oled, 'theme'),
+            name: valueDisplay("Theme", oled, 'theme'),
             action: colorThemeMenu,
             help: help.colorThemeMenu
         }, ]
