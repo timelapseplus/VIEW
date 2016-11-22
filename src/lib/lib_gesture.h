@@ -191,10 +191,10 @@ typedef uint8_t bool;
 #define DEFAULT_GGAIN           GGAIN_4X
 #define DEFAULT_GLDRIVE         LED_DRIVE_100MA
 #define DEFAULT_GWTIME          GWTIME_2_8MS
-#define DEFAULT_GOFFSETU        103       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETU        (103|0x80)       // No offset scaling for gesture mode
 #define DEFAULT_GOFFSETD        0       // No offset scaling for gesture mode
-#define DEFAULT_GOFFSETL        15       // No offset scaling for gesture mode
-#define DEFAULT_GOFFSETR        15       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETL        (15|0x80)       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETR        (15|0x80)       // No offset scaling for gesture mode
 #define DEFAULT_GPULSE          0xC9    // 32us, 10 pulses
 #define DEFAULT_GCONF3          0       // All photodiodes active during gesture
 #define DEFAULT_GIEN            0       // Disable gesture interrupts
