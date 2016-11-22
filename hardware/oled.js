@@ -565,6 +565,7 @@ oled.batteryPercentage = function(percentage) {
 
 var videoIntervalHandle = null;
 var videoCallback = null;
+var skipFrames = 0;
 oled.video = function(videoPathFormat, frames, fps, callback) {
     if(oled.videoRunning) return;
     if(!frames) return;
@@ -573,6 +574,7 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
     fb.clear();
     oled.videoRunning = true;
     var frameIndex = 0;
+    skipFrames = 0;
     var indexString, paddingLength;
     var frameComplete = true;
     videoIntervalHandle = setInterval(function(){
@@ -582,6 +584,8 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
         }
         frameComplete = false;
         frameIndex++;
+        frameIndex += skipFrames;
+        skipFrames = 0;
         if(frameIndex > frames) oled.stopVideo();
         indexString = frameIndex.toString();
         paddingLength = 5 - indexString.length;
@@ -599,5 +603,10 @@ oled.stopVideo = function() {
     if(videoIntervalHandle) clearInterval(videoIntervalHandle);
     oled.unblock();
     if(videoCallback) videoCallback();
+}
+oled.videoSkipFrames = function(frames) {
+    if(oled.videoRunning) {
+        skipFrames = frames;
+    }
 }
 module.exports = oled;

@@ -1440,6 +1440,7 @@ if (VIEW_HARDWARE) {
         }, 5000);
     }
 
+    var gestureVideoPlaying = false;
     inputs.on('G', function(move) {
         power.activity();
         if (blockInputs) return;
@@ -1461,20 +1462,30 @@ if (VIEW_HARDWARE) {
             //ui.down();
         }
         if (move == "L") {
-            oled.hide();
+            if(gestureVideoPlaying) {
+                gestureVideoPlaying = false;
+                oled.stopVideo();
+                setTimeout(function(){
+                    oled.hide();
+                    ui.reload();
+                }, 1000);
+            } else {
+                oled.hide();
+            }
         }
         if (move == "R") {
             if (!oled.visible) {
                 oled.show();
+            } else if(gestureVideoPlaying) {
+                oled.videoSkipFrames(30*10);
             } else {
-                //if (oled.selected == 1) {
-                //    camera.ptp.capture();
-                //    setTimeout(oled.update, 8000);
-                //}
-                //if (oled.selected == 2) {
+                gestureVideoPlaying = true;
                 var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
                     if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function() {
-                        ui.reload();
+                        setTimeout(function(){
+                            oled.hide();
+                            ui.reload();
+                        }, 1000);
                     });
                 });
                 //}
