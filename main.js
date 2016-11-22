@@ -1592,6 +1592,8 @@ db.get('chargeLightDisabled', function(err, en) {
 db.get('gestureSensor', function(err, en) {
     if(en != "no") {
         inputs.startGesture();
+    } else {
+        inputs.stopGesture();
     }
 });
 

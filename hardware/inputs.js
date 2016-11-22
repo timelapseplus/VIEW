@@ -82,6 +82,7 @@ inputs.start = function() {
 }
 
 inputs.startGesture = function() {
+    stopGesture = false;
     inputs.gestureStatus = "enabled";
     if(gestureRunning) return;
     gestureProcess = spawn(GESTURE_BIN_PATH);
