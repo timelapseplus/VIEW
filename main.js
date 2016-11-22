@@ -1469,10 +1469,7 @@ if (VIEW_HARDWARE) {
             if(gestureVideoPlaying) {
                 gestureVideoPlaying = false;
                 oled.stopVideo();
-                setTimeout(function(){
-                    oled.hide();
-                    ui.reload();
-                }, 500);
+                gestureModeTimer();
             } else {
                 oled.hide();
             }
