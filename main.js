@@ -1425,6 +1425,7 @@ if (VIEW_HARDWARE) {
         }, 30000);
     }
 
+    var gestureVideoPlaying = false;
     var gestureModeTimer = function() {
         if (gestureModeHandle) clearTimeout(gestureModeHandle);
         if (!gestureMode) {
@@ -1433,14 +1434,17 @@ if (VIEW_HARDWARE) {
         }
         gestureModeHandle = setTimeout(function() {
             if (gestureMode) {
-                gestureMode = false;
-                ui.reload();
-                oled.hide();
+                if(gestureVideoPlaying) {
+                    gestureModeTimer();
+                } else {
+                    gestureMode = false;
+                    oled.hide();
+                    ui.reload();
+                }
             }
         }, 5000);
     }
 
-    var gestureVideoPlaying = false;
     inputs.on('G', function(move) {
         power.activity();
         if (blockInputs) return;
@@ -1468,7 +1472,7 @@ if (VIEW_HARDWARE) {
                 setTimeout(function(){
                     oled.hide();
                     ui.reload();
-                }, 1000);
+                }, 500);
             } else {
                 oled.hide();
             }
@@ -1482,10 +1486,8 @@ if (VIEW_HARDWARE) {
                 gestureVideoPlaying = true;
                 var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
                     if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function() {
-                        setTimeout(function(){
-                            oled.hide();
-                            ui.reload();
-                        }, 1000);
+                        gestureVideoPlaying = false;
+                        gestureModeTimer();
                     });
                 });
                 //}
