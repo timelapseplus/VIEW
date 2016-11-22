@@ -198,7 +198,7 @@ typedef uint8_t bool;
 #define DEFAULT_GPULSE          0xC9    // 32us, 10 pulses
 #define DEFAULT_GCONF3          0       // All photodiodes active during gesture
 #define DEFAULT_GIEN            0       // Disable gesture interrupts
-120 17 32 34
+
 /* Direction definitions */
 enum {
   DIR_NONE,
