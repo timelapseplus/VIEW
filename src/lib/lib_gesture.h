@@ -32,7 +32,7 @@
 typedef uint8_t bool;
 
 /* Debug */
-#define DEBUG                   0
+#define DEBUG                   1
 
 /* APDS-9960 I2C address */
 #define APDS9960_I2C_ADDR       0x39
@@ -185,8 +185,8 @@ typedef uint8_t bool;
 #define DEFAULT_PERS            0x11    // 2 consecutive prox or ALS for int.
 #define DEFAULT_CONFIG2         0x01    // No saturation interrupts or LED boost  
 #define DEFAULT_CONFIG3         0       // Enable all photodiodes, no SAI
-#define DEFAULT_GPENTH          50      // Threshold for entering gesture mode (50)
-#define DEFAULT_GEXTH           40      // Threshold for exiting gesture mode (40)   
+#define DEFAULT_GPENTH          100     // Threshold for entering gesture mode (50)
+#define DEFAULT_GEXTH           80      // Threshold for exiting gesture mode (40)   
 #define DEFAULT_GCONF1          0x40    // 4 gesture events for int., 1 for exit
 #define DEFAULT_GGAIN           GGAIN_1X
 #define DEFAULT_GLDRIVE         LED_DRIVE_25MA

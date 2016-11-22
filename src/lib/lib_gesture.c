@@ -2135,11 +2135,12 @@ int16_t gesture_wireReadDataBlock(   uint8_t reg,
                                         uint8_t *val, 
                                         uint16_t len)
 {
-    uint16_t i;
+    uint16_t i = 0;
     int tmp = i2c_smbus_read_byte_data(i2c_dev, reg);
     if(tmp < 0) {
         return -1;
     }
+    memcpy(&val[i], &tmp, 1);
     for(i = 1; i < len; i++) {        
         tmp = i2c_smbus_read_byte(i2c_dev);
         if(tmp < 0) {
