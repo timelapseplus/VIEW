@@ -1471,6 +1471,7 @@ if (VIEW_HARDWARE) {
                 oled.stopVideo();
                 gestureModeTimer();
             } else {
+                gestureMode = false;
                 oled.hide();
             }
         }
