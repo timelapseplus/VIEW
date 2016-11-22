@@ -18,7 +18,7 @@ var oledSize = fb.size();
 oled.width = oledSize.width;
 oled.height = oledSize.height;
 
-oled.colors = {
+var DEFAULT_THEME = {
     primary: [1, 1, 1],
     secondary: [0.1, 0.1, 0.5],
     alert: [1, 0, 0],
@@ -28,7 +28,7 @@ oled.colors = {
     help: [0, 0.6, 0]
 }
 
-/*oled.colors = {
+var RED_THEME = {
     primary: [0.8, 0, 0],
     secondary: [0.5, 0.0, 0.0],
     alert: [1, 0.1, 0.1]
@@ -36,7 +36,23 @@ oled.colors = {
     batteryOk: [0.3, 0.2, 0.2],
     batteryLow: [1, 0.2, 0.2],
     help: [0.6, 0, 0]
-}*/
+}
+
+
+oled.colors = DEFAULT_THEME;
+oled.theme = 'VIEW Default';
+
+oled.setTheme = function(themeName) {
+    if(themeName == 'red') {
+        oled.theme = 'Night Red';
+        oled.colors = RED_THEME;
+    } else {
+        oled.theme = 'VIEW Default';
+        oled.colors = DEFAULT_THEME;
+    }
+    oled.writeMenu();
+    oled.update();
+}
 
 oled.init = function() {
     oled.activity();

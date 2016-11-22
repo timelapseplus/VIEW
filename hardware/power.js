@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 
 var power = new EventEmitter();
 
-power.lightDisabled = false;
+power.chargeLight = 'enabled';
 power.gpsEnabled = null;
 power.wifiEnabled = true;
 power.autoOffMinutes = 10;
@@ -22,10 +22,10 @@ power.init = function(disableLight) {
     exec("sudo i2cset -y -f 0 0x34 0x30 0x60"); // set system current limit to 900mA
 
     if(disableLight) {
-        power.lightDisabled = true;
+        power.chargeLight = 'disabled';
         exec("sudo i2cset -y -f 0 0x34 0x32 0x8"); // disable chgled
     } else {
-        power.lightDisabled = false;
+        power.chargeLight = 'enabled';
         exec("sudo i2cset -y -f 0 0x34 0x32 0x0"); // enable chgled
     }
 }

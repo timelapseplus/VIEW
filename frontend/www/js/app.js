@@ -870,7 +870,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.secondsRange = {
         val: 0
     };
-    var MAX_KF_SECONDS = 3600 * 15;
+    var MAX_KF_SECONDS = 3600 * 24;
     var TIMING_SLIDER_RANGE = 100;
     var TIMING_CURVE = 1 / 2.5;
     $scope.timingSliderMax = TIMING_SLIDER_RANGE;

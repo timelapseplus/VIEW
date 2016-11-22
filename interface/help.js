@@ -64,3 +64,10 @@ exports.developerModeMenu = "When enabled, Developer Mode enables pre-release so
 
 exports.autoPowerOffMenu = "Sets or disables automatic power off (in minutes).  Regardless of the setting, the VIEW will not power down in the following situations:\n- While a phone is connected\n- If it's connected to view.tl\n- If it is plugged in to charge\n- If a time-lapse is running";
 
+exports.interfaceSettingsMenu = "User interface settings for colors & LEDs & gesture sensor are found here.";
+
+exports.gestureEnableMenu = "Enables/Disables the gesture sensor for non-contact review of time-lapse while running.";
+
+exports.colorThemeMenu = "Sets the colors used for the VIEW display interface.";
+
+

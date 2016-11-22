@@ -78,6 +78,11 @@ inputs.start = function() {
         }
     });
 
+}
+
+inputs.startGesture = function() {
+    inputs.gestureStatus = "enabled";
+    if(gestureRunning) return;
     gestureProcess = spawn(GESTURE_BIN_PATH);
     gestureRunning = true;
     console.log("gesture process started");
@@ -108,11 +113,15 @@ inputs.stop = function() {
         console.log("inputs process exiting...");
         inputsProcess.stdin.write('\n');
     }
+    stopGesture();
+}
+
+inputs.stopGesture = function() {
+    inputs.gestureStatus = "disabled";
     if (gestureRunning) {
         console.log("gesture process exiting...");
         gestureProcess.stdin.write('\n');
-    }
+    }    
 }
-
 
 module.exports = inputs;

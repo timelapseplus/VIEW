@@ -974,7 +974,7 @@ if (VIEW_HARDWARE) {
             name: "Charge Indicator LED",
             value: "enabled",
             help: help.chargeIndicatorMenu,
-            action: ui.set(power, 'lightDisabled', false, function(cb){
+            action: ui.set(power, 'chargeLight', 'enabled', function(cb){
                 db.set('chargeLightDisabled', "no");
                 power.init(false);
                 cb && cb();
@@ -983,9 +983,33 @@ if (VIEW_HARDWARE) {
             name: "Charge Indicator LED",
             value: "disabled",
             help: help.chargeIndicatorMenu,
-            action: ui.set(power, 'lightDisabled', true, function(cb){
+            action: ui.set(power, 'chargeLight', 'disabled', function(cb){
                 db.set('chargeLightDisabled', "yes");
                 power.init(true);
+                cb && cb();
+            })
+        }]
+    }
+
+    var gestureEnableMenu = {
+        name: "Gesture Sensor",
+        type: "options",
+        items: [{
+            name: "Gesture Sensor",
+            value: "enabled",
+            help: help.gestureEnableMenu,
+            action: ui.set(inputs, 'gestureStatus', 'enabled', function(cb){
+                db.set('gestureSensor', "yes");
+                inputs.startGesture();
+                cb && cb();
+            })
+        }, {
+            name: "Gesture Sensor",
+            value: "disabled",
+            help: help.gestureEnableMenu,
+            action: ui.set(inputs, 'gestureStatus', 'disabled', function(cb){
+                db.set('gestureSensor', "no");
+                inputs.stopGesture();
                 cb && cb();
             })
         }]
@@ -1124,6 +1148,30 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var colorThemeMenu = {
+        name: "Color Theme",
+        type: "options",
+        items: [{
+            name: "Color Theme",
+            value: "VIEW Default",
+            help: help.colorThemeMenu,
+            action: ui.set(oled, 'theme', 'VIEW Default', function(cb){
+                db.set('colorTheme', "default");
+                oled.setTheme("default");
+                cb && cb();
+            })
+        }, {
+            name: "Color Theme",
+            value: "Night Red",
+            help: help.colorThemeMenu,
+            action: ui.set(oled, 'theme', 'Night Red', function(cb){
+                db.set('colorTheme', "red");
+                oled.setTheme("red");
+                cb && cb();
+            })
+        }]
+    }
+
     var rampingOptionsMenu = {
         name: "Ramping Options",
         type: "menu",
@@ -1131,6 +1179,24 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Night Exposure", intervalometer.currentProgram, 'nightCompensation'),
             action: rampingNightCompensation,
             help: help.rampingNightCompensation,
+        }, ]
+    }
+
+    var interfaceSettingsMenu = {
+        name: "UI Preferences",
+        type: "menu",
+        items: [{
+            name: valueDisplay("Charge Indicator", power, 'chargeLight'),
+            action: chargeIndicatorMenu,
+            help: help.chargeIndicatorMenu
+        },{
+            name: valueDisplay("Gesture Sensor", power, 'chargeLight'),
+            action: chargeIndicatorMenu,
+            help: help.chargeIndicatorMenu
+        },{
+            name: valueDisplay("Color Theme", oled, 'theme'),
+            action: colorThemeMenu,
+            help: help.colorThemeMenu
         }, ]
     }
 
@@ -1142,9 +1208,9 @@ if (VIEW_HARDWARE) {
             action: wifiMenu,
             help: help.wifiMenu
         }, {
-            name: "Charge Indicator",
-            action: chargeIndicatorMenu,
-            help: help.chargeIndicatorMenu
+            name: "UI Preferences",
+            action: interfaceSettingsMenu,
+            help: help.interfaceSettingsMenu
         }, {
             name: "Software Version",
             action: softwareMenu,
@@ -1520,6 +1586,18 @@ db.get('intervalometer.currentProgram', function(err, data) {
 db.get('chargeLightDisabled', function(err, en) {
     if(!err) {
         power.init(en == "yes");
+    }
+});
+
+db.get('gestureSensor', function(err, en) {
+    if(en != "no") {
+        inputs.startGesture();
+    }
+});
+
+db.get('colorTheme', function(err, theme) {
+    if(!err && theme) {
+        oled.setTheme(theme);
     }
 });
 
