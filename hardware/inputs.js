@@ -114,7 +114,7 @@ inputs.stop = function() {
         console.log("inputs process exiting...");
         inputsProcess.stdin.write('\n');
     }
-    stopGesture();
+    inputs.stopGesture();
 }
 
 inputs.stopGesture = function() {
