@@ -12,6 +12,7 @@ var gestureProcess = null;
 var gestureRunning = false;
 
 var stop = false;
+var stopGesture = false;
 
 exec("killall gesture");
 exec("killall inputs");
@@ -27,6 +28,7 @@ var powerButtonPressedTimer = null;
 
 inputs.start = function() {
     stop = false;
+    if(inputsRunning) return;
     inputsProcess = spawn(INPUTS_BIN_PATH);
     inputsRunning = true;
     inputs.button[0] = false;
@@ -71,9 +73,8 @@ inputs.start = function() {
     });
     inputsProcess.on('close', function(code) {
         console.log("inputs process exited");
-        if (stop) {
-            inputsRunning = false;
-        } else {
+        inputsRunning = false;
+        if (!stop) {
             setTimeout(inputs.start);
         }
     });
@@ -99,10 +100,9 @@ inputs.startGesture = function() {
     });
     gestureProcess.on('close', function(code) {
         console.log("gesture process exited");
-        if (stop) {
-            gestureRunning = false;
-        } else {
-            setTimeout(inputs.start);
+        gestureRunning = false;
+        if (!stopGesture) {
+            setTimeout(inputs.startGesture);
         }
     });
 }
@@ -117,6 +117,7 @@ inputs.stop = function() {
 }
 
 inputs.stopGesture = function() {
+    stopGesture = true;
     inputs.gestureStatus = "disabled";
     if (gestureRunning) {
         console.log("gesture process exiting...");
