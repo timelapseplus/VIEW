@@ -185,17 +185,20 @@ typedef uint8_t bool;
 #define DEFAULT_PERS            0x11    // 2 consecutive prox or ALS for int.
 #define DEFAULT_CONFIG2         0x01    // No saturation interrupts or LED boost  
 #define DEFAULT_CONFIG3         0       // Enable all photodiodes, no SAI
-#define DEFAULT_GPENTH          100     // Threshold for entering gesture mode (50)
-#define DEFAULT_GEXTH           80      // Threshold for exiting gesture mode (40)   
+#define DEFAULT_GPENTH          60     // Threshold for entering gesture mode (50)
+#define DEFAULT_GEXTH           50      // Threshold for exiting gesture mode (40)   
 #define DEFAULT_GCONF1          0x40    // 4 gesture events for int., 1 for exit
-#define DEFAULT_GGAIN           GGAIN_1X
-#define DEFAULT_GLDRIVE         LED_DRIVE_25MA
+#define DEFAULT_GGAIN           GGAIN_4X
+#define DEFAULT_GLDRIVE         LED_DRIVE_100MA
 #define DEFAULT_GWTIME          GWTIME_2_8MS
-#define DEFAULT_GOFFSET         0       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETU        103       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETD        0       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETL        15       // No offset scaling for gesture mode
+#define DEFAULT_GOFFSETR        15       // No offset scaling for gesture mode
 #define DEFAULT_GPULSE          0xC9    // 32us, 10 pulses
 #define DEFAULT_GCONF3          0       // All photodiodes active during gesture
 #define DEFAULT_GIEN            0       // Disable gesture interrupts
-
+120 17 32 34
 /* Direction definitions */
 enum {
   DIR_NONE,

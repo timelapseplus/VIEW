@@ -118,16 +118,16 @@ bool gesture_init()
     if( !gesture_setGestureWaitTime(DEFAULT_GWTIME) ) {
         return false;
     }
-    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_U, DEFAULT_GOFFSET) ) {
+    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_U, DEFAULT_GOFFSETU) ) {
         return false;
     }
-    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_D, DEFAULT_GOFFSET) ) {
+    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_D, DEFAULT_GOFFSETD) ) {
         return false;
     }
-    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_L, DEFAULT_GOFFSET) ) {
+    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_L, DEFAULT_GOFFSETL) ) {
         return false;
     }
-    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_R, DEFAULT_GOFFSET) ) {
+    if( !gesture_wireWriteDataByte(APDS9960_GOFFSET_R, DEFAULT_GOFFSETR) ) {
         return false;
     }
     if( !gesture_wireWriteDataByte(APDS9960_GPULSE, DEFAULT_GPULSE) ) {
