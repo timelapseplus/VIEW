@@ -99,8 +99,8 @@ function load(program, selected) {
     }
 }
 
-exports.load = function(menuProgram, noPush, selected) {
-    if (backupProgram !== null && !noPush && backupProgram.type != "options") {
+exports.load = function(menuProgram, noPush, selected, forceStack) {
+    if (forceStack || (backupProgram !== null && !noPush && backupProgram.type != "options")) {
         stack.push({
             program: backupProgram,
             selected: oled.selected,

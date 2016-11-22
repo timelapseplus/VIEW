@@ -773,7 +773,7 @@ if (VIEW_HARDWARE) {
                             arg: versions[i],
                             fn: function(version, cb) {
                                 if(version && !version.current) {
-                                    ui.load(versionUpdateConfirmMenuBuild(version));
+                                    ui.load(versionUpdateConfirmMenuBuild(version), null, null, true);
                                 } else {
                                     oled.status('already installed');
                                     if(cb) cb();
@@ -1310,7 +1310,7 @@ if (VIEW_HARDWARE) {
         }
 
         if (move == 6) {
-            ui.load(powerConfirm);
+            ui.load(powerConfirm, null, null, true);
         }
     });
 
@@ -1346,7 +1346,7 @@ if (VIEW_HARDWARE) {
                     }
                 }
             }]
-        });
+        }, null, null, true);
     }
 
     var authDisplayed = false;
@@ -1378,7 +1378,7 @@ if (VIEW_HARDWARE) {
                     }
                 }
             }]
-        });
+        }, null, null, true);
     }
 
     app.on('auth-required', function(code) {
