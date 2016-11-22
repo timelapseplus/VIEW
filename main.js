@@ -1190,7 +1190,7 @@ if (VIEW_HARDWARE) {
             action: chargeIndicatorMenu,
             help: help.chargeIndicatorMenu
         },{
-            name: valueDisplay("Gesture Sense", power, 'chargeLight'),
+            name: valueDisplay("Gesture Sense", inputs, 'gestureStatus'),
             action: gestureEnableMenu,
             help: help.gestureEnableMenu
         },{
