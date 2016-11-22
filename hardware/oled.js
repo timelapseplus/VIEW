@@ -31,7 +31,7 @@ var DEFAULT_THEME = {
 var RED_THEME = {
     primary: [0.8, 0, 0],
     secondary: [0.5, 0.0, 0.0],
-    alert: [1, 0.1, 0.1]
+    alert: [1, 0.1, 0.1],
     batteryFull: [0.3, 0.2, 0.2],
     batteryOk: [0.3, 0.2, 0.2],
     batteryLow: [1, 0.2, 0.2],
