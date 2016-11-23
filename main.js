@@ -1172,6 +1172,48 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var buttonModeMenu = {
+        name: "Button Backlights",
+        type: "options",
+        items: [{
+            name: "Button Backlights",
+            value: "Disabled",
+            help: help.buttonModeMenu,
+            action: ui.set(power, 'buttonMode', 'disabled', function(cb){
+                db.set('buttonMode', "disabled");
+                power.setButtons("disabled");
+                cb && cb();
+            })
+        }, {
+            name: "Button Backlights",
+            value: "Power Blink",
+            help: help.buttonModeMenu,
+            action: ui.set(power, 'buttonMode', 'blink', function(cb){
+                db.set('buttonMode', "blink");
+                power.setButtons("blink");
+                cb && cb();
+            })
+        }, {
+            name: "Button Backlights",
+            value: "Power Illuminated",
+            help: help.buttonModeMenu,
+            action: ui.set(power, 'buttonMode', 'power', function(cb){
+                db.set('buttonMode', "power");
+                power.setButtons("power");
+                cb && cb();
+            })
+        }, {
+            name: "Button Backlights",
+            value: "All Illuminated",
+            help: help.buttonModeMenu,
+            action: ui.set(power, 'buttonMode', 'all', function(cb){
+                db.set('buttonMode', "all");
+                power.setButtons("all");
+                cb && cb();
+            })
+        }]
+    }
+
     var rampingOptionsMenu = {
         name: "Ramping Options",
         type: "menu",
@@ -1197,6 +1239,10 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Theme", oled, 'theme'),
             action: colorThemeMenu,
             help: help.colorThemeMenu
+        },{
+            name: valueDisplay("Buttons", power, 'buttonMode'),
+            action: buttonModeMenu,
+            help: help.buttonModeMenu
         }, ]
     }
 
@@ -1600,6 +1646,10 @@ db.get('chargeLightDisabled', function(err, en) {
     }
 });
 
+db.get('buttonMode', function(err, mode) {
+    power.buttonMode(mode);
+});
+
 db.get('gestureSensor', function(err, en) {
     if(en != "no") {
         inputs.startGesture();
@@ -1954,8 +2004,3 @@ nmx.on('status', function(){
     app.send('motion', motion);
 });
 
-// turn off blinking light once app has loaded
-exec("echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
-exec("echo 0 | sudo tee /sys/class/leds/view-button-1/brightness");
-exec("echo 0 | sudo tee /sys/class/leds/view-button-2/brightness");
-exec("echo 0 | sudo tee /sys/class/leds/view-button-3/brightness");

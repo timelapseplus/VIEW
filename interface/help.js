@@ -70,4 +70,6 @@ exports.gestureEnableMenu = "Enables/Disables the gesture sensor for non-contact
 
 exports.colorThemeMenu = "Sets the colors used for the VIEW display interface.";
 
+exports.buttonModeMenu = "Configures the button backlights while powered on.  During boot, the power button will always be illimunated.  Once booted, the backlights are configured as defined by this setting.  The default is for them all to be off (disabled)";
+
 

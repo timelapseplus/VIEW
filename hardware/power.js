@@ -37,6 +37,43 @@ function setPower(callback) {
     exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16), callback); // set power switches
 }
 
+var blinkIntervalHandle = null;
+power.setButtons = function(mode) {
+    if(!mode) mode = "disabled";
+    power.buttonMode = mode;
+    if(blinkIntervalHandle) {
+        clearInterval(blinkIntervalHandle);
+        blinkIntervalHandle = null;
+    }
+    if(mode == 'disabled') {
+        power.buttonPowerLight(false);
+        power.button1Light(false);
+        power.button2Light(false);
+        power.button3Light(false);
+    } else if(mode == 'power') {
+        power.buttonPowerLight(true);
+        power.button1Light(false);
+        power.button2Light(false);
+        power.button3Light(false);
+
+    } else if(mode == 'all') {
+        power.buttonPowerLight(true);
+        power.button1Light(true);
+        power.button2Light(true);
+        power.button3Light(true);
+    } else if(mode == 'blink') {
+        power.buttonPowerLight(true);
+        power.buttonPowerLight(false);
+        power.button1Light(false);
+        power.button2Light(false);
+        power.button3Light(false);
+        blinkIntervalHandle = setInterval(function(){
+            power.buttonPowerLight(true);
+            power.buttonPowerLight(false);
+        }, 5000);
+    }
+}
+
 power.setAutoOff = function(minutes) {
     if(powerDownTimerHandle) clearTimeout(powerDownTimerHandle);
     powerDownTimerHandle = null;
@@ -124,6 +161,41 @@ power.update = function(noEvents) {
     });
 
 };
+
+power.buttonPowerLight = function(on) {
+    if(on) {
+        exec("echo 255 | sudo tee /sys/class/leds/view-button-power/brightness");
+    } else {
+        exec("echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
+    }
+    exec("echo 0 | sudo tee /sys/class/leds/view-button-1/brightness");
+    exec("echo 0 | sudo tee /sys/class/leds/view-button-2/brightness");
+    exec("echo 0 | sudo tee /sys/class/leds/view-button-3/brightness");
+}
+
+power.button1Light = function(on) {
+    if(on) {
+        exec("echo 255 | sudo tee /sys/class/leds/view-button-1/brightness");
+    } else {
+        exec("echo 0 | sudo tee /sys/class/leds/view-button-1/brightness");
+    }
+}
+
+power.button2Light = function(on) {
+    if(on) {
+        exec("echo 255 | sudo tee /sys/class/leds/view-button-2/brightness");
+    } else {
+        exec("echo 0 | sudo tee /sys/class/leds/view-button-2/brightness");
+    }
+}
+
+power.button3Light = function(on) {
+    if(on) {
+        exec("echo 255 | sudo tee /sys/class/leds/view-button-3/brightness");
+    } else {
+        exec("echo 0 | sudo tee /sys/class/leds/view-button-3/brightness");
+    }
+}
 
 setInterval(power.update, 5000);
 
