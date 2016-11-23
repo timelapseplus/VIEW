@@ -187,7 +187,7 @@ function processKeyframes(setupFirst, callback) {
         }
     });
 
-    if(intervalometer.currentProgram.keyframes[0]) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
+    if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
         doKeyframeAxis('motor', motorId, setupFirst, function(move) {
             var parts = motorId.split('-');
             if (move && parts.length == 2) {
