@@ -1647,7 +1647,7 @@ db.get('chargeLightDisabled', function(err, en) {
 });
 
 db.get('buttonMode', function(err, mode) {
-    power.buttonMode(mode);
+    power.setButtons(mode);
 });
 
 db.get('gestureSensor', function(err, en) {
