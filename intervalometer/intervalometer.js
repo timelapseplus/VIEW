@@ -152,7 +152,9 @@ function processKeyframes(setupFirst, callback) {
     var numAxes = 2;
     var axesDone = 0;
 
-    if(intervalometer.currentProgram.keyframes[0]) for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
+    if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) {
+        for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
+    }
 
     var checkDone = function() {
         axesDone++;
