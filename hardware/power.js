@@ -62,15 +62,11 @@ power.setButtons = function(mode) {
         power.button2Light(true);
         power.button3Light(true);
     } else if(mode == 'blink') {
-        power.buttonPowerLight(true);
-        power.buttonPowerLight(false);
+        power.buttonPowerBlink();
         power.button1Light(false);
         power.button2Light(false);
         power.button3Light(false);
-        blinkIntervalHandle = setInterval(function(){
-            power.buttonPowerLight(true);
-            power.buttonPowerLight(false);
-        }, 5000);
+        blinkIntervalHandle = setInterval(power.buttonPowerBlink, 5000);
     }
 }
 
@@ -168,9 +164,10 @@ power.buttonPowerLight = function(on) {
     } else {
         exec("echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
     }
-    exec("echo 0 | sudo tee /sys/class/leds/view-button-1/brightness");
-    exec("echo 0 | sudo tee /sys/class/leds/view-button-2/brightness");
-    exec("echo 0 | sudo tee /sys/class/leds/view-button-3/brightness");
+}
+
+power.buttonPowerBlink = function() {
+    exec("echo 255 | sudo tee /sys/class/leds/view-button-power/brightness; echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
 }
 
 power.button1Light = function(on) {
