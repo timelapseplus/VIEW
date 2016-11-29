@@ -432,6 +432,7 @@ function getClipFramesCount(clipNumber, callback) {
             console.log("recovering count for " + clipNumber);
             intervalometer.getTimelapseData(clipNumber, function(err2, data) {
                 if(!err2 && data && data.length > 0) {
+                    console.log("clip frames recovery", clipNumber, data.length);
                     return callback(null, data.length);
                 } else {
                     console.log("clip frames recovery err:", err2, data);
