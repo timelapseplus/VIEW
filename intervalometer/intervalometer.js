@@ -428,11 +428,12 @@ function getClipFramesCount(clipNumber, callback) {
             if (err) console.log("clip frames err:", err, frames);
             return callback(null, null);
         } else if (!frames) {
+            console.log("recovering count for " + clipNumber);
             intervalometer.getTimelapseData(clipNumber, function(err2, data) {
                 if(!err2 && data && data.length > 0) {
                     return callback(null, data.length);
                 } else {
-                    if (err) console.log("clip frames err:", err, clip);
+                    if (err) console.log("clip frames err:", err2, data);
                     return callback(null, null);
                 } 
             });
