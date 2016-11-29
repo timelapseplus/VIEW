@@ -426,21 +426,23 @@ function getClipFramesCount(clipNumber, callback) {
     console.log("reading frame count for", clipNumber);
     fs.readFile(folder + "/count.txt", function(err, frames) {
         if(err) {
-            console.log("clip frames err:", err, frames);
+            console.log("clip frames err:", clipNumber, err, frames);
             return callback(null, null);
-        } else if (!frames || parseInt(frames) == NaN) {
+        } else if (!parseInt(frames)) {
             console.log("recovering count for " + clipNumber);
             intervalometer.getTimelapseData(clipNumber, function(err2, data) {
                 if(!err2 && data && data.length > 0) {
                     console.log("clip frames recovery", clipNumber, data.length);
                     return callback(null, data.length);
                 } else {
-                    console.log("clip frames recovery err:", err2, data);
+                    console.log("clip frames recovery err:", clipNumber, err2, data);
                     return callback(null, null);
                 } 
             });
         } else {
-            return callback(null, parseInt(frames));
+            frames = parseInt(frames);
+            console.log("clip frames:", clipNumber, frames);
+            return callback(null, frames);
         }
     });        
 }
