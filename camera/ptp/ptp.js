@@ -209,7 +209,7 @@ scanner.run();
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
         console.log("mounting SD card");
-        exec("mount -o nonempty " + camera.sdDevice + " /media", function(err) {
+        exec("mount " + camera.sdDevice + " /media", function(err) {
             if (!err) camera.sdMounted = true; else console.log("error mounting sd card: ", err);
             if (callback) callback(err);
         });
