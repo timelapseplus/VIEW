@@ -427,7 +427,7 @@ function getClipFramesCount(clipNumber, callback) {
         if(err) {
             if (err) console.log("clip frames err:", err, frames);
             return callback(null, null);
-        } else if (!frames) {
+        } else if (!frames || parseInt(frames) == NaN) {
             console.log("recovering count for " + clipNumber);
             intervalometer.getTimelapseData(clipNumber, function(err2, data) {
                 if(!err2 && data && data.length > 0) {
