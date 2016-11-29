@@ -423,9 +423,10 @@ intervalometer.getLastTimelapse = function(callback) {
 
 function getClipFramesCount(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
+    console.log("reading frame count for", clipNumber);
     fs.readFile(folder + "/count.txt", function(err, frames) {
         if(err) {
-            if (err) console.log("clip frames err:", err, frames);
+            console.log("clip frames err:", err, frames);
             return callback(null, null);
         } else if (!frames || parseInt(frames) == NaN) {
             console.log("recovering count for " + clipNumber);
@@ -433,7 +434,7 @@ function getClipFramesCount(clipNumber, callback) {
                 if(!err2 && data && data.length > 0) {
                     return callback(null, data.length);
                 } else {
-                    if (err) console.log("clip frames err:", err2, data);
+                    console.log("clip frames recovery err:", err2, data);
                     return callback(null, null);
                 } 
             });
@@ -452,8 +453,6 @@ intervalometer.getTimelapseClip = function(clipNumber, callback) {
         if (!clip.frames) {
             if (err) console.log("clip frames err:", err, clip);
             return callback(null, null);
-        } else {
-            clip.frames = parseInt(clip.frames);
         }
         clip.index = clipNumber;
         clip.name = "TL-" + clipNumber;
@@ -495,8 +494,6 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
             if (!clip.frames) {
                 if (err) console.log("clip frames err:", err, clip);
                 return callback(null, null);
-            } else {
-                clip.frames = parseInt(clip.frames);
             }
             clip.name = "TL-" + clipNumber;
             clip.path = folder + "/img%05d.jpg";
