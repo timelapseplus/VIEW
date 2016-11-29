@@ -421,11 +421,32 @@ intervalometer.getLastTimelapse = function(callback) {
     });
 }
 
+function getClipFramesCount(clipNumber, callback) {
+    var folder = TLROOT + "/tl-" + clipNumber;
+    fs.readFile(folder + "/count.txt", function(err, frames) {
+        if(err) {
+            if (err) console.log("clip frames err:", err, clip);
+            return callback(null, null);
+        } else if (!frames) {
+            intervalometer.getTimelapseData(clipNumber, function(err2, data) {
+                if(!err2 && data && data.length > 0) {
+                    return callback(null, data.length);
+                } else {
+                    if (err) console.log("clip frames err:", err, clip);
+                    return callback(null, null);
+                } 
+            });
+        } else {
+            return callback(null, parseInt(frames));
+        }
+    });        
+}
+
 intervalometer.getTimelapseClip = function(clipNumber, callback) {
     console.log("fetching timelapse clip " + clipNumber);
     var clip = {};
     var folder = TLROOT + "/tl-" + clipNumber;
-    fs.readFile(folder + "/count.txt", function(err, frames) {
+    getClipFramesCount(clipNumber, function(err, frames) {
         clip.frames = frames;
         if (!clip.frames) {
             if (err) console.log("clip frames err:", err, clip);
@@ -468,7 +489,7 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
         console.log("fetching timelapse clip " + clipNumber);
         var clip = {};
         var folder = TLROOT + "/tl-" + clipNumber;
-        fs.readFile(folder + "/count.txt", function(err, frames) {
+        getClipFramesCount(clipNumber, function(err, frames) {
             clip.frames = frames;
             if (!clip.frames) {
                 if (err) console.log("clip frames err:", err, clip);
@@ -512,7 +533,7 @@ intervalometer.saveXMPsToCard = function(clipNumber, callback) {
                     if (err) {
                         if (err.code == "EEXIST") {
                             console.log("folder 'tl-" + clipNumber + "-xmp' already exists", err);
-                            callback("folder on SD card");
+                            callback("folder 'tl-" + clipNumber + "-xmp' already exists on SD card");
                         } else {
                             console.log("error creating folder", err);
                             callback("error creating folder on SD card");

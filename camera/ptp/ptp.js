@@ -209,7 +209,7 @@ scanner.run();
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
         console.log("mounting SD card");
-        exec("mount " + camera.sdDevice + " /media", function(err) {
+        exec("mount -o nonempty " + camera.sdDevice + " /media", function(err) {
             if (!err) camera.sdMounted = true; else console.log("error mounting sd card: ", err);
             if (callback) callback(err);
         });
@@ -332,7 +332,7 @@ camera.getSettings = function(callback) {
         id: getCallbackId(callback)
     }); else callback && callback("not connected");
 }
-camera.saveThumbnails = function(path) {
+camera.saveThumbnails = function(path, callback) {
     if (worker && camera.connected) worker.send({
         'type': 'setup',
         'set': 'thumbnailPath',
