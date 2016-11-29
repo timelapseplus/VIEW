@@ -425,7 +425,7 @@ function getClipFramesCount(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
     fs.readFile(folder + "/count.txt", function(err, frames) {
         if(err) {
-            if (err) console.log("clip frames err:", err, clip);
+            if (err) console.log("clip frames err:", err, frames);
             return callback(null, null);
         } else if (!frames) {
             intervalometer.getTimelapseData(clipNumber, function(err2, data) {
