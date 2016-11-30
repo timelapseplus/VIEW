@@ -366,7 +366,7 @@ intervalometer.validate = function(program) {
 
     if(camera.ptp.settings && camera.ptp.settings.mapped.imagequality != 'RAW' && program.destination == 'sd') {
         console.log("Error: camera not set to save in RAW");
-        results.errors.push({param:false, reason: ("camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+        results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
     }
 
     console.log("validating program:", results);
