@@ -1302,6 +1302,7 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return camera.ptp.supports.liveview && !intervalometer.status.running;
             }
+        }, {
             name: "Time-lapse Clips",
             action: clipsMenu,
             help: help.clipsMenu
