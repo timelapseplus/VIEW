@@ -331,9 +331,9 @@ function runPhoto() {
 }
 
 function error(msg) {
-    process.nextTick(function(){
+    setTimeout(function(){
         intervalometer.emit("error", msg);
-    });
+    }, 100);
 }
 
 intervalometer.validate = function(program) {
