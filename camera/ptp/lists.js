@@ -14,7 +14,7 @@ lists.paramMap = [{
         item: "viewfinder"
     }]
 }, {
-    name: "imagequality",
+    name: "format",
     maps: [{
         section: "capturesettings",
         item: "imagequality"
@@ -162,7 +162,7 @@ lists.decEv = function(current, itemList) {
     return current;
 }
 
-lists.imagequality = [{
+lists.format = [{
     name: "RAW",
     values: ['RAW', 'raw', 'NEF (Raw)']
 }, {
