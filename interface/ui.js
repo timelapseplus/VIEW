@@ -7,11 +7,7 @@ var stack = [];
 var screenSaverHandle = null;
 
 function activity() {
-    if (screenSaverHandle) clearTimeout(screenSaverHandle);
-    screenSaverHandle = setTimeout(function() {
-        if (oled.visible) oled.hide();
-    }, 30000);
-    if (!oled.visible) oled.show();
+    oled.activity();
 }
 
 exports.init = function(menuController) {

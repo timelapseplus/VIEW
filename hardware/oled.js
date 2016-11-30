@@ -501,6 +501,7 @@ oled.down = function() {
 
 oled.hide = function() {
     if(oled.videoRunning) return oled.activity();
+    console.log("power off  OLED");
     exec("echo 0 | sudo tee /sys/class/leds/view-oled-backlight/brightness");
     oled.visible = false;
 }
