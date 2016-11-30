@@ -1992,6 +1992,7 @@ intervalometer.on('status', function(msg) {
 });
 
 intervalometer.on('error', function(msg) {
+    ui.alert('ERROR', msg);
     console.log("Intervalometer ERROR: ", msg);
 });
 

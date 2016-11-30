@@ -187,6 +187,15 @@ exports.help = function() {
         });
     }
 }
+exports.alert = function(title, text) {
+    activity();
+    exports.load({
+        type: "textDisplay",
+        origin: "alert",
+        name: title,
+        value: text
+    });
+}
 exports.button3 = function() {
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
