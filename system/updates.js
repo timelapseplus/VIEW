@@ -20,7 +20,7 @@ function checkLibGPhotoUpdate(callback) {
 		if(!err && stdout) {
 			var parts = stdout.trim().split(' ');
 			if(parts && parts.length == 2 && parts[0].trim() == 'commit') {
-				var version == parts[1].trim();
+				var version = parts[1].trim();
 				if(version != libgphoto2Version) {
 					console.log("libgphoto2 update required");
 					callback(null, true);
