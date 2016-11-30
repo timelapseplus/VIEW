@@ -359,6 +359,16 @@ intervalometer.validate = function(program) {
         }        
     }
 
+    if(!camera.ptp.supports.destination && program.destination != 'sd') {
+        console.log("Error: SD card required");
+        results.errors.push({param:false, reason: "SD card required. The connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
+    }
+
+    if(camera.ptp.settings && camera.ptp.settings.mapped.imagequality != 'RAW' && program.destination == 'sd') {
+        console.log("Error: camera not set to save in RAW");
+        results.errors.push({param:false, reason: ("camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+    }
+
     console.log("validating program:", results);
 
     return results;
@@ -447,13 +457,7 @@ intervalometer.run = function(program) {
                 }
             });
         } else {
-            if(!camera.ptp.supports.destination) {
-                console.log("Error: SD card required");
-                intervalometer.cancel();
-                error("Error: SD card required.\nThe connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card.");
-            } else {
-                start();
-            }
+            start();
         }
     } else {
         var errorList = "";

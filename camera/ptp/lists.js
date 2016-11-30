@@ -159,6 +159,11 @@ lists.decEv = function(current, itemList) {
     return current;
 }
 
+lists.imagequality = [{
+    name: "RAW",
+    values: ['RAW']
+}];
+
 lists.target = [{
     name: "RAM",
     values: ['Internal RAM']
