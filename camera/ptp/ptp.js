@@ -109,6 +109,7 @@ var startWorker = function() {
                     camera.model = msg.value;
                     console.log("Camera connected: ", camera.model);
                     if(camera.model.match(/sony/i)) {
+                        console.log("matched sony, setting supports.destination = false");
                         camera.supports.destination = false;
                         camera.supports.liveview = false;
                     } else if(camera.model.match(/panasonic/i)) {
