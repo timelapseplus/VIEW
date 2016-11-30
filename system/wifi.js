@@ -107,8 +107,8 @@ iw.on('join', function(data) {
 	}
 });
 
-iw.on('former', function(address) {
-	console.log("[Wifi] Former:", address);
+iw.on('former', function(data) {
+	console.log("[Wifi] Former:", data);
 	if(!wifi.apMode) {
 		wifi.connected = data;
 		wifi.emit("connect", data.ssid);
