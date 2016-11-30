@@ -1453,13 +1453,25 @@ if (VIEW_HARDWARE) {
         oled.status('connected to view.tl');
     });
 
-    camera.ptp.on('media', function(type) {
+    camera.ptp.on('media-insert', function(type) {
         console.log("media inserted: ", type);
         oled.activity();
         power.activity();
+        if(type = 'sd') {
+            intervalometer.program.destination = 'sd';
+            ui.reload();
+        }
         intervalometer.getLastTimelapse(function(err, timelapse) {
             confirmSaveXMPs(timelapse);
         });
+    });
+
+    camera.ptp.on('media-remove', function(type) {
+        console.log("media removed: ", type);
+        if(type = 'sd') {
+            intervalometer.program.destination = 'camera';
+            ui.reload();
+        }
     });
 
 

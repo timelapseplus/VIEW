@@ -111,6 +111,11 @@ var startWorker = function() {
                 if (msg.event == 'connected') {
                     camera.connected = true;
                     camera.model = msg.value;
+                    if(camera.model.match(/sony/i)) {
+                        camera.requireSd = true;
+                    } else {
+                        camera.requireSd = false;
+                    }
                 }
                 if (msg.event == 'exiting') {
                     camera.connected = false;
@@ -144,7 +149,7 @@ monitor.on('add', function(device) {
         console.log("SD card added:", device.DEVNAME);
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
-        camera.emit("media", "sd");
+        camera.emit("media-insert", "sd");
     } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'Dynamic_Perception_LLC') {
         console.log("NMX connected:", device.DEVNAME);
         camera.nmxConnected = true;
@@ -167,6 +172,7 @@ monitor.on('remove', function(device) {
         camera.emit("nmxSerial", "disconnected");
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-sunxi-mmc.2') {
         console.log("SD card removed:", device.DEVNAME);
+        camera.emit("media-remove", "sd");
         camera.sdPresent = false;
         if (camera.sdMounted) {
             //unmount card

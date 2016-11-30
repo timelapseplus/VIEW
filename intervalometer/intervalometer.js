@@ -335,10 +335,10 @@ intervalometer.validate = function(program) {
         errors: []
     };
     if (parseInt(program.delay) < 1) program.delay = 2;
-    if (parseInt(program.frames) < 1) results.errors.push('frames');
-    if (parseInt(program.interval) < 0) results.errors.push('interval');
-    if (parseInt(program.dayInterval) < 4) program.dayInterval = 4;
-    if (parseInt(program.nightInterval) < 36) program.nightInterval = 36;
+    if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
+    if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
+    if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});
+    if (parseInt(program.nightInterval) < program.dayInterval) results.errors.push({param:'nightInterval', reason: 'nightInterval shorter than dayInterval'});
 
     console.log("validating program:", results);
 
@@ -364,8 +364,8 @@ intervalometer.cancel = function(program) {
 
 intervalometer.run = function(program) {
     if (intervalometer.status.running) return;
-
-    if (intervalometer.validate(program).errors.length == 0) {
+    var validationResults = intervalometer.validate(program);
+    if (validationResults.errors.length == 0) {
         if (camera.ptp.connected) {
             var tlIndex = fs.readFileSync(TLROOT + '/index.txt');
             if (!tlIndex) {
@@ -380,6 +380,9 @@ intervalometer.run = function(program) {
             camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
             status.timelapseFolder = intervalometer.timelapseFolder;
             fileInit();
+        } else {
+            intervalometer.emit("error", "Camera not connected.  Please verify camera connection via USB and try again.");
+            return;
         }
         busyPhoto = false;
         intervalometer.currentProgram = program;
@@ -409,14 +412,14 @@ intervalometer.run = function(program) {
                 if(mountErr) {
                     console.log("Error mounting SD card");
                     intervalometer.cancel();
-                    intervalometer.emit("error", "Error mounting SD card");
+                    intervalometer.emit("error", "Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.");
                 } else {
                     status.mediaFolder = "/media/" + status.tlName;
                     fs.mkdir(status.mediaFolder, function(folderErr) {
                         if(folderErr) {
                             console.log("Error creating folder", status.mediaFolder);
                             intervalometer.cancel();
-                            intervalometer.emit("error", "Error creating folder on SD card: /" + status.tlName);
+                            intervalometer.emit("error", "Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
                         } else {
                             start();
                         }
@@ -424,8 +427,26 @@ intervalometer.run = function(program) {
                 }
             });
         } else {
-            start();
+            if(camera.ptp.requiresSd) {
+                console.log("Error: SD card required");
+                intervalometer.cancel();
+                intervalometer.emit("error", "Error: SD card required.\nThe connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card.");
+            } else {
+                start();
+            }
         }
+    } else {
+        var errorList = "";
+        var val = "";
+        for(var i = 0; i < validationResults.errors.length; i++) {
+            if(program.hasOwnProperty([validationResults.errors[0].param])) {
+                val = " (" + program[validationResults.errors[0].param] + ")";
+            } else {
+                val = "";
+            }
+            errorList += "- " + validationResults.errors[0].reason + val + "\n";
+        }
+        intervalometer.emit("error", "Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
     }
 }
 
