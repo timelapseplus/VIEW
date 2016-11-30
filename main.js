@@ -105,7 +105,7 @@ if (VIEW_HARDWARE) {
     wifi.on('connect', function(ssid) {
         wifiConnectionTime = new Date().getTime();
         oled.status('wifi connected to ' + ssid);
-        update.checkLibGPhotoUpdate(function(err, needUpdate){
+        updates.checkLibGPhotoUpdate(function(err, needUpdate){
             if(!err && needUpdate) {
                 console.log("libgphoto2 update available!");
             }
