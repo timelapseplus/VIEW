@@ -254,17 +254,19 @@ function runPhoto() {
                     intervalometer.emit("status", status);
                     console.log("program status:", status);
                 }
-                if (intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) {
+                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
                     clearTimeout(timerHandle);
                     status.running = false;
                     status.message = "done";
                     status.framesRemaining = 0;
-                    setTimeout(function() {
+
+                    setTimeout(function(){
                         intervalometer.timelapseFolder = false;
                         camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                    }, 2000);
-                    intervalometer.emit("status", status);
-                    console.log("program:", "done");
+                        intervalometer.emit("status", status);
+                        camera.ptp.unmountSd();
+                        console.log("program:", "done");
+                    }, 1000);
                 }
                 processKeyframes(false, function() {
                     busyPhoto = false;
@@ -304,16 +306,18 @@ function runPhoto() {
                             intervalometer.emit("status", status);
                             console.log("program status:", status);
                         }
-                        if (intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) {
+                        if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
                             clearTimeout(timerHandle);
                             status.running = false;
                             status.message = "done";
                             status.framesRemaining = 0;
-                            intervalometer.timelapseFolder = false;
-                            camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                            intervalometer.emit("status", status);
-                            camera.ptp.unmountSd();
-                            console.log("program:", "done");
+                            setTimeout(function(){
+                                intervalometer.timelapseFolder = false;
+                                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                                intervalometer.emit("status", status);
+                                camera.ptp.unmountSd();
+                                console.log("program:", "done");
+                            }, 1000);
                         }
                         processKeyframes(false, function() {
                             busyPhoto = false;
@@ -349,9 +353,12 @@ intervalometer.cancel = function(program) {
         status.framesRemaining = 0;
         intervalometer.emit("status", status);
         console.log("program:", "stopped");
-        intervalometer.timelapseFolder = false;
-        camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-        camera.ptp.unmountSd();
+
+        if(!busyPhoto) {
+            intervalometer.timelapseFolder = false;
+            camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+            camera.ptp.unmountSd();
+        }
     }
 }
 
@@ -398,10 +405,23 @@ intervalometer.run = function(program) {
         }
 
         if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {
-            camera.ptp.mountSd(function() {
-                status.mediaFolder = "/media/" + status.tlName;
-                fs.mkdirSync(status.mediaFolder);
-                start();
+            camera.ptp.mountSd(function(mountErr) {
+                if(mountErr) {
+                    console.log("Error mounting SD card");
+                    intervalometer.cancel();
+                    intervalometer.emit("error", "Error mounting SD card");
+                } else {
+                    status.mediaFolder = "/media/" + status.tlName;
+                    fs.mkdir(status.mediaFolder, function(folderErr) {
+                        if(folderErr) {
+                            console.log("Error creating folder", status.mediaFolder);
+                            intervalometer.cancel();
+                            intervalometer.emit("error", "Error creating folder on SD card: /" + status.tlName);
+                        } else {
+                            start();
+                        }
+                    });
+                }
             });
         } else {
             start();

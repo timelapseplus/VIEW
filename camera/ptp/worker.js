@@ -131,6 +131,9 @@ function processRawPath(path, options, info, callback) {
             var dest = options.saveRaw + info.substr(-4); // get extension
             console.log("Saving RAW image " + path + " to " + dest);
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
+                if(err) {
+                    sendEvent('saveError', "Error saving RAW file " + dest);
+                }
                 fs.unlink(path);
             });
             var s = options.saveRaw.match(/(tl-[0-9]+)/i);

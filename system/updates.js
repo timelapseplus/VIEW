@@ -1,11 +1,53 @@
 var https = require('https');
 var fs = require('fs');
 var url = require('url');
-var spawn = require('child_process').spawn;
+var child_process = require('child_process');
+var spawn = child_process.spawn;
+var exec = child_process.exec;
 
 var apiHost = "api.github.com";
 var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
+
+var libgphoto2Version = "5420c9c3cb0360bd1d65e3229160e69e96cbff32"; // this is a commit hash from github
+
+var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
+var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch remote master && git merge " + libgphoto2Version;
+var installLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls && make && make install";
+
+function checkLibGPhotoUpdate(callback) {
+	exec(checkLibGPhoto2, function(err, stdout, stderr) {
+		if(!err && stdout) {
+			var parts = stdout.trim().split(' ');
+			if(parts && parts.length == 2 && parts[0].trim() == 'commit') {
+				var version == parts[1].trim();
+				if(version != libgphoto2Version) {
+					console.log("libgphoto2 update required");
+					callback(null, true);
+				} else {
+					console.log("libgphoto2 is up to date");
+					callback(null, false);
+				}
+			} else {
+				callback("error getting version");
+			}
+		} else {
+			callback("error getting version");
+		}
+	});
+}
+
+function downloadLibGPhoto(callback) {
+	exec(updateLibGPhoto2, function(err) {
+		callback(err);
+	});
+}
+
+function installLibGPhoto(callback) {
+	exec(installLibGPhoto2, function(err) {
+		callback(err);
+	});
+}
 
 function apiRequest(method, callback) {
 	var req = https.request({method:'get', host:apiHost, path: apiEndpoint+method, headers: {'user-agent': 'VIEW-app'}}, function(res) {
@@ -188,3 +230,9 @@ exports.setVersion = function(versionInfo, callback) {
 exports.download = download;
 exports.extract = extract;
 exports.apiRequest = apiRequest;
+
+exports.checkLibGPhotoUpdate = checkLibGPhotoUpdate;
+exports.downloadLibGPhoto = downloadLibGPhoto;
+exports.installLibGPhoto = installLibGPhoto;
+
+
