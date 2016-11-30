@@ -381,6 +381,7 @@ intervalometer.run = function(program) {
             status.timelapseFolder = intervalometer.timelapseFolder;
             fileInit();
         } else {
+            intervalometer.cancel();
             intervalometer.emit("error", "Camera not connected.  Please verify camera connection via USB and try again.");
             return;
         }
@@ -446,6 +447,7 @@ intervalometer.run = function(program) {
             }
             errorList += "- " + validationResults.errors[0].reason + val + "\n";
         }
+        intervalometer.cancel();
         intervalometer.emit("error", "Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
     }
 }
