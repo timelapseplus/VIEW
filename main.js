@@ -1991,6 +1991,10 @@ intervalometer.on('status', function(msg) {
     cache.intervalometerStatus = msg;
 });
 
+intervalometer.on('error', function(msg) {
+    console.log("Intervalometer ERROR: ", msg);
+});
+
 function getMotionStatus() {
     var status = nmx.getStatus();
     var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
