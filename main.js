@@ -1462,7 +1462,7 @@ if (VIEW_HARDWARE) {
             ui.reload();
         }
         intervalometer.getLastTimelapse(function(err, timelapse) {
-            confirmSaveXMPs(timelapse);
+            if(!err && timelapse) confirmSaveXMPs(timelapse);
         });
     });
 

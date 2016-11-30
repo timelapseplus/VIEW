@@ -148,7 +148,7 @@ monitor.on('add', function(device) {
     if (device.SUBSYSTEM == 'usb') {
         if (!worker) startWorker();
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition') {// && device.ID_PATH == 'platform-sunxi-mmc.2') {
-        console.log("SD card added:", device.DEVNAME);
+        console.log("SD card added:", device);
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
         camera.emit("media-insert", "sd");
