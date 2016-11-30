@@ -2001,6 +2001,7 @@ intervalometer.on('status', function(msg) {
         status: msg
     });
     cache.intervalometerStatus = msg;
+    ui.reload();
 });
 
 intervalometer.on('error', function(msg) {
