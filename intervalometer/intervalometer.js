@@ -341,10 +341,16 @@ intervalometer.validate = function(program) {
         errors: []
     };
     if (parseInt(program.delay) < 1) program.delay = 2;
-    if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
-    if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
-    if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});
-    if (parseInt(program.nightInterval) < program.dayInterval) results.errors.push({param:'nightInterval', reason: 'nightInterval shorter than dayInterval'});
+    if(program.rampMode == 'fixed') {
+        if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
+    } else {
+        if(program.intervalMode == 'fixed') {
+            if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
+        } else {
+            if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});
+            if (parseInt(program.nightInterval) < program.dayInterval) results.errors.push({param:'nightInterval', reason: 'nightInterval shorter than dayInterval'});
+        }        
+    }
 
     console.log("validating program:", results);
 
