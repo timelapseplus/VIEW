@@ -393,86 +393,91 @@ intervalometer.cancel = function(program) {
 
 intervalometer.run = function(program) {
     if (intervalometer.status.running) return;
-    var validationResults = intervalometer.validate(program);
-    if (validationResults.errors.length == 0) {
-        if (camera.ptp.connected) {
-            var tlIndex = fs.readFileSync(TLROOT + '/index.txt');
-            if (!tlIndex) {
-                tlIndex = 1;
-            } else {
-                tlIndex = parseInt(tlIndex) + 1;
-            }
-            fs.writeFileSync(TLROOT + '/index.txt', tlIndex.toString());
-            status.tlName = "tl-" + tlIndex;
-            intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
-            fs.mkdirSync(intervalometer.timelapseFolder);
-            camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-            status.timelapseFolder = intervalometer.timelapseFolder;
-            fileInit();
-        } else {
-            intervalometer.cancel();
-            error("Camera not connected.  Please verify camera connection via USB and try again.");
-            return;
-        }
-        busyPhoto = false;
-        intervalometer.currentProgram = program;
-        status.intervalMs = program.interval * 1000;
-        status.running = true;
-        status.message = "starting";
-        status.frames = 0;
-        status.framesRemaining = program.intervalMode == "auto" ? 0 : program.frames;
-        status.startTime = new Date() / 1000;
-        status.rampEv = null;
-        intervalometer.emit("status", status);
-        exp.init(camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings), program.nightCompensation);
-        console.log("program:", "starting", program);
 
-        function start() {
-            processKeyframes(true, function() {
-                busyPhoto = false;
-                runPhoto();
-            });
-            //delayHandle = setTimeout(function() {
-            //    runPhoto();
-            //}, program.delay * 1000);
-        }
-
-        if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {
-            camera.ptp.mountSd(function(mountErr) {
-                if(mountErr) {
-                    console.log("Error mounting SD card");
-                    intervalometer.cancel();
-                    error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
+    if (camera.ptp.connected) {
+        camera.ptp.getSettings(function(){
+            var validationResults = intervalometer.validate(program);
+            if (validationResults.errors.length == 0) {
+                var tlIndex = fs.readFileSync(TLROOT + '/index.txt');
+                if (!tlIndex) {
+                    tlIndex = 1;
                 } else {
-                    status.mediaFolder = "/media/" + status.tlName;
-                    fs.mkdir(status.mediaFolder, function(folderErr) {
-                        if(folderErr) {
-                            console.log("Error creating folder", status.mediaFolder);
+                    tlIndex = parseInt(tlIndex) + 1;
+                }
+                fs.writeFileSync(TLROOT + '/index.txt', tlIndex.toString());
+                status.tlName = "tl-" + tlIndex;
+                intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
+                fs.mkdirSync(intervalometer.timelapseFolder);
+                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                status.timelapseFolder = intervalometer.timelapseFolder;
+                fileInit();
+
+                busyPhoto = false;
+                intervalometer.currentProgram = program;
+                status.intervalMs = program.interval * 1000;
+                status.running = true;
+                status.message = "starting";
+                status.frames = 0;
+                status.framesRemaining = program.intervalMode == "auto" ? 0 : program.frames;
+                status.startTime = new Date() / 1000;
+                status.rampEv = null;
+                intervalometer.emit("status", status);
+                exp.init(camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings), program.nightCompensation);
+                console.log("program:", "starting", program);
+
+                function start() {
+                    processKeyframes(true, function() {
+                        busyPhoto = false;
+                        runPhoto();
+                    });
+                    //delayHandle = setTimeout(function() {
+                    //    runPhoto();
+                    //}, program.delay * 1000);
+                }
+
+                if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {
+                    camera.ptp.mountSd(function(mountErr) {
+                        if(mountErr) {
+                            console.log("Error mounting SD card");
                             intervalometer.cancel();
-                            error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
+                            error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
                         } else {
-                            start();
+                            status.mediaFolder = "/media/" + status.tlName;
+                            fs.mkdir(status.mediaFolder, function(folderErr) {
+                                if(folderErr) {
+                                    console.log("Error creating folder", status.mediaFolder);
+                                    intervalometer.cancel();
+                                    error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
+                                } else {
+                                    start();
+                                }
+                            });
                         }
                     });
+                } else {
+                    start();
                 }
-            });
-        } else {
-            start();
-        }
-    } else {
-        var errorList = "";
-        var val = "";
-        for(var i = 0; i < validationResults.errors.length; i++) {
-            if(program.hasOwnProperty([validationResults.errors[0].param])) {
-                val = " (" + program[validationResults.errors[0].param] + ")";
             } else {
-                val = "";
+                var errorList = "";
+                var val = "";
+                for(var i = 0; i < validationResults.errors.length; i++) {
+                    if(program.hasOwnProperty([validationResults.errors[0].param])) {
+                        val = " (" + program[validationResults.errors[0].param] + ")";
+                    } else {
+                        val = "";
+                    }
+                    errorList += "- " + validationResults.errors[0].reason + val + "\n";
+                }
+                intervalometer.cancel();
+                error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
             }
-            errorList += "- " + validationResults.errors[0].reason + val + "\n";
-        }
+        });
+    } else {
         intervalometer.cancel();
-        error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
+        error("Camera not connected.  Please verify camera connection via USB and try again.");
+        return;
     }
+
 }
 
 
