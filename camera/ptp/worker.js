@@ -610,7 +610,7 @@ function getConfig(noEvent, cb) {
             settings.mapped = mapped;
             data.mapped = mapped;
 
-            //console.log("mapped settings:", mapped);
+            console.log("mapped settings:", mapped);
 
             if (!noEvent) sendEvent('settings', data);
             if (cb) cb(null, data);

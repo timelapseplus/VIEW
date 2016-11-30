@@ -14,6 +14,12 @@ lists.paramMap = [{
         item: "viewfinder"
     }]
 }, {
+    name: "imagequality",
+    maps: [{
+        section: "capturesettings",
+        item: "imagequality"
+    }]
+}, {
     name: "iso",
     maps: [{
         section: "imgsettings",
