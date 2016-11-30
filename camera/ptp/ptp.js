@@ -111,7 +111,9 @@ var startWorker = function() {
                 if (msg.event == 'connected') {
                     camera.connected = true;
                     camera.model = msg.value;
+                    console.log("Camera connected: ", camera.model);
                     if(camera.model.match(/sony/i)) {
+                        console.log("camera is Sony, setting requireSd=true");
                         camera.requireSd = true;
                     } else {
                         camera.requireSd = false;
