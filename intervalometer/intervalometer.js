@@ -425,7 +425,7 @@ intervalometer.run = function(program) {
                 if(mountErr) {
                     console.log("Error mounting SD card");
                     intervalometer.cancel();
-                    error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.");
+                    error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
                 } else {
                     status.mediaFolder = "/media/" + status.tlName;
                     fs.mkdir(status.mediaFolder, function(folderErr) {

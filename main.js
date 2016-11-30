@@ -1300,9 +1300,8 @@ if (VIEW_HARDWARE) {
             action: captureMenu,
             help: help.captureMenu,
             condition: function() {
-                return !intervalometer.status.running;
+                return camera.ptp.supports.liveview && !intervalometer.status.running;
             }
-        }, {
             name: "Time-lapse Clips",
             action: clipsMenu,
             help: help.clipsMenu
