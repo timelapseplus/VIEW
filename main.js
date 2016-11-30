@@ -1458,7 +1458,7 @@ if (VIEW_HARDWARE) {
         oled.activity();
         power.activity();
         if(type = 'sd') {
-            intervalometer.program.destination = 'sd';
+            intervalometer.currentProgram.destination = 'sd';
             ui.reload();
         }
         intervalometer.getLastTimelapse(function(err, timelapse) {
@@ -1469,7 +1469,7 @@ if (VIEW_HARDWARE) {
     camera.ptp.on('media-remove', function(type) {
         console.log("media removed: ", type);
         if(type = 'sd') {
-            intervalometer.program.destination = 'camera';
+            intervalometer.currentProgram.destination = 'camera';
             ui.reload();
         }
     });

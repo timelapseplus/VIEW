@@ -147,8 +147,8 @@ monitor.on('add', function(device) {
     //console.log("device added:", device);
     if (device.SUBSYSTEM == 'usb') {
         if (!worker) startWorker();
-    } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition') {// && device.ID_PATH == 'platform-sunxi-mmc.2') {
-        console.log("SD card added:", device);
+    } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
+        console.log("SD card added:", device.DEVNAME);
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
         camera.emit("media-insert", "sd");
@@ -172,7 +172,7 @@ monitor.on('remove', function(device) {
         camera.nmxConnected = false;
         camera.nmxDevice = null;
         camera.emit("nmxSerial", "disconnected");
-    } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-sunxi-mmc.2') {
+    } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card removed:", device.DEVNAME);
         camera.emit("media-remove", "sd");
         camera.sdPresent = false;
