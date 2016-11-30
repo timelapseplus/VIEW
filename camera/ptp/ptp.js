@@ -24,11 +24,7 @@ camera.settings = false;
 camera.iso = false;
 camera.aperture = false;
 camera.shutter = false;
-camera.supports = {
-    iso: false,
-    aperture: false,
-    shutter: false
-}
+camera.supports = {}
 
 var cbStore = {};
 var cbIndex = 0;
@@ -113,10 +109,14 @@ var startWorker = function() {
                     camera.model = msg.value;
                     console.log("Camera connected: ", camera.model);
                     if(camera.model.match(/sony/i)) {
-                        console.log("camera is Sony, setting requireSd=true");
-                        camera.requireSd = true;
+                        camera.supports.destination = false;
+                        camera.supports.liveview = false;
+                    } else if(camera.model.match(/panasonic/i)) {
+                        camera.supports.liveview = false;
+                        camera.supports.destination = true;
                     } else {
-                        camera.requireSd = false;
+                        camera.supports.liveview = true;
+                        camera.supports.destination = true;
                     }
                 }
                 if (msg.event == 'exiting') {

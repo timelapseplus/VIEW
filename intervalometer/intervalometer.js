@@ -440,7 +440,7 @@ intervalometer.run = function(program) {
                 }
             });
         } else {
-            if(camera.ptp.requireSd) {
+            if(!camera.ptp.supports.destination) {
                 console.log("Error: SD card required");
                 intervalometer.cancel();
                 error("Error: SD card required.\nThe connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card.");

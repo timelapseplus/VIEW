@@ -468,7 +468,10 @@ if (VIEW_HARDWARE) {
         items: [{
             name: valueDisplay("Exposure", camera.ptp.settings.stats, 'ev'),
             help: help.exposureMenu,
-            action: exposureMenu
+            action: exposureMenu,
+            condition: function() {
+                return camera.ptp.supports.liveview;
+            }
         }, {
             name: valueDisplay("Timelapse Mode", intervalometer.currentProgram, 'rampMode'),
             help: help.rampingOptions,
