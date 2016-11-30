@@ -109,7 +109,10 @@ iw.on('join', function(data) {
 
 iw.on('former', function(address) {
 	console.log("[Wifi] Former:", address);
-	if(!wifi.apMode) wifi.connected = address;
+	if(!wifi.apMode) {
+		wifi.connected = data;
+		wifi.emit("connect", data.ssid);
+	}
 });
 
 iw.on('leave', function() {
