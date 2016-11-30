@@ -161,7 +161,10 @@ lists.decEv = function(current, itemList) {
 
 lists.imagequality = [{
     name: "RAW",
-    values: ['RAW']
+    values: ['RAW', 'raw']
+}, {
+    name: "RAW+JPEG",
+    values: ['RAW+JPEG', 'raw+jpeg']
 }];
 
 lists.target = [{
