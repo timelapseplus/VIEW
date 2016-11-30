@@ -56,6 +56,7 @@ function load(program, selected) {
                 }
             }
         }
+        if(selected >= currentProgram.items.length) selected = currentProgram.items.length - 1;
     }
     if (currentProgram.type == "menu") {
         oled.create(currentProgram.items.map(function(item) {
