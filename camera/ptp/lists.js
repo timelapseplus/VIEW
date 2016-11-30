@@ -18,6 +18,9 @@ lists.paramMap = [{
     maps: [{
         section: "capturesettings",
         item: "imagequality"
+    }, {
+        section: "imgsettings",
+        item: "imageformat"
     }]
 }, {
     name: "iso",
@@ -161,7 +164,7 @@ lists.decEv = function(current, itemList) {
 
 lists.imagequality = [{
     name: "RAW",
-    values: ['RAW', 'raw']
+    values: ['RAW', 'raw', 'NEF (Raw)']
 }, {
     name: "RAW+JPEG",
     values: ['RAW+JPEG', 'raw+jpeg']
