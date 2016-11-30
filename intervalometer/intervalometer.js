@@ -330,6 +330,12 @@ function runPhoto() {
     }
 }
 
+function error(msg) {
+    process.nextTick(function(){
+        intervalometer.emit("error", msg);
+    });
+}
+
 intervalometer.validate = function(program) {
     var results = {
         errors: []
@@ -382,7 +388,7 @@ intervalometer.run = function(program) {
             fileInit();
         } else {
             intervalometer.cancel();
-            intervalometer.emit("error", "Camera not connected.  Please verify camera connection via USB and try again.");
+            error("Camera not connected.  Please verify camera connection via USB and try again.");
             return;
         }
         busyPhoto = false;
@@ -413,14 +419,14 @@ intervalometer.run = function(program) {
                 if(mountErr) {
                     console.log("Error mounting SD card");
                     intervalometer.cancel();
-                    intervalometer.emit("error", "Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.");
+                    error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.");
                 } else {
                     status.mediaFolder = "/media/" + status.tlName;
                     fs.mkdir(status.mediaFolder, function(folderErr) {
                         if(folderErr) {
                             console.log("Error creating folder", status.mediaFolder);
                             intervalometer.cancel();
-                            intervalometer.emit("error", "Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
+                            error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
                         } else {
                             start();
                         }
@@ -431,7 +437,7 @@ intervalometer.run = function(program) {
             if(camera.ptp.requireSd) {
                 console.log("Error: SD card required");
                 intervalometer.cancel();
-                intervalometer.emit("error", "Error: SD card required.\nThe connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card.");
+                error("Error: SD card required.\nThe connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card.");
             } else {
                 start();
             }
@@ -448,7 +454,7 @@ intervalometer.run = function(program) {
             errorList += "- " + validationResults.errors[0].reason + val + "\n";
         }
         intervalometer.cancel();
-        intervalometer.emit("error", "Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
+        error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
     }
 }
 
