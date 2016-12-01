@@ -539,7 +539,7 @@ if (VIEW_HARDWARE) {
             items: [{
                 name: "Write XMPs to SD card",
                 action: function(){
-                    if(camera.ptp.sdPresent) confirmSaveXMPs(clipName);
+                    confirmSaveXMPs(clip);
                 },
                 help: help.writeXMPs,
                 condition: function() {
@@ -1400,6 +1400,7 @@ if (VIEW_HARDWARE) {
             }]);
             oled.update();
             if(clip) intervalometer.saveXMPsToCard(clip.index, function(err) {
+                ui.back();
                 cb();
             }); else cb();
         });
@@ -1412,9 +1413,15 @@ if (VIEW_HARDWARE) {
                 value: "please wait"
             }]);
             oled.update();
-            if(clip) intervalometer.deleteTimelapseClip(clip.index, function(err) {
+            if(clip) {
+                intervalometer.deleteTimelapseClip(clip.index, function(err) {
+                    ui.back();
+                    cb();
+                });
+            } else {
+                ui.back();
                 cb();
-            }); else cb();
+            }
         });
     }
 
