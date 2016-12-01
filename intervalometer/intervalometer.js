@@ -254,7 +254,7 @@ function runPhoto() {
                     intervalometer.emit("status", status);
                     console.log("program status:", status);
                 }
-                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
+                if (intervalometer.status.framesRemaining < 1 || status.running == false) {
                     clearTimeout(timerHandle);
                     status.running = false;
                     status.message = "done";

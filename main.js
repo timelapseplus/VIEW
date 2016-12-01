@@ -488,7 +488,7 @@ if (VIEW_HARDWARE) {
             action: interval,
             help: help.interval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'fixed';
+                return intervalometer.currentProgram.intervalMode == 'fixed' || intervalometer.currentProgram.rampMode == 'fixed';
             }
         }, {
             name: valueDisplay("Day Interval", intervalometer.currentProgram, 'dayInterval'),
@@ -509,7 +509,7 @@ if (VIEW_HARDWARE) {
             action: framesOptions,
             help: help.framesOptions,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'fixed';
+                return intervalometer.currentProgram.intervalMode == 'fixed' ||  || intervalometer.currentProgram.rampMode == 'fixed';
             }
         }, {
             name: valueDisplay("Destination", intervalometer.currentProgram, 'destination'),
