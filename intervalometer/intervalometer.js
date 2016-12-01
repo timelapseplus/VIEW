@@ -369,7 +369,7 @@ intervalometer.validate = function(program) {
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
-    if(camera.ptp.settings && camera.ptp.settings.format.name != 'RAW' && program.destination == 'sd') {
+    if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd') {
         console.log("Error: camera not set to save in RAW");
         results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
     }
