@@ -159,12 +159,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     };
 
-    $scope.popupMessage = function(title, message) {
+    $scope.popupMessage = function(title, message, callback) {
         var confirmPopup = $ionicPopup.show({
             title: title,
             template: message,
             buttons: [{
                 text: 'Close'
+                onTap: function(e) {
+                    callback && callback();
+                }
             }]
         });
     };
@@ -474,7 +477,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     break;
                 case 'intervalometerError':
                     $scope.intervalometerErrorMessage = msg.msg;
-                    $scope.popupMessage("Error", $scope.intervalometerErrorMessage);
+                    $scope.popupMessage("Error", $scope.intervalometerErrorMessage, function() {
+                        sendMessage('dismiss-error');
+                    });
                     callback(null, $scope.intervalometerErrorMessage);
                     break;
                 case 'timelapse-clips':

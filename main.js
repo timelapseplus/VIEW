@@ -1855,6 +1855,10 @@ app.on('message', function(msg) {
                 if (msg.key && msg.val) camera.ptp.set(msg.key, msg.val);
                 break;
 
+            case 'dismiss-error':
+                ui.dismissAlert();
+                break;
+
             case 'setEv':
                 if (msg.ev) {
                     if (camera.ptp.connected) {

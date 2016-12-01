@@ -197,6 +197,10 @@ exports.alert = function(title, text) {
         value: text
     });
 }
+exports.dismissAlert = function() {
+    activity();
+    if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) exports.back();
+}
 exports.button3 = function() {
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
