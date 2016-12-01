@@ -602,7 +602,10 @@ function getConfig(noEvent, cb) {
                     }
                 }
                 mapped[handle] = value;
-                if (detail) mapped.details[handle] = detail;
+                if (detail) {
+                    mapped.details[handle] = detail;
+                     mapped[handle] = detail.name;
+                }
                 mapped.lists[handle] = list;
                 mapped.names[handle] = name;
             }

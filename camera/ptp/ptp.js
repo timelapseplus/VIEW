@@ -93,7 +93,7 @@ var startWorker = function() {
                         camera.emit(msg.event, msg.value);
                     }
                     console.log("capture target: ", newSettings.target);
-                    if (!camera.target) camera.target = "Memory card";
+                    if (!camera.target) camera.target = "CARD";
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target);
                     console.log("PTP: settings updated");
                     camera.settings = newSettings;
@@ -351,9 +351,9 @@ camera.saveThumbnails = function(path, callback) {
 
 camera.saveToCameraCard = function(bool) {
     if (bool === null) {
-        return camera.target == "Memory card";
+        return camera.target == "CARD";
     } else {
-        var target = bool ? "Memory card" : "Internal RAM";
+        var target = bool ? "CARD" : "RAM";
         if (target != camera.target) {
             camera.target = target;
             camera.set('target', camera.target);
