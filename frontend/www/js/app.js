@@ -164,7 +164,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             title: title,
             template: message,
             buttons: [{
-                text: 'Close'
+                text: 'Close',
                 onTap: function(e) {
                     callback && callback();
                 }
