@@ -1826,6 +1826,15 @@ app.on('message', function(msg) {
                 });
                 break;
 
+            case 'delete-clip':
+                intervalometer.deleteTimelapseClip(msg.index, function(err) {
+                    msg.reply('delete-clip', {
+                        index: msg.index,
+                        error: err
+                    });
+                });
+                break;
+
             case 'preview':
                 if (liveviewOn) {
                     if (previewImage) msg.reply(previewImage);
