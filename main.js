@@ -532,6 +532,29 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
+    var createClipsContextMenu = function(clipName) {
+        return {
+            name: "clipsContext",
+            type: "menu",
+            items: [{
+                name: "Write XMPs to SD card",
+                action: function(){
+                    if(camera.ptp.sdPresent) confirmSaveXMPs(clipName);
+                },
+                help: help.writeXMPs,
+                condition: function() {
+                    return camera.ptp.sdPresent;
+                }
+            }, {
+                name: "Delete Clip",
+                help: help.deleteClip,
+                action: function(){
+                    confirmDeleteClip(clipName);
+                }
+            }, ]
+        }
+    }
+
     var clipsMenu = function(cb) {
         intervalometer.getRecentTimelapseClips(10, function(err, clips) {
             if (clips) {
@@ -552,9 +575,10 @@ if (VIEW_HARDWARE) {
                             }
                         },
                         button3: function(item) {
-                            if(camera.ptp.sdPresent && item && item.action && item.action.arg) {
-                                confirmSaveXMPs(item.action.arg);
-                            }
+                            if(item && item.action && item.action.arg) ui.load(createClipsContextMenu(item.action.arg));
+                            //if(camera.ptp.sdPresent && item && item.action && item.action.arg) {
+                            //    confirmSaveXMPs(item.action.arg);
+                            //}
                         }
                     });
                 }
@@ -1369,38 +1393,29 @@ if (VIEW_HARDWARE) {
     });
 
     var confirmSaveXMPs = function(clip) {
-        ui.load({
-            name: "Save new XMPs to SD?",
-            type: "options",
-            items: [{
-                name: "Save new XMPs to SD?",
-                value: "write to SD",
-                help: help.saveXMPs,
-                action: {
-                    type: 'function',
-                    fn: function(arg, cb) {
-                        oled.value([{
-                            name: "Writing to card",
-                            value: "please wait"
-                        }]);
-                        oled.update();
-                        if(clip) intervalometer.saveXMPsToCard(clip.index, function(err) {
-                            cb();
-                        }); else cb();
-                    }
-                }
-            }, {
-                name: "Save new XMPs to SD?",
-                value: "cancel",
-                help: help.saveXMPs,
-                action: {
-                    type: 'function',
-                    fn: function(arg, cb) {
-                        cb();
-                    }
-                }
-            }]
-        }, null, null, true);
+        ui.confirmationPrompt("Save new XMPs to SD?", "write to SD", "cancel", help.saveXMPs, function(cb){
+            oled.value([{
+                name: "Writing to card",
+                value: "please wait"
+            }]);
+            oled.update();
+            if(clip) intervalometer.saveXMPsToCard(clip.index, function(err) {
+                cb();
+            }); else cb();
+        });
+    }
+
+    var confirmDeleteClip = function(clip) {
+        ui.confirmationPrompt("Delete " + clip.name + "?", "cancel", "Delete", help.deleteClip, null, function(cb){
+            oled.value([{
+                name: "Deleting Clip",
+                value: "please wait"
+            }]);
+            oled.update();
+            if(clip) intervalometer.deleteClip(clip.index, function(err) {
+                cb();
+            }); else cb();
+        });
     }
 
     var authDisplayed = false;
@@ -2009,6 +2024,9 @@ intervalometer.on('status', function(msg) {
 
 intervalometer.on('error', function(msg) {
     ui.alert('ERROR', msg);
+    app.send('intervalometerError', {
+        msg: msg
+    });
     console.log("Intervalometer ERROR: ", msg);
 });
 

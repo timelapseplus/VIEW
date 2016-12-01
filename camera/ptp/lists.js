@@ -164,7 +164,7 @@ lists.decEv = function(current, itemList) {
 
 lists.format = [{
     name: "RAW",
-    values: ['RAW', 'raw', 'NEF (Raw)']
+    values: ['RAW', 'raw', 'NEF (Raw)', 'mRAW', 'sRAW']
 }, {
     name: "RAW+JPEG",
     values: ['RAW+JPEG', 'raw+jpeg']

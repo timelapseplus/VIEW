@@ -235,3 +235,34 @@ exports.select = function(object, key, value) {
         return object && object[key] == value;
     }
 }
+
+exports.confirmationPrompt = function(promptText, optionText1, optionText2, helpText, callback1, callback2) {
+        ui.load({
+            name: promptText,
+            type: "options",
+            items: [{
+                name: promptText,
+                value: optionText1,
+                help: helpText,
+                action: {
+                    type: 'function',
+                    fn: function(arg, cb) {
+                        if(callback1) callback1(cb); else cb();
+                    }
+                }
+            }, {
+                name: promptText,
+                value: optionText2,
+                help: helpText,
+                action: {
+                    type: 'function',
+                    fn: function(arg, cb) {
+                        if(callback2) callback2(cb); else cb();
+                    }
+                }
+            }]
+        }, null, null, true);
+    }
+}
+
+
