@@ -642,6 +642,13 @@ intervalometer.eraseAll = function() {
     });
 }
 
+intervalometer.deleteTimelapseClip = function(clipNumber, callback) {
+    var folder = TLROOT + "/" + name;
+    exec("sudo rm -rf " + folder, function(err) {
+        callback && callback(err);
+    });
+}
+
 intervalometer.getTimelapseData = function (clipNumber, callback) {
     var name = "tl-" + clipNumber;
     var folder = TLROOT + "/" + name;

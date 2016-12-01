@@ -532,7 +532,7 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
-    var createClipsContextMenu = function(clipName) {
+    var createClipsContextMenu = function(clip) {
         return {
             name: "clipsContext",
             type: "menu",
@@ -549,14 +549,14 @@ if (VIEW_HARDWARE) {
                 name: "Delete Clip",
                 help: help.deleteClip,
                 action: function(){
-                    confirmDeleteClip(clipName);
+                    confirmDeleteClip(clip);
                 }
             }, ]
         }
     }
 
     var clipsMenu = function(cb) {
-        intervalometer.getRecentTimelapseClips(10, function(err, clips) {
+        intervalometer.getRecentTimelapseClips(30, function(err, clips) {
             if (clips) {
                 var cm = {
                     name: "timelapse clips",
@@ -1412,7 +1412,7 @@ if (VIEW_HARDWARE) {
                 value: "please wait"
             }]);
             oled.update();
-            if(clip) intervalometer.deleteClip(clip.index, function(err) {
+            if(clip) intervalometer.deleteTimelapseClip(clip.index, function(err) {
                 cb();
             }); else cb();
         });
