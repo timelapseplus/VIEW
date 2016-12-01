@@ -237,7 +237,7 @@ exports.select = function(object, key, value) {
 }
 
 exports.confirmationPrompt = function(promptText, optionText1, optionText2, helpText, callback1, callback2) {
-    ui.load({
+    exports.load({
         name: promptText,
         type: "options",
         items: [{

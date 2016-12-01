@@ -276,6 +276,7 @@ function runPhoto() {
             camera.getEv(function(err, currentEv, params) {
                 if (status.rampEv === null) status.rampEv = currentEv;
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
+                console.log("Setting timer for fixed interval at ", status.intervalMs);
                 if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
                 console.log("current interval: ", status.intervalMs);
                 console.log("current ev: ", currentEv);
@@ -643,6 +644,7 @@ intervalometer.eraseAll = function() {
 }
 
 intervalometer.deleteTimelapseClip = function(clipNumber, callback) {
+    var name = "tl-" + clipNumber;
     var folder = TLROOT + "/" + name;
     exec("sudo rm -rf " + folder, function(err) {
         callback && callback(err);

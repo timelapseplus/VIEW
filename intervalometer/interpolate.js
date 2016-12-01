@@ -6,6 +6,13 @@ exports.linear = function(xyPoints, xVal) {
         return a.x - b.x;
     });
 
+    var limits = {max: p[0].y, min: p[0].y};
+
+    for(var i = 0; i < p.length; i++) {
+        if(limits.max < p[i].y) limits.max = p[i].y;
+        if(limits.min > p[i].y) limits.min = p[i].y;
+    }
+
     console.log("---- interpolate.linear ----");
     console.log("xyPoints:", p);
     console.log("xVal:", xVal);
@@ -31,7 +38,13 @@ exports.linear = function(xyPoints, xVal) {
         }
     }
 
+    // safety check
+    if(res > limits.max) res = limits.max;
+    if(res < limits.min) res = limits.min;
+
     console.log("Interpolated result:", res);
 
     return res;
 }
+
+ //var f = [ {x:0,y:0},{x:5,y:5},{x:10,y:50} ];
