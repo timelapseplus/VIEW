@@ -495,14 +495,14 @@ if (VIEW_HARDWARE) {
             action: dayInterval,
             help: help.dayInterval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'auto';
+                return intervalometer.currentProgram.intervalMode == 'auto' && intervalometer.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Night Interval", intervalometer.currentProgram, 'nightInterval'),
             action: nightInterval,
             help: help.nightInterval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'auto';
+                return intervalometer.currentProgram.intervalMode == 'auto' && intervalometer.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Frames", intervalometer.currentProgram, 'frames'),
