@@ -509,7 +509,7 @@ if (VIEW_HARDWARE) {
             action: framesOptions,
             help: help.framesOptions,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'fixed' ||  || intervalometer.currentProgram.rampMode == 'fixed';
+                return intervalometer.currentProgram.intervalMode == 'fixed' || intervalometer.currentProgram.rampMode == 'fixed';
             }
         }, {
             name: valueDisplay("Destination", intervalometer.currentProgram, 'destination'),
