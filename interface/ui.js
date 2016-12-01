@@ -211,7 +211,11 @@ exports.button3 = function() {
 exports.back = function() {
     if (stack.length > 0) {
         activity();
-        var b = stack.pop();
+        var b;
+        do {
+            b = stack.pop();
+        } while(!b.name);
+        
         console.log("BACK to " + b.name);
         exports.load(b.program, true, b.selected);
     } else {
