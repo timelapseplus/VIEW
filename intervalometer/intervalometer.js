@@ -379,7 +379,7 @@ intervalometer.validate = function(program) {
 
     return results;
 }
-intervalometer.cancel = function(program) {
+intervalometer.cancel = function() {
     if (intervalometer.status.running) {
         clearTimeout(timerHandle);
         clearTimeout(delayHandle);
@@ -424,7 +424,7 @@ intervalometer.run = function(program) {
                 status.running = true;
                 status.message = "starting";
                 status.frames = 0;
-                status.framesRemaining = program.intervalMode == "auto" ? 0 : program.frames;
+                status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? 0 : program.frames;
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 intervalometer.emit("status", status);

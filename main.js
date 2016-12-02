@@ -218,6 +218,11 @@ if (VIEW_HARDWARE) {
             value: "1800",
             help: help.framesOptions,
             action: ui.set(intervalometer.currentProgram, 'frames', 1800)
+        }, {
+            name: "Frames",
+            value: "Until Stopped",
+            help: help.framesOptions,
+            action: ui.set(intervalometer.currentProgram, 'frames', Infinity)
         }]
     }
 
