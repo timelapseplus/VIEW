@@ -2,7 +2,7 @@ exports.timelapseMenu = "Welcome to the VIEW Intervalometer!  The Time-lapse men
 
 exports.captureMenu = "The Capture menu puts the camera into live-view mode and captures photos to the camera's memory card when the knob is pressed. Turning the knob will adjust the exposure.  Pressing the middle button will enter focus mode, where the knob will then adjust focus if supported. \n At present, the Capture menu only works with Canon and Nikon cameras.";
 
-exports.clipsMenu = "This is where you can playback your time-lapse clips, even while they're still recording. \n To save XMP data to an SD card while in the Time-lapse Clips menu, insert an SD card and use the bottom right button to save the XMPs for the selected clip.";
+exports.clipsMenu = "This is where you can playback your time-lapse clips, even while they're still recording. \nPress the botton right button to show options for the selected clip.  \nTo save XMP data to an SD card while in the Time-lapse Clips menu, insert an SD card, press the bottom right button, then select 'Write XMPs to SD card' to save the XMPs for the selected clip.";
 
 exports.settingsMenu = "Various settings including WiFi and software updates can be found here. \n  More options and settings are planned to be added soon.";
 
@@ -72,4 +72,7 @@ exports.colorThemeMenu = "Sets the colors used for the VIEW display interface.";
 
 exports.buttonModeMenu = "Configures the button backlights while powered on.  During boot, the power button will always be illimunated.  Once booted, the backlights are configured as defined by this setting.  The default is for them all to be off (disabled)";
 
+exports.deleteClip = "This removes all time-lapse data for the selected clip.  This includes the thumbnail previews and data used for generating XMPs.  It does NOT remove any previously saved XMPs or RAW images from the camera or SD card.";
+
+exports.writeXMPs = "Writes XMP files to the SD card for the selected clip.  The XMP files can be merged with the RAW images to provide flicker-free processing in Lightroom. \nThis is not necessary if the time-lapse destination had been set to the SD card originally.";
 
