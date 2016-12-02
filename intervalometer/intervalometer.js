@@ -555,14 +555,22 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
         } else {
             tlIndex = parseInt(tlIndex);
         }
-        var clipNumbers = [];
-        for (var i = 0; i < count; i++) clipNumbers.push(tlIndex - i);
-        async.map(clipNumbers, intervalometer.getTimelapseClip, function(err, clips) {
-            console.log("clips:", clips);
-            callback(null, clips.filter(function(clip) {
-                return clip && clip.name;
-            }));
-        });
+
+        var clips = [];
+        var getNextClip = function() {
+            if(tlIndex > 0 && clips.length < count) {
+                intervalometer.getTimelapseClip(tlIndex, function(err, clip) {
+                    if(!err && clip && clip.name) {
+                        clips.push(clip);
+                    }
+                    tlIndex--;
+                    getNextClip();
+                });
+            } else {
+                callback(clips);
+            }
+        }
+        getNextClip();
     });
 }
 
