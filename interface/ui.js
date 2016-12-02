@@ -215,7 +215,7 @@ exports.back = function() {
         do {
             b = stack.pop();
         } while(!b.name);
-        
+
         console.log("BACK to " + b.name);
         exports.load(b.program, true, b.selected);
     } else {
@@ -255,6 +255,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
+                    exports.back();
                     if(callback1) callback1(cb); else cb();
                 }
             }
@@ -265,6 +266,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
+                    exports.back();
                     if(callback2) callback2(cb); else cb();
                 }
             }
