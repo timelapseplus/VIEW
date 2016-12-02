@@ -352,7 +352,7 @@ intervalometer.validate = function(program) {
     if(program.rampMode == 'fixed') {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
-        if(program.intervalMode == 'fixed') {
+        if(program.intervalMode == 'fixed' || program.rampMode == 'fixed') {
             if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
         } else {
             if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});

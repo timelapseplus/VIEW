@@ -529,7 +529,7 @@ if (VIEW_HARDWARE) {
             action: {
                 type: "function",
                 fn: function(arg, cb) {
-                    if (intervalometer.currentProgram.intervalMode == "auto") intervalometer.currentProgram.interval = 0;
+                    intervalometer.currentProgram.keyframes = null;
                     intervalometer.run(intervalometer.currentProgram);
                     cb();
                 }
