@@ -739,6 +739,7 @@ if (VIEW_HARDWARE) {
                             });
                         } else {
                             power.disableAutoOff();
+                            wifi.blockBt();
                             updates.installVersion(versionTarget, function(err){
                                 if(!err) {
                                     updates.setVersion(versionTarget, function(){
@@ -748,12 +749,15 @@ if (VIEW_HARDWARE) {
                                             value: "Please Wait"
                                         }]);
                                         oled.update();
-                                        exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                        wifi.unblockBt(function(){
+                                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                        });
                                     });
                                 } else {
+                                    wifi.unblockBt();
                                     oled.status('error updating');
                                     if(cb) cb();
-                                    //ui.back();
+                                    ui.back();
                                 }
                             }, function(statusUpdate) {
                                 oled.value([{

@@ -12,6 +12,8 @@ var WIFI_POWERON = "sudo modprobe 8723bu";
 var BT_DISABLE = "sudo modprobe -r btusb";
 var BT_ENABLE = "sudo modprobe btusb";
 var BT_RESET = "sudo rfkill block bluetooth; sleep 1; sudo rfkill unblock bluetooth";
+var BT_BLOCK = "sudo rfkill block bluetooth;";
+var BT_UNBLOCK = "sudo rfkill unblock bluetooth;";
 
 var iw = new Wireless({ iface:'wlan0', updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -165,6 +167,18 @@ wifi.disableBt = function(cb) {
 
 wifi.resetBt = function(cb) {
 	exec(BT_RESET, function(err) {
+		if(cb) cb(err);
+	});
+}
+
+wifi.blockBt = function(cb) {
+	exec(BT_BLOCK, function(err) {
+		if(cb) cb(err);
+	});
+}
+
+wifi.unblockBt = function(cb) {
+	exec(BT_UNBLOCK, function(err) {
 		if(cb) cb(err);
 	});
 }
