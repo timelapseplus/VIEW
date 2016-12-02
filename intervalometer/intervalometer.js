@@ -569,7 +569,7 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
             } else {
                 setTimeout(function(){
                     console.log("clips:", clips);
-                    callback(clips); 
+                    callback(null, clips); 
                 });
             }
         }

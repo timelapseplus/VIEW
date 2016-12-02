@@ -561,7 +561,7 @@ if (VIEW_HARDWARE) {
     }
 
     var clipsMenu = function(cb) {
-        intervalometer.getRecentTimelapseClips(30, function(err, clips) {
+        intervalometer.getRecentTimelapseClips(15, function(err, clips) {
             if (clips) {
                 var cm = {
                     name: "timelapse clips",
@@ -1541,7 +1541,7 @@ if (VIEW_HARDWARE) {
     inputs.on('G', function(move) {
         power.activity();
         if (blockInputs) return;
-        if(!intervalomer.running) return; // only use gesture sensor when a time-lapse is running
+        if(!intervalometer.running) return; // only use gesture sensor when a time-lapse is running
         console.log("Gesture: " + move);
         if (blockGesture) {
             console.log("(blocked)");
