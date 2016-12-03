@@ -389,9 +389,11 @@ oled.writeMenu = function() {
 
 oled.showBusy = function() {
     var s = "loading...";
+
+    fb.font(MENU_FONT_SIZE, true, false);
     var ts = fb.textSize(s);
 
-    var w = ts.width;
+    var w = ts.width + 12;
     var h = 20;
     var x = 160 / 2 - w / 2;
     var y = 128 / 2 - h / 2;
@@ -401,7 +403,7 @@ oled.showBusy = function() {
     fb.rect(x - 1, y - 1, w + 2, h + 2, true);
     color("alert");
     fb.rect(x, y, w, h, false);
-    fb.text(x, y + h - 3, s);
+    fb.text(x, y + h - 5, s);
     oled.update();
 }
 
