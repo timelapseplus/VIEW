@@ -398,6 +398,7 @@ oled.showBusy = function() {
     color("secondary");
     fb.rect(x, y, w, h, false);
     fb.text(x, y, "busy");
+    oled.update();
 }
 
 var screenTimeout = null;
