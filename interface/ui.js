@@ -229,7 +229,7 @@ exports.back = function() {
         } while(!b.name);
 
         console.log("BACK to " + b.name);
-        if(b.program && b.program.origin == "prompt") exports.back();
+        if(currentProgram.origin == "prompt") exports.back();
         exports.load(b.program, true, b.selected);
     } else {
         if (oled.visible) oled.hide();
