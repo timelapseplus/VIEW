@@ -129,8 +129,8 @@ exports.reload = function() {
 }
 
 exports.up = function(alt) {
-    if(exports.busy) return;
     activity();
+    if(exports.busy) return;
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         oled.up();
     } else if(currentProgram.type == "textDisplay") {
@@ -144,8 +144,8 @@ exports.up = function(alt) {
     }
 }
 exports.down = function(alt) {
-    if(exports.busy) return;
     activity();
+    if(exports.busy) return;
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         oled.down();
     } else if(currentProgram.type == "textDisplay") {
@@ -159,8 +159,8 @@ exports.down = function(alt) {
     }
 }
 exports.enter = function(alt) {
-    if(exports.busy) return;
     activity();
+    if(exports.busy) return;
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
     } else if (currentProgram.type == "textInput") {
@@ -176,8 +176,8 @@ exports.enter = function(alt) {
     }
 }
 exports.help = function() {
-    if(exports.busy) return;
     activity();
+    if(exports.busy) return;
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
         exports.back();
     } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
@@ -212,6 +212,7 @@ exports.dismissAlert = function() {
     if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) exports.back();
 }
 exports.button3 = function() {
+    activity();
     if(exports.busy) return;
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
@@ -220,9 +221,9 @@ exports.button3 = function() {
     }
 }
 exports.back = function() {
-    if(exports.busy) return;
     if (stack.length > 0) {
         activity();
+        if(exports.busy) return;
         var b;
         do {
             b = stack.pop();

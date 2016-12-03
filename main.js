@@ -740,7 +740,9 @@ if (VIEW_HARDWARE) {
                         } else {
                             power.disableAutoOff();
                             wifi.blockBt();
+                            ui.busy = true;
                             updates.installVersion(versionTarget, function(err){
+                                ui.busy = false;
                                 if(!err) {
                                     updates.setVersion(versionTarget, function(){
                                         oled.status('update successful');
@@ -1412,7 +1414,7 @@ if (VIEW_HARDWARE) {
                 ui.back();
                 cb();
             }); else cb();
-        });
+        }, null);
     }
 
     var confirmDeleteClip = function(clip) {
