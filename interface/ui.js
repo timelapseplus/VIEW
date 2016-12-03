@@ -229,8 +229,9 @@ exports.back = function() {
         } while(!b || !b.name);
 
         console.log("BACK to " + b.name);
-        if(currentProgram.origin == "prompt") exports.back();
+        var previousOrigin = currentProgram.origin;
         exports.load(b.program, true, b.selected);
+        if(previousOrigin == "prompt") exports.back();
     } else {
         if (oled.visible) oled.hide();
     }
