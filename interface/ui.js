@@ -169,17 +169,17 @@ exports.enter = function(alt) {
         } else {
             console.log("resulting string", oled.getTextValue());
             if(currentProgram.onSave) currentProgram.onSave(oled.getTextValue());
-            exports.back();
+            back();
         }
     } else if (currentProgram.type == "png") {
-        exports.back();
+        back();
     }
 }
 exports.help = function() {
     activity();
     if(exports.busy) return;
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
-        exports.back();
+        back();
     } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if (currentProgram.items[oled.selected] && currentProgram.items[oled.selected].help) {
             exports.load({
@@ -209,7 +209,7 @@ exports.alert = function(title, text) {
 }
 exports.dismissAlert = function() {
     activity();
-    if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) exports.back();
+    if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) back();
 }
 exports.button3 = function() {
     activity();
@@ -220,21 +220,33 @@ exports.button3 = function() {
         oled.textCycleMode();
     }
 }
-exports.back = function() {
-    if (stack.length > 0) {
-        activity();
-        if(exports.busy) return;
-        var b;
+function back() {
+    var b;
+    do {
+        b = stack.pop();
+    } while(!b || !b.name);
+    if(currentProgram.origin == "prompt") {
         do {
             b = stack.pop();
         } while(!b || !b.name);
-        if(currentProgram.origin == "prompt") {
-            do {
-                b = stack.pop();
-            } while(!b || !b.name);
-        }
-        console.log("BACK to " + b.name);
-        exports.load(b.program, true, b.selected);
+    }
+    console.log("BACK to " + b.name);
+    exports.load(b.program, true, b.selected);
+}
+exports.back = function() {
+    if (stack.length > 0) {
+        activity();
+        back();
+    } else {
+        if (oled.visible) oled.hide();
+    }
+}
+
+exports.backButton = function() {
+    if (stack.length > 0) {
+        activity();
+        if(exports.busy) return;
+        back();
     } else {
         if (oled.visible) oled.hide();
     }
@@ -273,7 +285,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
-                    exports.back();
+                    back();
                     if(callback1) callback1(cb); else cb();
                 }
             }
@@ -284,7 +296,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
-                    exports.back();
+                    back();
                     if(callback2) callback2(cb); else cb();
                 }
             }

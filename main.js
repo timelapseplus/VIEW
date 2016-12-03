@@ -1382,7 +1382,7 @@ if (VIEW_HARDWARE) {
         if (blockInputs) return;
 
         if (move == "1") {
-            ui.back();
+            ui.backButton();
         }
         if (move == "2") {
             ui.enter();
