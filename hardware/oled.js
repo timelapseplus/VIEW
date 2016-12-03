@@ -387,6 +387,19 @@ oled.writeMenu = function() {
     }
 }
 
+oled.showBusy = function() {
+    var w = 40;
+    var h = 10;
+    var x = 160 / 2 - w / 2;
+    var y = 128 / 2 - h / 2;
+
+    fb.color(0, 0, 0);
+    fb.rect(x, y, w, h, true);
+    color("secondary");
+    fb.rect(x, y, w, h, false);
+    fb.text(x, y, "busy");
+}
+
 var screenTimeout = null;
 oled.create = function(itemArray, selected) {
     oled.textInput = null;

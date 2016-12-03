@@ -6,6 +6,8 @@ var currentName = "";
 var stack = [];
 var screenSaverHandle = null;
 
+exports.busy = false;
+
 function activity() {
     oled.activity();
 }
@@ -107,7 +109,10 @@ exports.load = function(menuProgram, noPush, selected, forceStack) {
     backupProgram = menuProgram;
 
     if (typeof menuProgram == 'function') {
+        exports.busy = true;
+        oled.showBusy();
         menuProgram(function(arg, program) {
+            exports.busy = false;
             load(program, selected);
         });
     } else {
@@ -123,6 +128,7 @@ exports.reload = function() {
 }
 
 exports.up = function(alt) {
+    if(exports.busy) return;
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         oled.up();
@@ -137,6 +143,7 @@ exports.up = function(alt) {
     }
 }
 exports.down = function(alt) {
+    if(exports.busy) return;
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         oled.down();
@@ -151,6 +158,7 @@ exports.down = function(alt) {
     }
 }
 exports.enter = function(alt) {
+    if(exports.busy) return;
     activity();
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
@@ -167,6 +175,7 @@ exports.enter = function(alt) {
     }
 }
 exports.help = function() {
+    if(exports.busy) return;
     activity();
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
         exports.back();
@@ -202,6 +211,7 @@ exports.dismissAlert = function() {
     if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) exports.back();
 }
 exports.button3 = function() {
+    if(exports.busy) return;
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
     } else if (currentProgram.type == "textInput") {
@@ -209,6 +219,7 @@ exports.button3 = function() {
     }
 }
 exports.back = function() {
+    if(exports.busy) return;
     if (stack.length > 0) {
         activity();
         var b;
