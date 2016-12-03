@@ -226,7 +226,7 @@ exports.back = function() {
         var b;
         do {
             b = stack.pop();
-        } while(!b.name);
+        } while(!b.name || b.origin == 'prompt');
 
         console.log("BACK to " + b.name);
         exports.load(b.program, true, b.selected);
@@ -259,6 +259,7 @@ exports.select = function(object, key, value) {
 exports.confirmationPrompt = function(promptText, optionText1, optionText2, helpText, callback1, callback2) {
     exports.load({
         name: promptText,
+        origin: "prompt",
         type: "options",
         items: [{
             name: promptText,
