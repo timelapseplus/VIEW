@@ -389,7 +389,7 @@ oled.writeMenu = function() {
 
 oled.showBusy = function() {
     var s = "loading...";
-    var ts = textSize(s);
+    var ts = fb.textSize(s);
 
     var w = ts.width;
     var h = 20;
