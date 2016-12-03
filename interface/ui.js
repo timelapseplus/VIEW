@@ -226,9 +226,10 @@ exports.back = function() {
         var b;
         do {
             b = stack.pop();
-        } while(!b.name || b.origin == 'prompt');
+        } while(!b.name);
 
         console.log("BACK to " + b.name);
+        if(b.program && b.program.origin == "prompt") exports.back();
         exports.load(b.program, true, b.selected);
     } else {
         if (oled.visible) oled.hide();
