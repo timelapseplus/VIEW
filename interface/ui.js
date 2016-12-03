@@ -226,7 +226,7 @@ exports.back = function() {
         var b;
         do {
             b = stack.pop();
-        } while(!b.name);
+        } while(!b || !b.name);
 
         console.log("BACK to " + b.name);
         if(currentProgram.origin == "prompt") exports.back();
