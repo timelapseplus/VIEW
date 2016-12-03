@@ -787,12 +787,12 @@ if (VIEW_HARDWARE) {
                     alternate: function(){
                         if(updates.installing || updates.installStatus) {
                             return {
-                                name: "Installing version " + versionTarget.version + "?",
+                                name: "Installing",
                                 type: "options",
                                 items: [{
-                                    name: "Installing version " + versionTarget.version + "?",
+                                    name: "Installing version",
                                     value: updates.installStatus,
-                                    help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versionTarget.notes,
+                                    help: help.softwareHelpHeader,
                                     action: {
                                         type: 'function',
                                         fn: function(arg, cb) {
