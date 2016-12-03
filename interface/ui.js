@@ -227,11 +227,13 @@ exports.back = function() {
         do {
             b = stack.pop();
         } while(!b || !b.name);
-
+        if(currentProgram.origin == "prompt") {
+            do {
+                b = stack.pop();
+            } while(!b || !b.name);
+        }
         console.log("BACK to " + b.name);
-        var previousOrigin = currentProgram.origin;
         exports.load(b.program, true, b.selected);
-        if(previousOrigin == "prompt") exports.back();
     } else {
         if (oled.visible) oled.hide();
     }
