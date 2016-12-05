@@ -108,13 +108,13 @@ if (VIEW_HARDWARE) {
 
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
             oled.value([{
-                name: "Updating - this can take 20 minutes",
+                name: "Updating - this can take 20min",
                 value: "please wait"
             }]);
             oled.update();
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
-                    installLibGPhoto2(function(err){
+                    updates.installLibGPhoto2(function(err){
                         ui.back();
                         cb();
                         if(err) { // error compiling
@@ -124,14 +124,14 @@ if (VIEW_HARDWARE) {
                         }
                     });
                 } else {
-                    downloadLibGPhoto(function(err) {
+                    updates.downloadLibGPhoto(function(err) {
                         if(err) { // error downloading
                             ui.back();
                             cb();
                             ui.alert('Error', ERRORDOWNLOADING + err);
                         } else {
                             db.set('libgphoto2-update-in-progress', true);
-                            installLibGPhoto2(function(err){
+                            updates.installLibGPhoto2(function(err){
                                 ui.back();
                                 cb();
                                 if(err) { // error compiling
@@ -155,8 +155,16 @@ if (VIEW_HARDWARE) {
         oled.status('wifi connected to ' + ssid);
         updates.checkLibGPhotoUpdate(function(err, needUpdate){
             if(!err && needUpdate) {
+                db.set('libgphoto2-update-in-progress', true);
                 console.log("libgphoto2 update available!");
                 updateLibGPhoto2();
+            } else {
+                db.get('libgphoto2-update-in-progress', function(err, val){
+                    if(val) {
+                        console.log("libgphoto2 update in progress!");
+                        updateLibGPhoto2();
+                    }
+                });
             }
         });
         ui.reload();
