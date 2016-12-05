@@ -107,14 +107,14 @@ if (VIEW_HARDWARE) {
         var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
 
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
-            ui.back();
             cb();
-            oled.status("updating camera support");
+            var backupStatus = oled.defaultStatusString;
+            oled.defaultStatus("updating camera support");
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
                     console.log("compiling libgphoto2...");
                     updates.installLibGPhoto(function(err){
-                        oled.status("");
+                        oled.defaultStatus(backupStatus);
                         process.nextTick(function(){
                             if(err) { // error compiling
                                 console.log("error compiling libgphoto2", err);
@@ -129,7 +129,7 @@ if (VIEW_HARDWARE) {
                 } else {
                     console.log("downloading libgphoto2...");
                     updates.downloadLibGPhoto(function(err) {
-                        oled.status("");
+                        oled.defaultStatus(backupStatus);
                         if(err) { // error downloading
                             console.log("error downloading libgphoto2", err);
                             process.nextTick(function(){

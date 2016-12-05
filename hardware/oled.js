@@ -4,7 +4,7 @@ var fb = pitft("/dev/fb0", true);
 
 var oled = {};
 
-var defaultStatus = "";
+oled.defaultStatusString = "";
 var currentStatus = "";
 var chargeStatus = null;
 var batteryPercentage = null;
@@ -558,18 +558,18 @@ oled.status = function(status) {
     if(statusTimeoutHandle) clearTimeout(statusTimeoutHandle);
     if(status) {
         writeStatus(status);
-        if(defaultStatus) {
+        if(oled.defaultStatusString) {
             statusTimeoutHandle = setTimeout(function(){
-                writeStatus(defaultStatus);
+                writeStatus(oled.defaultStatusString);
             }, 6000);
         }
     } else {
-        writeStatus(defaultStatus);
+        writeStatus(oled.defaultStatusString);
     }
 }
 
 oled.defaultStatus = function(status) {
-    defaultStatus = status;
+    oled.defaultStatusString = status;
 }
 
 oled.chargeStatus = function(status) {
