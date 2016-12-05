@@ -13,7 +13,8 @@ var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version;
-var installLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls && make && make install";
+var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
+var installLibGPhoto2 = "make && make install";
 
 function checkLibGPhotoUpdate(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
@@ -38,13 +39,17 @@ function checkLibGPhotoUpdate(callback) {
 }
 
 function downloadLibGPhoto(callback) {
+	exports.downloadingLibGphoto = true;
 	exec(updateLibGPhoto2, function(err) {
+		exports.downloadingLibGphoto = false;
 		callback(err);
 	});
 }
 
 function installLibGPhoto(callback) {
+	exports.updatingLibGphoto = true;
 	exec(installLibGPhoto2, function(err) {
+		exports.updatingLibGphoto = false;
 		callback(err);
 	});
 }

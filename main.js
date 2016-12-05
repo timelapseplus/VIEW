@@ -170,14 +170,22 @@ if (VIEW_HARDWARE) {
         oled.status('wifi connected to ' + ssid);
         updates.checkLibGPhotoUpdate(function(err, needUpdate){
             if(!err && needUpdate) {
-                db.set('libgphoto2-update-in-progress', false);
-                console.log("libgphoto2 update available!");
-                updateLibGPhoto2();
+                if(updates.downloadingLibGphoto) {
+                    console.log("libgphoto2 update already downloading");
+                } else {
+                    db.set('libgphoto2-update-in-progress', false);
+                    console.log("libgphoto2 update available!");
+                    updateLibGPhoto2();
+                }
             } else {
                 db.get('libgphoto2-update-in-progress', function(err, val){
                     if(val) {
-                        console.log("libgphoto2 update in progress!");
-                        updateLibGPhoto2();
+                        if(updates.updatingLibGphoto) {
+                            console.log("libgphoto2 update in progress!");
+                        } else {
+                            console.log("resuming libgphoto2 update...");
+                            updateLibGPhoto2();
+                        }
                     }
                 });
             }
