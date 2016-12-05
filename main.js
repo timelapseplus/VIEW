@@ -123,6 +123,7 @@ if (VIEW_HARDWARE) {
                                 console.log("error compiling libgphoto2", err);
                                 ui.alert('Error', ERRORCOMPILING + err);
                             } else {
+                                db.set('libgphoto2-update-in-progress', false);
                                 console.log("successfully installed libgphoto2");
                                 ui.alert('Success', SUCCESS);
                             }
@@ -150,6 +151,7 @@ if (VIEW_HARDWARE) {
                                         console.log("error compiling libgphoto2", err);
                                         ui.alert('Error', ERRORCOMPILING + err);
                                     } else {
+                                        db.set('libgphoto2-update-in-progress', false);
                                         console.log("successfully installed libgphoto2");
                                         ui.alert('Success', SUCCESS);
                                     }
