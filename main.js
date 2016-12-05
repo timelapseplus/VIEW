@@ -107,17 +107,14 @@ if (VIEW_HARDWARE) {
         var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
 
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
-            oled.value([{
-                name: "Updating - this can take 20min",
-                value: "please wait"
-            }]);
-            oled.update();
+            ui.back();
+            cb();
+            menu.status("updating camera support");
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
                     console.log("compiling libgphoto2...");
                     updates.installLibGPhoto(function(err){
-                        ui.back();
-                        cb();
+                        menu.status("");
                         process.nextTick(function(){
                             if(err) { // error compiling
                                 console.log("error compiling libgphoto2", err);
@@ -132,9 +129,8 @@ if (VIEW_HARDWARE) {
                 } else {
                     console.log("downloading libgphoto2...");
                     updates.downloadLibGPhoto(function(err) {
+                        menu.status("");
                         if(err) { // error downloading
-                            cb();
-                            ui.back();
                             console.log("error downloading libgphoto2", err);
                             process.nextTick(function(){
                                 ui.alert('Error', ERRORDOWNLOADING + err);
@@ -144,8 +140,6 @@ if (VIEW_HARDWARE) {
                             db.set('libgphoto2-update-in-progress', true);
                             console.log("compiling libgphoto2...");
                             updates.installLibGPhoto(function(err){
-                                ui.back();
-                                cb();
                                 process.nextTick(function(){
                                     if(err) { // error compiling
                                         console.log("error compiling libgphoto2", err);
