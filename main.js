@@ -119,7 +119,7 @@ if (VIEW_HARDWARE) {
                         ui.back();
                         cb();
                         if(err) { // error compiling
-                            console.log("error compiling libgphoto2");
+                            console.log("error compiling libgphoto2", err);
                             ui.alert('Error', ERRORCOMPILING + err);
                         } else {
                             console.log("successfully installed libgphoto2");
@@ -132,7 +132,7 @@ if (VIEW_HARDWARE) {
                         if(err) { // error downloading
                             ui.back();
                             cb();
-                            console.log("error downloading libgphoto2");
+                            console.log("error downloading libgphoto2", err);
                             ui.alert('Error', ERRORDOWNLOADING + err);
                         } else {
                             console.log("successfully downloaded libgphoto2");
@@ -142,7 +142,7 @@ if (VIEW_HARDWARE) {
                                 ui.back();
                                 cb();
                                 if(err) { // error compiling
-                                    console.log("error compiling libgphoto2");
+                                    console.log("error compiling libgphoto2", err);
                                     ui.alert('Error', ERRORCOMPILING + err);
                                 } else {
                                     console.log("successfully installed libgphoto2");
