@@ -156,6 +156,7 @@ if (VIEW_HARDWARE) {
         updates.checkLibGPhotoUpdate(function(err, needUpdate){
             if(!err && needUpdate) {
                 console.log("libgphoto2 update available!");
+                updateLibGPhoto2();
             }
         });
         ui.reload();
