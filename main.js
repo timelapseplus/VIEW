@@ -101,6 +101,54 @@ if (VIEW_HARDWARE) {
     }
     configureWifi();
 
+    var updateLibGPhoto2 = function() {
+        var ERRORCOMPILING = "An error occurred while building the latest libgphoto2 code for camera support. Please report this to support@timelapseplus.com.\nSystem message:\n";
+        var ERRORDOWNLOADING = "An error occurred while downloading the latest code from libgphoto2 github.  Please make sure the VIEW is connected to the internet.\nSystem message:\n";
+        var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
+
+        ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
+            oled.value([{
+                name: "Updating - this can take 20 minutes",
+                value: "please wait"
+            }]);
+            oled.update();
+            db.get('libgphoto2-update-in-progress', function(err, val){
+                if(val) {
+                    installLibGPhoto2(function(err){
+                        ui.back();
+                        cb();
+                        if(err) { // error compiling
+                            ui.alert('Error', ERRORCOMPILING + err);
+                        } else {
+                            ui.alert('Success', SUCCESS);
+                        }
+                    });
+                } else {
+                    downloadLibGPhoto(function(err) {
+                        if(err) { // error downloading
+                            ui.back();
+                            cb();
+                            ui.alert('Error', ERRORDOWNLOADING + err);
+                        } else {
+                            db.set('libgphoto2-update-in-progress', true);
+                            installLibGPhoto2(function(err){
+                                ui.back();
+                                cb();
+                                if(err) { // error compiling
+                                    ui.alert('Error', ERRORCOMPILING + err);
+                                } else {
+                                    ui.alert('Success', SUCCESS);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+
+        }, null);
+    }
+
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         wifiConnectionTime = new Date().getTime();

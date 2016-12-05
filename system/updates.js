@@ -9,7 +9,7 @@ var apiHost = "api.github.com";
 var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
 
-var libgphoto2Version = "5420c9c3cb0360bd1d65e3229160e69e96cbff32"; // this is a commit hash from github
+var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch remote master && git merge " + libgphoto2Version;
