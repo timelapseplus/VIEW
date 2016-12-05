@@ -197,6 +197,7 @@ if (VIEW_HARDWARE) {
             var currentTime = wifiConnectionTime = new Date().getTime();
             if(currentTime - wifiConnectionTime < 30 * 1000) {
                 // show alert -- authentication probably failed
+                ui.alert('Error', "WiFi failed to connect to " + previousConnection.ssid + ".\nTry again, double-checking that the password is correct.\nNote: if it continues to fail to connect, try a different access point if possible.  There might be an issue with connection to Apple Airport wireless routers.  This will hopefully be resolved in the near future.");
             } else {
                 wifiConnectionTime = new Date().getTime();
                 wifi.disable(function(){
