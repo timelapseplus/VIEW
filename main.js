@@ -114,29 +114,38 @@ if (VIEW_HARDWARE) {
             oled.update();
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
+                    console.log("compiling libgphoto2...");
                     updates.installLibGPhoto(function(err){
                         ui.back();
                         cb();
                         if(err) { // error compiling
+                            console.log("error compiling libgphoto2");
                             ui.alert('Error', ERRORCOMPILING + err);
                         } else {
+                            console.log("successfully installed libgphoto2");
                             ui.alert('Success', SUCCESS);
                         }
                     });
                 } else {
+                    console.log("downloading libgphoto2...");
                     updates.downloadLibGPhoto(function(err) {
                         if(err) { // error downloading
                             ui.back();
                             cb();
+                            console.log("error downloading libgphoto2");
                             ui.alert('Error', ERRORDOWNLOADING + err);
                         } else {
+                            console.log("successfully downloaded libgphoto2");
                             db.set('libgphoto2-update-in-progress', true);
+                            console.log("compiling libgphoto2...");
                             updates.installLibGPhoto(function(err){
                                 ui.back();
                                 cb();
                                 if(err) { // error compiling
+                                    console.log("error compiling libgphoto2");
                                     ui.alert('Error', ERRORCOMPILING + err);
                                 } else {
+                                    console.log("successfully installed libgphoto2");
                                     ui.alert('Success', SUCCESS);
                                 }
                             });
