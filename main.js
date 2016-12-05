@@ -109,12 +109,12 @@ if (VIEW_HARDWARE) {
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
             ui.back();
             cb();
-            menu.status("updating camera support");
+            oled.status("updating camera support");
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
                     console.log("compiling libgphoto2...");
                     updates.installLibGPhoto(function(err){
-                        menu.status("");
+                        oled.status("");
                         process.nextTick(function(){
                             if(err) { // error compiling
                                 console.log("error compiling libgphoto2", err);
@@ -129,7 +129,7 @@ if (VIEW_HARDWARE) {
                 } else {
                     console.log("downloading libgphoto2...");
                     updates.downloadLibGPhoto(function(err) {
-                        menu.status("");
+                        oled.status("");
                         if(err) { // error downloading
                             console.log("error downloading libgphoto2", err);
                             process.nextTick(function(){
