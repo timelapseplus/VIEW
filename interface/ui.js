@@ -87,7 +87,7 @@ function load(program, selected) {
                 load(program);
             } else {
                 console.log("function completed, going back");
-                setTimeout(exports.back);
+                setTimeout(back);
             }
         });
     }
