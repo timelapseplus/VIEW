@@ -638,6 +638,7 @@ if (VIEW_HARDWARE) {
     }
 
     var clipsMenu = function(cb) {
+        console.log("fetching clips...");
         intervalometer.getRecentTimelapseClips(15, function(err, clips) {
             if (clips) {
                 var cm = {
@@ -664,6 +665,7 @@ if (VIEW_HARDWARE) {
                         }
                     });
                 }
+                console.log("done fetching clips, running callback");
                 cb(err, cm);
             } else {
                 ui.back();
