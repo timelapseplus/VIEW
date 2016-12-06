@@ -234,11 +234,12 @@ function back() {
     exports.load(b.program, true, b.selected);
 }
 exports.back = function() {
+    exports.busy = false;
     if (stack.length > 0) {
         activity();
         back();
     } else {
-        if (oled.visible) oled.hide();
+        //if (oled.visible) oled.hide();
     }
 }
 
