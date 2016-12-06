@@ -652,8 +652,8 @@ if (VIEW_HARDWARE) {
                         action: {
                             type: "function",
                             arg: clips[i],
-                            fn: function(clip, cb) {
-                                oled.video(clip.path, clip.frames, 24, cb);
+                            fn: function(clip, cb2) {
+                                oled.video(clip.path, clip.frames, 24, cb2);
                             }
                         },
                         button3: function(item) {
@@ -665,6 +665,8 @@ if (VIEW_HARDWARE) {
                     });
                 }
                 cb(err, cm);
+            } else {
+                ui.back();
             }
         });
     }
@@ -1487,10 +1489,15 @@ if (VIEW_HARDWARE) {
                 value: "please wait"
             }]);
             oled.update();
-            if(clip) intervalometer.saveXMPsToCard(clip.index, function(err) {
+            if(clip) {
+                intervalometer.saveXMPsToCard(clip.index, function(err) {
+                    ui.back();
+                    cb();
+                }); 
+            } else {
                 ui.back();
                 cb();
-            }); else cb();
+            }
         }, null);
     }
 
