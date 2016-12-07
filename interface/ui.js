@@ -83,7 +83,7 @@ function load(program, selected) {
     }
     if (currentProgram.type == "function" && currentProgram.fn) {
         currentProgram.fn(currentProgram.arg, function(err, program) {
-            if(!err && program && (program.type || typeof program == 'function')) {
+            if(!err && program && (program.type)) {
                 load(program);
             } else {
                 console.log("function completed, going back");

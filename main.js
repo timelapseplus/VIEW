@@ -640,6 +640,7 @@ if (VIEW_HARDWARE) {
     var clipsMenu = function(cb) {
         console.log("fetching clips...");
         intervalometer.getRecentTimelapseClips(15, function(err, clips) {
+            console.log("########################################################################################################################");
             if (clips) {
                 var cm = {
                     name: "timelapse clips",
