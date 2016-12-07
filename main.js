@@ -106,7 +106,7 @@ if (VIEW_HARDWARE) {
         var ERRORDOWNLOADING = "An error occurred while downloading the latest code from libgphoto2 github.  Please make sure the VIEW is connected to the internet.\nSystem message:\n";
         var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
 
-        ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.saveXMPs, function(cb){
+        ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.updateCameraLibrary, function(cb){
             cb();
             var backupStatus = oled.defaultStatusString;
             oled.defaultStatus("updating camera support");

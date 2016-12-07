@@ -568,7 +568,10 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
                 });
             } else {
                 setTimeout(function(){
-                    console.log("clips:", clips);
+                    //console.log("clips:", clips);
+                    clips = clips.sort(function(a, b){
+                        return a.name < b.name;
+                    });
                     callback(null, clips); 
                 });
             }
