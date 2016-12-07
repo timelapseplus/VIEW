@@ -290,7 +290,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
                         callback1(cb);
                     } else {
                         back();
-                        //cb();
+                        cb();
                     }
                 }
             }
@@ -305,7 +305,7 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
                         callback2(cb);
                     } else {
                         back();
-                        //cb();
+                        cb();
                     }
                 }
             }
