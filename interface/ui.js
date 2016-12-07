@@ -286,7 +286,12 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
-                    if(callback1) callback1(cb); else back();
+                    if(callback1) {
+                        callback1(cb);
+                    } else {
+                        back();
+                        cb();
+                    }
                 }
             }
         }, {
@@ -296,7 +301,12 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
-                    if(callback2) callback2(cb); else back();
+                    if(callback2) {
+                        callback2(cb);
+                    } else {
+                        back();
+                        cb();
+                    }
                 }
             }
         }]
