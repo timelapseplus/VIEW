@@ -2034,7 +2034,7 @@ app.on('message', function(msg) {
 camera.ptp.on('photo', function() {
     if (camera.ptp.photo && camera.ptp.photo.jpeg) {
 
-        if (!intervalometer.status.running) {
+        if (intervalometer.status.running) {
             var size = {
                 x: 100,
                 q: 80

@@ -237,6 +237,7 @@ function drawTimeLapseStatus(status) {
 
     oled.update();
     if(statusDetails.img100x68) {
+        console.log("Displaying image: ", statusDetails.img100x68);
         oled.jpeg(statusDetails.img100x68, 0, 12, true);
     }
 }
