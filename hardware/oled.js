@@ -225,7 +225,9 @@ function drawTimeLapseStatus(status) {
     color("alert");
     fb.line(4, 84, status.shutterSeconds * secondsRatio, 84, 1); 
     color("secondary");
-    fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1); 
+    fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1);
+
+    oled.update();
 
 
 }

@@ -2143,7 +2143,7 @@ intervalometer.on('status', function(msg) {
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
-        apertureText: camera.ptp.settings.aperture,
+        apertureText: "f/" +camera.ptp.settings.aperture,
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: 5,
         frames: msg.frames,

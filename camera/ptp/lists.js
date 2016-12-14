@@ -105,7 +105,7 @@ lists.getBulbEvFromSeconds = function(seconds) { // only accurate to 1/3 stop
 
 lists.getSecondsFromEv = function(ev) { // only accurate to 1/3 stop
     for (var i = 0; i < lists.bulb.length; i++) {
-        if (lists.bulb[i].ev > ev) {
+        if (lists.bulb[i].ev >= ev) {
             return lists.bulb[i].us / 1000000;
         }
     }
