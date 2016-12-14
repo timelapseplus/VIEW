@@ -8,6 +8,7 @@ var camera = {};
 camera.bulb = bulb;
 camera.ptp = ptp;
 camera.connected = ptp.connected;
+camera.lists = lists;
 
 camera.settings = {
     brampGap: 5,

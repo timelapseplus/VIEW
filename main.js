@@ -2138,7 +2138,22 @@ intervalometer.on('status', function(msg) {
         status: msg
     });
     cache.intervalometerStatus = msg;
-    ui.reload();
+
+//img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+    var statusScreen = {
+        isoText: camera.ptp.settings.iso,
+        shutterText: camera.ptp.settings.shutter,
+        apertureText: camera.ptp.settings.aperture,
+        intervalSeconds: msg.intervalMs / 1000,
+        bufferSeconds: 5,
+        frames: msg.frames,
+        remaining: msg.framesRemaining,
+        shutterSeconds: camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev),
+        durationSeconds: (new Date() / 1000) - msg.startTime
+    }
+    console.log("statusScreen", statusScreen);
+    oled.timelapseStatus(statusScreen);
+    //ui.reload();
 });
 
 intervalometer.on('error', function(msg) {

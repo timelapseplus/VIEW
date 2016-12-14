@@ -25,7 +25,8 @@ var DEFAULT_THEME = {
     batteryFull: [0.2, 1, 0.2],
     batteryOk: [0.1, 0.5, 0.1],
     batteryLow: [1, 0.2, 0.2],
-    help: [0, 0.6, 0]
+    help: [0, 0.6, 0],
+    background: [0.1, 0.1, 0.1]
 }
 
 var RED_THEME = {
@@ -35,7 +36,8 @@ var RED_THEME = {
     batteryFull: [0.3, 0.2, 0.2],
     batteryOk: [0.3, 0.2, 0.2],
     batteryLow: [1, 0.2, 0.2],
-    help: [0.6, 0, 0]
+    help: [0.6, 0, 0],
+    background: [0.1, 0.0, 0.0]
 }
 
 
@@ -184,6 +186,52 @@ function textScrollDown() {
     TEXT_INDEX[mode]--;
     if(TEXT_INDEX[mode] < 0) TEXT_INDEX[mode] = TEXT_LIST[mode].length - 1;
     textUpdateCurrent();
+}
+
+//img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+function drawTimeLapseStatus(status) {
+    fb.clear();
+
+    color("background");
+    fb.rect(0, 15, 116, 70, true); // picture placeholder
+
+    fb.font(MENU_TEXT_FONT_SIZE, false, false);
+    color("primary");
+    fb.text(120, 15, status.isoText || "---");
+    fb.text(120, 15 + 15, status.apertureText || "---");
+    fb.text(120, 15 + 15*2, status.shutterText || "---");
+
+    var hours = Math.floor(Math.round(status.duration) / 60);
+    var minutes = Math.round(status.duration) % 60;
+
+    fb.text(0, 90, (Math.round(status.intervalSeconds * 10) / 10).toString());
+    fb.text(0, 90 + 15, status.frames.toString() + "/" + status.remaining.toString());
+    fb.text(0, 90 + 15*2, status.hours.toString() + "h" + status.minutes.toString() + "m";
+
+     // histogram window
+    color("background");
+    fb.rect(90, 90, 64, 32, true);
+
+    // ramp chart window
+    color("background");
+    fb.rect(120, 52, 36, 24, true); 
+
+    // interval/exposure status line
+    var lw = 156; // line width
+    var secondsRatio = lw / status.intervalSeconds;
+
+    color("background");
+    fb.line(4, 84, lw, 84, 1); 
+    color("alert");
+    fb.line(4, 84, shutterSeconds * secondsRatio, 84, 1); 
+    color("secondary");
+    fb.line(shutterSeconds * secondsRatio, 84, (shutterSeconds + bufferSeconds) * secondsRatio, 84, 1); 
+
+
+}
+
+oled.timelapseStatus = function(status) {
+    drawTimeLapseStatus(status);
 }
 
 oled.writeMenu = function() {
