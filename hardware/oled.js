@@ -193,20 +193,20 @@ function drawTimeLapseStatus(status) {
     fb.clear();
 
     color("background");
-    fb.rect(0, 15, 116, 70, true); // picture placeholder
+    fb.rect(0, 12, 100, 68, true); // picture placeholder
 
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     color("primary");
-    fb.text(120, 15, status.isoText || "---");
-    fb.text(120, 15 + 15, status.apertureText || "---");
-    fb.text(120, 15 + 15*2, status.shutterText || "---");
+    fb.text(105, 24, status.isoText || "---");
+    fb.text(105, 36, status.apertureText || "---");
+    fb.text(105, 48, status.shutterText || "---");
 
-    var hours = Math.floor(Math.round(status.duration) / 60);
-    var minutes = Math.round(status.duration) % 60;
+    var hours = Math.floor(Math.round(status.durationSeconds) / 60);
+    var minutes = Math.round(status.durationSeconds) % 60;
 
-    fb.text(0, 90, (Math.round(status.intervalSeconds * 10) / 10).toString());
-    fb.text(0, 90 + 15, status.frames.toString() + "/" + status.remaining.toString());
-    fb.text(0, 90 + 15*2, hours.toString() + "h" + minutes.toString() + "m");
+    fb.text(0, 102, (Math.round(status.intervalSeconds * 10) / 10).toString());
+    fb.text(0, 114, status.frames.toString() + "/" + status.remaining.toString());
+    fb.text(0, 126, hours.toString() + "h" + minutes.toString() + "m");
 
      // histogram window
     color("background");
@@ -220,6 +220,10 @@ function drawTimeLapseStatus(status) {
     var lw = 156; // line width
     var secondsRatio = lw / status.intervalSeconds;
 
+    var intervalPos = ((new Date() / 1000) - status.captureTime) * secondsRatio;
+    color("help");
+    fb.line(intervalPos, 84 - 2, intervalPos, 84 + 2, 2);
+
     color("background");
     fb.line(4, 84, lw, 84, 1); 
     color("alert");
@@ -227,13 +231,19 @@ function drawTimeLapseStatus(status) {
     color("secondary");
     fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1);
 
+
     oled.update();
-
-
 }
 
+var statusIntervalHandle = null;
 oled.timelapseStatus = function(status) {
-    drawTimeLapseStatus(status);
+    if(statusIntervalHandle) {
+        clearTimeout(statusIntervalHandle);
+        statusIntervalHandle = null;
+    }
+    if(status.running) {
+        statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 200); 
+    }
 }
 
 oled.writeMenu = function() {

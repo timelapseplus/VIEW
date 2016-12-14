@@ -2149,7 +2149,9 @@ intervalometer.on('status', function(msg) {
         frames: msg.frames,
         remaining: msg.framesRemaining,
         shutterSeconds: camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev),
-        durationSeconds: (new Date() / 1000) - msg.startTime
+        durationSeconds: (new Date() / 1000) - msg.startTime,
+        captureStartTime: msg.captureStartTime,
+        running: msg.running
     }
     console.log("statusScreen", statusScreen);
     oled.timelapseStatus(statusScreen);

@@ -223,6 +223,7 @@ function runPhoto() {
     }
     busyPhoto = true;
     if (camera.ptp.connected) {
+        status.captureStartTime = new Date() / 1000;
         var captureOptions = {
             thumbnail: true,
             index: status.frames
