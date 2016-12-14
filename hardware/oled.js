@@ -206,7 +206,7 @@ function drawTimeLapseStatus(status) {
 
     fb.text(0, 90, (Math.round(status.intervalSeconds * 10) / 10).toString());
     fb.text(0, 90 + 15, status.frames.toString() + "/" + status.remaining.toString());
-    fb.text(0, 90 + 15*2, status.hours.toString() + "h" + status.minutes.toString() + "m";
+    fb.text(0, 90 + 15*2, status.hours.toString() + "h" + status.minutes.toString() + "m");
 
      // histogram window
     color("background");
