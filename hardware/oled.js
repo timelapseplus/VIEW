@@ -188,7 +188,9 @@ function textScrollDown() {
     textUpdateCurrent();
 }
 
-//img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+//img100x68, hist60, ramp30
+//isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+var statusDetails = {};
 function drawTimeLapseStatus(status) {
     fb.clear();
 
@@ -222,7 +224,7 @@ function drawTimeLapseStatus(status) {
     var secondsRatio = lw / status.intervalSeconds;
 
     var intervalPos = ((new Date() / 1000) - status.captureStartTime) * secondsRatio;
-    color("help");
+    color("primary");
     fb.line(intervalPos, 84 - 2, intervalPos, 84 + 2, 2);
 
     color("background");
@@ -234,6 +236,9 @@ function drawTimeLapseStatus(status) {
 
 
     oled.update();
+    if(statusDetails.img100x68) {
+        oled.jpeg(statusDetails.img100x68, 0, 12, true);
+    }
 }
 
 var statusIntervalHandle = null;
@@ -243,8 +248,13 @@ oled.timelapseStatus = function(status) {
         statusIntervalHandle = null;
     }
     if(status.running) {
-        statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 200); 
+        statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
+    } else {
+        statusDetails = {};
     }
+}
+oled.updateThumbnailPreview = function(path) {
+    statusDetails.img100x68 = path;
 }
 
 oled.writeMenu = function() {

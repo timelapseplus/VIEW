@@ -2036,6 +2036,20 @@ camera.ptp.on('photo', function() {
 
         if (!intervalometer.status.running) {
             var size = {
+                x: 100,
+                q: 80
+            }
+            if (VIEW_HARDWARE) {
+                image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
+                    if (!err && jpgBuf) {
+                        image.saveTemp("oledthm", jpgBuf, function(err, path) {
+                            oled.updateThumbnailPreview(path);
+                        });
+                    }
+                });
+            }
+        } else {
+            var size = {
                 x: 160,
                 q: 80
             }
