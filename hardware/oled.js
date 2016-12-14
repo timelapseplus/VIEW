@@ -209,19 +209,19 @@ function drawTimeLapseStatus(status) {
     fb.text(0, 113, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
     fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
-     // histogram window
-    color("background");
-    fb.rect(110, 88, 44, 40, true);
-
     // ramp chart window
+    //color("background");
+    //fb.rect(110, 88, 50, 40, true);
+
+    // histogram window
     color("background");
-    fb.rect(105, 55, 55, 26, true); 
+    fb.rect(105, 54, 55, 26, true); 
 
     // interval/exposure status line
     var lw = 156; // line width
     var secondsRatio = lw / status.intervalSeconds;
 
-    var intervalPos = ((new Date() / 1000) - status.captureTime) * secondsRatio;
+    var intervalPos = ((new Date() / 1000) - status.captureStartTime) * secondsRatio;
     color("help");
     fb.line(intervalPos, 84 - 2, intervalPos, 84 + 2, 2);
 
