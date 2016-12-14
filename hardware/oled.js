@@ -201,12 +201,13 @@ function drawTimeLapseStatus(status) {
     fb.text(105, 36, status.apertureText || "---");
     fb.text(105, 48, status.shutterText || "---");
 
-    var hours = Math.floor(Math.round(status.durationSeconds) / 60);
-    var minutes = Math.round(status.durationSeconds) % 60;
+    var m = Math.round(status.durationSeconds / 60);
+    var hours = Math.floor(m / 60);
+    var minutes = m % 60;
 
-    fb.text(0, 102, (Math.round(status.intervalSeconds * 10) / 10).toString());
-    fb.text(0, 114, status.frames.toString() + "/" + status.remaining.toString());
-    fb.text(0, 126, hours.toString() + "h" + minutes.toString() + "m");
+    fb.text(0, 102, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s";
+    fb.text(0, 114, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
+    fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
      // histogram window
     color("background");
