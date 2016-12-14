@@ -198,24 +198,24 @@ function drawTimeLapseStatus(status) {
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     color("primary");
     fb.text(105, 24, status.isoText || "---");
-    fb.text(105, 36, status.apertureText || "---");
-    fb.text(105, 48, status.shutterText || "---");
+    fb.text(105, 37, status.apertureText || "---");
+    fb.text(105, 50, status.shutterText || "---");
 
     var m = Math.round(status.durationSeconds / 60);
     var hours = Math.floor(m / 60);
     var minutes = m % 60;
 
-    fb.text(0, 102, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s";
-    fb.text(0, 114, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
+    fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s";
+    fb.text(0, 113, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
     fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
      // histogram window
     color("background");
-    fb.rect(90, 90, 64, 32, true);
+    fb.rect(110, 88, 44, 40, true);
 
     // ramp chart window
     color("background");
-    fb.rect(120, 52, 36, 24, true); 
+    fb.rect(105, 55, 55, 26, true); 
 
     // interval/exposure status line
     var lw = 156; // line width
