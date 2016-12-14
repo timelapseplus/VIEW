@@ -223,9 +223,9 @@ function drawTimeLapseStatus(status) {
     color("background");
     fb.line(4, 84, lw, 84, 1); 
     color("alert");
-    fb.line(4, 84, shutterSeconds * secondsRatio, 84, 1); 
+    fb.line(4, 84, status.shutterSeconds * secondsRatio, 84, 1); 
     color("secondary");
-    fb.line(shutterSeconds * secondsRatio, 84, (shutterSeconds + bufferSeconds) * secondsRatio, 84, 1); 
+    fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1); 
 
 
 }
