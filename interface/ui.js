@@ -62,6 +62,7 @@ function load(program, selected) {
     }
     if (currentProgram.type == "timelapse") {
         oled.timelapseMode = true;
+        oled.writeMenu();
     } else {
         oled.timelapseMode = false;
     }
