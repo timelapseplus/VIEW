@@ -214,10 +214,36 @@ function processKeyframes(setupFirst, callback) {
 
 }
 
+var busyExposure = false;
+
+function setupExposure(cb) {
+    busyExposure = true;
+    camera.getEv(function(err, currentEv, params) {
+        console.log("current interval: ", status.intervalMs);
+        console.log("current ev: ", currentEv);
+        var maxShutterLengthMs = status.intervalMs;
+        console.log("maxShutterLengthMs", status.intervalMs);
+        if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+        console.log("maxShutterLengthMs", maxShutterLengthMs);
+        camera.setEv(status.rampEv, {
+            maxShutterLengthMs: maxShutterLengthMs
+        }, function(err, res) {
+
+            status.evDiff = res.ev - status.rampEv;
+            captureOptions.exposureCompensation = status.evDiff;
+
+            console.log("program:", "capture");
+            status.lastPhotoTime = new Date() / 1000 - status.startTime;
+            busyExposure = false;
+            cb && cb(err);
+        });
+    });
+}
+
 var busyPhoto = false;
 
 function runPhoto() {
-    if (busyPhoto && intervalometer.currentProgram.rampMode == "auto") {
+    if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode == "auto") {
         if (status.running) setTimeout(runPhoto, 100);
         return;
     }
@@ -277,66 +303,44 @@ function runPhoto() {
                 });
             });
         } else {
-            //var setupNext = function(cb) {
+            if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
+            status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
+            intervalometer.emit("status", status);
+            console.log("Setting timer for fixed interval at ", status.intervalMs);
+            if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
 
-            //}
-            camera.getEv(function(err, currentEv, params) {
-                if (status.rampEv === null) status.rampEv = currentEv;
-                status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
-                intervalometer.emit("status", status);
-                console.log("Setting timer for fixed interval at ", status.intervalMs);
-                if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
-                console.log("current interval: ", status.intervalMs);
-                console.log("current ev: ", currentEv);
-                if (status.rampEv === null) status.rampEv = currentEv;
-                var maxShutterLengthMs = status.intervalMs;
-                console.log("maxShutterLengthMs", status.intervalMs);
-                if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
-                console.log("maxShutterLengthMs", maxShutterLengthMs);
-                camera.setEv(status.rampEv, {
-                    maxShutterLengthMs: maxShutterLengthMs
-                }, function(err, res) {
-
-                    status.evDiff = res.ev - status.rampEv;
-                    captureOptions.exposureCompensation = status.evDiff;
-
-                    console.log("program:", "capture");
-                    status.lastPhotoTime = new Date() / 1000 - status.startTime;
-                    camera.ptp.capture(captureOptions, function(err, photoRes) {
-                        if (!err && photoRes) {
-                            var bufferTime = (new Date() / 1000) - status.captureStartTime;
-                            intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
-                            //status.rampEv = exp.calculate(currentEv - status.evDiff, photoRes.ev);
-                            status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
-                            status.rampRate = exp.status.rate;
-                            status.path = photoRes.file;
-                            status.message = "running";
-                            if (status.framesRemaining > 0) status.framesRemaining--;
-                            status.frames++;
-                            writeFile();
-                            intervalometer.emit("status", status);
-                            console.log("program status:", status);
-                        } else {
-                            intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
-                        }
-                        if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
-                            clearTimeout(timerHandle);
-                            status.running = false;
-                            status.message = "done";
-                            status.framesRemaining = 0;
-                            setTimeout(function(){
-                                intervalometer.timelapseFolder = false;
-                                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                                intervalometer.emit("status", status);
-                                camera.ptp.unmountSd();
-                                console.log("program:", "done");
-                            }, 2000);
-                        }
-                        processKeyframes(false, function() {
-                            busyPhoto = false;
-                        });
-                    });
-
+            camera.ptp.capture(captureOptions, function(err, photoRes) {
+                if (!err && photoRes) {
+                    var bufferTime = (new Date() / 1000) - status.captureStartTime;
+                    intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
+                    status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
+                    status.rampRate = exp.status.rate;
+                    status.path = photoRes.file;
+                    status.message = "running";
+                    setupExposure();
+                    if (status.framesRemaining > 0) status.framesRemaining--;
+                    status.frames++;
+                    writeFile();
+                    intervalometer.emit("status", status);
+                    console.log("program status:", status);
+                } else {
+                    intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
+                }
+                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
+                    clearTimeout(timerHandle);
+                    status.running = false;
+                    status.message = "done";
+                    status.framesRemaining = 0;
+                    setTimeout(function(){
+                        intervalometer.timelapseFolder = false;
+                        camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                        intervalometer.emit("status", status);
+                        camera.ptp.unmountSd();
+                        console.log("program:", "done");
+                    }, 2000);
+                }
+                processKeyframes(false, function() {
+                    busyPhoto = false;
                 });
             });
         }
