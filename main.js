@@ -612,8 +612,10 @@ if (VIEW_HARDWARE) {
                 type: "function",
                 fn: function(arg, cb) {
                     intervalometer.currentProgram.keyframes = null;
+                    oled.timelapseStatus = null;
                     intervalometer.run(intervalometer.currentProgram);
                     cb();
+                    ui.reload();
                 }
             }
         }, ]
