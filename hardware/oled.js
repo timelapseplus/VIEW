@@ -192,6 +192,7 @@ function textScrollDown() {
 //isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
 var statusDetails = {};
 function drawTimeLapseStatus(status) {
+    if (!oled.visible) return; // don't waste cpu if not seen
     fb.clear();
 
     var imageWidth = 110;
@@ -582,7 +583,7 @@ oled.activity = function() {
 }
 
 oled.update = function() {
-    fb.blit();
+    if(!oled.blocked) fb.blit();
 }
 
 oled.up = function() {

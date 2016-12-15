@@ -486,10 +486,10 @@ if (VIEW_HARDWARE) {
     }
 
     var stopConfirm = {
-        name: "cancel timelapse?",
+        name: "stop timelapse?",
         type: "options",
         items: [{
-            name: "cancel timelapse?",
+            name: "stop timelapse?",
             value: "no",
             action: {
                 type: 'function',
@@ -498,13 +498,14 @@ if (VIEW_HARDWARE) {
                 }
             }
         }, {
-            name: "cancel timelapse?",
+            name: "stop timelapse?",
             value: "yes",
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
                     intervalometer.cancel();
                     cb();
+                    ui.back();
                 }
             }
         }]
@@ -515,7 +516,7 @@ if (VIEW_HARDWARE) {
         name: "time-lapse",
         type: "menu",
         items: [{
-            name: "PREVIEW",
+            name: "Play Preview",
             action: {
                 type: "function",
                 fn: function(arg, cb) {
@@ -525,7 +526,7 @@ if (VIEW_HARDWARE) {
                 }
             }
         }, {
-            name: valueDisplay("Status: Running", intervalometer.status, 'frames'),
+            name: valueDisplay("Stop Time-lapse", intervalometer.status, 'frames'),
             action: stopConfirm
         }]
     }
