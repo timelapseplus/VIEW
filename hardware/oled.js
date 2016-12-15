@@ -709,7 +709,9 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
             paddingLength--;
             indexString = '0' + indexString;
         }
+        //fb.jpegUnbuffered(0, 0, videoPathFormat.replace('%05d', indexString));
         fb.jpeg(0, 0, videoPathFormat.replace('%05d', indexString));
+        fb.blit();
         frameComplete = true;
     }, 1000 / (fps||24));
 }

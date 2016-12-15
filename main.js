@@ -533,6 +533,16 @@ if (VIEW_HARDWARE) {
     var timelapseStatusMenu = {
         name: "time-lapse",
         type: "timelapse",
+        enter: function(){
+            var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
+                if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function(){
+                    ui.reload();
+                });
+            });
+        },
+        button3: function(){
+            menu.load(timelapseRunningMenu);
+        }
     }
 
     var timelapseMenu = {
@@ -615,7 +625,6 @@ if (VIEW_HARDWARE) {
                     oled.timelapseStatus = null;
                     intervalometer.run(intervalometer.currentProgram);
                     cb();
-                    ui.reload();
                 }
             }
         }, ]

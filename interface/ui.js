@@ -178,6 +178,8 @@ exports.enter = function(alt) {
         }
     } else if (currentProgram.type == "png") {
         back();
+    } else if (currentProgram.enter && typeof currentProgram.enter = "function") {
+        currentProgram.enter();
     }
 }
 exports.help = function() {
@@ -223,6 +225,8 @@ exports.button3 = function() {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
     } else if (currentProgram.type == "textInput") {
         oled.textCycleMode();
+    } else if (currentProgram.button3 && typeof currentProgram.button3 = "function") {
+        currentProgram.button3();
     }
 }
 function back() {
