@@ -270,7 +270,7 @@ function runPhoto() {
                         intervalometer.emit("status", status);
                         camera.ptp.unmountSd();
                         console.log("program:", "done");
-                    }, 1000);
+                    }, 2000);
                 }
                 processKeyframes(false, function() {
                     busyPhoto = false;
@@ -283,6 +283,7 @@ function runPhoto() {
             camera.getEv(function(err, currentEv, params) {
                 if (status.rampEv === null) status.rampEv = currentEv;
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
+                intervalometer.emit("status", status);
                 console.log("Setting timer for fixed interval at ", status.intervalMs);
                 if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
                 console.log("current interval: ", status.intervalMs);
@@ -329,7 +330,7 @@ function runPhoto() {
                                 intervalometer.emit("status", status);
                                 camera.ptp.unmountSd();
                                 console.log("program:", "done");
-                            }, 1000);
+                            }, 2000);
                         }
                         processKeyframes(false, function() {
                             busyPhoto = false;

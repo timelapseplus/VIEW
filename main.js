@@ -2049,6 +2049,7 @@ app.on('message', function(msg) {
     }
 });
 
+var thmIndex = "1";
 camera.ptp.on('photo', function() {
     if (camera.ptp.photo && camera.ptp.photo.jpeg) {
 
@@ -2060,7 +2061,8 @@ camera.ptp.on('photo', function() {
             if (VIEW_HARDWARE) {
                 image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
-                        image.saveTemp("oledthm", jpgBuf, function(err, path) {
+                        image.saveTemp("oledthm" + thmIndex, jpgBuf, function(err, path) {
+                            if(thmIndex == "1") thmIndex = "2"; else thmIndex = "1"; // alternate to avoid reading partial file
                             oled.updateThumbnailPreview(path);
                         });
                     }
