@@ -206,7 +206,7 @@ function drawTimeLapseStatus(status) {
     var hours = Math.floor(m / 60);
     var minutes = m % 60;
 
-    fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s (" + status.intervalModeText + ")";
+    fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString() + "s (" + status.intervalModeText + ")");
     fb.text(0, 113, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
     fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
@@ -233,12 +233,11 @@ function drawTimeLapseStatus(status) {
     color("secondary");
     fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1);
 
-
     if(statusDetails.img100x68) {
-        oled.jpeg(statusDetails.img100x68, 0, 12, true);
+        oled.jpeg(statusDetails.img100x68, 0, 15, true);
     } else {
         color("background");
-        fb.rect(0, 12, 100, 68, true); // picture placeholder
+        fb.rect(0, 15, 100, 65, true); // picture placeholder
     }
     drawStatusBar();
     oled.update();
@@ -246,7 +245,7 @@ function drawTimeLapseStatus(status) {
 
 var statusIntervalHandle = null;
 oled.updateTimelapseStatus = function(status) {
-    oled.timelapseStatus = status;
+    if(status) oled.timelapseStatus = status;
     if(statusIntervalHandle) {
         clearTimeout(statusIntervalHandle);
         statusIntervalHandle = null;
@@ -259,6 +258,15 @@ oled.updateTimelapseStatus = function(status) {
 }
 oled.updateThumbnailPreview = function(path) {
     statusDetails.img100x68 = path;
+}
+
+oled.setTimelapseMode = function(set) {
+    oled.timelapseMode = set;
+    if(set) {
+        oled.writeMenu();
+    } else {
+        oled.updateTimelapseStatus();
+    }
 }
 
 function drawStatusBar() {

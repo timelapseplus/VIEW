@@ -127,11 +127,7 @@ camera.getEvFromSettings = function(cameraSettings) {
     var av = (settings.aperture && settings.aperture.ev) ? settings.aperture.ev : camera.fixedApertureEv;
 
     if(settings && settings.shutter && settings.iso) {
-        return lists.getEv(settings.shutter.ev, av, settings.iso.ev), {
-            shutter: settings.shutter,
-            aperture: settings.aperture,
-            iso: settings.iso
-        };
+        return lists.getEv(settings.shutter.ev, av, settings.iso.ev);
     } else {
         return null;
     }

@@ -2169,7 +2169,7 @@ intervalometer.on('status', function(msg) {
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: 5,
         rampModeText: intervalometer.currentProgram.rampMode,
-        intervalModeText: intervalometer.currentProgram.rampMode,
+        intervalModeText: intervalometer.currentProgram.rampMode == 'auto' ? intervalometer.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
         shutterSeconds: camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev),
@@ -2179,7 +2179,7 @@ intervalometer.on('status', function(msg) {
     }
     console.log("statusScreen", statusScreen);
     oled.updateTimelapseStatus(statusScreen);
-    //ui.reload();
+    ui.reload();
 });
 
 intervalometer.on('error', function(msg) {
