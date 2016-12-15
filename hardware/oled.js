@@ -194,9 +194,6 @@ var statusDetails = {};
 function drawTimeLapseStatus(status) {
     fb.clear();
 
-    color("background");
-    fb.rect(0, 12, 100, 68, true); // picture placeholder
-
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     color("primary");
     fb.text(105, 24, status.isoText || "---");
@@ -235,11 +232,13 @@ function drawTimeLapseStatus(status) {
     fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1);
 
 
-    oled.update();
     if(statusDetails.img100x68) {
-        console.log("Displaying image: ", statusDetails.img100x68);
         oled.jpeg(statusDetails.img100x68, 0, 12, true);
+    } else {
+        color("background");
+        fb.rect(0, 12, 100, 68, true); // picture placeholder
     }
+    oled.update();
 }
 
 var statusIntervalHandle = null;
