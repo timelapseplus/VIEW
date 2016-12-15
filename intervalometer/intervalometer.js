@@ -230,8 +230,6 @@ function setupExposure(cb) {
         }, function(err, res) {
 
             status.evDiff = res.ev - status.rampEv;
-            captureOptions.exposureCompensation = status.evDiff;
-
             console.log("program:", "capture");
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             busyExposure = false;
@@ -306,6 +304,7 @@ function runPhoto() {
             if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
             status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
             intervalometer.emit("status", status);
+            captureOptions.exposureCompensation = status.evDiff || 0;
             console.log("Setting timer for fixed interval at ", status.intervalMs);
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
 
