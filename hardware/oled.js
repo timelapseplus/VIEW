@@ -228,7 +228,7 @@ function drawTimeLapseStatus(status) {
 
     var intervalPos = ((new Date() / 1000) - status.captureStartTime) * secondsRatio;
     color("primary");
-    fb.line(intervalPos, 84 - 2, intervalPos, 84 + 2, 2);
+    fb.line(intervalPos, 84.5 - 2, intervalPos, 84.5 + 2, 2);
 
     var shutterLineStart = 4;
     var shutterLineEnd = shutterLineStart + Math.ceil(status.shutterSeconds * secondsRatio);
@@ -236,11 +236,11 @@ function drawTimeLapseStatus(status) {
     var bufferLineEnd = shutterLineEnd + Math.ceil(status.bufferSeconds * secondsRatio);
 
     color("background");
-    fb.line(4, 84, lw, 84, 1); 
+    fb.line(4, 84, lw, 84.5, 1); 
     color("alert");
-    fb.line(shutterLineStart, 84, shutterLineEnd, 84, 1); 
+    fb.line(shutterLineStart, 84.5, shutterLineEnd, 84, 1); 
     color("secondary");
-    fb.line(bufferLineStart, 84, bufferLineEnd, 84, 1);
+    fb.line(bufferLineStart, 84.5, bufferLineEnd, 84, 1);
 
     if(statusDetails.img110) {
         oled.jpeg(statusDetails.img110, 0, 15, true);
