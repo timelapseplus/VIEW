@@ -194,13 +194,16 @@ var statusDetails = {};
 function drawTimeLapseStatus(status) {
     fb.clear();
 
+    var imageWidth = 110;
+    var upperTextStart = imageWidth + 4
+
     fb.font(MENU_TEXT_FONT_SIZE, false, false);
     color("primary");
-    fb.text(105, 24, status.isoText || "---");
-    fb.text(105, 37, status.apertureText || "---");
-    fb.text(105, 50, status.shutterText || "---");
-    fb.text(105, 63, status.evText || "---");
-    fb.text(105, 76, status.rampModeText);
+    fb.text(upperTextStart, 24, status.isoText || "---");
+    fb.text(upperTextStart, 37, status.apertureText || "---");
+    fb.text(upperTextStart, 50, status.shutterText || "---");
+    fb.text(upperTextStart, 63, status.evText || "---");
+    fb.text(upperTextStart, 76, status.rampModeText);
 
     var m = Math.round(status.durationSeconds / 60);
     var hours = Math.floor(m / 60);
@@ -238,11 +241,11 @@ function drawTimeLapseStatus(status) {
     color("secondary");
     fb.line(bufferLineStart, 84, bufferLineEnd, 84, 1);
 
-    if(statusDetails.img100x68) {
-        oled.jpeg(statusDetails.img100x68, 0, 15, true);
+    if(statusDetails.img110) {
+        oled.jpeg(statusDetails.img110, 0, 15, true);
     } else {
         color("background");
-        fb.rect(0, 15, 100, 65, true); // picture placeholder
+        fb.rect(0, 15, 110, 60, true); // picture placeholder
     }
     drawStatusBar();
     oled.update();
@@ -264,7 +267,7 @@ oled.updateTimelapseStatus = function(status) {
     }
 }
 oled.updateThumbnailPreview = function(path) {
-    statusDetails.img100x68 = path;
+    statusDetails.img110 = path;
 }
 
 oled.setTimelapseMode = function(set) {

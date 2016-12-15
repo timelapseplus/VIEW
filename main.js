@@ -542,7 +542,8 @@ if (VIEW_HARDWARE) {
         },
         button3: function(){
             menu.load(timelapseRunningMenu);
-        }
+        },
+        help: help.timelapseStatus
     }
 
     var timelapseMenu = {
@@ -713,12 +714,12 @@ if (VIEW_HARDWARE) {
                         value: "Shutting Down"
                     }]);
                     oled.update();
-                    if (!intervalometer.status.running) {
+                    //if (!intervalometer.status.running) {
                         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
                         closeSystem(function(){
                             power.shutdown();
                         });
-                    }
+                    //}
                 }
             }
         }]
@@ -2052,7 +2053,7 @@ camera.ptp.on('photo', function() {
 
         if (intervalometer.status.running) {
             var size = {
-                x: 100,
+                x: 110,
                 q: 80
             }
             if (VIEW_HARDWARE) {
