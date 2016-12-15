@@ -2161,11 +2161,12 @@ intervalometer.on('status', function(msg) {
     cache.intervalometerStatus = msg;
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+    var evText = (Math.round(camera.getEvFromSettings(camera.ptp.settings) * 10) / 10).toString();
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
         apertureText: "f/" +camera.ptp.settings.aperture,
-        evText: camera.getEvFromSettings(camera.ptp.settings) + " EV",
+        evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: 5,
         rampModeText: intervalometer.currentProgram.rampMode,

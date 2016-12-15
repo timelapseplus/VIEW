@@ -226,12 +226,17 @@ function drawTimeLapseStatus(status) {
     color("primary");
     fb.line(intervalPos, 84 - 2, intervalPos, 84 + 2, 2);
 
+    var shutterLineStart = 4;
+    var shutterLineEnd = shutterLineStart + Math.ceil(status.shutterSeconds * secondsRatio);
+    var bufferLineStart = shutterLineEnd;
+    var bufferLineEnd = shutterLineEnd + Math.ceil(status.bufferSeconds * secondsRatio);
+
     color("background");
     fb.line(4, 84, lw, 84, 1); 
     color("alert");
-    fb.line(4, 84, status.shutterSeconds * secondsRatio, 84, 1); 
+    fb.line(shutterLineStart, 84, shutterLineEnd, 84, 1); 
     color("secondary");
-    fb.line(status.shutterSeconds * secondsRatio, 84, (status.shutterSeconds + status.bufferSeconds) * secondsRatio, 84, 1);
+    fb.line(bufferLineStart, 84, bufferLineEnd, 84, 1);
 
     if(statusDetails.img100x68) {
         oled.jpeg(statusDetails.img100x68, 0, 15, true);
@@ -317,7 +322,7 @@ oled.writeMenu = function() {
     var selected;
     if (oled.selected < 0) oled.selected = 0;
 
-    fb.clear();
+    if (!oled.timelapseMode) fb.clear();
 
     if (oled.timelapseMode) {
         if(oled.timelapseStatus) oled.updateTimelapseStatus(oled.timelapseStatus);
