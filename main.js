@@ -516,7 +516,7 @@ if (VIEW_HARDWARE) {
         name: "time-lapse",
         type: "menu",
         items: [{
-            name: "Play Preview",
+            name: valueDisplay("Play Preview", intervalometer.status, 'frames'),
             action: {
                 type: "function",
                 fn: function(arg, cb) {
@@ -526,7 +526,7 @@ if (VIEW_HARDWARE) {
                 }
             }
         }, {
-            name: valueDisplay("Stop Time-lapse", intervalometer.status, 'frames'),
+            name: "Stop Time-lapse",
             action: stopConfirm
         }]
     }

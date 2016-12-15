@@ -305,7 +305,7 @@ function runPhoto() {
                     camera.ptp.capture(captureOptions, function(err, photoRes) {
                         if (!err && photoRes) {
                             var bufferTime = (new Date() / 1000) - status.captureStartTime;
-                            intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 200;
+                            intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
                             //status.rampEv = exp.calculate(currentEv - status.evDiff, photoRes.ev);
                             status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                             status.rampRate = exp.status.rate;
