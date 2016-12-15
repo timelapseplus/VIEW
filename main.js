@@ -541,7 +541,7 @@ if (VIEW_HARDWARE) {
             });
         },
         button3: function(){
-            menu.load(timelapseRunningMenu);
+            ui.load(timelapseRunningMenu);
         },
         help: help.timelapseStatus
     }
