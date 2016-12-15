@@ -227,6 +227,8 @@ function drawTimeLapseStatus(status) {
     var secondsRatio = lw / status.intervalSeconds;
 
     var intervalPos = ((new Date() / 1000) - status.captureStartTime) * secondsRatio;
+    if(intervalPos > lw) intervalPos = lw;
+    intervalPos += 4;
     color("primary");
     fb.line(intervalPos, 84.5 - 2, intervalPos, 84.5 + 2, 2);
 
@@ -236,11 +238,11 @@ function drawTimeLapseStatus(status) {
     var bufferLineEnd = shutterLineEnd + Math.ceil(status.bufferSeconds * secondsRatio);
 
     color("background");
-    fb.line(4, 84, lw, 84.5, 1); 
+    fb.line(4, 84.5, lw, 84.5, 1); 
     color("alert");
-    fb.line(shutterLineStart, 84.5, shutterLineEnd, 84, 1); 
+    fb.line(shutterLineStart, 84.5, shutterLineEnd, 84.5, 1); 
     color("secondary");
-    fb.line(bufferLineStart, 84.5, bufferLineEnd, 84, 1);
+    fb.line(bufferLineStart, 84.5, bufferLineEnd, 84.5, 1);
 
     if(statusDetails.img110) {
         oled.jpeg(statusDetails.img110, 0, 15, true);
@@ -268,7 +270,9 @@ oled.updateTimelapseStatus = function(status) {
     }
 }
 oled.updateThumbnailPreview = function(path) {
-    statusDetails.img110 = path;
+    setTimeout(function(){
+        statusDetails.img110 = path;
+    });
 }
 
 oled.setTimelapseMode = function(set) {
