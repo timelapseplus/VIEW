@@ -2176,7 +2176,7 @@ intervalometer.on('status', function(msg) {
         running: msg.running
     }
     console.log("statusScreen", statusScreen);
-    oled.timelapseStatus(statusScreen);
+    oled.updateTimelapseStatus(statusScreen);
     //ui.reload();
 });
 
