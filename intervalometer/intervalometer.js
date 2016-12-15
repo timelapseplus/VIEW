@@ -38,7 +38,7 @@ var status = {
     rampEv: null
 }
 
-var settings = {
+intervalometer.autoSettings = {
     paddingTimeMs: 5000
 }
 
@@ -217,7 +217,7 @@ function processKeyframes(setupFirst, callback) {
 var busyPhoto = false;
 
 function runPhoto() {
-    if (busyPhoto) {
+    if (busyPhoto && intervalometer.currentProgram.rampMode == "auto") {
         if (status.running) setTimeout(runPhoto, 100);
         return;
     }
@@ -277,6 +277,9 @@ function runPhoto() {
                 });
             });
         } else {
+            //var setupNext = function(cb) {
+
+            //}
             camera.getEv(function(err, currentEv, params) {
                 if (status.rampEv === null) status.rampEv = currentEv;
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
@@ -287,7 +290,7 @@ function runPhoto() {
                 if (status.rampEv === null) status.rampEv = currentEv;
                 var maxShutterLengthMs = status.intervalMs;
                 console.log("maxShutterLengthMs", status.intervalMs);
-                if (maxShutterLengthMs > settings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - settings.paddingTimeMs);
+                if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
                 console.log("maxShutterLengthMs", maxShutterLengthMs);
                 camera.setEv(status.rampEv, {
                     maxShutterLengthMs: maxShutterLengthMs
@@ -300,6 +303,8 @@ function runPhoto() {
                     status.lastPhotoTime = new Date() / 1000 - status.startTime;
                     camera.ptp.capture(captureOptions, function(err, photoRes) {
                         if (!err && photoRes) {
+                            var bufferTime = (new Date() / 1000) - status.captureStartTime;
+                            intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 200;
                             //status.rampEv = exp.calculate(currentEv - status.evDiff, photoRes.ev);
                             status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                             status.rampRate = exp.status.rate;

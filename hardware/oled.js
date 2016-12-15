@@ -228,7 +228,7 @@ function drawTimeLapseStatus(status) {
 
     var intervalPos = ((new Date() / 1000) - status.captureStartTime) * secondsRatio;
     if(intervalPos > lw) intervalPos = lw;
-    intervalPos += 4;
+    intervalPos = Math.round(intervalPos) + 3.5;
     color("primary");
     fb.line(intervalPos, 84.5 - 2, intervalPos, 84.5 + 2, 2);
 
@@ -272,7 +272,7 @@ oled.updateTimelapseStatus = function(status) {
 oled.updateThumbnailPreview = function(path) {
     setTimeout(function(){
         statusDetails.img110 = path;
-    });
+    }, 100);
 }
 
 oled.setTimelapseMode = function(set) {

@@ -2179,7 +2179,7 @@ intervalometer.on('status', function(msg) {
         apertureText: "f/" +camera.ptp.settings.aperture,
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
-        bufferSeconds: 5,
+        bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,
         rampModeText: intervalometer.currentProgram.rampMode,
         intervalModeText: intervalometer.currentProgram.rampMode == 'auto' ? intervalometer.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
