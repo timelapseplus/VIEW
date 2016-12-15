@@ -530,12 +530,17 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var timelapseStatusMenu = {
+        name: "time-lapse",
+        type: "timelapse",
+    }
+
     var timelapseMenu = {
         name: "time-lapse",
         type: "menu",
         alternate: function() {
             if (intervalometer.status.running) {
-                return timelapseRunningMenu;
+                return timelapseStatusMenu;
             } else if (camera.ptp.connected) {
                 return false;
             } else {
@@ -2158,8 +2163,11 @@ intervalometer.on('status', function(msg) {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
         apertureText: "f/" +camera.ptp.settings.aperture,
+        evText: camera.getEvFromSettings(camera.ptp.settings) + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: 5,
+        rampModeText: intervalometer.currentProgram.rampMode,
+        intervalModeText: intervalometer.currentProgram.rampMode,
         frames: msg.frames,
         remaining: msg.framesRemaining,
         shutterSeconds: camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev),

@@ -199,12 +199,14 @@ function drawTimeLapseStatus(status) {
     fb.text(105, 24, status.isoText || "---");
     fb.text(105, 37, status.apertureText || "---");
     fb.text(105, 50, status.shutterText || "---");
+    fb.text(105, 63, status.evText || "---");
+    fb.text(105, 76, status.rampModeText);
 
     var m = Math.round(status.durationSeconds / 60);
     var hours = Math.floor(m / 60);
     var minutes = m % 60;
 
-    fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s";
+    fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString()) + "s (" + intervalModeText + ")";
     fb.text(0, 113, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
     fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
@@ -213,8 +215,8 @@ function drawTimeLapseStatus(status) {
     //fb.rect(110, 88, 50, 40, true);
 
     // histogram window
-    color("background");
-    fb.rect(105, 54, 55, 26, true); 
+    //color("background");
+    //fb.rect(105, 67, 55, 26, false); 
 
     // interval/exposure status line
     var lw = 156; // line width
@@ -238,23 +240,64 @@ function drawTimeLapseStatus(status) {
         color("background");
         fb.rect(0, 12, 100, 68, true); // picture placeholder
     }
+    drawStatusBar();
     oled.update();
 }
 
 var statusIntervalHandle = null;
-oled.timelapseStatus = function(status) {
+oled.updateTimelapseStatus = function(status) {
+    oled.timelapseStatus = status;
     if(statusIntervalHandle) {
         clearTimeout(statusIntervalHandle);
         statusIntervalHandle = null;
     }
     if(status.running) {
-        statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
+        if(oled.timelapseMode) statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
     } else {
         statusDetails = {};
     }
 }
 oled.updateThumbnailPreview = function(path) {
     statusDetails.img100x68 = path;
+}
+
+function drawStatusBar() {
+    // draw status bar
+    fb.font(MENU_STATUS_FONT_SIZE, false, false);
+    color("primary");
+    fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, currentStatus);
+
+    // draw battery status
+    if(batteryPercentage !== null) {
+        var bx = 160 - 20.5;
+        var by = 2.5;
+
+        var bw = 18;
+        var bh = 8
+
+        color("primary");
+        fb.rect(bx, by, bw, bh, false); // battery outline
+        fb.line(bx + bw + 1, by + bh * .25, bx + bw + 1, by + bh * .75, 1, 1, 1, 1); // bump
+
+        var fillWidth = Math.ceil((batteryPercentage / 100) * (bw - 1.5));
+        if(fillWidth < 1) fillWidth = 1;
+        if(batteryPercentage > 20) {
+            color("batteryOk");
+        } else if(batteryPercentage == 100) {
+            color("batteryFull");
+        } else {
+            color("batteryLow");
+        }
+        fb.rect(bx + 0.5, by + 0.5, fillWidth, bh - 1, true); // battery fill
+
+        if(chargeStatus) {
+            color("primary");
+            fb.line(bx + bw * .25, by + bh * .5, bx + bw * .5, by + bh * .4, 1, 1, 1, 1);
+            fb.line(bx + bw * .5, by + bh * .25, bx + bw * .5, by + bh * .6, 1.5, 1, 1, 1);
+            fb.line(bx + bw * .5, by + bh * .75, bx + bw * .75, by + bh * .5, 1, 1, 1, 1);
+        }
+
+    }
 }
 
 oled.writeMenu = function() {
@@ -266,7 +309,9 @@ oled.writeMenu = function() {
 
     fb.clear();
 
-    if (oled.setting) { // setting mode
+    if (oled.timelapseMode) {
+        if(oled.timelapseStatus) oled.updateTimelapseStatus(oled.timelapseStatus);
+    } else if (oled.setting) { // setting mode
         if (oled.selected >= oled.setting.length) oled.selected = oled.setting.length - 1;
         var name = oled.setting[oled.selected].name || '';
         var value = oled.setting[oled.selected].value || '';
@@ -393,43 +438,6 @@ oled.writeMenu = function() {
         if (!selected) selected = 0;
         if (selected >= list.length) selected = list.length - 1;
 
-        // draw status bar
-        fb.font(MENU_STATUS_FONT_SIZE, false, false);
-        color("primary");
-        fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, currentStatus);
-
-        // draw battery status
-        if(batteryPercentage !== null) {
-            var bx = 160 - 20.5;
-            var by = 2.5;
-
-            var bw = 18;
-            var bh = 8
-
-            color("primary");
-            fb.rect(bx, by, bw, bh, false); // battery outline
-            fb.line(bx + bw + 1, by + bh * .25, bx + bw + 1, by + bh * .75, 1, 1, 1, 1); // bump
-
-            var fillWidth = Math.ceil((batteryPercentage / 100) * (bw - 1.5));
-            if(fillWidth < 1) fillWidth = 1;
-            if(batteryPercentage > 20) {
-                color("batteryOk");
-            } else if(batteryPercentage == 100) {
-                color("batteryFull");
-            } else {
-                color("batteryLow");
-            }
-            fb.rect(bx + 0.5, by + 0.5, fillWidth, bh - 1, true); // battery fill
-
-            if(chargeStatus) {
-                color("primary");
-                fb.line(bx + bw * .25, by + bh * .5, bx + bw * .5, by + bh * .4, 1, 1, 1, 1);
-                fb.line(bx + bw * .5, by + bh * .25, bx + bw * .5, by + bh * .6, 1.5, 1, 1, 1);
-                fb.line(bx + bw * .5, by + bh * .75, bx + bw * .75, by + bh * .5, 1, 1, 1, 1);
-            }
-
-        }
-
         // draw selection area
         var sX = 0;
         var sY = MENU_YOFFSET - (MENU_LINE_HEIGHT / 2 + 5) + selected * MENU_LINE_HEIGHT;
@@ -455,6 +463,7 @@ oled.writeMenu = function() {
             }
         }
 
+        drawStatusBar();
     }
 }
 
