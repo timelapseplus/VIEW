@@ -228,12 +228,23 @@ camera.mountSd = function(callback) {
     }
 }
 
+var sdUnmountErrors = 0;
 camera.unmountSd = function(callback) {
     if (camera.sdMounted) {
         console.log("unmounting SD card");
         exec("umount /media", function(err) {
-            if (err) console.log("error unmounting: ", err);
-            if (!err) camera.sdMounted = false;
+            if (err) {
+                console.log("error unmounting: ", err);
+                sdUnmountErrors++;
+                if(sdUnmountErrors < 3) {
+                    return setTimeout(function(){
+                        camera.unmountSd(callback);
+                    }, 500);
+                }
+            } else {
+                camera.sdMounted = false;
+            }
+            sdUnmountErrors = 0;
             if (callback) callback(err);
         });
     } else {
