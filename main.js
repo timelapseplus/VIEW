@@ -2078,6 +2078,7 @@ camera.ptp.on('photo', function() {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
                             oled.jpeg(path);
+                            oled.update();
                         });
                     }
                 });
