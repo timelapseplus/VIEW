@@ -245,15 +245,17 @@ function drawTimeLapseStatus(status) {
 
 var statusIntervalHandle = null;
 oled.updateTimelapseStatus = function(status) {
-    if(status) oled.timelapseStatus = status;
     if(statusIntervalHandle) {
         clearTimeout(statusIntervalHandle);
         statusIntervalHandle = null;
     }
-    if(status.running) {
-        if(oled.timelapseMode) statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
-    } else {
-        statusDetails = {};
+    if(status) {
+        oled.timelapseStatus = status;
+        if(status.running) {
+            if(oled.timelapseMode) statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
+        } else {
+            statusDetails = {};
+        }
     }
 }
 oled.updateThumbnailPreview = function(path) {
