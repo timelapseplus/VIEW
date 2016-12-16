@@ -419,13 +419,13 @@ if (VIEW_HARDWARE) {
         value: "no max limit",
         action: ui.set(intervalometer.currentProgram, 'isoMax', null)
     });
-    for (var i = 0; i < lists.iso.length; i++) {
-        if(lists.iso[i].ev !== null && lists.iso[i].ev <= -2) {
+    for (var i = 0; i < camera.lists.iso.length; i++) {
+        if(camera.lists.iso[i].ev !== null && camera.lists.iso[i].ev <= -2) {
             isoMax.items.push({
                 name: "Maximum ISO",
                 help: help.isoMax,
-                value: lists.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMax', lists.iso[i].ev)
+                value: camera.lists.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMax', camera.lists.iso[i].ev)
             });
         }
     }
@@ -441,13 +441,13 @@ if (VIEW_HARDWARE) {
         value: "no min limit",
         action: ui.set(intervalometer.currentProgram, 'isoMin', null)
     });
-    for (var i = 0; i < lists.iso.length; i++) {
-        if(lists.iso[i].ev !== null && lists.iso[i].ev >= -2) {
+    for (var i = 0; i < camera.lists.iso.length; i++) {
+        if(camera.lists.iso[i].ev !== null && camera.lists.iso[i].ev >= -2) {
             isoMin.items.push({
                 name: "Minimum ISO",
                 help: help.isoMin,
-                value: lists.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMin', lists.iso[i].ev)
+                value: camera.lists.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMin', camera.lists.iso[i].ev)
             });
         }
     }
@@ -463,13 +463,13 @@ if (VIEW_HARDWARE) {
         value: "no limit",
         action: ui.set(intervalometer.currentProgram, 'shutterMax', null)
     });
-    for (var i = 0; i < lists.shutter.length; i++) {
-        if(lists.shutter[i].ev !== null && lists.shutter[i].ev <= -6) {
+    for (var i = 0; i < camera.lists.shutter.length; i++) {
+        if(camera.lists.shutter[i].ev !== null && camera.lists.shutter[i].ev <= -6) {
             shutterMax.items.push({
                 name: "Max Shutter Length",
                 help: help.shutterMax,
-                value: lists.shutter[i].name,
-                action: ui.set(intervalometer.currentProgram, 'shutterMax', lists.shutter[i].ev)
+                value: camera.lists.shutter[i].name,
+                action: ui.set(intervalometer.currentProgram, 'shutterMax', camera.lists.shutter[i].ev)
             });
         }
     }
@@ -485,7 +485,7 @@ if (VIEW_HARDWARE) {
     var isoValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var name = lists.getNameFromEv(lists.iso, object[key]);
+                var name = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
                 if(name) {
                     return name + "~" + name;
                 }
@@ -498,7 +498,7 @@ if (VIEW_HARDWARE) {
     var shutterValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var name = lists.getNameFromEv(lists.shutter, object[key]);
+                var name = camera.lists.getNameFromEv(camera.lists.shutter, object[key]);
                 if(name) {
                     return name + "~" + name;
                 }
