@@ -419,13 +419,13 @@ if (VIEW_HARDWARE) {
         value: "no max limit",
         action: ui.set(intervalometer.currentProgram, 'isoMax', null)
     });
-    for (var i = 0; i < list.iso.length; i++) {
-        if(list.iso[i].ev !== null && list.iso[i].ev <= -2) {
+    for (var i = 0; i < lists.iso.length; i++) {
+        if(lists.iso[i].ev !== null && lists.iso[i].ev <= -2) {
             isoMax.items.push({
                 name: "Maximum ISO",
                 help: help.isoMax,
-                value: list.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMax', list.iso[i].ev)
+                value: lists.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMax', lists.iso[i].ev)
             });
         }
     }
@@ -441,13 +441,13 @@ if (VIEW_HARDWARE) {
         value: "no min limit",
         action: ui.set(intervalometer.currentProgram, 'isoMin', null)
     });
-    for (var i = 0; i < list.iso.length; i++) {
-        if(list.iso[i].ev !== null && list.iso[i].ev >= -2) {
+    for (var i = 0; i < lists.iso.length; i++) {
+        if(lists.iso[i].ev !== null && lists.iso[i].ev >= -2) {
             isoMin.items.push({
                 name: "Minimum ISO",
                 help: help.isoMin,
-                value: list.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMin', list.iso[i].ev)
+                value: lists.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMin', lists.iso[i].ev)
             });
         }
     }
@@ -463,13 +463,13 @@ if (VIEW_HARDWARE) {
         value: "no limit",
         action: ui.set(intervalometer.currentProgram, 'shutterMax', null)
     });
-    for (var i = 0; i < list.shutter.length; i++) {
-        if(list.shutter[i].ev !== null && list.shutter[i].ev <= -6) {
+    for (var i = 0; i < lists.shutter.length; i++) {
+        if(lists.shutter[i].ev !== null && lists.shutter[i].ev <= -6) {
             shutterMax.items.push({
                 name: "Max Shutter Length",
                 help: help.shutterMax,
-                value: list.shutter[i].name,
-                action: ui.set(intervalometer.currentProgram, 'shutterMax', list.shutter[i].ev)
+                value: lists.shutter[i].name,
+                action: ui.set(intervalometer.currentProgram, 'shutterMax', lists.shutter[i].ev)
             });
         }
     }
