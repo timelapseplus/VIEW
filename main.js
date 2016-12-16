@@ -485,9 +485,9 @@ if (VIEW_HARDWARE) {
     var isoValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var name = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
+                var itemName = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
                 if(name) {
-                    return name + "~" + name;
+                    return name + "~" + itemName;
                 } else {
                     return name;
                 }
@@ -500,9 +500,9 @@ if (VIEW_HARDWARE) {
     var shutterValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var name = camera.lists.getNameFromEv(camera.lists.shutter, object[key]);
+                var itemName = camera.lists.getNameFromEv(camera.lists.shutter, object[key]);
                 if(name) {
-                    return name + "~" + name;
+                    return name + "~" + itemName;
                 } else {
                     return name;
                 }
