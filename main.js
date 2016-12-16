@@ -561,7 +561,7 @@ if (VIEW_HARDWARE) {
             action: isoMax,
             help: help.isoMax
         }, {
-            name: isoValueDisplay("Manimum ISO", intervalometer.currentProgram, 'isoMin'),
+            name: isoValueDisplay("Minimum ISO", intervalometer.currentProgram, 'isoMin'),
             action: isoMin,
             help: help.isoMin
         }, {
