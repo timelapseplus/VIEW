@@ -776,7 +776,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Ramping Options",
             action: rampingOptionsMenu,
-            help: help.rampingOptionsMenu
+            help: help.rampingOptionsMenu,
             condition: function() {
                 return intervalometer.currentProgram.rampMode != 'fixed';
             }
