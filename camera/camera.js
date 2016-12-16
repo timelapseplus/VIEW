@@ -191,6 +191,8 @@ camera.setEv = function(ev, options, cb) {
             });
         }
 
+        console.log("isoList: ", isoList);
+
         var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
         console.log("setEv: currentEv: ", currentEv);
         console.log("setEv: newEv: ", ev);
