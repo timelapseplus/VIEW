@@ -101,10 +101,10 @@ if (VIEW_HARDWARE) {
     }
     configureWifi();
 
+    var ERRORCOMPILING = "An error occurred while building the latest libgphoto2 code for camera support. Please report this to support@timelapseplus.com.\nSystem message:\n";
+    var ERRORDOWNLOADING = "An error occurred while downloading the latest code from libgphoto2 github.  Please make sure the VIEW is connected to the internet.\nSystem message:\n";
+    var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
     var updateLibGPhoto2 = function() {
-        var ERRORCOMPILING = "An error occurred while building the latest libgphoto2 code for camera support. Please report this to support@timelapseplus.com.\nSystem message:\n";
-        var ERRORDOWNLOADING = "An error occurred while downloading the latest code from libgphoto2 github.  Please make sure the VIEW is connected to the internet.\nSystem message:\n";
-        var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
 
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.updateCameraLibrary, function(cb){
             cb();
@@ -160,6 +160,26 @@ if (VIEW_HARDWARE) {
         }, null);
     }
 
+    var patchLibGPhoto = function() {
+        updates.patchLibGPhoto(function(err) {
+            if(!err) {
+                updates.installLibGPhoto(function(err){
+                    process.nextTick(function(){
+                        if(err) { // error compiling
+                            console.log("error compiling libgphoto2", err);
+                            ui.alert('Error', ERRORCOMPILING + err);
+                        } else {
+                            db.set('libgphoto2-needs-patch', false);
+                            console.log("successfully installed libgphoto2");
+                            ui.alert('Success', SUCCESS);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         wifiConnectionTime = new Date().getTime();
@@ -182,6 +202,19 @@ if (VIEW_HARDWARE) {
                             console.log("resuming libgphoto2 update...");
                             updateLibGPhoto2();
                         }
+                    } else {
+                        db.get('libgphoto2-needs-patch', function(err, val){
+                            if(val) {
+                                if(!updates.updatingLibGphoto) patchLibGPhoto();
+                            } else if(!updates.updatingLibGphoto) {
+                                updates.checkLibGPhotoPatch(function(err, patched){
+                                    if(!err && !patched) {
+                                        db.set('libgphoto2-needs-patch', true);
+                                        patchLibGPhoto();
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }

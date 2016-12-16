@@ -10,9 +10,12 @@ var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
 
 var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
+var patchMD5 = "7a31ebf60d3af3cdbbfca9f5cee3ea36";
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
-var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version;
+var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
+var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
+var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version + " && cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
 var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
 
@@ -51,6 +54,29 @@ function installLibGPhoto(callback) {
 	exec(installLibGPhoto2, function(err) {
 		exports.updatingLibGphoto = false;
 		callback(err);
+	});
+}
+
+function patchLibGPhoto(callback) {
+	exec(applyLibGphoto2Patch, function(err) {
+		callback(err);
+	});
+}
+
+function checkLibGPhotoPatch(callback) {
+	exec(checkLibGPhoto2Patch, function(err, stdout) {
+		if(!err) {
+			var matches = stdout.match(/^[a-f0-9]+/);
+			if(matches && matches.length > 0) {
+				var patched = (matches[0] == patchMD5);
+				console.log("libgphoto2 has patch: ", patched);
+				callback(null, patched);
+			} else {
+				callback(null, false);
+			}
+		} else {
+			callback(err);
+		}
 	});
 }
 
@@ -239,5 +265,7 @@ exports.apiRequest = apiRequest;
 exports.checkLibGPhotoUpdate = checkLibGPhotoUpdate;
 exports.downloadLibGPhoto = downloadLibGPhoto;
 exports.installLibGPhoto = installLibGPhoto;
+exports.patchLibGPhoto = patchLibGPhoto;
+exports.checkLibGPhotoPatch = checkLibGPhotoPatch;
 
 
