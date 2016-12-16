@@ -78,11 +78,11 @@ exports.writeXMPs = "Writes XMP files to the SD card for the selected clip.  The
 
 exports.updateCameraLibrary = "This updates the camera support library, libgphoto2, to provide support for the latest camera bodies.  This can take some time, but it runs in the background.  It's not not to have the cmaera connected while updating the camera library.  A message will appear once it's complete or if there are problems.\nIf it's interrupted while updating, it will prompt to complete the process next time it's connected to WiFi.\nTechnical info: it's downloading the latest source up to the most recently tested commit hash directly from github and compiling and installing it locally.  A little crazy (and slow), but it works and is reliable.";
 
-exports.timelapseStatus = "This screen shows the status of the running time-lapse.\n-Press the cancel button to return to the main menu (the time-lapse will keep running)\n- Press the enter button to playback the time-lapse up to the current frame\n- Press the menu button to show the option to stop the time-lapse";
+exports.timelapseStatus = "This screen shows the status of the running time-lapse.\n-Press the cancel button to return to the main menu (the time-lapse will keep running)\n- Press the enter button to playback the time-lapse up to the current frame\n- Press the menu button to show the option to stop the time-lapse\nThe line across the bottom third displays the interval status. The red portion is when the shutter is open, the blue is the buffer and processing time, and the gray is the remainder of the interval.  The white mark which moves across shows the current position in time across the interval.";
 
 exports.shutterMax = "The maximum shutter speed to ramp up to during auto ramping (once this max is reached, the ISO will be increased instead)";
 
 exports.isoMax = "The maximum ISO to ramp up to during auto ramping (note that this will limit the ramping range)";
 
-exports.isoMin = "The minumum ISO to use during auto ramping (note that this will limit the ramping range)";
+exports.isoMin = "The minimum ISO to use during auto ramping (note that this will limit the ramping range)";
 
