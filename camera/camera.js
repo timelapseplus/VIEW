@@ -175,23 +175,23 @@ camera.setEv = function(ev, options, cb) {
                 return lists.getSecondsFromEv(item.ev) * 1000 < options.maxShutterLengthMs;
             });
         }
-        if (options && options.shutterMax) {
+        if (options && options.shutterMax !== null) {
             shutterList = shutterList.filter(function(item) {
                 return item.ev >= options.shutterMax;
             });
         }
-        if (options && options.isoMax) {
+        if (options && options.isoMax !== null) {
             isoList = isoList.filter(function(item) {
                 return item.ev >= options.isoMax;
             });
         }
-        if (options && options.isoMin) {
+        if (options && options.isoMin !== null) {
             isoList = isoList.filter(function(item) {
                 return item.ev <= options.isoMin;
             });
         }
 
-        console.log("isoList: ", isoList);
+        //console.log("isoList: ", isoList);
 
         var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
         console.log("setEv: currentEv: ", currentEv);
@@ -324,17 +324,17 @@ camera.evStats = function(settings, options) {
             return lists.getSecondsFromEv(item.ev) * 1000 < options.maxShutterLengthMs;
         });
     }
-    if (options && options.shutterMax) {
+    if (options && options.shutterMax !== null) {
         res.shutterList = res.shutterList.filter(function(item) {
             return item.ev >= options.shutterMax;
         });
     }
-    if (options && options.isoMax) {
+    if (options && options.isoMax !== null) {
         res.isoList = res.isoList.filter(function(item) {
             return item.ev >= options.isoMax;
         });
     }
-    if (options && options.isoMin) {
+    if (options && options.isoMin !== null) {
         res.isoList = res.isoList.filter(function(item) {
             return item.ev <= options.isoMin;
         });
