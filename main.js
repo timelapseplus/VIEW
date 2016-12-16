@@ -557,15 +557,15 @@ if (VIEW_HARDWARE) {
             action: rampingNightCompensation,
             help: help.rampingNightCompensation
         }, {
-            name: valueDisplay("Maximum ISO", intervalometer.currentProgram, 'isoMax'),
+            name: isoValueDisplay("Maximum ISO", intervalometer.currentProgram, 'isoMax'),
             action: isoMax,
             help: help.isoMax
         }, {
-            name: valueDisplay("Manimum ISO", intervalometer.currentProgram, 'isoMin'),
+            name: isoValueDisplay("Manimum ISO", intervalometer.currentProgram, 'isoMin'),
             action: isoMin,
             help: help.isoMin
         }, {
-            name: valueDisplay("Max Shutter", intervalometer.currentProgram, 'shutterMax'),
+            name: shutterValueDisplay("Max Shutter", intervalometer.currentProgram, 'shutterMax'),
             action: shutterMax,
             help: help.shutterMax
         }, ]
