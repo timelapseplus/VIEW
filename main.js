@@ -488,6 +488,8 @@ if (VIEW_HARDWARE) {
                 var name = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
                 if(name) {
                     return name + "~" + name;
+                } else {
+                    return name;
                 }
             }
             return name;
@@ -501,6 +503,8 @@ if (VIEW_HARDWARE) {
                 var name = camera.lists.getNameFromEv(camera.lists.shutter, object[key]);
                 if(name) {
                     return name + "~" + name;
+                } else {
+                    return name;
                 }
             }
             return name;
