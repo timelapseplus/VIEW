@@ -227,9 +227,9 @@ function setupExposure(cb) {
         console.log("maxShutterLengthMs", maxShutterLengthMs);
         camera.setEv(status.rampEv, {
             maxShutterLengthMs: maxShutterLengthMs,
-            isoMax: currentProgram.isoMax,
-            isoMin: currentProgram.isoMin,
-            shutterMax: currentProgram.shutterMax
+            isoMax: intervalometer.currentProgram.isoMax,
+            isoMin: intervalometer.currentProgram.isoMin,
+            shutterMax: intervalometer.currentProgram.shutterMax
         }, function(err, res) {
 
             status.evDiff = res.ev - status.rampEv;
@@ -447,9 +447,9 @@ intervalometer.run = function(program) {
                 status.rampEv = null;
                 intervalometer.emit("status", status);
                 var options = {
-                    isoMax: currentProgram.isoMax,
-                    isoMin: currentProgram.isoMin,
-                    shutterMax: currentProgram.shutterMax
+                    isoMax: program.isoMax,
+                    isoMin: program.isoMin,
+                    shutterMax: program.shutterMax
                 };
                 exp.init(camera.minEv(camera.ptp.settings, options), camera.maxEv(camera.ptp.settings, options), program.nightCompensation);
                 console.log("program:", "starting", program);
