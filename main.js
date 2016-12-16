@@ -161,8 +161,11 @@ if (VIEW_HARDWARE) {
     }
 
     var patchLibGPhoto = function() {
+        console.log("patching libgphoto2...");
         updates.patchLibGPhoto(function(err) {
+            console.log("patching libgphoto2 complete:", err);
             if(!err) {
+                console.log("compiling libgphoto2...");
                 updates.installLibGPhoto(function(err){
                     process.nextTick(function(){
                         if(err) { // error compiling
@@ -1870,9 +1873,9 @@ function startScan() {
         }, 500);
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
-                console.log("Starting BLE scan...");
+                //console.log("Starting BLE scan...");
                 noble.startScanning(nmx.btServiceIds, false, function(err){
-                    console.log("BLE scan started: ", err);
+                    //console.log("BLE scan started: ", err);
                 });
             }
             btleScanStarting = false;
