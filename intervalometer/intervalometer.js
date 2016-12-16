@@ -226,7 +226,10 @@ function setupExposure(cb) {
         if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
         console.log("maxShutterLengthMs", maxShutterLengthMs);
         camera.setEv(status.rampEv, {
-            maxShutterLengthMs: maxShutterLengthMs
+            maxShutterLengthMs: maxShutterLengthMs,
+            isoMax: currentProgram.isoMax,
+            isoMin: currentProgram.isoMin,
+            shutterMax: currentProgram.shutterMax
         }, function(err, res) {
 
             status.evDiff = res.ev - status.rampEv;
@@ -443,7 +446,12 @@ intervalometer.run = function(program) {
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 intervalometer.emit("status", status);
-                exp.init(camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings), program.nightCompensation);
+                var options = {
+                    isoMax: currentProgram.isoMax,
+                    isoMin: currentProgram.isoMin,
+                    shutterMax: currentProgram.shutterMax
+                };
+                exp.init(camera.minEv(camera.ptp.settings, options), camera.maxEv(camera.ptp.settings, options), program.nightCompensation);
                 console.log("program:", "starting", program);
 
                 function start() {

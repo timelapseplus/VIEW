@@ -48,6 +48,13 @@ lists.paramMap = [{
     }]
 }];
 
+lists.getNameFromEv = function(itemList, ev) {
+    for(var i = 0; i < itemList.length; i++) {
+        if(itemList[i].ev === ev) return itemList[i].name;
+    }
+    return "";
+}
+
 lists.cleanEvCopy = function(itemList) {
     return itemList.filter(function(item) {
         return item.ev !== null

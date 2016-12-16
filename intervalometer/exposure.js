@@ -12,8 +12,6 @@ exp.init = function(minEv, maxEv, nightCompensation) {
 
     nightCompensation = parseFloat(nightCompensation);
 
-    console.log("nightCompensation: ", nightCompensation);
-
     local = {
         lumArray: [],
         evArray: [],
@@ -47,6 +45,7 @@ exp.init = function(minEv, maxEv, nightCompensation) {
         },
         maxEv: maxEv,
         minEv: minEv,
+        maxRate: 30,
         hysteresis: 0.4,
         evScale: [{
             ev: -2,
@@ -85,6 +84,10 @@ exp.calculate = function(currentEv, lastPhotoLum, minEv, maxEv) {
     // don't change if within hysteresis setting
     if (Math.abs(exp.status.rate) < exp.config.hysteresis) exp.status.rate = 0;
 
+    // limit to max rate
+    if(exp.status.rate > exp.config.maxRate) exp.status.rate = exp.config.maxRate;
+    if(exp.status.rate < -exp.config.maxRate) exp.status.rate = -exp.config.maxRate;
+
     // don't swing quickly past zero (stops oscillation)
     if (exp.status.rate > 3 && exp.status.direction < -0.5) exp.status.rate = 0;
     if (exp.status.rate < -3 && exp.status.direction > 0.5) exp.status.rate = 0;
@@ -114,11 +117,7 @@ function filteredSlope(tvArr, trim) {
 
 function calculateRate(currentEv, lastPhotoLum, config) {
     var diff = calculateDelta(currentEv, lastPhotoLum, config);
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~diff: ", diff);
     exp.status.targetEv = currentEv + diff;
-
-    console.log("maxEv: ", exp.config.maxEv);
-    console.log("minEv: ", exp.config.minEv);
     if (exp.status.targetEv < exp.config.minEv) exp.status.targetEv = exp.config.minEv;
     if (exp.status.targetEv > exp.config.maxEv) exp.status.targetEv = exp.config.maxEv;
     if (exp.status.rampEv === null) exp.status.rampEv = exp.status.targetEv;

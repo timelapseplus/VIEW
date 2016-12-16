@@ -407,12 +407,168 @@ if (VIEW_HARDWARE) {
         action: ui.set(intervalometer.currentProgram, 'interval', i)
     });
 
+
+    var isoMax = {
+        name: "Maximum ISO",
+        type: "options",
+        items: []
+    }
+    isoMax.items.push({
+        name: "Maximum ISO",
+        help: help.isoMax,
+        value: "no max limit",
+        action: ui.set(intervalometer.currentProgram, 'isoMax', null)
+    });
+    for (var i = 0; i < list.iso.length; i++) {
+        if(list.iso[i].ev !== null && list.iso[i].ev <= -2) {
+            isoMax.items.push({
+                name: "Maximum ISO",
+                help: help.isoMax,
+                value: list.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMax', list.iso[i].ev)
+            });
+        }
+    }
+
+    var isoMin = {
+        name: "Minimum ISO",
+        type: "options",
+        items: []
+    }
+    isoMin.items.push({
+        name: "Minimum ISO",
+        help: help.isoMin,
+        value: "no min limit",
+        action: ui.set(intervalometer.currentProgram, 'isoMin', null)
+    });
+    for (var i = 0; i < list.iso.length; i++) {
+        if(list.iso[i].ev !== null && list.iso[i].ev >= -2) {
+            isoMin.items.push({
+                name: "Minimum ISO",
+                help: help.isoMin,
+                value: list.iso[i].name,
+                action: ui.set(intervalometer.currentProgram, 'isoMin', list.iso[i].ev)
+            });
+        }
+    }
+
+    var shutterMax = {
+        name: "Max Shutter Length",
+        type: "options",
+        items: []
+    }
+    shutterMax.items.push({
+        name: "Max Shutter Length",
+        help: help.shutterMax,
+        value: "no limit",
+        action: ui.set(intervalometer.currentProgram, 'shutterMax', null)
+    });
+    for (var i = 0; i < list.shutter.length; i++) {
+        if(list.shutter[i].ev !== null && list.shutter[i].ev <= -6) {
+            shutterMax.items.push({
+                name: "Max Shutter Length",
+                help: help.shutterMax,
+                value: list.shutter[i].name,
+                action: ui.set(intervalometer.currentProgram, 'shutterMax', list.shutter[i].ev)
+            });
+        }
+    }
+
     var valueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) return name + "~" + object[key];
             else return name;
 
         }
+    }
+
+    var isoValueDisplay = function(name, object, key) {
+        return function() {
+            if (object && object.hasOwnProperty(key)) {
+                var name = lists.getNameFromEv(lists.iso, object[key]);
+                if(name) {
+                    return name + "~" + name;
+                }
+            }
+            return name;
+
+        }
+    }
+
+    var shutterValueDisplay = function(name, object, key) {
+        return function() {
+            if (object && object.hasOwnProperty(key)) {
+                var name = lists.getNameFromEv(lists.shutter, object[key]);
+                if(name) {
+                    return name + "~" + name;
+                }
+            }
+            return name;
+
+        }
+    }
+
+    var rampingNightCompensation = {
+        name: "Night Exposure Compensation",
+        type: "options",
+        items: [{
+            name: "Night Exposure Compensation",
+            value: "0 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', 0)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1/3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2/3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 stop",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 1 / 3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-1 2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 2 / 3)
+        }, {
+            name: "Night Exposure Compensation",
+            value: "-2 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2)
+        }]
+    }
+
+    var rampingOptionsMenu = {
+        name: "Ramping Options",
+        type: "menu",
+        items: [{
+            name: valueDisplay("Night Exposure", intervalometer.currentProgram, 'nightCompensation'),
+            action: rampingNightCompensation,
+            help: help.rampingNightCompensation
+        }, {
+            name: valueDisplay("Maximum ISO", intervalometer.currentProgram, 'isoMax'),
+            action: isoMax,
+            help: help.isoMax
+        }, {
+            name: valueDisplay("Manimum ISO", intervalometer.currentProgram, 'isoMin'),
+            action: isoMin,
+            help: help.isoMin
+        }, {
+            name: valueDisplay("Max Shutter", intervalometer.currentProgram, 'shutterMax'),
+            action: shutterMax,
+            help: help.shutterMax
+        }, ]
     }
 
     var exposureMenu = {
@@ -616,6 +772,13 @@ if (VIEW_HARDWARE) {
             help: help.destinationOptions,
             condition: function() {
                 return camera.ptp.sdPresent;
+            }
+        }, {
+            name: "Ramping Options",
+            action: rampingOptionsMenu,
+            help: help.rampingOptionsMenu
+            condition: function() {
+                return intervalometer.currentProgram.rampMode != 'fixed';
             }
         }, {
             name: "START",
@@ -1250,47 +1413,6 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var rampingNightCompensation = {
-        name: "Night Exposure Compensation",
-        type: "options",
-        items: [{
-            name: "Night Exposure Compensation",
-            value: "0 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', 0)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1/3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-2/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2/3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 stop",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 1/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 1 / 3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 2/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 2 / 3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-2 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2)
-        }]
-    }
-
     var colorThemeMenu = {
         name: "Color Theme",
         type: "options",
@@ -1357,16 +1479,6 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var rampingOptionsMenu = {
-        name: "Ramping Options",
-        type: "menu",
-        items: [{
-            name: valueDisplay("Night Exposure", intervalometer.currentProgram, 'nightCompensation'),
-            action: rampingNightCompensation,
-            help: help.rampingNightCompensation,
-        }, ]
-    }
-
     var interfaceSettingsMenu = {
         name: "UI Preferences",
         type: "menu",
@@ -1404,10 +1516,6 @@ if (VIEW_HARDWARE) {
             name: "Software Version",
             action: softwareMenu,
             help: help.softwareMenu
-        }, {
-            name: "Ramping Options",
-            action: rampingOptionsMenu,
-            help: help.rampingOptionsMenu
         }, {
             name: "Auto Power Off",
             action: autoPowerOffMenu,
