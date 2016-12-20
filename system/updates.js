@@ -12,12 +12,17 @@ var baseInstallPath = "/home/view/";
 var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
 var patchMD5 = "7a31ebf60d3af3cdbbfca9f5cee3ea36";
 
+var kernelVersion = "#47 PREEMPT Tue Dec 20 13:55:21 EST 2016";
+
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
 var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
 var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version + " && cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
 var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
+
+var getKernelVersion = "uname -v";
+
 
 function checkLibGPhotoUpdate(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
@@ -156,6 +161,30 @@ function extract(zipPath, destFolder, callback) {
 	});
 }
 
+function checkKernel(callback) {
+	exec(checkLibGPhoto2, function(err, stdout, stderr) {
+		if(!err && stdout) {
+			if(stdout.trim() == kernelVersion) {
+				callback(null, false);
+			} else {
+				callback(null, true);
+			}
+		} else {
+			callback(err, false);
+		}
+	});
+}
+
+function updateKernel(callback) {
+	checkKernel(function(needUpdate) {
+		if(needUpdate) {
+			console.log("KERNEL UPDATE REQUIRED");
+		} else {
+			console.log("KERNEL UP TO DATE");
+		}
+	});
+}
+
 exports.version = "";
 var installs = fs.readdirSync(baseInstallPath);
 var current = "";
@@ -268,4 +297,5 @@ exports.installLibGPhoto = installLibGPhoto;
 exports.patchLibGPhoto = patchLibGPhoto;
 exports.checkLibGPhotoPatch = checkLibGPhotoPatch;
 
+exports.updateKernel = updateKernel;
 

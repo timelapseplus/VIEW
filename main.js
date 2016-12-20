@@ -50,6 +50,7 @@ Segfault.registerHandler("segfault.log");
 console.log('Modules loaded.');
 
 if (VIEW_HARDWARE) {
+    updates.updateKernel();
     oled.init();
     inputs.start();
 
