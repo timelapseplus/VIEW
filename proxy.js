@@ -68,9 +68,15 @@ function loginUser(email, password, callback) {
 function updateUser(email, subdomain, password, callback) {
     getUserByEmail(email, function(err, user) {
         bcrypt.hash(password, 10, function(err, hash) {
-            db.query("UPDATE `users` SET `subdomain` = ?, `password` = ? WHERE `id` = ?", [subdomain, hash, user.id], function(err) {
-                callback && callback();
-            });
+            if (user && user.id) {
+                db.query("UPDATE `users` SET `subdomain` = ?, `password` = ? WHERE `id` = ?", [subdomain, hash, user.id], function(err) {
+                    callback && callback();
+                });
+            } else {
+                db.query("INSERT INTO `users` SET `email` = ?, `subdomain` = ?, `password` = ?", [email, subdomain, hash], function(err) {
+                    callback && callback();
+                });
+            }
         });
     });
 }
@@ -208,8 +214,8 @@ app.post('/api/register', function(req, res) {
 
 app.post('/api/email', function(req, res) {
     getUserByEmail(req.body.email, function(err, user) {
-        if(!err && user) {
-            if(user.password) {
+        if(!err) {
+            if(user && user.password) {
                 res.send({
                     action: 'login',
                     message: "email found, valid account"
@@ -217,7 +223,7 @@ app.post('/api/email', function(req, res) {
             } else {
                 res.send({
                     action: 'register',
-                    message: "email found, not activated"
+                    message: "no account, registration required"
                 });
             }
         } else {
