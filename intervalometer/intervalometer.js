@@ -359,11 +359,13 @@ function runPhoto() {
             if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
             captureOptions.exposureCompensation = status.evDiff || 0;
 
-            if(intervalometer.currentProgram.intervalMode != 'aux') {
+            if(intervalometer.currentProgram.intervalMode == 'aux') {
+                if(status.captureStartTime) status.intervalMs = ((new Date() / 1000) - status.captureStartTime) * 1000;
+            } else {
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
                 console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
                 if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
-            }
+            } 
 
             intervalometer.emit("status", status);
 
@@ -504,19 +506,19 @@ intervalometer.run = function(program) {
                 busyPhoto = false;
                 intervalometer.currentProgram = program;
                 status.intervalMs = program.interval * 1000;
-                status.running = true;
                 status.message = "starting";
                 status.frames = 0;
                 status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? Infinity : program.frames;
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
-                intervalometer.emit("status", status);
                 var options = {
                     isoMax: program.isoMax,
                     isoMin: program.isoMin,
                     shutterMax: program.shutterMax
                 };
                 exp.init(camera.minEv(camera.ptp.settings, options), camera.maxEv(camera.ptp.settings, options), program.nightCompensation);
+                status.running = true;
+                intervalometer.emit("status", status);
                 console.log("program:", "starting", program);
 
 
@@ -525,7 +527,9 @@ intervalometer.run = function(program) {
                         status.id = timelapseId;
                         processKeyframes(true, function() {
                             busyPhoto = false;
-                            runPhoto();
+                            if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
+                                runPhoto();   
+                            }
                         });
                     });
                     //delayHandle = setTimeout(function() {
