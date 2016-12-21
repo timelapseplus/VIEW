@@ -74,7 +74,7 @@ auxTrigger.on('press', function() {
 
 function motionSyncPulse() {
     if (status.running && intervalometer.currentProgram.intervalMode != 'aux') {
-        connected.log("=> AUX Pulse");
+        console.log("=> AUX Pulse");
         gpio.write(AUXTIP_OUT, 0, function() {
             setTimeout(function(){
                 gpio.write(AUXTIP_OUT, 1);
