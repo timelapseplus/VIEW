@@ -100,9 +100,8 @@ exports.setTimelapse = function(name, program, status, callback) {
 	program = serialize(program);
 	status = serialize(status);
 	logfile = exports.currentLogFile;
-	thumbnail = thumbnail || "";
 
-	dbTl.run("INSERT INTO clips (name, date, program, status, logfile, thumbnail) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + status + "', '" + logfile + "', '" + thumbnail + "')", function(err) {
+	dbTl.run("INSERT INTO clips (name, date, program, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + status + "', '" + logfile + "')", function(err) {
 		callback && callback(err, this.lastID);
 	});
 }
