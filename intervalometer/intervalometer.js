@@ -11,8 +11,8 @@ var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
 var gpio = require('rpi-gpio');
 
-var AUXTIP_OUT = 207;
-var AUXRING_OUT = 206;
+var AUXTIP_OUT = 111;
+var AUXRING_OUT = 110;
 
 gpio.setMode(gpio.MODE_RAW);
 
