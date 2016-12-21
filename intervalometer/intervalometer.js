@@ -9,19 +9,23 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
-var gpio = require('pi-gpio');
+var gpio = require('rpi-gpio');
 
 var AUXTIP_OUT = 207;
 var AUXRING_OUT = 206;
 
-gpio.open(AUXTIP_OUT, "out", function(err){
+gpio.setMode(MODE_BCM);
+
+gpio.setup(AUXTIP_OUT, DIR_OUT, EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXTIP_OUT, 1);
 });
 
-gpio.open(AUXRING_OUT, "out", function(err){
+gpio.setup(AUXRING_OUT, DIR_OUT, EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
-    gpio.write(AUXRING_OUT, 1);
+    gpio.write(AUXRING_OUT, 1, function(){
+        gpio.close(AUXRING_OUT);
+    });
 });
 
 var intervalometer = new EventEmitter();
