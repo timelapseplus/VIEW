@@ -162,7 +162,7 @@ function extract(zipPath, destFolder, callback) {
 }
 
 function checkKernel(callback) {
-	exec(checkLibGPhoto2, function(err, stdout, stderr) {
+	exec(getKernelVersion, function(err, stdout, stderr) {
 		if(!err && stdout) {
 			var currentKernel = stdout.trim();
 			if(currentKernel == kernelVersion) {
