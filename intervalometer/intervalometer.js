@@ -444,6 +444,11 @@ intervalometer.validate = function(program) {
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
+    if(!camera.ptp.settings.shutter || camera.ptp.settings.shutter == 'BULB') {
+        console.log("VAL: Error: invalid shutter setting");
+        results.errors.push({param:false, reason: "invalid shutter setting on camera."});
+    }
+
     if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd') {
         console.log("VAL: Error: camera not set to save in RAW");
         results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
