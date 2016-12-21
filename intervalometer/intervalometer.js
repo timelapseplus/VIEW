@@ -23,9 +23,7 @@ gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
 
 gpio.setup(AUXRING_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
-    gpio.write(AUXRING_OUT, 1, function(){
-        gpio.close(AUXRING_OUT);
-    });
+    gpio.write(AUXRING_OUT, 1);
 });
 
 var intervalometer = new EventEmitter();
