@@ -14,7 +14,7 @@ var gpio = require('rpi-gpio');
 var AUXTIP_OUT = 207;
 var AUXRING_OUT = 206;
 
-gpio.setMode(gpio.MODE_BCM);
+gpio.setMode(gpio.MODE_RAW);
 
 gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
