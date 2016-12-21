@@ -14,12 +14,12 @@ var gpio = require('pi-gpio');
 var AUXTIP_OUT = 207;
 var AUXRING_OUT = 206;
 
-gpio.open(AUXTIP_OUT, {"out"}, function(err){
+gpio.open(AUXTIP_OUT, "out", function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXTIP_OUT, 1);
 });
 
-gpio.open(AUXRING_OUT, {"out"}, function(err){
+gpio.open(AUXRING_OUT, "out", function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXRING_OUT, 1);
 });
