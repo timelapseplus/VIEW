@@ -7,36 +7,38 @@
 #include <fcntl.h>
 #include "lib_gpio.h"
 
-#define READ_SW() (gpio_get_input(SUNXI_PORT_E_BASE, SUNXI_PIO_11) ? 1 : 0) // 139
-#define READ_A() (gpio_get_input(SUNXI_PORT_D_BASE, SUNXI_PIO_04) ? 1 : 0) // 100
-#define READ_B() (gpio_get_input(SUNXI_PORT_D_BASE, SUNXI_PIO_03) ? 1 : 0) // 99
+#define READ_SW() (gpio_get_input(SUNXI_PORT_E_BASE, SUNXI_PIO_11) ? 1 : 0) // 139 4 11
+#define READ_A() (gpio_get_input(SUNXI_PORT_D_BASE, SUNXI_PIO_04) ? 1 : 0) // 100 3 4
+#define READ_B() (gpio_get_input(SUNXI_PORT_D_BASE, SUNXI_PIO_03) ? 1 : 0) // 99 3 3
 
-#define READ_B1() (gpio_get_input(SUNXI_PORT_B_BASE, SUNXI_PIO_04) ? 1 : 0) // 36
-#define READ_B2() (gpio_get_input(SUNXI_PORT_B_BASE, SUNXI_PIO_10) ? 1 : 0) // 42
-#define READ_B3() (gpio_get_input(SUNXI_PORT_G_BASE, SUNXI_PIO_12) ? 1 : 0) // 204
+#define READ_B1() (gpio_get_input(SUNXI_PORT_B_BASE, SUNXI_PIO_04) ? 1 : 0) // 36 1 4
+#define READ_B2() (gpio_get_input(SUNXI_PORT_B_BASE, SUNXI_PIO_10) ? 1 : 0) // 42 1 10
+#define READ_B3() (gpio_get_input(SUNXI_PORT_G_BASE, SUNXI_PIO_12) ? 1 : 0) // 204 6 12
 
-#define READ_BP() (gpio_get_input(SUNXI_PORT_C_BASE, SUNXI_PIO_03) ? 1 : 0) // 67
+#define READ_BP() (gpio_get_input(SUNXI_PORT_C_BASE, SUNXI_PIO_03) ? 1 : 0) // 67 2 3
 
 int8_t updateDial();
 uint8_t readButtons();
 
 int encoderPos = 0;
 
-//echo 139 > /sys/class/gpio/export 
-//echo 100 > /sys/class/gpio/export 
-//echo 99 > /sys/class/gpio/export 
-//echo 36 > /sys/class/gpio/export 
-//echo 42 > /sys/class/gpio/export 
-//echo 204 > /sys/class/gpio/export 
-//echo 67 > /sys/class/gpio/export 
-//
-//cat /sys/class/gpio/gpio139/value 
-//cat /sys/class/gpio/gpio100/value 
-//cat /sys/class/gpio/gpio99/value 
-//cat /sys/class/gpio/gpio36/value 
-//cat /sys/class/gpio/gpio42/value 
-//cat /sys/class/gpio/gpio204/value 
-//cat /sys/class/gpio/gpio67/value 
+/*
+echo 139 > /sys/class/gpio/export 
+echo 100 > /sys/class/gpio/export 
+echo 99 > /sys/class/gpio/export 
+echo 36 > /sys/class/gpio/export 
+echo 42 > /sys/class/gpio/export 
+echo 204 > /sys/class/gpio/export 
+echo 67 > /sys/class/gpio/export 
+
+cat /sys/class/gpio/gpio139/value 
+cat /sys/class/gpio/gpio100/value 
+cat /sys/class/gpio/gpio99/value 
+cat /sys/class/gpio/gpio36/value 
+cat /sys/class/gpio/gpio42/value 
+cat /sys/class/gpio/gpio204/value 
+cat /sys/class/gpio/gpio67/value 
+*/
 
 void setup() {
     setvbuf(stdout, NULL, _IOLBF, 0);

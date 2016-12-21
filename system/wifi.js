@@ -65,26 +65,26 @@ function updateExportedList() {
 }
 
 iw.on('appear', function(network) {
-	console.log("[Wifi] Appear:", network);
+	//console.log("[Wifi] Appear:", network);
 	list[network.address] = network;
 	updateExportedList();
 	if(listCallback) listCallback(wifi.list);
 });
 
 iw.on('change', function(network) {
-	console.log("[Wifi] Change:", network);
+	//console.log("[Wifi] Change:", network);
 	list[network.address] = network;
 	updateExportedList();
 });
 
 iw.on('signal', function(network) {
-	console.log("[Wifi] Signal:", network);
+	//console.log("[Wifi] Signal:", network);
 	list[network.address] = network;
 	updateExportedList();
 });
 
 iw.on('vanish', function(network) {
-	console.log("[Wifi] Vanish:", network);
+	//console.log("[Wifi] Vanish:", network);
 	delete list[network.address];
 	updateExportedList();
 	if(listCallback) listCallback(wifi.list);
@@ -95,7 +95,7 @@ iw.on('error', function(err) {
 });
 
 iw.on('empty', function() {
-	console.log("[Wifi] Empty");
+	//console.log("[Wifi] Empty");
 	list = {};
 	wifi.list = [];
 	if(listCallback) listCallback(wifi.list);

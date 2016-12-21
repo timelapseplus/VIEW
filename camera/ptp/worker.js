@@ -100,21 +100,26 @@ GPhoto.list(function(list) {
 
 });
 
+function thumbnailFileFromIndex(index) {
+    if(!thumbnailPath) return "";
+    var indexStr = (index + 1).toString();
+    while (indexStr.length < 5) {
+        indexStr = '0' + indexStr;
+    }
+    return thumbnailPath + "/img" + indexStr + ".jpg"
+}
+
 function saveThumbnail(jpgBuffer, index, exposureCompensation) {
     if (thumbnailPath) {
         var indexStr = (index + 1).toString();
         fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
-            while (indexStr.length < 5) {
-                indexStr = '0' + indexStr;
-            }
-
             var size = {
                 x: 160,
                 q: 80
             }
             image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
-                    fs.writeFile(thumbnailPath + "/img" + indexStr + ".jpg", jpgBuf);
+                    fs.writeFile(thumbnailFileFromIndex(index), jpgBuf);
                 }
             });
         });
@@ -163,7 +168,8 @@ function processRawPath(path, options, info, callback) {
                 if (callback) {
                     callback(err, {
                         ev: ev,
-                        file: info
+                        file: info,
+                        thumbnailPath: thumbnailFileFromIndex(options.index)
                     });
                 }
             });
@@ -229,6 +235,7 @@ function capture(options, callback) {
                     if (callback) callback(err, {
                         ev: ev,
                         file: info
+                        thumbnailPath: thumbnailFileFromIndex(options.index)
                     });
                 });
                 sendEvent('photo', {

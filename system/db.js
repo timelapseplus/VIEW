@@ -3,6 +3,7 @@ var sqlite3 = require('sqlite3');
 var dbSys = new sqlite3.Database('/var/local/sqlite/view-system.db');
 var dbTl = new sqlite3.Database('/var/local/sqlite/view-timelapse.db');
 var dbCache = new sqlite3.Database('/tmp/view-cache.db');
+var fs = require('fs');
 
 dbSys.serialize(function(){
 	dbSys.run("CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value BLOB)");
@@ -10,25 +11,36 @@ dbSys.serialize(function(){
 });
 
 dbTl.serialize(function(){
-	dbTl.run("CREATE TABLE IF NOT EXISTS timelapse (id INTEGER PRIMARY KEY AUTOINCREMENT,\
-													 date TEXT\
-													 location TEXT\
-													 direction TEXT\
-													 settings BLOB\
+	dbTl.run("CREATE TABLE IF NOT EXISTS clips (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+													 name TEXT,\
+													 date TEXT,\
+													 program BLOB,\
+													 status BLOB,\
+													 logfile TEXT,\
+													 thumbnail TEXT,\
+													 frames INTEGER\
 													 )");
+	dbTl.run("CREATE INDEX IF NOT EXISTS name ON clips (name)");
 
-	dbTl.run("CREATE TABLE IF NOT EXISTS frames (id INTEGER PRIMARY KEY AUTOINCREMENT,\
-													 timelapse_id INTEGER\
-													 ev_correction REAL\
-													 details BLOB\
-													 thumbnail BLOB\
+	dbTl.run("CREATE TABLE IF NOT EXISTS clip_frames (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+													 clip_id INTEGER,\
+													 ev_correction REAL,\
+													 details BLOB,\
+													 thumbnail TEXT\
 													 )");
-	dbTl.run("CREATE INDEX IF NOT EXISTS tl_id ON frames (timelapse_id)");
+	dbTl.run("CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
 });
 
 dbCache.serialize(function(){
 	dbCache.run("CREATE TABLE IF NOT EXISTS cache (name TEXT PRIMARY KEY, value BLOB)");
 });
+
+var currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
+if(currentLog) {
+	exports.currentLogFile = "/home/view/current/" + currentLog;
+} else {
+	exports.currentLogFile = "";
+}
 
 function serialize(object) {
 	var data = {data: object};
@@ -79,6 +91,77 @@ exports.get = function(key, callback) {
 		} else {
 			var object = unserialize(data.value);
 			callback(err, object);
+		}
+	});
+}
+
+exports.setTimelapse = function(name, program, status, callback) {
+	var date = (new Date()).toISOString();
+	program = serialize(program);
+	status = serialize(status);
+	logfile = exports.currentLogFile;
+	thumbnail = thumbnail || "";
+
+	dbTl.run("INSERT INTO clips (name, date, program, status, logfile, thumbnail) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + status + "', '" + logfile + "', '" + thumbnail + "')", function(err) {
+		callback && callback(err, this.lastID);
+	});
+}
+
+exports.getTimelapse = function(id, callback) {
+	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			if(data.program) data.program = unserialize(data.program);
+			if(data.status) data.status = unserialize(data.status);
+			callback(err, data);
+		}
+	});
+}
+
+exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, callback) {
+	var date = (new Date()).toISOString();
+	details = serialize(details);
+	evCorrection = evCorrection || 0;
+
+	dbTl.get("SELECT frames, thumbnail FROM clips WHERE id = '" + clipId + "' LIMIT 1", function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			var frames = 0;
+			if(data.frames) frames = parseInt(data.frames);
+			if(!data.thumbnail) {
+				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString + "', `thumbnail` = '" + thumbnail + "'");
+			} else {
+				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString + "'");
+			}
+			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + thumbnail + "')", callback);
+		}
+	});
+}
+
+exports.getTimelapseList = function(limit, offset, callback) {
+	limit = parseInt(limit);
+	if(!limit) limit = 15;
+	offset = parseInt(offset);
+	if(!offset) offset = 0;
+
+	dbTl.get("SELECT * FROM clips ORDER BY date DESC LIMIT " + limit + "," + offset, function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			var clips = [];
+			for(var i = 0; i < data.length; i++) {
+				var clip = {};
+				if(data[i].id) {
+					clip.id = data[i].id;
+					if(data[i].name) clip.name = data[i].name;
+					if(data[i].date) clip.date = new Date(data[i].date);
+					if(data[i].thumbnail) clip.date = data[i].thumbnail;
+					clips.push(clip);
+				}
+			}
+			callback(err, clips);
 		}
 	});
 }

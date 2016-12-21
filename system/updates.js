@@ -22,7 +22,7 @@ var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
 
 var getKernelVersion = "uname -v";
-
+var doKernelUpdate = "mount /dev/mmcblk0p1 /boot && cp /home/view/current/boot/zImage /boot/ && cp /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb /boot/ && sleep 2 && umount /boot && init 6";
 
 function checkLibGPhotoUpdate(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
@@ -176,10 +176,17 @@ function checkKernel(callback) {
 }
 
 function updateKernel(callback) {
-	checkKernel(function(needUpdate) {
+	checkKernel(function(err1, needUpdate) {
 		if(needUpdate) {
+			if(callback) callback(true);
 			console.log("KERNEL UPDATE REQUIRED");
+			exec(doKernelUpdate, function(err, stdout, stderr) {
+				if(err) {
+					console.log("KERNEL UPDATE FAILED", err, stdout, stderr);
+				}
+			});
 		} else {
+			if(callback) callback(false);
 			console.log("KERNEL UP TO DATE");
 		}
 	});

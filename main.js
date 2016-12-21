@@ -47,6 +47,8 @@ var cache = {};
 var Segfault = require('segfault');
 Segfault.registerHandler("segfault.log");
 
+intervalometer.addDb(db);
+
 console.log('Modules loaded.');
 
 if (VIEW_HARDWARE) {

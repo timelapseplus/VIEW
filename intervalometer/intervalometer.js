@@ -43,6 +43,7 @@ intervalometer.autoSettings = {
 }
 
 var nmx = null;
+var db = null;
 
 intervalometer.timelapseFolder = false;
 
@@ -57,6 +58,21 @@ function writeFile() {
     //image.writeXMP(name, status.evDiff);
 }
 
+function getDetails() {
+    return {
+        frames: status.frames,
+        evCorrection: status.evDiff,
+        targetEv: exp.status.targetEv,
+        actualEv: status.rampEv,
+        rampRate: exp.status.rate,
+        intervalMs: status.intervalMs,
+        timestamp: status.lastPhotoTime,
+        fileName: status.path,
+        p: exp.status.pComponent,
+        i: exp.status.iComponent,
+        d: exp.status.dComponent
+    }
+}
 
 var startShutterEv = -1;
 
@@ -64,7 +80,7 @@ function calculateIntervalMs(interval, currentEv) {
     var dayEv = 8;
     var nightEv = -2;
     if (intervalometer.currentProgram.intervalMode == 'fixed') {
-        console.log("using fixed interval: ", interval);
+        //console.log("using fixed interval: ", interval);
         return interval * 1000;
     } else {
         /*if (status.frames == 0) {
@@ -108,7 +124,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
         } else {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
-            console.log("Seconds since start: " + secondsSinceStart);
+            console.log("KF: Seconds since start: " + secondsSinceStart);
             kfPoints = keyframes.map(function(kf) {
                 if(axisSubIndex !== null) {
                     return {
@@ -123,7 +139,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
                 }
             });
             kfSet = interpolate.linear(kfPoints, secondsSinceStart);
-            console.log(axisName + " target: " + kfSet);
+            console.log("FK: " + axisName + " target: " + kfSet);
         }
         var axisNameExtension = '';
         if(axisSubIndex !== null) axisNameExtension = '-' + axisSubIndex;
@@ -158,9 +174,9 @@ function processKeyframes(setupFirst, callback) {
 
     var checkDone = function() {
         axesDone++;
-        console.log(axesDone + " keyframe items complete");
+        console.log("KF: " + axesDone + " keyframe items complete");
         if (axesDone >= numAxes && callback) {
-            console.log("keyframes complete, running callback");
+            console.log("KF: keyframes complete, running callback");
             callback();
         }
     }
@@ -174,7 +190,7 @@ function processKeyframes(setupFirst, callback) {
         if (focus) {
             camera.ptp.preview(function() {
                 setTimeout(function() {
-                    console.log("Moving focus by " + focus + " steps");
+                    console.log("KF: Moving focus by " + focus + " steps");
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
@@ -193,14 +209,14 @@ function processKeyframes(setupFirst, callback) {
             if (move && parts.length == 2) {
                 var driver = parts[0];
                 var motor = parts[1];
-                console.log("Moving " + motorId + " by " + move + " steps");
+                console.log("KF: Moving " + motorId + " by " + move + " steps");
                 if(driver == 'NMX') {
                     if (nmx && nmx.getStatus().connected) {
                         nmx.move(motor, 0 - move, function() {
                             checkDone();
                         });
                     } else {
-                        console.log("error moving -- nmx not connected");
+                        console.log("KF: error moving -- nmx not connected");
                         checkDone();
                     }
                 } else {
@@ -219,12 +235,12 @@ var busyExposure = false;
 function setupExposure(cb) {
     busyExposure = true;
     camera.getEv(function(err, currentEv, params) {
-        console.log("current interval: ", status.intervalMs);
-        console.log("current ev: ", currentEv);
+        console.log("EXP: current interval: ", status.intervalMs);
+        console.log("EXP: current ev: ", currentEv);
         var maxShutterLengthMs = status.intervalMs;
-        console.log("maxShutterLengthMs", status.intervalMs);
+        console.log("EXP: maxShutterLengthMs:", status.intervalMs);
         if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
-        console.log("maxShutterLengthMs", maxShutterLengthMs);
+        console.log("EXP: maxShutterLengthMs (interval limted):", maxShutterLengthMs);
         camera.setEv(status.rampEv, {
             maxShutterLengthMs: maxShutterLengthMs,
             isoMax: intervalometer.currentProgram.isoMax,
@@ -233,7 +249,7 @@ function setupExposure(cb) {
         }, function(err, res) {
 
             status.evDiff = res.ev - status.rampEv;
-            console.log("program:", "capture");
+            console.log("EXP: program:", "capture");
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             busyExposure = false;
             cb && cb(err);
@@ -259,7 +275,7 @@ function runPhoto() {
                 //saveRaw: "/mnt/sd/test" + status.frames + ".cr2",
         }
         if (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) {
-            console.log("Saving timelapse to SD card");
+            console.log("CAPT: Saving timelapse to SD card");
             captureOptions.thumbnail = false;
             var framesPadded = status.frames.toString();
             while (framesPadded.length < 4) framesPadded = '0' + framesPadded;
@@ -275,13 +291,14 @@ function runPhoto() {
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
+                    db.setTimelapseFrame(status.id, 0, getDetails(), photoRes.thumbnailPath);
                     status.path = photoRes.file;
                     status.message = "running";
                     if (status.framesRemaining > 0) status.framesRemaining--;
                     status.frames++;
                     //writeFile();
                     intervalometer.emit("status", status);
-                    console.log("program status:", status);
+                    console.log("TL: program status:", status);
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
@@ -296,7 +313,7 @@ function runPhoto() {
                         camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                         intervalometer.emit("status", status);
                         camera.ptp.unmountSd();
-                        console.log("program:", "done");
+                        console.log("==========> END TIMELAPSE", status.tlName);
                     }, 2000);
                 }
                 processKeyframes(false, function() {
@@ -308,12 +325,13 @@ function runPhoto() {
             status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
             intervalometer.emit("status", status);
             captureOptions.exposureCompensation = status.evDiff || 0;
-            console.log("Setting timer for fixed interval at ", status.intervalMs);
+            console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
 
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
+                    db.setTimelapseFrame(status.id, status.evDiff, getDetails(), photoRes.thumbnailPath);
                     intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                     status.rampRate = exp.status.rate;
@@ -324,9 +342,10 @@ function runPhoto() {
                     status.frames++;
                     writeFile();
                     intervalometer.emit("status", status);
-                    console.log("program status:", status);
+                    console.log("TL: program status:", status);
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
+                    console.log("TL: error:", err);
                 }
                 if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
                     clearTimeout(timerHandle);
@@ -338,7 +357,7 @@ function runPhoto() {
                         camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                         intervalometer.emit("status", status);
                         camera.ptp.unmountSd();
-                        console.log("program:", "done");
+                        console.log("==========> END TIMELAPSE", status.tlName);
                     }, 2000);
                 }
                 processKeyframes(false, function() {
@@ -379,21 +398,21 @@ intervalometer.validate = function(program) {
     }
 
     if(!camera.ptp.supports.destination && (program.destination != 'sd' || !camera.ptp.sdPresent)) {
-        console.log("Error: SD card required");
+        console.log("VAL: Error: SD card required");
         results.errors.push({param:false, reason: "SD card required. The connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
     }
 
     if(!camera.ptp.settings.iso || camera.ptp.settings.iso == 'Auto') {
-        console.log("Error: invalid ISO setting");
+        console.log("VAL: Error: invalid ISO setting");
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
     if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd') {
-        console.log("Error: camera not set to save in RAW");
+        console.log("VAL: Error: camera not set to save in RAW");
         results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
     }
 
-    console.log("validating program:", results);
+    console.log("VAL: validating program:", results);
 
     return results;
 }
@@ -405,7 +424,7 @@ intervalometer.cancel = function() {
         status.message = "stopped";
         status.framesRemaining = 0;
         intervalometer.emit("status", status);
-        console.log("program:", "stopped");
+        console.log("==========> END TIMELAPSE", status.tlName);
 
         if(!busyPhoto) {
             intervalometer.timelapseFolder = false;
@@ -430,6 +449,7 @@ intervalometer.run = function(program) {
                 }
                 fs.writeFileSync(TLROOT + '/index.txt', tlIndex.toString());
                 status.tlName = "tl-" + tlIndex;
+                console.log("==========> TIMELAPSE START", status.tlName);
                 intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
                 fs.mkdirSync(intervalometer.timelapseFolder);
                 camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
@@ -454,10 +474,14 @@ intervalometer.run = function(program) {
                 exp.init(camera.minEv(camera.ptp.settings, options), camera.maxEv(camera.ptp.settings, options), program.nightCompensation);
                 console.log("program:", "starting", program);
 
+
                 function start() {
-                    processKeyframes(true, function() {
-                        busyPhoto = false;
-                        runPhoto();
+                    db.setTimelapse(status.tlName, program, status, function(err, timelapseId) {
+                        status.id = timelapseId;
+                        processKeyframes(true, function() {
+                            busyPhoto = false;
+                            runPhoto();
+                        });
                     });
                     //delayHandle = setTimeout(function() {
                     //    runPhoto();
@@ -744,5 +768,10 @@ intervalometer.writeXMPs = function(clipNumber, destinationFolder, callback) {
 intervalometer.addNmx = function(nmxObject) {
     nmx = nmxObject;
 }
+
+intervalometer.addDb = function(dbObject) {
+    db = dbObject;
+}
+
 
 module.exports = intervalometer;

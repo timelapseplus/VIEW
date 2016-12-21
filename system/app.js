@@ -103,7 +103,7 @@ function connectRemote() {
     wsRemote.once('error', function() {
         if (remotePingHandle) clearInterval(remotePingHandle);
         remotePingHandle = null;
-        console.log("Error connecting to view.tl");
+        //console.log("Error connecting to view.tl");
         app.remote = false;
         setTimeout(connectRemote, 15000);
     });
