@@ -164,9 +164,11 @@ function extract(zipPath, destFolder, callback) {
 function checkKernel(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
 		if(!err && stdout) {
-			if(stdout.trim() == kernelVersion) {
+			var currentKernel = stdout.trim();
+			if(currentKernel == kernelVersion) {
 				callback(null, false);
 			} else {
+				console.log("Current KERNEL:", currentKernel)
 				callback(null, true);
 			}
 		} else {
