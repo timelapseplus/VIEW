@@ -8,6 +8,7 @@ var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
+var Button = require('gpio-button');
 
 
 var intervalometer = new EventEmitter();
@@ -48,6 +49,12 @@ var db = null;
 intervalometer.timelapseFolder = false;
 
 intervalometer.status = status;
+
+var auxTrigger = new Button('input-aux2');
+
+auxTrigger.on('press', function() {
+    console.log("AUX2 trigger!");
+});
 
 function fileInit() {
     fs.writeFileSync(status.timelapseFolder + "/details.csv", "frame, error, target, setting, rate, interval, timestamp, file, p, i, d\n");
