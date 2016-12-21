@@ -355,6 +355,11 @@ if (VIEW_HARDWARE) {
             value: "Auto Variable",
             help: help.intervalOptions,
             action: ui.set(intervalometer.currentProgram, 'intervalMode', 'auto')
+        }, {
+            name: "Interval Mode",
+            value: "External AUX2",
+            help: help.intervalOptions,
+            action: ui.set(intervalometer.currentProgram, 'intervalMode', 'aux')
         }]
     }
 

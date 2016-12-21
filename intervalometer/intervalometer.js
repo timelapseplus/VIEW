@@ -9,7 +9,20 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
+var gpio = require('pi-gpio');
 
+var AUXTIP_OUT = 207;
+var AUXRING_OUT = 206;
+
+gpio.open(AUXTIP_OUT, {"out"}, function(err){
+    if(err) console.log("GPIO error: ", err);
+    gpio.write(AUXTIP_OUT, 1);
+});
+
+gpio.open(AUXRING_OUT, {"out"}, function(err){
+    if(err) console.log("GPIO error: ", err);
+    gpio.write(AUXRING_OUT, 1);
+});
 
 var intervalometer = new EventEmitter();
 
@@ -54,7 +67,18 @@ var auxTrigger = new Button('input-aux2');
 
 auxTrigger.on('press', function() {
     console.log("AUX2 trigger!");
+    if (status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
 });
+
+function motionSyncPulse() {
+    if (status.running && intervalometer.currentProgram.intervalMode != 'aux') {
+        gpio.write(AUXTIP_OUT, 0, function() {
+            setTimeout(function(){
+                gpio.write(AUXTIP_OUT, 1);
+            }, 200);
+        });
+    } 
+}
 
 function fileInit() {
     fs.writeFileSync(status.timelapseFolder + "/details.csv", "frame, error, target, setting, rate, interval, timestamp, file, p, i, d\n");
@@ -329,11 +353,15 @@ function runPhoto() {
             });
         } else {
             if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
-            status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
-            intervalometer.emit("status", status);
             captureOptions.exposureCompensation = status.evDiff || 0;
-            console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
-            if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
+
+            if(intervalometer.currentProgram.intervalMode != 'aux') {
+                status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
+                console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
+                if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
+            }
+
+            intervalometer.emit("status", status);
 
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
