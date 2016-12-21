@@ -360,7 +360,8 @@ function runPhoto() {
             captureOptions.exposureCompensation = status.evDiff || 0;
 
             if(intervalometer.currentProgram.intervalMode == 'aux') {
-                if(status.captureStartTime) status.intervalMs = ((new Date() / 1000) - status.captureStartTime) * 1000;
+                if(status.intervalStartTime) status.intervalMs = ((new Date() / 1000) - status.intervalStartTime) * 1000;
+                status.intervalStartTime = new Date() / 1000;
             } else {
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
                 console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
