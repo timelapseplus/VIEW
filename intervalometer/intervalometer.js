@@ -14,14 +14,14 @@ var gpio = require('rpi-gpio');
 var AUXTIP_OUT = 207;
 var AUXRING_OUT = 206;
 
-gpio.setMode(MODE_BCM);
+gpio.setMode(gpio.MODE_BCM);
 
-gpio.setup(AUXTIP_OUT, DIR_OUT, EDGE_NONE, function(err){
+gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXTIP_OUT, 1);
 });
 
-gpio.setup(AUXRING_OUT, DIR_OUT, EDGE_NONE, function(err){
+gpio.setup(AUXRING_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXRING_OUT, 1, function(){
         gpio.close(AUXRING_OUT);
