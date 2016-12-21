@@ -129,6 +129,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, c
 		} else {
 			var frames = 0;
 			if(data.frames) frames = parseInt(data.frames);
+			frames++;
 			if(!data.thumbnail) {
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "'");
 			} else {
