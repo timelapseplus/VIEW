@@ -324,6 +324,7 @@ function runPhoto() {
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
+                    motionSyncPulse();
                     db.setTimelapseFrame(status.id, 0, getDetails(), photoRes.thumbnailPath);
                     status.path = photoRes.file;
                     status.message = "running";
@@ -369,6 +370,7 @@ function runPhoto() {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
                     db.setTimelapseFrame(status.id, status.evDiff, getDetails(), photoRes.thumbnailPath);
+                    motionSyncPulse();
                     intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                     status.rampRate = exp.status.rate;
