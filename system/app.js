@@ -5,6 +5,7 @@ var server = http.Server(express);
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 var exec = require('child_process').exec;
+var fs = require('fs');
 
 var viewAccountName = "elijahparker";
 var CLIENT_SERVER_PORT = 80;
@@ -78,6 +79,7 @@ function connectRemote() {
                     remotePingHandle = setInterval(function() {
                         send_message('ping', null, wsRemote);
                     }, 10000);
+                    sendLogs();
                 } else if(msg.code) {
                     app.authCode = msg.code;
                     app.emit('auth-required', app.authCode);
@@ -124,6 +126,43 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
     }
 });
 
+function sendLog(logfile, callback) {
+    if(app.remote) {
+        fs.readFile(logfile, function(err, file) {
+            if(!err && file) {
+                var obj = {
+                    logname: logfile,
+                    bzip2: file.toString('base64')
+                }
+                send_message('log', obj, wsRemote);
+                callback(null);
+            } else {
+                callback(null);
+            }
+        });
+    } else {
+        callback(true);
+    }
+}
+
+function sendLogs() {
+    if(app.remote) {
+        var logs = fs.readdirSync("/home/view/current/logsForUpload");
+        logs = logs.filter(function(log) {
+            return log.match(/^log/) ? true : false;
+        });
+
+        var next = function() {
+            var nextLog = logs.pop();
+            sendLog(nextLog, function(err) {
+                if(!err) {
+                    fs.unlink(nextLog);
+                    setTimeout(next, 120 * 1000);
+                }
+            });
+        }
+    }
+}
 
 function send_message(type, object, socket) {
     if (!object) object = {};
@@ -183,6 +222,7 @@ function receive_message(msg_string, socket) {
 }
 
 app.send = send_message;
+app.sendLogs = sendLogs;
 
 server.listen(CLIENT_SERVER_PORT, function() {
     console.log('listening on *:' + CLIENT_SERVER_PORT);

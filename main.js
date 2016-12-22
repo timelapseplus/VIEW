@@ -1580,6 +1580,7 @@ if (VIEW_HARDWARE) {
             name: "Send log for review",
             action: function(){
                 db.sendLog(null, function() {
+                    app.sendLogs();
                     ui.back();
                 });
             },

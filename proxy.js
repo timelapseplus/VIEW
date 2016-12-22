@@ -441,6 +441,14 @@ function receiveNetMessage(msg_string, socket) {
                 sendNetMessage({
                     type: 'pong'
                 }, socket);
+            if (msg.type == "log" && msg.logname && msg.bzip2) {
+                if(msg.logname.length < 64) {
+                    var matches = msg.logname.match(/^[0-9a-z\-.]+$/i);
+                    if(matches && matches.length > 0) {
+                        var filename = '/var/log/uploaded/user' + socket.userId + '-' + matches[0];
+                        fs.writeFile(filename, new Buffer(msg.bzip2, 'base64'));
+                    }
+                }
             } else if (msg.type == "intervalometerStatus") {
                 if(viewConnected[socket.userId] && viewConnected[socket.userId].current)
                 sendIntervalometerUpdate(socket, socket.userId, viewConnected[socket.userId].current);
