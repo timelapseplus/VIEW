@@ -701,6 +701,7 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
     skipFrames = 0;
     var indexString, paddingLength;
     var frameComplete = true;
+    var frameLineFactor = (160 - 6) / frames;
     videoIntervalHandle = setInterval(function(){
         if(!frameComplete) {
             console.log("dropping frame #" + index);
@@ -719,6 +720,10 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
         }
         //fb.jpegUnbuffered(0, 0, videoPathFormat.replace('%05d', indexString));
         fb.jpeg(0, 0, videoPathFormat.replace('%05d', indexString));
+        color("background");
+        fb.line(3, 127 - 3, 159 - 3, 127 - 3, 2);
+        color("primary");
+        fb.line(3, 127 - 3, frameIndex * frameLineFactor, 127 - 3, 2);
         fb.blit();
         frameComplete = true;
     }, 1000 / (fps||24));
