@@ -154,17 +154,17 @@ function sendLogs() {
             return log.match(/^log/) ? true : false;
         });
 
-        var next = function() {
-            var nextLog = "/home/view/logsForUpload/" + logs.pop();
+        if(logs && logs.length > 0) {
+            var nextLog = logs.pop();
+            nextLog = "/home/view/logsForUpload/" + nextLog;
             sendLog(nextLog, function(err) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
-                        setTimeout(next, 120 * 1000);
+                        setTimeout(sendLogs, 120 * 1000);
                     });
                 }
             });
         }
-        next();
     }
 }
 
