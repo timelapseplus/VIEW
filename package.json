@@ -22,7 +22,7 @@
     "nodeimu": "latest",
     "request": "latest",
     "rootpath": "latest",
-    "rpi-gpio": "timelapseplus/rpi-gpio.js",
+    "linux-gpio": "timelapseplus/node-linux-gpio",
     "segfault": "^0.3.0",
     "sensor_tsl2561": "latest",
     "serialport": "latest",

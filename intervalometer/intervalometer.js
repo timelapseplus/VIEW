@@ -9,19 +9,19 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
-var gpio = require('rpi-gpio');
+var gpio = require('linux-gpio');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
 
 gpio.setMode(gpio.MODE_RAW);
 
-gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
+gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXTIP_OUT, 1);
 });
 
-gpio.setup(AUXRING_OUT, gpio.DIR_OUT, gpio.EDGE_NONE, function(err){
+gpio.setup(AUXRING_OUT, gpio.DIR_OUT, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXRING_OUT, 1);
 });
