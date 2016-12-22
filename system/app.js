@@ -155,7 +155,7 @@ function sendLogs() {
         });
 
         var next = function() {
-            var nextLog = logs.pop();
+            var nextLog = "/home/view/logsForUpload/" + logs.pop();
             sendLog(nextLog, function(err) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
