@@ -126,13 +126,13 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
     }
 });
 
-function sendLog(logfile, callback) {
+function sendLog(logfile, logname, callback) {
     if(app.remote) {
         fs.readFile(logfile, function(err, file) {
             if(!err && file) {
                 console.log("sending log file to proxy: ", logfile);
                 var obj = {
-                    logname: logfile,
+                    logname: logname,
                     bzip2: file.toString('base64')
                 }
                 send_message('log', obj, wsRemote);
@@ -155,11 +155,11 @@ function sendLogs() {
         });
 
         if(logs && logs.length > 0) {
-            var nextLog = logs.pop();
-            nextLog = "/home/view/logsForUpload/" + nextLog;
+            var nextLogName = logs.pop();
+            var nextLog = "/home/view/logsForUpload/" + nextLogName;
             sendLog(nextLog, function(err) {
                 if(!err) {
-                    fs.unlink(nextLog, function() {
+                    fs.unlink(nextLog, nextLogName, function() {
                         setTimeout(sendLogs, 120 * 1000);
                     });
                 }
