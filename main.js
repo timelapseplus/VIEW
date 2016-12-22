@@ -2352,7 +2352,7 @@ intervalometer.on('status', function(msg) {
     oled.updateTimelapseStatus(statusScreen);
     ui.reload();
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
-        oled.status(msg);
+        oled.status(msg.message);
     }
 });
 
