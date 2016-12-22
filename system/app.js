@@ -147,7 +147,7 @@ function sendLog(logfile, callback) {
 
 function sendLogs() {
     if(app.remote) {
-        var logs = fs.readdirSync("/home/view/current/logsForUpload");
+        var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
             return log.match(/^log/) ? true : false;
         });
