@@ -130,6 +130,7 @@ function sendLog(logfile, callback) {
     if(app.remote) {
         fs.readFile(logfile, function(err, file) {
             if(!err && file) {
+                console.log("sending log file to proxy: ", logfile);
                 var obj = {
                     logname: logfile,
                     bzip2: file.toString('base64')
@@ -161,6 +162,7 @@ function sendLogs() {
                 }
             });
         }
+        next();
     }
 }
 
