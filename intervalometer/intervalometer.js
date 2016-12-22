@@ -323,7 +323,7 @@ function runPhoto() {
             status.intervalMs = intervalometer.currentProgram.interval * 1000;
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
-            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000);
+            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1000);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     db.setTimelapseFrame(status.id, 0, getDetails(), photoRes.thumbnailPath);
@@ -369,7 +369,7 @@ function runPhoto() {
             } 
 
             intervalometer.emit("status", status);
-            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000);
+            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1000);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
@@ -379,6 +379,7 @@ function runPhoto() {
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
                     status.message = "running";
+                    if(intervalometer.currentProgram.intervalMode == 'aux') status.message = "waiting for AUX2...";
                     setupExposure();
                     if (status.framesRemaining > 0) status.framesRemaining--;
                     status.frames++;
@@ -530,6 +531,11 @@ intervalometer.run = function(program) {
                             if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
                                 runPhoto();   
                             }
+                            if(intervalometer.currentProgram.intervalMode == 'aux') {
+                                status.message = "waiting for AUX2...";
+                                intervalometer.emit("status", status);
+                            }
+
                         });
                     });
                     //delayHandle = setTimeout(function() {

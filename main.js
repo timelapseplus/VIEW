@@ -2351,6 +2351,9 @@ intervalometer.on('status', function(msg) {
     console.log("statusScreen", statusScreen);
     oled.updateTimelapseStatus(statusScreen);
     ui.reload();
+    if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
+        oled.status(msg);
+    }
 });
 
 intervalometer.on('error', function(msg) {
