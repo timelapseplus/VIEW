@@ -223,7 +223,7 @@ exports.sendLog = function(clipName, callback) {
 				var logName = matches[1];
 				var cmd = "mkdir /home/view/logsForUpload && bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2";
 				exec(cmd, function(err) {
-					console.log("created log for uploading: " + logName);
+					console.log("created log for uploading: " + cmd);
 					callback && callback(err);
 				});
 			}
