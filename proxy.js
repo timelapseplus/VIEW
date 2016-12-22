@@ -13,6 +13,7 @@ var WebSocketServer = require('ws').Server
 var uid = require('uid');
 var bcrypt = require('bcrypt');
 var mysql      = require('mysql');
+var fs = require('fs');
 
 var db = mysql.createConnection({
   host     : '104.131.0.142',
@@ -441,7 +442,7 @@ function receiveNetMessage(msg_string, socket) {
                 sendNetMessage({
                     type: 'pong'
                 }, socket);
-            if (msg.type == "log" && msg.logname && msg.bzip2) {
+            } else if (msg.type == "log" && msg.logname && msg.bzip2) {
                 if(msg.logname.length < 64) {
                     var matches = msg.logname.match(/^[0-9a-z\-.]+$/i);
                     if(matches && matches.length > 0) {
