@@ -38,7 +38,7 @@ dbCache.serialize(function(){
 
 var currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
 if(currentLog) {
-	exports.currentLogFile = "/home/view/current/" + currentLog;
+	exports.currentLogFile = "/home/view/current/" + currentLog.trim();
 } else {
 	exports.currentLogFile = "";
 }
@@ -221,7 +221,8 @@ exports.sendLog = function(clipName, callback) {
 			var matches = exports.currentLogFile.match(/([^\/]+)$/);
 			if(matches && matches.length > 1) {
 				var logName = matches[1];
-				exec("mkdir /home/view/logsForUpload && bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2", function(err) {
+				var cmd = "mkdir /home/view/logsForUpload && bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2";
+				exec(cmd, function(err) {
 					console.log("created log for uploading: " + logName);
 					callback && callback(err);
 				});
