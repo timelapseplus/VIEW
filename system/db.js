@@ -221,7 +221,7 @@ exports.sendLog = function(clipName, callback) {
 			var matches = exports.currentLogFile.match(/([^\/]+)$/);
 			if(matches && matches.length > 1) {
 				var logName = matches[1];
-				var cmd = "mkdir -p /home/view/logsForUpload && {bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2}";
+				var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2";
 				exec(cmd, function(err) {
 					console.log("created log for uploading: " + logName, err);
 					callback && callback(err);
