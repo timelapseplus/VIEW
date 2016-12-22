@@ -211,3 +211,22 @@ exports.close = function(callback) {
 	dbTl.close();
 	dbCache.close();
 }
+
+exports.sendLog = function(clipName, callback) {
+	if(clipName) {
+		//todo
+	} else {
+		if(exports.currentLogFile) {
+			var matches = exports.currentLogFile.match(/([^\/]+)$/);
+			if(matches && matches.length > 1) {
+				var logName = matches[1];
+				exec("mkdir /home/view/logsForUpload && bzip2 -c9 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2", function(err) {
+					console.log("created log for uploading: " + logName);
+					callback && callback(err);
+				});
+			}
+		}
+	}
+}
+
+

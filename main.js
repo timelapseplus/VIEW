@@ -725,7 +725,7 @@ if (VIEW_HARDWARE) {
                 type: "function",
                 fn: function(arg, cb) {
                     var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, cb);
+                        if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, cb);
                     });
                 }
             }
@@ -740,7 +740,7 @@ if (VIEW_HARDWARE) {
         type: "timelapse",
         enter: function(){
             var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function(){
+                if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, function(){
                     ui.reload();
                 });
             });
@@ -884,7 +884,7 @@ if (VIEW_HARDWARE) {
                             type: "function",
                             arg: clips[i],
                             fn: function(clip, cb2) {
-                                oled.video(clip.path, clip.frames, 24, cb2);
+                                oled.video(clip.path, clip.frames, 30, cb2);
                             }
                         },
                         button3: function(item) {
@@ -1576,6 +1576,14 @@ if (VIEW_HARDWARE) {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
+        }, {
+            name: "Send log for review",
+            action: function(){
+                db.sendLog(null, function() {
+                    ui.back();
+                });
+            },
+            help: help.sendLogsMenu
         }, ]
     }
 
@@ -1844,7 +1852,7 @@ if (VIEW_HARDWARE) {
             } else {
                 gestureVideoPlaying = true;
                 var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                    if (timelapse) oled.video(timelapse.path, timelapse.frames, 24, function() {
+                    if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, function() {
                         gestureVideoPlaying = false;
                         gestureModeTimer();
                     });
