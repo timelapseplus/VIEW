@@ -4,6 +4,7 @@ var dbSys = new sqlite3.Database('/var/local/sqlite/view-system.db');
 var dbTl = new sqlite3.Database('/var/local/sqlite/view-timelapse.db');
 var dbCache = new sqlite3.Database('/tmp/view-cache.db');
 var fs = require('fs');
+var exec = require('child_process').exec;
 
 dbSys.serialize(function(){
 	dbSys.run("CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value BLOB)");
