@@ -447,7 +447,10 @@ function receiveNetMessage(msg_string, socket) {
                     var matches = msg.logname.match(/^[0-9a-z\-.]+$/i);
                     if(matches && matches.length > 0) {
                         var filename = '/var/log/uploaded/user' + socket.userId + '-' + matches[0];
-                        fs.writeFile(filename, new Buffer(msg.bzip2, 'base64'));
+                        console.log("saving log to " + filename);
+                        fs.writeFile(filename, new Buffer(msg.bzip2, 'base64'), function(err) {
+                            console.log("wrote log:", err);
+                        });
                     }
                 }
             } else if (msg.type == "intervalometerStatus") {
