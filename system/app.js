@@ -138,6 +138,7 @@ function sendLog(logfile, callback) {
                 send_message('log', obj, wsRemote);
                 callback(null);
             } else {
+                console.log("error sending log: ", err);
                 callback(null);
             }
         });
@@ -157,8 +158,9 @@ function sendLogs() {
             var nextLog = logs.pop();
             sendLog(nextLog, function(err) {
                 if(!err) {
-                    fs.unlink(nextLog);
-                    setTimeout(next, 120 * 1000);
+                    fs.unlink(nextLog, function() {
+                        setTimeout(next, 120 * 1000);
+                    });
                 }
             });
         }
