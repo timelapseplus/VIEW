@@ -157,9 +157,9 @@ function sendLogs() {
         if(logs && logs.length > 0) {
             var nextLogName = logs.pop();
             var nextLog = "/home/view/logsForUpload/" + nextLogName;
-            sendLog(nextLog, function(err) {
+            sendLog(nextLog, nextLogName, function(err) {
                 if(!err) {
-                    fs.unlink(nextLog, nextLogName, function() {
+                    fs.unlink(nextLog, function() {
                         setTimeout(sendLogs, 120 * 1000);
                     });
                 }
