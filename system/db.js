@@ -36,7 +36,12 @@ dbCache.serialize(function(){
 	dbCache.run("CREATE TABLE IF NOT EXISTS cache (name TEXT PRIMARY KEY, value BLOB)");
 });
 
-var currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
+var currentLog = null;
+try {
+	currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
+} catch(e) {
+	currentLog = null;
+}
 if(currentLog) {
 	var currentPath = fs.readlinkSync('/home/view/current');
 	exports.currentLogFile = currentPath + "/" + currentLog.trim();
