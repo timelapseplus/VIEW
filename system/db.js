@@ -253,8 +253,10 @@ function sendLog(logPath, tlName, callback) {
 }
 
 exports.sendLog = function(clipName, callback) {
+	console.log("Preparing log to send", clipName);
 	if(clipName) {
 		exports.getTimelapseByName(clipName, function(err, clip) {
+			console.log("clipInfo", clip, err);
 			if(!err && clip && clip.logfile) {
 				sendLog(clip.logfile, clipName, callback);
 			} else {
