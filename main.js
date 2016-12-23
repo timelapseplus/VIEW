@@ -862,6 +862,7 @@ if (VIEW_HARDWARE) {
                     name: "Send log for review",
                     action: function(){
                         db.sendLog(clip.name, function() {
+                            app.sendLogs();
                             ui.back();
                         });
                     },

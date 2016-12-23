@@ -254,9 +254,9 @@ function sendLog(logPath, tlName, callback) {
 
 exports.sendLog = function(clipName, callback) {
 	if(clipName) {
-		dbTl.get("SELECT `logfile` FROM `clips` WHERE `name`  = '" + clipName + "'", function(err, data){
-			if(!err && data && data.logfile) {
-				sendLog(data.logfile, clipName, callback);
+		exports.getTimelapseByName(clipName, function(err, clip) {
+			if(!err && clip && clip.logfile) {
+				sendLog(clip.logfile, clipName, callback);
 			} else {
 				callback && callback(err || true);
 			}
