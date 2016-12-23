@@ -99,6 +99,7 @@ exports.get = function(key, callback) {
 
 exports.setTimelapse = function(name, program, status, callback) {
 	var date = (new Date()).toISOString();
+	name = name.toLowerCase();
 	program = serialize(program);
 	status = serialize(status);
 	logfile = exports.currentLogFile;
@@ -122,7 +123,7 @@ exports.getTimelapse = function(id, callback) {
 
 exports.getTimelapseByName = function(tlName, callback) {
 	console.log("db.getTimelapseByName: fetching " + tlName);
-	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName + "' LIMIT 1", function(err, data){
+	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
