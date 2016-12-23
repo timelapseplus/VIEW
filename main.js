@@ -902,7 +902,11 @@ if (VIEW_HARDWARE) {
                             }
                         },
                         button3: function(item) {
-                            if(item && item.action && item.action.arg) ui.load(createClipsContextMenu(item.action.arg));
+                            if(item && item.action && item.action.arg) {
+                                createClipsContextMenu(item.action.arg, function() {
+                                    ui.load(res);
+                                });
+                            }
                             //if(camera.ptp.sdPresent && item && item.action && item.action.arg) {
                             //    confirmSaveXMPs(item.action.arg);
                             //}
