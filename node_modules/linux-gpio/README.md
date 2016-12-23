@@ -1,4 +1,4 @@
-rpi-gpio.js
+linux-gpio
 ==========
 
 Control Raspberry Pi GPIO pins with io.js / node.js
