@@ -843,27 +843,41 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
-    var createClipsContextMenu = function(clip) {
-        return {
-            name: "clipsContext",
-            type: "menu",
-            items: [{
-                name: "Write XMPs to SD card",
-                action: function(){
-                    confirmSaveXMPs(clip);
-                },
-                help: help.writeXMPs,
-                condition: function() {
-                    return camera.ptp.sdPresent;
-                }
-            }, {
-                name: "Delete Clip",
-                help: help.deleteClip,
-                action: function(){
-                    confirmDeleteClip(clip);
-                }
-            }, ]
-        }
+    var createClipsContextMenu = function(clip, callback) {
+        db.getTimelapseByName(clip.name, function(err, dbClip) {
+            var res = {
+                name: "clipsContext",
+                type: "menu",
+                items: [{
+                    name: "Write XMPs to SD card",
+                    action: function(){
+                        confirmSaveXMPs(clip);
+                    },
+                    help: help.writeXMPs,
+                    condition: function() {
+                        return camera.ptp.sdPresent;
+                    }
+                }, {
+                    name: "Send log for review",
+                    action: function(){
+                        db.sendLog(clip.name, function() {
+                            ui.back();
+                        });
+                    },
+                    help: help.sendClipLog,
+                    condition: function() {
+                        return dbClip && dbClip.logfile;
+                    }
+                }, {
+                    name: "Delete Clip",
+                    help: help.deleteClip,
+                    action: function(){
+                        confirmDeleteClip(clip);
+                    }
+                }, ]
+            }
+            callback(res);
+        });
     }
 
     var clipsMenu = function(cb) {

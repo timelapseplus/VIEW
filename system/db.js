@@ -39,8 +39,7 @@ dbCache.serialize(function(){
 var currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
 if(currentLog) {
 	var currentPath = fs.readlinkSync('/home/view/current');
-	console.log("currentPath", currentPath);
-	exports.currentLogFile = "/home/view/current/" + currentLog.trim();
+	exports.currentLogFile = currentPath + "/" + currentLog.trim();
 } else {
 	exports.currentLogFile = "";
 }
@@ -111,6 +110,18 @@ exports.setTimelapse = function(name, program, status, callback) {
 
 exports.getTimelapse = function(id, callback) {
 	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			if(data.program) data.program = unserialize(data.program);
+			if(data.status) data.status = unserialize(data.status);
+			callback(err, data);
+		}
+	});
+}
+
+exports.getTimelapseByName = function(tlName, callback) {
+	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
@@ -215,21 +226,36 @@ exports.close = function(callback) {
 	dbCache.close();
 }
 
+function sendLog(logPath, tlName, callback) {
+	if(logPath) {
+		var matches = logPath.match(/([^\/]+)$/);
+		if(matches && matches.length > 1) {
+			var logName = matches[1];
+			if(tlName) logName = tlName + "-" + logName;
+			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".bz2";
+			exec(cmd, function(err) {
+				console.log("created log for uploading: " + logName, err);
+				callback && callback(err);
+			});
+		} else {
+			callback && callback(true);
+		}
+	} else {
+		callback && callback(true);
+	}
+}
+
 exports.sendLog = function(clipName, callback) {
 	if(clipName) {
-		//todo
-	} else {
-		if(exports.currentLogFile) {
-			var matches = exports.currentLogFile.match(/([^\/]+)$/);
-			if(matches && matches.length > 1) {
-				var logName = matches[1];
-				var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + exports.currentLogFile + " > /home/view/logsForUpload/" + logName + ".bz2";
-				exec(cmd, function(err) {
-					console.log("created log for uploading: " + logName, err);
-					callback && callback(err);
-				});
+		dbTl.get("SELECT `logfile` FROM `clips` WHERE `name`  = '" + clipName + "'", function(err, data){
+			if(!err && data && data.logfile) {
+				sendLog(data.logfile, clipName, callback);
+			} else {
+				callback && callback(err || true);
 			}
-		}
+		});
+	} else {
+		sendLog(exports.currentLogFile, "", callback);
 	}
 }
 
