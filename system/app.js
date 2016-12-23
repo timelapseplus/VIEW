@@ -128,16 +128,21 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
 
 function sendLog(logfile, logname, callback) {
     if(app.remote) {
+        console.log("Reading", logfile);
         fs.readFile(logfile, function(err, file) {
-            if(!err && file) {
-                console.log("sending log file to proxy: ", logfile);
-                var obj = {
-                    logname: logname,
-                    bzip2: file.toString('base64')
-                }
-                send_message('log', obj, wsRemote, function(err2) {
+            if(!err) {
+                if(file) {
+                    console.log("sending log file to proxy: ", logfile);
+                    var obj = {
+                        logname: logname,
+                        bzip2: file.toString('base64')
+                    }
+                    send_message('log', obj, wsRemote, function(err2) {
+                        callback(null);
+                    });
+                } else {
                     callback(null);
-                });
+                }
             } else {
                 console.log("error sending log: ", err);
                 callback(null);
@@ -150,6 +155,7 @@ function sendLog(logfile, logname, callback) {
 
 function sendLogs() {
     if(app.remote) {
+        console.log("Checking for logs to upload...");
         var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
             return log.match(/^log/) ? true : false;
