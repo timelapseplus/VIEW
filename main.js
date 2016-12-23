@@ -903,7 +903,7 @@ if (VIEW_HARDWARE) {
                         },
                         button3: function(item) {
                             if(item && item.action && item.action.arg) {
-                                createClipsContextMenu(item.action.arg, function() {
+                                createClipsContextMenu(item.action.arg, function(res) {
                                     ui.load(res);
                                 });
                             }
