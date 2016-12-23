@@ -121,6 +121,7 @@ exports.getTimelapse = function(id, callback) {
 }
 
 exports.getTimelapseByName = function(tlName, callback) {
+	console.log("db.getTimelapseByName: fetching " + tlName);
 	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
