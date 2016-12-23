@@ -135,8 +135,9 @@ function sendLog(logfile, logname, callback) {
                     logname: logname,
                     bzip2: file.toString('base64')
                 }
-                send_message('log', obj, wsRemote);
-                callback(null);
+                send_message('log', obj, wsRemote, function(err2) {
+                    callback(null);
+                });
             } else {
                 console.log("error sending log: ", err);
                 callback(null);
