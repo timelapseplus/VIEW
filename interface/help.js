@@ -86,5 +86,5 @@ exports.isoMax = "The maximum ISO to ramp up to during auto ramping (note that t
 
 exports.isoMin = "The minimum ISO to use during auto ramping (note that this will limit the ramping range)";
 
-exports.sendLogsMenu = "This will prepare the current logfile (since power on) to send for review by Elijah Parker as an aid for development and bugfixing.  It will either be sent immediately or next time it's connected to the internet via WiFi.  The logs will be associated with your email address so you may be contacted when there is a resolution or if more info is needed.";
+exports.sendLogsMenu = "This will prepare the current logfile (since power on) to send for review by Elijah Parker as an aid for development and bugfixing.  It will either be sent immediately or next time it's connected to the internet via WiFi.  The logs will be associated with your email address so you may be contacted when there is a resolution or if more info is needed.\nThe log file is compressed before sending and large logs can take as long as 10 minutes to compress, so if the VIEW is unresponsive, please give it some time.";
 

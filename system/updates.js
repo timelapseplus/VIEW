@@ -195,10 +195,12 @@ function updateKernel(callback) {
 }
 
 exports.version = "";
+exports.currentPath = "";
 var installs = fs.readdirSync(baseInstallPath);
 var current = "";
 if(installs.indexOf('current') !== -1) {
 	current = fs.readlinkSync(baseInstallPath + 'current');
+	exports.currentPath = current;
 	current = current.match(/[^\/]+$/)[0];
 	console.log("current version:", current);
 	exports.version = current;

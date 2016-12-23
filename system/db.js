@@ -38,6 +38,8 @@ dbCache.serialize(function(){
 
 var currentLog = fs.readFileSync("/home/view/current/logs/current.txt", {encoding:'utf8'});
 if(currentLog) {
+	var currentPath = fs.readlinkSync('/home/view/current');
+	console.log("currentPath", currentPath);
 	exports.currentLogFile = "/home/view/current/" + currentLog.trim();
 } else {
 	exports.currentLogFile = "";

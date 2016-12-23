@@ -169,7 +169,7 @@ function sendLogs() {
     }
 }
 
-function send_message(type, object, socket) {
+function send_message(type, object, socket, callback) {
     if (!object) object = {};
     if (typeof(type) === "string") {
         object.type = type;
@@ -186,7 +186,7 @@ function send_message(type, object, socket) {
     }
     try {
         if (socket) {
-            socket.send(msg_string);
+            socket.send(msg_string, callback);
         } else {
             wss.broadcast(msg_string);
             if (app.remote) wsRemote.send(msg_string);
