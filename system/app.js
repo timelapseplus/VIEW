@@ -158,7 +158,7 @@ function sendLogs() {
         console.log("Checking for logs to upload...");
         var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
-            return log.match(/^log/) ? true : false;
+            return log.match(/^(log|TL)/) ? true : false;
         });
 
         if(logs && logs.length > 0) {
