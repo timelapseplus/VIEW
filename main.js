@@ -845,6 +845,7 @@ if (VIEW_HARDWARE) {
 
     var createClipsContextMenu = function(clip, callback) {
         db.getTimelapseByName(clip.name, function(err, dbClip) {
+            console.log("dbClip:", dbClip);
             var res = {
                 name: "clipsContext",
                 type: "menu",
