@@ -65,12 +65,16 @@ intervalometer.timelapseFolder = false;
 
 intervalometer.status = status;
 
-var auxTrigger = new Button('input-aux2');
+try {
+    var auxTrigger = new Button('input-aux2');
 
-auxTrigger.on('press', function() {
-    console.log("AUX2 trigger!");
-    if (status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
-});
+    auxTrigger.on('press', function() {
+        console.log("AUX2 trigger!");
+        if (status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
+    });
+} catch(e) {
+    console.log("AUX setup failed: ", e);
+}
 
 function motionSyncPulse() {
     if (status.running && intervalometer.currentProgram.intervalMode != 'aux') {
