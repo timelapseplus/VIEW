@@ -241,6 +241,10 @@ function sendLog(logPath, tlName, callback) {
 			if(tlName) logName = tlName + "-" + logName;
 			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".bz2";
 			exec(cmd, function(err) {
+				if(err) {
+					console.log("error compressing log: ", err);
+					exec("rm /home/view/logsForUpload/" + logName + "*");
+				}
 				console.log("created log for uploading: " + logName, err);
 				callback && callback(err);
 			});
@@ -258,6 +262,7 @@ exports.sendLog = function(clipName, callback) {
 		exports.getTimelapseByName(clipName, function(err, clip) {
 			console.log("clipInfo", clip, err);
 			if(!err && clip && clip.logfile) {
+				console.log("creating log for " + clipName + "...", clip.logfile);
 				sendLog(clip.logfile, clipName, callback);
 			} else {
 				callback && callback(err || true);
