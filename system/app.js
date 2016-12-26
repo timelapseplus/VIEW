@@ -140,6 +140,7 @@ function sendLog(logfile, logname, callback) {
                         bzip2: file.toString('base64')
                     }
                     send_message('log', obj, wsRemote, function(err2) {
+                        console.log("log sent");
                         callback(null);
                     });
                 } else {
@@ -158,7 +159,7 @@ function sendLog(logfile, logname, callback) {
 function sendLogs(callback, uploaded) {
     if(!uploaded) uploaded = 0;
     if(app.remote) {
-        console.log("Checking for logs to upload...");
+        console.log("Checking for logs to upload...", uploaded);
         var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
             return log.match(/^(log|TL)/) ? true : false;
@@ -171,13 +172,14 @@ function sendLogs(callback, uploaded) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
                         uploaded++;
-                        setTimeout(function() {sendLogs(callback, uploaded)}, 120 * 1000);
+                        setTimeout(function() {sendLogs(callback, uploaded)}, 60 * 1000);
                     });
                 } else {
                     callback && callback("failed to upload log");
                 }
             });
         } else {
+            console.log("log uploads complete");
             callback && callback(null, uploaded);
         }
     } else {

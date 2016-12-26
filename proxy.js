@@ -516,7 +516,7 @@ function receiveViewMessage(msg_string, socket) {
             if(msg.logname.length < 64) {
                 var matches = msg.logname.match(/^[0-9a-z\-.]+$/i);
                 if(matches && matches.length > 0) {
-                    var filename = '/var/log/uploaded/user' + socket.userId + '-' + uid(5) + '-' + matches[0];
+                    var filename = '/var/www/logs/user' + socket.userId + '-' + uid(5) + '-' + matches[0];
                     console.log("saving log to " + filename);
                     fs.writeFile(filename, new Buffer(msg.bzip2, 'base64'), function(err) {
                         console.log("wrote log:", err);
