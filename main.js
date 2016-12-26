@@ -1779,7 +1779,7 @@ if (VIEW_HARDWARE) {
         oled.status('connected to view.tl');
     });
 
-    app.on('logs-uploaded', function() {
+    app.on('logs-uploaded', function(count) {
         ui.alert('Success', help.logFilesUploaded);    
     })
 

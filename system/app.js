@@ -80,6 +80,7 @@ function connectRemote() {
                         send_message('ping', null, wsRemote);
                     }, 10000);
                     sendLogs(function(err, uploaded) {
+                        console.log("uploads complete: ", uploaded);
                         if(!err && uploaded > 0) app.emit('logs-uploaded', uploaded);
                     });
                 } else if(msg.code) {
