@@ -1779,6 +1779,10 @@ if (VIEW_HARDWARE) {
         oled.status('connected to view.tl');
     });
 
+    app.on('logs-uploaded', function() {
+        ui.alert('Success', help.logFilesUploaded);    
+    })
+
     camera.ptp.on('media-insert', function(type) {
         console.log("media inserted: ", type);
         oled.activity();

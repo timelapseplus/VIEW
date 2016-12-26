@@ -79,7 +79,9 @@ function connectRemote() {
                     remotePingHandle = setInterval(function() {
                         send_message('ping', null, wsRemote);
                     }, 10000);
-                    sendLogs();
+                    sendLogs(function(err) {
+                        if(!err) app.emit('logs-uploaded');
+                    });
                 } else if(msg.code) {
                     app.authCode = msg.code;
                     app.emit('auth-required', app.authCode);
@@ -153,7 +155,7 @@ function sendLog(logfile, logname, callback) {
     }
 }
 
-function sendLogs() {
+function sendLogs(callback) {
     if(app.remote) {
         console.log("Checking for logs to upload...");
         var logs = fs.readdirSync("/home/view/logsForUpload");
@@ -167,11 +169,17 @@ function sendLogs() {
             sendLog(nextLog, nextLogName, function(err) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
-                        setTimeout(sendLogs, 120 * 1000);
+                        setTimeout(function() {sendLogs(callback)}, 120 * 1000);
                     });
+                } else {
+                    callback && callback("failed to upload log");
                 }
             });
+        } else {
+            callback && callback(null);
         }
+    } else {
+        callback && callback("not connected");
     }
 }
 
