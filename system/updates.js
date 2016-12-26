@@ -12,7 +12,7 @@ var baseInstallPath = "/home/view/";
 var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
 var patchMD5 = "7a31ebf60d3af3cdbbfca9f5cee3ea36";
 
-var kernelVersion = "#47 PREEMPT Tue Dec 20 13:55:21 EST 2016";
+var kernelVersion = "#50 PREEMPT Mon Dec 26 12:40:55 EST 2016";
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
