@@ -240,7 +240,7 @@ function sendLog(logPath, tlName, reasonCode, callback) {
 			if(!reasonCode) reasonCode = "000";
 			var logName = matches[1].replace(/\.txt$/, "") + '-' + reasonCode;
 			if(tlName) logName = tlName + "-" + logName;
-			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".txt.bz2";
+			var cmd = "mkdir -p /home/view/logsForUpload && /usr/bin/tail -n 500000 " + logPath + " | /bin/bzip2 -c6 > /home/view/logsForUpload/" + logName + ".txt.bz2";
 			exec(cmd, function(err) {
 				if(err) {
 					console.log("error compressing log: ", err);
