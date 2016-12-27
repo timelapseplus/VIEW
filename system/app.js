@@ -182,7 +182,7 @@ function sendLogs(callback, uploaded) {
                 }
             });
         } else {
-            console.log("log uploads complete (" + uploaded + ")");
+            console.log("log uploads complete (" + uploaded + ")", callback);
             callback && callback(null, uploaded);
         }
     } else {
