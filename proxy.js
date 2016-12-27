@@ -14,6 +14,7 @@ var uid = require('uid');
 var bcrypt = require('bcrypt');
 var mysql      = require('mysql');
 var fs = require('fs');
+var exec = require('child_process').exec;
 
 var db = mysql.createConnection({
   host     : '104.131.0.142',
@@ -25,6 +26,8 @@ var db = mysql.createConnection({
 db.connect();
 
 var sessions = [];
+
+var UPLOADED_LOGS = "/var/www/logs/";
 
 function updateSessions(callback) {
     var newSessions = [];
@@ -49,7 +52,8 @@ function loginUser(email, password, callback) {
                 if(!err && res) {
                     var session = {
                         user_id: user.id,
-                        sid: uid(64) + user.id
+                        sid: uid(64) + user.id,
+                        date: (new Date()).toISOString()
                     }
                     db.query("INSERT INTO `sessions` SET ?", session, function(err) {
                         updateSessions(function(){
@@ -490,6 +494,40 @@ function updateCache(viewId, key, data) {
     cache[viewId][key] = data;
 }
 
+function recordLogReport(filename, userId) {
+    var reason = "";
+    var version = "";
+    var matches = filename.match(/\-([a-z]+).txt/i);
+    if(matches && matches.length > 1) reason = matches[1];
+    var camera = "";
+    exec('/bin/bunzip2 ' + UPLOADED_LOGS + filename + ' -c | /bin/grep -m 1 "Camera connected:"', function(err, stdout, stderr) {
+        if(!err && stdout) {
+            matches = stdout.match(/Camera connected:\s*(.+)/i);
+            if(matches && matches.length > 1) camera = matches[1].trim();
+        }
+        exec('/bin/bunzip2 ' + UPLOADED_LOGS + filename + ' -c | /bin/grep -m 1 "current version:"', function(err, stdout, stderr) {
+            if(!err && stdout) {
+                matches = stdout.match(/current version:\s*(.+)/i);
+                if(matches && matches.length > 1) version = matches[1].trim();
+            }
+            var report = {
+                user_id: userId,
+                logfile: filename,
+                reason: reason,
+                camera: camera,
+                version: version,
+                date: (new Date()).toISOString()
+            }
+            db.query("INSERT INTO `reports` SET ?", report, function(err) {
+                if(err) {
+                    console.log("Error while saving report:", err);
+                }
+
+            });
+        });
+    });
+}
+
 function receiveViewMessage(msg_string, socket) {
     if(!socket.userId) {
         console.log("userId not found for VIEW device, ignoring.");
@@ -516,10 +554,12 @@ function receiveViewMessage(msg_string, socket) {
             if(msg.logname.length < 64) {
                 var matches = msg.logname.match(/^[0-9a-z\-.]+$/i);
                 if(matches && matches.length > 0) {
-                    var filename = '/var/www/logs/user' + socket.userId + '-' + uid(5) + '-' + matches[0];
-                    console.log("saving log to " + filename);
-                    fs.writeFile(filename, new Buffer(msg.bzip2, 'base64'), function(err) {
+                    var filename = 'user' + socket.userId + '-' + uid(5) + '-' + matches[0];
+                    var filepath = UPLOADED_LOGS + filename;
+                    console.log("saving log to " + filepath);
+                    fs.writeFile(filepath, new Buffer(msg.bzip2, 'base64'), function(err) {
                         console.log("wrote log:", err);
+                        recordLogReport(filename, socket.userId);
                     });
                 }
             }

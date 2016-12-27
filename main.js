@@ -861,10 +861,7 @@ if (VIEW_HARDWARE) {
                 }, {
                     name: "Send log for review",
                     action: function(){
-                        db.sendLog(clip.name, function() {
-                            app.sendLogs();
-                            ui.back();
-                        });
+                        ui.load(createErrorReportReasonMenu(clip.name));
                     },
                     help: help.sendClipLog,
                     condition: function() {
@@ -1411,6 +1408,75 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var createErrorReportReasonMenu = function(tlName) {
+        return {
+            name: "Error Report - Reason",
+            type: "options",
+            items: [{
+                name: "Error Report - Reason",
+                value: "Failed Time-lapse",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'tlfail', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }, {
+                name: "Error Report - Reason",
+                value: "Flicker/Interval Issues",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'tlfail', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }, {
+                name: "Error Report - Reason",
+                value: "Time-lapse won't start",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'tlstart', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }, {
+                name: "Error Report - Reason",
+                value: "SD card issues",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'sdcard', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }, {
+                name: "Error Report - Reason",
+                value: "NMX/motion issues",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'motion', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }, {
+                name: "Error Report - Reason",
+                value: "Interface/Other",
+                help: help.errorReportReasonMenu,
+                action: function() {
+                    db.sendLog(tlName, 'other', function() {
+                        app.sendLogs();
+                        ui.back();
+                    });
+                }
+            }]
+        }
+    }
+
+
     var autoPowerOffMenu = {
         name: "Auto Power Off",
         type: "options",
@@ -1599,10 +1665,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Send log for review",
             action: function(){
-                db.sendLog(null, function() {
-                    app.sendLogs();
-                    ui.back();
-                });
+                ui.load(createErrorReportReasonMenu(null));
             },
             help: help.sendLogsMenu
         }, ]

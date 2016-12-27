@@ -233,13 +233,14 @@ exports.close = function(callback) {
 	dbCache.close();
 }
 
-function sendLog(logPath, tlName, callback) {
+function sendLog(logPath, tlName, reasonCode, callback) {
 	if(logPath) {
 		var matches = logPath.match(/([^\/]+)$/);
 		if(matches && matches.length > 1) {
-			var logName = matches[1];
+			if(!reasonCode) reasonCode = "000";
+			var logName = matches[1].replace(/\.txt^/, "") + '-' + reasonCode;
 			if(tlName) logName = tlName + "-" + logName;
-			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".bz2";
+			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".txt.bz2";
 			exec(cmd, function(err) {
 				if(err) {
 					console.log("error compressing log: ", err);
@@ -256,14 +257,14 @@ function sendLog(logPath, tlName, callback) {
 	}
 }
 
-exports.sendLog = function(clipName, callback) {
+exports.sendLog = function(clipName, reasonCode, callback) {
 	console.log("Preparing log to send", clipName);
 	if(clipName) {
 		exports.getTimelapseByName(clipName, function(err, clip) {
 			console.log("clipInfo", clip, err);
 			if(!err && clip && clip.logfile) {
 				console.log("creating log for " + clipName + "...", clip.logfile);
-				sendLog(clip.logfile, clipName, callback);
+				sendLog(clip.logfile, clipName, reasonCode, callback);
 			} else {
 				callback && callback(err || true);
 			}

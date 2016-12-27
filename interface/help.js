@@ -92,3 +92,6 @@ exports.sendClipLog = "This will prepare the logfile from the selected time-laps
 
 exports.logFilesUploaded = "The logs files have been successfully uploaded for review.  Thank you for your help in improving the VIEW!";
 
+exports.errorReportReasonMenu = "Please select the reason for sending the log that best matches the issues you've experienced.  This will help us know what to look for in the report.  If unsure, just select 'other'.  Thanks for your feedback!";
+
+
