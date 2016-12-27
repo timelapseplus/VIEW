@@ -79,10 +79,7 @@ function connectRemote() {
                     remotePingHandle = setInterval(function() {
                         send_message('ping', null, wsRemote);
                     }, 10000);
-                    sendLogs(function(err, uploaded) {
-                        console.log("uploads complete: ", uploaded);
-                        if(!err && uploaded > 0) app.emit('logs-uploaded', uploaded);
-                    });
+                    sendLogs();
                 } else if(msg.code) {
                     app.authCode = msg.code;
                     app.emit('auth-required', app.authCode);
@@ -173,20 +170,18 @@ function sendLogs(callback, uploaded) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
                         uploaded++;
-                        (function(cb) {
-                            setTimeout(function() {
-                                console.log("calling again with cb:", cb);
-                                sendLogs(cb, uploaded);
-                            }, 10 * 1000);
-                        })(callback);
+                        setTimeout(function() {
+                            sendLogs(callback, uploaded);
+                        }, 15 * 1000);
                     });
                 } else {
                     callback && callback("failed to upload log");
                 }
             });
         } else {
-            console.log("log uploads complete (" + uploaded + ")", callback);
+            console.log("log uploads complete (" + uploaded + ")");
             callback && callback(null, uploaded);
+            if(uploaded > 0) app.emit('logs-uploaded', uploaded);
         }
     } else {
         callback && callback("not connected");

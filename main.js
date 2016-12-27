@@ -1421,6 +1421,7 @@ if (VIEW_HARDWARE) {
                     db.sendLog(tlName, 'timelapse', function() {
                         app.sendLogs();
                         ui.back();
+                        ui.alert('Success', help.logsQueued);
                     });
                 }
             }, {
@@ -1431,6 +1432,7 @@ if (VIEW_HARDWARE) {
                     db.sendLog(tlName, 'interval', function() {
                         app.sendLogs();
                         ui.back();
+                        ui.alert('Success', help.logsQueued);
                     });
                 }
             }, {
@@ -1441,6 +1443,7 @@ if (VIEW_HARDWARE) {
                     db.sendLog(tlName, 'sdcard', function() {
                         app.sendLogs();
                         ui.back();
+                        ui.alert('Success', help.logsQueued);
                     });
                 }
             }, {
@@ -1451,6 +1454,7 @@ if (VIEW_HARDWARE) {
                     db.sendLog(tlName, 'motion', function() {
                         app.sendLogs();
                         ui.back();
+                        ui.alert('Success', help.logsQueued);
                     });
                 }
             }, {
@@ -1461,6 +1465,7 @@ if (VIEW_HARDWARE) {
                     db.sendLog(tlName, 'other', function() {
                         app.sendLogs();
                         ui.back();
+                        ui.alert('Success', help.logsQueued);
                     });
                 }
             }]
