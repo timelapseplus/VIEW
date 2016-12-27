@@ -1409,6 +1409,7 @@ if (VIEW_HARDWARE) {
     }
 
     var createErrorReportReasonMenu = function(tlName) {
+        ui.back();
         return {
             name: "Error Report - Reason",
             type: "options",

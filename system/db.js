@@ -238,7 +238,7 @@ function sendLog(logPath, tlName, reasonCode, callback) {
 		var matches = logPath.match(/([^\/]+)$/);
 		if(matches && matches.length > 1) {
 			if(!reasonCode) reasonCode = "000";
-			var logName = matches[1].replace(/\.txt^/, "") + '-' + reasonCode;
+			var logName = matches[1].replace(/\.txt$/, "") + '-' + reasonCode;
 			if(tlName) logName = tlName + "-" + logName;
 			var cmd = "mkdir -p /home/view/logsForUpload && /bin/bzip2 -c6 " + logPath + " > /home/view/logsForUpload/" + logName + ".txt.bz2";
 			exec(cmd, function(err) {
