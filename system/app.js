@@ -173,9 +173,10 @@ function sendLogs(callback, uploaded) {
                 if(!err) {
                     fs.unlink(nextLog, function() {
                         uploaded++;
+                        var cb = callback;
                         setTimeout(function() {
-                            sendLogs(callback, uploaded);
-                        }, 60 * 1000);
+                            sendLogs(cb, uploaded);
+                        }, 10 * 1000);
                     });
                 } else {
                     callback && callback("failed to upload log");
