@@ -166,13 +166,16 @@ camera.setEv = function(ev, options, cb) {
             };
         }
 
+
         var shutterList = camera.ptp.settings.lists.shutter;
         var apertureList = camera.ptp.settings.lists.aperture;
         var isoList = camera.ptp.settings.lists.iso;
 
         if (options && options.maxShutterLengthMs) {
+            var maxSeconds = Math.ceil(options.maxShutterLengthMs / 1000);
+            if(maxSeconds == 0) maxSeconds = 1;
             shutterList = shutterList.filter(function(item) {
-                return lists.getSecondsFromEv(item.ev) * 1000 < options.maxShutterLengthMs;
+                return lists.getSecondsFromEv(item.ev) <= maxSeconds;
             });
         }
         if (options && options.shutterMax !== null) {
