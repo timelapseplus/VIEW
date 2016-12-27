@@ -1415,7 +1415,7 @@ if (VIEW_HARDWARE) {
             type: "options",
             items: [{
                 name: "Error Report - Reason",
-                value: "Time-lapse Err",
+                value: "Time-lapse",
                 help: help.errorReportReasonMenu,
                 action: function() {
                     db.sendLog(tlName, 'timelapse', function() {
@@ -1669,6 +1669,7 @@ if (VIEW_HARDWARE) {
 
     var mainMenu = {
         name: "main menu",
+        top: true,
         type: "menu",
         items: [{
             name: "Time-lapse",
@@ -1761,7 +1762,7 @@ if (VIEW_HARDWARE) {
                 }); 
             } else {
                 ui.back();
-                cb();
+                //cb();
             }
         }, null);
     }

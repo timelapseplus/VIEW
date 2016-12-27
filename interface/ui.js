@@ -233,11 +233,11 @@ function back() {
     var b;
     do {
         b = stack.pop();
-    } while(!b || !b.name);
-    if(currentProgram.origin == "prompt") {
+    } while((!b || !b.name) && !b.top);
+    if(currentProgram.origin == "prompt" && !b.top) {
         do {
             b = stack.pop();
-        } while(!b || !b.name);
+        } while((!b || !b.name) && !b.top);
     }
     console.log("BACK to " + b.name);
     exports.load(b.program, true, b.selected);
