@@ -230,14 +230,18 @@ exports.button3 = function() {
     }
 }
 function back() {
+    if(stack.length == 0) {
+        console.log("already at menu top");
+        return;
+    }
     var b;
     do {
         b = stack.pop();
-    } while((!b || !b.name) && !b.top);
-    if(currentProgram.origin == "prompt" && !b.top) {
+    } while((!b || !b.name) && stack.length > 0);
+    if(currentProgram.origin == "prompt" && stack.length > 0) {
         do {
             b = stack.pop();
-        } while((!b || !b.name) && !b.top);
+        } while((!b || !b.name) && stack.length > 0);
     }
     console.log("BACK to " + b.name);
     exports.load(b.program, true, b.selected);

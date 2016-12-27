@@ -1669,7 +1669,6 @@ if (VIEW_HARDWARE) {
 
     var mainMenu = {
         name: "main menu",
-        top: true,
         type: "menu",
         items: [{
             name: "Time-lapse",
