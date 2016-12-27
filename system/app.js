@@ -160,7 +160,7 @@ function sendLog(logfile, logname, callback) {
 function sendLogs(callback, uploaded) {
     if(!uploaded) uploaded = 0;
     if(app.remote) {
-        console.log("Checking for logs to upload...", uploaded);
+        console.log("Checking for logs to upload...", uploaded, callback);
         var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
             return log.match(/^(log|TL)/) ? true : false;
@@ -175,6 +175,7 @@ function sendLogs(callback, uploaded) {
                         uploaded++;
                         (function(cb) {
                             setTimeout(function() {
+                                console.log("calling again with cb:", cb);
                                 sendLogs(cb, uploaded);
                             }, 10 * 1000);
                         })(callback);

@@ -1415,37 +1415,27 @@ if (VIEW_HARDWARE) {
             type: "options",
             items: [{
                 name: "Error Report - Reason",
-                value: "Failed Time-lapse",
+                value: "Time-lapse Err",
                 help: help.errorReportReasonMenu,
                 action: function() {
-                    db.sendLog(tlName, 'tlfail', function() {
+                    db.sendLog(tlName, 'timelapse', function() {
                         app.sendLogs();
                         ui.back();
                     });
                 }
             }, {
                 name: "Error Report - Reason",
-                value: "Flicker/Interval Issues",
+                value: "Interval",
                 help: help.errorReportReasonMenu,
                 action: function() {
-                    db.sendLog(tlName, 'tlfail', function() {
+                    db.sendLog(tlName, 'interval', function() {
                         app.sendLogs();
                         ui.back();
                     });
                 }
             }, {
                 name: "Error Report - Reason",
-                value: "Time-lapse won't start",
-                help: help.errorReportReasonMenu,
-                action: function() {
-                    db.sendLog(tlName, 'tlstart', function() {
-                        app.sendLogs();
-                        ui.back();
-                    });
-                }
-            }, {
-                name: "Error Report - Reason",
-                value: "SD card issues",
+                value: "SD card",
                 help: help.errorReportReasonMenu,
                 action: function() {
                     db.sendLog(tlName, 'sdcard', function() {
@@ -1455,7 +1445,7 @@ if (VIEW_HARDWARE) {
                 }
             }, {
                 name: "Error Report - Reason",
-                value: "NMX/motion issues",
+                value: "Motion",
                 help: help.errorReportReasonMenu,
                 action: function() {
                     db.sendLog(tlName, 'motion', function() {
@@ -1465,7 +1455,7 @@ if (VIEW_HARDWARE) {
                 }
             }, {
                 name: "Error Report - Reason",
-                value: "Interface/Other",
+                value: "Other",
                 help: help.errorReportReasonMenu,
                 action: function() {
                     db.sendLog(tlName, 'other', function() {
