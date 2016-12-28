@@ -162,7 +162,7 @@ function sendLog(logfile, logname, callback) {
 function sendLogs(callback, uploaded) {
     if(!uploaded) uploaded = 0;
     if(app.remote) {
-        console.log("Checking for logs to upload...", uploaded, callback);
+        console.log("Checking for logs to upload...", uploaded);
         var logs = fs.readdirSync("/home/view/logsForUpload");
         logs = logs.filter(function(log) {
             return log.match(/^(log|TL)/) ? true : false;
@@ -180,6 +180,7 @@ function sendLogs(callback, uploaded) {
                         }, 15 * 1000);
                     });
                 } else {
+                    console.log("log upload failed");
                     callback && callback("failed to upload log");
                 }
             });
