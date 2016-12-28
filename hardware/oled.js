@@ -479,12 +479,13 @@ oled.writeMenu = function() {
         fb.font(MENU_FONT_SIZE, false, false);
 
         for(var i = 0; i < list.length; i++) {
+            color("primary");
             if(list[i].image) {
                 fs.writeFileSync('/tmp/menuImage', list[i].image);
                 fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, '/tmp/menuImage');
             }
+            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, IMAGE_WIDTH, IMAGE_WIDTH / 1.5, false);
 
-            color("primary");
             fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + 2, list[i].name);
             color("secondary");
             fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + MENU_LINE_HEIGHT - 3, list[i].line2);
