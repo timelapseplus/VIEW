@@ -69,6 +69,7 @@ var MENU_TEXT_FONT_SIZE = 12;
 var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
 var MENU_STATUS_YOFFSET = 10;
+var IMAGE_WIDTH = 90;
 
 var TEXT_LIST = {};
 TEXT_LIST.alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -442,6 +443,53 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
+    } else if(oled.imageMenu) { // menu mode
+        itemArray = oled.imageMenu;
+
+        if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
+        if (itemArray.length <= 3) {
+            list = itemArray;
+            selected = oled.selected;
+        } else if (oled.selected == itemArray.length - 1) {
+            list = itemArray.slice(oled.selected - 2, oled.selected + 3);
+            selected = 2;
+        } else if (oled.selected == 0) {
+            list = itemArray.slice(0, 5);
+            selected = 0;
+        } else {
+            list = itemArray.slice(oled.selected - 1, oled.selected + 4);
+            selected = 1;
+        }
+        if (!selected) selected = 0;
+        if (selected >= list.length) selected = list.length - 1;
+
+        // draw selection area
+        var sX = 0;
+        var sY = MENU_YOFFSET - (MENU_LINE_HEIGHT / 2 + 5) + selected * MENU_LINE_HEIGHT * 2;
+        var sW = oled.width - 1;
+        var sH = MENU_LINE_HEIGHT * 2 - 2;
+
+        color("secondary");
+        fb.rect(sX, sY, sW, sH, false);
+        fb.rect(sX + 1, sY + 1, sW, sH, false);
+
+        // draw menu text
+        fb.font(MENU_FONT_SIZE, false, false);
+
+        for(var i = 0; i < list.length; i++) {
+            if(list[i].image) {
+                fs.writeFileSync('/tmp/menuImage', list[i].image);
+                fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, '/tmp/menuImage');
+            }
+
+            color("primary");
+            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, list[i].name);
+            color("secondary");
+            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + MENU_LINE_HEIGHT - 2, list[i].line2);
+        }
+
+        drawStatusBar();
+
     } else { // menu mode
         
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
@@ -516,6 +564,15 @@ oled.create = function(itemArray, selected) {
     oled.textLines = null;
     oled.setting = null;
     oled.items = itemArray;
+    oled.selected = selected || 0;
+    oled.writeMenu();
+}
+
+oled.create = function(itemArray, selected) {
+    oled.textInput = null;
+    oled.textLines = null;
+    oled.setting = null;
+    oled.imageMenu = itemArray;
     oled.selected = selected || 0;
     oled.writeMenu();
 }

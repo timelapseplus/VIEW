@@ -71,6 +71,16 @@ function load(program, selected) {
         }), selected || 0);
         oled.update();
     }
+    if (currentProgram.type == "menu-image") {
+        oled.create(currentProgram.items.map(function(item) {
+            return {
+                name: item.name,
+                line2: item.line2,
+                image: item.image
+            };
+        }), selected || 0);
+        oled.update();
+    }
     if (currentProgram.type == "options") {
         oled.value(currentProgram.items, selected || 0);
         oled.update();

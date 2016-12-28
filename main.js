@@ -886,34 +886,54 @@ if (VIEW_HARDWARE) {
             if (clips) {
                 var cm = {
                     name: "timelapse clips",
-                    type: "menu",
+                    type: "menu-image",
                     items: []
                 };
-                for (var i = 0; i < clips.length; i++) {
-                    if (clips[i]) cm.items.push({
-                        name: clips[i].name + " (" + clips[i].frames + ")",
-                        help: help.clipsMenu,
-                        action: {
-                            type: "function",
-                            arg: clips[i],
-                            fn: function(clip, cb2) {
-                                oled.video(clip.path, clip.frames, 30, cb2);
-                            }
-                        },
-                        button3: function(item) {
-                            if(item && item.action && item.action.arg) {
-                                createClipsContextMenu(item.action.arg, function(res) {
-                                    ui.load(res);
-                                });
-                            }
-                            //if(camera.ptp.sdPresent && item && item.action && item.action.arg) {
-                            //    confirmSaveXMPs(item.action.arg);
-                            //}
-                        }
-                    });
+                var queued = 0;
+                var checkDone = function() {
+                    queued--;
+                    if(queued <= 0) {
+                        console.log("done fetching clips, running callback");
+                        cb(err, cm);
+                    }
                 }
-                console.log("done fetching clips, running callback");
-                cb(err, cm);
+                for (var i = 0; i < clips.length; i++) {
+                    queued++;
+                    if (clips[i]) {
+                        (function(clip){
+                            var size = {
+                                x: 90,
+                                q: 80
+                            }
+                            image.downsizeJpeg(new Buffer(clip.image), size, null, function(err, jpegBuf){
+                                cm.items.push({
+                                    name: clip.name,
+                                    line2: clip.frames + " frames",
+                                    image: jpegBuf,
+                                    help: help.clipsMenu,
+                                    action: {
+                                        type: "function",
+                                        arg: clip,
+                                        fn: function(c, cb2) {
+                                            oled.video(c.path, c.frames, 30, cb2);
+                                        }
+                                    },
+                                    button3: function(item) {
+                                        if(item && item.action && item.action.arg) {
+                                            createClipsContextMenu(item.action.arg, function(res) {
+                                                ui.load(res);
+                                            });
+                                        }
+                                    }
+                                });
+                                checkDone();
+                            });
+                        
+                        })(clips[i]);
+                    } else {
+                        checkDone();
+                    }
+                }
             } else {
                 ui.back();
             }
