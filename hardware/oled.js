@@ -71,8 +71,10 @@ var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
 var MENU_STATUS_YOFFSET = 10;
 var IMAGE_WIDTH = 75;
+var IMAGE_HEIGHT = 40;
 
 oled.IMAGE_WIDTH = IMAGE_WIDTH;
+oled.IMAGE_HEIGHT = IMAGE_HEIGHT;
 
 var TEXT_LIST = {};
 TEXT_LIST.alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -455,13 +457,13 @@ oled.writeMenu = function() {
             list = itemArray;
             selected = oled.selected;
         } else if (oled.selected == itemArray.length - 1) {
-            list = itemArray.slice(oled.selected - 2, oled.selected + 2);
-            selected = 2;
+            list = itemArray.slice(oled.selected - 1, oled.selected + 2);
+            selected = 1;
         } else if (oled.selected == 0) {
             list = itemArray.slice(0, 4);
             selected = 0;
         } else {
-            list = itemArray.slice(oled.selected - 1, oled.selected + 3);
+            list = itemArray.slice(oled.selected - 1, oled.selected + 2);
             selected = 1;
         }
         if (!selected) selected = 0;
@@ -484,9 +486,9 @@ oled.writeMenu = function() {
             color("primary");
             if(list[i].image) {
                 fs.writeFileSync('/tmp/menuImage' + i.toString(), list[i].image);
-                fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 10, '/tmp/menuImage' + i.toString());
+                fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, '/tmp/menuImage' + i.toString());
             }
-            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 10, IMAGE_WIDTH, IMAGE_WIDTH / 1.5, false);
+            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, IMAGE_WIDTH, IMAGE_HEIGHT, false);
 
             fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + 2, list[i].name);
             color("secondary");
