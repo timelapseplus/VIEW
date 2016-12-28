@@ -484,7 +484,7 @@ oled.writeMenu = function() {
 
         for(var i = 0; i < list.length; i++) {
             color("primary");
-            if(list[i].image && i == 1) {
+            if(list[i].image) {
                 fs.writeFileSync('/tmp/menuImage' + i.toString(), list[i].image);
                 fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, '/tmp/menuImage' + i.toString());
             } else {
