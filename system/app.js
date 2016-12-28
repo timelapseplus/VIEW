@@ -99,7 +99,7 @@ function connectRemote() {
         remotePingHandle = null;
         console.log("Disconnected from view.tl");
         app.remote = false;
-        setTimeout(connectRemote);
+        setTimeout(connectRemote, 5000);
     });
 
     wsRemote.once('error', function() {
