@@ -443,7 +443,7 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
-    } else if(oled.imageMenu) { // menu mode
+    } else if(oled.imageMenu && oled.imageMenu.length > 0) { // menu image list mode
         itemArray = oled.imageMenu;
 
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
