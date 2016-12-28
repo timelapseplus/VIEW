@@ -2340,6 +2340,7 @@ camera.ptp.on('photo', function() {
         if (intervalometer.status.running) {
             var size = {
                 x: 110,
+                y: 60,
                 q: 80
             }
             if (VIEW_HARDWARE) {
