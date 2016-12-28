@@ -449,17 +449,17 @@ oled.writeMenu = function() {
         itemArray = oled.imageMenu;
 
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
-        if (itemArray.length <= 3) {
+        if (itemArray.length <= 2) {
             list = itemArray;
             selected = oled.selected;
         } else if (oled.selected == itemArray.length - 1) {
-            list = itemArray.slice(oled.selected - 2, oled.selected + 3);
+            list = itemArray.slice(oled.selected - 2, oled.selected + 2);
             selected = 2;
         } else if (oled.selected == 0) {
-            list = itemArray.slice(0, 5);
+            list = itemArray.slice(0, 4);
             selected = 0;
         } else {
-            list = itemArray.slice(oled.selected - 1, oled.selected + 4);
+            list = itemArray.slice(oled.selected - 1, oled.selected + 3);
             selected = 1;
         }
         if (!selected) selected = 0;

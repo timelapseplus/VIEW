@@ -909,7 +909,7 @@ if (VIEW_HARDWARE) {
                             image.downsizeJpeg(new Buffer(clip.image), size, null, function(err, jpegBuf){
                                 cm.items.push({
                                     name: clip.name,
-                                    line2: clip.frames + " frames",
+                                    line2: clip.frames,
                                     image: jpegBuf,
                                     help: help.clipsMenu,
                                     action: {
