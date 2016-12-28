@@ -899,7 +899,6 @@ if (VIEW_HARDWARE) {
                     }
                 }
                 for (var i = 0; i < clips.length; i++) {
-                    queued++;
                     if (clips[i]) {
                         (function(clip){
                             var size = {
