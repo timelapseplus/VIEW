@@ -1199,6 +1199,7 @@ if (VIEW_HARDWARE) {
                     db.set('versions-installed', dbVersions);
                     buildUpdateMenu(err, versions);
                 } else {
+                    ui.back();
                     console.log("ERROR: no versions available");
                     oled.value([{
                         name: "Version Update Error",
