@@ -173,7 +173,7 @@ camera.setEv = function(ev, options, cb) {
 
         if (options && options.maxShutterLengthMs) {
             var maxSeconds = Math.ceil(options.maxShutterLengthMs / 1000);
-            if(maxSeconds == 0) maxSeconds = 1;
+            if(maxSeconds < 1) maxSeconds = 1;
             shutterList = shutterList.filter(function(item) {
                 return lists.getSecondsFromEv(item.ev) <= maxSeconds;
             });
