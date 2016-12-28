@@ -72,7 +72,7 @@ function load(program, selected) {
         oled.update();
     }
     if (currentProgram.type == "menu-image") {
-        oled.create(currentProgram.items.map(function(item) {
+        oled.createMenuImage(currentProgram.items.map(function(item) {
             return {
                 name: item.name,
                 line2: item.line2,

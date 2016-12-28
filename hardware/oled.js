@@ -444,7 +444,7 @@ oled.writeMenu = function() {
 
 
     } else if(oled.imageMenu) { // menu image list mode
-        console.log("MENU-IMAGE mode");
+        //console.log("MENU-IMAGE mode");
         itemArray = oled.imageMenu;
 
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
@@ -492,7 +492,7 @@ oled.writeMenu = function() {
         drawStatusBar();
 
     } else { // menu mode
-        console.log("MENU mode");
+        //console.log("MENU mode");
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
         if (itemArray.length <= 3) {
             list = itemArray;
@@ -570,7 +570,7 @@ oled.create = function(itemArray, selected) {
     oled.writeMenu();
 }
 
-oled.create = function(itemArray, selected) {
+oled.createMenuImage = function(itemArray, selected) {
     oled.textInput = null;
     oled.textLines = null;
     oled.setting = null;
