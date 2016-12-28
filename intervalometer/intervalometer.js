@@ -670,26 +670,36 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
         }
 
         var clips = [];
-        var getNextClip = function() {
-            if(tlIndex > 0 && clips.length < count) {
-                intervalometer.getTimelapseClip(tlIndex, function(err, clip) {
-                    if(!err && clip && clip.name) {
-                        clips.push(clip);
+        fs.readdir(TLROOT, function(err, files) {
+            files = files.map(function(file) {
+                return file.toLowerCase();
+            });
+            var getNextClip = function() {
+                if(tlIndex > 0 && clips.length < count) {
+                    if(files.indexOf('tl-' + tlIndex) === -1) {
+                        tlIndex--;
+                        getNextClip();
+                    } else {
+                        intervalometer.getTimelapseClip(tlIndex, function(err, clip) {
+                            if(!err && clip && clip.name) {
+                                clips.push(clip);
+                            }
+                            tlIndex--;
+                            getNextClip();
+                        });
                     }
-                    tlIndex--;
-                    getNextClip();
-                });
-            } else {
-                setTimeout(function(){
-                    //console.log("clips:", clips);
-                    clips = clips.sort(function(a, b){
-                        return a.index < b.index;
+                } else {
+                    setTimeout(function(){
+                        //console.log("clips:", clips);
+                        clips = clips.sort(function(a, b){
+                            return a.index < b.index;
+                        });
+                        callback(null, clips); 
                     });
-                    callback(null, clips); 
-                });
+                }
             }
-        }
-        getNextClip();
+            getNextClip();
+        });
     });
 }
 

@@ -950,6 +950,8 @@ if (VIEW_HARDWARE) {
                     }
                 }
             } else {
+                ui.back();
+                ui.back();
                 return {
                     name: "timelapse clips",
                     type: "menu",
