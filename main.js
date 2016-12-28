@@ -897,7 +897,7 @@ if (VIEW_HARDWARE) {
         console.log("fetching clips...");
         intervalometer.getRecentTimelapseClips(15, function(err, clips) {
             console.log("########################################################################################################################");
-            if (clips) {
+            if (clips && clips.length > 0) {
                 var cm = {
                     name: "timelapse clips",
                     type: "menu",
