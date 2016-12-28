@@ -71,7 +71,7 @@ function load(program, selected) {
         }), selected || 0);
         oled.update();
     }
-    if (currentProgram.type == "menu-image") {
+    if (currentProgram.type == "menu" && currentProgram.hasImages == true) {
         oled.createMenuImage(currentProgram.items.map(function(item) {
             return {
                 name: item.name,

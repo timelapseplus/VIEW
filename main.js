@@ -886,7 +886,8 @@ if (VIEW_HARDWARE) {
             if (clips) {
                 var cm = {
                     name: "timelapse clips",
-                    type: "menu-image",
+                    type: "menu",
+                    hasImages: true,
                     items: []
                 };
                 var queued = 0;
