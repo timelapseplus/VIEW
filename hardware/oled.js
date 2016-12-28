@@ -254,7 +254,7 @@ function drawTimeLapseStatus(status) {
         oled.jpeg(statusDetails.img110, 0, 15, true);
     } else {
         color("background");
-        fb.rect(0, 15, 110, 60, true); // picture placeholder
+        fb.rect(0, 15, 105, 65, true); // picture placeholder
     }
     drawStatusBar();
     oled.update();
