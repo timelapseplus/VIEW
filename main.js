@@ -870,7 +870,7 @@ if (VIEW_HARDWARE) {
                     },
                     help: help.useTimelapseSetup,
                     condition: function() {
-                        return dbClip && dbClip.program && !intervalometer.running;
+                        return dbClip && dbClip.program && !intervalometer.status.running;
                     }
                 }, {
                     name: "Send log for review",
