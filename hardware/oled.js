@@ -483,9 +483,9 @@ oled.writeMenu = function() {
             }
 
             color("primary");
-            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, list[i].name);
+            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + 2, list[i].name);
             color("secondary");
-            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + MENU_LINE_HEIGHT - 2, list[i].line2);
+            fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + MENU_LINE_HEIGHT - 3, list[i].line2);
         }
 
         drawStatusBar();
@@ -563,6 +563,7 @@ oled.create = function(itemArray, selected) {
     oled.textInput = null;
     oled.textLines = null;
     oled.setting = null;
+    oled.imageMenu = null;
     oled.items = itemArray;
     oled.selected = selected || 0;
     oled.writeMenu();
@@ -579,6 +580,7 @@ oled.create = function(itemArray, selected) {
 
 oled.value = function(pairs, selected) {
     oled.textInput = null;
+    oled.imageMenu = null;
     oled.textLines = null;
     oled.setting = pairs;
     oled.selected = selected || 0;
@@ -589,6 +591,7 @@ oled.text = function(name, value) {
     console.log("setting up text input: ", name, value);
     oled.setting = null;
     oled.textLines = null;
+    oled.imageMenu = null;
     oled.textInput = name;
     oled.selected = 0;
     textValue = value || "";
@@ -600,6 +603,7 @@ oled.text = function(name, value) {
 oled.displayText = function(title, text) {
     oled.textInput = null;
     oled.textLines = null;
+    oled.imageMenu = null;
     oled.setting = null;
     oled.textTitle = title;
     var maxWidth = 158;
