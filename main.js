@@ -950,7 +950,12 @@ if (VIEW_HARDWARE) {
                     }
                 }
             } else {
-                ui.back();
+                return {
+                    name: "timelapse clips",
+                    type: "menu",
+                    hasImages: true,
+                    items: []
+                };
             }
         });
     }
