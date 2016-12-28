@@ -863,6 +863,8 @@ if (VIEW_HARDWARE) {
                     name: "Use time-lapse setup",
                     action: function(){
                         intervalometer.currentProgram = _.clone(dbClip.program);
+                        ui.back();
+                        ui.back();
                         ui.load(timelapseMenu);
                     },
                     help: help.useTimelapseSetup,
