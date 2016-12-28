@@ -890,7 +890,7 @@ if (VIEW_HARDWARE) {
                     hasImages: true,
                     items: []
                 };
-                var queued = 0;
+                var queued = clips.length;
                 var checkDone = function() {
                     queued--;
                     if(queued <= 0) {
