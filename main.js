@@ -952,6 +952,7 @@ if (VIEW_HARDWARE) {
             } else {
                 ui.back();
                 ui.back();
+                oled.status("no clips available");
                 return {
                     name: "timelapse clips",
                     type: "menu",
