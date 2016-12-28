@@ -864,7 +864,6 @@ if (VIEW_HARDWARE) {
                     action: function(){
                         intervalometer.currentProgram = _.clone(dbClip.program);
                         ui.back();
-                        ui.back();
                         ui.load(timelapseMenu);
                     },
                     help: help.useTimelapseSetup,

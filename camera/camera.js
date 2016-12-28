@@ -174,9 +174,11 @@ camera.setEv = function(ev, options, cb) {
         if (options && options.maxShutterLengthMs) {
             var maxSeconds = Math.ceil(options.maxShutterLengthMs / 1000);
             if(maxSeconds < 1) maxSeconds = 1;
+            console.log("MAX seconds for shutter: ", maxSeconds);
             shutterList = shutterList.filter(function(item) {
                 return lists.getSecondsFromEv(item.ev) <= maxSeconds;
             });
+            console.log("Filtered shutter list: ", shutterList);
         }
         if (options && options.shutterMax !== null) {
             shutterList = shutterList.filter(function(item) {
