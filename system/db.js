@@ -126,6 +126,34 @@ exports.getTimelapse = function(id, callback) {
 	});
 }
 
+function deleteTimelapse = function(id, callback) {
+	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			if(data.program) data.program = unserialize(data.program);
+			if(data.status) data.status = unserialize(data.status);
+			callback(err, data);
+		}
+	});
+}
+
+exports.deleteTimelapse = function(tlName, callback) {
+	exports.getTimelapseByName(tlName, function(err, clip) {
+		if(!err && clip) {
+			dbTl.run("DELETE FROM clips WHERE id = '" + clip.id + "' LIMIT 1", function(err) {
+				if(err) console.log("error deleting clip:", err);
+			});
+			dbTl.run("DELETE FROM clip_frames WHERE clip_id = '" + clip.id + "'", function(err) {
+				if(err) console.log("error deleting clip_frames:", err);
+				if(callback) callback(err);
+			});
+		} else {
+			if(callback) callback(err);
+		}
+	});
+}
+
 exports.getTimelapseByName = function(tlName, callback) {
 	console.log("db.getTimelapseByName: fetching " + tlName);
 	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "' LIMIT 1", function(err, data){

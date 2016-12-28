@@ -773,8 +773,10 @@ intervalometer.eraseAll = function() {
 intervalometer.deleteTimelapseClip = function(clipNumber, callback) {
     var name = "tl-" + clipNumber;
     var folder = TLROOT + "/" + name;
-    exec("sudo rm -rf " + folder, function(err) {
-        callback && callback(err);
+    db.deleteTimelapse(name, function(err1) {
+        exec("sudo rm -rf " + folder, function(err) {
+            callback && callback(err);
+        });
     });
 }
 

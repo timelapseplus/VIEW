@@ -204,6 +204,7 @@ wifi.enable = function(cb) {
 wifi.disable = function(cb) {
 	var disable = function() {
 		wifi.disconnect();
+		wifi.connected = false;
 		wifi.stop();
 		iw.disable(function(){
 			wifi.enabled = false;
