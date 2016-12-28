@@ -862,7 +862,9 @@ if (VIEW_HARDWARE) {
                 }, {
                     name: "Use time-lapse setup",
                     action: function(){
-                        intervalometer.currentProgram = dbClip.program;
+                        var newProgram = _.extend(intervalometer.currentProgram, dbClip.program);
+                        console.log("setting current program to ", newProgram);
+                        intervalometer.currentProgram = newProgram;
                         ui.back();
                         ui.load(timelapseMenu);
                     },
