@@ -378,8 +378,13 @@ function runPhoto() {
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
+                    if(!status.bufferSeconds) {
+                        status.bufferSeconds = bufferTime;
+                    } else if(bufferTime > status.bufferSeconds) {
+                        status.bufferSeconds = (status.bufferSeconds + bufferTime) / 2;
+                    }
                     db.setTimelapseFrame(status.id, status.evDiff, getDetails(), photoRes.thumbnailPath);
-                    intervalometer.autoSettings.paddingTimeMs = bufferTime * 1000 + 1000;
+                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 1000; // add a second for setting exposure
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
@@ -517,6 +522,7 @@ intervalometer.run = function(program) {
                 status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? Infinity : program.frames;
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
+                status.bufferSeconds = 0;
                 var options = {
                     isoMax: program.isoMax,
                     isoMin: program.isoMin,
