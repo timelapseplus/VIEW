@@ -126,7 +126,7 @@ exports.getTimelapse = function(id, callback) {
 	});
 }
 
-function deleteTimelapse = function(id, callback) {
+function deleteTimelapse(id, callback) {
 	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
