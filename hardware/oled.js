@@ -487,8 +487,9 @@ oled.writeMenu = function() {
             if(list[i].image) {
                 fs.writeFileSync('/tmp/menuImage' + i.toString(), list[i].image);
                 fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, '/tmp/menuImage' + i.toString());
+            } else {
+                fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, IMAGE_WIDTH, IMAGE_HEIGHT, false);
             }
-            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 12, IMAGE_WIDTH, IMAGE_HEIGHT, false);
 
             fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + 2, list[i].name);
             color("secondary");
