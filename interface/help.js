@@ -96,5 +96,6 @@ exports.errorReportReasonMenu = "Please select the reason for sending the log th
 
 exports.logsQueued = "The log file has been queued for upload and will be sent now or when a wifi connection is next available.  Thank you for your feedback - we will work resolve any issues as soon as possible.";
 
+exports.useTimelapseSetup = "This will load the settings used for this clip as a new time-lapse setup.  Selecting it will update the current time-lapse setup and open the Time-lapse menu.";
 
 

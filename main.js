@@ -5,6 +5,7 @@ var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
 console.log('Starting up...');
 
+var _ = require('underscore');
 var async = require('async');
 var exec = require('child_process').exec;
 var crypto = require('crypto');
@@ -857,6 +858,16 @@ if (VIEW_HARDWARE) {
                     help: help.writeXMPs,
                     condition: function() {
                         return camera.ptp.sdPresent;
+                    }
+                }, {
+                    name: "Use time-lapse setup",
+                    action: function(){
+                        intervalometer.currentProgram = _.clone(dbClip.program);
+                        ui.load(timelapseMenu);
+                    },
+                    help: help.useTimelapseSetup,
+                    condition: function() {
+                        return dbClip && dbClip.program && !intervalometer.running;
                     }
                 }, {
                     name: "Send log for review",
