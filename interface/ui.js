@@ -65,12 +65,6 @@ function load(program, selected) {
     } else {
         oled.setTimelapseMode(false);
     }
-    if (currentProgram.type == "menu") {
-        oled.create(currentProgram.items.map(function(item) {
-            return item.name;
-        }), selected || 0);
-        oled.update();
-    }
     if (currentProgram.type == "menu" && currentProgram.hasImages == true) {
         oled.createMenuImage(currentProgram.items.map(function(item) {
             return {
@@ -80,7 +74,12 @@ function load(program, selected) {
             };
         }), selected || 0);
         oled.update();
-    }// else 
+    } else if (currentProgram.type == "menu") {
+        oled.create(currentProgram.items.map(function(item) {
+            return item.name;
+        }), selected || 0);
+        oled.update();
+    }
     if (currentProgram.type == "options") {
         oled.value(currentProgram.items, selected || 0);
         oled.update();

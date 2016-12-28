@@ -582,6 +582,7 @@ oled.createMenuImage = function(itemArray, selected) {
     oled.textLines = null;
     oled.setting = null;
     oled.imageMenu = itemArray;
+    oled.items = itemArray;
     oled.selected = selected || 0;
     oled.writeMenu();
 }
