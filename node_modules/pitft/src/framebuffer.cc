@@ -651,15 +651,15 @@ int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, int x
 
     uint16_t *surface_pixels = (uint16_t*)surface_data;
 
-    int w = surface_w;
-    int h = surface_h;
+    int w = surface_w - x_pos;
+    int h = surface_h - y_pos;
 
     if(w > jw) w = jw;
     if(h > jh) h = jh;
 
-    for(oy = 0; oy < h - y_pos; oy++)
+    for(oy = 0; oy < h; oy++)
     {
-        for(ox = 0; ox < w - x_pos; ox++)
+        for(ox = 0; ox < w; ox++)
         {
             uint16_t i = (uint16_t)oy * jw * 3 + (uint16_t)ox * 3;
 
