@@ -1,6 +1,7 @@
 var exec = require('child_process').exec;
 var pitft = require("pitft");
 var fb = pitft("/dev/fb0", true);
+var fs = require('fs');
 
 var oled = {};
 
