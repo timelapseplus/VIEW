@@ -74,7 +74,8 @@ function load(program, selected) {
             };
         }), selected || 0);
         oled.update();
-    } else if (currentProgram.type == "menu") {
+    }// else 
+    if (currentProgram.type == "menu") {
         oled.create(currentProgram.items.map(function(item) {
             return item.name;
         }), selected || 0);
