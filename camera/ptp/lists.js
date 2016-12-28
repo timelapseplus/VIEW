@@ -740,7 +740,7 @@ while (us < 1000000 * 60 * 10) {
                 ev: -(ev + thirds / 3),
                 us: tus,
             }
-            //console.log(item);
+            console.log(item);
         lists.bulb.unshift(item);
     }
     ev++;
