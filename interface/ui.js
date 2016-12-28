@@ -182,7 +182,7 @@ exports.enter = function(alt) {
         if(alt) {
             oled.textMoveForward();
         } else {
-            console.log("resulting string", oled.getTextValue());
+            //console.log("resulting string", oled.getTextValue());
             if(currentProgram.onSave) currentProgram.onSave(oled.getTextValue());
             back();
         }

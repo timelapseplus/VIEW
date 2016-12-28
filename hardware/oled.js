@@ -596,7 +596,7 @@ oled.value = function(pairs, selected) {
 }
 
 oled.text = function(name, value) {
-    console.log("setting up text input: ", name, value);
+    //console.log("setting up text input: ", name, value);
     oled.setting = null;
     oled.textLines = null;
     oled.imageMenu = null;
