@@ -903,7 +903,7 @@ if (VIEW_HARDWARE) {
                     if (clips[i]) {
                         (function(clip){
                             var size = {
-                                x: 90,
+                                x: oled.IMAGE_WIDTH,
                                 q: 80
                             }
                             image.downsizeJpeg(new Buffer(clip.image), size, null, function(err, jpegBuf){

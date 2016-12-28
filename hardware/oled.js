@@ -70,7 +70,9 @@ var MENU_TEXT_FONT_SIZE = 12;
 var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
 var MENU_STATUS_YOFFSET = 10;
-var IMAGE_WIDTH = 90;
+var IMAGE_WIDTH = 75;
+
+oled.IMAGE_WIDTH = IMAGE_WIDTH;
 
 var TEXT_LIST = {};
 TEXT_LIST.alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -481,10 +483,10 @@ oled.writeMenu = function() {
         for(var i = 0; i < list.length; i++) {
             color("primary");
             if(list[i].image) {
-                fs.writeFileSync('/tmp/menuImage', list[i].image);
-                fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, '/tmp/menuImage');
+                fs.writeFileSync('/tmp/menuImage' + i.toString(), list[i].image);
+                fb.jpeg(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 10, '/tmp/menuImage' + i.toString());
             }
-            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2, IMAGE_WIDTH, IMAGE_WIDTH / 1.5, false);
+            fb.rect(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 - 10, IMAGE_WIDTH, IMAGE_WIDTH / 1.5, false);
 
             fb.text(MENU_XOFFSET + IMAGE_WIDTH + 3, MENU_YOFFSET + i * MENU_LINE_HEIGHT * 2 + 2, list[i].name);
             color("secondary");
