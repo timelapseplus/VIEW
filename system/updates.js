@@ -217,12 +217,12 @@ function checkUBoot(callback) {
 function updateUBoot(callback) {
 	checkUBoot(function(err1, needUpdate) {
 		if(needUpdate) {
-			if(callback) callback(true);
 			console.log("U-BOOT UPDATE REQUIRED");
 			exec(doUBootUpdate, function(err, stdout, stderr) {
 				if(err) {
 					console.log("U-BOOT UPDATE FAILED", err, stdout, stderr);
 				}
+				if(callback) callback(err);
 			});
 		} else {
 			if(callback) callback(false);
@@ -344,4 +344,5 @@ exports.patchLibGPhoto = patchLibGPhoto;
 exports.checkLibGPhotoPatch = checkLibGPhotoPatch;
 
 exports.updateKernel = updateKernel;
+exports.updateUBoot = updateUBoot;
 
