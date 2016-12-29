@@ -298,7 +298,7 @@ exports.sendLog = function(clipName, reasonCode, callback) {
 			}
 		});
 	} else {
-		sendLog(exports.currentLogFile, "", callback);
+		sendLog(exports.currentLogFile, "", reasonCode, callback);
 	}
 }
 
