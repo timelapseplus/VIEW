@@ -1,5 +1,5 @@
 #!/bin/sh
-WDIR = `/bin/pwd`
+WDIR=`/bin/pwd`
 
 cd $WDIR
 /bin/mkdir -p '/usr/local/lib/libgphoto2/2.5.11.1'
