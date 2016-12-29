@@ -3,7 +3,7 @@ WDIR = `/bin/pwd`
 
 cd $WDIR
 /bin/mkdir -p '/usr/local/lib/libgphoto2/2.5.11.1'
-/bin/bash libtool   --mode=install /usr/bin/install -c   ptp2.la '/usr/local/lib/libgphoto2/2.5.11.1'
+/bin/bash ./libtool   --mode=install /usr/bin/install -c   ptp2.la '/usr/local/lib/libgphoto2/2.5.11.1'
 
 cd /root/libgphoto2/camlibs; /bin/bash /root/libgphoto2/libtool  --tag CC --mode=relink gcc -g -O2 -Wall -Wmissing-declarations -Wmissing-prototypes -Wshadow -g -O2 -Wall -Wmissing-declarations -Wmissing-prototypes -module -no-undefined -avoid-version -export-dynamic -export-symbols ../camlibs/camlib.sym -rpath /usr/local/lib/libgphoto2/2.5.11.1 -o ptp2.la ptp2/ptp2_la-ptp.lo ptp2/ptp2_la-library.lo ptp2/ptp2_la-usb.lo ptp2/ptp2_la-ptpip.lo ptp2/ptp2_la-config.lo ptp2/ptp2_la-olympus-wrap.lo ptp2/ptp2_la-chdk.lo ../libgphoto2/libgphoto2.la ../libgphoto2_port/libgphoto2_port/libgphoto2_port.la
 
