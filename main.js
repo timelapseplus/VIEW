@@ -53,7 +53,7 @@ intervalometer.addDb(db);
 console.log('Modules loaded.');
 
 if (VIEW_HARDWARE) {
-    update.updateUBoot(function(err) {
+    updates.updateUBoot(function(err) {
         updates.updateKernel();
     });
     oled.init();
