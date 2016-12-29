@@ -13,6 +13,7 @@ var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a
 var patchMD5 = "7a31ebf60d3af3cdbbfca9f5cee3ea36";
 
 var kernelVersion = "#50 PREEMPT Mon Dec 26 12:40:55 EST 2016";
+var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
@@ -22,7 +23,10 @@ var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
 
 var getKernelVersion = "uname -v";
-var doKernelUpdate = "mount /dev/mmcblk0p1 /boot && cp /home/view/current/boot/zImage /boot/ && cp /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb /boot/ && sleep 2 && umount /boot && init 6";
+var doKernelUpdate = "/usr/bin/test -e /home/view/current/boot/zImage && /usr/bin/test -e /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb && mount /dev/mmcblk0p1 /boot && cp /home/view/current/boot/zImage /boot/ && cp /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb /boot/ && sleep 2 && umount /boot && init 6";
+
+var getUBootVersion = "/bin/dd if=/dev/mmcblk0 bs=1024 count=32 | /usr/bin/strings | /bin/grep \"U-Boot SPL\"";
+var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-spl.bin && /bin/dd if=/home/view/current/boot/u-boot-sunxi-with-spl.bin of=/dev/mmcblk0 bs=1024 seek=8";
 
 function checkLibGPhotoUpdate(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
@@ -190,6 +194,39 @@ function updateKernel(callback) {
 		} else {
 			if(callback) callback(false);
 			console.log("KERNEL UP TO DATE");
+		}
+	});
+}
+
+function checkUBoot(callback) {
+	exec(getUBootVersion, function(err, stdout, stderr) {
+		if(!err && stdout) {
+			var currentUBoot = stdout.trim();
+			if(currentUBoot == uBootVersion) {
+				callback(null, false);
+			} else {
+				console.log("Current U-BOOT:", currentUBoot)
+				callback(null, true);
+			}
+		} else {
+			callback(err, false);
+		}
+	});
+}
+
+function updateUBoot(callback) {
+	checkUBoot(function(err1, needUpdate) {
+		if(needUpdate) {
+			if(callback) callback(true);
+			console.log("U-BOOT UPDATE REQUIRED");
+			exec(doUBootUpdate, function(err, stdout, stderr) {
+				if(err) {
+					console.log("U-BOOT UPDATE FAILED", err, stdout, stderr);
+				}
+			});
+		} else {
+			if(callback) callback(false);
+			console.log("U-BOOT UP TO DATE");
 		}
 	});
 }
