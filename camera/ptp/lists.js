@@ -560,7 +560,7 @@ lists.apertureAll = [{
     values: ['13', 'f/13', 'f13']
 }, {
     name: "13",
-    ev: -0.5
+    ev: -0.5,
     values: ['13', 'f/13', 'f13']
 }, {
     name: "14",
