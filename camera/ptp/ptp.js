@@ -285,6 +285,7 @@ camera.capture = function(options, callback) {
                                 var width = 6;
                                 var name = "img";
                                 if(!err && list) {
+                                    console.log("list", list);
                                     list = list.map(function(item) {
                                         item = item.replace(/\.[0-9a-z]+$/, "");
                                     });
@@ -300,7 +301,7 @@ camera.capture = function(options, callback) {
                                     do: 'capture',
                                     options: options,
                                     id: getCallbackId(function(err){
-                                        camera.unmountSd();
+                                        setTimeout(camera.unmountSd, 1000);
                                         callback && callback(err);
                                     })
                                 }
