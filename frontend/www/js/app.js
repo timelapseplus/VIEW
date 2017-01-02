@@ -482,6 +482,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     });
                     callback(null, $scope.intervalometerErrorMessage);
                     break;
+                case 'captureError':
+                    $scope.intervalometerErrorMessage = msg.msg;
+                    $scope.popupMessage("Error", $scope.intervalometerErrorMessage, function() {
+                    });
+                    callback(null, $scope.intervalometerErrorMessage);
+                    break;
                 case 'timelapse-clips':
                     $scope.clips = msg.clips ? msg.clips : [];
                     callback(null, $scope.clips);
