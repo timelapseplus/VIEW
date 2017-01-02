@@ -286,7 +286,7 @@ camera.capture = function(options, callback) {
                                 var name = "img";
                                 if(!err && list) {
                                     list = list.map(function(item) {
-                                        item = item.replace(/\.[^.]+$/, "");
+                                        return item.replace(/\.[^.]+$/, "");
                                     });
                                     console.log("list", list);
                                     while(list.indexOf(name + padNumber(index, width)) !== -1) index++;
