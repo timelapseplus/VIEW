@@ -2200,7 +2200,7 @@ app.on('message', function(msg) {
             case 'capture':
                 camera.ptp.capture(function(err){
                     if(err) {
-                        ui.alert('err', err);
+                        msg.reply('error', err);
                     }
                 });
                 break;

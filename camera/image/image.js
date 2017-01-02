@@ -25,9 +25,9 @@ var TMP_IMAGE_THUMB = TMPFOLDER + "/tmp_image_thm.jpg";
 function getJpeg(path, crop, callback) {
     console.log("Processing photo...");
     try {
-        console.log("Fetching JPEG from RAW photo...");
+        console.log("Fetching JPEG from RAW photo...", path);
         var dcraw = execFile(DCRAW, ['-e', path], function(err, stdout, stderr) {
-            if (err) console.log("Error:", err);
+            if (err) console.log("DCRAW Error:", err);
             if (stderr) console.log("StdErr:", stderr);
             var size = {
                 x: 840,
@@ -163,7 +163,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         } else {
             thm = img.downsize(size.x, size.y, size.q).process();
         }
-        console.log("Done.");
+        console.log("downsizeJpeg: Done.");
     } catch (e) {
         console.log("Error resizing photo", e);
         err = e;
@@ -173,7 +173,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 }
 
 exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, callback) {
-    console.log("Resizing photo...");
+    console.log("(sharp) Resizing photo...");
     if (!size) size = {};
     if (!size.x) x = (size.y > 0) ? size.y * 1.5 : 300;
     if (!size.y) size.y = size.x / 1.5;
