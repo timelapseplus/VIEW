@@ -152,6 +152,7 @@ monitor.on('add', function(device) {
         if (!worker) startWorker();
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card added:", device.DEVNAME);
+        captureIndex = 1;
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
         if(camera.sdMounted) camera.unmountSd(function(){
@@ -262,7 +263,7 @@ function padNumber(n, width) {
     while(s.length < width) s = '0' + s;
     return s;
 }
-
+var captureIndex = 1;
 camera.capture = function(options, callback) {
     if (worker && camera.connected) {
         if(camera.supports.destination) {
@@ -281,7 +282,6 @@ camera.capture = function(options, callback) {
                         var folder = "/media/view-raw-images";
                         exec('mkdir -p ' + folder, function() {
                             fs.readdir(folder, function(err, list) {
-                                var index = 1;
                                 var width = 6;
                                 var name = "img";
                                 if(!err && list) {
@@ -289,9 +289,9 @@ camera.capture = function(options, callback) {
                                         return item.replace(/\.[^.]+$/, "");
                                     });
                                     console.log("list", list);
-                                    while(list.indexOf(name + padNumber(index, width)) !== -1) index++;
+                                    while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
                                 }
-                                var saveRaw = folder + '/' + name + padNumber(index, width);
+                                var saveRaw = folder + '/' + name + padNumber(captureIndex, width);
                                 if(!options) options = {};
                                 options.saveRaw = saveRaw;
                                 console.log("Saving RAW capture to", options.saveRaw);
