@@ -52,7 +52,7 @@ process.on('message', function(msg) {
         }
     }
     if (msg.type == 'camera' && camera) {
-        if (msg.do) console.log("Worker: ", msg.do)
+        if (msg.do) console.log("Worker: ", msg.do, msg.options);
         if (msg.do == 'capture') capture(msg.options, buildCB(msg.id));
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(buildCB(msg.id));

@@ -169,6 +169,12 @@ lists.decEv = function(current, itemList) {
     return current;
 }
 
+function filterList(list, evMultiple) {
+    return list.filter(function(item) {
+        return item.ev === null || Math.abs(item.ev % 1/3) < 0.01;
+    });
+}
+
 lists.format = [{
     name: "RAW",
     values: ['RAW', 'raw', 'NEF (Raw)', 'mRAW', 'sRAW']
@@ -428,16 +434,8 @@ lists.isoAll = [{
     values: ['409600']
 }];
 
-lists.isoThirds = lists.isoAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
-});
-
-lists.isoHalfs = lists.isoAll.filter(function(item) {
-    return item.ev === null || item.ev % 0.5 == 0;
-});
-
-console.log("isoThirds", lists.isoThirds);
-
+lists.isoThirds = filterList(lists.isoAll, 1/3);
+lists.isoHalfs = filterList(lists.isoAll, 1/2);
 lists.iso = lists.isoThirds;
 
 lists.apertureAll = [{
@@ -590,14 +588,8 @@ lists.apertureAll = [{
     values: ['22', 'f/22', 'f22']
 }];
 
-lists.apertureThirds = lists.apertureAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
-});
-
-lists.apertureHalfs = lists.apertureAll.filter(function(item) {
-    return item.ev === null || item.ev % 0.5 == 0;
-});
-
+lists.apertureThirds = filterList(lists.apertureAll, 1/3);
+lists.apertureHalfs = filterList(lists.apertureAll, 1/2);
 lists.aperture = lists.apertureThirds;
 
 
@@ -900,14 +892,8 @@ lists.shutterAll = [{
     values: ['1/8000', 1 / 8000]
 }];
 
-lists.shutterThirds = lists.shutterAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
-});
-
-lists.shutterHalfs = lists.shutterAll.filter(function(item) {
-    return item.ev === null || item.ev % 0.5 == 0;
-});
-
+lists.shutterThirds = filterList(lists.shutterAll, 1/3);
+lists.shutterHalfs = filterList(lists.shutterAll, 1/2);
 lists.shutter = lists.shutterThirds;
 
 lists.bulb = [];
