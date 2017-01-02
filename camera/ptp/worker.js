@@ -129,8 +129,10 @@ function saveThumbnail(jpgBuffer, index, exposureCompensation) {
 
 function processRawPath(path, options, info, callback) {
     image.getJpegFromRawFile(path, null, function(err, jpg) {
-        if (!options.index) options.index = 0;
-        saveThumbnail(jpg, options.index, options.exposureCompensation);
+        //if (!options.index) options.index = 0;
+        if(options.index || options.index===0) {
+            saveThumbnail(jpg, options.index, options.exposureCompensation);
+        }
         sendEvent('status', "analyzing photo");
         if (options.saveRaw) {
             var dest = options.saveRaw + info.substr(-4); // get extension
@@ -141,40 +143,44 @@ function processRawPath(path, options, info, callback) {
                 }
                 fs.unlink(path);
             });
-            var s = options.saveRaw.match(/(tl-[0-9]+)/i);
-            var name = "Timelapse";
-            if(s && s.length > 1) name = s[1];
-            var desc = name + " created with the Timelapse+ VIEW\nImage #" + options.index + "\nBase Exposure: " + options.exposureCompensation;
-            if (options.exposureCompensation !== null) image.writeXMP(dest, options.exposureCompensation, desc, name);
+            if(options.index || options.index===0) {
+                var s = options.saveRaw.match(/(tl-[0-9]+)/i);
+                var name = "Timelapse";
+                if(s && s.length > 1) name = s[1];
+                var desc = name + " created with the Timelapse+ VIEW\nImage #" + options.index + "\nBase Exposure: " + options.exposureCompensation;
+                if (options.exposureCompensation !== null) image.writeXMP(dest, options.exposureCompensation, desc, name);
+            }
         } else {
             fs.unlink(path);
         }
-        var size = {
-            x: 160,
-            q: 80
-        }
-        image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
-            var img;
-            if (!err && lowResJpg) {
-                img = lowResJpg;
-            } else {
-                img = jpg;
-            }
-            image.exposureValue(img, function(err, ev) {
-                ev = ev + options.exposureCompensation;
-                console.log("ev:", ev, " (compensation: " + options.exposureCompensation + ")");
-                sendEvent('status', "photo ev: " + ev);
-                sendEvent('ev', ev);
-                if (callback) {
-                    callback(err, {
-                        ev: ev,
-                        file: info,
-                        thumbnailPath: thumbnailFileFromIndex(options.index)
-                    });
-                }
-            });
-        });
 
+        if(options.index || options.index===0) {
+            var size = {
+                x: 160,
+                q: 80
+            }
+            image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
+                var img;
+                if (!err && lowResJpg) {
+                    img = lowResJpg;
+                } else {
+                    img = jpg;
+                }
+                image.exposureValue(img, function(err, ev) {
+                    ev = ev + options.exposureCompensation;
+                    console.log("ev:", ev, " (compensation: " + options.exposureCompensation + ")");
+                    sendEvent('status', "photo ev: " + ev);
+                    sendEvent('ev', ev);
+                    if (callback) {
+                        callback(err, {
+                            ev: ev,
+                            file: info,
+                            thumbnailPath: thumbnailFileFromIndex(options.index)
+                        });
+                    }
+                });
+            });
+        }
         sendEvent('photo', {
             jpeg: jpg,
             zoomed: false,
@@ -224,21 +230,23 @@ function capture(options, callback) {
             errCount = 0;
             console.log("file info:", info);
             if (options.thumbnail && supports.thumbnail) {
-                if (!options.index) options.index = 0;
-                saveThumbnail(photo, options.index, options.exposureCompensation);
-                sendEvent('status', "analyzing photo");
-                image.exposureValue(photo, function(err, ev) {
-                    console.log("adjusting ev by ", options.exposureCompensation);
-                    ev = ev + options.exposureCompensation;
-                    console.log("ev:", ev);
-                    sendEvent('status', "photo ev: " + ev);
-                    sendEvent('ev', ev);
-                    if (callback) callback(err, {
-                        ev: ev,
-                        file: info,
-                        thumbnailPath: thumbnailFileFromIndex(options.index)
+                //if (!options.index) options.index = 0;
+                if(options.index || options.index===0) {
+                    saveThumbnail(photo, options.index, options.exposureCompensation);
+                    sendEvent('status', "analyzing photo");
+                    image.exposureValue(photo, function(err, ev) {
+                        console.log("adjusting ev by ", options.exposureCompensation);
+                        ev = ev + options.exposureCompensation;
+                        console.log("ev:", ev);
+                        sendEvent('status', "photo ev: " + ev);
+                        sendEvent('ev', ev);
+                        if (callback) callback(err, {
+                            ev: ev,
+                            file: info,
+                            thumbnailPath: thumbnailFileFromIndex(options.index)
+                        });
                     });
-                });
+                }
                 sendEvent('photo', {
                     jpeg: photo,
                     zoomed: false,
@@ -582,7 +590,7 @@ function getConfig(noEvent, cb) {
                 names: {},
                 details: {}
             };
-
+            var halfsUsed = false;
             for (var i in LISTS.paramMap) {
                 var handle = LISTS.paramMap[i].name;
                 var maps = LISTS.paramMap[i].maps;
@@ -598,8 +606,9 @@ function getConfig(noEvent, cb) {
                         if (item == 'shutterspeed' && data.status.children.manufacturer.value == 'Sony Corporation') {
                             console.log("manually adding shutter speed list", data[section].children[item].choices);
                             supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
-                            for (var j = 0; j < LISTS.shutter.length; j++) {
-                                data[section].children[item].choices.push(LISTS.shutter[j].values[0]); // sony doesn't report available shutter speeds, so define them here
+                            var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
+                            for (var j = 0; j < l.length; j++) {
+                                data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
                             }
                         }
                     } catch (e) {
@@ -613,6 +622,7 @@ function getConfig(noEvent, cb) {
                             if(listHalfs && (listHalfs.length > list.length)) {
                                 console.log("using half stops for", handle);
                                 halfs = true;
+                                halfsUsed = true;
                                 list = listHalfs; // item seems to be in half stops
                             }
                         }
