@@ -1030,6 +1030,7 @@ if (VIEW_HARDWARE) {
                 oled.activity();
                 power.activity();
                 if (b == 1) {
+                    oled.unblock();
                     liveviewOn = false;
                     blockInputs = false;
                     inputs.removeListener('B', captureButtonHandler);
@@ -1039,6 +1040,7 @@ if (VIEW_HARDWARE) {
                     liveviewOn = false;
                     camera.ptp.capture(null, function(err) {
                         if(err) {
+                            oled.unblock();
                             liveviewOn = false;
                             blockInputs = false;
                             inputs.removeListener('B', captureButtonHandler);
@@ -1047,7 +1049,7 @@ if (VIEW_HARDWARE) {
                                 cb();
                             }, 500);
                             setTimeout(function(){
-                                ui.alert('err', err);
+                                ui.alert('error', err);
                             }, 600);
                         } else {
                             liveviewOn = true;
@@ -1080,6 +1082,7 @@ if (VIEW_HARDWARE) {
                 }
             }
 
+            oled.block();
             liveviewOn = true;
             camera.ptp.getSettings(function() {
                 stats = camera.evStats(camera.ptp.settings);
@@ -2403,7 +2406,7 @@ camera.ptp.on('photo', function() {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
                             oled.jpeg(path);
-                            oled.update();
+                            oled.update(true);
                         });
                     }
                 });

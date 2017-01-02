@@ -656,8 +656,8 @@ oled.activity = function() {
     if (!oled.visible) oled.show();
 }
 
-oled.update = function() {
-    if(!oled.blocked) fb.blit();
+oled.update = function(override) {
+    if(!oled.blocked || override) fb.blit();
 }
 
 oled.up = function() {
