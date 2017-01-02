@@ -578,7 +578,7 @@ function getConfig(noEvent, cb) {
     console.log("Worker: retrieving settings...");
     camera.getConfig(function(er, data) {
         if(firstSettings) {
-            console.log("camera config:",data);
+            console.log("camera config:", JSON.stringify(data));
             firstSettings = false;
         }
         cameraBusy = false;

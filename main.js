@@ -1036,7 +1036,7 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                 } else if (b == 4) {
-                    camera.ptp.capture(function(err) {
+                    camera.ptp.capture(null, function(err) {
                         if(err) {
                             ui.alert('err', err);
                         }
@@ -2198,7 +2198,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'capture':
-                camera.ptp.capture(function(err){
+                camera.ptp.capture(null, function(err){
                     if(err) {
                         msg.reply('error', err);
                     }
