@@ -292,11 +292,15 @@ camera.capture = function(options, callback) {
                                 }
                                 var saveRaw = folder + '/' + name + padNumber(index, width); 
                                 options.saveRaw = saveRaw;
+                                console.log("Saving RAW capture to", saveRaw);
                                 worker.send({
                                     type: 'camera',
                                     do: 'capture',
                                     options: options,
-                                    id: getCallbackId(callback)
+                                    id: getCallbackId(function(err){
+                                        camera.unmountSd();
+                                        callback && callback(err);
+                                    })
                                 });
                             });
                         });
