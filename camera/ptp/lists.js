@@ -171,7 +171,7 @@ lists.decEv = function(current, itemList) {
 
 function filterList(list, evMultiple) {
     return list.filter(function(item) {
-        return item.ev === null || Math.abs(item.ev % 1/3) < 0.01;
+        return item.ev === null || Math.abs(item.ev % evMultiple) < 0.1;
     });
 }
 
@@ -437,6 +437,8 @@ lists.isoAll = [{
 lists.isoThirds = filterList(lists.isoAll, 1/3);
 lists.isoHalfs = filterList(lists.isoAll, 1/2);
 lists.iso = lists.isoThirds;
+
+console.log("isoThirds:", lists.isoHalfs);
 
 lists.apertureAll = [{
     name: "1.0",
