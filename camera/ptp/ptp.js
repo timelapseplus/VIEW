@@ -290,9 +290,10 @@ camera.capture = function(options, callback) {
                                     });
                                     while(list.indexOf(name + padNumber(index, width)) !== -1) index++;
                                 }
-                                var saveRaw = folder + '/' + name + padNumber(index, width); 
+                                var saveRaw = folder + '/' + name + padNumber(index, width);
+                                if(!options) options = {};
                                 options.saveRaw = saveRaw;
-                                console.log("Saving RAW capture to", saveRaw);
+                                console.log("Saving RAW capture to", options.saveRaw);
                                 worker.send({
                                     type: 'camera',
                                     do: 'capture',
