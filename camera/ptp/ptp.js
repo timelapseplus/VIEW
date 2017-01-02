@@ -111,7 +111,9 @@ var startWorker = function() {
                     if(camera.model.match(/sony/i)) {
                         console.log("matched sony, setting supports.destination = false");
                         camera.supports.destination = false;
-                        camera.supports.liveview = false;
+                        if(camera.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                            camera.supports.liveview = true;
+                        }
                     } else if(camera.model.match(/panasonic/i)) {
                         camera.supports.liveview = false;
                         camera.supports.destination = true;
@@ -152,7 +154,9 @@ monitor.on('add', function(device) {
         console.log("SD card added:", device.DEVNAME);
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
-        camera.emit("media-insert", "sd");
+        if(camera.sdMounted) camera.unmountSd(function(){
+            camera.emit("media-insert", "sd");
+        });
     } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'Dynamic_Perception_LLC') {
         console.log("NMX connected:", device.DEVNAME);
         camera.nmxConnected = true;
@@ -217,6 +221,7 @@ scanner.run();
 
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
+        if(camera.sdMounted) return callback && callback(null);
         console.log("mounting SD card");
         //exec("mount -o nonempty " + camera.sdDevice + " /media", function(err) { // this caused FAT32 cards to fail to mount
         exec("mount " + camera.sdDevice + " /media", function(err) {
@@ -252,13 +257,58 @@ camera.unmountSd = function(callback) {
     }
 }
 
+function padNumber(n, width) {
+    var s = n.toString();
+    while(s.length < width) s = '0' + s;
+    return s;
+}
+
 camera.capture = function(options, callback) {
-    if (worker && camera.connected) worker.send({
-        type: 'camera',
-        do: 'capture',
-        options: options,
-        id: getCallbackId(callback)
-    }); else callback && callback("not connected");
+    if (worker && camera.connected) {
+        if(supports.destination) {
+            worker.send({
+                type: 'camera',
+                do: 'capture',
+                options: options,
+                id: getCallbackId(callback)
+            });
+        } else {
+            if(camera.sdPresent) {
+                camera.mountSd(function(err) {
+                    if(err) {
+                        callback && callback("Error mounting SD card\nSystem message:", err);
+                    } else {
+                        var folder = "/media/view-raw-images";
+                        exec('mkdir -p ' + folder, function() {
+                            fs.readdir(folder, function(err, list) {
+                                var index = 1;
+                                var width = 6;
+                                var name = "img";
+                                if(!err && list) {
+                                    list = list.map(function(item) {
+                                        item = item.replace(/\.[0-9a-z]+$/, "");
+                                    });
+                                    while(list.indexOf(name + padNumber(index, width)) !== -1) index++;
+                                }
+                                var saveRaw = folder + '/' + name + padNumber(index, width); 
+                                options.saveRaw = saveRaw;
+                                worker.send({
+                                    type: 'camera',
+                                    do: 'capture',
+                                    options: options,
+                                    id: getCallbackId(callback)
+                                });
+                            });
+                        });
+                    }
+                });
+            } else {
+                callback && callback("SD card required in VIEW");
+            }
+        }
+    } else {
+        callback && callback("not connected");
+    }
 }
 camera.captureTethered = function(callback) {
     if (worker && camera.connected) worker.send({
@@ -268,6 +318,9 @@ camera.captureTethered = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.preview = function(callback) {
+    if(!supports.liveview) {
+        return callback && callback("not supported");
+    }
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'preview',

@@ -194,11 +194,11 @@ lists.liveview = [{
 }];
 
 //sunny f/16 1/60 ISO100 = EV15
-lists.iso = [{
+lists.isoAll = [{
     name: "Auto",
     ev: null,
     values: ['Auto', 'auto', 'AUTO']
-/*}, {
+}, {
     name: "25",
     ev: 2,
     values: ['25']
@@ -207,9 +207,13 @@ lists.iso = [{
     ev: 1 + 2 / 3,
     values: ['32']
 }, {
+    name: "37",
+    ev: 1.5,
+    values: ['37']
+}, {
     name: "40",
     ev: 1 + 1 / 3,
-    values: ['40']*/
+    values: ['40']
 }, {
     name: "50",
     ev: 1,
@@ -218,6 +222,10 @@ lists.iso = [{
     name: "64",
     ev: 2 / 3,
     values: ['64']
+}, {
+    name: "75",
+    ev: 0.5,
+    values: ['75']
 }, {
     name: "80",
     ev: 1 / 3,
@@ -231,6 +239,10 @@ lists.iso = [{
     ev: -1 / 3,
     values: ['125']
 }, {
+    name: "150",
+    ev: -0.5,
+    values: ['150']
+}, {
     name: "160",
     ev: -2 / 3,
     values: ['160']
@@ -242,6 +254,10 @@ lists.iso = [{
     name: "250",
     ev: -1 - 1 / 3,
     values: ['250']
+}, {
+    name: "300",
+    ev: -1.5,
+    values: ['300']
 }, {
     name: "320",
     ev: -1 - 2 / 3,
@@ -255,6 +271,10 @@ lists.iso = [{
     ev: -2 - 1 / 3,
     values: ['500']
 }, {
+    name: "600",
+    ev: -2.5,
+    values: ['600']
+}, {
     name: "640",
     ev: -2 - 2 / 3,
     values: ['640']
@@ -266,6 +286,10 @@ lists.iso = [{
     name: "1000",
     ev: -3 - 1 / 3,
     values: ['1000']
+}, {
+    name: "1200",
+    ev: -3.5,
+    values: ['1200']
 }, {
     name: "1250",
     ev: -3 - 2 / 3,
@@ -279,6 +303,10 @@ lists.iso = [{
     ev: -4 - 1 / 3,
     values: ['2000']
 }, {
+    name: "2400",
+    ev: -4.5,
+    values: ['2400']
+}, {
     name: "2500",
     ev: -4 - 2 / 3,
     values: ['2500']
@@ -290,6 +318,10 @@ lists.iso = [{
     name: "4000",
     ev: -5 - 1 / 3,
     values: ['4000']
+}, {
+    name: "4800",
+    ev: -5.5,
+    values: ['4800']
 }, {
     name: "5000",
     ev: -5 - 2 / 3,
@@ -303,6 +335,10 @@ lists.iso = [{
     ev: -6 - 1 / 3,
     values: ['8000']
 }, {
+    name: "9600",
+    ev: -6.5,
+    values: ['9600']
+}, {
     name: "10000",
     ev: -6 - 2 / 3,
     values: ['10000']
@@ -314,6 +350,10 @@ lists.iso = [{
     name: "16000",
     ev: -7 - 1 / 3,
     values: ['16000']
+}, {
+    name: "19200",
+    ev: -7.5,
+    values: ['19200']
 }, {
     name: "20000",
     ev: -7 - 2 / 3,
@@ -327,6 +367,10 @@ lists.iso = [{
     ev: -8 - 1 / 3,
     values: ['32000']
 }, {
+    name: "38400",
+    ev: -8.5,
+    values: ['38400']
+}, {
     name: "40000",
     ev: -8 - 2 / 3,
     values: ['40000']
@@ -338,6 +382,10 @@ lists.iso = [{
     name: "64000",
     ev: -9 - 1 / 3,
     values: ['64000']
+}, {
+    name: "76800",
+    ev: -9.5,
+    values: ['76800']
 }, {
     name: "80000",
     ev: -9 - 2 / 3,
@@ -351,6 +399,10 @@ lists.iso = [{
     ev: -10 - 1 / 3,
     values: ['129000', '128000']
 }, {
+    name: "153600",
+    ev: -10.5,
+    values: ['153600', '150000']
+}, {
     name: "160000",
     ev: -10 - 2 / 3,
     values: ['162000', '160000']
@@ -363,6 +415,10 @@ lists.iso = [{
     ev: -11 - 1 / 3,
     values: ['256000']
 }, {
+    name: "307200",
+    ev: -11.5,
+    values: ['307300', '300000']
+}, {
     name: "320000",
     ev: -11 - 2 / 3,
     values: ['320000']
@@ -372,8 +428,17 @@ lists.iso = [{
     values: ['409600']
 }];
 
+lists.isoThirds = lists.isoAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/3 == 0;
+});
 
-lists.aperture = [{
+lists.isoHalfs = lists.isoAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/2 == 0;
+});
+
+lists.iso = lists.isoThirds;
+
+lists.apertureAll = [{
     name: "1.0",
     ev: -8,
     values: ['1.0', 'f/1.0', 'f1.0', 'f/1']
@@ -381,6 +446,10 @@ lists.aperture = [{
     name: "1.1",
     ev: -7 - 2 / 3,
     values: ['1.1', 'f/1.1', 'f1.1']
+}, {
+    name: "1.2",
+    ev: -7.5,
+    values: ['1.2', 'f/1.2', 'f1.2']
 }, {
     name: "1.2",
     ev: -7 - 1 / 3,
@@ -394,6 +463,10 @@ lists.aperture = [{
     ev: -6 - 2 / 3,
     values: ['1.6', 'f/1.6', 'f1.6']
 }, {
+    name: "1.7",
+    ev: -6.5,
+    values: ['1.7', 'f/1.7', 'f1.7']
+}, {
     name: "1.8",
     ev: -6 - 1 / 3,
     values: ['1.8', 'f/1.8', 'f1.8']
@@ -405,6 +478,10 @@ lists.aperture = [{
     name: "2.2",
     ev: -5 - 2 / 3,
     values: ['2.2', 'f/2.2', 'f2.2']
+}, {
+    name: "2.4",
+    ev: -5.5,
+    values: ['2.4', 'f/2.4', 'f2.4']
 }, {
     name: "2.5",
     ev: -5 - 1 / 3,
@@ -418,6 +495,10 @@ lists.aperture = [{
     ev: -4 - 2 / 3,
     values: ['3.2', 'f/3.2', 'f3.2']
 }, {
+    name: "3.3",
+    ev: -4.5,
+    values: ['3.3', 'f/3.3', 'f3.3']
+}, {
     name: "3.5",
     ev: -4 - 1 / 3,
     values: ['3.5', 'f/3.5', 'f3.5']
@@ -429,6 +510,10 @@ lists.aperture = [{
     name: "4.5",
     ev: -3 - 2 / 3,
     values: ['4.5', 'f/4.5', 'f4.5']
+}, {
+    name: "4.8",
+    ev: -3.5,
+    values: ['4.8', 'f/4.8', 'f4.8']
 }, {
     name: "5",
     ev: -3 - 1 / 3,
@@ -442,6 +527,10 @@ lists.aperture = [{
     ev: -2 - 2 / 3,
     values: ['6.3', 'f/6.3', 'f6.3']
 }, {
+    name: "6.7",
+    ev: -2.5,
+    values: ['6.7', 'f/6.7', 'f6.7']
+}, {
     name: "7.1",
     ev: -2 - 1 / 3,
     values: ['7.1', 'f/7.1', 'f7.1']
@@ -454,6 +543,10 @@ lists.aperture = [{
     ev: -1 - 2 / 3,
     values: ['9', 'f/9', 'f9']
 }, {
+    name: "9.5",
+    ev: -1.5,
+    values: ['9.5', 'f/9.5', 'f9.5']
+}, {
     name: "10",
     ev: -1 - 1 / 3,
     values: ['10', 'f/10', 'f10']
@@ -464,6 +557,10 @@ lists.aperture = [{
 }, {
     name: "13",
     ev: -2 / 3,
+    values: ['13', 'f/13', 'f13']
+}, {
+    name: "13",
+    ev: -0.5
     values: ['13', 'f/13', 'f13']
 }, {
     name: "14",
@@ -478,6 +575,10 @@ lists.aperture = [{
     ev: 1 / 3,
     values: ['18', 'f/18', 'f18']
 }, {
+    name: "19",
+    ev: 0.5,
+    values: ['19', 'f/19', 'f19']
+}, {
     name: "20",
     ev: 2 / 3,
     values: ['20', 'f/20', 'f20']
@@ -487,8 +588,19 @@ lists.aperture = [{
     values: ['22', 'f/22', 'f22']
 }];
 
+lists.apertureThirds = lists.apertureAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/3 == 0;
+});
+
+lists.apertureHalfs = lists.apertureAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/2 == 0;
+});
+
+lists.aperture = lists.apertureThirds;
+
+
 // Sony values are listed first
-lists.shutter = [{
+lists.shutterAll = [{
     name: "BULB",
     ev: null,
     values: ['Bulb', 'bulb', '65535/65535']
@@ -500,6 +612,10 @@ lists.shutter = [{
     name: "25s",
     ev: -10 - 2 / 3,
     values: ['250/10', '25', 25, '25.0000s']
+}, {
+    name: "24s",
+    ev: -10.5,
+    values: ['240/10', '24', 24, '24.0000s']
 }, {
     name: "20s",
     ev: -10 - 1 / 3,
@@ -513,6 +629,10 @@ lists.shutter = [{
     ev: -9 - 2 / 3,
     values: ['130/10', '13', 13, '13.0000s']
 }, {
+    name: "12s",
+    ev: -9.5,
+    values: ['120/10', '12', 12, '12.0000s']
+}, {
     name: "10s",
     ev: -9 - 1 / 3,
     values: ['100/10', '10', 10, '10.0000s']
@@ -523,6 +643,10 @@ lists.shutter = [{
 }, {
     name: "6s",
     ev: -8 - 2 / 3,
+    values: ['60/10', '6', 6, '6.0000s']
+}, {
+    name: "6s",
+    ev: -8.5,
     values: ['60/10', '6', 6, '6.0000s']
 }, {
     name: "5s",
@@ -537,6 +661,10 @@ lists.shutter = [{
     ev: -7 - 2 / 3,
     values: ['32/10', '3', '3.2', 3, '3.2000s']
 }, {
+    name: "3s",
+    ev: -7.5,
+    values: ['30/10', '3', '3.0', 3, '3.0000s']
+}, {
     name: "2.5s",
     ev: -7 - 1 / 3,
     values: ['25/10', '2.5', 25 / 10, '2.5000s']
@@ -548,6 +676,10 @@ lists.shutter = [{
     name: "1.6s",
     ev: -6 - 2 / 3,
     values: ['16/10', '1.6', 16 / 10, '1.6000s']
+}, {
+    name: "1.5s",
+    ev: -6.5,
+    values: ['15/10', '1.5', 15 / 10, '1.5000s']
 }, {
     name: "1.3s",
     ev: -6 - 1 / 3,
@@ -562,6 +694,10 @@ lists.shutter = [{
     values: ['8/10', '0.8', '10/13', '0.7692s']
 }, {
     name: "0.6s",
+    ev: -5.5,
+    values: ['2/3', '0.6', '10/15', '0.6666s']
+}, {
+    name: "0.6s",
     ev: -5 - 1 / 3,
     values: ['6/10', '0.625', '0.6', '10/16', '0.6250s']
 }, {
@@ -572,6 +708,10 @@ lists.shutter = [{
     name: "0.4s",
     ev: -4 - 2 / 3,
     values: ['4/10', '0.4', '10/25', '0.4000s']
+}, {
+    name: "1/3",
+    ev: -4.5,
+    values: ['1/3', '0.3', '10/30', '0.3333s']
 }, {
     name: "1/3",
     ev: -4 - 1 / 3,
@@ -586,6 +726,10 @@ lists.shutter = [{
     values: ['1/5', 1 / 5, '0.2000s']
 }, {
     name: "1/6",
+    ev: -3.5,
+    values: ['1/6', 1 / 6, '0.1875s']
+}, {
+    name: "1/6",
     ev: -3 - 1 / 3,
     values: ['1/6', 1 / 6, '0.1666s']
 }, {
@@ -596,6 +740,10 @@ lists.shutter = [{
     name: "1/10",
     ev: -2 - 2 / 3,
     values: ['1/10', 1 / 10, '0.1000s']
+}, {
+    name: "1/10",
+    ev: -2.5,
+    values: ['1/10', 1 / 10, '0.0937s']
 }, {
     name: "1/13",
     ev: -2 - 1 / 3,
@@ -609,6 +757,10 @@ lists.shutter = [{
     ev: -1 - 2 / 3,
     values: ['1/20', 1 / 20, '0.0500s']
 }, {
+    name: "1/20",
+    ev: -1.5,
+    values: ['1/20', 1 / 20, '0.0479s']
+}, {
     name: "1/25",
     ev: -1 - 1 / 3,
     values: ['1/25', 1 / 25, '0.0400s']
@@ -620,6 +772,10 @@ lists.shutter = [{
     name: "1/40",
     ev: -2 / 3,
     values: ['1/40', 1 / 40, '0.0250s']
+}, {
+    name: "1/45",
+    ev: -0.5,
+    values: ['1/45', 1 / 45, '0.0222s']
 }, {
     name: "1/50",
     ev: -1 / 3,
@@ -633,6 +789,10 @@ lists.shutter = [{
     ev: 1 / 3,
     values: ['1/80', 1 / 80, '0.0125s']
 }, {
+    name: "1/90",
+    ev: 0.5,
+    values: ['1/90', 1 / 90, '0.0111s']
+}, {
     name: "1/100",
     ev: 2 / 3,
     values: ['1/100', 1 / 100, '0.0100s']
@@ -644,6 +804,10 @@ lists.shutter = [{
     name: "1/160",
     ev: 1 + 1 / 3,
     values: ['1/160', 1 / 160, '0.0062s']
+}, {
+    name: "1/180",
+    ev: 1.5,
+    values: ['1/180', 1 / 180, '0.0055s']
 }, {
     name: "1/200",
     ev: 1 + 2 / 3,
@@ -657,6 +821,10 @@ lists.shutter = [{
     ev: 2 + 1 / 3,
     values: ['1/320', 1 / 320, '0.0031s']
 }, {
+    name: "1/350",
+    ev: 2.5,
+    values: ['1/350', 1 / 350, '0.0028s']
+}, {
     name: "1/400",
     ev: 2 + 2 / 3,
     values: ['1/400', 1 / 400, '0.0025s']
@@ -668,6 +836,10 @@ lists.shutter = [{
     name: "1/640",
     ev: 3 + 1 / 3,
     values: ['1/640', 1 / 640, '0.0015s']
+}, {
+    name: "1/750",
+    ev: 3.5,
+    values: ['1/750', 1 / 750, '0.0013s']
 }, {
     name: "1/800",
     ev: 3 + 2 / 3,
@@ -681,6 +853,10 @@ lists.shutter = [{
     ev: 4 + 1 / 3,
     values: ['1/1250', 1 / 1250, '0.0007s']
 }, {
+    name: "1/1500",
+    ev: 4.5,
+    values: ['1/1500', 1 / 1500, '0.0007s']
+}, {
     name: "1/1600",
     ev: 4 + 2 / 3,
     values: ['1/1600', 1 / 1600, '0.0006s']
@@ -692,6 +868,10 @@ lists.shutter = [{
     name: "1/2500",
     ev: 5 + 1 / 3,
     values: ['1/2500', 1 / 2500, '0.0004s']
+}, {
+    name: "1/3000",
+    ev: 5.5,
+    values: ['1/3000', 1 / 3000, '0.0003s']
 }, {
     name: "1/3200",
     ev: 5 + 2 / 3,
@@ -705,6 +885,10 @@ lists.shutter = [{
     ev: 6 + 1 / 3,
     values: ['1/5000', 1 / 5000]
 }, {
+    name: "1/6000",
+    ev: 6.5,
+    values: ['1/6000', 1 / 6000]
+}, {
     name: "1/6400",
     ev: 6 + 2 / 3,
     values: ['1/6400', 1 / 6400, '0.0001s']
@@ -714,6 +898,15 @@ lists.shutter = [{
     values: ['1/8000', 1 / 8000]
 }];
 
+lists.shutterThirds = lists.shutterAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/3 == 0;
+});
+
+lists.shuttereHalfs = lists.shutterAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/2 == 0;
+});
+
+lists.shutter = lists.shutterThirds;
 
 lists.bulb = [];
 

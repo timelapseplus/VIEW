@@ -1036,7 +1036,11 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                 } else if (b == 4) {
-                    camera.ptp.capture();
+                    camera.ptp.capture(function(err) {
+                        if(err) {
+                            ui.alert('err', err);
+                        }
+                    });
                 }
             }
 
@@ -2194,7 +2198,11 @@ app.on('message', function(msg) {
                 break;
 
             case 'capture':
-                camera.ptp.capture();
+                camera.ptp.capture(function(err){
+                    if(err) {
+                        ui.alert('err', err);
+                    }
+                });
                 break;
 
             case 'test':
@@ -2482,7 +2490,7 @@ intervalometer.on('status', function(msg) {
         intervalModeText: intervalometer.currentProgram.rampMode == 'auto' ? intervalometer.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
-        shutterSeconds: camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev),
+        shutterSeconds: camera.ptp.settings.details.shutter ? camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) : 0,
         durationSeconds: (new Date() / 1000) - msg.startTime,
         captureStartTime: msg.captureStartTime,
         running: msg.running

@@ -205,7 +205,8 @@ function capture(options, callback) {
     if (options.saveRaw) {
         captureOptions = {
             targetPath: '/tmp/tmpXXXXXX',
-            keepOnCamera: false
+            keepOnCamera: false,
+            thumbnail: false
         }
     } else {
         captureOptions = {
@@ -497,7 +498,8 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
     });
 }
 
-function mapParam(type, value) {
+function mapParam(type, value, halfs) {
+    if(halfs) type += "Halfs";
     var list = LISTS[type];
     if (list) {
         for (var i = 0; i < list.length; i++) {
@@ -547,6 +549,7 @@ function mapCameraList(type, cameraList) {
 var configCache = null;
 var configTimeoutHandle = null;
 var cameraBusy = false;
+var firstSettings = true;
 
 function getConfig(noEvent, cb) {
     if (cameraBusy) {
@@ -563,6 +566,10 @@ function getConfig(noEvent, cb) {
     cameraBusy = true;
     console.log("Worker: retrieving settings...");
     camera.getConfig(function(er, data) {
+        if(firstSettings) {
+            console.log("camera config:",data);
+            firstSettings = false;
+        }
         cameraBusy = false;
         if (data && data.main && data.main.children) {
             data = data.main.children;
@@ -600,9 +607,18 @@ function getConfig(noEvent, cb) {
                     }
                     if (data[section] && data[section].children && data[section].children[item]) {
                         list = mapCameraList(handle, data[section].children[item].choices);
+                        var halfs = false;
+                        if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
+                            var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices);
+                            if(listHalfs && (listHalfs.length > list.length)) {
+                                console.log("using half stops for", handle);
+                                halfs = true;
+                                list = listHalfs; // item seems to be in half stops
+                            }
+                        }
                         //console.log("list:", handle, list);
                         value = data[section].children[item].value;
-                        detail = mapParam(handle, value);
+                        detail = mapParam(handle, value, halfs);
                         name = item;
                         if(detail) console.log(name + " = " + value + " (" + detail.name + ")");
                         break;
