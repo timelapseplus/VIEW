@@ -294,7 +294,7 @@ camera.capture = function(options, callback) {
                                 if(!options) options = {};
                                 options.saveRaw = saveRaw;
                                 console.log("Saving RAW capture to", options.saveRaw);
-                                worker.send({
+                                var capture = {
                                     type: 'camera',
                                     do: 'capture',
                                     options: options,
@@ -302,7 +302,9 @@ camera.capture = function(options, callback) {
                                         camera.unmountSd();
                                         callback && callback(err);
                                     })
-                                });
+                                }
+                                console.log(capture);
+                                worker.send(capture);
                             });
                         });
                     }
