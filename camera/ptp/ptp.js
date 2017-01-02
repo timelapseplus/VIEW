@@ -285,9 +285,8 @@ camera.capture = function(options, callback) {
                                 var width = 6;
                                 var name = "img";
                                 if(!err && list) {
-                                    console.log("list", list);
                                     list = list.map(function(item) {
-                                        item = item.replace(/\.[0-9a-z]+$/, "");
+                                        item = item.replace(/\.[^.]+$/, "");
                                     });
                                     console.log("list", list);
                                     while(list.indexOf(name + padNumber(index, width)) !== -1) index++;

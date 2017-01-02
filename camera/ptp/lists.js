@@ -438,8 +438,6 @@ lists.isoThirds = filterList(lists.isoAll, 1/3);
 lists.isoHalfs = filterList(lists.isoAll, 1/2);
 lists.iso = lists.isoThirds;
 
-console.log("isoThirds:", lists.isoHalfs);
-
 lists.apertureAll = [{
     name: "1.0",
     ev: -8,
