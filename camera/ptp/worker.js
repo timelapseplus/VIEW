@@ -133,8 +133,9 @@ function processRawPath(path, options, info, callback) {
         if(options.index || options.index===0) {
             saveThumbnail(jpg, options.index, options.exposureCompensation);
         }
+        var dest;
         if (options.saveRaw) {
-            var dest = options.saveRaw + info.substr(-4); // get extension
+            dest = options.saveRaw + info.substr(-4); // get extension
             console.log("Saving RAW image " + path + " to " + dest);
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
                 if(err) {
@@ -181,7 +182,7 @@ function processRawPath(path, options, info, callback) {
                 });
             });
         } else if(options.saveRaw) {
-            sendEvent('status', "photo saved to ", options.saveRaw.replace('/media', 'SD card: '));
+            sendEvent('status', "photo saved to " + dest.replace('/media', 'SD card: '));
         }
         sendEvent('photo', {
             jpeg: jpg,
