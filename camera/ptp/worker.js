@@ -180,7 +180,7 @@ function processRawPath(path, options, info, callback) {
                     }
                 });
             });
-        } else if options.saveRaw {
+        } else if(options.saveRaw) {
             sendEvent('status', "photo saved to ", options.saveRaw.replace('/media', 'SD card: '));
         }
         sendEvent('photo', {
