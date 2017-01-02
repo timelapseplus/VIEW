@@ -133,7 +133,6 @@ function processRawPath(path, options, info, callback) {
         if(options.index || options.index===0) {
             saveThumbnail(jpg, options.index, options.exposureCompensation);
         }
-        sendEvent('status', "analyzing photo");
         if (options.saveRaw) {
             var dest = options.saveRaw + info.substr(-4); // get extension
             console.log("Saving RAW image " + path + " to " + dest);
@@ -155,6 +154,7 @@ function processRawPath(path, options, info, callback) {
         }
 
         if(options.index || options.index===0) {
+            sendEvent('status', "analyzing photo");
             var size = {
                 x: 160,
                 q: 80
@@ -180,6 +180,8 @@ function processRawPath(path, options, info, callback) {
                     }
                 });
             });
+        } else if options.saveRaw {
+            sendEvent('status', "photo saved to ", options.saveRaw.replace('/media', 'SD card: '));
         }
         sendEvent('photo', {
             jpeg: jpg,
