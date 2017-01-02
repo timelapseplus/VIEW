@@ -288,6 +288,7 @@ camera.capture = function(options, callback) {
                                     list = list.map(function(item) {
                                         item = item.replace(/\.[0-9a-z]+$/, "");
                                     });
+                                    console.log("list", list);
                                     while(list.indexOf(name + padNumber(index, width)) !== -1) index++;
                                 }
                                 var saveRaw = folder + '/' + name + padNumber(index, width);
