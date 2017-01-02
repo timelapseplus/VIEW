@@ -183,6 +183,11 @@ function processRawPath(path, options, info, callback) {
             });
         } else if(options.saveRaw) {
             sendEvent('status', "photo saved to " + dest.replace('/media', 'SD card: '));
+            if (callback) {
+                callback(err, {
+                    file: dest
+                });
+            }
         }
         sendEvent('photo', {
             jpeg: jpg,

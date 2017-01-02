@@ -1045,10 +1045,13 @@ if (VIEW_HARDWARE) {
                             inputs.removeListener('D', captureDialHandler);
                             setTimeout(function(){
                                 cb();
-                                ui.alert('err', err);
                             }, 500);
+                            setTimeout(function(){
+                                ui.alert('err', err);
+                            }, 600);
                         } else {
                             liveviewOn = true;
+                            camera.ptp.preview();
                         }
                     });
                 }
@@ -2208,11 +2211,20 @@ app.on('message', function(msg) {
                 break;
 
             case 'capture':
-                camera.ptp.capture(null, function(err){
-                    if(err) {
-                        msg.reply('captureError', {msg:err});
-                    }
-                });
+                (function(lastLV) {
+                    liveviewOn = false;
+                    camera.ptp.capture(null, function(err){
+                        if(err) {
+                            msg.reply('captureError', {msg:err});
+                        }
+                        setTimeout(function(){
+                            if(lastLV) {
+                                liveviewOn = true;
+                                camera.ptp.preview();
+                            }
+                        }, 2000);
+                    });
+                })(liveviewOn);
                 break;
 
             case 'test':
