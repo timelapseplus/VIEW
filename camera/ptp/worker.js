@@ -202,9 +202,12 @@ function capture(options, callback) {
     }
     cameraBusy = true;
     sendEvent('status', "waiting on camera");
-    if (!options) options = {
-        thumbnail: true
-    };
+    if (!options) {
+        console.log("worker: capture: initializing options");
+        options = {
+            thumbnail: true
+        };
+    }
     if (!options.exposureCompensation) options.exposureCompensation = 0;
     console.log("running camera.takePicture()");
     var captureOptions = {};
