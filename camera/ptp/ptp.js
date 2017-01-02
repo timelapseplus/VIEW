@@ -265,7 +265,7 @@ function padNumber(n, width) {
 
 camera.capture = function(options, callback) {
     if (worker && camera.connected) {
-        if(supports.destination) {
+        if(camera.supports.destination) {
             worker.send({
                 type: 'camera',
                 do: 'capture',
@@ -318,7 +318,7 @@ camera.captureTethered = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.preview = function(callback) {
-    if(!supports.liveview) {
+    if(!camera.supports.liveview) {
         return callback && callback("not supported");
     }
     if (worker && camera.connected) worker.send({

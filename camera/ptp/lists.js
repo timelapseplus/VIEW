@@ -429,11 +429,11 @@ lists.isoAll = [{
 }];
 
 lists.isoThirds = lists.isoAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
+    return item.ev === null || item.ev % 1/3 < 0.01;
 });
 
 lists.isoHalfs = lists.isoAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/2 < 0.1;
+    return item.ev === null || item.ev % 1/2 < 0.01;
 });
 
 lists.iso = lists.isoThirds;
@@ -589,11 +589,11 @@ lists.apertureAll = [{
 }];
 
 lists.apertureThirds = lists.apertureAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
+    return item.ev === null || item.ev % 1/3 < 0.01;
 });
 
 lists.apertureHalfs = lists.apertureAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/2 < 0.1;
+    return item.ev === null || item.ev % 1/2 < 0.01;
 });
 
 lists.aperture = lists.apertureThirds;
@@ -899,11 +899,11 @@ lists.shutterAll = [{
 }];
 
 lists.shutterThirds = lists.shutterAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/3 < 0.1;
+    return item.ev === null || item.ev % 1/3 < 0.01;
 });
 
-lists.shuttereHalfs = lists.shutterAll.filter(function(item) {
-    return item.ev === null || item.ev % 1/2 < 0.1;
+lists.shutterHalfs = lists.shutterAll.filter(function(item) {
+    return item.ev === null || item.ev % 1/2 < 0.01;
 });
 
 lists.shutter = lists.shutterThirds;
