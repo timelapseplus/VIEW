@@ -10,14 +10,14 @@ var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
 
 var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
-var patchMD5 = "7a31ebf60d3af3cdbbfca9f5cee3ea36";
+var patchMD5 = "b494c71663456652c5567329101e90c1";
 
 var kernelVersion = "#50 PREEMPT Mon Dec 26 12:40:55 EST 2016";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
-var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
+var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.h /root/libgphoto2/camlibs/ptp2/";
 var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version + " && cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
 var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
