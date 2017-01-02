@@ -1036,9 +1036,19 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                 } else if (b == 4) {
+                    liveviewOn = false;
                     camera.ptp.capture(null, function(err) {
                         if(err) {
-                            ui.alert('err', err);
+                            liveviewOn = false;
+                            blockInputs = false;
+                            inputs.removeListener('B', captureButtonHandler);
+                            inputs.removeListener('D', captureDialHandler);
+                            setTimeout(function(){
+                                cb();
+                                ui.alert('err', err);
+                            }, 500);
+                        } else {
+                            liveviewOn = true;
                         }
                     });
                 }
@@ -1068,13 +1078,13 @@ if (VIEW_HARDWARE) {
             }
 
             liveviewOn = true;
-            camera.ptp.preview();
             camera.ptp.getSettings(function() {
                 stats = camera.evStats(camera.ptp.settings);
                 ev = stats.ev;
                 inputs.on('B', captureButtonHandler);
                 inputs.on('D', captureDialHandler);
             });
+            camera.ptp.preview();
         }
     }
 
