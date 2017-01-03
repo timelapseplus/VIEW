@@ -171,13 +171,13 @@ camera.setEv = function(ev, options, cb) {
         var apertureList = camera.ptp.settings.lists.aperture;
         var isoList = camera.ptp.settings.lists.iso;
 
-        console.log("options: ", options);
+        //console.log("options: ", options);
 
         if(shutterList) shutterList = lists.cleanEvCopy(shutterList);
         if(apertureList) apertureList = lists.cleanEvCopy(apertureList);
         if(isoList) isoList = lists.cleanEvCopy(isoList);
 
-        console.log("isoList2: ", isoList);
+        //console.log("isoList2: ", isoList);
 
         if (options && options.maxShutterLengthMs) {
             var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
@@ -188,23 +188,23 @@ camera.setEv = function(ev, options, cb) {
             });
             console.log("Filtered shutter list: ", shutterList);
         }
-        if (options && options.shutterMax !== null) {
+        if (options && options.shutterMax != null) {
             shutterList = shutterList.filter(function(item) {
                 return item.ev >= options.shutterMax;
             });
         }
-        if (options && options.isoMax !== null) {
+        if (options && options.isoMax != null) {
             isoList = isoList.filter(function(item) {
                 return item.ev >= options.isoMax;
             });
         }
-        if (options && options.isoMin !== null) {
+        if (options && options.isoMin != null) {
             isoList = isoList.filter(function(item) {
                 return item.ev <= options.isoMin;
             });
         }
 
-        console.log("isoList3: ", isoList);
+        //console.log("isoList3: ", isoList);
 
         var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
         console.log("setEv: currentEv: ", currentEv);
