@@ -5,7 +5,6 @@ var fs = require('fs');
 
 var oled = {};
 
-oled.defaultStatusString = "";
 var currentStatus = "";
 var chargeStatus = null;
 var batteryPercentage = null;
@@ -718,31 +717,11 @@ oled.png = function(pngFile, x, y, overlay) {
     fb.blit();
 }
 
-function writeStatus(status) {
+oled.writeStatus = function(status) {
     console.log("setting oled status:", status);
     currentStatus = status;
     oled.writeMenu();
     oled.update();
-}
-
-var statusTimeoutHandle = null;
-
-oled.status = function(status) {
-    if(statusTimeoutHandle) clearTimeout(statusTimeoutHandle);
-    if(status) {
-        writeStatus(status);
-        if(oled.defaultStatusString) {
-            statusTimeoutHandle = setTimeout(function(){
-                writeStatus(oled.defaultStatusString);
-            }, 6000);
-        }
-    } else {
-        writeStatus(oled.defaultStatusString);
-    }
-}
-
-oled.defaultStatus = function(status) {
-    oled.defaultStatusString = status;
 }
 
 oled.chargeStatus = function(status) {

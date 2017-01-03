@@ -114,13 +114,13 @@ if (VIEW_HARDWARE) {
 
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.updateCameraLibrary, function(cb){
             cb();
-            var backupStatus = oled.defaultStatusString;
-            oled.defaultStatus("updating camera support");
+            var backupStatus = ui.defaultStatusString;
+            ui.defaultStatus("updating camera support");
             db.get('libgphoto2-update-in-progress', function(err, val){
                 if(val) {
                     console.log("compiling libgphoto2...");
                     updates.installLibGPhoto(function(err){
-                        oled.defaultStatus(backupStatus);
+                        ui.defaultStatus(backupStatus);
                         process.nextTick(function(){
                             if(err) { // error compiling
                                 console.log("error compiling libgphoto2", err);
@@ -135,7 +135,7 @@ if (VIEW_HARDWARE) {
                 } else {
                     console.log("downloading libgphoto2...");
                     updates.downloadLibGPhoto(function(err) {
-                        oled.defaultStatus(backupStatus);
+                        ui.defaultStatus(backupStatus);
                         if(err) { // error downloading
                             console.log("error downloading libgphoto2", err);
                             process.nextTick(function(){
@@ -204,7 +204,7 @@ if (VIEW_HARDWARE) {
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         wifiConnectionTime = new Date().getTime();
-        oled.status('wifi connected to ' + ssid);
+        ui.status('wifi connected to ' + ssid);
 //        updates.checkLibGPhotoUpdate(function(err, needUpdate){
 //            if(!err && needUpdate) {
 //                if(updates.downloadingLibGphoto) {
@@ -246,7 +246,7 @@ if (VIEW_HARDWARE) {
         ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
-        oled.status('wifi disconnected');
+        ui.status('wifi disconnected');
         if(previousConnection && previousConnection.address) {
             var currentTime = wifiConnectionTime = new Date().getTime();
             if(currentTime - wifiConnectionTime < 30 * 1000) {
@@ -966,7 +966,7 @@ if (VIEW_HARDWARE) {
             } else {
                 ui.back();
                 ui.back();
-                oled.status("no clips available");
+                ui.status("no clips available");
                 return {
                     name: "timelapse clips",
                     type: "menu",
@@ -1150,7 +1150,7 @@ if (VIEW_HARDWARE) {
                                 ui.busy = false;
                                 if(!err) {
                                     updates.setVersion(versionTarget, function(){
-                                        oled.status('update successful');
+                                        ui.status('update successful');
                                         oled.value([{
                                             name: "Reloading app...",
                                             value: "Please Wait"
@@ -1162,7 +1162,7 @@ if (VIEW_HARDWARE) {
                                     });
                                 } else {
                                     wifi.unblockBt();
-                                    oled.status('error updating');
+                                    ui.status('error updating');
                                     if(cb) cb();
                                     ui.back();
                                 }
@@ -1171,7 +1171,7 @@ if (VIEW_HARDWARE) {
                                     name: statusUpdate,
                                     value: "Please Wait"
                                 }]);
-                                oled.status(statusUpdate);
+                                ui.status(statusUpdate);
                                 oled.update();
                                 oled.activity();
                             });
@@ -1223,7 +1223,7 @@ if (VIEW_HARDWARE) {
                                 if(version && !version.current) {
                                     ui.load(versionUpdateConfirmMenuBuild(version), null, null, true);
                                 } else {
-                                    oled.status('already installed');
+                                    ui.status('already installed');
                                     if(cb) cb();
                                 }
 
@@ -1304,7 +1304,7 @@ if (VIEW_HARDWARE) {
                                 type: "textInput",
                                 value: password || "",
                                 onSave: function(result) {
-                                    oled.status('connecting to ' + item.ssid);
+                                    ui.status('connecting to ' + item.ssid);
                                     wifi.connect(item, result);
                                     db.setWifi(item.address, result);
                                     db.set('wifi-status', {
@@ -1318,7 +1318,7 @@ if (VIEW_HARDWARE) {
                             });
                         });
                     } else {
-                        oled.status('connecting to ' + item.ssid);
+                        ui.status('connecting to ' + item.ssid);
                         wifi.connect(item);
                         db.set('wifi-status', {
                             apMode: false,
@@ -1925,7 +1925,7 @@ if (VIEW_HARDWARE) {
         }
         oled.activity();
         power.activity();
-        oled.status('connected to view.tl');
+        ui.status('connected to view.tl');
     });
 
     app.on('logs-uploaded', function(count) {
@@ -2477,7 +2477,7 @@ camera.ptp.on('connected', function() {
             model: camera.ptp.model
         });
         if (VIEW_HARDWARE) {
-            oled.status(camera.ptp.model);
+            ui.status(camera.ptp.model);
             ui.reload();
         }
     }, 1000);
@@ -2489,8 +2489,8 @@ camera.ptp.on('exiting', function() {
         model: ''
     });
     if (VIEW_HARDWARE) {
-        oled.defaultStatus("Timelapse+ VIEW " + updates.version);
-        oled.status("camera disconnected");
+        ui.defaultStatus("Timelapse+ VIEW " + updates.version);
+        ui.status("camera disconnected");
         ui.reload();
     }
 });
@@ -2506,11 +2506,11 @@ camera.ptp.on('status', function(msg) {
         status: msg
     });
     if (!blockInputs && VIEW_HARDWARE) {
-        oled.status(msg);
+        ui.status(msg);
         if (camera.ptp.connected) {
-            oled.defaultStatus(camera.ptp.model);
+            ui.defaultStatus(camera.ptp.model);
         } else {
-            oled.defaultStatus("Timelapse+ VIEW " + updates.version);
+            ui.defaultStatus("Timelapse+ VIEW " + updates.version);
         }
     }
 });
@@ -2548,7 +2548,7 @@ intervalometer.on('status', function(msg) {
     oled.updateTimelapseStatus(statusScreen);
     ui.reload();
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
-        oled.status(msg.message);
+        ui.status(msg.message);
     }
 });
 

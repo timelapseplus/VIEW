@@ -335,4 +335,26 @@ exports.confirmationPrompt = function(promptText, optionText1, optionText2, help
     }, null, null, true);
 }
 
+exports.defaultStatusString = "";
+var statusTimeoutHandle = null;
 
+exports.status = function(status) {
+    if(statusTimeoutHandle) clearTimeout(statusTimeoutHandle);
+    if(status) {
+        oled.writeStatus(status);
+        if(exports.busy) oled.showBusy();
+        if(exports.defaultStatusString) {
+            statusTimeoutHandle = setTimeout(function(){
+                oled.writeStatus(exports.defaultStatusString);
+                if(exports.busy) oled.showBusy();
+            }, 6000);
+        }
+    } else {
+        oled.writeStatus(exports.defaultStatusString);
+        if(exports.busy) oled.showBusy();
+    }
+}
+
+exports.defaultStatus = function(status) {
+    exports.defaultStatusString = status;
+}

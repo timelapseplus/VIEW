@@ -478,6 +478,7 @@ camera.runSupportTest = function(cb) {
                 console.log("Camera report test complete. Err:", err);
                 camera.enableWorker();
                 supportTestRunning = false;
+                cb && cb(err);
             });
         }
     });
