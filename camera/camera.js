@@ -171,7 +171,7 @@ camera.setEv = function(ev, options, cb) {
         var apertureList = camera.ptp.settings.lists.aperture;
         var isoList = camera.ptp.settings.lists.iso;
 
-        console.log("isoList1: ", isoList);
+        console.log("options: ", options);
 
         if(shutterList) shutterList = lists.cleanEvCopy(shutterList);
         if(apertureList) apertureList = lists.cleanEvCopy(apertureList);
