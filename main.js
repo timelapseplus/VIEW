@@ -1746,7 +1746,7 @@ if (VIEW_HARDWARE) {
             },
             condition: function() {
                 return camera.ptp.connected && !intervalometer.status.running;
-            }
+            },
             help: help.sendCameraReport
         }, {
             name: "Send log for review",
