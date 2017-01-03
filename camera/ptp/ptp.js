@@ -54,6 +54,33 @@ function errorCallbacks(err) {
     }
 }
 
+camera.disabled = false;
+var disabledCallback = null;
+camera.disableWorker = function(cb) {
+    camera.disabled = true;
+    if(worker) {
+        disabledCallback = cb;
+        worker.send({
+            type: 'command',
+            do: 'exit'
+        });
+    } else {
+        cb && cb(true);
+    }
+}
+
+camera.enableWorker = function(cb) {
+    camera.disabled = false;
+    disabledCallback = null;
+    if(!worker) {
+        process.nextTick(startWorker);
+        camera.connecting = true;
+        cb && cb();
+    } else {
+        cb && cb(true);
+    }
+}
+
 var startWorker = function() {
     if (!worker) {
         camera.connected = false;
@@ -67,7 +94,10 @@ var startWorker = function() {
             console.log("worker exited");
             worker = false;
             errorCallbacks("camera not available");
-            if (camera.connected) {
+            if(camera.disabled) {
+                disabledCallback && disabledCallback();
+                camera.connecting = false;
+            } else if (camera.connected) {
                 process.nextTick(startWorker);
                 camera.connecting = true;
             } else {
@@ -345,7 +375,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent) {
     var data = {
         reset: true
     };
-    if (worker && camera.connected && xTargetPercent !== null && yTargetPercent !== null) {
+    if (worker && camera.connected && xTargetPercent != null && yTargetPercent != null) {
         camera.zoomed = true;
         data = {
             xPercent: xTargetPercent,
@@ -433,6 +463,24 @@ camera.saveToCameraCard = function(bool) {
             return camera.target;
         }
     }
+}
+
+var supportTestRunning = false;
+camera.runSupportTest = function(cb) {
+    if(supportTestRunning) return cb && cb("support test is already running");
+    supportTestRunning = true;
+    camera.disableWorker(function(err) {
+        if(err) {
+            camera.enableWorker();
+            cb && cb(err);
+        } else {
+            exec("/usr/local/bin/gphoto2 --list-all-config > /tmp/cameraLog.txt 2>&1; /bin/echo \"======================\" >> /tmp/cameraLog.txt;  /usr/local/bin/gphoto2 --capture-image --keep --debug >> /tmp/cameraLog.txt 2>&1; /bin/echo \"======================\" >> /tmp/cameraLog.txt; cd /tmp; /usr/local/bin/gphoto2 --get-thumbnail=1 --force-overwrite --debug >> /tmp/cameraLog.txt 2>&1; /bin/bzip2 /tmp/cameraLog.txt;  mv /tmp/cameraLog.txt.bz2 /home/view/logsForUpload/cameraLog-`date +"%Y%m%d-%H%M%S"`.txt.bz2;", function(err) {
+                console.log("Camera report test complete. Err:", err);
+                camera.enableWorker();
+                supportTestRunning = false;
+            });
+        }
+    });
 }
 
 module.exports = camera;

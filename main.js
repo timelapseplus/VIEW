@@ -187,47 +187,59 @@ if (VIEW_HARDWARE) {
             }
         });
     }
+    db.get('libgphoto2-needs-patch', function(err, val){
+        if(val) {
+            if(!updates.updatingLibGphoto) patchLibGPhoto();
+        } else if(!updates.updatingLibGphoto) {
+            updates.checkLibGPhotoPatch(function(err, patched){
+                if(!err && !patched) {
+                    db.set('libgphoto2-needs-patch', true);
+                    patchLibGPhoto();
+                }
+            });
+        }
+    });
 
 
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         wifiConnectionTime = new Date().getTime();
         oled.status('wifi connected to ' + ssid);
-        updates.checkLibGPhotoUpdate(function(err, needUpdate){
-            if(!err && needUpdate) {
-                if(updates.downloadingLibGphoto) {
-                    console.log("libgphoto2 update already downloading");
-                } else {
-                    db.set('libgphoto2-update-in-progress', false);
-                    console.log("libgphoto2 update available!");
-                    updateLibGPhoto2();
-                }
-            } else {
-                db.get('libgphoto2-update-in-progress', function(err, val){
-                    if(val) {
-                        if(updates.updatingLibGphoto) {
-                            console.log("libgphoto2 update in progress!");
-                        } else {
-                            console.log("resuming libgphoto2 update...");
-                            updateLibGPhoto2();
-                        }
-                    } else {
-                        db.get('libgphoto2-needs-patch', function(err, val){
-                            if(val) {
-                                if(!updates.updatingLibGphoto) patchLibGPhoto();
-                            } else if(!updates.updatingLibGphoto) {
-                                updates.checkLibGPhotoPatch(function(err, patched){
-                                    if(!err && !patched) {
-                                        db.set('libgphoto2-needs-patch', true);
-                                        patchLibGPhoto();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+//        updates.checkLibGPhotoUpdate(function(err, needUpdate){
+//            if(!err && needUpdate) {
+//                if(updates.downloadingLibGphoto) {
+//                    console.log("libgphoto2 update already downloading");
+//                } else {
+//                    db.set('libgphoto2-update-in-progress', false);
+//                    console.log("libgphoto2 update available!");
+//                    updateLibGPhoto2();
+//                }
+//            } else {
+//                db.get('libgphoto2-update-in-progress', function(err, val){
+//                    if(val) {
+//                        if(updates.updatingLibGphoto) {
+//                            console.log("libgphoto2 update in progress!");
+//                        } else {
+//                            console.log("resuming libgphoto2 update...");
+//                            updateLibGPhoto2();
+//                        }
+//                    } else {
+//                        db.get('libgphoto2-needs-patch', function(err, val){
+//                            if(val) {
+//                                if(!updates.updatingLibGphoto) patchLibGPhoto();
+//                            } else if(!updates.updatingLibGphoto) {
+//                                updates.checkLibGPhotoPatch(function(err, patched){
+//                                    if(!err && !patched) {
+//                                        db.set('libgphoto2-needs-patch', true);
+//                                        patchLibGPhoto();
+//                                    }
+//                                });
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        });
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {
@@ -467,7 +479,7 @@ if (VIEW_HARDWARE) {
         action: ui.set(intervalometer.currentProgram, 'isoMax', null)
     });
     for (var i = 0; i < camera.lists.iso.length; i++) {
-        if(camera.lists.iso[i].ev !== null && camera.lists.iso[i].ev <= -2) {
+        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev <= -2) {
             isoMax.items.push({
                 name: "Maximum ISO",
                 help: help.isoMax,
@@ -489,7 +501,7 @@ if (VIEW_HARDWARE) {
         action: ui.set(intervalometer.currentProgram, 'isoMin', null)
     });
     for (var i = 0; i < camera.lists.iso.length; i++) {
-        if(camera.lists.iso[i].ev !== null && camera.lists.iso[i].ev >= -2) {
+        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev >= -2) {
             isoMin.items.push({
                 name: "Minimum ISO",
                 help: help.isoMin,
@@ -511,7 +523,7 @@ if (VIEW_HARDWARE) {
         action: ui.set(intervalometer.currentProgram, 'shutterMax', null)
     });
     for (var i = 0; i < camera.lists.shutter.length; i++) {
-        if(camera.lists.shutter[i].ev !== null && camera.lists.shutter[i].ev <= -6) {
+        if(camera.lists.shutter[i].ev != null && camera.lists.shutter[i].ev <= -6) {
             shutterMax.items.push({
                 name: "Max Shutter Length",
                 help: help.shutterMax,
@@ -1724,6 +1736,18 @@ if (VIEW_HARDWARE) {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
+        }, {
+            name: "Send camera report",
+            action: function(){
+                camera.ptp.runSupportTest(function() {
+                    ui.back();
+                    app.sendLogs();
+                });
+            },
+            condition: function() {
+                return camera.ptp.connected && !intervalometer.status.running;
+            }
+            help: help.sendCameraReport
         }, {
             name: "Send log for review",
             action: function(){

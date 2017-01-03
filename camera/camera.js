@@ -324,10 +324,10 @@ camera.evStats = function(settings, options) {
     var res = {};
     if (settings.details) settings = settings.details;
 
-    var av = (settings.aperture && settings.aperture.ev !== null) ? settings.aperture.ev : camera.fixedApertureEv;
+    var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : camera.fixedApertureEv;
 
     res.ev = null;
-    if (settings.shutter && settings.shutter.ev !== null && settings.iso && settings.iso.ev !== null) res.ev = lists.getEv(settings.shutter.ev, av, settings.iso.ev);
+    if (settings.shutter && settings.shutter.ev != null && settings.iso && settings.iso.ev != null) res.ev = lists.getEv(settings.shutter.ev, av, settings.iso.ev);
 
     res.shutterList = camera.ptp.settings.lists.shutter;
     res.apertureList = camera.ptp.settings.lists.aperture;
@@ -338,17 +338,17 @@ camera.evStats = function(settings, options) {
             return lists.getSecondsFromEv(item.ev) * 1000 < options.maxShutterLengthMs;
         });
     }
-    if (options && options.shutterMax !== null) {
+    if (options && options.shutterMax != null) {
         res.shutterList = res.shutterList.filter(function(item) {
             return item.ev >= options.shutterMax;
         });
     }
-    if (options && options.isoMax !== null) {
+    if (options && options.isoMax != null) {
         res.isoList = res.isoList.filter(function(item) {
             return item.ev >= options.isoMax;
         });
     }
-    if (options && options.isoMin !== null) {
+    if (options && options.isoMin != null) {
         res.isoList = res.isoList.filter(function(item) {
             return item.ev <= options.isoMin;
         });
@@ -384,7 +384,6 @@ camera.captureEv = function(ev, cb) {
     var res = camera.setEv(ev);
     var evDiff = res.ev - ev;
 }
-
 
 
 module.exports = camera;

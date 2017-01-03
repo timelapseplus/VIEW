@@ -297,7 +297,7 @@ function drawStatusBar() {
     fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, currentStatus);
 
     // draw battery status
-    if(batteryPercentage !== null) {
+    if(batteryPercentage != null) {
         var bx = 160 - 20.5;
         var by = 2.5;
 

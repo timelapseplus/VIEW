@@ -148,7 +148,7 @@ function processRawPath(path, options, info, callback) {
                 var name = "Timelapse";
                 if(s && s.length > 1) name = s[1];
                 var desc = name + " created with the Timelapse+ VIEW\nImage #" + options.index + "\nBase Exposure: " + options.exposureCompensation;
-                if (options.exposureCompensation !== null) image.writeXMP(dest, options.exposureCompensation, desc, name);
+                if (options.exposureCompensation != null) image.writeXMP(dest, options.exposureCompensation, desc, name);
             }
         } else {
             fs.unlink(path);
@@ -399,7 +399,7 @@ function liveViewOff() {
 
 function liveViewOffTimerReset(ms) {
     if (!ms) ms = 1500;
-    if (liveViewTimerHandle !== null) clearTimeout(liveViewTimerHandle);
+    if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = setTimeout(liveViewOff, ms);
 }
 
@@ -546,7 +546,7 @@ function mapCameraList(type, cameraList) {
         var list = [];
         for (var i = 0; i < cameraList.length; i++) {
             var item = mapParam(type, cameraList[i]);
-            if (item !== null) {
+            if (item != null) {
                 if (list.filter(function(item) {
                         return item.cameraName == cameraList[i];
                     }).length == 0) {

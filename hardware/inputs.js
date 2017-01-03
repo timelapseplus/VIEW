@@ -60,7 +60,7 @@ inputs.start = function() {
                     powerButtonPressedTimer = setTimeout(function(){
                         inputs.emit('B', 6); // power button held
                     }, 1500);
-                } else if(powerButtonPressedTimer !== null && !inputs.button[4]) {
+                } else if(powerButtonPressedTimer != null && !inputs.button[4]) {
                     clearTimeout(powerButtonPressedTimer);
                     powerButtonPressedTimer = null;
                 }

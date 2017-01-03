@@ -60,8 +60,8 @@ exp.init = function(minEv, maxEv, nightCompensation) {
 }
 
 exp.calculate = function(currentEv, lastPhotoLum, minEv, maxEv) {
-    if(minEv !== null) exp.config.minEv = minEv;
-    if(maxEv !== null) exp.config.maxEv = maxEv;
+    if(minEv != null) exp.config.minEv = minEv;
+    if(maxEv != null) exp.config.maxEv = maxEv;
 
     // measure the interval
     exp.status.intervalSeconds = 0;

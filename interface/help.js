@@ -98,4 +98,4 @@ exports.logsQueued = "The log file has been queued for upload and will be sent n
 
 exports.useTimelapseSetup = "This will load the settings used for this clip as a new time-lapse setup.  Selecting it will update the current time-lapse setup and open the Time-lapse menu.";
 
-
+exports.sendCameraReport = "This will run a few tests on the camera and record the results in an extensive debug log for camera support troubleshooting.  The log will then be sent to Elijah Parker for review.";

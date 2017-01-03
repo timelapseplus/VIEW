@@ -896,8 +896,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;
-            if (kf.ev !== null) $scope.setEv(kf.ev);
-            if (kf.focus !== null) {
+            if (kf.ev != null) $scope.setEv(kf.ev);
+            if (kf.focus != null) {
                 var focusDiff = kf.focus - $scope.focusPos;
                 var dir = focusDiff < 0 ? -1 : 1;
                 var repeat = Math.abs(focusDiff);

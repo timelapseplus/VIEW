@@ -154,7 +154,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
 
         if (setupFirst) {
             keyframes[0].seconds = 0;
-            if(axisSubIndex !== null) {
+            if(axisSubIndex != null) {
                 keyframes[0][axisName][axisSubIndex] = 0;
             } else {
                 keyframes[0][axisName] = 0;
@@ -165,7 +165,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
 
             console.log("KF: Seconds since start: " + secondsSinceStart);
             kfPoints = keyframes.map(function(kf) {
-                if(axisSubIndex !== null) {
+                if(axisSubIndex != null) {
                     return {
                         x: kf.seconds,
                         y: kf[axisName][axisSubIndex] || 0
@@ -181,7 +181,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
             console.log("FK: " + axisName + " target: " + kfSet);
         }
         var axisNameExtension = '';
-        if(axisSubIndex !== null) axisNameExtension = '-' + axisSubIndex;
+        if(axisSubIndex != null) axisNameExtension = '-' + axisSubIndex;
         kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
 
         if (kfCurrent == null) {
@@ -221,7 +221,7 @@ function processKeyframes(setupFirst, callback) {
     }
 
     doKeyframeAxis('ev', null, setupFirst, function(ev) {
-        //if (ev !== null && camera.settings.ev != ev) camera.setEv(ev);
+        //if (ev != null && camera.settings.ev != ev) camera.setEv(ev);
         checkDone();
     });
 
@@ -731,7 +731,7 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
 
             async.map(clipImages, getTimelapseImage, function(err, images) {
                 callback(null, images.filter(function(image) {
-                    return image !== null;
+                    return image != null;
                 }));
             });
         });

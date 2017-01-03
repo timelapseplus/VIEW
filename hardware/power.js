@@ -144,12 +144,12 @@ power.update = function(noEvents) {
             }
         }
 
-        if(charging !== null && charging != power.charging) {
+        if(charging != null && charging != power.charging) {
             power.charging = charging;
             power.emit("charging", charging);
         }
 
-        if(percentage !== null && percentage != power.percentage) {
+        if(percentage != null && percentage != power.percentage) {
             power.percentage = percentage;
             power.emit("percentage", percentage);
         }

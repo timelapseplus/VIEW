@@ -57,7 +57,7 @@ lists.getNameFromEv = function(itemList, ev) {
 
 lists.cleanEvCopy = function(itemList) {
     return itemList.filter(function(item) {
-        return item.ev !== null
+        return item.ev != null
     });
 }
 
@@ -908,7 +908,7 @@ while (us < 1000000 * 60 * 10) {
         if (thirds) tus *= 1.25992104989;
         var name = null;
         for (var i = 0; i < lists.shutter.length; i++) {
-            if (lists.shutter[i].ev !== null && Math.ceil(lists.shutter[i].ev * 10) === Math.ceil(-(ev + thirds / 3) * 10)) {
+            if (lists.shutter[i].ev != null && Math.ceil(lists.shutter[i].ev * 10) === Math.ceil(-(ev + thirds / 3) * 10)) {
                 name = lists.shutter[i].name;
                 break;
             }
