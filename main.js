@@ -2120,11 +2120,14 @@ function closeSystem(callback) {
     db.set('intervalometer.currentProgram', intervalometer.currentProgram);
     //db.setCache('intervalometer.status', intervalometer.status);
     nmx.disconnect();
-    if (VIEW_HARDWARE) {
-        oled.close();
-        inputs.stop();
-    }
-    db.close(callback);
+    db.close(function(){
+        if (VIEW_HARDWARE) {
+            oled.close();
+            inputs.stop(callback);
+        } else {
+            callback && callback();
+        }
+    });
 }
 
 process.on('exit', function() {

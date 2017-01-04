@@ -108,13 +108,17 @@ inputs.startGesture = function() {
     });
 }
 
-inputs.stop = function() {
+inputs.stop = function(callback) {
     stop = true;
     if (inputsRunning) {
         console.log("inputs process exiting...");
         inputsProcess.stdin.write('\n');
+        setTimeout(function(){
+            inputsProcess.kill();
+        }, 1000);
     }
     inputs.stopGesture();
+    if(callback) setTimeout(callback, 1500); // give time for processes to exit
 }
 
 inputs.stopGesture = function() {
@@ -123,6 +127,9 @@ inputs.stopGesture = function() {
     if (gestureRunning) {
         console.log("gesture process exiting...");
         gestureProcess.stdin.write('\n');
+        setTimeout(function(){
+            gestureProcess.kill();
+        }, 1000);
     }    
 }
 
