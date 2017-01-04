@@ -6,6 +6,7 @@ var dbCache = new sqlite3.Database('/tmp/view-cache.db');
 var fs = require('fs');
 var exec = require('child_process').exec;
 
+var closed = false;
 dbSys.serialize(function(){
 	dbSys.run("CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value BLOB)");
 	dbSys.run("CREATE TABLE IF NOT EXISTS wifi (address TEXT PRIMARY KEY, password TEXT)");
@@ -71,11 +72,13 @@ function unserialize(string) {
 }
 
 exports.setCache = function(key, object, callback) {
+	if(closed) return callback && callback(true);
 	var data = serialize(object);
 	dbCache.run("INSERT OR REPLACE INTO cache (name, value) VALUES ('" + key + "', '" + data + "')", callback);
 }
 
 exports.getCache = function(key, callback) {
+	if(closed) return callback && callback(true);
 	dbCache.get("SELECT value FROM cache WHERE name = '" + key + "' LIMIT 1", function(err, data){
 		if(err || !data || !data.value) {
 			callback(err);
@@ -87,11 +90,13 @@ exports.getCache = function(key, callback) {
 }
 
 exports.set = function(key, object, callback) {
+	if(closed) return callback && callback(true);
 	var data = serialize(object);
 	dbSys.run("INSERT OR REPLACE INTO settings (name, value) VALUES ('" + key + "', '" + data + "')", callback);
 }
 
 exports.get = function(key, callback) {
+	if(closed) return callback && callback(true);
 	dbSys.get("SELECT value FROM settings WHERE name = '" + key + "' LIMIT 1", function(err, data){
 		if(err || !data || !data.value) {
 			callback(err);
@@ -103,6 +108,7 @@ exports.get = function(key, callback) {
 }
 
 exports.setTimelapse = function(name, program, status, callback) {
+	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	name = name.toLowerCase();
 	program = serialize(program);
@@ -115,6 +121,7 @@ exports.setTimelapse = function(name, program, status, callback) {
 }
 
 exports.getTimelapse = function(id, callback) {
+	if(closed) return callback && callback(true);
 	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
@@ -127,6 +134,7 @@ exports.getTimelapse = function(id, callback) {
 }
 
 function deleteTimelapse(id, callback) {
+	if(closed) return callback && callback(true);
 	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
 		if(err || !data) {
 			callback(err);
@@ -139,6 +147,7 @@ function deleteTimelapse(id, callback) {
 }
 
 exports.deleteTimelapse = function(tlName, callback) {
+	if(closed) return callback && callback(true);
 	exports.getTimelapseByName(tlName, function(err, clip) {
 		if(!err && clip) {
 			dbTl.run("DELETE FROM clips WHERE id = '" + clip.id + "' LIMIT 1", function(err) {
@@ -155,6 +164,7 @@ exports.deleteTimelapse = function(tlName, callback) {
 }
 
 exports.getTimelapseByName = function(tlName, callback) {
+	if(closed) return callback && callback(true);
 	console.log("db.getTimelapseByName: fetching " + tlName);
 	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "' LIMIT 1", function(err, data){
 		if(err || !data) {
@@ -168,6 +178,7 @@ exports.getTimelapseByName = function(tlName, callback) {
 }
 
 exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, callback) {
+	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	details = serialize(details);
 	evCorrection = evCorrection || 0;
@@ -190,6 +201,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, c
 }
 
 exports.getTimelapseList = function(limit, offset, callback) {
+	if(closed) return callback && callback(true);
 	limit = parseInt(limit);
 	if(!limit) limit = 15;
 	offset = parseInt(offset);
@@ -216,11 +228,13 @@ exports.getTimelapseList = function(limit, offset, callback) {
 }
 
 exports.setWifi = function(address, password, callback) {
+	if(closed) return callback && callback(true);
 	var data = serialize(password);
 	dbSys.run("INSERT OR REPLACE INTO wifi (address, password) VALUES ('" + address + "', '" + data + "')", callback);
 }
 
 exports.getWifi = function(address, callback) {
+	if(closed) return callback && callback(true);
 	dbSys.get("SELECT password FROM wifi WHERE address = '" + address + "' LIMIT 1", function(err, data){
 		if(err || !data || !data.password) {
 			callback(err);
@@ -233,6 +247,7 @@ exports.getWifi = function(address, callback) {
 
 // WARNING! This erases all saved settings! //
 exports.eraseAll = function() {
+	if(closed) return callback && callback(true);
 	dbSys.run("DELETE FROM wifi WHERE 1");
 	dbSys.run("DELETE FROM settings WHERE 1");
 }
@@ -256,9 +271,11 @@ exports.setCache('test', testObject, function() {
 });
 
 exports.close = function(callback) {
+	if(closed) return callback && callback(true);
 	dbSys.close(callback);
 	dbTl.close();
 	dbCache.close();
+	closed = true;
 }
 
 function sendLog(logPath, tlName, reasonCode, callback) {
