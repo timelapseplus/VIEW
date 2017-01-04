@@ -296,7 +296,7 @@ function padNumber(n, width) {
 var captureIndex = 1;
 camera.capture = function(options, callback) {
     if (worker && camera.connected) {
-        if(camera.supports.destination) {
+        if(camera.supports.destination || options) {
             worker.send({
                 type: 'camera',
                 do: 'capture',

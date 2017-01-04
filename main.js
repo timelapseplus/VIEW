@@ -1005,7 +1005,9 @@ if (VIEW_HARDWARE) {
                     oled.update();
                     //if (!intervalometer.status.running) {
                         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
-                        power.shutdown();
+                        closeSystem(function(){
+                            power.shutdown();
+                        });
                     //}
                 }
             }

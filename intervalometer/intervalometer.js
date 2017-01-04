@@ -548,15 +548,16 @@ intervalometer.run = function(program) {
                     db.setTimelapse(status.tlName, program, status, function(err, timelapseId) {
                         status.id = timelapseId;
                         processKeyframes(true, function() {
-                            busyPhoto = false;
-                            if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
-                                runPhoto();   
-                            }
-                            if(intervalometer.currentProgram.intervalMode == 'aux') {
-                                status.message = "waiting for AUX2...";
-                                intervalometer.emit("status", status);
-                            }
-
+                            setTimeout(function() {
+                                busyPhoto = false;
+                                if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
+                                    runPhoto();   
+                                }
+                                if(intervalometer.currentProgram.intervalMode == 'aux') {
+                                    status.message = "waiting for AUX2...";
+                                    intervalometer.emit("status", status);
+                                }
+                            }, 3000);
                         });
                     });
                     //delayHandle = setTimeout(function() {
