@@ -124,7 +124,7 @@ camera.autoSetEv = function() {
 
 camera.getEvFromSettings = function(cameraSettings) {
     var settings = cameraSettings.details;
-    var av = (settings.aperture && settings.aperture.ev) ? settings.aperture.ev : camera.fixedApertureEv;
+    var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : camera.fixedApertureEv;
 
     if(settings && settings.shutter && settings.iso) {
         return lists.getEv(settings.shutter.ev, av, settings.iso.ev);
@@ -136,7 +136,7 @@ camera.getEvFromSettings = function(cameraSettings) {
 camera.getEv = function(callback) {
     camera.ptp.getSettings(function() {
         var settings = camera.ptp.settings.details;
-        var av = (settings.aperture && settings.aperture.ev) ? settings.aperture.ev : camera.fixedApertureEv;
+        var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : camera.fixedApertureEv;
 
         if (callback) {
             if(settings && settings.shutter && settings.iso) {
