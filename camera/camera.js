@@ -182,28 +182,38 @@ camera.setEv = function(ev, options, cb) {
 
         //console.log("isoList2: ", isoList);
 
-        if (options && options.maxShutterLengthMs) {
+        if (shutterList && options && options.maxShutterLengthMs) {
             var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
             if(maxSeconds < 1) maxSeconds = 1;
             console.log("MAX seconds for shutter: ", maxSeconds);
             shutterList = shutterList.filter(function(item) {
                 return lists.getSecondsFromEv(item.ev) <= maxSeconds;
             });
-            console.log("Filtered shutter list: ", shutterList);
+            //console.log("Filtered shutter list: ", shutterList);
         }
-        if (options && options.shutterMax != null) {
+        if (shutterList && options && options.shutterMax != null) {
             shutterList = shutterList.filter(function(item) {
                 return item.ev >= options.shutterMax;
             });
         }
-        if (options && options.isoMax != null) {
+        if (isoList && options && options.isoMax != null) {
             isoList = isoList.filter(function(item) {
                 return item.ev >= options.isoMax;
             });
         }
-        if (options && options.isoMin != null) {
+        if (isoList && options && options.isoMin != null) {
             isoList = isoList.filter(function(item) {
                 return item.ev <= options.isoMin;
+            });
+        }
+        if (apertureList && options && options.apertureMax != null) {
+            apertureList = apertureList.filter(function(item) {
+                return item.ev >= options.apertureMax;
+            });
+        }
+        if (apertureList && options && options.apertureMin != null) {
+            apertureList = apertureList.filter(function(item) {
+                return item.ev <= options.apertureMin;
             });
         }
 

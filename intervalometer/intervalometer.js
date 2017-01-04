@@ -342,7 +342,7 @@ function runPhoto() {
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
-                if (intervalometer.status.framesRemaining < 1 || status.running == false) {
+                if (intervalometer.status.framesRemaining < 1 || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
                     status.running = false;
                     status.message = "done";
@@ -350,6 +350,8 @@ function runPhoto() {
 
                     setTimeout(function(){
                         intervalometer.timelapseFolder = false;
+                        intervalometer.status.running = false;
+                        intervalometer.status.stopping = false;
                         camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                         intervalometer.emit("status", status);
                         camera.ptp.unmountSd();
@@ -400,9 +402,10 @@ function runPhoto() {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                     console.log("TL: error:", err);
                 }
-                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false) {
+                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false || status.stopping = true) {
                     clearTimeout(timerHandle);
                     status.running = false;
+                    status.stopping = false;
                     status.message = "done";
                     status.framesRemaining = 0;
                     setTimeout(function(){
@@ -480,22 +483,27 @@ intervalometer.cancel = function() {
     if (intervalometer.status.running) {
         clearTimeout(timerHandle);
         clearTimeout(delayHandle);
-        status.running = false;
-        status.message = "stopped";
-        status.framesRemaining = 0;
+        intervalometer.status.stopping = true;
+        intervalometer.status.message = "stopped";
+        intervalometer.status.framesRemaining = 0;
         intervalometer.emit("status", status);
-        console.log("==========> END TIMELAPSE", status.tlName);
 
         if(!busyPhoto) {
+            intervalometer.status.running = false;
+            intervalometer.status.stopping = false;
             intervalometer.timelapseFolder = false;
             camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
             camera.ptp.unmountSd();
+            intervalometer.emit("status", status);
+            console.log("==========> END TIMELAPSE", status.tlName);
         }
     }
 }
 
 intervalometer.run = function(program) {
     if (intervalometer.status.running) return;
+    intervalometer.status.stopping = false;
+
 
     if (camera.ptp.connected) {
         camera.ptp.getSettings(function(){
