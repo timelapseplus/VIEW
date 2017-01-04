@@ -310,9 +310,11 @@ camera.setEv = function(ev, options, cb) {
     }
 
     if (options && options.settingsDetails) {
+        console.log("setEv: using provided settings");
         doSet(options.settingsDetails);
     } else {
         camera.ptp.getSettings(function() {
+            console.log("setEv: retreived settings from camera");
             var settings = camera.ptp.settings.details;
             doSet(settings);
         });
