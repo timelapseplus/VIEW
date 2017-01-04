@@ -1,5 +1,0 @@
-{ global:
-camera_abilities;
-camera_id;
-camera_init;
-local: *; };
