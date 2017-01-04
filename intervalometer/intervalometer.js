@@ -455,13 +455,15 @@ intervalometer.validate = function(program) {
         results.errors.push({param:false, reason: "SD card required. The connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
     }
 
-    if(!camera.ptp.settings.iso || camera.ptp.settings.iso.ev == null) {
-        console.log("VAL: Error: invalid ISO setting", camera.ptp.settings.iso);
+    var settingsDetails = camera.ptp.settings.details;
+
+    if(!settingsDetails.iso || settingsDetails.iso.ev == null) {
+        console.log("VAL: Error: invalid ISO setting", settingsDetails.iso);
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
-    if(!camera.ptp.settings.shutter || camera.ptp.settings.shutter.ev == null) {
-        console.log("VAL: Error: invalid shutter setting", camera.ptp.settings.shutter);
+    if(!settingsDetails.shutter || settingsDetails.shutter.ev == null) {
+        console.log("VAL: Error: invalid shutter setting", settingsDetails.shutter);
         results.errors.push({param:false, reason: "invalid shutter setting on camera."});
     }
 
