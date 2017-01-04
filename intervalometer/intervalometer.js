@@ -456,12 +456,12 @@ intervalometer.validate = function(program) {
     }
 
     if(!camera.ptp.settings.iso || camera.ptp.settings.iso.ev == null) {
-        console.log("VAL: Error: invalid ISO setting");
+        console.log("VAL: Error: invalid ISO setting", camera.ptp.settings.iso);
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
     if(!camera.ptp.settings.shutter || camera.ptp.settings.shutter.ev == null) {
-        console.log("VAL: Error: invalid shutter setting");
+        console.log("VAL: Error: invalid shutter setting", camera.ptp.settings.shutter);
         results.errors.push({param:false, reason: "invalid shutter setting on camera."});
     }
 
