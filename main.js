@@ -47,6 +47,9 @@ var cache = {};
 
 var Segfault = require('segfault');
 Segfault.registerHandler("segfault.log");
+var nodeCleanup = require('node-cleanup');
+
+process.stdin.resume();
 
 intervalometer.addDb(db);
 
@@ -2125,7 +2128,17 @@ function closeSystem(callback) {
 }
 
 process.on('exit', function() {
-    closeSystem();
+});
+
+nodeCleanup(function (exitCode, signal) {
+    if (signal) {
+        console.log("Shutting down from signal", signal);
+        closeSystem(function() {
+            process.kill(process.pid, signal);
+        });
+        nodeCleanup.uninstall(); // don't call cleanup handler again
+        return false;
+    }
 });
 
 db.get('intervalometer.currentProgram', function(err, data) {
