@@ -455,12 +455,12 @@ intervalometer.validate = function(program) {
         results.errors.push({param:false, reason: "SD card required. The connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
     }
 
-    if(!camera.ptp.settings.iso || !camera.ptp.settings.iso.ev) {
+    if(!camera.ptp.settings.iso || camera.ptp.settings.iso.ev == null) {
         console.log("VAL: Error: invalid ISO setting");
         results.errors.push({param:false, reason: "invalid ISO setting on camera."});
     }
 
-    if(!camera.ptp.settings.shutter || !camera.ptp.settings.shutter.ev) {
+    if(!camera.ptp.settings.shutter || camera.ptp.settings.shutter.ev == null) {
         console.log("VAL: Error: invalid shutter setting");
         results.errors.push({param:false, reason: "invalid shutter setting on camera."});
     }
@@ -580,12 +580,12 @@ intervalometer.run = function(program) {
                 var errorList = "";
                 var val = "";
                 for(var i = 0; i < validationResults.errors.length; i++) {
-                    if(program.hasOwnProperty([validationResults.errors[0].param])) {
-                        val = " (" + program[validationResults.errors[0].param] + ")";
+                    if(program.hasOwnProperty([validationResults.errors[i].param])) {
+                        val = " (" + program[validationResults.errors[i].param] + ")";
                     } else {
                         val = "";
                     }
-                    errorList += "- " + validationResults.errors[0].reason + val + "\n";
+                    errorList += "- " + validationResults.errors[i].reason + val + "\n";
                 }
                 intervalometer.cancel();
                 error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
