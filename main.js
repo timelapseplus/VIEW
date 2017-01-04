@@ -2137,7 +2137,8 @@ nodeCleanup(function (exitCode, signal) {
     if (signal) {
         console.log("Shutting down from signal", signal);
         closeSystem(function() {
-            process.kill(process.pid, signal);
+            console.log("Shutting down complete, exiting");
+            process.kill(process.pid);
         });
         nodeCleanup.uninstall(); // don't call cleanup handler again
         return false;
