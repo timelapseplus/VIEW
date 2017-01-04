@@ -2134,15 +2134,19 @@ process.on('exit', function() {
 });
 
 nodeCleanup(function (exitCode, signal) {
-    if (signal) {
+    if(signal) {
         console.log("Shutting down from signal", signal);
-        closeSystem(function() {
-            console.log("Shutting down complete, exiting");
-            process.kill(process.pid);
-        });
-        nodeCleanup.uninstall(); // don't call cleanup handler again
-        return false;
+    } else if (exitCode) {
+        console.log("Shutting down from error", exitCode);
+    } else {
+        console.log("Shutting down...");
     }
+    closeSystem(function() {
+        console.log("Shutting down complete, exiting");
+        process.kill(process.pid);
+    });
+    nodeCleanup.uninstall(); // don't call cleanup handler again
+    return false;
 });
 
 db.get('intervalometer.currentProgram', function(err, data) {
