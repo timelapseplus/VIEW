@@ -166,6 +166,9 @@ camera.setEv = function(ev, options, cb) {
             };
         }
 
+        console.log("current shutter", shutter);
+        console.log("current aperture", aperture);
+        console.log("current iso", iso);
 
         var shutterList = camera.ptp.settings.lists.shutter;
         var apertureList = camera.ptp.settings.lists.aperture;
