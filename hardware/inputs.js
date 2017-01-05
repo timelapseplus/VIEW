@@ -154,7 +154,8 @@ inputs.stop = function(callback) {
         if (inputsRunning) {
             console.log("inputs process exiting...");
             try {
-                inputsProcess.stdin.write('\n');
+                inputsProcess.stdin.write('\n\n\n');
+                inputsProcess.stdin.end();
             } catch (e) {
                 console.log("input close error: ", e);                
                 setTimeout(function(){
@@ -173,9 +174,10 @@ inputs.stopGesture = function() {
     if (gestureRunning) {
         console.log("gesture process exiting...");
         try {
-            gestureProcess.stdin.write('\n');
+            gestureProcess.stdin.write('\n\n\n');
+            gestureProcess.stdin.end();
         } catch (e) {
-            console.log("input close error: ", e);                
+            console.log("gesture close error: ", e);                
             setTimeout(function(){
                 gestureProcess.kill();
             }, 1000);
