@@ -5,10 +5,11 @@ var events = require('events'),
   glob = require('glob'),
   util = require('util');
 
-var EVENT_FILE_PREFIX = '/dev/input/by-path/platform-*',
-  EVENT_FILE_SUFFIX = '*-event',
+var EVENT_FILE_PREFIX = '/dev/input/by-path/platform-',
+  EVENT_FILE_SUFFIX = '-event',
   EVENT_DATA_SIZE = 32,
-  EVENT_TYPE_INDEX = 12;
+  EVENT_TYPE_INDEX = 12,
+  EVENT_CODE_INDEX = 10;
 
 function Button(name) {
   var eventFilePattern;
@@ -16,9 +17,6 @@ function Button(name) {
   if (!(this instanceof Button)) {
     return new Button(name);
   }
-
-  this._pressed = false;
-  this._held = false;
 
   eventFilePattern = EVENT_FILE_PREFIX + name + EVENT_FILE_SUFFIX;
 
@@ -42,15 +40,9 @@ function Button(name) {
 
       while (data.length >= EVENT_DATA_SIZE) {
         if (data[EVENT_TYPE_INDEX] === 0) {
-          this._pressed = false;
-          this._held = false;
-          this.emit('release');
+          this.emit('release', data[EVENT_CODE_INDEX]);
         } else if (data[EVENT_TYPE_INDEX] === 1) {
-          this._pressed = true;
-          this.emit('press');
-        } else if (data[EVENT_TYPE_INDEX] === 2) {
-          this._held = true;
-          this.emit('hold');
+          this.emit('press', data[EVENT_CODE_INDEX]);
         }   
 
         data = data.slice(EVENT_DATA_SIZE);
@@ -65,18 +57,6 @@ function Button(name) {
 }
 
 util.inherits(Button, events.EventEmitter);
-
-Button.prototype.pressed = function () {
-  return this._pressed;
-}
-
-Button.prototype.held = function () {
-  return this._held;
-}
-
-Button.prototype.released = function () {
-  return !this.pressed();
-}
 
 module.exports = Button;
 
