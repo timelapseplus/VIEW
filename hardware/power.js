@@ -94,9 +94,7 @@ power.activity();
 
 power.shutdown = function() {
     process.nextTick(function(){
-        exec("nohup init 0 &", function() {
-            exec("killall node");
-        });
+        exec("nohup init 0 &; killall node");
     });
 }
 
