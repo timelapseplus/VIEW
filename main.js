@@ -2124,7 +2124,11 @@ function closeSystem(callback) {
         console.log("closing inputs...");
         inputs.stop();
     }
-    db.set('intervalometer.currentProgram', intervalometer.currentProgram);
+    try {
+        db.set('intervalometer.currentProgram', intervalometer.currentProgram);
+    } catch(e) {
+        console.log("Error while saving timelapse settings:", e);
+    }
     setTimeout(function() {
         console.log("closing db...");
         db.close(function(){
@@ -2151,11 +2155,8 @@ nodeCleanup(function (exitCode, signal) {
     }
     if(systemClosed) {
         nodeCleanup.uninstall(); // don't call cleanup handler again
-        console.log("Shutting down, second attempt exiting");
-        process.kill(process.pid);
-        setTimeout(function() {
-            process.kill(process.pid, 9);
-        }, 2000);
+        console.log("Shutting down, second attempt, sending signal 9");
+        process.kill(process.pid, 9);
     } else {
         closeSystem(function() {
             console.log("Shutting down complete, exiting");
