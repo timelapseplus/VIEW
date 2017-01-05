@@ -3,6 +3,7 @@ var GESTURE_BIN_PATH = "/home/view/current/bin/gesture";
 var EventEmitter = require("events").EventEmitter;
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
+var Button = require('gpio-button');
 
 var inputs = new EventEmitter();
 
@@ -14,6 +15,33 @@ var gestureRunning = false;
 var stop = false;
 var stopGesture = false;
 
+var HOLD_TIME = 1500;
+
+var BTN_POWER = {
+    ev: "1c2ac00.i2c-platform-axp20x-pek",
+    pressed: 5,
+    held: 6
+}
+
+var btnPower = new Button(BTN_POWER.ev);
+
+var btnPowerPressedTimer = null;
+btnPower.on('press', function() {
+    inputs.emit('B', BTN_POWER.pressed);
+    if(btnPowerPressedTimer != null) clearTimeout(btnPowerPressedTimer);
+    btnPowerPressedTimer = setTimeout(function(){
+        inputs.emit('B', BTN_POWER.held);
+    }, HOLD_TIME);
+});
+
+btnPower.on('release', function() {
+    if(btnPowerPressedTimer != null) clearTimeout(btnPowerPressedTimer);
+});
+
+btnPower.on('error', function(err) {
+    console.log("btnPower error: ", err);
+});
+
 exec("killall gesture");
 exec("killall inputs");
 
@@ -23,8 +51,6 @@ inputs.button[1] = false;
 inputs.button[2] = false;
 inputs.button[3] = false;
 inputs.button[4] = false;
-
-var powerButtonPressedTimer = null;
 
 inputs.start = function() {
     stop = false;
@@ -49,20 +75,12 @@ inputs.start = function() {
                 var pressed = [];
                 var status = parseInt(matches[2]);
                 //console.log("button event", status.toString(2));
-                for(var i = 0; i < 5; i++) {
+                for(var i = 0; i < 4; i++) {
                     pressed[i] = (status & 1<<i) ? true : false;
                     if(pressed[i] != inputs.button[i]) {
                         inputs.button[i] = pressed[i];
                         if(inputs.button[i]) inputs.emit('B', i + 1);
                     }
-                }
-                if(powerButtonPressedTimer === null && inputs.button[4]) {
-                    powerButtonPressedTimer = setTimeout(function(){
-                        inputs.emit('B', 6); // power button held
-                    }, 1500);
-                } else if(powerButtonPressedTimer != null && !inputs.button[4]) {
-                    clearTimeout(powerButtonPressedTimer);
-                    powerButtonPressedTimer = null;
                 }
             }
         }
