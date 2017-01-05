@@ -272,10 +272,11 @@ exports.setCache('test', testObject, function() {
 
 exports.close = function(callback) {
 	if(closed) return callback && callback(true);
-	dbSys.close(callback);
+	dbSys.close();
 	dbTl.close();
 	dbCache.close();
 	closed = true;
+	if(callback) setTimeout(callback, 1000);
 }
 
 function sendLog(logPath, tlName, reasonCode, callback) {
