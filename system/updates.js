@@ -17,7 +17,7 @@ var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 20
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
 var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
-var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.h /root/libgphoto2/camlibs/ptp2/";
+var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp-bugs.h /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/device-flags.h /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.h /root/libgphoto2/camlibs/ptp2/";
 var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version + " && cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
 var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
 var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
