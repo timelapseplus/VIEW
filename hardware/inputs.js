@@ -57,7 +57,7 @@ function setupButton(buttonConfig) {
 
     buttonConfig._btnPowerPressedTimer = null;
     buttonConfig._button.on('press', function(code) {
-        if(buttonConfig[code]) {
+        if(code && buttonConfig[code]) {
             console.log("button", buttonConfig[code].name, "pressed");
             buttonConfig[code]._pressed = true;
             inputs.emit('B', buttonConfig[code].pressed);
@@ -68,8 +68,8 @@ function setupButton(buttonConfig) {
         }
     });
 
-    buttonConfig._button.on('release', function() {
-        if(buttonConfig[code]) {
+    buttonConfig._button.on('release', function(code) {
+        if(code && buttonConfig[code]) {
             console.log("button", buttonConfig[code].name, "released");
             buttonConfig[code]._pressed = false;
             if(buttonConfig[code]._btnPowerPressedTimer != null) clearTimeout(buttonConfig[code]._btnPowerPressedTimer);
