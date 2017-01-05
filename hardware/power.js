@@ -96,6 +96,10 @@ power.shutdown = function() {
     exec("nohup init 0");
 }
 
+power.reboot = function() {
+    exec("nohup init 6");
+}
+
 power.disableAutoOff = function() {
     power.autoOffDisabled = true;
     power.activity();

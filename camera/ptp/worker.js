@@ -520,13 +520,13 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
 function mapParam(type, value, halfs) {
     if(halfs) type += "Halfs";
     var list = LISTS[type];
-    if (list) {
+    if (list && value != null) {
         for (var i = 0; i < list.length; i++) {
             if (value === list[i].name) {
                 return list[i];
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
-                    if (list[i].values[j] == value) {
+                    if (list[i].values[j] == value.toString().toLowerCase()) {
                         return list[i];
                     }
                 }

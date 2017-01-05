@@ -57,7 +57,13 @@ console.log('Modules loaded.');
 
 if (VIEW_HARDWARE) {
     updates.updateUBoot(function(err) {
-        updates.updateKernel();
+        updates.updateKernel(function(err, reboot) {
+            if(reboot) {
+                closeSystem(function(){
+                    power.reboot();
+                });
+            }
+        });
     });
     oled.init();
     inputs.start();
@@ -1144,7 +1150,9 @@ if (VIEW_HARDWARE) {
                                     value: "Please Wait"
                                 }]);
                                 oled.update();
-                                exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                closeSystem(function(){
+                                    exec('nohup /bin/sh /root/startup.sh', function() {}); // restarting system
+                                });
                             });
                         } else {
                             power.disableAutoOff();
@@ -1161,7 +1169,9 @@ if (VIEW_HARDWARE) {
                                         }]);
                                         oled.update();
                                         wifi.unblockBt(function(){
-                                            exec('killall node; /bin/sh /root/startup.sh', function() {}); // restarting system
+                                            closeSystem(function(){
+                                                exec('nohup /bin/sh /root/startup.sh', function() {}); // restarting system
+                                            });
                                         });
                                     });
                                 } else {
