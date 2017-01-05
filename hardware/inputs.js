@@ -17,40 +17,51 @@ var stopGesture = false;
 
 var HOLD_TIME = 1500;
 
-var buttons = [{
-    name: "power",
-    platformEvent: "1c2ac00.i2c-platform-axp20x-pek",
-    pressed: 5,
-    held: 6
-}, {
-    name: "back",
-    platformEvent: "button-back",
-    pressed: 1,
-    held: 1+6
-}, {
-    name: "enter",
-    platformEvent: "button-enter",
-    pressed: 2,
-    held: 2+6
-}, {
-    name: "menu",
-    platformEvent: "button-menu",
-    pressed: 3,
-    held: 3+6
-}, {
-    name: "knob",
-    platformEvent: "button-knob",
-    pressed: 4,
-    held: 4+6
-}];
+var buttons = {
+    power: {
+        name: "power",
+        platformEvent: "1c2ac00.i2c-platform-axp20x-pek",
+        pressed: 5,
+        held: 6
+    }, 
+    back: {
+        name: "back",
+        platformEvent: "button-back",
+        pressed: 1,
+        held: 1+6
+    }, 
+    enter: {
+        name: "enter",
+        platformEvent: "button-enter",
+        pressed: 2,
+        held: 2+6
+    },
+    menu: {
+        name: "menu",
+        platformEvent: "button-menu",
+        pressed: 3,
+        held: 3+6
+    },
+    knob: {
+        name: "knob",
+        platformEvent: "button-knob",
+        pressed: 4,
+        held: 4+6
+    }
+};
 
-for(var i = 1; i < buttons.length; i++) setupButton(buttons[i]);
+setupButton(buttons.power);
+setupButton(buttons.back);
+setupButton(buttons.enter);
+setupButton(buttons.menu);
+setupButton(buttons.knob);
 
 function setupButton(buttonConfig) {
     buttonConfig._button = new Button(buttonConfig.platformEvent);
 
     buttonConfig._btnPowerPressedTimer = null;
     buttonConfig._button.on('press', function() {
+        buttonConfig._pressed = true;
         inputs.emit('B', buttonConfig.pressed);
         if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
         buttonConfig._btnPowerPressedTimer = setTimeout(function(){
@@ -59,6 +70,7 @@ function setupButton(buttonConfig) {
     });
 
     buttonConfig._button.on('release', function() {
+        buttonConfig._pressed = false;
         if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
     });
 
@@ -83,7 +95,7 @@ inputs.start = function() {
         if (matches && matches.length > 1) {
             if(matches[1] == 'D') {
                 var dir = matches[2];
-                if(inputs.button[3]) dir += "+";
+                if(buttons.knob._pressed) dir += "+";
                 inputs.emit('D', dir);
             }
         }

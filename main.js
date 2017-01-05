@@ -2115,7 +2115,9 @@ nmx.on('status', function(status) {
     }
 });
 
+var systemClosed = false;
 function closeSystem(callback) {
+    systemClosed = true;
     console.log("Shutting down!");
     db.set('intervalometer.currentProgram', intervalometer.currentProgram);
     //db.setCache('intervalometer.status', intervalometer.status);
@@ -2136,13 +2138,19 @@ nodeCleanup(function (exitCode, signal) {
     } else if (exitCode) {
         console.log("Shutting down from error", exitCode);
     } else {
-        console.log("Shutting down...");
+        console.log("Shutting down normally, assuming closeSystem is already called.");
+        return;
     }
-    closeSystem(function() {
-        console.log("Shutting down complete, exiting");
+    //nodeCleanup.uninstall(); // don't call cleanup handler again
+    if(systemClosed) {
+        console.log("Shutting down, second attempt exiting");
         process.kill(process.pid);
-    });
-    nodeCleanup.uninstall(); // don't call cleanup handler again
+    } else {
+        closeSystem(function() {
+            console.log("Shutting down complete, exiting");
+            process.kill(process.pid);
+        });
+    }
     return false;
 });
 
