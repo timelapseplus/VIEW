@@ -17,63 +17,63 @@ var stopGesture = false;
 
 var HOLD_TIME = 1500;
 
-var buttons = {
-    power: {
+var powerButton = {
+    platformEvent: "1c2ac00.i2c-platform-axp20x-pek",
+    116: {
         name: "power",
-        platformEvent: "1c2ac00.i2c-platform-axp20x-pek",
         pressed: 5,
         held: 6
-    }, 
-    back: {
+    }
+}
+var buttons = {
+    platformEvent: "button-knob",
+    1: {
         name: "back",
-        platformEvent: "button-back",
         pressed: 1,
         held: 1+6
     }, 
-    enter: {
+    2: {
         name: "enter",
-        platformEvent: "button-enter",
         pressed: 2,
         held: 2+6
     },
-    menu: {
+    3: {
         name: "menu",
-        platformEvent: "button-menu",
         pressed: 3,
         held: 3+6
     },
-    knob: {
+    4: {
         name: "knob",
-        platformEvent: "button-knob",
         pressed: 4,
         held: 4+6
     }
 };
 
-//setupButton(buttons.power);
-setupButton(buttons.back);
-//setupButton(buttons.enter);
-//setupButton(buttons.menu);
-setupButton(buttons.knob);
+setupButton(buttonsPower);
+setupButton(buttons);
 
 function setupButton(buttonConfig) {
     buttonConfig._button = new Button(buttonConfig.platformEvent);
 
     buttonConfig._btnPowerPressedTimer = null;
-    buttonConfig._button.on('press', function() {
-        console.log("button", buttonConfig.name, "pressed");
-        buttonConfig._pressed = true;
-        inputs.emit('B', buttonConfig.pressed);
-        if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
-        buttonConfig._btnPowerPressedTimer = setTimeout(function(){
-            inputs.emit('B', buttonConfig.held);
-        }, HOLD_TIME);
+    buttonConfig._button.on('press', function(code) {
+        if(buttonConfig[code]) {
+            console.log("button", buttonConfig[code].name, "pressed");
+            buttonConfig[code]._pressed = true;
+            inputs.emit('B', buttonConfig[code].pressed);
+            if(buttonConfig[code]._btnPowerPressedTimer != null) clearTimeout(buttonConfig[code]._btnPowerPressedTimer);
+            buttonConfig[code]._btnPowerPressedTimer = setTimeout(function(){
+                inputs.emit('B', buttonConfig[code].held);
+            }, HOLD_TIME);
+        }
     });
 
     buttonConfig._button.on('release', function() {
-        console.log("button", buttonConfig.name, "released");
-        buttonConfig._pressed = false;
-        if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
+        if(buttonConfig[code]) {
+            console.log("button", buttonConfig[code].name, "released");
+            buttonConfig[code]._pressed = false;
+            if(buttonConfig[code]._btnPowerPressedTimer != null) clearTimeout(buttonConfig[code]._btnPowerPressedTimer);
+        }
     });
 
     buttonConfig._button.on('error', function(err) {
