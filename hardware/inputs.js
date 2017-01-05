@@ -50,10 +50,10 @@ var buttons = {
     }
 };
 
-setupButton(buttons.power);
-setupButton(buttons.back);
-setupButton(buttons.enter);
-setupButton(buttons.menu);
+//setupButton(buttons.power);
+//setupButton(buttons.back);
+//setupButton(buttons.enter);
+//setupButton(buttons.menu);
 setupButton(buttons.knob);
 
 function setupButton(buttonConfig) {
