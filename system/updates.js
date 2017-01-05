@@ -12,7 +12,7 @@ var baseInstallPath = "/home/view/";
 var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
 var patchMD5 = "b494c71663456652c5567329101e90c1";
 
-var kernelVersion = "#50 PREEMPT Mon Dec 26 12:40:55 EST 2016";
+var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
 var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
