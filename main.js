@@ -2124,7 +2124,8 @@ function closeSystem(callback) {
         console.log("closing inputs...");
         inputs.stop();
     }
-    db.set('intervalometer.currentProgram', intervalometer.currentProgram, function() {
+    db.set('intervalometer.currentProgram', intervalometer.currentProgram);
+    setTimeout(function() {
         console.log("closing db...");
         db.close(function(){
             console.log("db closed.");
@@ -2135,7 +2136,7 @@ function closeSystem(callback) {
                 callback && callback();
             }
         });
-    });
+    }, 1000);
     //db.setCache('intervalometer.status', intervalometer.status);
 }
 

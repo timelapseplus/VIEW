@@ -97,7 +97,7 @@ inputs.start = function() {
         if (matches && matches.length > 1) {
             if(matches[1] == 'D') {
                 var dir = matches[2];
-                if(buttons.knob._pressed) dir += "+";
+                if(buttons['4']._pressed) dir += "+";
                 inputs.emit('D', dir);
             }
         }
