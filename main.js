@@ -2141,10 +2141,13 @@ nodeCleanup(function (exitCode, signal) {
         console.log("Shutting down normally, assuming closeSystem is already called.");
         return;
     }
-    //nodeCleanup.uninstall(); // don't call cleanup handler again
     if(systemClosed) {
+        nodeCleanup.uninstall(); // don't call cleanup handler again
         console.log("Shutting down, second attempt exiting");
         process.kill(process.pid);
+        setTimeout(function() {
+            process.kill(process.pid, 9);
+        }, 2000);
     } else {
         closeSystem(function() {
             console.log("Shutting down complete, exiting");

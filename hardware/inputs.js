@@ -108,7 +108,9 @@ inputs.start = function() {
         console.log("inputs process exited");
         inputsRunning = false;
         if (!stop) {
-            setTimeout(inputs.start);
+            setTimeout(function() {
+                if(!stop) inputs.start();
+            }, 500);
         }
     });
 
@@ -136,7 +138,9 @@ inputs.startGesture = function() {
         console.log("gesture process exited");
         gestureRunning = false;
         if (!stopGesture) {
-            setTimeout(inputs.startGesture);
+            setTimeout(function() {
+                if(!stopGesture) inputs.startGesture();
+            }, 100);
         }
     });
 }
