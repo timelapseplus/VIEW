@@ -49,7 +49,7 @@ var buttons = {
     }
 };
 
-setupButton(buttonsPower);
+setupButton(powerButton);
 setupButton(buttons);
 
 function setupButton(buttonConfig) {
