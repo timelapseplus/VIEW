@@ -2155,11 +2155,12 @@ nodeCleanup(function (exitCode, signal) {
     }
     if(systemClosed) {
         nodeCleanup.uninstall(); // don't call cleanup handler again
-        console.log("Shutting down, second attempt, sending signal 9");
-        process.kill(process.pid, 9);
+        console.log("Shutting down, second attempt, sending SIGKILL");
+        process.kill(process.pid, 'SIGKILL');
     } else {
         closeSystem(function() {
             console.log("Shutting down complete, exiting");
+            nodeCleanup.uninstall();
             process.kill(process.pid);
         });
     }
