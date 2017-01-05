@@ -53,7 +53,7 @@ var buttons = {
 //setupButton(buttons.power);
 //setupButton(buttons.back);
 //setupButton(buttons.enter);
-//setupButton(buttons.menu);
+setupButton(buttons.menu);
 setupButton(buttons.knob);
 
 function setupButton(buttonConfig) {
@@ -148,16 +148,19 @@ inputs.startGesture = function() {
 }
 
 inputs.stop = function(callback) {
-    stop = true;
-    if (inputsRunning) {
-        console.log("inputs process exiting...");
-        inputsProcess.stdin.write('\n');
-        setTimeout(function(){
-            inputsProcess.kill();
-        }, 1000);
-    }
-    inputs.stopGesture();
-    if(callback) setTimeout(callback, 1500); // give time for processes to exit
+    process.nextTick(function(){
+        stop = true;
+        stopGesture = true;
+        if (inputsRunning) {
+            console.log("inputs process exiting...");
+            inputsProcess.stdin.write('\n');
+            setTimeout(function(){
+                inputsProcess.kill();
+            }, 1000);
+        }
+        inputs.stopGesture();
+        if(callback) setTimeout(callback, 100); // give time for processes to exit
+    });
 }
 
 inputs.stopGesture = function() {
