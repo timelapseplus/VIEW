@@ -44,15 +44,15 @@ void setup() {
     setvbuf(stdout, NULL, _IOLBF, 0);
 
     gpio_init();
-    gpio_cfg_input(SUNXI_PORT_E_BASE, SUNXI_PIO_11_IDX);
+    //gpio_cfg_input(SUNXI_PORT_E_BASE, SUNXI_PIO_11_IDX);
     gpio_cfg_input(SUNXI_PORT_D_BASE, SUNXI_PIO_03_IDX);
     gpio_cfg_input(SUNXI_PORT_D_BASE, SUNXI_PIO_04_IDX);
 
-    gpio_cfg_input(SUNXI_PORT_B_BASE, SUNXI_PIO_04_IDX);
-    gpio_cfg_input(SUNXI_PORT_B_BASE, SUNXI_PIO_10_IDX);
-    gpio_cfg_input(SUNXI_PORT_G_BASE, SUNXI_PIO_12_IDX);
+    //gpio_cfg_input(SUNXI_PORT_B_BASE, SUNXI_PIO_04_IDX);
+    //gpio_cfg_input(SUNXI_PORT_B_BASE, SUNXI_PIO_10_IDX);
+    //gpio_cfg_input(SUNXI_PORT_G_BASE, SUNXI_PIO_12_IDX);
 
-    gpio_cfg_input(SUNXI_PORT_C_BASE, SUNXI_PIO_03_IDX);
+    //gpio_cfg_input(SUNXI_PORT_C_BASE, SUNXI_PIO_03_IDX);
 }
 
 int kbhit()
@@ -68,38 +68,29 @@ int kbhit()
 }
 
 int main(int argc, char **argv) {
-    do {
-        setup();
-        usleep(100000);
-    } while(readButtons());
+    setup();
+    usleep(100000);
 
     int16_t i, active;
-    uint8_t dial, button, lastButton = 0;
+    uint8_t dial;
     while(!kbhit()) {
         for(i = 0; i < 5000; i++)
         {
             if(dial = updateDial()) {
+                active = 1000;
                 if(dial == 1)
                     printf("D=D\n");
                 else
                     printf("D=U\n");
             }
-            button = readButtons();
-            if(button != lastButton) {
-                lastButton = button;
-                active = 100;
-            }
             if(active > 0)
             {
                 active--;
-                if(active <= 0) {
-                    printf("B=%d\n", button);
-                }
-                usleep(100);
+                usleep(200);
             }
             else
             {
-                usleep(1500);
+                usleep(5000);
             }
         }
     }
@@ -132,13 +123,4 @@ int8_t updateDial() {
     return update;
 }
 
-uint8_t readButtons() {
-    uint8_t status = 0;
-    if(!READ_B1()) status |= 1<<0;
-    if(!READ_B2()) status |= 1<<1;
-    if(!READ_B3()) status |= 1<<2;
-    if(!READ_SW()) status |= 1<<3;
-    if(!READ_BP()) status |= 1<<4;
-    return status;
-}
 

@@ -17,51 +17,65 @@ var stopGesture = false;
 
 var HOLD_TIME = 1500;
 
-var BTN_POWER = {
-    ev: "1c2ac00.i2c-platform-axp20x-pek",
+var buttons = [{
+    name: "power",
+    platformEvent: "1c2ac00.i2c-platform-axp20x-pek",
     pressed: 5,
     held: 6
+}, {
+    name: "back",
+    platformEvent: "button-back",
+    pressed: 1,
+    held: 1+6
+}, {
+    name: "enter",
+    platformEvent: "button-enter",
+    pressed: 2,
+    held: 2+6
+}, {
+    name: "menu",
+    platformEvent: "button-menu",
+    pressed: 3,
+    held: 3+6
+}, {
+    name: "knob",
+    platformEvent: "button-knob",
+    pressed: 4,
+    held: 4+6
+}];
+
+for(var i = 1; i < buttons.length; i++) setupButton(buttons[i]);
+
+function setupButton(buttonConfig) {
+    buttonConfig._button = new Button(buttonConfig.platformEvent);
+
+    buttonConfig._btnPowerPressedTimer = null;
+    buttonConfig._button.on('press', function() {
+        inputs.emit('B', buttonConfig.pressed);
+        if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
+        buttonConfig._btnPowerPressedTimer = setTimeout(function(){
+            inputs.emit('B', buttonConfig.held);
+        }, HOLD_TIME);
+    });
+
+    buttonConfig._button.on('release', function() {
+        if(buttonConfig._btnPowerPressedTimer != null) clearTimeout(buttonConfig._btnPowerPressedTimer);
+    });
+
+    buttonConfig._button.on('error', function(err) {
+        console.log("button error: ", buttonConfig.name, err);
+    });
 }
 
-var btnPower = new Button(BTN_POWER.ev);
-
-var btnPowerPressedTimer = null;
-btnPower.on('press', function() {
-    inputs.emit('B', BTN_POWER.pressed);
-    if(btnPowerPressedTimer != null) clearTimeout(btnPowerPressedTimer);
-    btnPowerPressedTimer = setTimeout(function(){
-        inputs.emit('B', BTN_POWER.held);
-    }, HOLD_TIME);
-});
-
-btnPower.on('release', function() {
-    if(btnPowerPressedTimer != null) clearTimeout(btnPowerPressedTimer);
-});
-
-btnPower.on('error', function(err) {
-    console.log("btnPower error: ", err);
-});
 
 exec("killall gesture");
 exec("killall inputs");
-
-inputs.button = [];
-inputs.button[0] = false;
-inputs.button[1] = false;
-inputs.button[2] = false;
-inputs.button[3] = false;
-inputs.button[4] = false;
 
 inputs.start = function() {
     stop = false;
     if(inputsRunning) return;
     inputsProcess = spawn(INPUTS_BIN_PATH);
     inputsRunning = true;
-    inputs.button[0] = false;
-    inputs.button[1] = false;
-    inputs.button[2] = false;
-    inputs.button[3] = false;
-    inputs.button[4] = false;
     console.log("inputs process started");
     inputsProcess.stdout.on('data', function(chunk) {
         //console.log("inputs stdin: " + chunk.toString());
@@ -71,17 +85,6 @@ inputs.start = function() {
                 var dir = matches[2];
                 if(inputs.button[3]) dir += "+";
                 inputs.emit('D', dir);
-            } else if(matches[1] == 'B') {
-                var pressed = [];
-                var status = parseInt(matches[2]);
-                //console.log("button event", status.toString(2));
-                for(var i = 0; i < 4; i++) {
-                    pressed[i] = (status & 1<<i) ? true : false;
-                    if(pressed[i] != inputs.button[i]) {
-                        inputs.button[i] = pressed[i];
-                        if(inputs.button[i]) inputs.emit('B', i + 1);
-                    }
-                }
             }
         }
     });
