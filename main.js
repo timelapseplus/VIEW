@@ -2122,9 +2122,12 @@ function closeSystem(callback) {
     db.set('intervalometer.currentProgram', intervalometer.currentProgram);
     //db.setCache('intervalometer.status', intervalometer.status);
     nmx.disconnect();
+    console.log("closing db...");
     db.close(function(){
+        console.log("db closed.");
         if (VIEW_HARDWARE) {
             oled.close();
+            console.log("closing inputs...");
             inputs.stop(callback);
         } else {
             callback && callback();
