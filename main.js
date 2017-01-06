@@ -2556,7 +2556,7 @@ camera.ptp.on('exiting', function() {
         model: ''
     });
     if (VIEW_HARDWARE) {
-        ui.defaultStatus("Timelapse+ VIEW " + updates.version);
+        ui.defaultStatus("VIEW " + updates.version);
         ui.status("camera disconnected");
         ui.reload();
     }
@@ -2577,7 +2577,7 @@ camera.ptp.on('status', function(msg) {
         if (camera.ptp.connected) {
             ui.defaultStatus(camera.ptp.model);
         } else {
-            ui.defaultStatus("Timelapse+ VIEW " + updates.version);
+            ui.defaultStatus("VIEW " + updates.version);
         }
     }
 });
