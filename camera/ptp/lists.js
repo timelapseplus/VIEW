@@ -586,6 +586,22 @@ lists.apertureAll = [{
     name: "22",
     ev: 1,
     values: ['22', 'f/22', 'f22']
+}, {
+    name: "25",
+    ev: 1 + 1 / 3,
+    values: ['25', 'f/25', 'f25']
+}, {
+    name: "29",
+    ev: 1 + 2 / 3,
+    values: ['29', 'f/29', 'f29']
+}, {
+    name: "32",
+    ev: 2,
+    values: ['32', 'f/32', 'f32']
+}, {
+    name: "36",
+    ev: 2 + 1 / 3,
+    values: ['36', 'f/36', 'f36']
 }];
 
 lists.apertureThirds = filterList(lists.apertureAll, 1/3);

@@ -2164,6 +2164,13 @@ nodeCleanup(function (exitCode, signal) {
         console.log("Shutting down normally, assuming closeSystem is already called.");
         return;
     }
+    if(updates.updatingKernel) {
+        console.log("Kernel update in progress, delaying shutdown by 10 seconds...");
+        setTimeout(function() {
+            process.kill(process.pid);
+        }, 10000);
+        return;
+    }
     if(systemClosed) {
         nodeCleanup.uninstall(); // don't call cleanup handler again
         console.log("Shutting down, second attempt, sending SIGKILL");
