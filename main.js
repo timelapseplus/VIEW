@@ -212,6 +212,7 @@ if (VIEW_HARDWARE) {
 
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
+        oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
 //        updates.checkLibGPhotoUpdate(function(err, needUpdate){
@@ -255,6 +256,7 @@ if (VIEW_HARDWARE) {
         ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
+        oled.setIcon('wifi', false);
         ui.status('wifi disconnected');
         if(previousConnection && previousConnection.address) {
             var currentTime = wifiConnectionTime = new Date().getTime();
@@ -2118,8 +2120,10 @@ nmx.connect();
 
 nmx.on('status', function(status) {
     if (status.connected) {
+        oled.setIcon('bt', true);
         stopScan();
     } else {
+        oled.setIcon('bt', false);
         wifi.resetBt(function(){
             startScan();
         });
@@ -2511,6 +2515,10 @@ camera.ptp.on('photo', function() {
     }
 });
 
+app.on('connected', function(connected) {
+    oled.setIcon('web', connected);
+});
+
 camera.ptp.on('settings', function() {
     app.send('settings', {
         settings: camera.ptp.settings
@@ -2528,6 +2536,7 @@ camera.ptp.on('nmxSerial', function(status) {
 });
 
 camera.ptp.on('connected', function() {
+    oled.setIcon('camera', true);
     setTimeout(function() {
         app.send('camera', {
             connected: true,
@@ -2541,6 +2550,7 @@ camera.ptp.on('connected', function() {
 });
 
 camera.ptp.on('exiting', function() {
+    oled.setIcon('camera', false);
     app.send('camera', {
         connected: false,
         model: ''

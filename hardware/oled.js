@@ -22,6 +22,14 @@ var FONT_DEFAULT = 0;
 var FONT_MONO = 1;
 var FONT_ICON = 2;
 
+var ICON_STAR = '';
+var ICON_CAMERA = '';
+var ICON_WIFI = '';
+var ICON_WEB = '';
+var ICON_BT = '';
+
+var icon = {};
+
 var DEFAULT_THEME = {
     primary: [1, 1, 1],
     secondary: [0.1, 0.1, 0.5],
@@ -293,6 +301,10 @@ oled.setTimelapseMode = function(set) {
     }
 }
 
+oled.setIcon = function(type, enabled) {
+    icon[type] = enabled;
+}
+
 function drawStatusBar() {
     // draw status bar
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
@@ -301,7 +313,23 @@ function drawStatusBar() {
 
     // draw icons
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_ICON);
-    fb.text(160 - 30, MENU_STATUS_YOFFSET, '');
+    var statusIconX = 160 - 30;
+    if(icon.wifi) {
+        fb.text(statusIconX, MENU_STATUS_YOFFSET, ICON_WIFI);
+        statusIconX -= 30;
+    }
+    if(icon.bt) {
+        fb.text(statusIconX, MENU_STATUS_YOFFSET, ICON_BT);
+        statusIconX -= 30;
+    }
+    if(icon.web) {
+        fb.text(statusIconX, MENU_STATUS_YOFFSET, ICON_WEB);
+        statusIconX -= 30;
+    }
+    if(icon.camera) {
+        fb.text(statusIconX, MENU_STATUS_YOFFSET, ICON_CAMERA);
+        statusIconX -= 30;
+    }
 
 
     // draw battery status

@@ -76,6 +76,7 @@ function connectRemote() {
                     app.remote = true;
                     app.authCode = null;
                     app.emit('auth-complete', app.authCode);
+                    app.emit('connected', true);
                     console.log("Connected to view.tl");
                     remotePingHandle = setInterval(function() {
                         send_message('ping', null, wsRemote);
@@ -99,6 +100,7 @@ function connectRemote() {
         if (remotePingHandle) clearInterval(remotePingHandle);
         remotePingHandle = null;
         console.log("Disconnected from view.tl");
+        app.emit('connected', false);
         app.remote = false;
         setTimeout(connectRemote, 5000);
     });
