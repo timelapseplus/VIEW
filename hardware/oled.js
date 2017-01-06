@@ -300,7 +300,7 @@ function drawStatusBar() {
     fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, currentStatus);
 
     // draw icons
-    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_ICON);
     fb.text(160 - 30, MENU_STATUS_YOFFSET, '');
 
 
