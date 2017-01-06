@@ -315,20 +315,20 @@ function drawStatusBar() {
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_ICON);
     var statusIconX = 160 - 33;
     if(icon.wifi) {
-        fb.text(statusIconX, MENU_STATUS_YOFFSET - 2, ICON_WIFI);
-        statusIconX -= 8;
+        fb.text(statusIconX, MENU_STATUS_YOFFSET - 1, ICON_WIFI);
+        statusIconX -= 10;
     }
     if(icon.bt) {
-        fb.text(statusIconX, MENU_STATUS_YOFFSET - 2, ICON_BT);
-        statusIconX -= 8;
+        fb.text(statusIconX, MENU_STATUS_YOFFSET - 1, ICON_BT);
+        statusIconX -= 10;
     }
     if(icon.web) {
-        fb.text(statusIconX, MENU_STATUS_YOFFSET - 2, ICON_WEB);
-        statusIconX -= 8;
+        fb.text(statusIconX, MENU_STATUS_YOFFSET - 1, ICON_WEB);
+        statusIconX -= 10;
     }
     if(icon.camera) {
-        fb.text(statusIconX, MENU_STATUS_YOFFSET - 2, ICON_CAMERA);
-        statusIconX -= 8;
+        fb.text(statusIconX, MENU_STATUS_YOFFSET - 1, ICON_CAMERA);
+        statusIconX -= 10;
     }
 
 
