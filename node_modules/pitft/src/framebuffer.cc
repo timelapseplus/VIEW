@@ -252,7 +252,7 @@ NAN_METHOD(FrameBuffer::Font) {
     //obj->fontName = _fontName.c_str();
     obj->fontSize = info[0]->IsUndefined() ? 12 : info[0]->NumberValue();
     obj->fontBold = info[1]->IsUndefined() ? false : info[1]->BooleanValue();
-    obj->fontMono = info[2]->IsUndefined() ? false : info[2]->BooleanValue();
+    obj->fontType = info[2]->IsUndefined() ? 0 : info[2]->NumberValue();
 
     return;
 }
@@ -274,8 +274,10 @@ NAN_METHOD(FrameBuffer::Text) {
     PangoFontDescription *font_description;
 
     font_description = pango_font_description_new ();
-    if (obj->fontMono) {
+    if (obj->fontType == 1) {
         pango_font_description_set_family (font_description, "Noto Mono");
+    } else if (obj->fontType == 2) {
+        pango_font_description_set_family (font_description, "View");
     } else {    
         pango_font_description_set_family (font_description, "Noto Sans");
     }
@@ -324,8 +326,10 @@ NAN_METHOD(FrameBuffer::TextSize) {
     PangoFontDescription *font_description;
 
     font_description = pango_font_description_new ();
-    if (obj->fontMono) {
+    if (obj->fontType == 1) {
         pango_font_description_set_family (font_description, "Noto Mono");
+    } else if (obj->fontType == 2) {
+        pango_font_description_set_family (font_description, "View");
     } else {    
         pango_font_description_set_family (font_description, "Noto Sans");
     }

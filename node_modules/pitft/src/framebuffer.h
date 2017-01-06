@@ -71,7 +71,7 @@ class FrameBuffer : public Nan::ObjectWrap {
         const char *fontName;
         double fontSize;
         bool fontBold;
-        bool fontMono;
+        double fontType;
 
         bool drawToBuffer;
 };
