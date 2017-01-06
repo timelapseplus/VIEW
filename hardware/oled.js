@@ -301,7 +301,7 @@ function drawStatusBar() {
 
     // draw icons
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
-    fb.text(160 - 30, MENU_STATUS_YOFFSET, '\f\0\0\1');
+    fb.text(160 - 30, MENU_STATUS_YOFFSET, '');
 
 
     // draw battery status
