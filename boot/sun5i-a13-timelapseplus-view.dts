@@ -1,0 +1,467 @@
+/*
+ * Copyright 2012 Maxime Ripard <maxime.ripard@free-electrons.com>
+ * Copyright 2013 Hans de Goede <hdegoede@redhat.com>
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This file is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This file is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+#include "sun5i-a13.dtsi"
+#include "sunxi-common-regulators.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/sun4i-a10.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	model = "Timelapse+ VIEW";
+	compatible = "timelapseplus,view", "allwinner,sun5i-a13";
+
+	aliases {
+		i2c0 = &i2c0;
+		i2c2 = &i2c2;
+		serial0 = &uart1;
+		serial1 = &uart3;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&led_pins_view>;
+
+		power-button {
+			label = "view-button-power";
+			gpios = <&pio 2 15 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+		button1 {
+			label = "view-button-1";
+			gpios = <&pio 3 21 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		button2 {
+			label = "view-button-2";
+			gpios = <&pio 3 22 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		button3 {
+			label = "view-button-3";
+			gpios = <&pio 3 23 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+		oled-power {
+			label = "view-oled-backlight";
+			gpios = <&pio 3 7 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+	};
+
+	button-knob {
+		compatible = "gpio-keys-polled";
+		pinctrl-names = "default";
+		pinctrl-0 = <&button_pins>;
+		poll-interval = <50>;
+	
+		button@4 {
+			label = "Knob Press";
+			linux,code = <4>;
+			gpios = <&pio 4 11 SUN4I_PINCTRL_PULL_UP>;
+		};
+
+		button@1 {
+			label = "Back Button";
+			linux,code = <1>;
+			gpios = <&pio 1 4 SUN4I_PINCTRL_PULL_UP>;
+		};
+
+		button@2 {
+			label = "Enter Button";
+			linux,code = <2>;
+			gpios = <&pio 1 10 SUN4I_PINCTRL_PULL_UP>;
+		};
+
+		button@3 {
+			label = "Menu Button";
+			linux,code = <3>;
+			gpios = <&pio 6 12 SUN4I_PINCTRL_PULL_UP>;
+		};
+
+	};
+
+	knob {
+		compatible = "gpio-keys-polled";
+		pinctrl-names = "default";
+		pinctrl-0 = <&knob_pins>;
+		poll-interval = <1>;
+		debounce-interval = <1>;
+
+		a {
+			label = "Rotary Encoder A";
+			linux,code = <7>;
+			gpios = <&pio 3 4 SUN4I_PINCTRL_PULL_UP>;
+		};
+
+		b {
+			label = "Rotary Encoder B";
+			linux,code = <8>;
+			gpios = <&pio 3 3 SUN4I_PINCTRL_PULL_UP>;
+		};
+	};
+
+	input-aux2 {
+		compatible = "gpio-keys-polled";
+		pinctrl-names = "default";
+		pinctrl-0 = <&auxinput_pins>;
+		poll-interval = <50>;	
+
+		aux@2 {
+			label = "AUX2 Input";
+			linux,code = <9>;
+			gpios = <&pio 1 3 SUN4I_PINCTRL_PULL_UP>;
+		};
+	};
+
+};
+
+&cpu0 {
+	cpu-supply = <&reg_dcdc2>;
+	clock-latency = <244144>; /* 8 32k periods */
+	operating-points = <
+		/* kHz	  uV */
+		624000	1200000
+		576000	1200000
+		528000	1200000
+		432000	1200000
+		384000	1200000
+		>;
+	#cooling-cells = <2>;
+	cooling-min-level = <0>;
+	cooling-max-level = <5>;
+};
+
+&ehci0 {
+	status = "okay";
+};
+
+&codec {
+	status = "okay";
+};
+
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_pins_a>, <&spi2_cs0_pins_a>;
+
+	status = "okay";
+
+	oled@0{
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "syncoam,seps525";
+		pinctrl-names = "default";
+		pinctrl-0 = <&oled_pins_a>;
+		reg = <0>;
+		status = "ok";
+
+		spi-max-frequency = <16000000>;
+		rotate = <0>;
+		fps = <50>;
+		buswidth = <8>;
+		txbuflen = <64000>;
+		reset-gpios = <&pio 3 5 GPIO_ACTIVE_HIGH>; /* PD5 */
+		dc-gpios = <&pio 3 6 GPIO_ACTIVE_HIGH>; /* PD6 */
+		debug = <1>;
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pins_a>;
+	status = "okay";
+
+	axp209: pmic@34 {
+		compatible = "x-powers,axp209";
+		reg = <0x34>;
+
+		interrupts = <0>;
+
+		interrupt-controller;
+		#interrupt-cells = <1>;
+	};
+};
+
+#include "axp209.dtsi"
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_pins_a>;
+	status = "okay";
+};
+
+&i2c2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_pins_a>;
+	status = "okay";
+
+	pcf8563: gpio@51 {
+		compatible = "phillips,pcf8563";
+		reg = <0x51>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		/*interrupt-parent = <&pio>;
+		interrupts = <6 0 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-controller;
+		#interrupt-cells = <2>;*/
+	};
+};
+
+
+&reg_dcdc2 {
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1300000>;
+	regulator-name = "cpuvdd";
+	regulator-always-on;
+};
+
+&reg_dcdc3 {
+	regulator-min-microvolt = <1000000>;
+	regulator-max-microvolt = <1300000>;
+	regulator-name = "corevdd";
+	regulator-always-on;
+};
+
+&reg_ldo1 {
+	regulator-name = "rtcvdd";
+	status = "okay";
+};
+
+&reg_ldo2 {
+	regulator-min-microvolt = <2700000>;
+	regulator-max-microvolt = <3300000>;
+	regulator-name = "avcc";
+	regulator-always-on;
+};
+
+&reg_ldo3 {
+	regulator-max-microvolt = <3300000>;
+	regulator-min-microvolt = <3300000>;
+	regulator-name = "vccwifi";
+	regulator-always-on;
+};
+
+&reg_ldo4 {
+	regulator-max-microvolt = <3300000>;
+	regulator-min-microvolt = <3300000>;
+	regulator-name = "vccgps";
+	regulator-always-on;
+	status = "okay";
+};
+
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_view>;
+	vmmc-supply = <&reg_vcc3v3>;
+	bus-width = <4>;
+	cd-gpios = <&pio 6 0 GPIO_ACTIVE_HIGH>; /* PG0 */
+	cd-inverted;
+	non-removable;
+	status = "okay";
+};
+
+&mmc2 {
+	vmmc-supply = <&reg_vcc3v3>;
+	vqmmc-supply = <&reg_vcc3v3>;
+	pinctrl-names = "default";
+	compatible = "allwinner,sun5i-a13-mmc";
+	pinctrl-0 = <&mmc_sdio_pins>,  <&mmc2_cd_pin_view>;
+	bus-width = <4>;
+	clocks = <&ahb_gates 10>,<&mmc2_clk 0>,<&mmc2_clk 1>,<&mmc2_clk 2>;
+	status = "okay";
+	cd-gpios = <&pio 6 2 GPIO_ACTIVE_HIGH>; /* PG2 */
+	cd-inverted;
+	broken-cd;
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+&otg_sram {
+	status = "okay";
+};
+
+&pio {
+	mmc0_cd_pin_view: mmc0_cd_pin@0 {
+		allwinner,pins = "PG0";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	mmc2_cd_pin_view: mmc2_cd_pin@0 {
+		allwinner,pins = "PG2";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	mmc_sdio_pins: mmc2@42 {
+		allwinner,pins = "PE4", "PE5", "PE6", "PE7", "PE8", "PE9";
+		allwinner,function = "mmc2";
+		allwinner,drive = <SUN4I_PINCTRL_30_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;	
+	};
+
+	led_pins_view: led_pins@0 {
+		allwinner,pins = "PC15", "PD7", "D21", "D22", "D23";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	wake_wifi: wifi_wake_pin@0 {
+		allwinner,pins = "PD2";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_DOWN>;
+	};
+
+	wifi_wow: wifi_wow_pin@0 {
+		allwinner,pins = "PG1";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_DOWN>;
+	};
+
+	usb1_vbus_pin_view: usb1_vbus_pin@0 {
+		allwinner,pins = "PG11";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	spi2_pins_a: spi2@0 {
+		allwinner,pins = "PE1", "PE2", "PE3";
+		allwinner,function = "spi2";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	spi2_cs0_pins_a: spi2_cs0@0 {
+		allwinner,pins = "PE0";
+		allwinner,function = "spi2";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	oled_pins_a: oled@0 {
+		allwinner,pins = "PD5", "PD6", "PD7";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_20_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	button_pins: gpio_pins@0 {
+		allwinner,pins = "PE11", "PB4", "PB10", "PG12", "PC3";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	knob_pins: gpio_knob@0 {
+		allwinner,pins = "PD4", "PD3";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	auxinput_pins: gpio_input@0 {
+		allwinner,pins = "PD18", "PB3", "PB2", "PB3", "PC5";
+		allwinner,function = "gpio_in";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	};
+
+	auxoutput_pins: gpio_output@0 {
+		allwinner,pins = "PD14", "PD15", "PD19", "PD20";
+		allwinner,function = "gpio_out";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_PULL_DOWN>;
+	};
+};
+
+&reg_usb1_vbus {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb1_vbus_pin_view>;
+	gpio = <&pio 6 11 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins_b>;
+	status = "okay";
+};
+
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins_a>;
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "host";
+	status = "okay";
+};
+
+
+&usbphy {
+	usb0_vbus-supply = <&reg_ldo3>;
+	usb1_vbus-supply = <&reg_usb1_vbus>;
+	status = "okay";
+};
+
+&usb_power_supply {
+	status = "okay";
+};

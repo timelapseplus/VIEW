@@ -18,6 +18,10 @@ var oledSize = fb.size();
 oled.width = oledSize.width;
 oled.height = oledSize.height;
 
+var FONT_DEFAULT = 0;
+var FONT_MONO = 1;
+var FONT_ICON = 2;
+
 var DEFAULT_THEME = {
     primary: [1, 1, 1],
     secondary: [0.1, 0.1, 0.5],
@@ -203,7 +207,7 @@ function drawTimeLapseStatus(status) {
     var imageWidth = 110;
     var upperTextStart = imageWidth + 4
 
-    fb.font(MENU_TEXT_FONT_SIZE, false, false);
+    fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
     fb.text(upperTextStart, 24, status.isoText || "---");
     fb.text(upperTextStart, 37, status.apertureText || "---");
@@ -291,9 +295,14 @@ oled.setTimelapseMode = function(set) {
 
 function drawStatusBar() {
     // draw status bar
-    fb.font(MENU_STATUS_FONT_SIZE, false, false);
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
     fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, currentStatus);
+
+    // draw icons
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
+    fb.text(160 - 30, MENU_STATUS_YOFFSET, '\f001');
+
 
     // draw battery status
     if(batteryPercentage != null) {
@@ -344,20 +353,20 @@ oled.writeMenu = function() {
         var name = oled.setting[oled.selected].name || '';
         var value = oled.setting[oled.selected].value || '';
 
-        fb.font(10, false, false);
+        fb.font(10, false, FONT_DEFAULT);
         color("secondary");
         fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 5, name);
 
-        fb.font(MENU_FONT_SIZE * 1.5, false, false);
+        fb.font(MENU_FONT_SIZE * 1.5, false, FONT_DEFAULT);
         color("primary");
         fb.text(MENU_XOFFSET, 128 / 2 + 5, value);
 
     } else if (oled.textLines) { // text display mode
-        fb.font(MENU_STATUS_FONT_SIZE, false, false);
+        fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
         color("secondary");
         fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
 
-        fb.font(MENU_TEXT_FONT_SIZE, false, false);
+        fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
         color("alert");
         fb.text(160 - 10, 12, "x");
 
@@ -369,11 +378,11 @@ oled.writeMenu = function() {
     } else if (oled.textInput) { // text input mode
         var name = oled.textInput || '';
 
-        fb.font(10, false, false);
+        fb.font(10, false, FONT_DEFAULT);
         color("secondary");
         fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 12, name);
 
-        fb.font(MENU_FONT_SIZE * 1.5, false, true); // monospace font
+        fb.font(MENU_FONT_SIZE * 1.5, false, FONT_MONO); // monospace font
         color("primary");
         var xAdvance = 15;
         var xStart;
@@ -415,7 +424,7 @@ oled.writeMenu = function() {
         }
 
         color("primary");
-        fb.font(MENU_FONT_SIZE, false, true); // monospace font
+        fb.font(MENU_FONT_SIZE, false, FONT_MONO); // monospace font
         var modes = ['A', 'a', '1', '$'];
         var cMode = 0;
         if(textMode == 'ucase') cMode = 0;
@@ -441,7 +450,7 @@ oled.writeMenu = function() {
         fb.line(x + w, y + h / 2, x, y + h, 1, 1, 1, 1);
 
         color("help");
-        fb.font(10, false, false);
+        fb.font(10, false, FONT_DEFAULT);
         fb.text(0, 128 - 20, "press knob to advance");
         fb.text(0, 128 - 10, "cursor, press and");
         fb.text(0, 128 - 0, "hold to scroll cursor");
@@ -479,7 +488,7 @@ oled.writeMenu = function() {
         fb.rect(sX + 1, sY + 1, sW, sH, false);
 
         // draw menu text
-        fb.font(MENU_FONT_SIZE, false, false);
+        fb.font(MENU_FONT_SIZE, false, FONT_DEFAULT);
 
         for(var i = 0; i < list.length; i++) {
             color("primary");
@@ -527,7 +536,7 @@ oled.writeMenu = function() {
         fb.rect(sX + 1, sY + 1, sW, sH, false);
 
         // draw menu text
-        fb.font(MENU_FONT_SIZE, false, false);
+        fb.font(MENU_FONT_SIZE, false, FONT_DEFAULT);
         color("primary");
         for(var i = 0; i < list.length; i++) {
             var parts = list[i].split('~');
@@ -548,7 +557,7 @@ oled.writeMenu = function() {
 oled.showBusy = function() {
     var s = "loading...";
 
-    fb.font(MENU_FONT_SIZE, false, false);
+    fb.font(MENU_FONT_SIZE, false, FONT_DEFAULT);
     var ts = fb.textSize(s);
     var pad = 6;
     var w = ts.width + pad * 2;
@@ -617,7 +626,7 @@ oled.displayText = function(title, text) {
     var maxWidth = 158;
     var words = text.replace(/[\n\r]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
     oled.textLines = [];
-    fb.font(MENU_TEXT_FONT_SIZE, false, false);
+    fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
     var i = 0;
     var line = "";
     for(i = 0; i < words.length; i++) {

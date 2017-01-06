@@ -28,6 +28,8 @@ var doKernelUpdate = "/usr/bin/test -e /home/view/current/boot/zImage && /usr/bi
 var getUBootVersion = "/bin/dd if=/dev/mmcblk0 bs=1024 count=32 | /usr/bin/strings | /bin/grep \"U-Boot SPL\"";
 var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-spl.bin && /bin/dd if=/home/view/current/boot/u-boot-sunxi-with-spl.bin of=/dev/mmcblk0 bs=1024 seek=8";
 
+var installIcons = "/usr/bin/test -e /home/view/current/fonts/icons.ttf && cp -u /home/view/current/fonts/icons.ttf /usr/share/fonts/truetype/";
+
 function checkLibGPhotoUpdate(callback) {
 	exec(checkLibGPhoto2, function(err, stdout, stderr) {
 		if(!err && stdout) {
@@ -338,6 +340,10 @@ exports.setVersion = function(versionInfo, callback) {
 		console.log(err);
 	});
 } 
+
+exports.installIcons = function(callback) {
+	exec(installIcons, callback);
+}
 
 exports.download = download;
 exports.extract = extract;
