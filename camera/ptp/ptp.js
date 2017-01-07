@@ -456,10 +456,10 @@ function focusNikon(step, repeat, callback) {
 }
 camera.focus = function(step, repeat, callback) {
     if (worker && camera.connected) {
-        if(camera.settings.details.canonfocus == 'available') {
+        if(camera.settings.canonfocus == 'available') {
             console.log("focus: canon");
             focusCanon(step, repeat, callback);
-        } else if(camera.settings.details.nikonfocus == 'available') {
+        } else if(camera.settings.nikonfocus == 'available') {
             console.log("focus: nikon");
             focusNikon(step, repeat, callback);
         } else {
