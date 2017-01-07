@@ -390,7 +390,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent) {
         data: data
     }); else callback && callback("not connected");
 }
-camera.focus = function(step, repeat, callback) {
+function focusCanon(step, repeat, callback) {
     if (!repeat) repeat = 1;
     var param;
     if (!step) return;
@@ -401,24 +401,68 @@ camera.focus = function(step, repeat, callback) {
         param = "Far 1";
         if (step > 1) param = "Far 2";
     }
-    if (worker && camera.connected) {
-        var doFocus = function() {
-            camera.lvTimerReset();
-            worker.send({
-                type: 'camera',
-                set: 'manualfocusdrive',
-                value: param,
-                id: getCallbackId(function() {
-                    repeat--;
-                    if (repeat > 0) {
-                        setTimeout(doFocus, 10);
-                    } else {
-                        if (callback) callback();
-                    }
-                })
-            });
+    var doFocus = function() {
+        camera.lvTimerReset();
+        worker.send({
+            type: 'camera',
+            set: 'manualfocusdrive',
+            value: param,
+            id: getCallbackId(function() {
+                repeat--;
+                if (repeat > 0) {
+                    setTimeout(doFocus, 10);
+                } else {
+                    if (callback) callback();
+                }
+            })
+        });
+    }
+    doFocus();
+}
+function focusNikon(step, repeat, callback) {
+    if (!repeat) repeat = 1;
+    var param, delay = 15;
+    if (!step) return;
+    if (step < 0) {
+        param = "-10";
+        if (step < -1) { 
+            param = "-100";
+            delay = 110;
         }
-        doFocus();
+    } else {
+        param = "10";
+        if (step > 1) {
+            param = "100";
+            delay = 110;
+        }
+    }
+    var doFocus = function() {
+        camera.lvTimerReset();
+        worker.send({
+            type: 'camera',
+            set: 'autofocusdrive',
+            value: param,
+            id: getCallbackId(function() {
+                repeat--;
+                if (repeat > 0) {
+                    setTimeout(doFocus, delay);
+                } else {
+                    if (callback) callback();
+                }
+            })
+        });
+    }
+    doFocus();
+}
+camera.focus = function(step, repeat, callback) {
+    if (worker && camera.connected) {
+        if(camera.settings.details.canonfocus == 'present') {
+            focusCanon(step, repeat, callback);
+        } else if(camera.settings.details.nikonfocus == 'present') {
+            focusNikon(step, repeat, callback);
+        } else {
+            callback && callback("not supported");   
+        }
     } else callback && callback("not connected");
 }
 camera.set = function(item, value, callback) {

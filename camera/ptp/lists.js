@@ -14,6 +14,20 @@ lists.paramMap = [{
         item: "viewfinder"
     }]
 }, {
+    name: "nikonfocus",
+    type: "toggle",
+    maps: [{
+        section: "actions",
+        item: "autofocusdrive"
+    }]
+}, {
+    name: "canonfocus",
+    type: "toggle",
+    maps: [{
+        section: "actions",
+        item: "manualfocusdrive"
+    }]
+}, {
     name: "format",
     maps: [{
         section: "capturesettings",
@@ -198,6 +212,16 @@ lists.liveview = [{
 }, {
     name: "off",
     values: ['0']
+}];
+
+lists.nikonfocus = [{
+    name: "available",
+    values: ['0']
+}];
+
+lists.canonfocus = [{
+    name: "available",
+    values: ['None']
 }];
 
 //sunny f/16 1/60 ISO100 = EV15
