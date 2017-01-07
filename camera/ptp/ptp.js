@@ -457,10 +457,13 @@ function focusNikon(step, repeat, callback) {
 camera.focus = function(step, repeat, callback) {
     if (worker && camera.connected) {
         if(camera.settings.details.canonfocus == 'present') {
+            console.log("focus: canon");
             focusCanon(step, repeat, callback);
         } else if(camera.settings.details.nikonfocus == 'present') {
+            console.log("focus: nikon");
             focusNikon(step, repeat, callback);
         } else {
+            console.log("focus: not supported");
             callback && callback("not supported");   
         }
     } else callback && callback("not connected");
