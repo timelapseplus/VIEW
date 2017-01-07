@@ -544,7 +544,7 @@ function mapCameraList(type, cameraList) {
         return [];
     }
     if (LISTS[type]) {
-        console.log("checking list:", LISTS[type]);
+        //console.log("checking list:", LISTS[type]);
         var list = [];
         for (var i = 0; i < cameraList.length; i++) {
             var item = mapParam(type, cameraList[i]);
