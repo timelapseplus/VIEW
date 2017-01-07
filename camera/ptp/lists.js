@@ -170,6 +170,7 @@ lists.decEv = function(current, itemList) {
 }
 
 function filterList(list, evMultiple) {
+    evMultiple = Math.round(evMultiple * 1000) / 1000; // works around precision errors
     return list.filter(function(item) {
         return item.ev === null || Math.abs(item.ev % evMultiple) < 0.1;
     });

@@ -652,6 +652,9 @@ oled.displayText = function(title, text) {
     oled.setting = null;
     oled.textTitle = title;
     var maxWidth = 158;
+    if(typeof text !== "string") {
+        text = "an unknown error occurred";
+    }
     var words = text.replace(/[\n\r]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
     oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
