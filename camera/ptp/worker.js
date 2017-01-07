@@ -521,12 +521,13 @@ function mapParam(type, value, halfs) {
     if(halfs) type += "Halfs";
     var list = LISTS[type];
     if (list && value != null) {
+        value = value.toString().trim().toLowerCase();
         for (var i = 0; i < list.length; i++) {
             if (value === list[i].name) {
                 return list[i];
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
-                    if (list[i].values[j] == value.toString().toLowerCase()) {
+                    if (list[i].values[j].toLowerCase() == value) {
                         return list[i];
                     }
                 }
