@@ -65,6 +65,7 @@ if (VIEW_HARDWARE) {
             }
         });
     });
+    updates.installIcons();
     oled.init();
     inputs.start();
 
