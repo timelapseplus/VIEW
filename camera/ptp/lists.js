@@ -21,7 +21,7 @@ lists.paramMap = [{
         item: "autofocusdrive"
     }]
 }, {
-    name: "canonfocus",
+    name: "focusdrive",
     type: "toggle",
     maps: [{
         section: "actions",
@@ -214,13 +214,11 @@ lists.liveview = [{
     values: ['0']
 }];
 
-lists.nikonfocus = [{
-    name: "available",
+lists.focusdrive = [{
+    name: "nikon",
     values: ['0']
-}];
-
-lists.canonfocus = [{
-    name: "available",
+}, {
+    name: "canon",
     values: ['None']
 }];
 

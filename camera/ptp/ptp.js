@@ -440,7 +440,7 @@ function focusNikon(step, repeat, callback) {
         camera.lvTimerReset();
         worker.send({
             type: 'camera',
-            set: 'autofocusdrive',
+            set: 'manualfocusdrive',
             value: param,
             id: getCallbackId(function() {
                 repeat--;
@@ -456,10 +456,10 @@ function focusNikon(step, repeat, callback) {
 }
 camera.focus = function(step, repeat, callback) {
     if (worker && camera.connected) {
-        if(camera.settings.canonfocus == 'available') {
+        if(camera.settings.focusdrive == 'canon') {
             console.log("focus: canon");
             focusCanon(step, repeat, callback);
-        } else if(camera.settings.nikonfocus == 'available') {
+        } else if(camera.settings.focusdrive == 'nikon') {
             console.log("focus: nikon");
             focusNikon(step, repeat, callback);
         } else {
