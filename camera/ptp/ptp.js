@@ -48,6 +48,7 @@ function runCallback(cbData) {
 function errorCallbacks(err) {
     for (var i in cbStore) {
         runCallback({
+            id: i,
             err: err,
             data: null
         });
