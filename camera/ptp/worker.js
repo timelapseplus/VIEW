@@ -66,8 +66,8 @@ process.on('message', function(msg) {
             }
         }
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
-        if (msg.get == 'all') getConfig();
-        if (msg.get == 'settings') getConfig(false, buildCB(msg.id));
+        if (msg.get == 'all') getConfig(false, false, buildCB(msg.id));
+        if (msg.get == 'settings') getConfig(false, false, buildCB(msg.id));
     }
     if (msg.type == 'setup') {
         if (msg.set == "thumbnailPath") thumbnailPath = msg.value;
@@ -93,7 +93,7 @@ GPhoto.list(function(list) {
 
     console.log('Found', camera.model);
 
-    getConfig(false, function() {
+    getConfig(false, false, function() {
         sendEvent('connected', camera.model);
     });
     //setInterval(getConfig, 2000);
@@ -392,13 +392,15 @@ liveViewTimerHandle = null;
 
 function liveViewOff() {
     previewCrop = null;
+    if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
+    liveViewTimerHandle = null;
     set('liveview', 0, function() {
         getConfig();
     });
 }
 
 function liveViewOffTimerReset(ms) {
-    if (!ms) ms = 1500;
+    if (!ms) ms = 2000;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = setTimeout(liveViewOff, ms);
 }
@@ -461,7 +463,7 @@ function preview(callback) {
 function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter', etc
     console.log('setting ' + item + ' to ' + value);
 
-    getConfig(true, function() {
+    getConfig(true, true, function() {
         if (!settings.mapped) {
             console.log('error', "unable to retrieve camera settings");
             sendEvent('error', "unable to retrieve camera settings");
@@ -572,14 +574,17 @@ var configTimeoutHandle = null;
 var cameraBusy = false;
 var firstSettings = true;
 
-function getConfig(noEvent, cb) {
+function getConfig(noEvent, cached, cb) {
+    if (cached && configCache) {
+        if (cb) cb(null, configCache);
+    } 
     if (cameraBusy) {
         if (configCache) {
             if (cb) cb(null, configCache);
         } else {
             clearTimeout(configTimeoutHandle);
             configTimeoutHandle = setTimeout(function() {
-                getConfig(noEvent, cb);
+                getConfig(noEvent, cached, cb);
             }, 1000);
         }
         return;

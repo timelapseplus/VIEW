@@ -427,13 +427,13 @@ function focusNikon(step, repeat, callback) {
     if (step < 0) {
         param = "-10";
         if (step < -1) { 
-            param = "-100";
+            param = "-80";
             delay = 110;
         }
     } else {
         param = "10";
         if (step > 1) {
-            param = "100";
+            param = "80";
             delay = 110;
         }
     }
