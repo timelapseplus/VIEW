@@ -430,19 +430,19 @@ function focusCanon(step, repeat, callback) {
 }
 function focusNikon(step, repeat, callback) {
     if (!repeat) repeat = 1;
-    var param, delay = 15;
+    var param, delay = 200;
     if (!step) return;
     if (step < 0) {
-        param = "-50";
+        param = "-150";
         if (step < -1) { 
-            param = "-80";
-            delay = 110;
+            param = "-300";
+            delay = 500;
         }
     } else {
-        param = "50";
+        param = "150";
         if (step > 1) {
-            param = "80";
-            delay = 110;
+            param = "300";
+            delay = 500;
         }
     }
     var doFocus = function() {

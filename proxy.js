@@ -449,6 +449,8 @@ function receiveNetMessage(msg_string, socket) {
             } else if (msg.type == "intervalometerStatus") {
                 if(viewConnected[socket.userId] && viewConnected[socket.userId].current)
                 sendIntervalometerUpdate(socket, socket.userId, viewConnected[socket.userId].current);
+            } else if (msg.type == "previewStop") {
+                previewRunning = false;
             } else if (msg.type == "preview") {
                 console.log("PREVIEW REQUEST");
                 previewCancel = 0;
