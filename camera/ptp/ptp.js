@@ -449,7 +449,7 @@ function focusNikon(step, repeat, callback) {
         worker.send({
             type: 'camera',
             set: 'manualfocusdrive',
-            value: param,
+            value: 300,
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {
