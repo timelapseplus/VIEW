@@ -373,6 +373,12 @@ camera.lvTimerReset = function() {
         do: 'lvTimerReset'
     }); else callback && callback("not connected");
 }
+camera.lvOff = function() {
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'lvOff'
+    }); else callback && callback("not connected");
+}
 camera.zoom = function(xTargetPercent, yTargetPercent) {
     var data = {
         reset: true

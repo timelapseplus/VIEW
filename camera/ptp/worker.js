@@ -57,6 +57,7 @@ process.on('message', function(msg) {
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(buildCB(msg.id));
         if (msg.do == 'lvTimerReset') liveViewOffTimerReset();
+        if (msg.do == 'lvOff') liveViewOff();
         if (msg.do == 'zoom') {
             if (msg.reset) {
                 previewCrop = null;
@@ -66,8 +67,8 @@ process.on('message', function(msg) {
             }
         }
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
-        if (msg.get == 'all') getConfig(false, false, buildCB(msg.id));
-        if (msg.get == 'settings') getConfig(false, false, buildCB(msg.id));
+        if (msg.get == 'all') getConfig(false, msg.cached, buildCB(msg.id));
+        if (msg.get == 'settings') getConfig(false, mcg.cached, buildCB(msg.id));
     }
     if (msg.type == 'setup') {
         if (msg.set == "thumbnailPath") thumbnailPath = msg.value;
@@ -400,7 +401,7 @@ function liveViewOff() {
 }
 
 function liveViewOffTimerReset(ms) {
-    if (!ms) ms = 2000;
+    if (!ms) ms = 5000;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = setTimeout(liveViewOff, ms);
 }
@@ -462,7 +463,6 @@ function preview(callback) {
 
 function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter', etc
     console.log('setting ' + item + ' to ' + value);
-
     getConfig(true, true, function() {
         if (!settings.mapped) {
             console.log('error', "unable to retrieve camera settings");

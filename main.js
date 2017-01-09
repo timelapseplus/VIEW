@@ -659,6 +659,7 @@ if (VIEW_HARDWARE) {
                 if (b == 1 || b == 4) {
                     liveviewOn = false;
                     blockInputs = false;
+                    camera.ptp.lvOff();
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
@@ -1057,6 +1058,7 @@ if (VIEW_HARDWARE) {
                 if (b == 1) {
                     oled.unblock();
                     liveviewOn = false;
+                    camera.ptp.lvOff();
                     blockInputs = false;
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
@@ -2301,15 +2303,17 @@ app.on('message', function(msg) {
 
             case 'capture':
                 (function(lastLV) {
-                    liveviewOn = false;
+                    liveviewOn = 0;
                     camera.ptp.capture(null, function(err){
                         if(err) {
                             msg.reply('captureError', {msg:err});
                         }
                         setTimeout(function(){
-                            if(lastLV) {
+                            if(lastLV && liveviewOn !== false) {
                                 liveviewOn = true;
                                 camera.ptp.preview();
+                            } else {
+                                liveviewOn = false;
                             }
                         }, 2000);
                     });
@@ -2378,6 +2382,10 @@ app.on('message', function(msg) {
                 } else {
                     camera.ptp.preview();
                 }
+                break;
+
+            case 'previewStop':
+                camera.ptp.lvOff();
                 break;
 
             case 'zoom':

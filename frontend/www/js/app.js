@@ -620,7 +620,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.capture = function() {
-        $scope.previewActive = false;
+        //$scope.previewActive = false;
         console.log("Capture");
         sendMessage('capture');
     }
@@ -680,6 +680,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (status != null) $scope.previewActive = !status;
         if ($scope.previewActive) {
             $scope.previewActive = false;
+            sendMessage('previewStop');
         } else {
             $scope.previewActive = true;
             console.log("Preview");
