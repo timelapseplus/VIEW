@@ -14,13 +14,6 @@ lists.paramMap = [{
         item: "viewfinder"
     }]
 }, {
-    name: "nikonfocus",
-    type: "toggle",
-    maps: [{
-        section: "actions",
-        item: "autofocusdrive"
-    }]
-}, {
     name: "focusdrive",
     type: "toggle",
     maps: [{
