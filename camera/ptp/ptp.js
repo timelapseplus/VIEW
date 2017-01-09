@@ -409,6 +409,7 @@ function focusCanon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
+            options: {get: false},
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {
@@ -444,6 +445,7 @@ function focusNikon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
+            options: {get: false},
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {

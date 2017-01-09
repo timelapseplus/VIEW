@@ -576,6 +576,7 @@ var firstSettings = true;
 
 function getConfig(noEvent, cached, cb) {
     if (cached && configCache) {
+        console.log("using cache for camera config");
         if (cb) cb(null, configCache);
     } 
     if (cameraBusy) {
@@ -665,7 +666,7 @@ function getConfig(noEvent, cached, cb) {
             data.mapped = mapped;
 
             //console.log("mapped settings:", mapped);
-
+            configCache = data;
             if (!noEvent) sendEvent('settings', data);
             if (cb) cb(null, data);
         } else {

@@ -217,6 +217,9 @@ lists.liveview = [{
     name: "on",
     values: ['2']
 }, {
+    name: "on-dark",
+    values: ['1']
+}, {
     name: "off",
     values: ['0']
 }];
