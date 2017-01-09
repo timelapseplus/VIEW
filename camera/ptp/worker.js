@@ -462,7 +462,7 @@ function preview(callback) {
 }
 
 function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter', etc
-    console.log('setting ' + item + ' to ' + value);
+    console.log('setting ' + item + ' to ' + value + " (" + (typeof value) + ")");
     getConfig(true, true, function() {
         if (!settings.mapped) {
             console.log('error', "unable to retrieve camera settings");
