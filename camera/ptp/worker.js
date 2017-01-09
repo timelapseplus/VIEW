@@ -68,7 +68,7 @@ process.on('message', function(msg) {
         }
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
         if (msg.get == 'all') getConfig(false, msg.cached, buildCB(msg.id));
-        if (msg.get == 'settings') getConfig(false, mcg.cached, buildCB(msg.id));
+        if (msg.get == 'settings') getConfig(false, msg.cached, buildCB(msg.id));
     }
     if (msg.type == 'setup') {
         if (msg.set == "thumbnailPath") thumbnailPath = msg.value;
