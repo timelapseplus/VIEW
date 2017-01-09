@@ -299,10 +299,16 @@ function setupExposure(cb) {
 var busyPhoto = false;
 
 function runPhoto() {
+    if(!status.running) {
+        busyPhoto = false;
+        status.stopping = false;
+        return;
+    }
     if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode == "auto") {
         if (status.running) setTimeout(runPhoto, 100);
         return;
     }
+    if(!status.running) return;
     busyPhoto = true;
     if (camera.ptp.connected) {
         status.captureStartTime = new Date() / 1000;

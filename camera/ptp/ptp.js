@@ -432,15 +432,15 @@ function focusNikon(step, repeat, callback) {
     var param, delay = 200;
     if (!step) return;
     if (step < 0) {
-        param = -1500;
+        param = -20.5;
         if (step < -1) { 
-            param = '-15000';
+            param = -200.5;
             delay = 500;
         }
     } else {
-        param = 1500.5;
+        param = 20.5;
         if (step > 1) {
-            param = 15000.0;
+            param = 200.5;
             delay = 500;
         }
     }
