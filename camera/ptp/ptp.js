@@ -415,7 +415,6 @@ function focusCanon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
-            options: {get: false},
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {
@@ -433,15 +432,15 @@ function focusNikon(step, repeat, callback) {
     var param, delay = 200;
     if (!step) return;
     if (step < 0) {
-        param = "-1500";
+        param = -1500;
         if (step < -1) { 
-            param = "-5000";
+            param = -15000;
             delay = 500;
         }
     } else {
-        param = "1500";
+        param = 1500;
         if (step > 1) {
-            param = "5000";
+            param = 15000;
             delay = 500;
         }
     }
@@ -451,7 +450,6 @@ function focusNikon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
-            options: {get: false},
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {
