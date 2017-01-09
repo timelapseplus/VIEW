@@ -126,6 +126,7 @@ var startWorker = function() {
                     console.log("capture target: ", newSettings.target);
                     if (!camera.target) camera.target = "CARD";
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target);
+                    if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off');
                     console.log("PTP: settings updated");
                     camera.settings = newSettings;
 

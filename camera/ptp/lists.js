@@ -7,6 +7,12 @@ lists.paramMap = [{
         item: "capturetarget"
     }]
 }, {
+    name: "autofocus",
+    maps: [{
+        section: "settings",
+        item: "autofocus"
+    }]
+}, {
     name: "liveview",
     type: "toggle",
     maps: [{
@@ -197,6 +203,14 @@ lists.target = [{
 }, {
     name: "CARD",
     values: ['Memory card']
+}];
+
+lists.autofocus = [{
+    name: "off",
+    values: ['off']
+}, {
+    name: "on",
+    values: ['on']
 }];
 
 lists.liveview = [{
