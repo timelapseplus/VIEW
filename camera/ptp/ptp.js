@@ -434,13 +434,13 @@ function focusNikon(step, repeat, callback) {
     if (step < 0) {
         param = -1500;
         if (step < -1) { 
-            param = -15000;
+            param = '-15000';
             delay = 500;
         }
     } else {
-        param = 1500;
+        param = 1500.5;
         if (step > 1) {
-            param = 15000;
+            param = 15000.0;
             delay = 500;
         }
     }
@@ -449,7 +449,7 @@ function focusNikon(step, repeat, callback) {
         worker.send({
             type: 'camera',
             set: 'manualfocusdrive',
-            value: 300,
+            value: param,
             id: getCallbackId(function() {
                 repeat--;
                 if (repeat > 0) {
