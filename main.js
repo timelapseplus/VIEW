@@ -197,18 +197,18 @@ if (VIEW_HARDWARE) {
             }
         });
     }
-    db.get('libgphoto2-needs-patch', function(err, val){
-        if(val) {
-            if(!updates.updatingLibGphoto) patchLibGPhoto();
-        } else if(!updates.updatingLibGphoto) {
-            updates.checkLibGPhotoPatch(function(err, patched){
-                if(!err && !patched) {
-                    db.set('libgphoto2-needs-patch', true);
-                    patchLibGPhoto();
-                }
-            });
-        }
-    });
+    //db.get('libgphoto2-needs-patch', function(err, val){
+    //    if(val) {
+    //        if(!updates.updatingLibGphoto) patchLibGPhoto();
+    //    } else if(!updates.updatingLibGphoto) {
+    //        updates.checkLibGPhotoPatch(function(err, patched){
+    //            if(!err && !patched) {
+    //                db.set('libgphoto2-needs-patch', true);
+    //                patchLibGPhoto();
+    //            }
+    //        });
+    //    }
+    //});
 
 
     var wifiConnectionTime = 0;
