@@ -32,7 +32,7 @@ function checkLibGPhotoUpdate(callback) {
 			if(parts && parts.length > 1 ) {
 				var version = parts[1].trim();
 				if(version != libgphoto2Version) {
-					console.log("libgphoto2 update required (current version = " . version . ")");
+					console.log("libgphoto2 update required (current version = " + version + ")");
 					callback(null, true);
 				} else {
 					console.log("libgphoto2 is up to date");
