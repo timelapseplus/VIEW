@@ -314,10 +314,7 @@ exports.extract = extract;
 exports.apiRequest = apiRequest;
 
 exports.checkLibGPhotoUpdate = checkLibGPhotoUpdate;
-exports.downloadLibGPhoto = downloadLibGPhoto;
 exports.installLibGPhoto = installLibGPhoto;
-exports.patchLibGPhoto = patchLibGPhoto;
-exports.checkLibGPhotoPatch = checkLibGPhotoPatch;
 
 exports.updateKernel = updateKernel;
 exports.updateUBoot = updateUBoot;
