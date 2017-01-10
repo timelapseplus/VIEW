@@ -507,7 +507,7 @@ camera.saveThumbnails = function(path, callback) {
     });  else callback && callback("not connected");
 }
 
-camera.saveToCameraCard = function(bool) {
+camera.saveToCameraCard = function(bool, callback) {
     if (bool === null) {
         return camera.target == "CARD";
     } else {
@@ -515,7 +515,7 @@ camera.saveToCameraCard = function(bool) {
         if (target != camera.target) {
             camera.target = target;
             console.log("camera.ptp: setting camera target to ", target);
-            camera.set('target', camera.target);
+            camera.set('target', camera.target, callback);
             return camera.target;
         }
     }

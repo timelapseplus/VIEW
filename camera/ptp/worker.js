@@ -580,6 +580,7 @@ function getConfig(noEvent, cached, cb) {
     if (cached && configCache) {
         console.log("using cache for camera config");
         if (cb) cb(null, configCache);
+        return;
     } 
     if (cameraBusy) {
         if (configCache) {
