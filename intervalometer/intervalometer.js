@@ -710,7 +710,13 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
                     setTimeout(function(){
                         //console.log("clips:", clips);
                         clips = clips.sort(function(a, b){
-                            return a.index < b.index;
+                            if(a.index < b.index) {
+                                return -1;
+                            }
+                            if(a.index > b.index) {
+                                return 1;
+                            }
+                            return 0;
                         });
                         callback(null, clips); 
                     });
