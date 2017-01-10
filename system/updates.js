@@ -28,7 +28,7 @@ var installIcons = "/usr/bin/test -e /home/view/current/fonts/icons.ttf && cp -u
 function checkLibGPhotoUpdate(callback) {
 	exec(getLibGPhoto2Version, function(err, stdout, stderr) {
 		if(!err && stdout) {
-			var parts = stdout.match(/([0-9]+\.[0-9]+\.[0-9]+)/);
+			var parts = stdout.match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/);
 			if(parts && parts.length > 1 ) {
 				var version = parts[1].trim();
 				if(version != libgphoto2Version) {
