@@ -118,97 +118,36 @@ if (VIEW_HARDWARE) {
     configureWifi();
 
     var ERRORCOMPILING = "An error occurred while building the latest libgphoto2 code for camera support. Please report this to support@timelapseplus.com.\nSystem message:\n";
-    var ERRORDOWNLOADING = "An error occurred while downloading the latest code from libgphoto2 github.  Please make sure the VIEW is connected to the internet.\nSystem message:\n";
     var SUCCESS = "The camera support library has been successfully updated!  Your VIEW intervalometer can now support the latest camera models.";
     var updateLibGPhoto2 = function() {
-
         ui.confirmationPrompt("Update camera support library?", "Update", "cancel", help.updateCameraLibrary, function(cb){
             cb();
             var backupStatus = ui.defaultStatusString;
             ui.defaultStatus("updating camera support");
-            db.get('libgphoto2-update-in-progress', function(err, val){
-                if(val) {
-                    console.log("compiling libgphoto2...");
-                    updates.installLibGPhoto(function(err){
-                        ui.defaultStatus(backupStatus);
-                        process.nextTick(function(){
-                            if(err) { // error compiling
-                                console.log("error compiling libgphoto2", err);
-                                ui.alert('Error', ERRORCOMPILING + err);
-                            } else {
-                                db.set('libgphoto2-update-in-progress', false);
-                                console.log("successfully installed libgphoto2");
-                                ui.alert('Success', SUCCESS);
-                            }
-                        });
-                    });
-                } else {
-                    console.log("downloading libgphoto2...");
-                    updates.downloadLibGPhoto(function(err) {
-                        ui.defaultStatus(backupStatus);
-                        if(err) { // error downloading
-                            console.log("error downloading libgphoto2", err);
-                            process.nextTick(function(){
-                                ui.alert('Error', ERRORDOWNLOADING + err);
-                            });
-                        } else {
-                            console.log("successfully downloaded libgphoto2");
-                            db.set('libgphoto2-update-in-progress', true);
-                            console.log("compiling libgphoto2...");
-                            updates.installLibGPhoto(function(err){
-                                process.nextTick(function(){
-                                    if(err) { // error compiling
-                                        console.log("error compiling libgphoto2", err);
-                                        ui.alert('Error', ERRORCOMPILING + err);
-                                    } else {
-                                        db.set('libgphoto2-update-in-progress', false);
-                                        console.log("successfully installed libgphoto2");
-                                        ui.alert('Success', SUCCESS);
-                                    }
-                                });
-                            });
-                        }
-                    });
-                }
+            console.log("installing libgphoto2...");
+            updates.installLibGPhoto(function(err){
+                ui.defaultStatus(backupStatus);
+                process.nextTick(function(){
+                    if(err) { // error compiling
+                        console.log("error installing libgphoto2", err);
+                        ui.alert('Error', ERRORCOMPILING + err);
+                    } else {
+                        console.log("successfully installed libgphoto2");
+                        ui.alert('Success', SUCCESS);
+                    }
+                });
             });
-
-
         }, null);
     }
 
-    var patchLibGPhoto = function() {
-        console.log("patching libgphoto2...");
-        updates.patchLibGPhoto(function(err) {
-            console.log("patching libgphoto2 complete:", err);
-            if(!err) {
-                console.log("compiling libgphoto2...");
-                updates.installLibGPhoto(function(err){
-                    process.nextTick(function(){
-                        if(err) { // error compiling
-                            console.log("error compiling libgphoto2", err);
-                            ui.alert('Error', ERRORCOMPILING + err);
-                        } else {
-                            db.set('libgphoto2-needs-patch', false);
-                            console.log("successfully installed libgphoto2");
-                            ui.alert('Success', SUCCESS);
-                        }
-                    });
-                });
-            }
-        });
-    }
-    //db.get('libgphoto2-needs-patch', function(err, val){
-    //    if(val) {
-    //        if(!updates.updatingLibGphoto) patchLibGPhoto();
-    //    } else if(!updates.updatingLibGphoto) {
-    //        updates.checkLibGPhotoPatch(function(err, patched){
-    //            if(!err && !patched) {
-    //                db.set('libgphoto2-needs-patch', true);
-    //                patchLibGPhoto();
-    //            }
-    //        });
-    //    }
-    //});
+    updates.checkLibGPhotoUpdate(function(err, needUpdate){
+        if(!err && needUpdate) {
+            console.log("libgphoto2 update available!");
+            updateLibGPhoto2();
+        } else {
+            console.log("error checking libgphoto2 version:", err);
+        }
+    });
 
 
     var wifiConnectionTime = 0;
@@ -216,41 +155,6 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
-//        updates.checkLibGPhotoUpdate(function(err, needUpdate){
-//            if(!err && needUpdate) {
-//                if(updates.downloadingLibGphoto) {
-//                    console.log("libgphoto2 update already downloading");
-//                } else {
-//                    db.set('libgphoto2-update-in-progress', false);
-//                    console.log("libgphoto2 update available!");
-//                    updateLibGPhoto2();
-//                }
-//            } else {
-//                db.get('libgphoto2-update-in-progress', function(err, val){
-//                    if(val) {
-//                        if(updates.updatingLibGphoto) {
-//                            console.log("libgphoto2 update in progress!");
-//                        } else {
-//                            console.log("resuming libgphoto2 update...");
-//                            updateLibGPhoto2();
-//                        }
-//                    } else {
-//                        db.get('libgphoto2-needs-patch', function(err, val){
-//                            if(val) {
-//                                if(!updates.updatingLibGphoto) patchLibGPhoto();
-//                            } else if(!updates.updatingLibGphoto) {
-//                                updates.checkLibGPhotoPatch(function(err, patched){
-//                                    if(!err && !patched) {
-//                                        db.set('libgphoto2-needs-patch', true);
-//                                        patchLibGPhoto();
-//                                    }
-//                                });
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {

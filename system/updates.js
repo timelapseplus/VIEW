@@ -9,18 +9,13 @@ var apiHost = "api.github.com";
 var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
 
-var libgphoto2Version = "da25c0d128ba4683f3efd545e85770323773f7a2"; // this is a commit hash from github
-var patchMD5 = "b494c71663456652c5567329101e90c1";
-
 var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
-var checkLibGPhoto2 = "cd /root/libgphoto2 && git log | head -n 1";
-var checkLibGPhoto2Patch = "md5sum /root/libgphoto2/camlibs/ptp2/library.c";
-var applyLibGphoto2Patch = "cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.c /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp-bugs.h /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/device-flags.h /root/libgphoto2/camlibs/ptp2/ && cp /home/view/current/src/patches/ptp.h /root/libgphoto2/camlibs/ptp2/";
-var updateLibGPhoto2 = "cd /root/libgphoto2 && git fetch && git merge " + libgphoto2Version + " && cp /home/view/current/src/patches/library.c /root/libgphoto2/camlibs/ptp2/";
-var configureLibGPhoto2 = "cd /root/libgphoto2 && ./configure --with-camlibs=ptp2 --with-libusb1 --disable-libusb0 --disable-serial --disable-nls";
-var installLibGPhoto2 = "cd /root/libgphoto2 && make && make install";
+var libgphoto2Version = "2.5.12.1";
+
+var getLibGPhoto2Version = "/usr/local/bin/gphoto2 --version | grep \"libgphoto2 \"";
+var installLibGPhoto2 = "/usr/bin/test -e /home/view/current/lib/libgphoto2_2.5.12-2-1_armhf.deb && dpkg -i /home/view/current/lib/libgphoto2_2.5.12-2-1_armhf.deb";
 
 var getKernelVersion = "uname -v";
 var doKernelUpdate = "/usr/bin/test -e /home/view/current/boot/zImage && /usr/bin/test -e /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb && mount /dev/mmcblk0p1 /boot && cp /home/view/current/boot/zImage /boot/ && cp /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb /boot/ && /bin/sync && umount /boot";
@@ -31,13 +26,13 @@ var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-
 var installIcons = "/usr/bin/test -e /home/view/current/fonts/icons.ttf && cp -u /home/view/current/fonts/icons.ttf /usr/share/fonts/truetype/";
 
 function checkLibGPhotoUpdate(callback) {
-	exec(checkLibGPhoto2, function(err, stdout, stderr) {
+	exec(getLibGPhoto2Version, function(err, stdout, stderr) {
 		if(!err && stdout) {
-			var parts = stdout.trim().split(' ');
-			if(parts && parts.length == 2 && parts[0].trim() == 'commit') {
+			var parts = stdout.match(/([0-9]+\.[0-9]+\.[0-9]+)/);
+			if(parts && parts.length > 1 ) {
 				var version = parts[1].trim();
 				if(version != libgphoto2Version) {
-					console.log("libgphoto2 update required");
+					console.log("libgphoto2 update required (current version = " . version . ")");
 					callback(null, true);
 				} else {
 					console.log("libgphoto2 is up to date");
@@ -52,42 +47,11 @@ function checkLibGPhotoUpdate(callback) {
 	});
 }
 
-function downloadLibGPhoto(callback) {
-	exports.downloadingLibGphoto = true;
-	exec(updateLibGPhoto2, function(err) {
-		exports.downloadingLibGphoto = false;
-		callback(err);
-	});
-}
-
 function installLibGPhoto(callback) {
 	exports.updatingLibGphoto = true;
 	exec(installLibGPhoto2, function(err) {
 		exports.updatingLibGphoto = false;
 		callback(err);
-	});
-}
-
-function patchLibGPhoto(callback) {
-	exec(applyLibGphoto2Patch, function(err) {
-		callback(err);
-	});
-}
-
-function checkLibGPhotoPatch(callback) {
-	exec(checkLibGPhoto2Patch, function(err, stdout) {
-		if(!err) {
-			var matches = stdout.match(/^[a-f0-9]+/);
-			if(matches && matches.length > 0) {
-				var patched = (matches[0] == patchMD5);
-				console.log("libgphoto2 has patch: ", patched);
-				callback(null, patched);
-			} else {
-				callback(null, false);
-			}
-		} else {
-			callback(err);
-		}
 	});
 }
 
