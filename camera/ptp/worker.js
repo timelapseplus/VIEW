@@ -511,6 +511,8 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             return;
         } else {
             console.log('error', "item not found in list: " + item + " = [" + value + "] (trying anyway)");
+            console.log("worker.js set() stack trace:");
+            console.trace();
             camera.setConfigValue(item, value, function(err) {
                 if (err) sendEvent('error', err);
                 if (callback) callback(err);

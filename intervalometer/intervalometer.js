@@ -510,6 +510,7 @@ intervalometer.run = function(program) {
     if (intervalometer.status.running) return;
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
+    db.set('intervalometer.currentProgram', program);
 
     if (camera.ptp.connected) {
         camera.ptp.getSettings(function(){

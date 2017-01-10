@@ -514,6 +514,7 @@ camera.saveToCameraCard = function(bool) {
         var target = bool ? "CARD" : "RAM";
         if (target != camera.target) {
             camera.target = target;
+            console.log("camera.ptp: setting camera target to ", target);
             camera.set('target', camera.target);
             return camera.target;
         }
