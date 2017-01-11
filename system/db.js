@@ -166,7 +166,7 @@ exports.deleteTimelapse = function(tlName, callback) {
 exports.getTimelapseByName = function(tlName, callback) {
 	if(closed) return callback && callback(true);
 	console.log("db.getTimelapseByName: fetching " + tlName);
-	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "' LIMIT 1", function(err, data){
+	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
@@ -183,7 +183,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, c
 	details = serialize(details);
 	evCorrection = evCorrection || 0;
 
-	dbTl.get("SELECT frames, thumbnail FROM clips WHERE id = '" + clipId + "' LIMIT 1", function(err, data){
+	dbTl.get("SELECT frames, thumbnail FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
