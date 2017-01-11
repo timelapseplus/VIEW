@@ -494,7 +494,8 @@ intervalometer.cancel = function() {
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("status", status);
 
-        if(!busyPhoto) {
+        if(!busyPhoto || !camera.ptp.connected || intervalometer.status.stopping) {
+            busyPhoto = false;
             intervalometer.status.running = false;
             intervalometer.status.stopping = false;
             intervalometer.timelapseFolder = false;
@@ -711,10 +712,10 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
                         //console.log("clips:", clips);
                         clips = clips.sort(function(a, b){
                             if(a.index < b.index) {
-                                return -1;
+                                return 1;
                             }
                             if(a.index > b.index) {
-                                return 1;
+                                return -1;
                             }
                             return 0;
                         });
