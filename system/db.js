@@ -150,7 +150,7 @@ exports.deleteTimelapse = function(tlName, callback) {
 	if(closed) return callback && callback(true);
 	exports.getTimelapseByName(tlName, function(err, clip) {
 		if(!err && clip) {
-			dbTl.run("DELETE FROM clips WHERE id = '" + clip.id + "' LIMIT 1", function(err) {
+			dbTl.run("DELETE FROM clips WHERE id = '" + clip.id + "'", function(err) {
 				if(err) console.log("error deleting clip:", err);
 			});
 			dbTl.run("DELETE FROM clip_frames WHERE clip_id = '" + clip.id + "'", function(err) {
