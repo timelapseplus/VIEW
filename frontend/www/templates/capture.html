@@ -15,9 +15,9 @@
 
             <div class="item">
                 <div class="button-bar">
-                    <button class="button button-positive button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
-                    <button class="button button-positive button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
-                    <button class="button button-positive button-clear{{previewActive ? ' active' : ''}}" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
+                    <button class="button button-light button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
+                    <button class="button button-light button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
+                    <button class="button button-{{previewActive ? 'positive' : 'light'}} button-clear" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
                 </div>
             </div>
 
@@ -40,22 +40,12 @@
             </div>
 
             <div class="item">
-                <div class="col">
-                    <div class="row">
-                        <div class="col">
-                            <i class="icon ion-chevron-up"></i>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            {{camera.shutter}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <i class="icon ion-chevron-down"></i>
-                        </div>
-                    </div>
+                <div class="col center">
+                    <button class="button button-light button-clear icon ion-chevron-up"></button>
+                    <br>
+                    {{camera.shutter}}
+                    <br>
+                    <button class="button button-light button-clear icon ion-chevron-down"></button>
                 </div>
             </div>
            
