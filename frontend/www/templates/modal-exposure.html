@@ -26,17 +26,17 @@
 
         <div ng-show="mode=='exposure'">
             <div class="row">
-                <div class="col center">
+                <!--div class="col center">
                     <small>{{camera.ev|number:1}}EV</small>
+                </div-->
+                <div class="col center">
+                    <small>Shutter</small>
                 </div>
                 <div class="col center">
-                    <small>{{camera.shutter.details.name}}</small>
+                    <small>Aperture</small>
                 </div>
                 <div class="col center">
-                    <small>ISO{{camera.iso.details.name}}</small>
-                </div>
-                <div class="col center">
-                    <small>f/{{camera.aperture.details.name}}</small>
+                    <small>ISO</small>
                 </div>
             </div>
             <div class="item item-dark range">
@@ -46,35 +46,35 @@
                 <div class="row">
                     <div class="col">
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
                         </div>
                         <div class="center {{camera.shutterChanged ? 'assertive':''}}">
                             {{camera.shutterNew||'loading...'}}
                         </div>
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
                         </div>
                     </div>
                     <div class="col">
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
                         </div>
                         <div class="center {{camera.apertureChanged ? 'assertive':''}}">
                             {{camera.apertureNew||'loading...'}}
                         </div>
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
                         </div>
                     </div>
                     <div class="col">
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
                         </div>
                         <div class="center {{camera.isoChanged ? 'assertive':''}}">
                             {{camera.isoNew||'loading...'}}
                         </div>
                         <div class="center">
-                            <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
                         </div>
                     </div>
                 </div>
