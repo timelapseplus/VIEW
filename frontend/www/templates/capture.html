@@ -4,18 +4,23 @@
           <h2 class="title">Reconnecting...</h2>
         </div>
         <div ng-include="'templates/_connect.html'"></div>
-        <div ng-show="camera.connected">
+        <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
-            <div class="item item-body item-dark">
+
+            <div class="item">
                 <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
                 <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
             </div>
 
-            <div class="button-bar">
-                <button class="button button-dark button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
-                <button class="button button-dark button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
-                <button class="button button-dark button-clear{{previewActive ? ' active' : ''}}" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
+
+            <div class="item">
+                <div class="button-bar">
+                    <button class="button button-positive button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
+                    <button class="button button-positive button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
+                    <button class="button button-positive button-clear{{previewActive ? ' active' : ''}}" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
+                </div>
             </div>
+
             <div class="button-bar" ng-show="focusMode && previewActive">
                 <button class="button button-dark button-block" ng-click="focus(-2)"><i class="icon ion-skip-backward"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(-1)"><i class="icon ion-arrow-left-b"></i></button>
@@ -34,7 +39,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="item">
                 <div class="col">
                     <div class="row">
                         <div class="col">
