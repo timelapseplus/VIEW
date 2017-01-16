@@ -5,17 +5,16 @@
         </div>
         <div ng-include="'templates/_connect.html'"></div>
         <div ng-show="camera.connected">
-            <div class="list card item-dark">
-                <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
-                <div class="item item-body item-dark">
-                    <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
-                    <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
-                </div>
+            <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
+            <div class="item item-body item-dark">
+                <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
+                <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
             </div>
+
             <div class="button-bar">
-                <button class="button button-dark button-block" ng-click="capture()"><i class="icon ion-camera"></i></button>
-                <button class="button button-dark button-block" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
-                <button class="button button-dark button-block{{previewActive ? ' active' : ''}}" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
+                <button class="button button-dark button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
+                <button class="button button-dark button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
+                <button class="button button-dark button-clear{{previewActive ? ' active' : ''}}" ng-click="preview()"><i class="icon ion-play"></i> LV</button>
             </div>
             <div class="button-bar" ng-show="focusMode && previewActive">
                 <button class="button button-dark button-block" ng-click="focus(-2)"><i class="icon ion-skip-backward"></i></button>
