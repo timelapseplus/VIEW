@@ -821,6 +821,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 }
             }
             $scope.camera[param + 'New'] = newItem;
+            $scope.camera[param + 'Changed'] = true;
             checkUpDown(param);
             if(paramTimer[param]) {
                 $timeout.cancel(paramTimer[param]);
