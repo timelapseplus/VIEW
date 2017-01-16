@@ -1345,6 +1345,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.setTimelapse = function(param, val) {
         $scope.timelapse[param] = val;
+        console.log("Setting timelapse." + param + " = " + val);
     }
 
     $scope.toggleIntervalMode = function() {
