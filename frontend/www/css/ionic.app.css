@@ -5366,7 +5366,13 @@ textarea {
   height: auto; }
 
 textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
-  border: 0; }
+  border: 0; 
+}
+
+input[type="tel"] {
+  text-align: right;
+  font-weight: bold;
+}
 
 input[type="radio"], input[type="checkbox"] {
   margin: 0;

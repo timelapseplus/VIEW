@@ -103,12 +103,12 @@
                     <input type="tel" ng-model="timelapse.nightInterval" class="item-dark">
                 </label>
 
-                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.rampMode=='auto'">
+                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
                     <span class="input-label item item-dark">Interval (seconds)</span>
                     <input type="tel" ng-model="timelapse.interval" class="item-dark">
                 </label>
 
-                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.rampMode=='auto'">
+                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
                     <span class="input-label item item-dark">Frames</span>
                     <input type="tel" ng-model="timelapse.frames" class="item-dark">
                 </label>
