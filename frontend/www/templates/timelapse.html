@@ -5,7 +5,7 @@
         </div>
         <div ng-include="'templates/_connect.html'"></div>
         <div ng-hide="!camera.connected || intervalometerStatus.running">
-            <div class="item item-dark divider"><b>Exposure & Keyframes</b></div>
+            <div class="item item-dark item-divider"><b>Exposure & Keyframes</b></div>
             <div class="row" ng-repeat="keyframe in timelapse.keyframes">
                 <div class="col">
                     <div class="row" ng-show="$index > 0">
@@ -42,9 +42,7 @@
             </div>
             <br>
 
-            <div class="item item-dark divider"><b>Intervalometer Setup</b></div>
-
-            <br>
+            <div class="item item-dark item-divider"><b>Intervalometer Setup</b></div>
             <div class="list">
                 <!--div class="item item-toggle item-dark">
                     Exposure Ramping
@@ -94,17 +92,17 @@
                 </div-->
 
                 <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    <span class="input-label item item-dark">Day Interval (seconds)</span>
+                    <span class="input-label item item-dark">Day Interval</span>
                     <input type="tel" ng-model="timelapse.dayInterval" class="item-dark">
                 </label>
 
                 <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    <span class="input-label item item-dark">Night Interval (seconds)</span>
+                    <span class="input-label align-right item item-dark">Night Interval</span>
                     <input type="tel" ng-model="timelapse.nightInterval" class="item-dark">
                 </label>
 
                 <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
-                    <span class="input-label item item-dark">Interval (seconds)</span>
+                    <span class="input-label item item-dark">Interval</span>
                     <input type="tel" ng-model="timelapse.interval" class="item-dark">
                 </label>
 
@@ -185,7 +183,7 @@
             </div>
         </div>
         <div ng-show="intervalometerStatus.running">
-            <div class="item item-dark divider"><b>Time-lapse Running</b></div>
+            <div class="item item-dark item-divider"><b>Time-lapse Running</b></div>
             <div class="row">
                 <div class="col">
                     <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%">
