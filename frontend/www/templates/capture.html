@@ -1,5 +1,5 @@
 <ion-view title="capture">
-    <ion-content padding="true" class="has-header bg-dark">
+    <ion-content class="has-header bg-dark">
         <div ng-if="connected==-1" class="bar bar-subheader bar-assertive">
           <h2 class="title">Reconnecting...</h2>
         </div>
@@ -7,13 +7,10 @@
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 
-            <div class="item">
-                <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
-                <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
-            </div>
+            <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
+            <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
 
-
-            <div class="item">
+            <div class="item item-dark">
                 <div class="button-bar">
                     <button class="button button-light button-clear" ng-click="capture()"><i class="icon ion-camera"></i></button>
                     <button class="button button-light button-clear" ng-click="captureDelay(2)"><i class="icon ion-clock"></i> 2s</button>
@@ -39,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="item">
+            <div class="item item-dark">
                 <div class="col center">
                     <button class="button button-light button-clear icon ion-chevron-up"></button>
                     <br>
