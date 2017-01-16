@@ -40,7 +40,21 @@
                 <div class="col center">
                     <button class="button button-light button-clear icon ion-chevron-up"></button>
                     <br>
-                    {{camera.shutter}}
+                    {{camera.shutter||'loading...'}}
+                    <br>
+                    <button class="button button-light button-clear icon ion-chevron-down"></button>
+                </div>
+                <div class="col center">
+                    <button class="button button-light button-clear icon ion-chevron-up"></button>
+                    <br>
+                    {{camera.aperture||'loading...'}}
+                    <br>
+                    <button class="button button-light button-clear icon ion-chevron-down"></button>
+                </div>
+                <div class="col center">
+                    <button class="button button-light button-clear icon ion-chevron-up"></button>
+                    <br>
+                    {{camera.iso||'loading...'}}
                     <br>
                     <button class="button button-light button-clear icon ion-chevron-down"></button>
                 </div>

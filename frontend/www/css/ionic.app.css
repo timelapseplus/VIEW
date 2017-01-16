@@ -4398,7 +4398,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
     color: #fff; }
   .item.item-dark {
     border-color: #111;
-    background-color: #444;
+    background-color: #202020;
     color: #fff; }
   .item[ng-click]:hover {
     cursor: pointer; }
