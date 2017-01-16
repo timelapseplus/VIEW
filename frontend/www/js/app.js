@@ -452,6 +452,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.shutterChanged = false;
                             } else if(!$scope.camera.shutterNew) {
                                 $scope.camera.shutterNew = $scope.camera.shutter;
+                            } else {
+                                updateParams();
                             }
                         } else {
                             $scope.camera.shutterChanged = false;
@@ -464,6 +466,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.isoChanged = false;
                             } else if(!$scope.camera.isoNew) {
                                 $scope.camera.isoNew = $scope.camera.iso;
+                            } else {
+                                updateParams();
                             }
                         } else {
                             $scope.camera.isoChanged = false;
@@ -476,6 +480,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.apertureChanged = false;
                             } else if(!$scope.camera.apertureNew) {
                                 $scope.camera.apertureNew = $scope.camera.aperture;
+                            } else {
+                                updateParams();
                             }
                         } else {
                             $scope.camera.apertureChanged = false;
@@ -798,6 +804,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.camera[param + 'Down'] = false;
     }
 
+    var updateTimer = null;
+    function updateParams() {
+        updateTimer = $timeout(function(){
+            $scope.update();
+            updateTimer = null;
+        }, 500);
+    }
+
     var paramTimer = {};
     $scope.paramClick = function(param, direction) {
         if($scope.camera.lists && $scope.camera.lists[param]) {
@@ -830,6 +844,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             paramTimer[param] = $timeout(function(){
                 paramTimer[param] = null;
                 $scope.updateParam(param, newItem);
+                if(updateTimer) {
+                    $timeout.cancel(updateTimer);
+                    updateTimer = null;
+                }
+                updateParams();
             }, 1500);
         } else {
             return null;
