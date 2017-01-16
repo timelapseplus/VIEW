@@ -55,7 +55,23 @@
                         </div>
                     </label>
                 </div>
-                <div class="item item-toggle item-dark" ng-show="timelapse.exposureRamping">
+
+                <label class="item item-dark">
+                    Interval Mode
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'fixed')">
+                            Fixed
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'auto')">
+                            Variable
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'aux' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'aux')">
+                            External (AUX2)
+                        </button>
+                    </div>
+                </label>
+
+                <!--div class="item item-toggle item-dark" ng-show="timelapse.exposureRamping">
                     Day/Night Variable Interval
                     <label class="toggle toggle-positive">
                         <input type="checkbox" ng-model="timelapse.variableInterval">
@@ -63,7 +79,7 @@
                             <div class="handle"></div>
                         </div>
                     </label>
-                </div>
+                </div-->
 
                 <label class="item item-dark item-input" ng-show="timelapse.variableInterval&&timelapse.exposureRamping">
                     <span class="input-label item item-dark">Day Interval (seconds)</span>
@@ -129,19 +145,16 @@
                 </label-->
 
 
-                <label class="item item-dark item-button-right">
-                    Save Photos to
-
-                    <button class="button button-light button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera')">
-                        Camera
-                    </button>
-                    <button class="button button-light button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd')">
-                        SD Card
-                    </button>
-                    <!--select ng-model="timelapse.destination">
-                        <option value="camera">Camera</option>
-                        <option value="sd">SD Card</option>
-                    </select-->
+                <label class="item item-dark">
+                    Save Photos to ({{timelapse.destination}})
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera')">
+                            Camera
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd')">
+                            SD Card
+                        </button>
+                    </div>
                 </label>
             </div>
 
