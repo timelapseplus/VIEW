@@ -1343,6 +1343,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     };
 
+    $scope.setTimelapse = function(param, val) {
+        $scope.timelapse[param] = val;
+    }
+
     $scope.toggleIntervalMode = function() {
         if ($scope.timelapse.intervalMode == 'fixed') $scope.timelapse.intervalMode = 'auto'
         else $scope.timelapse.intervalMode = 'fixed';

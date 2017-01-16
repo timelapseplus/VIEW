@@ -129,12 +129,15 @@
                 </label-->
 
 
-                <label class="item item-dark">
-                    <div class="input-label">
-                        Save Photos to
-                    </div>
-                    <button class="button button-light button-{{timelapse.destination == 'sd' ? 'hollow':'clear'}}" ng-click="timelapse.destination='sd'">SD Card</button>
-                    <button class="button button-light button-{{timelapse.destination != 'sd' ? 'hollow':'clear'}}" ng-click="timelapse.destination='camera'">Camera</button>
+                <label class="item item-dark item-button-right">
+                    Save Photos to
+
+                    <button class="button button-light button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera')">
+                        Camera
+                    </button>
+                    <button class="button button-light button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd')">
+                        SD Card
+                    </button>
                     <!--select ng-model="timelapse.destination">
                         <option value="camera">Camera</option>
                         <option value="sd">SD Card</option>
