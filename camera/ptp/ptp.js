@@ -367,19 +367,21 @@ camera.preview = function(callback) {
         id: getCallbackId(callback)
     }); else callback && callback("not connected");
 }
-camera.lvTimerReset = function() {
+camera.lvTimerReset = function(callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
+        id: getCallbackId(callback),
         do: 'lvTimerReset'
     }); else callback && callback("not connected");
 }
-camera.lvOff = function() {
+camera.lvOff = function(callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
+        id: getCallbackId(callback),
         do: 'lvOff'
     }); else callback && callback("not connected");
 }
-camera.zoom = function(xTargetPercent, yTargetPercent) {
+camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     var data = {
         reset: true
     };
@@ -395,6 +397,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'zoom',
+        id: getCallbackId(callback),
         data: data
     }); else callback && callback("not connected");
 }

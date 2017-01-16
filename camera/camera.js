@@ -339,6 +339,8 @@ camera.evStats = function(settings, options) {
     var res = {};
     if (settings.details) settings = settings.details;
 
+    if(camera.ptp.settings.lists === undefined) return {ev:null};
+
     var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : camera.fixedApertureEv;
 
     res.ev = null;

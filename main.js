@@ -158,6 +158,11 @@ if (VIEW_HARDWARE) {
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {
+        oled.setIcon('wifi', false);
+        ui.reload();
+    });
+    wifi.on('disabled', function(enabled) {
+        oled.setIcon('wifi', false);
         ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
@@ -2029,8 +2034,10 @@ nmx.on('status', function(status) {
     if (status.connected) {
         oled.setIcon('bt', true);
         stopScan();
+        ui.reload();
     } else {
         oled.setIcon('bt', false);
+        ui.reload();
         wifi.resetBt(function(){
             startScan();
         });
@@ -2430,6 +2437,7 @@ camera.ptp.on('photo', function() {
 
 app.on('connected', function(connected) {
     oled.setIcon('web', connected);
+    ui.reload();
 });
 
 camera.ptp.on('settings', function() {
