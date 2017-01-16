@@ -39,55 +39,42 @@
             <div class="row">
                 <div class="col">
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up"></button>
+                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
+                    </div>
+                    <div class="center {{camera.shutterChanged ? 'assertive':''}}">
+                        {{camera.shutterNew||'loading...'}}
                     </div>
                     <div class="center">
-                        {{camera.shutter||'loading...'}}
-                    </div>
-                    <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down"></button>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up"></button>
-                    </div>
-                    <div class="center">
-                        {{camera.aperture||'loading...'}}
-                    </div>
-                    <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down"></button>
+                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
                     </div>
                 </div>
                 <div class="col">
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up"></button>
+                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
+                    </div>
+                    <div class="center {{camera.apertureChanged ? 'assertive':''}}">
+                        {{camera.apertureNew||'loading...'}}
                     </div>
                     <div class="center">
-                        {{camera.iso||'loading...'}}
+                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="center">
+                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
+                    </div>
+                    <div class="center {{camera.isoChanged ? 'assertive':''}}">
+                        {{camera.isoNew||'loading...'}}
                     </div>
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down"></button>
+                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
                     </div>
                 </div>
             </div>
            
-            <form>
-                <p>{{status}}</p>
-                <p>Total EV: {{camera.ev|number:1}}</p>
-                <label class="item item-select item-dark" name="shutter" ng-show="camera.shutter">
-                    <span class="input-label"><i class="icon ion-clock"></i> Shutter</span>
-                    <select ng-model="camera.shutter" ng-options="i.cameraName as i.name for i in camera.lists.shutter" ng-change="updateParam('shutter')"></select>
-                </label>
-                <label class="item item-select item-dark" name="aperture" ng-show="camera.aperture">
-                    <span class="input-label"><i class="icon ion-aperture"></i> Aperture</span>
-                    <select ng-model="camera.aperture" ng-options="i.cameraName as i.name for i in camera.lists.aperture" ng-change="updateParam('aperture')"></select>
-                </label>
-                <label class="item item-select item-dark" name="iso" ng-show="camera.iso">
-                    <span class="input-label"><i class="icon ion-levels"></i> ISO</span>
-                    <select ng-model="camera.iso" ng-options="i.cameraName as i.name for i in camera.lists.iso" ng-change="updateParam('iso')"></select>
-                </label>
-            </form>
+            <div class="item item-dark">
+                {{status}}
+            </div>
         </div>
         <!--button class="button button-dark button-block" ng-click="testBulb()"><i class="icon ion-camera"></i> Test Bulb</button-->
     </ion-content>

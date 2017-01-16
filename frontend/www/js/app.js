@@ -446,9 +446,42 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.camera.config = msg.settings;
                     if (msg.settings) {
                         if (msg.settings.lists) $scope.camera.lists = msg.settings.lists;
-                        if (msg.settings.shutter) $scope.camera.shutter = msg.settings.shutter;
-                        if (msg.settings.iso) $scope.camera.iso = msg.settings.iso;
-                        if (msg.settings.aperture) $scope.camera.aperture = msg.settings.aperture;
+                        if (msg.settings.shutter) {
+                            $scope.camera.shutter = msg.settings.shutter;
+                            if($scope.camera.shutter == $scope.camera.shutterNew) {
+                                $scope.camera.shutterChanged = false;
+                            } else if(!$scope.camera.shutterNew) {
+                                $scope.camera.shutterNew = $scope.camera.shutter;
+                            }
+                        } else {
+                            $scope.camera.shutterChanged = false;
+                            $scope.camera.shutter = "--";
+                            $scope.camera.shutterNew = "--";
+                        }
+                        if (msg.settings.iso) {
+                            $scope.camera.iso = msg.settings.iso; 
+                            if($scope.camera.iso == $scope.camera.isoNew) {
+                                $scope.camera.isoChanged = false;
+                            } else if(!$scope.camera.isoNew) {
+                                $scope.camera.isoNew = $scope.camera.iso;
+                            }
+                        } else {
+                            $scope.camera.isoChanged = false;
+                            $scope.camera.iso = "--";
+                            $scope.camera.isoNew = "--";
+                        }
+                        if (msg.settings.aperture) {
+                            $scope.camera.aperture = msg.settings.aperture;
+                            if($scope.camera.aperture == $scope.camera.apertureNew) {
+                                $scope.camera.apertureChanged = false;
+                            } else if(!$scope.camera.apertureNew) {
+                                $scope.camera.apertureNew = $scope.camera.aperture;
+                            }
+                        } else {
+                            $scope.camera.apertureChanged = false;
+                            $scope.camera.aperture = "--";
+                            $scope.camera.apertureNew = "--";
+                        }
                         if (msg.settings.stats) {
                             $scope.camera.evMax3 = msg.settings.stats.maxEv * 3;
                             $scope.camera.evMin3 = msg.settings.stats.minEv * 3;
@@ -459,6 +492,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.evSetFromApp = false;
                             }
                         }
+                        checkUpDown('shutter');
+                        checkUpDown('aperture');
+                        checkUpDown('iso');
+
                     }
                     callback(null, $scope.camera);
                     break;
@@ -714,16 +751,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     }
 
-    $scope.updateParam = function(name) {
-        var val;
-        if (name == "iso") {
-            val = $scope.camera.iso;
-        } else if (name == "shutter") {
-            val = $scope.camera.shutter;
-        } else if (name == "aperture") {
-            val = $scope.camera.aperture;
-        } else {
-            return;
+    $scope.updateParam = function(name, val) {
+        if(val == null) {
+            if (name == "iso") {
+                val = $scope.camera.iso;
+            } else if (name == "shutter") {
+                val = $scope.camera.shutter;
+            } else if (name == "aperture") {
+                val = $scope.camera.aperture;
+            } else {
+                return;
+            }
         }
 
         console.log("Updating " + name + " to " + val);
@@ -732,6 +770,69 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             key: name,
             val: val
         });
+    }
+
+    function checkUpDown(param) {
+        if($scope.camera.lists && $scope.camera.lists[param]) {
+            var list = $scope.camera.lists[param].filter(function(item){
+                return item.ev != null;
+            });
+
+            for(var i = 0; i < list.length; i++) {
+                if($scope.camera[param + 'New'] == list[i].name) {
+                    if(i < list.length - 1) {
+                        $scope.camera[param + 'Up'] = true;
+                    } else {
+                        $scope.camera[param + 'Up'] = false;
+                    }
+                    if(i > 0) {
+                        $scope.camera[param + 'Down'] = true;
+                    } else {
+                        $scope.camera[param + 'Down'] = false;
+                    }
+                    return;
+                }
+            }
+        }
+        $scope.camera[param + 'Up'] = false;
+        $scope.camera[param + 'Down'] = false;
+    }
+
+    var paramTimer = {};
+    $scope.paramClick = function(param, direction) {
+        if($scope.camera.lists && $scope.camera.lists[param]) {
+            var list = $scope.camera.lists[param].filter(function(item){
+                return item.ev != null;
+            });
+            var newItem = list[0].name;
+            for(var i = 0; i < list.length; i++) {
+                if($scope.camera[param + 'New'] == list[i].name) {
+                    newItem = list[i].name;
+                    if(direction == 'up') {
+                        if(i < list.length - 1) {
+                            newItem = list[i + 1].name;
+                        }
+                    } else {
+                        if(i > 0) {
+                            newItem = list[i - 1].name;
+                        }
+                    }
+                    break;
+                }
+            }
+            $scope.camera[param + 'New'] = newItem;
+            checkUpDown(param);
+            if(paramTimer[param]) {
+                $timeout.cancel(paramTimer[param]);
+                paramTimer[param] = null;
+            }
+            paramTimer[param] = $timeout(function(){
+                paramTimer[param] = null;
+                $scope.updateParam(param, newItem);
+            }, 1500);
+        } else {
+            return null;
+        }
     }
 
     $scope.getAxisIndex = function(axisId) {
