@@ -46,7 +46,7 @@
 
             <br>
             <div class="list">
-                <div class="item item-toggle item-dark">
+                <!--div class="item item-toggle item-dark">
                     Exposure Ramping
                     <label class="toggle toggle-positive">
                         <input type="checkbox" ng-model="timelapse.exposureRamping">
@@ -54,9 +54,21 @@
                             <div class="handle"></div>
                         </div>
                     </label>
+                </div-->
+
+                <div class="item item-dark">
+                    Time-lapse Mode
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'auto')">
+                            Auto Ramping
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'fixed')">
+                            Fixed
+                        </button>
+                    </div>
                 </div>
 
-                <label class="item item-dark" ng-show="timelapse.exposureRamping">
+                <div class="item item-dark" ng-show="timelapse.rampMode == 'auto'">
                     Interval Mode
                     <div style="float:right;">
                         <button class="button button-light button-small button-{{timelapse.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'fixed')">
@@ -69,7 +81,7 @@
                             AUX2
                         </button>
                     </div>
-                </label>
+                </div>
 
                 <!--div class="item item-toggle item-dark" ng-show="timelapse.exposureRamping">
                     Day/Night Variable Interval
@@ -81,27 +93,27 @@
                     </label>
                 </div-->
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.exposureRamping">
+                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
                     <span class="input-label item item-dark">Day Interval (seconds)</span>
                     <input type="tel" ng-model="timelapse.dayInterval" class="item-dark">
                 </label>
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.exposureRamping">
+                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
                     <span class="input-label item item-dark">Night Interval (seconds)</span>
                     <input type="tel" ng-model="timelapse.nightInterval" class="item-dark">
                 </label>
 
-                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.exposureRamping">
+                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.rampMode=='auto'">
                     <span class="input-label item item-dark">Interval (seconds)</span>
                     <input type="tel" ng-model="timelapse.interval" class="item-dark">
                 </label>
 
-                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.exposureRamping">
+                <label class="item item-dark item-input" ng-hide="timelapse.intervalMode=='auto'||timelapse.rampMode=='auto'">
                     <span class="input-label item item-dark">Frames</span>
                     <input type="tel" ng-model="timelapse.frames" class="item-dark">
                 </label>
 
-                <!--label class="item item-dark item-input item-select" ng-show="timelapse.exposureRamping">
+                <!--label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
                     <div class="input-label">
                         Night Compensation
                     </div>
@@ -115,7 +127,7 @@
                         <option selected value="-2">-2 stops</option>
                     </select>
                 </label>
-                <label class="item item-dark item-input item-select" ng-show="timelapse.exposureRamping">
+                <label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
                     <div class="input-label">
                         Sunrise Compensation
                     </div>
@@ -129,7 +141,7 @@
                         <option selected value="-2">-2 stops</option>
                     </select>
                 </label>
-                <label class="item item-dark item-input item-select" ng-show="timelapse.exposureRamping">
+                <label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
                     <div class="input-label">
                         Sunset Compensation
                     </div>
@@ -145,25 +157,25 @@
                 </label-->
 
 
-                <label class="item item-dark">
+                <div class="item item-dark">
                     Save Photos to
                     <div style="float:right;">
-                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera');alert(1)">
+                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera');">
                             Camera
                         </button>
                         <button class="button button-light button-small button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd');alert(2)">
                             SD Card
                         </button>
                     </div>
-                </label>
+                </div>
             </div>
 
         </div>
         <div class="padding" ng-hide="!camera.connected || intervalometerStatus.running">
-            <p ng-hide="timelapse.intervalMode!='auto'&&timelapse.exposureRamping">
+            <p ng-hide="timelapse.intervalMode!='auto'&&timelapse.rampMode=='auto'">
                 Duration: {{timelapse.frames * timelapse.interval / 60|number:0}} minutes<br>
             </p>
-            <p ng-show="timelapse.intervalMode!='auto'&&timelapse.exposureRamping">
+            <p ng-show="timelapse.intervalMode!='auto'&&timelapse.rampMode=='auto'">
                 Time-lapse will continue until stopped<br>
             </p>
             <div class="button-bar">
