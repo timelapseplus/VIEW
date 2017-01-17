@@ -68,7 +68,7 @@ intervalometer.timelapseFolder = false;
 intervalometer.status = status;
 
 intervalometer.load = function(program) {
-    intervalometer.currentProgram = _.extendOwn(defaultProgram, currentProgram, program);
+    intervalometer.currentProgram = _.extendOwn(defaultProgram, intervalometer.currentProgram, program);
 }
 intervalometer.load(defaultProgram);
 
