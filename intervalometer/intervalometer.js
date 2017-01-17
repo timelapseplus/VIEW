@@ -32,7 +32,7 @@ var intervalometer = new EventEmitter();
 var timerHandle = null;
 var delayHandle = null;
 
-intervalometer.defaultProgram = {
+defaultProgram = {
     rampMode: "fixed",
     intervalMode: "fixed",
     interval: 5,
