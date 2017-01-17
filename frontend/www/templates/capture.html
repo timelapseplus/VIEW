@@ -7,7 +7,7 @@
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 
-            <div style="width:100%;height:300px;background-color:#333" class="center" ng-hide="lastImage"><h1><i class="icon ion-image"></i><br></div>
+            <div style="width:100%;height:250px;background-color:#333;padding-top:100px;" class="center" ng-hide="lastImage"><h1><i class="icon ion-image"></i><br></div>
             <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
 
             <div class="item item-dark">

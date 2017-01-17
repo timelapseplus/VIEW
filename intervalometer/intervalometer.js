@@ -42,6 +42,8 @@ defaultProgram = {
     destination: 'camera',
     nightCompensation: -1,
     maxShutterLengthEv: -11,
+    isoMax: -6,
+    isoMin:  0,
     manualAperture: -5
 };
 

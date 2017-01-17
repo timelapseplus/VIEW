@@ -236,7 +236,7 @@ lists.focusdrive = [{
 lists.isoAll = [{
     name: "Auto",
     ev: null,
-    values: ['Auto', 'auto', 'AUTO']
+    values: ['auto', 'auto iso']
 }, {
     name: "25",
     ev: 2,
