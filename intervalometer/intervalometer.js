@@ -45,8 +45,6 @@ defaultProgram = {
     manualAperture: -5
 };
 
-intervalometer.load(defaultProgram);
-
 var rate = 0;
 var status = {
     running: false,
@@ -72,6 +70,7 @@ intervalometer.status = status;
 intervalometer.load = function(program) {
     intervalometer.currentProgram = _.extendOwn(defaultProgram, currentProgram, program);
 }
+intervalometer.load(defaultProgram);
 
 var auxTrigger = new Button('input-aux2');
 
