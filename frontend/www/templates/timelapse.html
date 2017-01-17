@@ -91,19 +91,23 @@
                     </label>
                 </div-->
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
                     <span class="input-label item item-dark">Day Interval</span>
-                    <input type="tel" ng-model="timelapse.dayInterval" class="item-dark">
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.dayInterval" class="item-dark">
+                    </div>
                 </label>
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
                     <span class="input-label align-right item item-dark">Night Interval</span>
-                    <input type="tel" ng-model="timelapse.nightInterval" class="item-dark">
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.nightInterval" class="item-dark input-border">
+                    </div>
                 </label>
 
                 <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
                     <span class="input-label item item-dark">Interval</span>
-                    <input type="tel" ng-model="timelapse.interval" class="item-dark">
+                    <input type="tel" ng-model="timelapse.interval" class="item-dark input-border">
                 </label>
 
                 <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
