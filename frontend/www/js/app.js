@@ -980,14 +980,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
         }
 
-        if (program.exposureRamping) {
-            program.rampMode = 'auto';
-            if (program.variableInterval) program.intervalMode = 'auto';
-            else program.intervalMode = 'fixed';
-        } else {
-            program.rampMode = 'fixed';
-            program.intervalMode = 'fixed';
-        }
+        //program.rampMode = 'auto';
+        //program.intervalMode = 'fixed';
+
         sendMessage('run', {
             program: program
         });

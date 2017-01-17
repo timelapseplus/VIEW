@@ -92,27 +92,31 @@
                 </div-->
 
                 <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    <span class="input-label item item-dark">Day Interval</span>
+                    Day Interval>
                     <div style="float:right;">
-                        <input size="5" type="tel" ng-model="timelapse.dayInterval" class="item-dark">
+                        <input size="5" type="tel" ng-model="timelapse.dayInterval" class="item-dark input-border">
                     </div>
                 </label>
 
                 <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    <span class="input-label align-right item item-dark">Night Interval</span>
+                    Night Interval
                     <div style="float:right;">
                         <input size="5" type="tel" ng-model="timelapse.nightInterval" class="item-dark input-border">
                     </div>
                 </label>
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
-                    <span class="input-label item item-dark">Interval</span>
-                    <input type="tel" ng-model="timelapse.interval" class="item-dark input-border">
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
+                    Interval
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.interval" class="item-dark input-border">
+                    </div>
                 </label>
 
-                <label class="item item-dark item-input" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
-                    <span class="input-label item item-dark">Frames</span>
-                    <input type="tel" ng-model="timelapse.frames" class="item-dark">
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
+                    Frames
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.frames" class="item-dark input-border">
+                    </div>
                 </label>
 
                 <!--label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
@@ -174,10 +178,10 @@
 
         </div>
         <div class="padding" ng-hide="!camera.connected || intervalometerStatus.running">
-            <p ng-hide="timelapse.intervalMode!='auto'&&timelapse.rampMode=='auto'">
+            <p ng-hide="timelapse.intervalMode!='auto'||timelapse.rampMode=='fixed'">
                 Duration: {{timelapse.frames * timelapse.interval / 60|number:0}} minutes<br>
             </p>
-            <p ng-show="timelapse.intervalMode!='auto'&&timelapse.rampMode=='auto'">
+            <p ng-show="timelapse.intervalMode!='auto'||timelapse.rampMode=='fixed'">
                 Time-lapse will continue until stopped<br>
             </p>
             <div class="button-bar">
