@@ -48,7 +48,7 @@
                         <div class="center">
                             <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
                         </div>
-                        <div class="center {{camera.shutterChanged ? 'assertive':''}}">
+                        <div class="cbig enter {{camera.shutterChanged ? 'assertive':''}}">
                             {{camera.shutterNew||'loading...'}}
                         </div>
                         <div class="center">
@@ -59,7 +59,7 @@
                         <div class="center">
                             <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
                         </div>
-                        <div class="center {{camera.apertureChanged ? 'assertive':''}}">
+                        <div class="big center {{camera.apertureChanged ? 'assertive':''}}">
                             {{camera.apertureNew||'loading...'}}
                         </div>
                         <div class="center">
@@ -70,7 +70,7 @@
                         <div class="center">
                             <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
                         </div>
-                        <div class="center {{camera.isoChanged ? 'assertive':''}}">
+                        <div class="big center {{camera.isoChanged ? 'assertive':''}}">
                             {{camera.isoNew||'loading...'}}
                         </div>
                         <div class="center">

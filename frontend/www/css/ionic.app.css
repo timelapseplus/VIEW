@@ -21,6 +21,10 @@ input.view-input {
     border-bottom: 1px dotted white !important;
 }
 
+.big {
+  font-size: 105%;
+}
+
 .input-border {
     border: 1px solid #fff !important;
     border-radius: 2px;
@@ -1936,7 +1940,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
   border: 0;
   vertical-align: baseline;
   font: inherit;
-  font-size: 105%; }
+  font-size: 100%; }
 
 ol, ul {
   list-style: none; }

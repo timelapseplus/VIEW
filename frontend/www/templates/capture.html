@@ -7,7 +7,7 @@
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 
-            <center ng-hide="lastImage"><br><h1><i class="icon ion-image"></i></h1><br></center>
+            <div style="width:100%;height:300px;background-color:#333" class="center" ng-hide="lastImage"><h1><i class="icon ion-image"></i><br></div>
             <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
 
             <div class="item item-dark">
@@ -39,35 +39,35 @@
             <div class="row">
                 <div class="col">
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
                     </div>
-                    <div class="center {{camera.shutterChanged ? 'assertive':''}}">
+                    <div class="big center {{camera.shutterChanged ? 'assertive':''}}">
                         {{camera.shutterNew||'loading...'}}
                     </div>
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
                     </div>
                 </div>
                 <div class="col">
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
                     </div>
-                    <div class="center {{camera.apertureChanged ? 'assertive':''}}">
+                    <div class="big center {{camera.apertureChanged ? 'assertive':''}}">
                         {{camera.apertureNew||'loading...'}}
                     </div>
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
                     </div>
                 </div>
                 <div class="col">
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
                     </div>
-                    <div class="center {{camera.isoChanged ? 'assertive':''}}">
+                    <div class="big center {{camera.isoChanged ? 'assertive':''}}">
                         {{camera.isoNew||'loading...'}}
                     </div>
                     <div class="center">
-                        <button class="button button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
                     </div>
                 </div>
             </div>

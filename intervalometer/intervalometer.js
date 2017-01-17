@@ -10,6 +10,7 @@ var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
 var gpio = require('linux-gpio');
+var _ = require('underscore');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
@@ -31,7 +32,7 @@ var intervalometer = new EventEmitter();
 var timerHandle = null;
 var delayHandle = null;
 
-intervalometer.currentProgram = {
+intervalometer.defaultProgram = {
     rampMode: "fixed",
     intervalMode: "fixed",
     interval: 5,
@@ -41,7 +42,10 @@ intervalometer.currentProgram = {
     destination: 'camera',
     nightCompensation: -1,
     maxShutterLengthEv: -11,
+    manualAperture: -5
 };
+
+intervalometer.load(defaultProgram);
 
 var rate = 0;
 var status = {
@@ -65,6 +69,9 @@ intervalometer.timelapseFolder = false;
 
 intervalometer.status = status;
 
+intervalometer.load = function(program) {
+    intervalometer.currentProgram = _.extendOwn(defaultProgram, currentProgram, program);
+}
 
 var auxTrigger = new Button('input-aux2');
 

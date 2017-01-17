@@ -388,6 +388,22 @@ if (VIEW_HARDWARE) {
     });
 
 
+    var manualAperture = {
+        name: "Manual Aperture",
+        type: "options",
+        items: []
+    }
+    for (var i = 0; i < camera.lists.aperture.length; i++) {
+        if(camera.lists.aperture[i].ev != null && camera.lists.aperture[i].ev <= -2) {
+            manualAperture.items.push({
+                name: "Manual Aperture",
+                help: help.manualAperture,
+                value: camera.lists.aperture[i].name,
+                action: ui.set(intervalometer.currentProgram, 'manualAperture', camera.lists.aperture[i].ev)
+            });
+        }
+    }
+
     var isoMax = {
         name: "Maximum ISO",
         type: "options",
@@ -466,6 +482,21 @@ if (VIEW_HARDWARE) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
                 var itemName = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
+                if(name) {
+                    return name + "~" + itemName;
+                } else {
+                    return name;
+                }
+            }
+            return name;
+
+        }
+    }
+
+    var apertureValueDisplay = function(name, object, key) {
+        return function() {
+            if (object && object.hasOwnProperty(key)) {
+                var itemName = camera.lists.getNameFromEv(camera.lists.aperture, object[key]);
                 if(name) {
                     return name + "~" + itemName;
                 } else {
@@ -766,6 +797,13 @@ if (VIEW_HARDWARE) {
                 return intervalometer.currentProgram.rampMode != 'fixed';
             }
         }, {
+            name: apertureValueDisplay("Manual Aperture", intervalometer.currentProgram, 'manualAperture'),
+            action: manualAperture,
+            help: help.manualAperture
+            condition: function() {
+                return intervalometer.currentProgram.rampMode != 'fixed' && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+            }
+        }, {
             name: "START",
             help: help.startTimelapse,
             action: {
@@ -800,7 +838,7 @@ if (VIEW_HARDWARE) {
                     action: function(){
                         var newProgram = _.extend(intervalometer.currentProgram, dbClip.program);
                         console.log("setting current program to ", newProgram);
-                        intervalometer.currentProgram = newProgram;
+                        intervalometer.load(newProgram);
                         ui.back();
                         ui.load(timelapseMenu);
                     },
@@ -2106,9 +2144,7 @@ nodeCleanup(function (exitCode, signal) {
 db.get('intervalometer.currentProgram', function(err, data) {
     if(!err && data) {
         console.log("Loading saved intervalometer settings...", data);
-        for(var key in data) {
-            intervalometer.currentProgram[key] = data[key];
-        }
+        intervalometer.load(data);
     }
 });
 
@@ -2519,7 +2555,7 @@ intervalometer.on('status', function(msg) {
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
-        apertureText: "f/" +camera.ptp.settings.aperture,
+        apertureText: "f/" + camera.ptp.settings.details.aperture ? camera.ptp.settings.aperture : camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,
