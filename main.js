@@ -2387,7 +2387,7 @@ app.on('message', function(msg) {
                 } else if (msg.key == "motion") {
                     var motion = getMotionStatus();
                     msg.reply('motion', motion);
-                } else if (msg.key == "timelapseProgram") {
+                } else if (msg.key == "program") {
                     msg.reply('timelapseProgram', {program: intervalometer.currentProgram});
                 } else if (msg.key == "thumbnail") {
                     if (camera.ptp.photo && camera.ptp.photo.jpeg) {
