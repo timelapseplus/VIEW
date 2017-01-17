@@ -41,7 +41,6 @@ defaultProgram = {
     frames: 300,
     destination: 'camera',
     nightCompensation: -1,
-    maxShutterLengthEv: -11,
     isoMax: -6,
     isoMin:  0,
     manualAperture: -5
@@ -520,6 +519,8 @@ intervalometer.run = function(program) {
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
+
+    if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
     if (camera.ptp.connected) {
         camera.ptp.getSettings(function(){

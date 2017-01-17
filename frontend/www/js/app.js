@@ -245,15 +245,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     };
 
     $scope.timelapse = {
-        destination: 'camera',
-        mode: 'daytime',
+        rampMode: "fixed",
+        intervalMode: "fixed",
         interval: 6,
-        frames: 500,
-        nightInterval: 50,
         dayInterval: 10,
-        nightCompensation: '-1',
-        sunriseCompensation: '-0.66',
-        sunsetCompensation: '0',
+        nightInterval: 36,
+        frames: 300,
+        destination: 'camera',
+        nightCompensation: -1,
+        isoMax: -6,
+        isoMin:  0,
+        manualAperture: -5,
         keyframes: [{
             focus: 0,
             ev: "not set",
@@ -350,6 +352,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.view = {
         connected: false
     };
+
+    var retrievedTimelapseProgram = false;
 
     function connect(wsAddress) {
         if (ws || connecting) {
@@ -549,6 +553,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         callback(null, msg);
                     }
                     break;
+                case 'timelapseProgram':
+                    if(!retrievedTimelapseProgram && message.program) {
+                        $.extend($scope.program, message.program);
+                    }
                 default:
                     {
                         if (msg.error) {
@@ -576,6 +584,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 sendMessage('get', {
                     key: 'motion'
                 });
+                if(!retrievedTimelapseProgram) {
+                    sendMessage('get', {
+                        key: 'program'
+                    });
+                }
                 setTimeout(function() {
                     if ($state.current.name == "app.view") {
                         $timeout(function() {
