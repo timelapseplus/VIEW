@@ -554,8 +554,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     }
                     break;
                 case 'timelapseProgram':
-                    if(!retrievedTimelapseProgram && message.program) {
-                        $.extend($scope.program, message.program);
+                    if(!retrievedTimelapseProgram && msg.program) {
+                        $.extend($scope.program, msg.program);
+                        retrievedTimelapseProgram = true;
                     }
                 default:
                     {
