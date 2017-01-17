@@ -799,7 +799,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: apertureValueDisplay("Manual Aperture", intervalometer.currentProgram, 'manualAperture'),
             action: manualAperture,
-            help: help.manualAperture
+            help: help.manualAperture,
             condition: function() {
                 return intervalometer.currentProgram.rampMode != 'fixed' && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
             }
