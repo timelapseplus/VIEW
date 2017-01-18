@@ -111,9 +111,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             disableAnimate: true,
             historyRoot: true
         });
+        $state.go(previousState);
         $ionicHistory.clearCache();
         $ionicHistory.clearHistory();
-        $state.go(previousState, {}, {location: "replace", reload: false});
     }
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
