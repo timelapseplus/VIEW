@@ -104,7 +104,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     if(previousState != null && typeof previousState == "string" && previousState.match(/^app\./)) {
         console.log("starting at " + previousState);
         $ionicHistory.nextViewOptions({
-            disableBack: true
+            historyRoot: true
         });
         $state.go(previousState, {}, {location: "replace", reload: true});
     }
