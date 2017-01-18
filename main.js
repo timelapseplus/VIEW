@@ -187,6 +187,15 @@ if (VIEW_HARDWARE) {
         oled.chargeStatus(status);
     });
 
+    power.on('warning', function(status) {
+        if(status) ui.status('low battery');
+    });
+
+    power.on('shutdown', function() {
+        console.log("CRTICIAL BATTERY LEVEL: shutting down now!");
+        shutdownNow();
+    });
+
     power.on('percentage', function(percentage) {
         oled.batteryPercentage(percentage);
     });
@@ -934,6 +943,20 @@ if (VIEW_HARDWARE) {
                     items: []
                 };
             }
+        });
+    }
+
+    var shutdownNow = function() {
+        oled.value([{
+            name: "Timelapse+",
+            value: "Shutting Down"
+        }]);
+        oled.update();
+        if (intervalometer.status.running) intervalometer.cancel();
+        setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
+        closeSystem(function(){
+            console.log("closeSystem complete, running power.shutdown()");
+            power.shutdown();
         });
     }
 

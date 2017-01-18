@@ -70,7 +70,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
 })
 
-.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicViewService', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicViewService) {
+.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicHistory', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicHistory) {
     console.log("AppCtrl");
 
     $scope.moment = moment;
@@ -103,8 +103,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     var previousState = localStorageService.get('state');
     if(previousState != null && typeof previousState == "string" && previousState.match(/^app\./)) {
         console.log("starting at " + previousState);
-        $ionicViewService.nextViewOptions({
-          historyRoot: true
+        $ionicHistory.nextViewOptions({
+          disableBack: true
         });
         $state.go(previousState);
     }

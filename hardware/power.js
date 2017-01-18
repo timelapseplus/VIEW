@@ -15,18 +15,44 @@ var powerGps = 0x8;
 
 var powerDownTimerHandle = null;
 
+function axpSet(reg, val, callback) {
+    reg = parseInt(reg);
+    val = parseInt(val);
+    if(reg != null && val != null) {
+        exec("sudo i2cset -y -f 0 0x34 0x" + reg.toString(16) + " 0x" + val.toString(16), callback);
+    } else {
+        callback('invalid parameters');
+    }
+}
+
+function axpGet(reg, callback) {
+    reg = parseInt(reg);
+    if(reg != null) {
+        exec("sudo i2cget -y -f 0 0x34 0x" + reg.toString(16), function(err, stdout) {
+            if(!err && stdout) {
+                callback && callback(null, parseInt(stdout.trim()));
+            } else {
+                callback(err);
+            }
+        });
+    } else {
+        callback('invalid parameters');
+    }
+}
+
 power.init = function(disableLight) {
-    exec("sudo i2cset -y -f 0 0x34 0x81 0xf9"); // fix issue with wifi power on
-    exec("sudo i2cset -y -f 0 0x34 0x34 0x57"); // set chgled to blink
-    exec("sudo i2cset -y -f 0 0x34 0x33 0xdc"); // set charge rate to 1.5A
-    exec("sudo i2cset -y -f 0 0x34 0x30 0x60"); // set system current limit to 900mA
+    axpSet(0x81, 0xf9); // fix issue with wifi power on
+    axpSet(0x34, 0x57); // set chgled to blink
+    axpSet(0x33, 0xdc); // set charge rate to 1.5A
+    axpSet(0x30, 0x60); // set system current limit to 900mA
+    axpSet(0x82, 0xff); // enable ADC for battery monitoring
 
     if(disableLight) {
         power.chargeLight = 'disabled';
-        exec("sudo i2cset -y -f 0 0x34 0x32 0x8"); // disable chgled
+        axpSet(0x32, 0x8); // disable chgled
     } else {
         power.chargeLight = 'enabled';
-        exec("sudo i2cset -y -f 0 0x34 0x32 0x0"); // enable chgled
+        axpSet(0x32, 0x0); // enable chgled
     }
 }
 
@@ -34,7 +60,7 @@ function setPower(callback) {
     var setting = powerControlBase;
     if(power.gpsEnabled) setting |= powerGps;
     if(power.wifiEnabled) setting |= powerWifi;
-    exec("sudo i2cset -y -f 0 0x34 0x12 0x" + setting.toString(16), callback); // set power switches
+    axpSet(0x12, setting, callback); // set power switches
 }
 
 var blinkIntervalHandle = null;
@@ -122,38 +148,74 @@ power.wifi = function(enable, callback) {
     });
 }
 
+var statsRegs = {
+//    POWER_STATUS: 0x00,
+    POWER_OP_MODE: 0x01,
+//    CHARGE_CTL: 0x33,
+//    CHARGE_CTL2: 0x34,
+    BAT_VOLT_MSB: 0x78,
+    BAT_VOLT_LSB: 0x79,
+    USB_VOLT_MSB: 0x5a,
+    USB_VOLT_LSB: 0x5b,
+    USB_CURR_MSB: 0x5c,
+    USB_CURR_LSB: 0x5d,
+    BAT_IDISCHG_MSB: 0x7c,
+    BAT_IDISCHG_LSB: 0x7d,
+    BAT_ICHG_MSB: 0x7a,
+    BAT_ICHG_LSB: 0x7b,
+    TEMP_MSB: 0x5e,
+    TEMP_LSB: 0x5f,
+    BAT_GAUGE: 0xb9,
+    BAT_WARN: 0x49
+}
+
+function getPowerStats(callback) {
+    var stats = {};
+    axpSet(0x82, 0xff, function() {
+        async.mapValuesSeries(statsRegs, function(reg, key, cb) {
+            axpGet(reg, cb);
+        }, function(err, res) {
+            if(!err && res) {
+                stats.batteryCharging = ((res.POWER_OP_MODE & 0x40) / 64) ? true : false;        
+                stats.axpTemperature = ((res.TEMP_MSB << 4) | (res.TEMP_LSB & 0x0F)) * 0.1 - 144.7; 
+                stats.batteryPercent = res.BAT_GAUGE;
+                stats.batteryVoltage = ((res.BAT_VOLT_MSB << 4) | (res.BAT_VOLT_LSB & 0x0F)) * 1.1 / 1000;
+                stats.usbVoltage = ((res.USB_VOLT_MSB << 4) | (res.USB_VOLT_LSB & 0x0F)) * 1.7 / 1000;
+                stats.usbCurrent = ((res.USB_CURR_MSB << 4) | (res.USB_CURR_LSB & 0x0F)) * 0.375 / 1000;
+                stats.usbWatts = stats.usbVoltage * stats.usbCurrent;
+                stats.batteryDischargeCurrent = ((res.BAT_IDISCHG_MSB << 5) | (res.BAT_IDISCHG_LSB & 0x0F)) * 0.5 / 1000;
+                stats.batteryChargeCurrent = ((res.BAT_ICHG_MSB << 4) | (res.BAT_ICHG_LSB & 0x0F)) * 0.5 / 1000;
+                stats.batteryWarning = ((res.BAT_WARN & 0x20) / 32) ? true : false;       
+                stats.batteryWatts = stats.batteryVoltage * stats.batteryDischargeCurrent;
+                stats.shutdownNow = ((res.BAT_WARN & 0x10) / 16) ? true : false;       
+                console.log(stats);
+            } else {
+                callback && callback(err);
+            }
+        });
+    });
+}
+
 power.update = function(noEvents) {
-    exec('/bin/sh /home/view/current/bin/battery.sh', function(error, stdout, stderr) {
-        var charging = null;
-        var percentage = null;
-
-        lines = stdout.split('\n');
-        for(var i = 0; i < lines.length; i++) {
-            if(lines[i].indexOf('CHARG_IND') === 0) {
-                var matches = lines[i].match(/=([0,1])/i);
-                if(matches.length > 1) {
-                    charging = parseInt(matches[1]) > 0;
-                    //console.log("battery charging:", charging);
-                }
-            }
-            if(lines[i].indexOf('Battery gauge') === 0) {
-                var matches = lines[i].match(/= ([0-9]+)/i);
-                if(matches.length > 1) {
-                    percentage = parseInt(matches[1]);
-                    if(percentage > 100) percentage = 100;
-                    //console.log("battery percentage:", percentage);
-                }
-            }
+    getPowerStats(function(err, stats) {
+        power.stats = stats;
+        if(stats.batteryCharging != null && power.charging != power.charging) {
+            power.charging = stats.batteryCharging;
+            power.emit("charging", power.charging);
         }
 
-        if(charging != null && charging != power.charging) {
-            power.charging = charging;
-            power.emit("charging", charging);
+        if(stats.batteryPercent != null && stats.batteryPercent != power.percentage) {
+            power.percentage = stats.batteryPercent;
+            power.emit("percentage", power.percentage);
         }
 
-        if(percentage != null && percentage != power.percentage) {
-            power.percentage = percentage;
-            power.emit("percentage", percentage);
+        if(stats.batteryWarning) {
+            power.emit("warning", power.warning);
+        }
+
+        if(stats.shutdownNow) {
+            console.log("WARNING: low battery - sending shutdown event");
+            power.emit("shutdown");
         }
 
     });
