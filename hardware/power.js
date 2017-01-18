@@ -208,6 +208,24 @@ function getPowerStats(callback) {
     });
 }
 
+function twoDigits(val) {
+    return parseInt(val * 100) / 100;
+}
+
+power.infoText = function() {
+    var info = "";
+    info += "External Power: " + (power.stats.pluggedIn ? 'YES' : 'NO');
+    if(power.stats.pluggedIn) info += "\nBattery charging: " + (power.stats.batteryCharging ? 'YES' : 'NO');
+    if(power.stats.pluggedIn) info += "\nUSB Watts: " + twoDigits(power.stats.usbWatts) + "W";
+    if(!power.stats.pluggedIn) info += "\nBattery Watts: " + twoDigits(power.stats.batteryWatts) + "W";
+    if(power.stats.pluggedIn) info += "\nUSB Volts: " + twoDigits(power.stats.usbVoltage) + "V";
+    if(power.stats.pluggedIn) info += "\nUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
+    info += "\nBattery Level: " + twoDigits(power.stats.batteryPercent) + "%";
+    info += "\nBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
+    info += "\nPMIC Temp: " + twoDigits(power.stats.axpTemperature) + "°C";
+    return info;
+}
+
 power.update = function(noEvents) {
     getPowerStats(function(err, stats) {
         if(!err && stats) {

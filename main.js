@@ -1723,6 +1723,13 @@ if (VIEW_HARDWARE) {
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
         }, {
+            name: "Power Info",
+            action: function(){
+                ui.back();
+                ui.message('Power Info', power.infoText());
+            },
+            help: help.powerInfo
+        }, {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
