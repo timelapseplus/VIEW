@@ -101,13 +101,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     var previousState = localStorageService.get('state');
-    if(previousState != null) {
+    if(previousState != null && typeof previousState == "string" && previousState.match(/^app\./)) {
         $state.go(previousState);
     }
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
-        localStorageService.set('state', toState);
+        localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
         }
