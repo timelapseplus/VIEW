@@ -200,7 +200,7 @@ function getPowerStats(callback) {
 power.update = function(noEvents) {
     getPowerStats(function(err, stats) {
         power.stats = stats;
-        if(stats.batteryCharging != null && power.charging != power.charging) {
+        if(stats.batteryCharging != null && stats.batteryCharging != power.charging) {
             power.charging = stats.batteryCharging;
             power.emit("charging", power.charging);
         }
