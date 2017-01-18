@@ -209,7 +209,7 @@ function getPowerStats(callback) {
 }
 
 function twoDigits(val) {
-    return parseInt(val * 100) / 100;
+    return Math.round(val * 100) / 100;
 }
 
 power.infoText = function() {
@@ -222,6 +222,8 @@ power.infoText = function() {
     if(power.stats.pluggedIn) info += "\nUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
     info += "\nBattery Level: " + twoDigits(power.stats.batteryPercent) + "%";
     info += "\nBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
+    if(!power.stats.pluggedIn) info += "\nBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
+    if(power.stats.pluggedIn) info += "\nCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
     info += "\nPMIC Temp: " + twoDigits(power.stats.axpTemperature) + "°C";
     return info;
 }
