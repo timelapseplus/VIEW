@@ -189,7 +189,18 @@ function getPowerStats(callback) {
                 stats.batteryWarning = ((res.BAT_WARN & 0x20) / 32) ? true : false;       
                 stats.batteryWatts = stats.batteryVoltage * stats.batteryDischargeCurrent;
                 stats.shutdownNow = ((res.BAT_WARN & 0x10) / 16) ? true : false;       
+                stats.pluggedIn = usbWatts > 0 ? true : false;
+                if(stats.batteryPercent >= 100) {
+                    if(stats.batteryCharging) {
+                        stats.batteryPercent = 99;
+                    } else {
+                        stats.batteryPercent = 100;
+                    }
+                }
+                if(stats.batteryPercent < 1) stats.batteryPercent = 100;
+                if(stats.batteryWarning) stats.batteryPercent = 0;
                 //console.log(stats);
+                callback && callback(null, stats);
             } else {
                 callback && callback(err);
             }
@@ -201,8 +212,8 @@ power.update = function(noEvents) {
     getPowerStats(function(err, stats) {
         if(!err && stats) {
             power.stats = stats;
-            if(stats.batteryCharging != null && stats.batteryCharging != power.charging) {
-                power.charging = stats.batteryCharging;
+            if(stats.pluggedIn != null && stats.pluggedIn != power.charging) {
+                power.charging = stats.pluggedIn;
                 power.emit("charging", power.charging);
             }
 
@@ -213,6 +224,8 @@ power.update = function(noEvents) {
 
             if(stats.batteryWarning) {
                 power.emit("warning", power.warning);
+                power.percentage = 0;
+                power.emit("percentage", power.percentage);
             }
 
             if(stats.shutdownNow) {
