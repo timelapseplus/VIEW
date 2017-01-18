@@ -656,6 +656,7 @@ oled.displayText = function(title, text) {
         text = "an unknown error occurred";
     }
     var words = text.replace(/[\n\r]+/g, ' \n ').replace(/[ ]+/g, ' ').split(' ');
+    words = text.replace(/[\t]+/g, ' \t ').replace(/[ ]+/g, ' ').split(' ');
     oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
     var i = 0;
@@ -665,6 +666,10 @@ oled.displayText = function(title, text) {
             if(line.length > 0) oled.textLines.push(line);
             line = "";
             oled.textLines.push(' ');
+            continue;
+        } else if(words[i] == "\t") {
+            if(line.length > 0) oled.textLines.push(line);
+            line = "";
             continue;
         }
         var newLine = (line + ' ' + words[i]).trim();

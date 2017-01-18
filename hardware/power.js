@@ -215,16 +215,17 @@ function twoDigits(val) {
 power.infoText = function() {
     var info = "";
     info += "External Power: " + (power.stats.pluggedIn ? 'YES' : 'NO');
-    if(power.stats.pluggedIn) info += "\nBattery charging: " + (power.stats.batteryCharging ? 'YES' : 'NO');
-    if(power.stats.pluggedIn) info += "\nConsumption: " + twoDigits(power.stats.usbWatts) + "W";
-    if(!power.stats.pluggedIn) info += "\nConsumption: " + twoDigits(power.stats.batteryWatts) + "W";
-    if(power.stats.pluggedIn) info += "\nUSB Volts: " + twoDigits(power.stats.usbVoltage) + "V";
-    if(power.stats.pluggedIn) info += "\nUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
-    info += "\nBattery Level: " + twoDigits(power.stats.batteryPercent) + "%";
-    info += "\nBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
-    if(!power.stats.pluggedIn) info += "\nBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
-    if(power.stats.pluggedIn) info += "\nCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
-    info += "\nPMIC Temp: " + twoDigits(power.stats.axpTemperature) + "°C";
+    if(power.stats.pluggedIn) info += "\tBattery charging: " + (power.stats.batteryCharging ? 'YES' : 'NO');
+    if(power.stats.pluggedIn) info += "\tConsumption: " + twoDigits(power.stats.usbWatts) + "W";
+    if(!power.stats.pluggedIn) info += "\tConsumption: " + twoDigits(power.stats.batteryWatts) + "W";
+    if(power.stats.pluggedIn) info += "\tUSB Volts: " + twoDigits(power.stats.usbVoltage) + "V";
+    if(power.stats.pluggedIn) info += "\tUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
+    info += "\tBattery Level: " + twoDigits(power.stats.batteryPercent) + "%";
+    info += "\tBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
+    if(!power.stats.pluggedIn) info += "\tBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
+    if(power.stats.pluggedIn) info += "\tCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
+    info += "\tPMIC Temp: " + twoDigits(power.stats.axpTemperature) + "°C";
+    info += "\nNote: the values are not updated while shown. Exit and open again to refresh.";
     return info;
 }
 
