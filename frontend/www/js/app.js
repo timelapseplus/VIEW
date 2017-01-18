@@ -103,17 +103,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         return time;
     }
 
-    var previousState = localStorageService.get('state');
+    /*var previousState = localStorageService.get('state');
     if(previousState != null && typeof previousState == "string" && previousState.match(/^app\./)) {
         console.log("starting at " + previousState);
-        $ionicHistory.nextViewOptions({
+        $ionicHistory.nextViewOptions({ // I have no idea why this simply does not work
             disableAnimate: true,
             historyRoot: true
         });
         $state.go(previousState);
         $ionicHistory.clearCache();
         $ionicHistory.clearHistory();
-    }
+    }*/
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
