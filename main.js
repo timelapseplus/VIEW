@@ -1726,7 +1726,7 @@ if (VIEW_HARDWARE) {
             name: "Power Info",
             action: function(){
                 ui.back();
-                ui.message('Power Info', power.infoText());
+                ui.alert('Power Info', power.infoText());
             },
             help: help.powerInfo
         }, {
