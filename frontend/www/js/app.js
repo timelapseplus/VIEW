@@ -37,6 +37,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     })
 
     .state('app.capture', {
+        cache: false,
         url: "/capture",
         views: {
             'menuContent': {
@@ -46,6 +47,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     })
 
     .state('app.timelapse', {
+        cache: false,
         url: "/timelapse",
         views: {
             'menuContent': {
@@ -55,6 +57,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     })
 
     .state('app.view', {
+        cache: false,
         url: "/view",
         views: {
             'menuContent': {
