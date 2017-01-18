@@ -191,13 +191,14 @@ if (VIEW_HARDWARE) {
         if(status) ui.status('low battery');
     });
 
+    power.on('percentage', function(percentage) {
+        console.log("batteryPercentage", percentage);
+        oled.batteryPercentage(percentage);
+    });
+
     power.on('shutdown', function() {
         console.log("CRTICIAL BATTERY LEVEL: shutting down now!");
         shutdownNow();
-    });
-
-    power.on('percentage', function(percentage) {
-        oled.batteryPercentage(percentage);
     });
 
     var rampingOptions = {
