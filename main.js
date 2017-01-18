@@ -192,7 +192,6 @@ if (VIEW_HARDWARE) {
     });
 
     power.on('percentage', function(percentage) {
-        console.log("batteryPercentage", percentage);
         oled.batteryPercentage(percentage);
     });
 
