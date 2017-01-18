@@ -1,5 +1,6 @@
 var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
+var exec = require('async');
 
 var power = new EventEmitter();
 
