@@ -107,6 +107,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
           disableBack: true
         });
         $state.go(previousState);
+        $ionicHistory.clearHistory();
     }
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
