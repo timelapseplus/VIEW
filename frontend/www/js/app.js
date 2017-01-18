@@ -113,7 +113,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
         $ionicHistory.clearCache();
         $ionicHistory.clearHistory();
-        $state.go(previousState, {}, {location: "replace", reload: true});
+        $state.go(previousState, {}, {location: "replace", reload: false});
     }
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
