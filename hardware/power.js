@@ -199,28 +199,28 @@ function getPowerStats(callback) {
 
 power.update = function(noEvents) {
     getPowerStats(function(err, stats) {
-        power.stats = stats;
-        if(stats.batteryCharging != null && stats.batteryCharging != power.charging) {
-            power.charging = stats.batteryCharging;
-            power.emit("charging", power.charging);
-        }
+        if(!err && stats) {
+            power.stats = stats;
+            if(stats.batteryCharging != null && stats.batteryCharging != power.charging) {
+                power.charging = stats.batteryCharging;
+                power.emit("charging", power.charging);
+            }
 
-        if(stats.batteryPercent != null && stats.batteryPercent != power.percentage) {
-            power.percentage = stats.batteryPercent;
-            power.emit("percentage", power.percentage);
-        }
+            if(stats.batteryPercent != null && stats.batteryPercent != power.percentage) {
+                power.percentage = stats.batteryPercent;
+                power.emit("percentage", power.percentage);
+            }
 
-        if(stats.batteryWarning) {
-            power.emit("warning", power.warning);
-        }
+            if(stats.batteryWarning) {
+                power.emit("warning", power.warning);
+            }
 
-        if(stats.shutdownNow) {
-            console.log("WARNING: low battery - sending shutdown event");
-            power.emit("shutdown");
+            if(stats.shutdownNow) {
+                console.log("WARNING: low battery - sending shutdown event");
+                power.emit("shutdown");
+            }
         }
-
     });
-
 };
 
 power.buttonPowerLight = function(on) {
