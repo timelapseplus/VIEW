@@ -1,6 +1,6 @@
 var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
-var exec = require('async');
+var async = require('async');
 
 var power = new EventEmitter();
 
@@ -17,8 +17,6 @@ var powerGps = 0x8;
 var powerDownTimerHandle = null;
 
 function axpSet(reg, val, callback) {
-    console.log(callback);
-    if(!callback) callback = function(){};
     reg = parseInt(reg);
     val = parseInt(val);
     if(reg != null && val != null) {
