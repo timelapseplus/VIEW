@@ -189,7 +189,7 @@ function getPowerStats(callback) {
                 stats.batteryWarning = ((res.BAT_WARN & 0x20) / 32) ? true : false;       
                 stats.batteryWatts = stats.batteryVoltage * stats.batteryDischargeCurrent;
                 stats.shutdownNow = ((res.BAT_WARN & 0x10) / 16) ? true : false;       
-                stats.pluggedIn = usbWatts > 0 ? true : false;
+                stats.pluggedIn = stats.usbWatts > 0 ? true : false;
                 if(stats.batteryPercent >= 100) {
                     if(stats.batteryCharging) {
                         stats.batteryPercent = 99;
