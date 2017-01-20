@@ -48,6 +48,7 @@ function cameraList() {
 
 camera.switchPrimary = function(cameraObject) {
     if(cameraObject._port) {
+        console.log("switching primary camera to ", cameraObject.model);            
         var index = getWorkerIndex(cameraObject._port);
         if(index === false || !workers[index].connected) return true;
         camera.primaryIndex = index;
@@ -186,13 +187,14 @@ var startWorker = function(port) {
                         worker.supports.liveview = true;
                         worker.supports.destination = true;
                     }
+                    updateCameraCounts();
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                        console.log("setting", msg.value, "as primary camera");
                         camera.primaryPort = worker.port;
                         camera.connected = true;
                         camera.model = msg.value;
                         camera.supports = worker.supports;
                     }
-                    updateCameraCounts();
                 }
                 if (msg.event == 'exiting') {
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
@@ -261,7 +263,7 @@ function updateCameraCounts() {
         }
     }
 
-    var pIndex = getWorkerIndex(camera.primaryPort);
+    var pIndex = camera.primaryPort ? getWorkerIndex(camera.primaryPort) : false;
     if(pIndex === false || !workers[pIndex] || !workers[pIndex].connected) {
         pIndex = 0;
         for(var i = 0; i < workers.length; i++) {
@@ -272,8 +274,11 @@ function updateCameraCounts() {
         }
         camera.primaryIndex = pIndex;
         if(workers[pIndex] && workers[pIndex].port != camera.primaryPort) {
-            camera.primaryPort = workers[pIndex].port;
-            camera.emit('connected', workers[pIndex].model);
+            camera.switchPrimary({
+                model: workers[pIndex].model,
+                isPrimary: true,
+                _port: workers[pIndex].port
+            });
         }
     }
     camera.primaryIndex = pIndex;
