@@ -104,6 +104,8 @@ process.on('message', function(msg) {
     }
 });
 
+sendEvent('online');
+
 function thumbnailFileFromIndex(index) {
     if(!thumbnailPath) return "";
     var indexStr = (index + 1).toString();

@@ -116,13 +116,8 @@ var startWorker = function(port) {
         var worker = cluster.fork();
         worker.port = port;
         workers.push(worker);
-        worker.on('listening', function() {
-            worker.send({type:'port', port:port});
-            console.log("worker started, sending port:", port);
-        });
-
         worker.on('exit', function(code, signal) {
-            console.log("worker exited");
+            console.log("worker exited on port", worker.port);
             var index = getWorkerIndex(worker.port);
             workers.splice(index, 1);
             updateCameraCounts();
@@ -142,6 +137,10 @@ var startWorker = function(port) {
         });
 
         worker.on('message', function(msg) {
+            if(msg.event == 'online') {
+                console.log("worker started, sending port:", port);
+                worker.send({type:'port', port:port});
+            }
             if (msg.type == 'event') {
                 console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
                 if(getWorkerIndex(worker.port) == camera.primaryIndex) {
