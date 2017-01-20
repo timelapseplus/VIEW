@@ -22,19 +22,42 @@ camera.ev = 0;
 camera.model = false;
 camera.photo = null;
 camera.settings = false;
-camera.iso = false;
-camera.aperture = false;
-camera.shutter = false;
 camera.supports = {};
 
 // multi-cam properties
 camera.primaryIndex = 0;
 camera.count = 0;
 camera.synchronized = true;
-camera.cameras = []; // not used yet
 
 var cbStore = {};
 var cbIndex = 0;
+
+function cameraList() {
+    var list = [];
+    for(var i = 0; i < workers.length; i++) {
+        if(workers[i].connected) {
+            list.push({
+                model: workers[i].model,
+                primary: i == camera.primaryIndex,
+                _port: workers[i].port
+            });
+        }
+    }
+    return list;
+}
+
+camera.switchPrimary = function(cameraObject) {
+    if(cameraObject._port) {
+        var index = getWorkerIndex(cameraObject._port);
+        if(index === false || !workers[index].connected) return true;
+        camera.primaryIndex = index;
+        camera.primaryPort = workers[index].port;
+        camera.settings = workers[index].settings;
+        camera.supports = workers[index].supports;
+        camera.model = workers[index].model;
+        camera.emit('connected', camera.model);
+    }
+}
 
 function getCallbackId(cb) {
     if (!cb) return 0;
@@ -115,12 +138,12 @@ var startWorker = function(port) {
         camera.connecting = true;
         var worker = cluster.fork();
         worker.port = port;
+        worker.supports = {};
+        worker.settings = false;
         workers.push(worker);
         worker.on('exit', function(code, signal) {
             console.log("worker exited on port", worker.port);
             var index = getWorkerIndex(worker.port);
-            workers.splice(index, 1);
-            updateCameraCounts();
             if(index == camera.primaryIndex) {
                 errorCallbacks("camera not available");
                 if(camera.disabled) {
@@ -134,6 +157,8 @@ var startWorker = function(port) {
                 }
                 camera.connected = false;
             }
+            workers.splice(index, 1);
+            updateCameraCounts();
         });
 
         worker.on('message', function(msg) {
@@ -143,60 +168,63 @@ var startWorker = function(port) {
             }
             if (msg.type == 'event') {
                 console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
-                if(getWorkerIndex(worker.port) == camera.primaryIndex) {
-                    if (msg.event == "photo") {
-                        camera.photo = msg.value;
-                        msg.value = null;
-                    }
-                    if (msg.event == "ev") {
-                        camera.ev = msg.value;
-                    }
-                    if (!msg.value) msg.value = false;
-                    if (msg.event == "settings") {
-                        var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
-                        if (!camera.settings || JSON.stringify(camera.settings) != JSON.stringify(newSettings)) {
-                            camera.emit(msg.event, msg.value);
-                        }
-                        console.log("capture target: ", newSettings.target);
-                        if (!camera.target) camera.target = "CARD";
-                        if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target);
-                        if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off');
-                        console.log("PTP: settings updated");
-                        camera.settings = newSettings;
-                    } else if (msg.event == "callback") {
-                        runCallback(msg.value);
-                    } else {
-                        camera.emit(msg.event, msg.value);
-                    }
-                }
                 if (msg.event == 'connected') {
                     console.log("worker connected on port", worker.port);
                     worker.connected = true;
-                    updateCameraCounts();
+                    worker.model = msg.value;
+                    console.log("Camera connected: ", camera.model);
+                    if(worker.model.match(/sony/i)) {
+                        console.log("matched sony, setting supports.destination = false");
+                        worker.supports.destination = false;
+                        if(worker.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                            worker.supports.liveview = true;
+                        }
+                    } else if(worker.model.match(/panasonic/i)) {
+                        worker.supports.liveview = false;
+                        worker.supports.destination = true;
+                    } else {
+                        worker.supports.liveview = true;
+                        worker.supports.destination = true;
+                    }
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                        camera.primaryPort = worker.port;
                         camera.connected = true;
                         camera.model = msg.value;
-                        console.log("Camera connected: ", camera.model);
-                        if(camera.model.match(/sony/i)) {
-                            console.log("matched sony, setting supports.destination = false");
-                            camera.supports.destination = false;
-                            if(camera.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
-                                camera.supports.liveview = true;
-                            }
-                        } else if(camera.model.match(/panasonic/i)) {
-                            camera.supports.liveview = false;
-                            camera.supports.destination = true;
-                        } else {
-                            camera.supports.liveview = true;
-                            camera.supports.destination = true;
-                        }
+                        camera.supports = worker.supports;
                     }
+                    updateCameraCounts();
                 }
                 if (msg.event == 'exiting') {
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
                         camera.connected = false;
                         errorCallbacks("camera disconnected on port", worker.port);
                     }
+                }
+
+                if (msg.event == "photo") {
+                    camera.photo = msg.value;
+                    msg.value = null;
+                }
+                if (msg.event == "ev") {
+                    camera.ev = msg.value;
+                }
+                if (!msg.value) msg.value = false;
+                if (msg.event == "settings") {
+                    var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
+                    if (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings)) {
+                        if(getWorkerIndex(worker.port) == camera.primaryIndex) camera.emit(msg.event, msg.value);
+                    }
+                    console.log("capture target: ", newSettings.target);
+                    if (!camera.target) camera.target = "CARD";
+                    if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target, null, worker);
+                    if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
+                    console.log("PTP: settings updated");
+                    worker.settings = newSettings;
+                    if(getWorkerIndex(worker.port) == camera.primaryIndex) camera.settings = newSettings;
+                } else if (msg.event == "callback") {
+                    runCallback(msg.value);
+                } else if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                    camera.emit(msg.event, msg.value);
                 }
             }
         });
@@ -226,9 +254,29 @@ function getWorkerIndex(port) {
 }
 function updateCameraCounts() {
     var count = 0;
+
     for(var i = 0; i < workers.length; i++) {
-        if(workers[i].connected) count++;
+        if(workers[i].connected) {
+            count++;
+        }
     }
+
+    var pIndex = getWorkerIndex(camera.primaryPort);
+    if(pIndex === false || !workers[pIndex] || !workers[pIndex].connected) {
+        pIndex = 0;
+        for(var i = 0; i < workers.length; i++) {
+            if(workers[i].connected) {
+                pIndex = i;
+                break;
+            }
+        }
+        camera.primaryIndex = pIndex;
+        if(workers[pIndex] && workers[pIndex].port != camera.primaryPort) {
+            camera.primaryPort = workers[pIndex].port;
+            camera.emit('connected', workers[pIndex].model);
+        }
+    }
+    camera.primaryIndex = pIndex;
 }
 
 monitor.on('add', function(device) {
@@ -364,14 +412,16 @@ function padNumber(n, width) {
 }
 var captureIndex = 1;
 camera.capture = function(options, callback) {
-    var worker = getPrimaryWorker();
-    if (worker && worker.connected) {
+    var eachCamera = doEachMulti();
+    if(eachCamera !== false) {
         if(camera.supports.destination || options) {
-            worker.send({
-                type: 'camera',
-                do: 'capture',
-                options: options,
-                id: getCallbackId(callback)
+            eachCamera(function(index, isPrimary, send) {
+                send({
+                    type: 'camera',
+                    do: 'capture',
+                    options: options,
+                    id: isPrimary ? getCallbackId(callback) : null
+                });
             });
         } else {
             if(camera.sdPresent) {
@@ -391,21 +441,23 @@ camera.capture = function(options, callback) {
                                     console.log("list", list);
                                     while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
                                 }
-                                var saveRaw = folder + '/' + name + padNumber(captureIndex, width);
-                                if(!options) options = {};
-                                options.saveRaw = saveRaw;
-                                console.log("Saving RAW capture to", options.saveRaw);
-                                var capture = {
-                                    type: 'camera',
-                                    do: 'capture',
-                                    options: options,
-                                    id: getCallbackId(function(err){
-                                        setTimeout(camera.unmountSd, 1000);
-                                        callback && callback(err);
-                                    })
-                                }
-                                console.log(capture);
-                                worker.send(capture);
+                                eachCamera(function(index, isPrimary, send) {
+                                    var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
+                                    if(!options) options = {};
+                                    options.saveRaw = saveRaw;
+                                    console.log("Saving RAW capture to", options.saveRaw);
+                                    var capture = {
+                                        type: 'camera',
+                                        do: 'capture',
+                                        options: options,
+                                        id: isPrimary ? getCallbackId(function(err){
+                                            setTimeout(camera.unmountSd, 1000);
+                                            callback && callback(err);
+                                        }) : null
+                                    }
+                                    console.log(capture);
+                                    send(capture);
+                                });
                             });
                         });
                     }
@@ -419,8 +471,8 @@ camera.capture = function(options, callback) {
     }
 }
 camera.captureTethered = function(callback) {
-    var worker = getPrimaryWorker();
-    if (worker && camera.connected) worker.send({
+    var send = getSendMulti();
+    if(send !== false) send({
         type: 'camera',
         do: 'captureTethered',
         id: getCallbackId(callback)
@@ -555,14 +607,69 @@ camera.focus = function(step, repeat, callback) {
         }
     } else callback && callback("not connected");
 }
-camera.set = function(item, value, callback) {
-    var worker = getPrimaryWorker();
-    if (worker && camera.connected) worker.send({
-        type: 'camera',
-        set: item,
-        value: value,
-        id: getCallbackId(callback)
-    }); else callback && callback("not connected");
+
+function doEachMulti() {
+    if(camera.connected) {
+        if(camera.synchronized) {
+            var worker = getPrimaryWorker();
+            if(!worker) return false;
+            return function(callback) {
+                callback(camera.primaryIndex, true, worker.send);
+                for(var i = 0; i < workers.length; i++) {
+                    if(workers[i].connected && i != camera.primaryIndex) {
+                        callback(i, false, workers[i].send);
+                    }
+                }
+            };
+        } else {
+            var worker = getPrimaryWorker();
+            return worker ? worker.send : false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function getSendMulti() {
+    if(camera.connected) {
+        if(camera.synchronized) {
+            var worker = getPrimaryWorker();
+            if(!worker) return false;
+            return function(obj) {
+                worker.send(obj);
+                for(var i = 0; i < workers.length; i++) {
+                    obj.id = null; // only run callback for primary camera
+                    if(workers[i].connected && i != camera.primaryIndex) {
+                        workers[i].send(obj);
+                    }
+                }
+            };
+        } else {
+            var worker = getPrimaryWorker();
+            return worker ? worker.send : false;
+        }
+    } else {
+        return false;
+    }
+}
+
+camera.set = function(item, value, callback, _worker) {
+    var send = false;
+    if(_worker && worker.send) {
+        send = _worker.send
+    } else {
+        send = getSendMulti();
+    }
+    if(send !== false) {
+        send({
+            type: 'camera',
+            set: item,
+            value: value,
+            id: getCallbackId(callback)
+        });
+    } else {
+        callback && callback("not connected");
+    }
 }
 camera.get = function(item) {
     var worker = getPrimaryWorker();
@@ -591,7 +698,6 @@ camera.saveThumbnails = function(path, callback) {
 }
 
 camera.saveToCameraCard = function(bool, callback) {
-    var worker = getPrimaryWorker();
     if (bool === null) {
         return camera.target == "CARD";
     } else {

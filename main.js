@@ -746,6 +746,33 @@ if (VIEW_HARDWARE) {
             }
         },
         items: [{
+            name: valueDisplay("Camera", camera.ptp, 'model'),
+            help: help.cameraSelection,
+            action: function(cb) {
+                cm = {
+                    name: "Primary Camera",
+                    type: "options",
+                    items: []
+                }
+                var list = camera.ptp.cameraList();
+                for(var i = 0; i < list.length; i++) {
+                    cm.items.push({
+                        name: "Primary Camera",
+                        value: list[i].model,
+                        help: help.cameraSelection,
+                        action: (function(cam) { return function(cb2) {
+                            camera.ptp.switchPrimary(cam);
+                            cb2();
+                            ui.back();
+                        };})(list[i])
+                    });
+                }
+                cb(null, cm);
+            },
+            condition: function() {
+                return camera.ptp.count > 1;
+            }
+        }, {
             name: valueDisplay("Exposure", camera.ptp.settings.stats, 'ev'),
             help: help.exposureMenu,
             action: exposureMenu,
