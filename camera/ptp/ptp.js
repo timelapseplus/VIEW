@@ -95,13 +95,14 @@ var startWorker = function(port) {
     if(!port) {
         exec('/usr/bin/lsusb', function(err, res){
             if(!err && res) {
-                var lines = res.split('/n');
+                var lines = res.split('\n');
                 for(var i = 0; i < lines.length; i++) {
-                    var matches = lines[i].match(/Bus ([0-9]+) Device ([0-9]+)i/);
+                    var matches = lines[i].match(/Bus ([0-9]+) Device ([0-9]+)/i);
                     if(matches && matches.length >= 3) {
                         var bus = matches[1];
                         var device = matches[2];
                         var port = "usb:" + bus + "," + device;
+                        console.log("starting working for port", port);
                         process.nextTick(function() {
                             startWorker(port);
                         });
