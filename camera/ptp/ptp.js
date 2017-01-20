@@ -97,7 +97,7 @@ var startWorker = function(port) {
             if(!err && res) {
                 var lines = res.split('/n');
                 for(var i = 0; i < lines.length; i++) {
-                    var matches = lines.match(/Bus ([0-9]+) Device ([0-9]+)i/);
+                    var matches = lines[i].match(/Bus ([0-9]+) Device ([0-9]+)i/);
                     if(matches && matches.length >= 3) {
                         var bus = matches[1];
                         var device = matches[2];
