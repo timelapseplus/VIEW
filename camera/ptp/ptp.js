@@ -25,7 +25,7 @@ camera.settings = false;
 camera.supports = {};
 
 // multi-cam properties
-camera.primaryIndex = 0;
+camera.primaryPort = null;
 camera.count = 0;
 camera.synchronized = true;
 
@@ -38,7 +38,7 @@ function cameraList() {
         if(workers[i].connected) {
             list.push({
                 model: workers[i].model,
-                primary: i == camera.primaryIndex,
+                primary: workers[i].port != camera.primaryPort,
                 _port: workers[i].port
             });
         }
@@ -51,7 +51,6 @@ camera.switchPrimary = function(cameraObject) {
         console.log("switching primary camera to ", cameraObject.model);            
         var index = getWorkerIndex(cameraObject._port);
         if(index === false || !workers[index].connected) return true;
-        camera.primaryIndex = index;
         camera.primaryPort = workers[index].port;
         camera.settings = workers[index].settings;
         camera.supports = workers[index].supports;
@@ -135,17 +134,16 @@ var startWorker = function(port) {
         });
     } else if (getWorkerIndex(port) === false) {
         console.log("starting working for port", port);
-        camera.connected = false;
-        camera.connecting = true;
         var worker = cluster.fork();
+        worker.connected = false;
+        worker.connecting = true;
         worker.port = port;
         worker.supports = {};
         worker.settings = false;
         workers.push(worker);
         worker.on('exit', function(code, signal) {
             console.log("worker exited on port", worker.port);
-            var index = getWorkerIndex(worker.port);
-            if(index == camera.primaryIndex) {
+            if(worker.port == camera.primaryPort) {
                 errorCallbacks("camera not available");
                 if(camera.disabled) {
                     disabledCallback && disabledCallback();
@@ -158,6 +156,7 @@ var startWorker = function(port) {
                 }
                 camera.connected = false;
             }
+            var index = getWorkerIndex(worker.port);
             workers.splice(index, 1);
             updateCameraCounts();
         });
@@ -188,7 +187,7 @@ var startWorker = function(port) {
                         worker.supports.destination = true;
                     }
                     updateCameraCounts();
-                    if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                    if(worker.port == camera.primaryPort) {
                         console.log("setting", msg.value, "as primary camera");
                         camera.primaryPort = worker.port;
                         camera.connected = true;
@@ -197,7 +196,7 @@ var startWorker = function(port) {
                     }
                 }
                 if (msg.event == 'exiting') {
-                    if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                    if(worker.port == camera.primaryPort) {
                         camera.connected = false;
                         errorCallbacks("camera disconnected on port", worker.port);
                     }
@@ -214,7 +213,7 @@ var startWorker = function(port) {
                 if (msg.event == "settings") {
                     var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
                     if (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings)) {
-                        if(getWorkerIndex(worker.port) == camera.primaryIndex) camera.emit(msg.event, msg.value);
+                        if(worker.port == camera.primaryPort) camera.emit(msg.event, msg.value);
                     }
                     console.log("capture target: ", newSettings.target);
                     if (!camera.target) camera.target = "CARD";
@@ -222,10 +221,10 @@ var startWorker = function(port) {
                     if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
                     worker.settings = newSettings;
-                    if(getWorkerIndex(worker.port) == camera.primaryIndex) camera.settings = newSettings;
+                    if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
                     runCallback(msg.value);
-                } else if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                } else if(worker.port == camera.primaryPort) {
                     camera.emit(msg.event, msg.value);
                 }
             }
@@ -272,7 +271,6 @@ function updateCameraCounts() {
                 break;
             }
         }
-        camera.primaryIndex = pIndex;
         if(workers[pIndex] && workers[pIndex].port != camera.primaryPort) {
             camera.switchPrimary({
                 model: workers[pIndex].model,
@@ -281,7 +279,11 @@ function updateCameraCounts() {
             });
         }
     }
-    camera.primaryIndex = pIndex;
+    if(workers[pIndex] && workers[pIndex].connected) {
+        camera.connected = true;
+    } else {
+        camera.connected = false;
+    }
 }
 
 monitor.on('add', function(device) {
@@ -406,7 +408,8 @@ camera.unmountSd = function(callback) {
 }
 
 function getPrimaryWorker() {
-    if(workers[camera.primaryIndex]) return workers[camera.primaryIndex];
+    var index = getWorkerIndex(camera.primaryPort);
+    if(workers[index]) return workers[index];
     return false;
 }
 
@@ -619,10 +622,10 @@ function doEachMulti() {
             var worker = getPrimaryWorker();
             if(!worker) return false;
             return function(callback) {
-                callback(camera.primaryIndex, true, worker.send);
+                callback(camera.primaryPort, true, worker.send);
                 for(var i = 0; i < workers.length; i++) {
-                    if(workers[i].connected && i != camera.primaryIndex) {
-                        callback(i, false, workers[i].send);
+                    if(workers[i].connected && workers[i].port != camera.primaryPort) {
+                        callback(workers[i].port, false, workers[i].send);
                     }
                 }
             };
@@ -644,7 +647,7 @@ function getSendMulti() {
                 worker.send(obj);
                 for(var i = 0; i < workers.length; i++) {
                     obj.id = null; // only run callback for primary camera
-                    if(workers[i].connected && i != camera.primaryIndex) {
+                    if(workers[i].connected && workers[i].port != camera.primaryPort) {
                         workers[i].send(obj);
                     }
                 }
