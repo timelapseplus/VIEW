@@ -102,7 +102,6 @@ var startWorker = function(port) {
                         var bus = matches[1];
                         var device = matches[2];
                         var port = "usb:" + bus + "," + device;
-                        console.log("starting working for port", port);
                         process.nextTick(function() {
                             startWorker(port);
                         });
@@ -111,6 +110,7 @@ var startWorker = function(port) {
             }
         });
     } else if (getWorkerIndex(port) === false) {
+        console.log("starting working for port", port);
         camera.connected = false;
         camera.connecting = true;
         var worker = cluster.fork();
@@ -118,7 +118,7 @@ var startWorker = function(port) {
         workers.push(worker);
         worker.on('listening', function() {
             worker.send({type:'port', port:port});
-            console.log("worker started for port", port);
+            console.log("worker started, sending port:", port);
         });
 
         worker.on('exit', function(code, signal) {
@@ -171,6 +171,7 @@ var startWorker = function(port) {
                     }
                 }
                 if (msg.event == 'connected') {
+                    console.log("worker connected on port", worker.port);
                     worker.connected = true;
                     updateCameraCounts();
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
@@ -195,7 +196,7 @@ var startWorker = function(port) {
                 if (msg.event == 'exiting') {
                     if(getWorkerIndex(worker.port) == camera.primaryIndex) {
                         camera.connected = false;
-                        errorCallbacks("camera disconnected");
+                        errorCallbacks("camera disconnected on port", worker.port);
                     }
                 }
             }
@@ -261,6 +262,7 @@ monitor.on('remove', function(device) {
         var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
         var index = getWorkerIndex(port);
         if(index !== false) {
+            console.log("telling worker to exit on port", port);
             workers[index].send({
                 type: 'command',
                 do: 'exit'
