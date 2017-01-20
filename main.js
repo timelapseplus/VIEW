@@ -2143,6 +2143,7 @@ var systemClosed = false;
 function closeSystem(callback) {
     systemClosed = true;
     console.log("Shutting down!");
+    app.close();
     nmx.disconnect();
     if (VIEW_HARDWARE) {
         console.log("closing inputs...");

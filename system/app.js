@@ -129,6 +129,19 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
     }
 });
 
+function closeApp() {
+    if(wsRemote && wsRemote.destroy) {
+        wsRemote.close();
+    }
+    wss.clients.forEach(function each(client) {
+        try {
+            if (client && client.close) client.close();
+        } catch (err) {
+            console.log("error closing websocket:", err);
+        }
+    });
+}
+
 function sendLog(logfile, logname, callback) {
     if(app.remote) {
         console.log("Reading", logfile);
@@ -256,6 +269,7 @@ function receive_message(msg_string, socket) {
 
 app.send = send_message;
 app.sendLogs = sendLogs;
+app.close = closeApp;
 
 server.listen(CLIENT_SERVER_PORT, function() {
     console.log('listening on *:' + CLIENT_SERVER_PORT);
