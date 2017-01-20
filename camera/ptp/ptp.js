@@ -2,10 +2,11 @@ var udev = require('udev');
 var monitor = udev.monitor();
 var exec = require('child_process').exec;
 var fs = require('fs');
-var worker = false;
-var cameraConnected = false;
-
 var cluster = require('cluster');
+
+var workers = [];
+
+var cameraConnected = false;
 
 cluster.setupMaster({
     exec: "/home/view/current/camera/ptp/worker.js"
@@ -24,7 +25,13 @@ camera.settings = false;
 camera.iso = false;
 camera.aperture = false;
 camera.shutter = false;
-camera.supports = {}
+camera.supports = {};
+
+// multi-cam properties
+camera.primaryIndex = 0;
+camera.count = 0;
+camera.synchronized = true;
+camera.cameras = []; // not used yet
 
 var cbStore = {};
 var cbIndex = 0;
@@ -59,12 +66,14 @@ camera.disabled = false;
 var disabledCallback = null;
 camera.disableWorker = function(cb) {
     camera.disabled = true;
-    if(worker) {
+    if(workers.length > 0) {
         disabledCallback = cb;
-        worker.send({
-            type: 'command',
-            do: 'exit'
-        });
+        for(var i = 0; i < workers.length; i++) {
+            workers[i].send({
+                type: 'command',
+                do: 'exit'
+            });
+        }
     } else {
         cb && cb(true);
     }
@@ -82,81 +91,111 @@ camera.enableWorker = function(cb) {
     }
 }
 
-var startWorker = function() {
-    if (!worker) {
+var startWorker = function(port) {
+    if(!port) {
+        exec('/usr/bin/lsusb', function(err, res){
+            if(!err && res) {
+                var lines = res.split('/n');
+                for(var i = 0; i < lines.length; i++) {
+                    var matches = lines.match(/Bus ([0-9]+) Device ([0-9]+)i/);
+                    if(matches && matches.length >= 3) {
+                        var bus = matches[1];
+                        var device = matches[2];
+                        var port = "usb:" + bus + "," + device;
+                        process.nextTick(function() {
+                            startWorker(port);
+                        });
+                    }
+                }
+            }
+        });
+    } else if (getWorkerIndex(port) === false) {
         camera.connected = false;
         camera.connecting = true;
-        worker = cluster.fork();
+        var worker = cluster.fork();
+        worker.port = port;
+        workers.push(worker);
         worker.on('listening', function() {
-            console.log("worker started");
+            worker.send({type:'port', port:port});
+            console.log("worker started for port", port);
         });
 
         worker.on('exit', function(code, signal) {
             console.log("worker exited");
-            worker = false;
-            errorCallbacks("camera not available");
-            if(camera.disabled) {
-                disabledCallback && disabledCallback();
-                camera.connecting = false;
-            } else if (camera.connected) {
-                process.nextTick(startWorker);
-                camera.connecting = true;
-            } else {
-                camera.connecting = false;
+            var index = getWorkerIndex(worker.port);
+            workers.splice(index, 1);
+            updateCameraCounts();
+            if(index == camera.primaryIndex) {
+                errorCallbacks("camera not available");
+                if(camera.disabled) {
+                    disabledCallback && disabledCallback();
+                    camera.connecting = false;
+                } else if (camera.connected) {
+                    process.nextTick(startWorker);
+                    camera.connecting = true;
+                } else {
+                    camera.connecting = false;
+                }
+                camera.connected = false;
             }
-            camera.connected = false;
         });
 
         worker.on('message', function(msg) {
             if (msg.type == 'event') {
                 console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
-                if (msg.event == "photo") {
-                    camera.photo = msg.value;
-                    msg.value = null;
-                }
-                if (msg.event == "ev") {
-                    camera.ev = msg.value;
-                }
-                if (!msg.value) msg.value = false;
-                if (msg.event == "settings") {
-                    var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
-                    if (!camera.settings || JSON.stringify(camera.settings) != JSON.stringify(newSettings)) {
+                if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                    if (msg.event == "photo") {
+                        camera.photo = msg.value;
+                        msg.value = null;
+                    }
+                    if (msg.event == "ev") {
+                        camera.ev = msg.value;
+                    }
+                    if (!msg.value) msg.value = false;
+                    if (msg.event == "settings") {
+                        var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
+                        if (!camera.settings || JSON.stringify(camera.settings) != JSON.stringify(newSettings)) {
+                            camera.emit(msg.event, msg.value);
+                        }
+                        console.log("capture target: ", newSettings.target);
+                        if (!camera.target) camera.target = "CARD";
+                        if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target);
+                        if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off');
+                        console.log("PTP: settings updated");
+                        camera.settings = newSettings;
+                    } else if (msg.event == "callback") {
+                        runCallback(msg.value);
+                    } else {
                         camera.emit(msg.event, msg.value);
                     }
-                    console.log("capture target: ", newSettings.target);
-                    if (!camera.target) camera.target = "CARD";
-                    if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target);
-                    if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off');
-                    console.log("PTP: settings updated");
-                    camera.settings = newSettings;
-
-                } else if (msg.event == "callback") {
-                    runCallback(msg.value);
-                } else {
-                    camera.emit(msg.event, msg.value);
                 }
-
                 if (msg.event == 'connected') {
-                    camera.connected = true;
-                    camera.model = msg.value;
-                    console.log("Camera connected: ", camera.model);
-                    if(camera.model.match(/sony/i)) {
-                        console.log("matched sony, setting supports.destination = false");
-                        camera.supports.destination = false;
-                        if(camera.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                    worker.connected = true;
+                    updateCameraCounts();
+                    if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                        camera.connected = true;
+                        camera.model = msg.value;
+                        console.log("Camera connected: ", camera.model);
+                        if(camera.model.match(/sony/i)) {
+                            console.log("matched sony, setting supports.destination = false");
+                            camera.supports.destination = false;
+                            if(camera.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                                camera.supports.liveview = true;
+                            }
+                        } else if(camera.model.match(/panasonic/i)) {
+                            camera.supports.liveview = false;
+                            camera.supports.destination = true;
+                        } else {
                             camera.supports.liveview = true;
+                            camera.supports.destination = true;
                         }
-                    } else if(camera.model.match(/panasonic/i)) {
-                        camera.supports.liveview = false;
-                        camera.supports.destination = true;
-                    } else {
-                        camera.supports.liveview = true;
-                        camera.supports.destination = true;
                     }
                 }
                 if (msg.event == 'exiting') {
-                    camera.connected = false;
-                    errorCallbacks("camera disconnected");
+                    if(getWorkerIndex(worker.port) == camera.primaryIndex) {
+                        camera.connected = false;
+                        errorCallbacks("camera disconnected");
+                    }
                 }
             }
         });
@@ -178,10 +217,27 @@ if(blockDevices.indexOf('mmcblk1p1') !== -1) {
     });
 }
 
+function getWorkerIndex(port) {
+    for(var i = 0; i < workers.length; i++) {
+        if(workers[i].port == port) return i;
+    }
+    return false;
+}
+function updateCameraCounts() {
+    var count = 0;
+    for(var i = 0; i < workers.length; i++) {
+        if(workers[i].connected) count++;
+    }
+}
+
 monitor.on('add', function(device) {
     //console.log("device added:", device);
-    if (device.SUBSYSTEM == 'usb') {
-        if (!worker) startWorker();
+    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM) {
+        var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
+        var index = getWorkerIndex(port);
+        if(index === false) {
+            startWorker(port);
+        }
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card added:", device.DEVNAME);
         captureIndex = 1;
@@ -199,12 +255,16 @@ monitor.on('add', function(device) {
 });
 
 monitor.on('remove', function(device) {
-    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER) {
+    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM) {
         console.log("on remove", device);
-        if (worker) worker.send({
-            type: 'command',
-            do: 'exit'
-        });
+        var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
+        var index = getWorkerIndex(port);
+        if(index !== false) {
+            workers[index].send({
+                type: 'command',
+                do: 'exit'
+            });
+        }
     } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'Dynamic_Perception_LLC') {
         console.log("NMX disconnected:", device.DEVNAME);
         camera.nmxConnected = false;
@@ -290,6 +350,11 @@ camera.unmountSd = function(callback) {
     }
 }
 
+function getPrimaryWorker() {
+    if(workers[camera.primaryIndex]) return workers[camera.primaryIndex];
+    return false;
+}
+
 function padNumber(n, width) {
     var s = n.toString();
     while(s.length < width) s = '0' + s;
@@ -297,7 +362,8 @@ function padNumber(n, width) {
 }
 var captureIndex = 1;
 camera.capture = function(options, callback) {
-    if (worker && camera.connected) {
+    var worker = getPrimaryWorker();
+    if (worker && worker.connected) {
         if(camera.supports.destination || options) {
             worker.send({
                 type: 'camera',
@@ -351,6 +417,7 @@ camera.capture = function(options, callback) {
     }
 }
 camera.captureTethered = function(callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'captureTethered',
@@ -358,6 +425,7 @@ camera.captureTethered = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.preview = function(callback) {
+    var worker = getPrimaryWorker();
     if(!camera.supports.liveview) {
         return callback && callback("not supported");
     }
@@ -368,6 +436,7 @@ camera.preview = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.lvTimerReset = function(callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
         id: getCallbackId(callback),
@@ -375,6 +444,7 @@ camera.lvTimerReset = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.lvOff = function(callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
         id: getCallbackId(callback),
@@ -382,6 +452,7 @@ camera.lvOff = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
+    var worker = getPrimaryWorker();
     var data = {
         reset: true
     };
@@ -402,6 +473,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     }); else callback && callback("not connected");
 }
 function focusCanon(step, repeat, callback) {
+    var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param;
     if (!step) return;
@@ -431,6 +503,7 @@ function focusCanon(step, repeat, callback) {
     doFocus();
 }
 function focusNikon(step, repeat, callback) {
+    var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param, delay = 200;
     if (!step) return;
@@ -466,6 +539,7 @@ function focusNikon(step, repeat, callback) {
     doFocus();
 }
 camera.focus = function(step, repeat, callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) {
         if(camera.settings.focusdrive == 'canon') {
             console.log("focus: canon");
@@ -480,6 +554,7 @@ camera.focus = function(step, repeat, callback) {
     } else callback && callback("not connected");
 }
 camera.set = function(item, value, callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
         set: item,
@@ -488,6 +563,7 @@ camera.set = function(item, value, callback) {
     }); else callback && callback("not connected");
 }
 camera.get = function(item) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) {
         console.log("PTP: retrieving settings...");
         camera.getSettings(function() {
@@ -496,6 +572,7 @@ camera.get = function(item) {
     } else callback && callback("not connected");
 }
 camera.getSettings = function(callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
         get: 'settings',
@@ -503,6 +580,7 @@ camera.getSettings = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.saveThumbnails = function(path, callback) {
+    var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         'type': 'setup',
         'set': 'thumbnailPath',
@@ -511,6 +589,7 @@ camera.saveThumbnails = function(path, callback) {
 }
 
 camera.saveToCameraCard = function(bool, callback) {
+    var worker = getPrimaryWorker();
     if (bool === null) {
         return camera.target == "CARD";
     } else {

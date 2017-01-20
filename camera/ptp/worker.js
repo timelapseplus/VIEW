@@ -8,6 +8,7 @@ var LISTS = require('camera/ptp/lists.js');
 var image = require('camera/image/image.js');
 
 var camera = null;
+var port = null;
 var jpeg = null;
 var settings = {};
 
@@ -45,6 +46,34 @@ function buildCB(id) {
 }
 
 process.on('message', function(msg) {
+    if (msg.type == 'port') {
+        port = msg.port;
+        // List cameras / assign list item to variable to use below options
+        console.log("Searching for camera at port " + port + "...");
+        GPhoto.list(function(list) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].model != 'Mass Storage Camera' && list[i].port == port) {
+                    camera = list[i];
+                    console.log("camera:", camera);
+                    break;
+                }
+            }
+            if (!camera) {
+                console.log("No cameras found, exiting worker");
+                exit();
+                return;
+            }
+            //waitEvent();
+
+            console.log('Found', camera.model);
+
+            getConfig(false, false, function() {
+                sendEvent('connected', camera.model);
+            });
+            //setInterval(getConfig, 2000);
+
+        });
+    }
     if (msg.type == 'command') {
         if (msg.do == 'exit') {
             console.log("Received message, exiting worker");
@@ -73,32 +102,6 @@ process.on('message', function(msg) {
     if (msg.type == 'setup') {
         if (msg.set == "thumbnailPath") thumbnailPath = msg.value;
     }
-});
-
-// List cameras / assign list item to variable to use below options
-console.log("Searching for cameras...");
-GPhoto.list(function(list) {
-    for (var i = 0; i < list.length; i++) {
-        if (list[i].model != 'Mass Storage Camera') {
-            camera = list[i];
-            console.log("camera:", camera);
-            break;
-        }
-    }
-    if (!camera) {
-        console.log("No cameras found, exiting worker");
-        exit();
-        return;
-    }
-    //waitEvent();
-
-    console.log('Found', camera.model);
-
-    getConfig(false, false, function() {
-        sendEvent('connected', camera.model);
-    });
-    //setInterval(getConfig, 2000);
-
 });
 
 function thumbnailFileFromIndex(index) {

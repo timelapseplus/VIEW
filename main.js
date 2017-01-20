@@ -2153,7 +2153,7 @@ nodeCleanup(function (exitCode, signal) {
     if(updates.updatingKernel) {
         console.log("Kernel update in progress, delaying shutdown by 10 seconds...");
         setTimeout(function() {
-            process.kill(process.pid);
+            process.exit();
         }, 10000);
         return;
     }
@@ -2164,8 +2164,10 @@ nodeCleanup(function (exitCode, signal) {
     } else {
         closeSystem(function() {
             console.log("Shutting down complete, exiting");
+            console.log("_getActiveHandles:", process._getActiveHandles());
+            console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
-            process.kill(process.pid);
+            process.exit();
         });
     }
     return false;
