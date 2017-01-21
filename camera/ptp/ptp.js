@@ -261,6 +261,7 @@ function updateCameraCounts() {
             count++;
         }
     }
+    camera.count = count;
 
     var pIndex = camera.primaryPort ? getWorkerIndex(camera.primaryPort) : false;
     if(pIndex === false || !workers[pIndex] || !workers[pIndex].connected) {
