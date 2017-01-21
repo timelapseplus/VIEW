@@ -749,7 +749,7 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Camera", camera.ptp, 'model'),
             help: help.cameraSelection,
             action: function(cb) {
-                cm = {
+                var cm = {
                     name: "Primary Camera",
                     type: "options",
                     items: []
