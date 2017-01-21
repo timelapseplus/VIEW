@@ -763,7 +763,7 @@ if (VIEW_HARDWARE) {
                         action: (function(cam) { return function(cb2) {
                             camera.ptp.switchPrimary(cam);
                             ui.back();
-                            cb2();
+                            ui.back();
                         };})(list[i])
                     });
                 }
