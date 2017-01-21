@@ -762,8 +762,8 @@ if (VIEW_HARDWARE) {
                         help: help.cameraSelection,
                         action: (function(cam) { return function(cb2) {
                             camera.ptp.switchPrimary(cam);
-                            cb2();
                             ui.back();
+                            cb2();
                         };})(list[i])
                     });
                 }
