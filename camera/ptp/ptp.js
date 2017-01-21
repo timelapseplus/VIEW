@@ -125,9 +125,11 @@ var startWorker = function(port) {
                         var bus = matches[1];
                         var device = matches[2];
                         var port = "usb:" + bus + "," + device;
-                        process.nextTick(function() {
-                            startWorker(port);
-                        });
+                        (function(p){
+                            process.nextTick(function() {
+                                startWorker(p);
+                            });
+                        })(port);
                     }
                 }
             }
