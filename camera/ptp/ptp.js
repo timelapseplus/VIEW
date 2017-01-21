@@ -32,7 +32,7 @@ camera.synchronized = true;
 var cbStore = {};
 var cbIndex = 0;
 
-function cameraList() {
+camera.cameraList = function() {
     var list = [];
     for(var i = 0; i < workers.length; i++) {
         if(workers[i].connected) {
