@@ -195,6 +195,7 @@ exports.getTimelapseByName = function(tlName, callback) {
 exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
 	if(closed) return callback && callback(true);
 	if(!cameraNumber) cameraNumber = 1;
+	console.log("query=", "SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'");
 	dbTl.get("SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
