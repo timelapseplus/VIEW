@@ -6,7 +6,6 @@ var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 var exec = require('child_process').exec;
 var fs = require('fs');
-
 var viewAccountName = "elijahparker";
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
@@ -130,6 +129,7 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
 });
 
 function closeApp() {
+    closeHttpServer();
     if(wsRemote && wsRemote.destroy) {
         wsRemote.close();
     }
@@ -271,8 +271,36 @@ app.send = send_message;
 app.sendLogs = sendLogs;
 app.close = closeApp;
 
-server.listen(CLIENT_SERVER_PORT, function() {
+var httpServer = server.listen(CLIENT_SERVER_PORT, function() {
     console.log('listening on *:' + CLIENT_SERVER_PORT);
 });
+
+var sockets = {}, nextSocketId = 0;
+httpServer.on('connection', function (socket) {
+  // Add a newly connected socket
+  var socketId = nextSocketId++;
+  sockets[socketId] = socket;
+  console.log('socket', socketId, 'opened');
+
+  // Remove the socket when it closes
+  socket.on('close', function () {
+    console.log('socket', socketId, 'closed');
+    delete sockets[socketId];
+  });
+
+  // Extend socket lifetime for demo purposes
+  socket.setTimeout(4000);
+});
+
+function closeHttpServer() {
+    // Close the server
+    httpServer.close(function () { console.log('Server closed!'); });
+    // Destroy all open sockets
+    for (var socketId in sockets) {
+        console.log('socket', socketId, 'destroyed');
+        sockets[socketId].destroy();
+    }
+}
+    
 
 module.exports = app;

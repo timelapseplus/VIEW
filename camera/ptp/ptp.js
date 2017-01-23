@@ -426,7 +426,7 @@ camera.capture = function(options, callback) {
     var eachCamera = doEachMulti();
     if(eachCamera !== false) {
         if(camera.supports.destination || options) {
-            eachCamera(function(index, isPrimary, send) {
+            eachCamera(function(port, isPrimary, send) {
                 send({
                     type: 'camera',
                     do: 'capture',
@@ -452,7 +452,8 @@ camera.capture = function(options, callback) {
                                     console.log("list", list);
                                     while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
                                 }
-                                eachCamera(function(index, isPrimary, send) {
+                                eachCamera(function(port, isPrimary, send) {
+                                    if(!isPrimary) return;
                                     var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
                                     if(!options) options = {};
                                     options.saveRaw = saveRaw;
@@ -482,12 +483,18 @@ camera.capture = function(options, callback) {
     }
 }
 camera.captureTethered = function(callback) {
-    var send = getSendMulti();
-    if(send !== false) send({
-        type: 'camera',
-        do: 'captureTethered',
-        id: getCallbackId(callback)
-    }); else callback && callback("not connected");
+    var eachCamera = doEachMulti();
+    if(eachCamera !== false) {
+        eachCamera(function(port, isPrimary, send) {
+            send({
+                type: 'camera',
+                do: 'captureTethered',
+                id: isPrimary ? getCallbackId(callback) : null
+            });
+        });
+    } else {
+        callback && callback("not connected");
+    }
 }
 camera.preview = function(callback) {
     var worker = getPrimaryWorker();
@@ -621,21 +628,18 @@ camera.focus = function(step, repeat, callback) {
 
 function doEachMulti() {
     if(camera.connected) {
-        if(camera.synchronized) {
-            var worker = getPrimaryWorker();
-            if(!worker) return false;
-            return function(callback) {
-                callback(camera.primaryPort, true, worker.send);
+        var worker = getPrimaryWorker();
+        if(!worker) return false;
+        return (function(pw) { return function(callback) {
+            callback(camera.primaryPort, true, pw.send);
+            if(camera.synchronized) {
                 for(var i = 0; i < workers.length; i++) {
                     if(workers[i].connected && workers[i].port != camera.primaryPort) {
                         callback(workers[i].port, false, workers[i].send);
                     }
                 }
-            };
-        } else {
-            var worker = getPrimaryWorker();
-            return worker ? worker.send : false;
-        }
+            }
+        };})(worker);
     } else {
         return false;
     }
