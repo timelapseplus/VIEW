@@ -104,7 +104,7 @@ function writeFile() {
     //image.writeXMP(name, status.evDiff);
 }
 
-function getDetails() {
+function getDetails(file) {
     return {
         frames: status.frames,
         evCorrection: status.evDiff,
@@ -113,7 +113,7 @@ function getDetails() {
         rampRate: exp.status.rate,
         intervalMs: status.intervalMs,
         timestamp: status.lastPhotoTime,
-        fileName: status.path,
+        fileName: file || status.path,
         p: exp.status.pComponent,
         i: exp.status.iComponent,
         d: exp.status.dComponent
@@ -344,8 +344,14 @@ function runPhoto() {
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1000);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
-                    db.setTimelapseFrame(status.id, 0, getDetails(), photoRes.thumbnailPath);
                     status.path = photoRes.file;
+                    if(photoRes.cameraCount > 1) {
+                        for(var i = 0; i < photoRes.cameras.length) {
+                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes[i].file), photoRes.cameras[i].cameraNumber, photoRes[i].thumbnailPath);
+                        }
+                    } else {
+                        db.setTimelapseFrame(status.id, 0, getDetails(), 1, photoRes.thumbnailPath);
+                    }
                     status.message = "running";
                     if (status.framesRemaining > 0) status.framesRemaining--;
                     status.frames++;
@@ -398,7 +404,14 @@ function runPhoto() {
                     } else if(bufferTime > status.bufferSeconds) {
                         status.bufferSeconds = (status.bufferSeconds + bufferTime) / 2;
                     }
-                    db.setTimelapseFrame(status.id, status.evDiff, getDetails(), photoRes.thumbnailPath);
+                    status.path = photoRes.file;
+                    if(photoRes.cameraCount > 1) {
+                        for(var i = 0; i < photoRes.cameras.length) {
+                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(photoRes[i].file), photoRes.cameras[i].cameraNumber, photoRes[i].thumbnailPath);
+                        }
+                    } else {
+                        db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
+                    }
                     intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 1000; // add a second for setting exposure
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
                     status.rampRate = exp.status.rate;
@@ -562,7 +575,11 @@ intervalometer.run = function(program) {
 
 
                 function start() {
-                    db.setTimelapse(status.tlName, program, status, function(err, timelapseId) {
+                    var cameras = 1;
+                    if(camera.ptp.synchronized) {
+                        cameras = camera.ptp.count;
+                    }
+                    db.setTimelapse(status.tlName, program, cameras, status, function(err, timelapseId) {
                         status.id = timelapseId;
                         processKeyframes(true, function() {
                             setTimeout(function() {
@@ -642,29 +659,35 @@ intervalometer.getLastTimelapse = function(callback) {
 function getClipFramesCount(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
     console.log("reading frame count for", clipNumber);
-    fs.readFile(folder + "/count.txt", function(err, frames) {
-        if(err) {
-            console.log("clip frames err:", clipNumber, err, frames);
-            return callback(null, null);
-        } else if (!parseInt(frames)) {
-            console.log("recovering count for " + clipNumber);
-            intervalometer.getTimelapseData(clipNumber, function(err2, data) {
-                if(!err2 && data && data.length > 0) {
-                    frames = data.length;
-                    fs.writeFile(folder + "/count.txt", frames.toString());
-                    console.log("clip frames recovery", clipNumber, frames);
-                    return callback(null, frames);
-                } else {
-                    console.log("clip frames recovery err:", clipNumber, err2, data);
+    db.getTimelapseByName('tl-' + clipNumber, function(err, clip) {
+        if(!err && clip) {
+            return callback(null, clip.frames);            
+        } else { // old way
+            fs.readFile(folder + "/count.txt", function(err, frames) {
+                if(err) {
+                    console.log("clip frames err:", clipNumber, err, frames);
                     return callback(null, null);
-                } 
-            });
-        } else {
-            frames = parseInt(frames);
-            console.log("clip frames:", clipNumber, frames);
-            return callback(null, frames);
+                } else if (!parseInt(frames)) {
+                    console.log("recovering count for " + clipNumber);
+                    intervalometer.getTimelapseData(clipNumber, 0, function(err2, data) {
+                        if(!err2 && data && data.length > 0) {
+                            frames = data.length;
+                            fs.writeFile(folder + "/count.txt", frames.toString());
+                            console.log("clip frames recovery", clipNumber, frames);
+                            return callback(null, frames);
+                        } else {
+                            console.log("clip frames recovery err:", clipNumber, err2, data);
+                            return callback(null, null);
+                        } 
+                    });
+                } else {
+                    frames = parseInt(frames);
+                    console.log("clip frames:", clipNumber, frames);
+                    return callback(null, frames);
+                }
+            });        
         }
-    });        
+    });
 }
 
 intervalometer.getTimelapseClip = function(clipNumber, callback) {
@@ -778,9 +801,9 @@ intervalometer.saveXMPsToCard = function(clipNumber, callback) {
     if (camera.ptp.sdPresent) {
         camera.ptp.mountSd(function() {
             if (camera.ptp.sdMounted) {
-                var destDolder = "/media/tl-" + clipNumber + "-xmp";
-                console.log("writing XMPs to " + destDolder);
-                fs.mkdir(destDolder, function(err) {
+                var destFolder = "/media/tl-" + clipNumber + "-xmp";
+                console.log("writing XMPs to " + destFolder);
+                fs.mkdir(destFolder, function(err) {
                     if (err) {
                         if (err.code == "EEXIST") {
                             console.log("folder 'tl-" + clipNumber + "-xmp' already exists", err);
@@ -790,12 +813,58 @@ intervalometer.saveXMPsToCard = function(clipNumber, callback) {
                             callback("error creating folder on SD card");
                         }
                     } else {
-                        intervalometer.writeXMPs(clipNumber, destDolder, function(){
-                            setTimeout(function() {
-                                camera.ptp.unmountSd(function() {
-                                    if(callback) callback();
+                        db.getTimelapseByName(clip.name, function(err, clip) {
+                            if(!err && clip && clip.cameras) {
+                                if(clip.cameras > 1) {
+                                    var createCameraSubfolder = function(cameraNumber) {
+                                        var cameraFolder = destFolder + '/camera' + cameraNumber;
+                                        fs.mkdir(cameraFolder, function(err) {
+                                            if (err) {
+                                                if (err.code == "EEXIST") {
+                                                    console.log("folder '" + cameraFolder + "' already exists", err);
+                                                    callback("folder 'tl-" + clipNumber + '/camera' + cameraNumber + "-xmp' already exists on SD card");
+                                                } else {
+                                                    console.log("error creating folder", err);
+                                                    callback("error creating folder on SD card");
+                                                }
+                                            } else {
+                                                console.log("intervalometer.saveXMPsToCard: writing XMPs for camera", cameraNumber);
+                                                intervalometer.writeXMPs(clipNumber, cameraNumber, cameraFolder, function(){
+                                                    if(cameraNumber < clip.cameras) {
+                                                        setTimeout(function(){
+                                                            createCameraSubfolder(cameraNumber + 1);
+                                                        });
+                                                    } else {
+                                                        setTimeout(function() {
+                                                            camera.ptp.unmountSd(function() {
+                                                                if(callback) callback();
+                                                            });
+                                                        }, 500);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                    createCameraSubfolder(1);
+
+                                } else {
+                                    intervalometer.writeXMPs(clipNumber, 1, destFolder, function(){
+                                        setTimeout(function() {
+                                            camera.ptp.unmountSd(function() {
+                                                if(callback) callback();
+                                            });
+                                        }, 500);
+                                    });
+                                }
+                            } else {
+                                intervalometer.writeXMPs(clipNumber, 0, destFolder, function(){
+                                    setTimeout(function() {
+                                        camera.ptp.unmountSd(function() {
+                                            if(callback) callback();
+                                        });
+                                    }, 500);
                                 });
-                            }, 500);
+                            }
                         });
                     }
                 });
@@ -824,37 +893,68 @@ intervalometer.deleteTimelapseClip = function(clipNumber, callback) {
     });
 }
 
-intervalometer.getTimelapseData = function (clipNumber, callback) {
+intervalometer.getTimelapseData = function (clipNumber, cameraNumber, callback) {
     var name = "tl-" + clipNumber;
-    var folder = TLROOT + "/" + name;
     var dataSet = [];
-    fs.readFile(folder + "/details.csv", function(err, details) {
-        if (!err && details) {
-            var detailsLines = details.toString().split('\n');
-            for (var i = 1; i < detailsLines.length; i++) {
-                var data = detailsLines[i].split(',');
-                if (data && data.length >= 2 && parseInt(data[0].trim()) != NaN) {
-                    var fileNumberString = data[7].match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
+    if(typeof cameraNumber === 'function') {
+        callback = cameraNumber;
+        cameraNumber = null;
+    }
+    if(!cameraNumber) {
+        var folder = TLROOT + "/" + name;
+        fs.readFile(folder + "/details.csv", function(err, details) {
+            if (!err && details) {
+                var detailsLines = details.toString().split('\n');
+                for (var i = 1; i < detailsLines.length; i++) {
+                    var data = detailsLines[i].split(',');
+                    if (data && data.length >= 2 && parseInt(data[0].trim()) != NaN) {
+                        var fileNumberString = data[7].match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
+                        dataSet.push({
+                            fileNumberString: fileNumberString,
+                            evCorrection: parseFloat(data[1]),
+                            evSetting: parseFloat(data[3])
+                        });
+                    }
+                }
+                if (callback) callback(null, dataSet);
+            } else {
+                console.log("error opening clip info", err);
+                if (callback) callback("error opening clip info");
+            }
+        });
+    } else {
+        db.getTimelapseByName(name, function(err, clip) {
+            if(err || !clip) {
+                console.log("error opening clip info from db", err);
+                return callback && callback("error opening clip info");
+            }
+            if(cameraNumber > clip.cameras) {
+                console.log("camera number out of range", err);
+                return callback && callback("invalid camera number");
+            }
+            db.getTimelapseFrames(clip.id, cameraNumber, function(err, clipFrames){
+                if(err || !clipFrames) {
+                    console.log("error getting clip frames from db", err);
+                    return callback && callback("error opening clip frames");
+                }
+                for(var i = 0; i < clipFrames.length; i++) {
+                    var fileNumberString = clipFrames[i].details.file.match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
                     dataSet.push({
                         fileNumberString: fileNumberString,
-                        evCorrection: parseFloat(data[1]),
-                        evSetting: parseFloat(data[3])
+                        evCorrection: clipFrames[i].details.evCorrection,
+                        evSetting: clipFrames[i].details.targetEv
                     });
                 }
-            }
-            if (callback) callback(null, dataSet);
-        } else {
-            console.log("error opening clip info", err);
-            if (callback) callback("error opening clip info");
-        }
-    });
+            });
+        });
+    }
 }
 
-intervalometer.writeXMPs = function(clipNumber, destinationFolder, callback) {
+intervalometer.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback) {
     var name = "tl-" + clipNumber;
     var smoothing = 5; // blend changes across +/- 5 frames (11 frame average)
 
-    intervalometer.getTimelapseData(clipNumber, function(err, data) {
+    intervalometer.getTimelapseData(clipNumber, cameraNumber, function(err, data) {
         if (!err && data) {
             for (var i = 1; i < data.length; i++) {
                 var smoothCorrection = 0;

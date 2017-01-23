@@ -3,6 +3,7 @@ var monitor = udev.monitor();
 var exec = require('child_process').exec;
 var fs = require('fs');
 var cluster = require('cluster');
+var async = require('async');
 
 var workers = [];
 
@@ -426,19 +427,54 @@ camera.capture = function(options, callback) {
     if(!camera.connected) {
         return callback && callback("not connected");
     }
-    if(camera.supports.destination || options) {
+    if(camera.supports.destination || options) { // time-lapse program or basic capture
+        var imagePath;
+        if(options.saveRaw) {
+            imagePath = options.saveRaw;
+        }
+        var cameraIndex = 0;
+        if(options.saveRaw) {
+            imagePath = options.saveRaw;
+        }
+        var functionList = [];
         var err = doEachCamera(function(port, isPrimary, worker) {
-            worker.send({
+            cameraIndex++;
+            if(options.saveRaw) {
+                options.saveRaw = imagePath + '-cam' + cameraIndex;
+            }
+            functionList.push((function(obj, isP, i){
+                return function(cb) {
+                    obj.id = getCallbackId(function(err, res) {
+                        if(!res) res = {};
+                        res.cameraIndex = i;
+                        res.isPrimary = isP;
+                        cb && cb(err, res);
+                    });
+                    worker.send(obj);
+                }
+            })({
                 type: 'camera',
                 do: 'capture',
                 options: options,
                 id: isPrimary ? getCallbackId(callback) : null
-            });
+            }, isPrimary, cameraIndex));
         });
-        if(err) {
+        if(!err) {
+            async.parallel(functionList, function(err, results){
+                if(!err && results && results.length > 0) {
+                    var res = results[0]
+                    res.cameraCount = results.length;
+                    res.cameraResults = results;
+                    console.log("camera.capture results:", res);
+                    callback && callback(err, res);
+                } else {
+                    callback && callback(err, results);
+                }
+            });
+        } else {
             return callback && callback("not connected");
         }
-    } else {
+    } else { // capture method, not part of time-lapse program
         if(camera.sdPresent) {
             camera.mountSd(function(err) {
                 if(err) {

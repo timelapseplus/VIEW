@@ -19,6 +19,7 @@ dbTl.serialize(function(){
 													 program BLOB,\
 													 status BLOB,\
 													 logfile TEXT,\
+													 cameras INTEGER DEFAULT 1,\
 													 thumbnail TEXT,\
 													 frames INTEGER\
 													 )");
@@ -28,9 +29,13 @@ dbTl.serialize(function(){
 													 clip_id INTEGER,\
 													 ev_correction REAL,\
 													 details BLOB,\
+													 camera INTEGER DEFAULT 1,\
 													 thumbnail TEXT\
 													 )");
 	dbTl.run("CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
+
+	dbTl.run("ALTER TABLE clips ADD COLUMN cameras DEFAULT 1");
+	dbTl.run("ALTER TABLE clip_frames ADD COLUMN camera DEFAULT 1");
 });
 
 dbCache.serialize(function(){
@@ -107,15 +112,17 @@ exports.get = function(key, callback) {
 	});
 }
 
-exports.setTimelapse = function(name, program, status, callback) {
+exports.setTimelapse = function(name, program, cameras, status, callback) {
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	name = name.toLowerCase();
 	program = serialize(program);
 	status = serialize(status);
 	logfile = exports.currentLogFile;
+	cameras = parseInt(cameras);
+	cameras = cameras || 0;
 
-	dbTl.run("INSERT INTO clips (name, date, program, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + status + "', '" + logfile + "')", function(err) {
+	dbTl.run("INSERT INTO clips (name, date, program, cameras, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + cameras + "', '" + status + "', '" + logfile + "')", function(err) {
 		callback && callback(err, this.lastID);
 	});
 }
@@ -177,11 +184,28 @@ exports.getTimelapseByName = function(tlName, callback) {
 	});
 }
 
-exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, callback) {
+exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
+	if(closed) return callback && callback(true);
+	if(!cameraNumber) cameraNumber = 1;
+	dbTl.get("SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'", function(err, data){
+		if(err || !data) {
+			callback(err);
+		} else {
+			for(var i = 0; i < data.length; i++) {
+				if(data[i].details) data[i].details = unserialize(data[i].details);
+			}
+			callback(err, data);
+		}
+	});
+}
+
+exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber, thumbnail, callback) {
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	details = serialize(details);
 	evCorrection = evCorrection || 0;
+	cameraNumber = parseInt(cameraNumber);
+	cameraNumber = cameraNumber || 0;
 
 	dbTl.get("SELECT frames, thumbnail FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
@@ -195,7 +219,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, thumbnail, c
 			} else {
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "'");
 			}
-			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + thumbnail + "')", callback);
+			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber + "', '" + thumbnail + "')", callback);
 		}
 	});
 }
