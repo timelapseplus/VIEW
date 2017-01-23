@@ -406,7 +406,7 @@ function runPhoto() {
                     }
                     status.path = photoRes.file;
                     if(photoRes.cameraCount > 1) {
-                        for(var i = 0; i < photoRes.cameras.length) {
+                        for(var i = 0; i < photoRes.cameras.length; i++) {
                             db.setTimelapseFrame(status.id, status.evDiff, getDetails(photoRes[i].file), photoRes.cameras[i].cameraNumber, photoRes[i].thumbnailPath);
                         }
                     } else {
