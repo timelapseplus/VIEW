@@ -347,7 +347,7 @@ function runPhoto() {
                     status.path = photoRes.file;
                     if(photoRes.cameraCount > 1) {
                         for(var i = 0; i < photoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes[i].file), photoRes.cameraResults[i].cameraNumber, photoRes[i].thumbnailPath);
+                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraNumber, photoRes[i].thumbnailPath);
                         }
                     } else {
                         db.setTimelapseFrame(status.id, 0, getDetails(), 1, photoRes.thumbnailPath);
@@ -938,7 +938,7 @@ intervalometer.getTimelapseData = function (clipNumber, cameraNumber, callback) 
                     return callback && callback("error opening clip frames");
                 }
                 for(var i = 0; i < clipFrames.length; i++) {
-                    var fileNumberString = clipFrames[i].details.file.match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
+                    var fileNumberString = clipFrames[i].details.fileName.match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
                     dataSet.push({
                         fileNumberString: fileNumberString,
                         evCorrection: clipFrames[i].details.evCorrection,
