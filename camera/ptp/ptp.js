@@ -126,17 +126,19 @@ var startWorker = function(port) {
                         var bus = matches[1];
                         var device = matches[2];
                         var port = "usb:" + bus + "," + device;
-                        (function(p){
-                            process.nextTick(function() {
-                                startWorker(p);
-                            });
-                        })(port);
+                        if(parseInt(bus) < 3 && parseInt(device) > 1) {
+                            (function(p){
+                                process.nextTick(function() {
+                                    startWorker(p);
+                                });
+                            })(port);
+                        }
                     }
                 }
             }
         });
     } else if (getWorkerIndex(port) === false) {
-        console.log("starting working for port", port);
+        console.log("starting worker for port", port);
         var worker = cluster.fork();
         worker.connected = false;
         worker.connecting = true;
