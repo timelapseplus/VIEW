@@ -813,7 +813,7 @@ intervalometer.saveXMPsToCard = function(clipNumber, callback) {
                             callback("error creating folder on SD card");
                         }
                     } else {
-                        db.getTimelapseByName(clip.name, function(err, clip) {
+                        db.getTimelapseByName('tl-' + clipNumber, function(err, clip) {
                             if(!err && clip && clip.cameras) {
                                 if(clip.cameras > 1) {
                                     var createCameraSubfolder = function(cameraNumber) {
