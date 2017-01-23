@@ -932,11 +932,13 @@ intervalometer.getTimelapseData = function (clipNumber, cameraNumber, callback) 
                 console.log("camera number out of range", err);
                 return callback && callback("invalid camera number");
             }
+            console.log("getting frames for", name);
             db.getTimelapseFrames(clip.id, cameraNumber, function(err, clipFrames){
                 if(err || !clipFrames) {
                     console.log("error getting clip frames from db", err);
                     return callback && callback("error opening clip frames");
                 }
+                console.log("retrieved " + clipFrames.length + " frames for", name);
                 for(var i = 0; i < clipFrames.length; i++) {
                     var fileNumberString = clipFrames[i].details.fileName.match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
                     dataSet.push({
@@ -945,6 +947,7 @@ intervalometer.getTimelapseData = function (clipNumber, cameraNumber, callback) 
                         evSetting: clipFrames[i].details.targetEv
                     });
                 }
+                if (callback) callback(null, dataSet);
             });
         });
     }
@@ -972,6 +975,7 @@ intervalometer.writeXMPs = function(clipNumber, cameraNumber, destinationFolder,
             }
             if (callback) callback();
         } else {
+            console.log("intervalometer.writeXMPs: ", err);
             if (callback) callback(err);
         }
     });
