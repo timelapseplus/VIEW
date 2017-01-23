@@ -2195,7 +2195,8 @@ nodeCleanup(function (exitCode, signal) {
             console.log("_getActiveHandles:", process._getActiveHandles());
             console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
-            process.exit();
+            //process.exit();
+            process.kill(process.pid);
         });
     }
     return false;

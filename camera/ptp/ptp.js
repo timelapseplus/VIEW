@@ -423,76 +423,78 @@ function padNumber(n, width) {
 }
 var captureIndex = 1;
 camera.capture = function(options, callback) {
-    var eachCamera = doEachMulti();
-    if(eachCamera !== false) {
-        if(camera.supports.destination || options) {
-            eachCamera(function(port, isPrimary, send) {
-                send({
-                    type: 'camera',
-                    do: 'capture',
-                    options: options,
-                    id: isPrimary ? getCallbackId(callback) : null
-                });
-            });
-        } else {
-            if(camera.sdPresent) {
-                camera.mountSd(function(err) {
-                    if(err) {
-                        callback && callback("Error mounting SD card\nSystem message:", err);
-                    } else {
-                        var folder = "/media/view-raw-images";
-                        exec('mkdir -p ' + folder, function() {
-                            fs.readdir(folder, function(err, list) {
-                                var width = 6;
-                                var name = "img";
-                                if(!err && list) {
-                                    list = list.map(function(item) {
-                                        return item.replace(/\.[^.]+$/, "");
-                                    });
-                                    console.log("list", list);
-                                    while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
-                                }
-                                eachCamera(function(port, isPrimary, send) {
-                                    if(!isPrimary) return;
-                                    var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
-                                    if(!options) options = {};
-                                    options.saveRaw = saveRaw;
-                                    console.log("Saving RAW capture to", options.saveRaw);
-                                    var capture = {
-                                        type: 'camera',
-                                        do: 'capture',
-                                        options: options,
-                                        id: isPrimary ? getCallbackId(function(err){
-                                            setTimeout(camera.unmountSd, 1000);
-                                            callback && callback(err);
-                                        }) : null
-                                    }
-                                    console.log(capture);
-                                    send(capture);
-                                });
-                            });
-                        });
-                    }
-                });
-            } else {
-                callback && callback("SD card required in VIEW");
-            }
-        }
-    } else {
-        callback && callback("not connected");
+    if(!camera.connected) {
+        return callback && callback("not connected");
     }
-}
-camera.captureTethered = function(callback) {
-    var eachCamera = doEachMulti();
-    if(eachCamera !== false) {
-        eachCamera(function(port, isPrimary, send) {
-            send({
+    if(camera.supports.destination || options) {
+        var err = doEachCamera(function(port, isPrimary, worker) {
+            worker.send({
                 type: 'camera',
-                do: 'captureTethered',
+                do: 'capture',
+                options: options,
                 id: isPrimary ? getCallbackId(callback) : null
             });
         });
+        if(err) {
+            return callback && callback("not connected");
+        }
     } else {
+        if(camera.sdPresent) {
+            camera.mountSd(function(err) {
+                if(err) {
+                    callback && callback("Error mounting SD card\nSystem message:", err);
+                } else {
+                    var folder = "/media/view-raw-images";
+                    exec('mkdir -p ' + folder, function() {
+                        fs.readdir(folder, function(err, list) {
+                            var width = 6;
+                            var name = "img";
+                            if(!err && list) {
+                                list = list.map(function(item) {
+                                    return item.replace(/\.[^.]+$/, "");
+                                });
+                                console.log("list", list);
+                                while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
+                            }
+                            var err = doEachCamera(function(port, isPrimary, worker) {
+                                if(!isPrimary) return;
+                                var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
+                                if(!options) options = {};
+                                options.saveRaw = saveRaw;
+                                console.log("Saving RAW capture to", options.saveRaw);
+                                var capture = {
+                                    type: 'camera',
+                                    do: 'capture',
+                                    options: options,
+                                    id: isPrimary ? getCallbackId(function(err){
+                                        setTimeout(camera.unmountSd, 1000);
+                                        callback && callback(err);
+                                    }) : null
+                                }
+                                console.log(capture);
+                                worker.send(capture);
+                            });
+                            if(err) {
+                                return callback && callback("not connected");
+                            }
+                        });
+                    });
+                }
+            });
+        } else {
+            callback && callback("SD card required in VIEW");
+        }
+    }
+}
+camera.captureTethered = function(callback) {
+    var err = doEachCamera(function(port, isPrimary, worker) {
+        worker.send({
+            type: 'camera',
+            do: 'captureTethered',
+            id: isPrimary ? getCallbackId(callback) : null
+        });
+    });
+    if(err) {
         callback && callback("not connected");
     }
 }
@@ -626,22 +628,21 @@ camera.focus = function(step, repeat, callback) {
     } else callback && callback("not connected");
 }
 
-function doEachMulti() {
+function doEachCamera(callback) {
     if(camera.connected) {
         var worker = getPrimaryWorker();
-        if(!worker) return false;
-        return (function(pw) { return function(callback) {
-            callback(camera.primaryPort, true, pw.send);
-            if(camera.synchronized) {
-                for(var i = 0; i < workers.length; i++) {
-                    if(workers[i].connected && workers[i].port != camera.primaryPort) {
-                        callback(workers[i].port, false, workers[i].send);
-                    }
+        if(!worker) return true; // error
+        callback(camera.primaryPort, true, worker);
+        if(camera.synchronized) {
+            for(var i = 0; i < workers.length; i++) {
+                if(workers[i].connected && workers[i].port != camera.primaryPort) {
+                    callback(workers[i].port, false, workers[i].send);
                 }
             }
-        };})(worker);
-    } else {
+        }
         return false;
+    } else {
+        return true; // error
     }
 }
 
@@ -669,20 +670,19 @@ function getSendMulti() {
 }
 
 camera.set = function(item, value, callback, _worker) {
-    var send = false;
+    var cbId = getCallbackId(callback);
+    var cmd = {
+        type: 'camera',
+        set: item,
+        value: value,
+        id: cbId
+    };
     if(_worker && worker.send) {
-        send = _worker.send
-    } else {
-        send = getSendMulti();
-    }
-    if(send !== false) {
-        send({
-            type: 'camera',
-            set: item,
-            value: value,
-            id: getCallbackId(callback)
-        });
-    } else {
+        _worker.send(cmd);
+    } else if(doEachCamera(function(port, isPrimary, worker) {
+        cmd.id = isPrimary ? cbId : null;
+        worker.send(cmd);
+    })){
         callback && callback("not connected");
     }
 }

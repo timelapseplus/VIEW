@@ -133,7 +133,7 @@ function closeApp() {
     if(wsRemote && wsRemote.destroy) {
         wsRemote.close();
     }
-    wss.clients.forEach(function each(client) {
+    wss.clients.forEach(function (client) {
         try {
             if (client && client.close) client.close();
         } catch (err) {
