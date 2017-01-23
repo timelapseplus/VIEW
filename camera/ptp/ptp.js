@@ -636,7 +636,7 @@ function doEachCamera(callback) {
         if(camera.synchronized) {
             for(var i = 0; i < workers.length; i++) {
                 if(workers[i].connected && workers[i].port != camera.primaryPort) {
-                    callback(workers[i].port, false, workers[i].send);
+                    callback(workers[i].port, false, workers[i]);
                 }
             }
         }
