@@ -196,7 +196,7 @@ exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
 	if(closed) return callback && callback(true);
 	if(!cameraNumber) cameraNumber = 1;
 	console.log("query=", "SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'");
-	dbTl.get("SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'", function(err, data){
+	dbTl.all("SELECT * FROM clip_frames WHERE clip_id = '" + tlId + "' AND camera = '" + cameraNumber + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
@@ -243,7 +243,7 @@ exports.getTimelapseList = function(limit, offset, callback) {
 	offset = parseInt(offset);
 	if(!offset) offset = 0;
 
-	dbTl.get("SELECT * FROM clips ORDER BY date DESC LIMIT " + limit + "," + offset, function(err, data){
+	dbTl.all("SELECT * FROM clips ORDER BY date DESC LIMIT " + limit + "," + offset, function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
