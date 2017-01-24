@@ -212,6 +212,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	details = serialize(details);
+	console.log("cameraNumber:", cameraNumber);
 	evCorrection = evCorrection || 0;
 	cameraNumber = parseInt(cameraNumber);
 	cameraNumber = cameraNumber || 0;
