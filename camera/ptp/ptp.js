@@ -71,12 +71,13 @@ function getCallbackId(cb) {
 function runCallback(cbData) {
     if (cbData && cbData.id && cbStore[cbData.id.toString()]) {
         var cb = cbStore[cbData.id.toString()];
-        cb(cbData.err, cbData.data);
-        delete cbStore[cbData.id.toString()]
+        cb && cb(cbData.err, cbData.data);
+        delete cbStore[cbData.id.toString()];
     }
 }
 
 function errorCallbacks(err) {
+    console.log("running remaining callbacks:", cbStore);
     for (var i in cbStore) {
         runCallback({
             id: i,
