@@ -17,7 +17,7 @@ exports.init = function(menuController) {
 }
 
 function load(program, selected) {
-    if(!program) return exports.back();
+    if(!program) return;// exports.back();
     if (program.alternate && typeof program.alternate == "function") {
         var alternate = program.alternate();
         if (alternate !== false) {
