@@ -431,6 +431,7 @@ camera.capture = function(options, callback) {
     }
     if(camera.supports.destination || options) { // time-lapse program or basic capture
         var imagePath;
+        if(!options) options = {};
         if(options.saveRaw) {
             imagePath = options.saveRaw;
         }
@@ -444,6 +445,7 @@ camera.capture = function(options, callback) {
             if(options.saveRaw) {
                 options.saveRaw = imagePath + '-cam' + cameraIndex;
             }
+            options.cameraIndex = cameraIndex;
             functionList.push((function(obj, isP, i){
                 return function(cb) {
                     obj.id = getCallbackId(function(err, res) {

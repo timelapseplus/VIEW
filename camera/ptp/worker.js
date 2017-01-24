@@ -106,16 +106,16 @@ process.on('message', function(msg) {
 
 sendEvent('online');
 
-function thumbnailFileFromIndex(index) {
+function thumbnailFileFromIndex(index, cameraIndex) {
     if(!thumbnailPath) return "";
     var indexStr = (index + 1).toString();
     while (indexStr.length < 5) {
         indexStr = '0' + indexStr;
     }
-    return thumbnailPath + "/img" + indexStr + ".jpg"
+    return thumbnailPath + "/img" + indexStr + "-cam" + cameraIndex + ".jpg"
 }
 
-function saveThumbnail(jpgBuffer, index, exposureCompensation) {
+function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     if (thumbnailPath) {
         var indexStr = (index + 1).toString();
         fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
@@ -125,7 +125,7 @@ function saveThumbnail(jpgBuffer, index, exposureCompensation) {
             }
             image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
-                    fs.writeFile(thumbnailFileFromIndex(index), jpgBuf);
+                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex), jpgBuf);
                 }
             });
         });
@@ -137,7 +137,7 @@ function processRawPath(path, options, info, callback) {
     image.getJpegFromRawFile(path, null, function(err, jpg) {
         //if (!options.index) options.index = 0;
         if(options.index || options.index===0) {
-            saveThumbnail(jpg, options.index, options.exposureCompensation);
+            saveThumbnail(jpg, options.index, options.cameraIndex, options.exposureCompensation);
         }
         var dest;
         if (options.saveRaw) {
@@ -249,7 +249,7 @@ function capture(options, callback) {
             if (options.thumbnail && supports.thumbnail) {
                 //if (!options.index) options.index = 0;
                 if(options.index || options.index===0) {
-                    saveThumbnail(photo, options.index, options.exposureCompensation);
+                    saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                     sendEvent('status', "analyzing photo");
                     image.exposureValue(photo, function(err, ev) {
                         console.log("adjusting ev by ", options.exposureCompensation);

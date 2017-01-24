@@ -347,7 +347,7 @@ function runPhoto() {
                     status.path = photoRes.file;
                     if(photoRes.cameraCount > 1) {
                         for(var i = 0; i < photoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraNumber, photoRes[i].thumbnailPath);
+                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraIndex, photoRes[i].thumbnailPath);
                         }
                     } else {
                         db.setTimelapseFrame(status.id, 0, getDetails(), 1, photoRes.thumbnailPath);
