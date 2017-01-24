@@ -748,12 +748,18 @@ camera.getSettings = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.saveThumbnails = function(path, callback) {
-    var worker = getPrimaryWorker();
-    if (worker && camera.connected) worker.send({
-        'type': 'setup',
-        'set': 'thumbnailPath',
-        'value': path
-    });  else callback && callback("not connected");
+    if (camera.connected) {
+        doEachCamera(function(port, isPrimary, worker) { 
+            worker.send({
+                'type': 'setup',
+                'set': 'thumbnailPath',
+                'value': path
+            });
+        });
+        callback && callback(null);
+    } else {
+        callback && callback("not connected");
+    }
 }
 
 camera.saveToCameraCard = function(bool, callback) {
