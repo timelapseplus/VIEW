@@ -701,8 +701,21 @@ if (VIEW_HARDWARE) {
             action: {
                 type: "function",
                 fn: function(arg, cb) {
-                    var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, cb);
+                    intervalometer.getLastTimelapse(function(err, timelapse) {
+                        if (timelapse) {
+                            if(timelapse.path) {
+                                oled.video(timelapse.path, timelapse.frames, 30, cb);
+                            } else {
+                                db.getTimelapseFrames(timelapse.id, cameraNumber, function(err, clipFrames){
+                                    if(!err && clipFrames) {
+                                        var framesPaths = clipFrames.map(function(frame){
+                                            return frame.thumbnail;
+                                        });
+                                        oled.video(null, framesPaths, 30, cb);
+                                    }
+                                });
+                            }
+                        } 
                     });
                 }
             }
@@ -717,9 +730,24 @@ if (VIEW_HARDWARE) {
         type: "timelapse",
         enter: function(){
             var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, function(){
-                    ui.reload();
-                });
+                if (timelapse) {
+                    if(timelapse.path) {
+                        oled.video(timelapse.path, timelapse.frames, 30, function(){
+                            ui.reload();
+                        });
+                    } else {
+                        db.getTimelapseFrames(timelapse.id, cameraNumber, function(err, clipFrames){
+                            if(!err && clipFrames) {
+                                var framesPaths = clipFrames.map(function(frame){
+                                    return frame.thumbnail;
+                                });
+                                oled.video(null, framesPaths, 30, function(){
+                                    ui.reload();
+                                });
+                            }
+                        });
+                    }
+                } 
             });
         },
         button3: function(){
@@ -941,6 +969,18 @@ if (VIEW_HARDWARE) {
                                         arg: clip,
                                         fn: function(c, cb2) {
                                             oled.video(c.path, c.frames, 30, cb2);
+                                            if(c.path) {
+                                                oled.video(c.path, c.frames, 30, cb);
+                                            } else {
+                                                db.getTimelapseFrames(c.id, cameraNumber, function(err, clipFrames){
+                                                    if(!err && clipFrames) {
+                                                        var framesPaths = clipFrames.map(function(frame){
+                                                            return frame.thumbnail;
+                                                        });
+                                                        oled.video(null, framesPaths, 30, cb);
+                                                    }
+                                                });
+                                            }
                                         }
                                     },
                                     button3: function(item) {
@@ -2048,13 +2088,28 @@ if (VIEW_HARDWARE) {
                 oled.videoSkipFrames(30*10);
             } else {
                 gestureVideoPlaying = true;
-                var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
-                    if (timelapse) oled.video(timelapse.path, timelapse.frames, 30, function() {
-                        gestureVideoPlaying = false;
-                        gestureModeTimer();
-                    });
+                intervalometer.getLastTimelapse(function(err, timelapse) {
+                    if (timelapse) {
+                        if(timelapse.path) {
+                            oled.video(timelapse.path, timelapse.frames, 30, function() {
+                                gestureVideoPlaying = false;
+                                gestureModeTimer();
+                            });
+                        } else {
+                            db.getTimelapseFrames(timelapse.id, cameraNumber, function(err, clipFrames){
+                                if(!err && clipFrames) {
+                                    var framesPaths = clipFrames.map(function(frame){
+                                        return frame.thumbnail;
+                                    });
+                                    oled.video(null, framesPaths, 30, function() {
+                                        gestureVideoPlaying = false;
+                                        gestureModeTimer();
+                                    });
+                                }
+                            });
+                        }
+                    } 
                 });
-                //}
             }
         }
     });

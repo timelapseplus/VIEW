@@ -785,7 +785,12 @@ var videoCallback = null;
 var skipFrames = 0;
 oled.video = function(videoPathFormat, frames, fps, callback) {
     if(oled.videoRunning) return;
-    if(!frames) return;
+    var frameArray = null;
+    if(!frames || (!videoPathFormat && typeof frames != array)) return;
+    if(typeof frames == 'array') {
+        frameArray = frames;
+        frames = frameArray.length;
+    }
     oled.block();
     videoCallback = callback;
     fb.clear();
@@ -795,24 +800,31 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
     var indexString, paddingLength;
     var frameComplete = true;
     var frameLineFactor = (160 - 6) / frames;
+
     videoIntervalHandle = setInterval(function(){
         if(!frameComplete) {
             console.log("dropping frame #" + index);
             return; // drop frame
         }
         frameComplete = false;
-        frameIndex++;
         frameIndex += skipFrames;
         skipFrames = 0;
         if(frameIndex > frames) oled.stopVideo();
-        indexString = frameIndex.toString();
-        paddingLength = 5 - indexString.length;
-        while(paddingLength > 0) {
-            paddingLength--;
-            indexString = '0' + indexString;
+
+        if(frameArray) {
+            fb.jpeg(0, 0, frameArray[frameIndex]);
+            frameIndex++;
+        } else {
+            frameIndex++;
+            indexString = frameIndex.toString();
+            paddingLength = 5 - indexString.length;
+            while(paddingLength > 0) {
+                paddingLength--;
+                indexString = '0' + indexString;
+            }
+            //fb.jpegUnbuffered(0, 0, videoPathFormat.replace('%05d', indexString));
+            fb.jpeg(0, 0, videoPathFormat.replace('%05d', indexString));
         }
-        //fb.jpegUnbuffered(0, 0, videoPathFormat.replace('%05d', indexString));
-        fb.jpeg(0, 0, videoPathFormat.replace('%05d', indexString));
         color("background");
         fb.line(3, 127 - 3, 159 - 3, 127 - 3, 2);
         color("primary");
