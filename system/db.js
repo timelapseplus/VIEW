@@ -228,7 +228,8 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			} else {
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "'");
 			}
-			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber + "', '" + thumbnail + "')", callback);
+			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail);
+			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
 		}
 	});
 }
