@@ -4,7 +4,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var cluster = require('cluster');
 var async = require('async');
-
+var _ = require('underscore');
 var workers = [];
 
 var cameraConnected = false;
@@ -462,7 +462,7 @@ camera.capture = function(options, callback) {
                 })({
                     type: 'camera',
                     do: 'capture',
-                    options: options,
+                    options: _.clone(options),
                     id: null
                 }, isPrimary, cameraIndex)
             );

@@ -225,11 +225,12 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			if(data.frames) frames = parseInt(data.frames);
 			frames++;
 			if(!data.thumbnail) {
+				console.log("setting clip thumbnail to:", thumbnail);
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
 			} else {
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
 			}
-			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail);
+			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail, " clip thumbnail:'" + data.thumbnail + "'");
 			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
 		}
 	});
