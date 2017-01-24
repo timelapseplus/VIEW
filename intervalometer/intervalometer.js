@@ -699,20 +699,36 @@ intervalometer.getTimelapseClip = function(clipNumber, callback) {
     //console.log("fetching timelapse clip " + clipNumber);
     var clip = {};
     var folder = TLROOT + "/tl-" + clipNumber;
-    getClipFramesCount(clipNumber, function(err, frames) {
-        clip.frames = frames;
-        if (!clip.frames) {
-            if (err) console.log("clip frames err:", err, clip);
-            return callback(null, null);
+    db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
+        if(!err && dbClip) {
+            clip.frames = dbClip.frames;
+            clip.name = "TL-" + clipNumber;
+            if(dbClip.thumbnail) {
+                fs.readFile(dbClip.thumbnail, function(err, jpegData) {
+                    clip.image = jpegData;
+                    //if (err) console.log("clip fetch err:", err, clip);
+                    callback(null, err ? null : clip);
+                });
+            } else {
+                callback(null, null);
+            }
+        } else {
+            getClipFramesCount(clipNumber, function(err, frames) {
+                clip.frames = frames;
+                if (!clip.frames) {
+                    if (err) console.log("clip frames err:", err, clip);
+                    return callback(null, null);
+                }
+                clip.index = clipNumber;
+                clip.name = "TL-" + clipNumber;
+                clip.path = folder + "/img%05d.jpg";
+                fs.readFile(folder + "/img00001.jpg", function(err, jpegData) {
+                    clip.image = jpegData;
+                    //if (err) console.log("clip fetch err:", err, clip);
+                    callback(null, err ? null : clip);
+                });
+            });
         }
-        clip.index = clipNumber;
-        clip.name = "TL-" + clipNumber;
-        clip.path = folder + "/img%05d.jpg";
-        fs.readFile(folder + "/img00001.jpg", function(err, jpegData) {
-            clip.image = jpegData;
-            //if (err) console.log("clip fetch err:", err, clip);
-            callback(null, err ? null : clip);
-        });
     });
 }
 

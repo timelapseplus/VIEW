@@ -258,7 +258,7 @@ function capture(options, callback) {
                         ev = ev + options.exposureCompensation;
                         console.log("ev:", ev);
                         sendEvent('status', "photo ev: " + ev);
-                        sendEvent('ev' + options.cameraIndex, ev);
+                        //sendEvent('ev', ev);
                         if (callback) callback(err, {
                             ev: ev,
                             file: info,
