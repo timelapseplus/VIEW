@@ -701,6 +701,7 @@ intervalometer.getTimelapseClip = function(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
     db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
         if(!err && dbClip) {
+            clip.index = clipNumber;
             clip.frames = dbClip.frames;
             clip.name = "TL-" + clipNumber;
             if(dbClip.thumbnail) {
