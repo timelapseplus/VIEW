@@ -120,7 +120,7 @@ exports.getJpegFromRawFile = function(rawImagePath, crop, callback) {
 }
 
 exports.downsizeJpeg = function(jpeg, size, crop, callback) {
-    console.log("Resizing photo...");
+    //console.log("Resizing photo...");
     if (!size) size = {};
     if (!size.x) x = (size.y > 0) ? size.y * 1.5 : 300;
     if (!size.y) size.y = size.x / 1.5;
@@ -130,10 +130,10 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     var jpegConfig = {};
     if (typeof jpeg == "string") {
-        console.log("downsizeJpeg: reading image file", jpeg);
+        //console.log("downsizeJpeg: reading image file", jpeg);
         jpegBuf = fs.readFileSync(jpeg);
     } else {
-        console.log("downsizeJpeg: assuming image buffer");
+        //console.log("downsizeJpeg: assuming image buffer");
         jpegBuf = jpeg;
     }
 
@@ -154,7 +154,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
                 if (crop.y < 0) crop.y = 0;
                 if (crop.x > imgSize.width - size.x) crop.x = imgSize.width - size.x;
                 if (crop.y > imgSize.height - size.y) crop.y = imgSize.height - size.y;
-                console.log("cropping to ", crop);
+                //console.log("cropping to ", crop);
                 thm = img.crop(crop.x, crop.y, size.x, size.y, size.q).process();
             } else {
                 console.log("failed to read image size; not cropping");
@@ -163,7 +163,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         } else {
             thm = img.downsize(size.x, size.y, size.q).process();
         }
-        console.log("downsizeJpeg: Done.");
+        //console.log("downsizeJpeg: Done.");
     } catch (e) {
         console.log("Error resizing photo", e);
         err = e;

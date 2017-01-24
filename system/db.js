@@ -180,7 +180,7 @@ exports.deleteTimelapse = function(tlName, callback) {
 
 exports.getTimelapseByName = function(tlName, callback) {
 	if(closed) return callback && callback(true);
-	console.log("db.getTimelapseByName: fetching " + tlName);
+	//console.log("db.getTimelapseByName: fetching " + tlName);
 	dbTl.get("SELECT * FROM clips WHERE name = '" + tlName.toLowerCase() + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
