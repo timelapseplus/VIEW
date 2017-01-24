@@ -239,6 +239,7 @@ function capture(options, callback) {
         }
     }
     console.log("cameraOptions:", captureOptions);
+    console.log("options:", options);
     camera.takePicture(captureOptions, function(err, photo, info) {
         console.log("running camera.takePicture() -> callback()");
         cameraBusy = false;

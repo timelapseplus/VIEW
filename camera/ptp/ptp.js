@@ -77,7 +77,7 @@ function runCallback(cbData) {
 }
 
 function errorCallbacks(err) {
-    console.log("running remaining callbacks:", cbStore);
+    console.log("running remaining callbacks:", JSON.stringify(cbStore));
     for (var i in cbStore) {
         runCallback({
             id: i,
@@ -447,22 +447,25 @@ camera.capture = function(options, callback) {
                 options.saveRaw = imagePath + '-cam' + cameraIndex;
             }
             options.cameraIndex = cameraIndex;
-            functionList.push((function(obj, isP, i){
-                return function(cb) {
-                    obj.id = getCallbackId(function(err, res) {
-                        if(!res) res = {};
-                        res.cameraIndex = i;
-                        res.isPrimary = isP;
-                        cb && cb(err, res);
-                    });
-                    worker.send(obj);
-                }
-            })({
-                type: 'camera',
-                do: 'capture',
-                options: options,
-                id: isPrimary ? getCallbackId(callback) : null
-            }, isPrimary, cameraIndex));
+            functionList.push(
+                (function(obj, isP, i){
+                    return function(cb) {
+                        obj.id = getCallbackId(function(err, res) {
+                            if(!res) res = {};
+                            console.log("capture callback for camera ", i);
+                            res.cameraIndex = i;
+                            res.isPrimary = isP;
+                            cb && cb(err, res);
+                        });
+                        worker.send(obj);
+                    }
+                })({
+                    type: 'camera',
+                    do: 'capture',
+                    options: options,
+                    id: null
+                }, isPrimary, cameraIndex)
+            );
         });
         if(!err) {
             async.parallel(functionList, function(err, results){
