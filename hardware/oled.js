@@ -786,7 +786,7 @@ var skipFrames = 0;
 oled.video = function(videoPathFormat, frames, fps, callback) {
     if(oled.videoRunning) return;
     var frameArray = null;
-    if(!frames || (!videoPathFormat && typeof frames != array)) return;
+    if(!frames || (!videoPathFormat && typeof frames != 'array')) return;
     if(typeof frames == 'array') {
         frameArray = frames;
         frames = frameArray.length;
