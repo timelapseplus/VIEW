@@ -790,6 +790,7 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
     if(typeof frames == 'array') {
         frameArray = frames;
         frames = frameArray.length;
+        console.log("running video from array of frames with length", frames);
     }
     oled.block();
     videoCallback = callback;
