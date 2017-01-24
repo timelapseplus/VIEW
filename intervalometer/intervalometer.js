@@ -788,33 +788,51 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
         //console.log("fetching timelapse clip " + clipNumber);
         var clip = {};
         var folder = TLROOT + "/tl-" + clipNumber;
-        getClipFramesCount(clipNumber, function(err, frames) {
-            clip.frames = frames;
-            if (!clip.frames) {
-                //if (err) console.log("clip frames err:", err, clip);
-                return callback(null, null);
-            }
-            clip.name = "TL-" + clipNumber;
-            clip.path = folder + "/img%05d.jpg";
+        db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
+            if(!err && dbClip) {
+                db.getTimelapseFrames(dbClip.id, 1, function(err, clipFrames){
+                    if(!err && clipFrames) {
+                        var framesPaths = clipFrames.map(function(frame){
+                            return frame.thumbnail;
+                        });
+                        async.map(framesPaths, fs.readFile, function(err, images) {
+                            callback(err, images);
+                        });
+                    } else {
+                        callback(null, null);
+                    }
 
-            function getTimelapseImage(index, cb) {
-                index++;
-                indexString = index.toString();
-                while (indexString.length < 5) indexString = "0" + indexString;
-                fs.readFile(folder + "/img" + indexString + ".jpg", function(err, jpegData) {
-                    cb(null, err ? null : jpegData);
+                });
+
+            } else {
+                getClipFramesCount(clipNumber, function(err, frames) {
+                    clip.frames = frames;
+                    if (!clip.frames) {
+                        //if (err) console.log("clip frames err:", err, clip);
+                        return callback(null, null);
+                    }
+                    clip.name = "TL-" + clipNumber;
+                    clip.path = folder + "/img%05d.jpg";
+
+                    function getTimelapseImage(index, cb) {
+                        index++;
+                        indexString = index.toString();
+                        while (indexString.length < 5) indexString = "0" + indexString;
+                        fs.readFile(folder + "/img" + indexString + ".jpg", function(err, jpegData) {
+                            cb(null, err ? null : jpegData);
+                        });
+                    }
+
+                    var clipImages = [];
+                    for (var i = 0; i < clip.frames; i++) clipImages.push(i);
+
+                    async.map(clipImages, getTimelapseImage, function(err, images) {
+                        callback(null, images.filter(function(image) {
+                            return image != null;
+                        }));
+                    });
                 });
             }
-
-            var clipImages = [];
-            for (var i = 0; i < clip.frames; i++) clipImages.push(i);
-
-            async.map(clipImages, getTimelapseImage, function(err, images) {
-                callback(null, images.filter(function(image) {
-                    return image != null;
-                }));
-            });
-        });
     } catch (e) {
         if(callback) callback(e);
     }

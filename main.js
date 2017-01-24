@@ -968,16 +968,15 @@ if (VIEW_HARDWARE) {
                                         type: "function",
                                         arg: clip,
                                         fn: function(c, cb2) {
-                                            oled.video(c.path, c.frames, 30, cb2);
                                             if(c.path) {
-                                                oled.video(c.path, c.frames, 30, cb);
+                                                oled.video(c.path, c.frames, 30, cb2);
                                             } else {
                                                 db.getTimelapseFrames(c.id, 1, function(err, clipFrames){
                                                     if(!err && clipFrames) {
                                                         var framesPaths = clipFrames.map(function(frame){
                                                             return frame.thumbnail;
                                                         });
-                                                        oled.video(null, framesPaths, 30, cb);
+                                                        oled.video(null, framesPaths, 30, cb2);
                                                     }
                                                 });
                                             }
