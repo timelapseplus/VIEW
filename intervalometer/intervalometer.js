@@ -395,7 +395,10 @@ function runPhoto() {
             } 
 
             intervalometer.emit("status", status);
-            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1000);
+            var shutterEv;
+            if(camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
+            var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1000;
+            setTimeout(motionSyncPulse, msDelayPulse);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);

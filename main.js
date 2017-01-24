@@ -2618,7 +2618,7 @@ intervalometer.on('status', function(msg) {
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
-        apertureText: "f/" + camera.ptp.settings.details.aperture ? camera.ptp.settings.aperture : camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture),
+        apertureText: camera.ptp.settings.details.aperture ? "f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) : camera.ptp.settings.aperture,
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,
@@ -2640,6 +2640,9 @@ intervalometer.on('status', function(msg) {
 });
 
 intervalometer.on('error', function(msg) {
+    if(ui.currentOrigin() == 'alert') {
+        ui.back();
+    }
     ui.alert('ERROR', msg);
     app.send('intervalometerError', {
         msg: msg

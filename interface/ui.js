@@ -223,6 +223,9 @@ exports.alert = function(title, text) {
         value: text
     });
 }
+exports.currentOrigin = function() {
+    return currentProgram.origin;
+}
 exports.dismissAlert = function() {
     activity();
     if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) back();
