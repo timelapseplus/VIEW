@@ -784,6 +784,7 @@ var videoIntervalHandle = null;
 var videoCallback = null;
 var skipFrames = 0;
 oled.video = function(videoPathFormat, frames, fps, callback) {
+    console.log("playing video");
     if(oled.videoRunning) return;
     var frameArray = null;
     if(!frames || (!videoPathFormat && typeof frames != 'array')) return;
