@@ -112,6 +112,7 @@ function thumbnailFileFromIndex(index, cameraIndex) {
     while (indexStr.length < 5) {
         indexStr = '0' + indexStr;
     }
+    if(!cameraIndex) cameraIndex = 1;
     return thumbnailPath + "/img" + indexStr + "-cam" + cameraIndex + ".jpg"
 }
 
@@ -261,7 +262,7 @@ function capture(options, callback) {
                         if (callback) callback(err, {
                             ev: ev,
                             file: info,
-                            thumbnailPath: thumbnailFileFromIndex(options.index)
+                            thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
                         });
                     });
                 }
