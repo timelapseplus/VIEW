@@ -412,7 +412,7 @@ function runPhoto() {
                     status.path = photoRes.file;
                     if(photoRes.cameraCount > 1) {
                         for(var i = 0; i < photoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraNumber, photoRes.cameraResults[i].thumbnailPath);
+                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
                         }
                     } else {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
