@@ -833,6 +833,7 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
                     });
                 });
             }
+        });
     } catch (e) {
         if(callback) callback(e);
     }
