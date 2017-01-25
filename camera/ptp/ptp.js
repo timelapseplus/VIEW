@@ -768,7 +768,7 @@ camera.completeWrites = function(callback) {
     var functionList = [];
     var err = doEachCamera(function(port, isPrimary, worker) {
         functionList.push(
-            (function(obj, isP, i){
+            (function(obj){
                 return function(cb) {
                     obj.id = getCallbackId(worker.port, function(err, res) {
                         cb && cb(err, res);
@@ -779,7 +779,7 @@ camera.completeWrites = function(callback) {
                 type: 'camera',
                 do: 'waitComplete',
                 id: null
-            }, isPrimary, cameraIndex)
+            });
         );
     });
     if(!err) {
