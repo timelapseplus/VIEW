@@ -69,6 +69,7 @@ intervalometer.timelapseFolder = false;
 intervalometer.status = status;
 
 intervalometer.load = function(program) {
+    if(!program.frames) program.frames = Infinity; // Infinity comes back as null from the DB
     intervalometer.currentProgram = _.extendOwn(defaultProgram, intervalometer.currentProgram, program);
 }
 intervalometer.load(defaultProgram);
@@ -288,12 +289,12 @@ function setupExposure(cb) {
         if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
         console.log("EXP: maxShutterLengthMs (interval limted):", maxShutterLengthMs);
         camera.setEv(status.rampEv, {
+            settingsDetails: camera.ptp.settings.details, // this was just refreshed from the above getEv
             maxShutterLengthMs: maxShutterLengthMs,
             isoMax: intervalometer.currentProgram.isoMax,
             isoMin: intervalometer.currentProgram.isoMin,
             shutterMax: intervalometer.currentProgram.shutterMax
         }, function(err, res) {
-
             status.evDiff = res.ev - status.rampEv;
             console.log("EXP: program:", "capture");
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
@@ -430,13 +431,7 @@ function runPhoto() {
                     status.stopping = false;
                     status.message = "done";
                     status.framesRemaining = 0;
-                    setTimeout(function(){
-                        intervalometer.timelapseFolder = false;
-                        camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                        intervalometer.emit("status", status);
-                        camera.ptp.unmountSd();
-                        console.log("==========> END TIMELAPSE", status.tlName);
-                    }, 2000);
+                    intervalometer.cancel('done');
                 }
                 processKeyframes(false, function() {
                     busyPhoto = false;
@@ -512,7 +507,6 @@ intervalometer.cancel = function(reason) {
         else intervalometer.status.message = "time-lapse canceled";
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("status", status);
-
         camera.ptp.completeWrites(function() {
             busyPhoto = false;
             intervalometer.status.running = false;
