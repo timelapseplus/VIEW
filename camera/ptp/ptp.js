@@ -740,6 +740,8 @@ camera.get = function(item) {
     } else callback && callback("not connected");
 }
 camera.getSettings = function(callback) {
+    console.log("retreiving settings from camera");
+    console.trace();
     var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
@@ -759,6 +761,38 @@ camera.saveThumbnails = function(path, callback) {
         callback && callback(null);
     } else {
         callback && callback("not connected");
+    }
+}
+
+camera.completeWrites = function(callback) {
+    var functionList = [];
+    var err = doEachCamera(function(port, isPrimary, worker) {
+        functionList.push(
+            (function(obj, isP, i){
+                return function(cb) {
+                    obj.id = getCallbackId(worker.port, function(err, res) {
+                        cb && cb(err, res);
+                    });
+                    worker.send(obj);
+                }
+            })({
+                type: 'camera',
+                do: 'waitComplete',
+                id: null
+            }, isPrimary, cameraIndex)
+        );
+    });
+    if(!err) {
+        async.parallel(functionList, function(err, results){
+            if(!err && results && results.length > 0) {
+                console.log("camera file writes complete:", res);
+                callback && callback(err, res);
+            } else {
+                callback && callback(err, results);
+            }
+        });
+    } else {
+        return callback && callback("not connected");
     }
 }
 

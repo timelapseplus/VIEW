@@ -95,6 +95,7 @@ process.on('message', function(msg) {
                 console.log("setting crop:", previewCrop);
             }
         }
+        if(msg.do == 'waitComplete') waitComplete(buildCB(msg.id));
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
         if (msg.get == 'all') getConfig(false, msg.cached, buildCB(msg.id));
         if (msg.get == 'settings') getConfig(false, msg.cached, buildCB(msg.id));
@@ -105,6 +106,19 @@ process.on('message', function(msg) {
 });
 
 sendEvent('online');
+
+// runs callback when all active writes to the SD card are complete
+var sdWriting = false;
+function waitComplete(callback) {
+    var checkComplete = function() {
+        if(sdWriting) {
+            setTimeout(checkComplete, 500);
+        } else {
+            callback && callback();
+        }
+    }
+    checkComplete();
+}
 
 function thumbnailFileFromIndex(index, cameraIndex) {
     if(!thumbnailPath) return "";
@@ -148,6 +162,7 @@ function processRawPath(path, options, info, callback) {
                 if(err) {
                     sendEvent('saveError', "Error saving RAW file " + dest);
                 }
+                sdWriting = false;
                 fs.unlink(path);
             });
             if(options.index || options.index===0) {
@@ -158,6 +173,7 @@ function processRawPath(path, options, info, callback) {
                 if (options.exposureCompensation != null) image.writeXMP(dest, options.exposureCompensation, desc, name);
             }
         } else {
+            sdWriting
             fs.unlink(path);
         }
 
@@ -215,6 +231,7 @@ function capture(options, callback) {
         }, 500);
         return;
     }
+    sdWriting = true;
     cameraBusy = true;
     sendEvent('status', "waiting on camera");
     if (!options) {
@@ -249,6 +266,7 @@ function capture(options, callback) {
             errCount = 0;
             console.log("file info:", info);
             if (options.thumbnail && supports.thumbnail) {
+                sdWriting = false;
                 //if (!options.index) options.index = 0;
                 if(options.index || options.index===0) {
                     saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
@@ -280,6 +298,7 @@ function capture(options, callback) {
             errCount++;
             if (errCount > 5) {
                 console.log("err", err);
+                sdWriting = false;
                 sendEvent('captureFailed', err);
                 if (callback) callback(err, null);
             } else {

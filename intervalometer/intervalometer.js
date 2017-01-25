@@ -368,16 +368,7 @@ function runPhoto() {
                     status.running = false;
                     status.message = "done";
                     status.framesRemaining = 0;
-
-                    setTimeout(function(){
-                        intervalometer.timelapseFolder = false;
-                        intervalometer.status.running = false;
-                        intervalometer.status.stopping = false;
-                        camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                        intervalometer.emit("status", status);
-                        camera.ptp.unmountSd();
-                        console.log("==========> END TIMELAPSE", status.tlName);
-                    }, 2000);
+                    intervalometer.cancel('done');
                 }
                 processKeyframes(false, function() {
                     busyPhoto = false;
@@ -463,7 +454,7 @@ function error(msg) {
 
 camera.ptp.on('saveError', function(msg) {
     if (intervalometer.status.running) {
-        intervalometer.cancel();
+        intervalometer.cancel('err');
         error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.");
     }
 });
@@ -510,16 +501,19 @@ intervalometer.validate = function(program) {
 
     return results;
 }
-intervalometer.cancel = function() {
+intervalometer.cancel = function(reason) {
+    if(!reason) reason = 'stopped';
     if (intervalometer.status.running) {
         clearTimeout(timerHandle);
         clearTimeout(delayHandle);
         intervalometer.status.stopping = true;
-        intervalometer.status.message = "stopped";
+        if(reason == 'err') intervalometer.status.message = "stopped due to error";
+        else if(reason == 'done') intervalometer.status.message = "time-lapse complete";
+        else intervalometer.status.message = "time-lapse canceled";
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("status", status);
 
-        if(!busyPhoto || !camera.ptp.connected || intervalometer.status.stopping) {
+        camera.ptp.completeWrites(function() {
             busyPhoto = false;
             intervalometer.status.running = false;
             intervalometer.status.stopping = false;
@@ -528,7 +522,7 @@ intervalometer.cancel = function() {
             camera.ptp.unmountSd();
             intervalometer.emit("status", status);
             console.log("==========> END TIMELAPSE", status.tlName);
-        }
+        });
     }
 }
 
@@ -608,14 +602,14 @@ intervalometer.run = function(program) {
                     camera.ptp.mountSd(function(mountErr) {
                         if(mountErr) {
                             console.log("Error mounting SD card");
-                            intervalometer.cancel();
+                            intervalometer.cancel('err');
                             error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
                         } else {
                             status.mediaFolder = "/media/" + status.tlName;
                             fs.mkdir(status.mediaFolder, function(folderErr) {
                                 if(folderErr) {
                                     console.log("Error creating folder", status.mediaFolder);
-                                    intervalometer.cancel();
+                                    intervalometer.cancel('err');
                                     error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
                                 } else {
                                     start();
@@ -637,12 +631,12 @@ intervalometer.run = function(program) {
                     }
                     errorList += "- " + validationResults.errors[i].reason + val + "\n";
                 }
-                intervalometer.cancel();
+                intervalometer.cancel('err');
                 error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
             }
         });
     } else {
-        intervalometer.cancel();
+        intervalometer.cancel('err');
         error("Camera not connected.  Please verify camera connection via USB and try again.");
         return;
     }
