@@ -784,12 +784,8 @@ camera.completeWrites = function(callback) {
     });
     if(!err) {
         async.parallel(functionList, function(err, results){
-            if(!err && results && results.length > 0) {
-                console.log("camera file writes complete:", res);
-                callback && callback(err, res);
-            } else {
-                callback && callback(err, results);
-            }
+            console.log("camera file writes complete:", results);
+            callback && callback(err, results);
         });
     } else {
         return callback && callback("not connected");
