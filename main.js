@@ -2142,7 +2142,7 @@ function startScan() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
                 noble.startScanning(nmx.btServiceIds, false, function(err){
-                    //console.log("BLE scan started: ", err);
+                    console.log("BLE scan started: ", err);
                 });
             }
             btleScanStarting = false;

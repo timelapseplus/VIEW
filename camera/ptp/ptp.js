@@ -60,26 +60,26 @@ camera.switchPrimary = function(cameraObject) {
     }
 }
 
-function getCallbackId(cb) {
+function getCallbackId(port, cb) {
     if (!cb) return 0;
     cbIndex++;
     if (cbIndex > 300) cbIndex = 1;
-    cbStore[cbIndex.toString()] = cb;
+    cbStore[cbIndex.toString()] = {callback: cb, port: port};
     return cbIndex;
 }
 
 function runCallback(cbData) {
     if (cbData && cbData.id && cbStore[cbData.id.toString()]) {
         var cb = cbStore[cbData.id.toString()];
-        cb && cb(cbData.err, cbData.data);
+        cb && cb.callback && cb.callback(cbData.err, cbData.data);
         delete cbStore[cbData.id.toString()];
     }
 }
 
-function errorCallbacks(err) {
+function errorCallbacks(err, port) {
     console.log("running remaining callbacks:", JSON.stringify(cbStore));
     for (var i in cbStore) {
-        runCallback({
+        if(!port || cbStore[i].port == port) runCallback({
             id: i,
             err: err,
             data: null
@@ -149,21 +149,23 @@ var startWorker = function(port) {
         workers.push(worker);
         worker.on('exit', function(code, signal) {
             console.log("worker exited on port", worker.port);
-            if(worker.port == camera.primaryPort) {
-                errorCallbacks("camera not available");
-                if(camera.disabled) {
-                    disabledCallback && disabledCallback();
-                    camera.connecting = false;
-                } else if (camera.connected) {
-                    process.nextTick(startWorker);
-                    camera.connecting = true;
-                } else {
-                    camera.connecting = false;
-                }
-                camera.connected = false;
-            }
             var index = getWorkerIndex(worker.port);
             workers.splice(index, 1);
+            errorCallbacks("camera disconnected on port" + worker.port, worker.port);
+            if(camera.disabled) {
+                if(worker.port == camera.primaryPort) {
+                    disabledCallback && disabledCallback();
+                    camera.connecting = false;
+                }
+            } else if (camera.connected) {
+                port = worker.port;
+                process.nextTick(function(){startWorker(port)});
+                camera.connecting = true;
+            } else {
+                camera.connecting = false;
+            }
+            if(worker.port == camera.primaryPort) camera.connected = false;
+
             updateCameraCounts();
         });
 
@@ -204,7 +206,6 @@ var startWorker = function(port) {
                 if (msg.event == 'exiting') {
                     if(worker.port == camera.primaryPort) {
                         camera.connected = false;
-                        errorCallbacks("camera disconnected on port", worker.port);
                     }
                 }
 
@@ -450,7 +451,7 @@ camera.capture = function(options, callback) {
             functionList.push(
                 (function(obj, isP, i){
                     return function(cb) {
-                        obj.id = getCallbackId(function(err, res) {
+                        obj.id = getCallbackId(worker.port, function(err, res) {
                             if(!res) res = {};
                             console.log("capture callback for camera ", i);
                             res.cameraIndex = i;
@@ -510,7 +511,7 @@ camera.capture = function(options, callback) {
                                     type: 'camera',
                                     do: 'capture',
                                     options: options,
-                                    id: isPrimary ? getCallbackId(function(err){
+                                    id: isPrimary ? getCallbackId(worker.port, function(err){
                                         setTimeout(camera.unmountSd, 1000);
                                         callback && callback(err);
                                     }) : null
@@ -535,7 +536,7 @@ camera.captureTethered = function(callback) {
         worker.send({
             type: 'camera',
             do: 'captureTethered',
-            id: isPrimary ? getCallbackId(callback) : null
+            id: isPrimary ? getCallbackId(worker.port, callback) : null
         });
     });
     if(err) {
@@ -550,14 +551,14 @@ camera.preview = function(callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'preview',
-        id: getCallbackId(callback)
+        id: getCallbackId(worker.port, callback)
     }); else callback && callback("not connected");
 }
 camera.lvTimerReset = function(callback) {
     var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
-        id: getCallbackId(callback),
+        id: getCallbackId(worker.port, callback),
         do: 'lvTimerReset'
     }); else callback && callback("not connected");
 }
@@ -565,7 +566,7 @@ camera.lvOff = function(callback) {
     var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',
-        id: getCallbackId(callback),
+        id: getCallbackId(worker.port, callback),
         do: 'lvOff'
     }); else callback && callback("not connected");
 }
@@ -586,7 +587,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'zoom',
-        id: getCallbackId(callback),
+        id: getCallbackId(worker.port, callback),
         data: data
     }); else callback && callback("not connected");
 }
@@ -608,7 +609,7 @@ function focusCanon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
-            id: getCallbackId(function() {
+            id: getCallbackId(worker.port, function() {
                 repeat--;
                 if (repeat > 0) {
                     setTimeout(doFocus, 10);
@@ -644,7 +645,7 @@ function focusNikon(step, repeat, callback) {
             type: 'camera',
             set: 'manualfocusdrive',
             value: param,
-            id: getCallbackId(function() {
+            id: getCallbackId(worker.port, function() {
                 repeat--;
                 if (repeat > 0) {
                     setTimeout(doFocus, delay);
@@ -714,17 +715,16 @@ function getSendMulti() {
 }
 
 camera.set = function(item, value, callback, _worker) {
-    var cbId = getCallbackId(callback);
     var cmd = {
         type: 'camera',
         set: item,
         value: value,
-        id: cbId
     };
-    if(_worker && worker.send) {
+    if(_worker && _worker.send) {
+        cmd.id = getCallbackId(_worker.port, callback);
         _worker.send(cmd);
     } else if(doEachCamera(function(port, isPrimary, worker) {
-        cmd.id = isPrimary ? cbId : null;
+        cmd.id = isPrimary ? getCallbackId(worker.port, callback) : null;
         worker.send(cmd);
     })){
         callback && callback("not connected");
@@ -744,7 +744,7 @@ camera.getSettings = function(callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         get: 'settings',
-        id: getCallbackId(callback)
+        id: getCallbackId(worker.port, callback)
     }); else callback && callback("not connected");
 }
 camera.saveThumbnails = function(path, callback) {
