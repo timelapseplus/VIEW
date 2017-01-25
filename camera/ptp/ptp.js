@@ -779,7 +779,7 @@ camera.completeWrites = function(callback) {
                 type: 'camera',
                 do: 'waitComplete',
                 id: null
-            });
+            })
         );
     });
     if(!err) {
