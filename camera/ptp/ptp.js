@@ -250,11 +250,14 @@ if(blockDevices.indexOf('mmcblk1p1') !== -1) {
     exec("mount", function(err, stdout, stderr) {
         if(stdout.indexOf('/dev/mmcblk1p1') !== -1 || stdout.indexOf('/media')) {
             camera.sdMounted = true;
-        } else if(!camera.sdPresent) {
+        } else if(camera.sdPresent == false) {
             // keep folder clean, umount just to be extra safe
+            console.log("checking /media...");
             exec('[ "$(ls -A /media)" ] && ( umount /media; rm -rf /media/*; echo "done" )', function(err, stdout, stderr) {
                 if(stdout) {
                     console.log("cleaned /media folder:", stdout, stderr);
+                } else {
+                    console.log("/media is empty.", stdout, stderr);
                 }
             });
         }
