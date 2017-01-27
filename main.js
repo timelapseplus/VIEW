@@ -68,7 +68,9 @@ if (VIEW_HARDWARE) {
     });
     updates.installIcons();
     oled.init();
-    inputs.start();
+    mcu.init(function(err){
+        inputs.start({knob:err?true:false, mcu: mcu});
+    });
 
     var configureWifi = function() {
         db.get('wifi-status', function(err, wifiStatus) {

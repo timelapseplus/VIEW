@@ -84,38 +84,52 @@ function setupButton(buttonConfig) {
 
 exec("killall gesture");
 exec("killall inputs");
-
-inputs.start = function() {
-    stop = false;
-    if(inputsRunning) return;
-    inputsProcess = spawn(INPUTS_BIN_PATH);
-    inputsRunning = true;
-    console.log("inputs process started");
-    inputsProcess.stdout.on('data', function(chunk) {
-        //console.log("inputs stdin: " + chunk.toString());
-        var matches = chunk.toString().match(/([A-Z])=([A-Z0-9\-]+)/);
-        if (matches && matches.length > 1) {
-            if(matches[1] == 'D') {
-                var dir = matches[2];
-                if(buttons['4']._pressed) dir += "+";
-                inputs.emit('D', dir);
+var options = {};
+var mcuSetup = false;
+inputs.start = function(knobOptions) {
+    options = knobOptions;
+    if(knobOptions.knob) {
+        stop = false;
+        if(inputsRunning) return;
+        inputsProcess = spawn(INPUTS_BIN_PATH);
+        inputsRunning = true;
+        console.log("inputs process started");
+        inputsProcess.stdout.on('data', function(chunk) {
+            //console.log("inputs stdin: " + chunk.toString());
+            var matches = chunk.toString().match(/([A-Z])=([A-Z0-9\-]+)/);
+            if (matches && matches.length > 1) {
+                if(matches[1] == 'D') {
+                    var dir = matches[2];
+                    if(buttons['4']._pressed) dir += "+";
+                    inputs.emit('D', dir);
+                }
             }
-        }
-    });
-    inputsProcess.stderr.on('data', function(chunk) {
-        console.log("inputs stderr: " + chunk.toString());
-        chunk = null;
-    });
-    inputsProcess.on('close', function(code) {
-        console.log("inputs process exited");
-        inputsRunning = false;
-        if (!stop) {
-            setTimeout(function() {
-                if(!stop) inputs.start();
-            }, 500);
-        }
-    });
-
+        });
+        inputsProcess.stderr.on('data', function(chunk) {
+            console.log("inputs stderr: " + chunk.toString());
+            chunk = null;
+        });
+        inputsProcess.on('close', function(code) {
+            console.log("inputs process exited");
+            inputsRunning = false;
+            if (!stop) {
+                setTimeout(function() {
+                    if(!stop) inputs.start();
+                }, 500);
+            }
+        });
+    } else if(options.mcu) {
+        if(mcuSetup) return;
+        mcuSetup = true;
+        options.mcu.on('knob', function(val) {
+            k = 'U';
+            if(val < 0) {
+                k = 'D';
+            }
+            if(buttons['4']._pressed) k += "+";
+            inputs.emit('D', k);
+        });
+    }
 }
 
 inputs.startGesture = function() {

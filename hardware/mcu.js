@@ -1,14 +1,16 @@
+var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var SerialPort = require('serialport');
 var GPS = require('gps');
 var gps = new GPS;
 var MCU_VERSION = 1;
 
-var mcu = {
-	ready: null,
-	gps: gps.state,
-	knob: 0
-};
+
+var mcu = new EventEmitter();
+
+mcu.ready = null;
+mcu.gps = gps.state;
+mcu.knob = 0;
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -22,13 +24,11 @@ mcu.init = function(callback) {
 	});
 }
 
-mcu.init();
-
 function _getVersion(callback) {
 	_send('V', function(err) {
 		setTimeout(function() {
 			callback && callback(err, mcu.version);
-		}, 500);
+		}, 1000);
 	});
 }
 
@@ -46,12 +46,13 @@ function _parseData(data) {
 		mcu.version = version;
 	} else if(data.substr(0, 1) == '$') {
 		gps.update(data);
-		console.log(gps.state);
+		//console.log(gps.state);
 	} else if(data.substr(0, 1) == 'K') {
 		var knob = parseInt(data.substr(2, 1));
 		if(data.substr(1, 1) == '-') knob = 0 - knob;
 		mcu.knob += knob;
-		console.log(knob);
+		mcu.emit('knob', knob);
+		console.log(mcu.knob);
 	}
 }
 
