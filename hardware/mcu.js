@@ -24,7 +24,7 @@ mcu.init = function(callback) {
 
 mcu.init();
 
-function _getVersion = function(callback) {
+function _getVersion(callback) {
 	_send('V', function(err) {
 		setTimeout(function() {
 			callback && callback(err, mcu.version);
