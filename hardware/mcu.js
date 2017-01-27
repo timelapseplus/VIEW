@@ -62,7 +62,7 @@ var _send = function(data, callback) {
 function _connectSerial(path, callback) {
     var port = new SerialPort(path, {
         baudrate: 38400,
-        parser: SerialPort.parsers.readline('\r\n')
+        //parser: SerialPort.parsers.readline('\r\n')
     }, function() {
         console.log('MCU Serial Opened');
         
