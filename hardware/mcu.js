@@ -1,7 +1,7 @@
 var exec = require('child_process').exec;
 var SerialPort = require('serialport');
-var gps = require('gps');
-
+var GPS = require('gps');
+var gps = new GPS;
 var MCU_VERSION = 1;
 
 var mcu = {
