@@ -32,11 +32,12 @@ if (VIEW_HARDWARE) {
     var help = require('./interface/help.js');
     var inputs = require('./hardware/inputs.js');
     var power = require('./hardware/power.js');
+    var mcu = require('./hardware/mcu.js');
 }
 intervalometer.addNmx(nmx);
 
 var wifi = require('./system/wifi.js');
-wifi.power = power; // allow wifi module to control power
+if(power) wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
 var db = require("./system/db.js");
 
