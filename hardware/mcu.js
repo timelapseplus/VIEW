@@ -67,6 +67,7 @@ function _connectSerial(path, callback) {
         console.log('MCU Serial Opened');
         
         port.on('data', function(data) {
+        	console.log("MCU Data: ", data);
         	_parseData(data);
         });
 
