@@ -974,7 +974,7 @@ if (VIEW_HARDWARE) {
                                             if(c.path) {
                                                 oled.video(c.path, c.frames, 30, cb2);
                                             } else {
-                                                db.getTimelapseFrames(c.id, timelapse.primary_camera, function(err, clipFrames){
+                                                db.getTimelapseFrames(c.id, c.primary_camera, function(err, clipFrames){
                                                     if(!err && clipFrames) {
                                                         var framesPaths = clipFrames.map(function(frame){
                                                             return frame.thumbnail;
