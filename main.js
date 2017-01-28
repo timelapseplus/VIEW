@@ -2300,12 +2300,6 @@ db.get('developerMode', function(err, en) {
     }
 });
 
-db.get('gps', function(err, en) {
-    if(!err) {
-        power.gps(en == "yes");
-    }
-});
-
 db.get('autoOffMinutes', function(err, minutes) {
     if(!err) {
         if(minutes === null) minutes = 10;
