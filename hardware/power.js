@@ -61,6 +61,7 @@ function setPower(callback) {
     var setting = powerControlBase;
     if(power.gpsEnabled) setting |= powerGps;
     if(power.wifiEnabled) setting |= powerWifi;
+    console.log("setting power control to 0x" + setting.toString(16));
     axpSet(0x12, setting, callback); // set power switches
 }
 
