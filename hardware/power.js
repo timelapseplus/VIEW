@@ -138,6 +138,7 @@ power.enableAutoOff = function() {
 }
 
 power.gps = function(enable, callback) {
+    if(enable) console.log("powering on GPS");
     power.gpsEnabled = enable;
     setPower(callback);
 }
