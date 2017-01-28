@@ -5,7 +5,7 @@ var async = require('async');
 var power = new EventEmitter();
 
 power.chargeLight = 'enabled';
-power.gpsEnabled = null;
+power.gpsEnabled = true;//null;
 power.wifiEnabled = true;
 power.autoOffMinutes = 10;
 power.autoOffDisabled = false;

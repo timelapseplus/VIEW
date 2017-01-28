@@ -709,7 +709,7 @@ if (VIEW_HARDWARE) {
                             if(timelapse.path) {
                                 oled.video(timelapse.path, timelapse.frames, 30, cb);
                             } else {
-                                db.getTimelapseFrames(timelapse.id, 1, function(err, clipFrames){
+                                db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
                                     if(!err && clipFrames) {
                                         var framesPaths = clipFrames.map(function(frame){
                                             return frame.thumbnail;
@@ -739,7 +739,7 @@ if (VIEW_HARDWARE) {
                             ui.reload();
                         });
                     } else {
-                        db.getTimelapseFrames(timelapse.id, 1, function(err, clipFrames){
+                        db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
                             if(!err && clipFrames) {
                                 var framesPaths = clipFrames.map(function(frame){
                                     return frame.thumbnail;
@@ -974,7 +974,7 @@ if (VIEW_HARDWARE) {
                                             if(c.path) {
                                                 oled.video(c.path, c.frames, 30, cb2);
                                             } else {
-                                                db.getTimelapseFrames(c.id, 1, function(err, clipFrames){
+                                                db.getTimelapseFrames(c.id, timelapse.primary_camera, function(err, clipFrames){
                                                     if(!err && clipFrames) {
                                                         var framesPaths = clipFrames.map(function(frame){
                                                             return frame.thumbnail;
@@ -2098,7 +2098,7 @@ if (VIEW_HARDWARE) {
                                 gestureModeTimer();
                             });
                         } else {
-                            db.getTimelapseFrames(timelapse.id, 1, function(err, clipFrames){
+                            db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
                                 if(!err && clipFrames) {
                                     var framesPaths = clipFrames.map(function(frame){
                                         return frame.thumbnail;
@@ -2506,6 +2506,13 @@ app.on('message', function(msg) {
                     var motion = getMotionStatus();
                     msg.reply('motion', motion);
                 } else if (msg.key == "program") {
+                    if(!intervalometer.currentProgram.keyframes) {
+                        intervalometer.currentProgram.keyframes = [{
+                            focus: 0,
+                            ev: "not set",
+                            motor: {}
+                        }]
+                    }
                     msg.reply('timelapseProgram', {program: intervalometer.currentProgram});
                 } else if (msg.key == "thumbnail") {
                     if (camera.ptp.photo && camera.ptp.photo.jpeg) {

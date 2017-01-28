@@ -434,6 +434,17 @@ function getPrimaryWorker() {
     return false;
 }
 
+camera.getPrimaryCameraIndex = function() {
+    var index = 0;
+    for(var i = 0; i < workers.length; i++) {
+        if(workers[i].connected) {
+            index++;
+            if(workers[i].port == camera.primaryPort) return index;
+        }
+    }
+    return 1;
+}
+
 function padNumber(n, width) {
     var s = n.toString();
     while(s.length < width) s = '0' + s;

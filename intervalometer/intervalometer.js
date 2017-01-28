@@ -43,7 +43,12 @@ defaultProgram = {
     nightCompensation: -1,
     isoMax: -6,
     isoMin:  0,
-    manualAperture: -5
+    manualAperture: -5,
+    keyframes: [{
+        focus: 0,
+        ev: "not set",
+        motor: {}
+    }]
 };
 
 var rate = 0;
@@ -568,11 +573,12 @@ intervalometer.run = function(program) {
 
 
                 function start() {
-                    var cameras = 1;
+                    var cameras = 1, primary = 1;
                     if(camera.ptp.synchronized) {
                         cameras = camera.ptp.count;
+                        primary = camera.ptp.getPrimaryCameraIndex();
                     }
-                    db.setTimelapse(status.tlName, program, cameras, status, function(err, timelapseId) {
+                    db.setTimelapse(status.tlName, program, cameras, primary, status, function(err, timelapseId) {
                         status.id = timelapseId;
                         processKeyframes(true, function() {
                             setTimeout(function() {

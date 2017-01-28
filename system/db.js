@@ -20,6 +20,7 @@ dbTl.serialize(function(){
 													 status BLOB,\
 													 logfile TEXT,\
 													 cameras INTEGER DEFAULT 1,\
+													 primary_camera INTEGER DEFAULT 1,\
 													 thumbnail TEXT,\
 													 frames INTEGER\
 													 )");
@@ -35,6 +36,9 @@ dbTl.serialize(function(){
 	dbTl.run("CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
 
 	try {
+		dbTl.run("ALTER TABLE clips ADD COLUMN primary_camera DEFAULT 1", function(err) {
+			console.log("alter clips table:", err);
+		});
 		dbTl.run("ALTER TABLE clips ADD COLUMN cameras DEFAULT 1", function(err) {
 			console.log("alter clips table:", err);
 		});
@@ -120,7 +124,7 @@ exports.get = function(key, callback) {
 	});
 }
 
-exports.setTimelapse = function(name, program, cameras, status, callback) {
+exports.setTimelapse = function(name, program, cameras, primaryCamera, status, callback) {
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	name = name.toLowerCase();
@@ -128,9 +132,11 @@ exports.setTimelapse = function(name, program, cameras, status, callback) {
 	status = serialize(status);
 	logfile = exports.currentLogFile;
 	cameras = parseInt(cameras);
-	cameras = cameras || 0;
+	cameras = cameras || 1;
+	primaryCamera = parseInt(primaryCamera);
+	primaryCamera = primaryCamera || 1;
 
-	dbTl.run("INSERT INTO clips (name, date, program, cameras, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + cameras + "', '" + status + "', '" + logfile + "')", function(err) {
+	dbTl.run("INSERT INTO clips (name, date, program, cameras, primary_camera, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + cameras + "', '" + primaryCamera + "', '" + status + "', '" + logfile + "')", function(err) {
 		callback && callback(err, this.lastID);
 	});
 }
@@ -217,14 +223,14 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	cameraNumber = parseInt(cameraNumber);
 	cameraNumber = cameraNumber || 0;
 
-	dbTl.get("SELECT frames, thumbnail FROM clips WHERE id = '" + clipId + "'", function(err, data){
+	dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
 		} else {
 			var frames = 0;
 			if(data.frames) frames = parseInt(data.frames);
 			frames++;
-			if(!data.thumbnail && thumbnail) {
+			if(!data.thumbnail && thumbnail && data.primary_camera == cameraNumber) {
 				console.log("setting clip thumbnail to:", thumbnail);
 				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
 			} else {

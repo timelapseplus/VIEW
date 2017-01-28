@@ -34,9 +34,9 @@ function _getVersion(callback) {
 
 function _programMcu(callback) {
 	console.log("progamming MCU...");
-	//exec("/usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U lfuse:w:0xc2:m && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -e && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U flash:w:main.hex:i", function(err) {
-	//	callback && callback(err);
-	//});
+	exec("/usr/bin/test -e /home/view/current/firmware/mcu.hex && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U lfuse:w:0xc2:m && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -e && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U flash:w:/home/view/current/firmware/mcu.hex:i", function(err) {
+		callback && callback(err);
+	});
 }
 
 function _parseData(data) {
@@ -46,13 +46,13 @@ function _parseData(data) {
 		mcu.version = version;
 	} else if(data.substr(0, 1) == '$') {
 		gps.update(data);
-		//console.log(gps.state);
+		console.log(gps.state);
 	} else if(data.substr(0, 1) == 'K') {
 		var knob = parseInt(data.substr(2, 1));
 		if(data.substr(1, 1) == '-') knob = 0 - knob;
 		mcu.knob += knob;
 		mcu.emit('knob', knob);
-		console.log(mcu.knob);
+		//console.log(mcu.knob);
 	}
 }
 
