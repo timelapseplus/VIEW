@@ -2272,6 +2272,12 @@ db.get('chargeLightDisabled', function(err, en) {
     }
 });
 
+db.get('gpsEnabled', function(err, en) {
+    if(!err) {
+        power.gps(en != "no");
+    }
+});
+
 db.get('buttonMode', function(err, mode) {
     power.setButtons(mode);
 });
