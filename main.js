@@ -1792,9 +1792,11 @@ if (VIEW_HARDWARE) {
     var astroInfo = function() {
         var info = "";
         if(mcu.lastGpsFix) {
-            var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
-            var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
-            var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time);
+            var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
+            var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
+            var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time, true);
+            var now = new Date(mcu.gps.time || mcu.lastGpsFix.time);
+            info += "Current Time " + now.getHours() + ":" + now.getMinutes() + "\t";
             info += "Sun sets at " + suntimes.sunset.getHours() + ":" + suntimes.sunset.getMinutes() + "\t";
             info += "Sun rises at " + suntimes.sunrise.getHours() + ":" + suntimes.sunrise.getMinutes() + "\t";
             info += "Moon sets at " +  moontimes.set.getHours() + ":" + moontimes.set.getMinutes() + "\t";

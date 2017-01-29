@@ -51,7 +51,6 @@ function _parseData(data) {
 			var version = parseInt(data.substr(1, 2));
 			mcu.version = version;
 		} else if(data.substr(0, 1) == '$') {
-			mcu.gpsAvailable = true;
 			gps.update(data);
 			if(gps.state.fix) {
 				mcu.lastGpsFix = _.clone(gps.state);
@@ -60,11 +59,14 @@ function _parseData(data) {
 					if(tz) process.env.TZ = tz;
 				}
 			}
+			if(!mcu.gpsAvailable) {
+				mcu.gpsAvailable = true;
+				mcu.emit('gps', 1);
+			}
 			if(gps.state.fix != gpsFix) {
-				mcu.emit('gps', gps.state.fix);
+				mcu.emit('gps', gps.state.fix ? 2 : 1);
 				gpsFix = gps.state.fix;
 			}
-			//console.log(gps.state);
 		} else if(data.substr(0, 1) == 'K') {
 			var knob = parseInt(data.substr(2, 1));
 			if(data.substr(1, 1) == '-') knob = 0 - knob;
