@@ -56,7 +56,7 @@ function _parseData(data) {
 			if(gps.state.fix) {
 				mcu.lastGpsFix = _.clone(gps.state);
 				if(!gpsFix) {
-					var tx = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
+					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz) process.env.TZ = tz;
 				}
 			}
