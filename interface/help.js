@@ -103,3 +103,7 @@ exports.sendCameraReport = "This will run a few tests on the camera and record t
 exports.manualAperture = "Set the lens aperture here if you're using a manual lens, len-twist, or unsuppoorted lens.  This aids in the calculation of absolute exposure values for day/night ramping.";
 
 exports.powerInfo = "This displays the current power consumption and battery info.  It is only updated when first opened.";
+
+exports.gpsInfo = "This displays the current GPS status and position info.  It is only updated when first opened.";
+
+

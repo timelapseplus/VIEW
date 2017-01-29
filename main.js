@@ -1767,6 +1767,25 @@ if (VIEW_HARDWARE) {
         }, ]
     }
 
+    var gpsInfo = function() {
+        var info = "";
+        if(power.gpsEnabled && mcu.gpsAvailable) {
+            if(mcu.lastGpsFix) {
+                info = "GPS enabled\t";
+                info .= "Lat: " + mcu.lastGpsFix.lat + "\t";
+                info .= "Lon: " + mcu.lastGpsFix.lon + "\t";
+                info .= "Time: " + (mcu.gps.time || mcu.lastGpsFix) + "\t";
+                info .= "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
+            } else {
+               info = "GPS enabled\tAcquiring a position fix...\t";
+               info .= "Visible Sats: " + mcu.gps.satsVisible.length + "\t";
+               if(mcu.gps.time) info .= "Time: " + mcu.gps.time + "\t";
+            }
+        } else {
+            info = "GPS unavailable.  The module is either powered off or not installed.";
+        }
+    }
+
     var settingsMenu = {
         name: "settings",
         type: "menu",
@@ -1797,6 +1816,13 @@ if (VIEW_HARDWARE) {
                 ui.alert('Power Info', power.infoText());
             },
             help: help.powerInfo
+        }, {
+            name: "GPS Info",
+            action: function(){
+                ui.back();
+                ui.alert('GPS Info', gpsInfo());
+            },
+            help: help.gpsInfo
         }, {
             name: "Developer Mode",
             action: developerModeMenu,

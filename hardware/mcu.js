@@ -1,6 +1,7 @@
 var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var SerialPort = require('serialport');
+var _ = require('underscore');
 var GPS = require('gps');
 var gps = new GPS;
 var MCU_VERSION = 1;
@@ -9,7 +10,9 @@ var MCU_VERSION = 1;
 var mcu = new EventEmitter();
 
 mcu.ready = null;
+mcu.gpsAvailable = false;
 mcu.gps = gps.state;
+mcu.lastGpsFix = null;
 mcu.knob = 0;
 
 mcu.init = function(callback) {
@@ -39,13 +42,22 @@ function _programMcu(callback) {
 	});
 }
 
+var gpsFix = null;
 function _parseData(data) {
 	data = data.toString();
 	if(data.substr(0, 1) == 'V') {
 		var version = parseInt(data.substr(1, 2));
 		mcu.version = version;
 	} else if(data.substr(0, 1) == '$') {
+		mcu.gpsAvailable = true;
 		gps.update(data);
+		if(gps.state.fix) {
+			mcu.lastGpsFix = _.clone(gps.state);
+		}
+		if(gps.state.fix != gpsFix) {
+			mcu.emit('gps', gps.state.fix);
+			gpsFix = gps.state.fix;
+		}
 		console.log(gps.state);
 	} else if(data.substr(0, 1) == 'K') {
 		var knob = parseInt(data.substr(2, 1));
