@@ -2,6 +2,7 @@ var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var SerialPort = require('serialport');
 var _ = require('underscore');
+var geoTz = require('geo-tz');
 var GPS = require('gps');
 var gps = new GPS;
 var MCU_VERSION = 1;
@@ -54,6 +55,10 @@ function _parseData(data) {
 			gps.update(data);
 			if(gps.state.fix) {
 				mcu.lastGpsFix = _.clone(gps.state);
+				if(!gpsFix) {
+					var tx = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
+					if(tz) process.env.TZ = tz;
+				}
 			}
 			if(gps.state.fix != gpsFix) {
 				mcu.emit('gps', gps.state.fix);
