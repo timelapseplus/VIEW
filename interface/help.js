@@ -106,4 +106,6 @@ exports.powerInfo = "This displays the current power consumption and battery inf
 
 exports.gpsInfo = "This displays the current GPS status and position info.  It is only updated when first opened.";
 
+exports.sunAndMoon = "This displays the current sun and moon info based on the current GPS readings.  It is only updated when first opened.";
+
 

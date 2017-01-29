@@ -41,6 +41,8 @@ if(power) wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
 var db = require("./system/db.js");
 
+var suncalc = require('suncalc');
+
 var previewImage = null;
 var liveviewOn = false;
 
@@ -1774,7 +1776,7 @@ if (VIEW_HARDWARE) {
                 info = "GPS enabled\t";
                 info += "Lat: " + mcu.lastGpsFix.lat + "\t";
                 info += "Lon: " + mcu.lastGpsFix.lon + "\t";
-                info += "Time: " + (mcu.gps.time || mcu.lastGpsFix) + "\t";
+                info += "Time: " + (mcu.gps.time || mcu.lastGpsFix.time) + "\t";
                 info += "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
@@ -1783,6 +1785,33 @@ if (VIEW_HARDWARE) {
             }
         } else {
             info = "GPS unavailable.  The module is either powered off or not installed.";
+        }
+        return info;
+    }
+
+    var astroInfo = function() {
+        var info = "";
+        if(mcu.lastGpsFix) {
+            var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
+            var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
+            var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time);
+            info += "Sun sets at " + suntimes.sunset.getHours() + ":" + suntimes.sunset.getMinutes() + "\t";
+            info += "Sun rises at " + suntimes.sunrise.getHours() + ":" + suntimes.sunrise.getMinutes() + "\t";
+            info += "Moon sets at " +  moontimes.set.getHours() + ":" + moontimes.set.getMinutes() + "\t";
+            info += "Moon rises at " + moontimes.rise.getHours() + ":" + moontimes.rise.getMinutes() + "\t";
+            var phase = "unknown";
+            if(mooninfo.phase == 0 || mooninfo.phase == 1) phase = "New Moon"; 
+            else if(mooninfo.phase < 0.25) phase = "Waxing Crescent"; 
+            else if(mooninfo.phase == 0.25) phase = "First Quarter";
+            else if(mooninfo.phase > 0.25 || mooninfo.phase < 0.5) phase = "Waxing Gibbous";
+            else if(mooninfo.phase == 0.5) phase = "Full Moon";
+            else if(mooninfo.phase > 0.5 || mooninfo.phase < 0.75) phase = "Waning Gibbous";
+            else if(mooninfo.phase == 0.75) phase = "Last Quarter";
+            else if(mooninfo.phase > 0.75) phase = "Waning Crescent";
+            info += "Phase: " + phase + "\t";
+            info += "Moon illumination: " + Math.round(mooninfo.fraction * 100) + "%\t";
+        } else {
+           info = "GPS position info unavailable\t";
         }
         return info;
     }
@@ -1824,6 +1853,13 @@ if (VIEW_HARDWARE) {
                 ui.alert('GPS Info', gpsInfo());
             },
             help: help.gpsInfo
+        }, {
+            name: "Sun and Moon",
+            action: function(){
+                ui.back();
+                ui.alert('Sun and Moon', astroInfo());
+            },
+            help: help.sunAndMoon
         }, {
             name: "Developer Mode",
             action: developerModeMenu,

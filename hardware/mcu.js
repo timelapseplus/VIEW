@@ -59,7 +59,7 @@ function _parseData(data) {
 				mcu.emit('gps', gps.state.fix);
 				gpsFix = gps.state.fix;
 			}
-			console.log(gps.state);
+			//console.log(gps.state);
 		} else if(data.substr(0, 1) == 'K') {
 			var knob = parseInt(data.substr(2, 1));
 			if(data.substr(1, 1) == '-') knob = 0 - knob;
