@@ -1772,14 +1772,14 @@ if (VIEW_HARDWARE) {
         if(power.gpsEnabled && mcu.gpsAvailable) {
             if(mcu.lastGpsFix) {
                 info = "GPS enabled\t";
-                info .= "Lat: " + mcu.lastGpsFix.lat + "\t";
-                info .= "Lon: " + mcu.lastGpsFix.lon + "\t";
-                info .= "Time: " + (mcu.gps.time || mcu.lastGpsFix) + "\t";
-                info .= "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
+                info += "Lat: " + mcu.lastGpsFix.lat + "\t";
+                info += "Lon: " + mcu.lastGpsFix.lon + "\t";
+                info += "Time: " + (mcu.gps.time || mcu.lastGpsFix) + "\t";
+                info += "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
-               info .= "Visible Sats: " + mcu.gps.satsVisible.length + "\t";
-               if(mcu.gps.time) info .= "Time: " + mcu.gps.time + "\t";
+               info += "Visible Sats: " + mcu.gps.satsVisible.length + "\t";
+               if(mcu.gps.time) info += "Time: " + mcu.gps.time + "\t";
             }
         } else {
             info = "GPS unavailable.  The module is either powered off or not installed.";
