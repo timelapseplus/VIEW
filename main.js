@@ -1784,6 +1784,7 @@ if (VIEW_HARDWARE) {
         } else {
             info = "GPS unavailable.  The module is either powered off or not installed.";
         }
+        return info;
     }
 
     var settingsMenu = {
