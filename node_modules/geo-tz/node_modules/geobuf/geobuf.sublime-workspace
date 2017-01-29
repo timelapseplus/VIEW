@@ -1,0 +1,1066 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"fun",
+				"function"
+			],
+			[
+				"pf",
+				"pbfsplit"
+			],
+			[
+				"var",
+				"varintBytes"
+			],
+			[
+				"geoj",
+				"geojsonFixtures"
+			],
+			[
+				"ro",
+				"roundtripTest"
+			],
+			[
+				"Fea",
+				"Feature"
+			],
+			[
+				"last",
+				"lastGeometryCol"
+			],
+			[
+				"geom",
+				"geometry"
+			],
+			[
+				"geome",
+				"geometries"
+			],
+			[
+				"lastF",
+				"lastFeature"
+			],
+			[
+				"Feature",
+				"FeatureCollection"
+			],
+			[
+				"writeO",
+				"writeObjects"
+			],
+			[
+				"whee",
+				"wheelDelta"
+			],
+			[
+				"f",
+				"f	Anonymous Function"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"fu",
+				"fun	Function"
+			],
+			[
+				"_upda",
+				"_updateTransform"
+			],
+			[
+				"_remove",
+				"_removeAllTiles"
+			],
+			[
+				"_reset",
+				"_resetAll"
+			],
+			[
+				"_update",
+				"_updateTransform"
+			],
+			[
+				"pane",
+				"panePos"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "geobuf.proto",
+			"settings":
+			{
+				"buffer_size": 1906,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "debug/bench.js",
+			"settings":
+			{
+				"buffer_size": 349,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "encode.js",
+			"settings":
+			{
+				"buffer_size": 6857,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "// each top-level message in a file is tag-prefixed (like fields) to differentiate between types\nmessage Data {\n    oneof data_type {\n        fixed32 block_size = 1; // byte length of the following block (metadata + features/geometries)\n        Metadata metadata = 2;\n\n        Collection feature_collection = 3;\n        Collection geometry_collection = 4;\n        Collection collection_end = 5;\n\n        Feature feature = 6;\n\n        Geometry point = 7;\n        Geometry linestring = 8;\n        Geometry polygon = 9;\n\n        Geometry multipoint = 10;\n        Geometry multilinestring = 11;\n        Geometry multipolygon = 12;\n    }\n}\n\nmessage Metadata {\n    uint32 version = 1; // geobuf version\n\n    uint32 dimensions = 2; // max coordinate dimensions\n    uint32 precision = 3; // number of digits after decimal point for coordinates\n\n    repeated string keys = 4; // array of unique keys of a block\n    repeated Value values = 5; // array of unique values of a block\n}\n\nmessage Collection {\n    repeated uint32 custom_properties = 15 [packed = true]; // pairs of key/value indexes for arbitrary properties\n}\n\nmessage Feature {\n    oneof id_type {\n        string id = 1;\n        sint64 int_id = 2;\n    }\n    repeated uint32 properties = 14 [packed = true]; // pairs of key/value indexes for feature properties\n    repeated uint32 custom_properties = 15 [packed = true];\n}\n\nmessage Geometry {\n    repeated uint32 lengths = 1 [packed = true]; // coordinate structure (lengths of parts etc.)\n    repeated sint64 coords = 2 [packed = true]; // coordinates as delta-encoded integers\n    repeated uint32 custom_properties = 15 [packed = true];\n}\n\nmessage Value {\n    oneof value_type {\n        string string_value = 1;\n        double double_value = 2;\n        uint64 unsigned_int_value = 3;\n        uint64 negative_int_value = 4;\n        bool bool_value = 5;\n        string json_value = 6;\n    }\n}",
+			"settings":
+			{
+				"buffer_size": 1893,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "debug/index.html",
+			"settings":
+			{
+				"buffer_size": 80,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 357.0,
+		"last_filter": "proto",
+		"selected_items":
+		[
+			[
+				"proto",
+				"Set Syntax: Protocol Buffer"
+			],
+			[
+				"spa",
+				"Indentation: Convert to Spaces"
+			],
+			[
+				"spac",
+				"Indentation: Convert to Spaces"
+			],
+			[
+				"yam",
+				"Set Syntax: YAML"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"java",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"tabs",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/mourner/projects/geobuf",
+		"/Users/mourner/projects/geobuf/bin",
+		"/Users/mourner/projects/geobuf/debug"
+	],
+	"file_history":
+	[
+		"/Users/mourner/projects/geobuf/encode.js",
+		"/Users/mourner/projects/length-prefixed-stream/package.json",
+		"/Users/mourner/projects/length-prefixed-stream/.gitignore",
+		"/Users/mourner/projects/pbf-split/.eslintrc",
+		"/Users/mourner/projects/pbf-split/LICENSE",
+		"/Users/mourner/projects/geobuf/.gitignore",
+		"/Users/mourner/projects/geobuf/test/validate.test.js",
+		"/Users/mourner/projects/geobuf/bin/geobuf2json",
+		"/Users/mourner/projects/geobuf/bin/json2geobuf",
+		"/Users/mourner/projects/Leaflet/download.md",
+		"/Users/mourner/projects/Leaflet/.travis.yml",
+		"/Users/mourner/projects/Leaflet/src/layer/vector/Canvas.js",
+		"/Users/mourner/projects/Leaflet/_posts/2015-07-01-leaflet-is-alive-and-kicking.md",
+		"/Users/mourner/projects/Leaflet/_posts/2015-07-15-leaflet-1.0-beta1-released.md",
+		"/Users/mourner/projects/Leaflet/dist/leaflet.css",
+		"/Users/mourner/projects/Leaflet/src/dom/DomEvent.js",
+		"/Users/mourner/projects/Leaflet/src/map/handler/Map.ScrollWheelZoom.js",
+		"/Users/mourner/projects/Leaflet/src/layer/vector/Path.js",
+		"/Users/mourner/projects/Leaflet/src/layer/ImageOverlay.js",
+		"/Users/mourner/projects/Leaflet/src/map/Map.js",
+		"/Users/mourner/projects/Leaflet/src/layer/Layer.js",
+		"/Users/mourner/projects/Leaflet/src/Leaflet.js",
+		"/Users/mourner/projects/Leaflet/package.json",
+		"/Users/mourner/projects/Leaflet/src/layer/marker/Marker.js",
+		"/Users/mourner/projects/Leaflet/reference.html",
+		"/Users/mourner/projects/Leaflet/_posts/2013-11-18-leaflet-0-7-released-plans-for-future.md",
+		"/Users/mourner/projects/Leaflet/CHANGELOG.md",
+		"/Users/mourner/projects/Leaflet/src/dom/DomUtil.js",
+		"/Users/mourner/projects/Leaflet/src/layer/vector/Renderer.js",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Themes/Serenity.tmTheme",
+		"/Users/mourner/projects/Leaflet/src/map/anim/Map.PanAnimation.js",
+		"/Users/mourner/projects/Leaflet/src/map/handler/Map.TouchZoom.js",
+		"/Users/mourner/projects/Leaflet/src/layer/tile/TileLayer.js",
+		"/Users/mourner/projects/Leaflet/debug/map/map.html",
+		"/Users/mourner/projects/Leaflet/debug/map/map-mobile.html",
+		"/Users/mourner/projects/Leaflet/src/layer/tile/TileLayer.WMS.js",
+		"/Users/mourner/projects/Leaflet/src/dom/Draggable.js",
+		"/Users/mourner/projects/Leaflet/_layouts/default.html",
+		"/Users/mourner/projects/Leaflet/_layouts/v2.html",
+		"/Users/mourner/projects/Leaflet/docs/js/docs.js",
+		"/Users/mourner/projects/Leaflet/src/layer/GeoJSON.js",
+		"/Users/mourner/projects/Leaflet/_layouts/post.html",
+		"/Users/mourner/projects/Leaflet/index.html",
+		"/Users/mourner/projects/Leaflet/src/map/handler/Map.Drag.js",
+		"/Users/mourner/projects/Leaflet/src/dom/PosAnimation.js",
+		"/Users/mourner/projects/Leaflet/src/control/Control.Layers.js",
+		"/Users/mourner/projects/Leaflet/index.md",
+		"/Users/mourner/projects/Leaflet/docs/css/main.css",
+		"/Users/mourner/projects/Leaflet/blog.md",
+		"/Users/mourner/projects/Leaflet/docs/highlight/highlight.pack.js",
+		"/Users/mourner/projects/Leaflet/docs/highlight/styles/github-gist.css",
+		"/Users/mourner/projects/Leaflet/_layouts/tutorial.html",
+		"/Users/mourner/projects/Leaflet/examples/quick-start.md",
+		"/Users/mourner/projects/Leaflet/examples/layers-control.md",
+		"/Users/mourner/projects/Leaflet/examples/custom-icons.md",
+		"/Users/mourner/projects/Leaflet/examples/choropleth.md",
+		"/Users/mourner/projects/Leaflet/plugins.md",
+		"/Users/mourner/projects/Leaflet/docs/css/screen.css",
+		"/Users/mourner/projects/Leaflet/atom.xml",
+		"/Users/mourner/projects/Leaflet/docs/highlight/styles/github.css",
+		"/Users/mourner/projects/Leaflet/src/layer/tile/GridLayer.js",
+		"/Users/mourner/projects/Leaflet/src/core/Browser.js",
+		"/Users/mourner/projects/Leaflet/src/map/handler/Map.DoubleClickZoom.js",
+		"/Users/mourner/projects/Leaflet/src/map/anim/Map.FlyTo.js",
+		"/Users/mourner/projects/Leaflet/src/geo/crs/CRS.js",
+		"/Users/mourner/projects/Leaflet/src/map/anim/Map.ZoomAnimation.js",
+		"/Users/mourner/projects/Leaflet/src/layer/Popup.js",
+		"/Users/mourner/projects/Leaflet/src/geo/projection/Projection.SphericalMercator.js",
+		"/Users/mourner/projects/Leaflet/spec/suites/map/MapSpec.js",
+		"/Users/mourner/projects/Leaflet/src/layer/vector/Polyline.js",
+		"/Users/mourner/projects/Leaflet/src/core/Events.js",
+		"/Users/mourner/projects/Leaflet/src/layer/vector/SVG.js",
+		"/Users/mourner/projects/Leaflet/debug/map/zoompan.html",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/Users/mourner/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/usr/local/Library/Formula/node.rb",
+		"/Users/mourner/projects/Leaflet/Leaflet.sublime-project",
+		"/Users/mourner/projects/Leaflet/.eslintrc",
+		"/Users/mourner/projects/Leaflet/src/layer/marker/Icon.js",
+		"/Users/mourner/.inputrc",
+		"/Users/mourner/.bash_profile",
+		"/Users/mourner/.gitignore"
+	],
+	"find":
+	{
+		"height": 50.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"Point",
+			"FeatureCollection",
+			"isspecial",
+			"isSpecialKey",
+			"is_top_level",
+			"ObjectType",
+			"100",
+			"pbfstream",
+			"len",
+			"msg",
+			"ms",
+			"PBFStream",
+			"chunk.length",
+			"this.pos",
+			"console",
+			"writeObjects",
+			"required",
+			"params",
+			"geom",
+			"feature",
+			"geom",
+			"readMessage",
+			", length",
+			", coords",
+			"writeObjects",
+			"writeHeader",
+			"geometryTypes",
+			"geom",
+			"feature",
+			"var ",
+			"writeFeatureCollection",
+			"_fillStroke",
+			"_updatePoly",
+			"_dragging",
+			"Browser.ie",
+			"ie",
+			"DocumentTouch",
+			"pointer",
+			"opacity",
+			"max-width:",
+			"removed",
+			"rawpanby",
+			"_onPanTransitionEnd",
+			"_getCenterLayerPoint",
+			"getCenter",
+			"bringToFront",
+			"bringto",
+			"mozmousepixel",
+			"_timer",
+			"_delta",
+			"getWheelDelta",
+			"mousewheel",
+			"getWheelDelta",
+			"wheelDelta",
+			"version",
+			"zoomanim",
+			"stop: ",
+			"stop",
+			"canvas",
+			"Canvas",
+			"canvas",
+			"Canvas",
+			"renderer",
+			"render",
+			"L_PREFER_CANVAS",
+			"2705",
+			"2767",
+			"marker",
+			"getbounds",
+			"3E999F",
+			"keyword",
+			"property",
+			"_crs",
+			"')",
+			"rawPanBy",
+			"mapPane",
+			"_move",
+			"this._image",
+			"preventOutline",
+			"indexOf",
+			"preventOutline",
+			"target",
+			"unloadInvisibleTiles",
+			"togeojson",
+			"MultiPolygon",
+			"mouseenter",
+			"_handleDOMEvent",
+			"_fireDOMEvent",
+			"_findEventTargets",
+			"_targets",
+			"_findEventTargets",
+			"fireDomevent",
+			"<<<",
+			"templat",
+			"<<<",
+			"<<<<",
+			"<<<",
+			"span class=\"string\"",
+			"span class=\"number\"",
+			"span class=\"literal\"",
+			"span class=\"number\"",
+			"span class=\"string\"",
+			"<<<",
+			"\"keyword\"",
+			"bind",
+			"new L.Map('map'); // becomes",
+			"<<<<",
+			"id=\"control",
+			"<<<",
+			"\"literal\"",
+			"literal",
+			"class=\"string\"",
+			"class=\"number\"",
+			"\"keyword\"",
+			"\"string\"",
+			"string",
+			"\"keyword\"",
+			"keyword",
+			"<<<<<<",
+			"<<<",
+			"keyword",
+			"<<<<",
+			"number",
+			"lets",
+			"column-count",
+			"tagline",
+			"api-page",
+			"  "
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"span class=\"hljs-keyword\"",
+			"span class=\"hljs-string\"",
+			"span class=\"hljs-number\"",
+			"span class=\"hljs-literal\""
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "geobuf.proto",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1906,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Protocol Buffer Syntax/Protobuf.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 413.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "debug/bench.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 349,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								223,
+								223
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "encode.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6857,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6857,
+								6857
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3509.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1893,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1149,
+								1149
+							]
+						],
+						"settings":
+						{
+							"default_dir": "/Users/mourner/projects/geobuf",
+							"syntax": "Packages/Protocol Buffer Syntax/Protobuf.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "debug/index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 80,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								63,
+								63
+							]
+						],
+						"settings":
+						{
+							"open_with_edit": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "geobuf.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"read",
+				"README.md"
+			],
+			[
+				"leaf",
+				"dist/leaflet.css"
+			],
+			[
+				"down",
+				"download.md"
+			],
+			[
+				"tra",
+				".travis.yml"
+			],
+			[
+				"pack",
+				"package.json"
+			],
+			[
+				"trav",
+				".travis.yml"
+			],
+			[
+				"packa",
+				"package.json"
+			],
+			[
+				"canva",
+				"src/layer/vector/Canvas.js"
+			],
+			[
+				"poiner",
+				"src/dom/DomEvent.Pointer.js"
+			],
+			[
+				"bro",
+				"src/core/Browser.js"
+			],
+			[
+				"dom",
+				"src/dom/DomUtil.js"
+			],
+			[
+				"gri",
+				"src/layer/tile/GridLayer.js"
+			],
+			[
+				"can",
+				"src/layer/vector/Canvas.js"
+			],
+			[
+				"canvas",
+				"src/layer/vector/Canvas.js"
+			],
+			[
+				"geoj",
+				"debug/vector/geojson.html"
+			],
+			[
+				"zooman",
+				"src/map/anim/Map.ZoomAnimation.js"
+			],
+			[
+				"map",
+				"src/map/Map.js"
+			],
+			[
+				"pan",
+				"src/map/anim/Map.PanAnimation.js"
+			],
+			[
+				"mark",
+				"src/layer/marker/Marker.js"
+			],
+			[
+				"path",
+				"src/layer/vector/Path.js"
+			],
+			[
+				"csrool",
+				"src/map/handler/Map.ScrollWheelZoom.js"
+			],
+			[
+				"scroll",
+				"src/map/handler/Map.ScrollWheelZoom.js"
+			],
+			[
+				"refe",
+				"reference.html"
+			],
+			[
+				"0.7",
+				"_posts/2013-11-18-leaflet-0-7-released-plans-for-future.md"
+			],
+			[
+				"alive",
+				"_posts/2015-07-01-leaflet-is-alive-and-kicking.md"
+			],
+			[
+				"layer",
+				"src/layer/Layer.js"
+			],
+			[
+				"chan",
+				"CHANGELOG.md"
+			],
+			[
+				"wms",
+				"src/layer/tile/TileLayer.WMS.js"
+			],
+			[
+				"mobi",
+				"debug/map/map-mobile.html"
+			],
+			[
+				"drag",
+				"src/dom/Draggable.js"
+			],
+			[
+				"touch",
+				"src/map/handler/Map.TouchZoom.js"
+			],
+			[
+				"domu",
+				"src/dom/DomUtil.js"
+			],
+			[
+				"map.html",
+				"debug/map/map.html"
+			],
+			[
+				"docs",
+				"docs/js/docs.js"
+			],
+			[
+				"v2",
+				"_layouts/v2.html"
+			],
+			[
+				"tilela",
+				"src/layer/tile/TileLayer.js"
+			],
+			[
+				"canv",
+				"src/layer/vector/Canvas.js"
+			],
+			[
+				"refer",
+				"reference.html"
+			],
+			[
+				"ref",
+				"reference.html"
+			],
+			[
+				"main",
+				"docs/css/main.css"
+			],
+			[
+				"ma",
+				"docs/css/main.css"
+			],
+			[
+				"sc",
+				"docs/css/screen.css"
+			],
+			[
+				"index",
+				"index.html"
+			],
+			[
+				"in",
+				"index.html"
+			],
+			[
+				"mai",
+				"docs/css/main.css"
+			],
+			[
+				"atom",
+				"atom.xml"
+			],
+			[
+				"inde",
+				"index.html"
+			],
+			[
+				"refere",
+				"reference.html"
+			],
+			[
+				"plugin",
+				"plugins.md"
+			],
+			[
+				"github",
+				"docs/highlight/styles/github-gist.css"
+			],
+			[
+				"github-",
+				"docs/highlight/styles/github-gist.css"
+			],
+			[
+				"gi",
+				"docs/highlight/styles/github.css"
+			],
+			[
+				"high",
+				"docs/highlight/styles/github.css"
+			],
+			[
+				"ind",
+				"index.html"
+			],
+			[
+				"git",
+				"docs/highlight/styles/github.css"
+			],
+			[
+				"gith",
+				"docs/highlight/styles/github.css"
+			],
+			[
+				"screen",
+				"docs/css/screen.css"
+			],
+			[
+				"plug",
+				"plugins.md"
+			],
+			[
+				"pl",
+				"plugins.md"
+			],
+			[
+				"layers",
+				"src/control/Control.Layers.js"
+			],
+			[
+				"posa",
+				"src/dom/PosAnimation.js"
+			],
+			[
+				"lea",
+				"dist/leaflet.css"
+			],
+			[
+				"mapdra",
+				"src/map/handler/Map.Drag.js"
+			],
+			[
+				"dragg",
+				"src/dom/Draggable.js"
+			],
+			[
+				"doubl",
+				"src/map/handler/Map.DoubleClickZoom.js"
+			],
+			[
+				"mer",
+				"src/geo/projection/Projection.SphericalMercator.js"
+			],
+			[
+				"popu",
+				"src/layer/Popup.js"
+			],
+			[
+				"rend",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"image",
+				"src/layer/ImageOverlay.js"
+			],
+			[
+				"render",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"marker",
+				"src/layer/marker/Marker.js"
+			],
+			[
+				"fl",
+				"src/map/anim/Map.FlyTo.js"
+			],
+			[
+				"grid",
+				"src/layer/tile/GridLayer.js"
+			],
+			[
+				"polyli",
+				"src/layer/vector/Polyline.js"
+			],
+			[
+				"mapsp",
+				"spec/suites/map/MapSpec.js"
+			],
+			[
+				"popup",
+				"src/layer/Popup.js"
+			],
+			[
+				"crs",
+				"src/geo/crs/CRS.js"
+			],
+			[
+				"poly",
+				"src/layer/vector/Polyline.js"
+			],
+			[
+				"leafl",
+				"dist/leaflet.css"
+			],
+			[
+				"zoompa",
+				"debug/map/zoompan.html"
+			],
+			[
+				"map.dra",
+				"src/map/handler/Map.Drag.js"
+			],
+			[
+				"domut",
+				"src/dom/DomUtil.js"
+			],
+			[
+				"sv",
+				"src/layer/vector/SVG.js"
+			],
+			[
+				"re",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"ren",
+				"src/layer/vector/Renderer.js"
+			],
+			[
+				"svg",
+				"src/layer/vector/SVG.js"
+			],
+			[
+				"even",
+				"src/core/Events.js"
+			],
+			[
+				"iamge",
+				"src/layer/ImageOverlay.js"
+			],
+			[
+				"icon",
+				"src/layer/marker/Icon.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "gl",
+		"selected_items":
+		[
+			[
+				"gl",
+				"~/projects/mapbox-gl-js/mapbox-gl-js.sublime-project"
+			],
+			[
+				"geoj",
+				"~/projects/geojson-vt/geojson-vt.sublime-project"
+			],
+			[
+				"ear",
+				"~/projects/earcut/earcut.sublime-project"
+			],
+			[
+				"rbu",
+				"~/projects/rbush/rbush.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 317.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

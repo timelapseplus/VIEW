@@ -1,0 +1,323 @@
+Statistical profiling result from isolate-0x101804a00-v8.log, (565 ticks, 6 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+     76   13.5%          /usr/local/bin/node
+      1    0.2%          /usr/lib/system/libsystem_platform.dylib
+      1    0.2%          /usr/lib/system/libsystem_kernel.dylib
+      1    0.2%          /usr/lib/libstdc++.6.dylib
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+     60   10.6%   12.3%  LazyCompile: *analyzePoints /Users/mourner/projects/geobuf/encode.js:75:23
+     40    7.1%    8.2%  LazyCompile: *populateLine /Users/mourner/projects/geobuf/encode.js:219:22
+     26    4.6%    5.3%  LazyCompile: *readObjectField /Users/mourner/projects/geobuf/decode.js:56:25
+     23    4.1%    4.7%  LazyCompile: *readLinePart /Users/mourner/projects/geobuf/decode.js:114:22
+     18    3.2%    3.7%  LazyCompile: *analyze /Users/mourner/projects/geobuf/encode.js:38:17
+      8    1.4%    1.6%  LazyCompile: *Pbf.readVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:87:25
+      6    1.1%    1.2%  Stub: GrowArrayElementsStub
+      6    1.1%    1.2%  LazyCompile: *Pbf.writeVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:258:26
+      5    0.9%    1.0%  Stub: GrowArrayElementsStub {2}
+      5    0.9%    1.0%  Stub: GrowArrayElementsStub {1}
+      5    0.9%    1.0%  LazyCompile: *writePackedSVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:419:28
+      3    0.5%    0.6%  LazyCompile: *Pbf.writeRawMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:332:30
+      2    0.4%    0.4%  Stub: RecordWriteStub
+      2    0.4%    0.4%  LazyCompile: *analyzePoint /Users/mourner/projects/geobuf/encode.js:79:22
+      1    0.2%    0.2%  Stub: InstanceofStub
+      1    0.2%    0.2%  Stub: BinaryOpICStub
+      1    0.2%    0.2%  LazyCompile: ~readProps /Users/mourner/projects/geobuf/decode.js:100:19
+      1    0.2%    0.2%  LazyCompile: ~populateLine /Users/mourner/projects/geobuf/encode.js:219:22
+      1    0.2%    0.2%  LazyCompile: ~byteLength buffer.js:250:20
+      1    0.2%    0.2%  LazyCompile: ~analyzePoints /Users/mourner/projects/geobuf/encode.js:75:23
+      1    0.2%    0.2%  LazyCompile: ~Pbf.writeRawMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:332:30
+      1    0.2%    0.2%  LazyCompile: ~NativeModule.require node.js:850:34
+      1    0.2%    0.2%  LazyCompile: *Pbf.readSVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:127:26
+
+ [C++]:
+   ticks  total  nonlib   name
+     25    4.4%    5.1%  __os_once
+     22    3.9%    4.5%  void node::Wrap<node::ContextifyContext>(v8::Local<v8::Object>, node::ContextifyContext*)
+     20    3.5%    4.1%  double v8::internal::InternalStringToDouble<unsigned char const*, unsigned char const*>(v8::internal::UnicodeCache*, unsigned char const*, unsigned char const*, int, double)
+     15    2.7%    3.1%  v8::internal::List<v8::internal::Handle<v8::internal::Object>, v8::internal::ZoneAllocationPolicy>::Add(v8::internal::Handle<v8::internal::Object> const&, v8::internal::ZoneAllocationPolicy)
+     14    2.5%    2.9%  v8::internal::JsonParser<true>::ParseJsonArray()
+      9    1.6%    1.9%  v8::internal::ScavengingVisitor<(v8::internal::MarksHandling)1, (v8::internal::LoggingAndProfiling)0>::EvacuateFixedArray(v8::internal::Map*, v8::internal::HeapObject**, v8::internal::HeapObject*)
+      7    1.2%    1.4%  v8::internal::Heap::AllocateRaw(int, v8::internal::AllocationSpace, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+      7    1.2%    1.4%  v8::internal::FlexibleBodyVisitor<v8::internal::MarkCompactMarkingVisitor, v8::internal::FixedArray::BodyDescriptor, void>::Visit(v8::internal::Map*, v8::internal::HeapObject*)
+      6    1.1%    1.2%  node::Buffer::Utf8Slice(v8::FunctionCallbackInfo<v8::Value> const&)
+      5    0.9%    1.0%  v8::internal::Heap::AllocateEmptyFixedTypedArray(v8::internal::ExternalArrayType)
+      5    0.9%    1.0%  v8::internal::Heap::AllocateEmptyFixedArray()
+      4    0.7%    0.8%  v8::internal::IncrementalMarking::RecordWriteSlow(v8::internal::HeapObject*, v8::internal::Object**, v8::internal::Object*)
+      4    0.7%    0.8%  v8::internal::Heap::DoScavenge(v8::internal::ObjectVisitor*, unsigned char*)
+      4    0.7%    0.8%  ___munmap
+      3    0.5%    0.6%  v8::internal::Handle<v8::internal::Object> v8::internal::HandleScope::CloseAndEscape<v8::internal::Object>(v8::internal::Handle<v8::internal::Object>)
+      3    0.5%    0.6%  v8::internal::Factory::NewFixedArray(int, v8::internal::PretenureFlag)
+      3    0.5%    0.6%  node::StartProfilerIdleNotifier(v8::FunctionCallbackInfo<v8::Value> const&)
+      2    0.4%    0.4%  void std::__unguarded_linear_insert<v8::internal::Smi**, v8::internal::Smi*, v8::internal::EnumIndexComparator<v8::internal::GlobalDictionary> >(v8::internal::Smi**, v8::internal::Smi*, v8::internal::EnumIndexComparator<v8::internal::GlobalDictionary>)
+      2    0.4%    0.4%  v8::internal::String::ToCString(v8::internal::AllowNullsFlag, v8::internal::RobustnessFlag, int, int, int*)
+      2    0.4%    0.4%  v8::internal::ParseInfo::~ParseInfo()
+      2    0.4%    0.4%  v8::internal::MarkCompactCollector::EvacuateNewSpaceAndCandidates()
+      2    0.4%    0.4%  v8::internal::MarkCompactCollector::EmptyMarkingDeque()
+      2    0.4%    0.4%  v8::internal::LGapResolver::BuildInitialMoveList(v8::internal::LParallelMove*)
+      2    0.4%    0.4%  v8::internal::IncrementalMarking::OldSpaceStep(long)
+      2    0.4%    0.4%  v8::internal::Heap::AllocateRawFixedArray(int, v8::internal::PretenureFlag)
+      2    0.4%    0.4%  v8::internal::HValue::RepresentationFromInputs()
+      2    0.4%    0.4%  v8::internal::Factory::NewHeapNumber(double, v8::internal::MutableMode, v8::internal::PretenureFlag)
+      2    0.4%    0.4%  v8::internal::Context::script_context()
+      2    0.4%    0.4%  node::InitFs(v8::Local<v8::Object>, v8::Local<v8::Value>, v8::Local<v8::Context>, void*)
+      1    0.2%    0.2%  void v8::internal::RelocInfo::Visit<v8::internal::IncrementalMarkingMarkingVisitor>(v8::internal::Heap*)
+      1    0.2%    0.2%  void v8::internal::FlexibleBodyVisitor<v8::internal::MarkCompactMarkingVisitor, v8::internal::JSObject::BodyDescriptor, void>::VisitSpecialized<32>(v8::internal::Map*, v8::internal::HeapObject*)
+      1    0.2%    0.2%  v8::internal::VariableProxy::BindTo(v8::internal::Variable*)
+      1    0.2%    0.2%  v8::internal::TypeImpl<v8::internal::ZoneTypeConfig>::Union(v8::internal::TypeImpl<v8::internal::ZoneTypeConfig>*, v8::internal::TypeImpl<v8::internal::ZoneTypeConfig>*, v8::internal::Zone*)
+      1    0.2%    0.2%  v8::internal::TypeFeedbackOracle::GetInfo(v8::internal::TypeFeedbackId)
+      1    0.2%    0.2%  v8::internal::Translation::BeginJSFrame(v8::internal::BailoutId, int, unsigned int)
+      1    0.2%    0.2%  v8::internal::TimerEventScope<v8::internal::TimerEventRecompileSynchronous>::LogTimerEvent(v8::internal::Logger::StartEnd)
+      1    0.2%    0.2%  v8::internal::TextNode::FilterOneByte(int, bool)
+      1    0.2%    0.2%  v8::internal::TemplateHashMapImpl<v8::internal::ZoneAllocationPolicy>::Probe(void*, unsigned int) const
+      1    0.2%    0.2%  v8::internal::String::IsOneByteEqualTo(v8::internal::Vector<unsigned char const>)
+      1    0.2%    0.2%  v8::internal::String::CalculateLineEnds(v8::internal::Handle<v8::internal::String>, bool)
+      1    0.2%    0.2%  v8::internal::StoreBuffer::PrepareForIteration()
+      1    0.2%    0.2%  v8::internal::StoreBuffer::IteratePointersInStoreBuffer(void (*)(v8::internal::HeapObject**, v8::internal::HeapObject*))
+      1    0.2%    0.2%  v8::internal::StoreBuffer::ClearFilteringHashSets()
+      1    0.2%    0.2%  v8::internal::StaticNewSpaceVisitor<v8::internal::NewSpaceScavenger>::VisitFixedDoubleArray(v8::internal::Map*, v8::internal::HeapObject*)
+      1    0.2%    0.2%  v8::internal::StackFrame::ComputeType(v8::internal::StackFrameIteratorBase const*, v8::internal::StackFrame::State*)
+      1    0.2%    0.2%  v8::internal::SmallMapList::Sort()
+      1    0.2%    0.2%  v8::internal::SkipList::AddObject(unsigned char*, int)
+      1    0.2%    0.2%  v8::internal::Scope::LookupRecursive(v8::internal::VariableProxy*, v8::internal::Scope::BindingKind*, v8::internal::AstNodeFactory*)
+      1    0.2%    0.2%  v8::internal::ScavengeVisitor::~ScavengeVisitor()
+      1    0.2%    0.2%  v8::internal::Scanner::ScanIdentifierOrKeyword()
+      1    0.2%    0.2%  v8::internal::Runtime_NumberSub(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.2%    0.2%  v8::internal::Runtime_LoadIC_MissFromStubFailure(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.2%    0.2%  v8::internal::Runtime::GetObjectProperty(v8::internal::Isolate*, v8::internal::Handle<v8::internal::Object>, v8::internal::Handle<v8::internal::Object>, v8::internal::LanguageMode)
+      1    0.2%    0.2%  v8::internal::RelocInfoWriter::FlushPosition()
+      1    0.2%    0.2%  v8::internal::ParserTraits::ExpressionFromString(int, v8::internal::Scanner*, v8::internal::AstNodeFactory*)
+      1    0.2%    0.2%  v8::internal::ParserBase<v8::internal::ParserTraits>::ParseStrongSuperCallExpression(v8::internal::ExpressionClassifier*, bool*)
+      1    0.2%    0.2%  v8::internal::ParserBase<v8::internal::ParserTraits>::ParseIdentifierOrStrictReservedWord(bool*, bool*)
+      1    0.2%    0.2%  v8::internal::Parser::ParseFunctionLiteral(v8::internal::AstRawString const*, v8::internal::Scanner::Location, v8::internal::FunctionNameValidity, v8::internal::FunctionKind, int, v8::internal::FunctionLiteral::FunctionType, v8::internal::FunctionLiteral::ArityRestriction, v8::internal::LanguageMode, bool*)
+      1    0.2%    0.2%  v8::internal::Object::GetPropertyWithAccessor(v8::internal::LookupIterator*, v8::internal::LanguageMode)
+      1    0.2%    0.2%  v8::internal::MemoryChunk::Initialize(v8::internal::Heap*, unsigned char*, unsigned long, unsigned char*, unsigned char*, v8::internal::Executability, v8::internal::Space*)
+      1    0.2%    0.2%  v8::internal::Map::Update(v8::internal::Handle<v8::internal::Map>)
+      1    0.2%    0.2%  v8::internal::LookupIterator::LookupIterator(v8::internal::Handle<v8::internal::Object>, v8::internal::Handle<v8::internal::Name>, v8::internal::LookupIterator::Configuration)
+      1    0.2%    0.2%  v8::internal::List<v8::internal::VariableProxy*, v8::internal::ZoneAllocationPolicy>::Add(v8::internal::VariableProxy* const&, v8::internal::ZoneAllocationPolicy)
+      1    0.2%    0.2%  v8::internal::List<v8::internal::PromotionQueue::Entry, v8::internal::FreeStoreAllocationPolicy>::Add(v8::internal::PromotionQueue::Entry const&, v8::internal::FreeStoreAllocationPolicy)
+      1    0.2%    0.2%  v8::internal::List<v8::internal::HValue*, v8::internal::ZoneAllocationPolicy>::Add(v8::internal::HValue* const&, v8::internal::ZoneAllocationPolicy)
+      1    0.2%    0.2%  v8::internal::LEnvironment::AddValue(v8::internal::LOperand*, v8::internal::Representation, bool)
+      1    0.2%    0.2%  v8::internal::LCodeGenBase::GenerateBody()
+      1    0.2%    0.2%  v8::internal::LCodeGenBase::DefineDeoptimizationLiteral(v8::internal::Handle<v8::internal::Object>)
+      1    0.2%    0.2%  v8::internal::LCodeGen::EmitGoto(int)
+      1    0.2%    0.2%  v8::internal::LCodeGen::AddToTranslation(v8::internal::LEnvironment*, v8::internal::Translation*, v8::internal::LOperand*, bool, bool, int*, int*)
+      1    0.2%    0.2%  v8::internal::JSObject::WriteToField(int, v8::internal::Object*)
+      1    0.2%    0.2%  v8::internal::JSObject::MigrateFastToFast(v8::internal::Handle<v8::internal::JSObject>, v8::internal::Handle<v8::internal::Map>)
+      1    0.2%    0.2%  v8::internal::Isolate::LinkDeferredHandles(v8::internal::DeferredHandles*)
+      1    0.2%    0.2%  v8::internal::IC::PostPatching(unsigned char*, v8::internal::Code*, v8::internal::Code*)
+      1    0.2%    0.2%  v8::internal::Heap::CreateFillerObjectAt(unsigned char*, int)
+      1    0.2%    0.2%  v8::internal::Heap::CopyFixedArrayAndGrow(v8::internal::FixedArray*, int, v8::internal::PretenureFlag)
+      1    0.2%    0.2%  v8::internal::HValue::RegisterUse(int, v8::internal::HValue*)
+      1    0.2%    0.2%  v8::internal::HTemplateInstruction<2>::OperandAt(int) const
+      1    0.2%    0.2%  v8::internal::HRangeAnalysisPhase::Run()
+      1    0.2%    0.2%  v8::internal::HOptimizedGraphBuilder::VisitDelete(v8::internal::UnaryOperation*)
+      1    0.2%    0.2%  v8::internal::HDeadCodeEliminationPhase::MarkLiveInstructions()
+      1    0.2%    0.2%  v8::internal::FullCodeGenerator::VisitForStackValue(v8::internal::Expression*)
+      1    0.2%    0.2%  v8::internal::FullCodeGenerator::VisitForEffect(v8::internal::Expression*)
+      1    0.2%    0.2%  v8::internal::FreeList::FindNodeFor(int, int*)
+      1    0.2%    0.2%  v8::internal::Factory::NewJSArrayStorage(v8::internal::Handle<v8::internal::JSArray>, int, int, v8::internal::ArrayStorageAllocationMode)
+      1    0.2%    0.2%  v8::internal::Factory::NewFunctionPrototype(v8::internal::Handle<v8::internal::JSFunction>)
+      1    0.2%    0.2%  v8::internal::Factory::NewCode(v8::internal::CodeDesc const&, unsigned int, v8::internal::Handle<v8::internal::Object>, bool, bool, int, bool)
+      1    0.2%    0.2%  v8::internal::Deserializer::ReadData(v8::internal::Object**, v8::internal::Object**, int, unsigned char*)
+      1    0.2%    0.2%  v8::internal::CompareICState::StateToType(v8::internal::Zone*, v8::internal::CompareICState::State, v8::internal::Handle<v8::internal::Map>)
+      1    0.2%    0.2%  v8::internal::CodeStub::PrintBaseName(std::ostream&) const
+      1    0.2%    0.2%  v8::internal::CodeStub::FindCodeInCache(v8::internal::Code**)
+      1    0.2%    0.2%  v8::internal::CodeCache::Update(v8::internal::Handle<v8::internal::CodeCache>, v8::internal::Handle<v8::internal::Name>, v8::internal::Handle<v8::internal::Code>)
+      1    0.2%    0.2%  v8::internal::CanBeZero(v8::internal::HValue*)
+      1    0.2%    0.2%  v8::internal::Builtins::InvokeApiFunction(v8::internal::Handle<v8::internal::JSFunction>, v8::internal::Handle<v8::internal::Object>, int, v8::internal::Handle<v8::internal::Object>*)
+      1    0.2%    0.2%  v8::internal::Builtins::InterruptCheck()
+      1    0.2%    0.2%  v8::internal::BitVector::Iterator::Advance()
+      1    0.2%    0.2%  v8::internal::AstValueFactory::GetString(unsigned int, bool, v8::internal::Vector<unsigned char const>)
+      1    0.2%    0.2%  v8::internal::AstValueFactory::GetOneByteStringInternal(v8::internal::Vector<unsigned char const>)
+      1    0.2%    0.2%  v8::internal::ArgumentsAdaptorFrame::Print(v8::internal::StringStream*, v8::internal::StackFrame::PrintMode, int) const
+      1    0.2%    0.2%  unibrow::Utf8::Encode(char*, unsigned int, int, bool)
+      1    0.2%    0.2%  std::deque<v8::internal::TranslatedValue, std::allocator<v8::internal::TranslatedValue> >::deque(std::deque<v8::internal::TranslatedValue, std::allocator<v8::internal::TranslatedValue> > const&)
+      1    0.2%    0.2%  std::basic_ofstream<wchar_t, std::char_traits<wchar_t> >::~basic_ofstream()
+      1    0.2%    0.2%  node::ContextifyScript::RunInThisContext(v8::FunctionCallbackInfo<v8::Value> const&)
+      1    0.2%    0.2%  bool v8::internal::ScavengingVisitor<(v8::internal::MarksHandling)0, (v8::internal::LoggingAndProfiling)1>::PromoteObject<(v8::internal::ScavengingVisitor<(v8::internal::MarksHandling)0, (v8::internal::LoggingAndProfiling)1>::ObjectContents)0, (v8::internal::AllocationAlignment)0>(v8::internal::Map*, v8::internal::HeapObject**, v8::internal::HeapObject*, int)
+      1    0.2%    0.2%  _vfprintf_l
+      1    0.2%    0.2%  _swscanf
+      1    0.2%    0.2%  _malloc_zone_malloc
+      1    0.2%    0.2%  _mach_msg_overwrite
+      1    0.2%    0.2%  _fputws_l
+      1    0.2%    0.2%  __platform_bzero
+      1    0.2%    0.2%  ___waitid_nocancel
+
+ [Summary]:
+   ticks  total  nonlib   name
+    218   38.6%   44.9%  JavaScript
+    262   46.4%   53.9%  C++
+     75   13.3%   15.4%  GC
+     79   14.0%          Shared libraries
+      6    1.1%          Unaccounted
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+     38   17.9%    6.7%  v8::internal::Builtins::~Builtins()
+     22   10.4%    3.9%  v8::internal::Runtime_CompileLazy(int, v8::internal::Object**, v8::internal::Isolate*)
+     20    9.4%    3.5%  double v8::internal::InternalStringToDouble<unsigned char const*, unsigned char const*>(v8::internal::UnicodeCache*, unsigned char const*, unsigned char const*, int, double)
+     17    8.0%    3.0%  v8::internal::Runtime_CompileOptimized(int, v8::internal::Object**, v8::internal::Isolate*)
+     15    7.1%    2.7%  v8::internal::List<v8::internal::Handle<v8::internal::Object>, v8::internal::ZoneAllocationPolicy>::Add(v8::internal::Handle<v8::internal::Object> const&, v8::internal::ZoneAllocationPolicy)
+     14    6.6%    2.5%  v8::internal::JsonParser<true>::ParseJsonArray()
+     10    4.7%    1.8%  v8::internal::Runtime_StackGuard(int, v8::internal::Object**, v8::internal::Isolate*)
+      7    3.3%    1.2%  v8::internal::Heap::AllocateRaw(int, v8::internal::AllocationSpace, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+      6    2.8%    1.1%  v8::internal::Runtime_StoreIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      6    2.8%    1.1%  v8::internal::Runtime_CompileForOnStackReplacement(int, v8::internal::Object**, v8::internal::Isolate*)
+      5    2.4%    0.9%  v8::internal::Runtime_KeyedStoreIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      5    2.4%    0.9%  v8::internal::Heap::AllocateEmptyFixedTypedArray(v8::internal::ExternalArrayType)
+      5    2.4%    0.9%  v8::internal::Heap::AllocateEmptyFixedArray()
+      4    1.9%    0.7%  v8::internal::Runtime_LoadIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      4    1.9%    0.7%  v8::internal::IncrementalMarking::RecordWriteSlow(v8::internal::HeapObject*, v8::internal::Object**, v8::internal::Object*)
+      4    1.9%    0.7%  __os_once
+      3    1.4%    0.5%  v8::internal::Handle<v8::internal::Object> v8::internal::HandleScope::CloseAndEscape<v8::internal::Object>(v8::internal::Handle<v8::internal::Object>)
+      3    1.4%    0.5%  v8::internal::Factory::NewFixedArray(int, v8::internal::PretenureFlag)
+      2    0.9%    0.4%  v8::internal::Runtime_ToBooleanIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      2    0.9%    0.4%  v8::internal::Runtime_SetProperty(int, v8::internal::Object**, v8::internal::Isolate*)
+      2    0.9%    0.4%  v8::internal::Runtime_CompareIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      2    0.9%    0.4%  v8::internal::Runtime_AllocateInTargetSpace(int, v8::internal::Object**, v8::internal::Isolate*)
+      2    0.9%    0.4%  v8::internal::Heap::AllocateRawFixedArray(int, v8::internal::PretenureFlag)
+      2    0.9%    0.4%  v8::internal::Factory::NewHeapNumber(double, v8::internal::MutableMode, v8::internal::PretenureFlag)
+      1    0.5%    0.2%  void v8::internal::RelocInfo::Visit<v8::internal::IncrementalMarkingMarkingVisitor>(v8::internal::Heap*)
+      1    0.5%    0.2%  v8::internal::Runtime_TryInstallOptimizedCode(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.5%    0.2%  v8::internal::Runtime_StringSplit(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.5%    0.2%  v8::internal::Runtime_NumberSub(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.5%    0.2%  v8::internal::Runtime_GetProperty(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.5%    0.2%  v8::internal::Isolate::LinkDeferredHandles(v8::internal::DeferredHandles*)
+      1    0.5%    0.2%  v8::internal::IncrementalMarking::OldSpaceStep(long)
+      1    0.5%    0.2%  v8::internal::Heap::CreateFillerObjectAt(unsigned char*, int)
+      1    0.5%    0.2%  v8::internal::FreeList::FindNodeFor(int, int*)
+      1    0.5%    0.2%  v8::internal::Factory::NewJSArrayStorage(v8::internal::Handle<v8::internal::JSArray>, int, int, v8::internal::ArrayStorageAllocationMode)
+      1    0.5%    0.2%  v8::internal::Factory::NewFunctionPrototype(v8::internal::Handle<v8::internal::JSFunction>)
+      1    0.5%    0.2%  __platform_bzero
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 2.0% are not shown.
+
+   ticks parent  name
+     76   13.5%  /usr/local/bin/node
+     48   63.2%    /usr/local/bin/node
+     48  100.0%      LazyCompile: ~parse native json.js:43:19
+     48  100.0%        LazyCompile: Module._extensions..json module.js:427:39
+     48  100.0%          LazyCompile: ~Module.load module.js:348:33
+     48  100.0%            LazyCompile: Module._load module.js:285:24
+      2    2.6%    v8::internal::Runtime_KeyedStoreIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      2  100.0%      LazyCompile: ~NativeModule.cache node.js:929:42
+      2  100.0%        LazyCompile: ~NativeModule.require node.js:850:34
+      2  100.0%          Function: ~<anonymous> fs.js:1:11
+      2  100.0%            LazyCompile: ~NativeModule.compile node.js:916:44
+      2    2.6%    v8::internal::Runtime_CompileOptimized(int, v8::internal::Object**, v8::internal::Isolate*)
+      1   50.0%      LazyCompile: ~Pbf.writeSVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:296:27
+      1  100.0%        LazyCompile: ~writePackedSVarint /Users/mourner/projects/geobuf/node_modules/pbf/index.js:419:28
+      1  100.0%          LazyCompile: ~Pbf.writeRawMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:332:30
+      1  100.0%            LazyCompile: ~Pbf.writeMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:358:27
+      1   50.0%      LazyCompile: *Pbf.readMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:45:26
+      1  100.0%        LazyCompile: ~decode /Users/mourner/projects/geobuf/decode.js:10:16
+      1  100.0%          Function: ~<anonymous> /Users/mourner/projects/geobuf/debug/bench.js:1:11
+      1  100.0%            LazyCompile: ~Module._compile module.js:380:37
+      2    2.6%    v8::internal::Runtime_CompileLazy(int, v8::internal::Object**, v8::internal::Isolate*)
+      1   50.0%      LazyCompile: ~Uint8Array native typedarray.js:124:31
+      1  100.0%        LazyCompile: ~createBuffer buffer.js:22:22
+      1  100.0%          LazyCompile: ~createPool buffer.js:28:20
+      1  100.0%            Function: ~<anonymous> buffer.js:1:11
+      1   50.0%      Function: ~<anonymous> /Users/mourner/projects/geobuf/debug/bench.js:1:11
+      1  100.0%        LazyCompile: ~Module._compile module.js:380:37
+      1  100.0%          LazyCompile: ~Module._extensions..js module.js:420:37
+      1  100.0%            LazyCompile: ~Module.load module.js:348:33
+
+     60   10.6%  LazyCompile: *analyzePoints /Users/mourner/projects/geobuf/encode.js:75:23
+     60  100.0%    LazyCompile: ~analyzeMultiLine /Users/mourner/projects/geobuf/encode.js:71:26
+     60  100.0%      LazyCompile: ~analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     60  100.0%        LazyCompile: ~analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     60  100.0%          LazyCompile: ~analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     60  100.0%            LazyCompile: ~encode /Users/mourner/projects/geobuf/encode.js:21:16
+
+     40    7.1%  LazyCompile: *populateLine /Users/mourner/projects/geobuf/encode.js:219:22
+     40  100.0%    LazyCompile: ~writeMultiLine /Users/mourner/projects/geobuf/encode.js:186:24
+     40  100.0%      LazyCompile: ~writeObject /Users/mourner/projects/geobuf/encode.js:108:21
+     40  100.0%        LazyCompile: *Pbf.writeRawMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:332:30
+     40  100.0%          LazyCompile: ~writeObjects /Users/mourner/projects/geobuf/encode.js:92:22
+     40  100.0%            LazyCompile: ~writeObjects /Users/mourner/projects/geobuf/encode.js:92:22
+
+     26    4.6%  LazyCompile: *readObjectField /Users/mourner/projects/geobuf/decode.js:56:25
+     22   84.6%    LazyCompile: *Pbf.readMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:45:26
+     22  100.0%      LazyCompile: ~decode /Users/mourner/projects/geobuf/decode.js:10:16
+     22  100.0%        Function: ~<anonymous> /Users/mourner/projects/geobuf/debug/bench.js:1:11
+     22  100.0%          LazyCompile: ~Module._compile module.js:380:37
+     22  100.0%            LazyCompile: ~Module._extensions..js module.js:420:37
+      4   15.4%    LazyCompile: ~Pbf.readFields /Users/mourner/projects/geobuf/node_modules/pbf/index.js:30:25
+      4  100.0%      LazyCompile: ~Pbf.readMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:45:26
+      4  100.0%        LazyCompile: ~decode /Users/mourner/projects/geobuf/decode.js:10:16
+      4  100.0%          Function: ~<anonymous> /Users/mourner/projects/geobuf/debug/bench.js:1:11
+      4  100.0%            LazyCompile: ~Module._compile module.js:380:37
+
+     25    4.4%  __os_once
+      4   16.0%    /usr/local/bin/node
+      4  100.0%      LazyCompile: ~parse native json.js:43:19
+      4  100.0%        LazyCompile: Module._extensions..json module.js:427:39
+      4  100.0%          LazyCompile: ~Module.load module.js:348:33
+      4  100.0%            LazyCompile: Module._load module.js:285:24
+      1    4.0%    v8::internal::Runtime_CompareIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      1  100.0%      LazyCompile: ~<anonymous> node.js:300:49
+      1  100.0%        LazyCompile: ~Revive native json.js:19:16
+      1  100.0%          LazyCompile: ~Revive native json.js:19:16
+      1  100.0%            LazyCompile: ~Revive native json.js:19:16
+
+     23    4.1%  LazyCompile: *readLinePart /Users/mourner/projects/geobuf/decode.js:114:22
+     23  100.0%    LazyCompile: ~readMultiLine /Users/mourner/projects/geobuf/decode.js:140:23
+     23  100.0%      LazyCompile: ~readCoords /Users/mourner/projects/geobuf/decode.js:73:20
+     23  100.0%        LazyCompile: ~readObjectField /Users/mourner/projects/geobuf/decode.js:56:25
+     23  100.0%          LazyCompile: *Pbf.readMessage /Users/mourner/projects/geobuf/node_modules/pbf/index.js:45:26
+     23  100.0%            LazyCompile: ~decode /Users/mourner/projects/geobuf/decode.js:10:16
+
+     22    3.9%  void node::Wrap<node::ContextifyContext>(v8::Local<v8::Object>, node::ContextifyContext*)
+     22  100.0%    v8::internal::Builtins::~Builtins()
+     20   90.9%      LazyCompile: ~runInThisContext node.js:835:28
+     20  100.0%        LazyCompile: ~NativeModule.compile node.js:916:44
+     20  100.0%          LazyCompile: ~NativeModule.require node.js:850:34
+      6   30.0%            Function: ~<anonymous> module.js:1:11
+      4   20.0%            LazyCompile: ~startup node.js:13:19
+      3   15.0%            Function: ~<anonymous> stream.js:1:11
+      2   10.0%            LazyCompile: ~startup.globalVariables node.js:213:37
+      2   10.0%            Function: ~<anonymous> tty.js:1:11
+      1    5.0%            LazyCompile: ~startup.globalTimeouts node.js:223:36
+      1    5.0%            Function: ~<anonymous> timers.js:1:11
+      1    5.0%            Function: ~<anonymous> assert.js:1:11
+      2    9.1%      LazyCompile: ~exports.runInThisContext vm.js:52:36
+      2  100.0%        LazyCompile: ~Module._compile module.js:380:37
+      2  100.0%          LazyCompile: ~Module._extensions..js module.js:420:37
+      2  100.0%            LazyCompile: ~Module.load module.js:348:33
+
+     20    3.5%  double v8::internal::InternalStringToDouble<unsigned char const*, unsigned char const*>(v8::internal::UnicodeCache*, unsigned char const*, unsigned char const*, int, double)
+     20  100.0%    /usr/local/bin/node
+     20  100.0%      LazyCompile: ~parse native json.js:43:19
+     20  100.0%        LazyCompile: Module._extensions..json module.js:427:39
+     20  100.0%          LazyCompile: ~Module.load module.js:348:33
+     20  100.0%            LazyCompile: Module._load module.js:285:24
+
+     18    3.2%  LazyCompile: *analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     18  100.0%    LazyCompile: *analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     18  100.0%      LazyCompile: ~analyze /Users/mourner/projects/geobuf/encode.js:38:17
+     18  100.0%        LazyCompile: ~encode /Users/mourner/projects/geobuf/encode.js:21:16
+     18  100.0%          Function: ~<anonymous> /Users/mourner/projects/geobuf/debug/bench.js:1:11
+     18  100.0%            LazyCompile: ~Module._compile module.js:380:37
+
+     15    2.7%  v8::internal::List<v8::internal::Handle<v8::internal::Object>, v8::internal::ZoneAllocationPolicy>::Add(v8::internal::Handle<v8::internal::Object> const&, v8::internal::ZoneAllocationPolicy)
+     15  100.0%    /usr/local/bin/node
+     15  100.0%      LazyCompile: ~parse native json.js:43:19
+     15  100.0%        LazyCompile: Module._extensions..json module.js:427:39
+     15  100.0%          LazyCompile: ~Module.load module.js:348:33
+     15  100.0%            LazyCompile: Module._load module.js:285:24
+
+     14    2.5%  v8::internal::JsonParser<true>::ParseJsonArray()
+     14  100.0%    /usr/local/bin/node
+     14  100.0%      LazyCompile: ~parse native json.js:43:19
+     14  100.0%        LazyCompile: Module._extensions..json module.js:427:39
+     14  100.0%          LazyCompile: ~Module.load module.js:348:33
+     14  100.0%            LazyCompile: Module._load module.js:285:24
+
