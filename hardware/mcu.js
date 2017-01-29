@@ -44,27 +44,31 @@ function _programMcu(callback) {
 
 var gpsFix = null;
 function _parseData(data) {
-	data = data.toString();
-	if(data.substr(0, 1) == 'V') {
-		var version = parseInt(data.substr(1, 2));
-		mcu.version = version;
-	} else if(data.substr(0, 1) == '$') {
-		mcu.gpsAvailable = true;
-		gps.update(data);
-		if(gps.state.fix) {
-			mcu.lastGpsFix = _.clone(gps.state);
+	try {
+		data = data.toString();
+		if(data.substr(0, 1) == 'V') {
+			var version = parseInt(data.substr(1, 2));
+			mcu.version = version;
+		} else if(data.substr(0, 1) == '$') {
+			mcu.gpsAvailable = true;
+			gps.update(data);
+			if(gps.state.fix) {
+				mcu.lastGpsFix = _.clone(gps.state);
+			}
+			if(gps.state.fix != gpsFix) {
+				mcu.emit('gps', gps.state.fix);
+				gpsFix = gps.state.fix;
+			}
+			console.log(gps.state);
+		} else if(data.substr(0, 1) == 'K') {
+			var knob = parseInt(data.substr(2, 1));
+			if(data.substr(1, 1) == '-') knob = 0 - knob;
+			mcu.knob += knob;
+			mcu.emit('knob', knob);
+			//console.log(mcu.knob);
 		}
-		if(gps.state.fix != gpsFix) {
-			mcu.emit('gps', gps.state.fix);
-			gpsFix = gps.state.fix;
-		}
-		console.log(gps.state);
-	} else if(data.substr(0, 1) == 'K') {
-		var knob = parseInt(data.substr(2, 1));
-		if(data.substr(1, 1) == '-') knob = 0 - knob;
-		mcu.knob += knob;
-		mcu.emit('knob', knob);
-		//console.log(mcu.knob);
+	} catch(e) {
+		console.log("Error while parsing MCU data", e);
 	}
 }
 
