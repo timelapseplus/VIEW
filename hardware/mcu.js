@@ -50,6 +50,7 @@ function _parseData(data) {
 		if(data.substr(0, 1) == 'V') {
 			var version = parseInt(data.substr(1, 2));
 			mcu.version = version;
+			console.log("MCU firmware version: " + mcu.version);
 		} else if(data.substr(0, 1) == '$') {
 			gps.update(data);
 			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
@@ -58,6 +59,7 @@ function _parseData(data) {
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz && process.env.TZ != tz) {
 						process.env.TZ = tz;
+						console.log("set timezone to", tz);
 						mcu.emit('timezone', tz);
 					}
 				}
@@ -107,7 +109,7 @@ function _connectSerial(path, callback) {
         }
 
         _getVersion(function(err, version) {
-        	if(version != 1) {
+        	if(version != MCU_VERSION) {
         		_programMcu(function(err) {
 			        _getVersion(function(err, version) {
 			        	if(err || version != MCU_VERSION) {
