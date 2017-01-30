@@ -1830,7 +1830,7 @@ if (VIEW_HARDWARE) {
         name: "settings",
         type: "menu",
         items: [{
-            name: "Wireless Interfaces",
+            name: "Wireless Setup",
             action: wifiMenu,
             help: help.wifiMenu
         }, {
