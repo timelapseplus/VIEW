@@ -52,11 +52,14 @@ function _parseData(data) {
 			mcu.version = version;
 		} else if(data.substr(0, 1) == '$') {
 			gps.update(data);
-			if(gps.state.fix) {
+			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 				mcu.lastGpsFix = _.clone(gps.state);
 				if(!gpsFix) {
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
-					if(tz) process.env.TZ = tz;
+					if(tz && process.env.TZ != tz) {
+						process.env.TZ = tz;
+						mcu.emit('timezone', tz);
+					}
 				}
 			}
 			if(!mcu.gpsAvailable) {

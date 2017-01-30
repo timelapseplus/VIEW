@@ -10,6 +10,7 @@ var async = require('async');
 var exec = require('child_process').exec;
 var crypto = require('crypto');
 var fs = require('fs');
+var moment = require('moment');
 console.log('Server modules loaded');
 
 var sys = require('sys')
@@ -1773,10 +1774,13 @@ if (VIEW_HARDWARE) {
         var info = "";
         if(power.gpsEnabled && mcu.gpsAvailable) {
             if(mcu.lastGpsFix) {
+                var now = moment(mcu.gps.time || mcu.lastGpsFix.time);
                 info = "GPS enabled\t";
                 info += "Lat: " + mcu.lastGpsFix.lat + "\t";
                 info += "Lon: " + mcu.lastGpsFix.lon + "\t";
-                info += "Time: " + (mcu.gps.time || mcu.lastGpsFix.time) + "\t";
+                info += "Date: " + now.format("D MMMM YYYY") + "\t";
+                info += "Time: " + now.format("h:mm:ss A") + "\t";
+                info += "Timezone: " + now.format("z (ZZ)") + "\t";
                 info += "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
@@ -1795,12 +1799,16 @@ if (VIEW_HARDWARE) {
             var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
             var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
             var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time, true);
-            var now = new Date(mcu.gps.time || mcu.lastGpsFix.time);
-            info += "Current Time " + now.getHours() + ":" + now.getMinutes() + "\t";
-            info += "Sun sets at " + suntimes.sunset.getHours() + ":" + suntimes.sunset.getMinutes() + "\t";
-            info += "Sun rises at " + suntimes.sunrise.getHours() + ":" + suntimes.sunrise.getMinutes() + "\t";
-            info += "Moon sets at " +  moontimes.set.getHours() + ":" + moontimes.set.getMinutes() + "\t";
-            info += "Moon rises at " + moontimes.rise.getHours() + ":" + moontimes.rise.getMinutes() + "\t";
+            var now = moment(mcu.gps.time || mcu.lastGpsFix.time);
+            var sunrise = moment(suntimes.sunrise);
+            var sunset = moment(suntimes.sunset);
+            var moonrise = moment(moontimes.rise);
+            var moonset = moment(moontimes.set);
+            info += "Current Time: " + now.format("h:mm:ss A") + "\t";
+            info += "Sun sets at " + sunset.format("h:mm:ss A") + "(" + sunset.fromNow() + ")\t";
+            info += "Sun rises at " + sunrise.format("h:mm:ss A") + "(" + sunrise.fromNow() + ")\t";
+            info += "Moon rises at " + moonrise.format("h:mm:ss A") + "(" + moonrise.fromNow() + ")\t";
+            info += "Moon sets at " + moonset.format("h:mm:ss A") + "(" + moonset.fromNow() + ")\t";
             var phase = "unknown";
             if(mooninfo.phase == 0 || mooninfo.phase == 1) phase = "New Moon"; 
             else if(mooninfo.phase < 0.25) phase = "Waxing Crescent"; 
