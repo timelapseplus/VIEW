@@ -7,6 +7,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 2
+
 /* Prototypes */
 void USART0_Init( unsigned int baudrate );
 unsigned char USART0_Receive( void );
@@ -181,8 +184,8 @@ int main( void )
 			c = USART0_Receive();
 			if(c == 'V') {
 				USART0_Transmit('V');
-				USART0_Transmit('0');
-				USART0_Transmit('1');
+				USART0_Transmit('0' + VERSION_MAJOR);
+				USART0_Transmit('0' + VERSION_MINOR);
 				USART0_Transmit('\r');
 				USART0_Transmit('\n');
 			}

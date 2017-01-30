@@ -5,7 +5,7 @@ var _ = require('underscore');
 var geoTz = require('geo-tz');
 var GPS = require('gps');
 var gps = new GPS;
-var MCU_VERSION = 1;
+var MCU_VERSION = 2;
 
 
 var mcu = new EventEmitter();

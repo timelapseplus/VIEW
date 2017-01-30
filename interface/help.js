@@ -108,4 +108,6 @@ exports.gpsInfo = "This displays the current GPS status and position info.  It i
 
 exports.sunAndMoon = "This displays the current sun and moon info based on the current GPS readings.  It is only updated when first opened.";
 
+exports.infoMenu = "Various system, power, GPS and sun/moon info (if available) can be found here";
+
 

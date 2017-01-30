@@ -1774,7 +1774,7 @@ if (VIEW_HARDWARE) {
         var info = "";
         if(power.gpsEnabled && mcu.gpsAvailable) {
             if(mcu.lastGpsFix) {
-                var now = moment(mcu.gps.time || mcu.lastGpsFix.time);
+                var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
                 info = "GPS enabled\t";
                 info += "Lat: " + mcu.lastGpsFix.lat + "\t";
                 info += "Lon: " + mcu.lastGpsFix.lon + "\t";
@@ -1799,11 +1799,11 @@ if (VIEW_HARDWARE) {
             var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
             var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
             var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time, true);
-            var now = moment(mcu.gps.time || mcu.lastGpsFix.time);
-            var sunrise = moment(suntimes.sunrise);
-            var sunset = moment(suntimes.sunset);
-            var moonrise = moment(moontimes.rise);
-            var moonset = moment(moontimes.set);
+            var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
+            var sunrise = moment(new Date(suntimes.sunrise));
+            var sunset = moment(new Date(suntimes.sunset));
+            var moonrise = moment(new Date(moontimes.rise));
+            var moonset = moment(new Date(moontimes.set));
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
             info += "Sun sets at " + sunset.format("h:mm:ss A") + "(" + sunset.fromNow() + ")\t";
             info += "Sun rises at " + sunrise.format("h:mm:ss A") + "(" + sunrise.fromNow() + ")\t";
@@ -1850,27 +1850,6 @@ if (VIEW_HARDWARE) {
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
         }, {
-            name: "Power Info",
-            action: function(){
-                ui.back();
-                ui.alert('Power Info', power.infoText());
-            },
-            help: help.powerInfo
-        }, {
-            name: "GPS Info",
-            action: function(){
-                ui.back();
-                ui.alert('GPS Info', gpsInfo());
-            },
-            help: help.gpsInfo
-        }, {
-            name: "Sun and Moon",
-            action: function(){
-                ui.back();
-                ui.alert('Sun and Moon', astroInfo());
-            },
-            help: help.sunAndMoon
-        }, {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
@@ -1892,7 +1871,35 @@ if (VIEW_HARDWARE) {
                 ui.load(createErrorReportReasonMenu(null));
             },
             help: help.sendLogsMenu
-        }, ]
+        }]
+    }
+
+    var infoMenu = {
+        name: "info menu",
+        type: "menu",
+        items: [
+        {
+            name: "Power Info",
+            action: function(){
+                ui.back();
+                ui.alert('Power Info', power.infoText());
+            },
+            help: help.powerInfo
+        }, {
+            name: "GPS Info",
+            action: function(){
+                ui.back();
+                ui.alert('GPS Info', gpsInfo());
+            },
+            help: help.gpsInfo
+        }, {
+            name: "Sun and Moon",
+            action: function(){
+                ui.back();
+                ui.alert('Sun and Moon', astroInfo());
+            },
+            help: help.sunAndMoon
+        }]
     }
 
     var mainMenu = {
@@ -1913,6 +1920,10 @@ if (VIEW_HARDWARE) {
             name: "Time-lapse Clips",
             action: clipsMenu,
             help: help.clipsMenu
+        }, {
+            name: "Information",
+            action: infoMenu,
+            help: help.infoMenu
         }, {
             name: "Settings",
             action: settingsMenu,
