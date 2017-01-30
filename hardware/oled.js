@@ -32,7 +32,8 @@ var icon = {};
 
 var DEFAULT_THEME = {
     primary: [1, 1, 1],
-    secondary: [0.1, 0.1, 0.5],
+    //secondary: [0.1, 0.1, 0.5],
+    secondary: [0.0, 0.0, 0.8],
     alert: [1, 0, 0],
     batteryFull: [0.2, 1, 0.2],
     batteryOk: [0.1, 0.5, 0.1],
