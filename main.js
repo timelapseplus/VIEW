@@ -1805,10 +1805,10 @@ if (VIEW_HARDWARE) {
             var moonrise = moment(new Date(moontimes.rise));
             var moonset = moment(new Date(moontimes.set));
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
-            info += "Sun sets at " + sunset.format("h:mm:ss A") + "(" + sunset.fromNow() + ")\t";
-            info += "Sun rises at " + sunrise.format("h:mm:ss A") + "(" + sunrise.fromNow() + ")\t";
-            info += "Moon rises at " + moonrise.format("h:mm:ss A") + "(" + moonrise.fromNow() + ")\t";
-            info += "Moon sets at " + moonset.format("h:mm:ss A") + "(" + moonset.fromNow() + ")\t";
+            info += "Sun sets at " + sunset.format("h:mm:ss A") + "\t   (" + sunset.fromNow() + ")\t";
+            info += "Sun rises at " + sunrise.format("h:mm:ss A") + "\t   (" + sunrise.fromNow() + ")\t";
+            info += "Moon rises at " + moonrise.format("h:mm:ss A") + "\t   (" + moonrise.fromNow() + ")\t";
+            info += "Moon sets at " + moonset.format("h:mm:ss A") + "\t   (" + moonset.fromNow() + ")\t";
             var phase = "unknown";
             if(mooninfo.phase == 0 || mooninfo.phase == 1) phase = "New Moon"; 
             else if(mooninfo.phase < 0.25) phase = "Waxing Crescent"; 
@@ -1830,7 +1830,7 @@ if (VIEW_HARDWARE) {
         name: "settings",
         type: "menu",
         items: [{
-            name: "Wireless Setup",
+            name: "Wireless Interfaces",
             action: wifiMenu,
             help: help.wifiMenu
         }, {
@@ -1891,12 +1891,18 @@ if (VIEW_HARDWARE) {
                 ui.back();
                 ui.alert('GPS Info', gpsInfo());
             },
+            condition: function() {
+                return mcu.gpsAvailable;
+            },
             help: help.gpsInfo
         }, {
             name: "Sun and Moon",
             action: function(){
                 ui.back();
                 ui.alert('Sun and Moon', astroInfo());
+            },
+            condition: function() {
+                return mcu.gpsAvailable;
             },
             help: help.sunAndMoon
         }]
@@ -2714,6 +2720,10 @@ camera.ptp.on('connected', function() {
         }
     }, 1000);
 });
+
+setTimeout(function(){
+    ui.defaultStatus("VIEW " + updates.version);
+}, 1000);
 
 camera.ptp.on('exiting', function() {
     oled.setIcon('camera', false);
