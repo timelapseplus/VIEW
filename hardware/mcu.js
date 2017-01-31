@@ -19,11 +19,11 @@ mcu.knob = 0;
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
 		if(!err && version) {
-			mcu.ready = false;
-			callback && callback(err);
-		} else {
 			mcu.ready = true;
 			callback && callback(null, version);
+		} else {
+			mcu.ready = false;
+			callback && callback(err);
 		}
 	});
 }
@@ -39,6 +39,11 @@ function _getVersion(callback) {
 function _programMcu(callback) {
 	console.log("progamming MCU...");
 	exec("/usr/bin/test -e /home/view/current/firmware/mcu.hex && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U lfuse:w:0xc2:m && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -e && /usr/local/bin/avrdude -C /etc/avrdude.conf -P gpio -c gpio0 -p t841 -U flash:w:/home/view/current/firmware/mcu.hex:i", function(err) {
+		if(err) {
+			console.log("MCU programming failed");
+		} else {
+			console.log("MCU programming successfull");
+		}
 		callback && callback(err);
 	});
 }
@@ -113,6 +118,7 @@ function _connectSerial(path, callback) {
         		_programMcu(function(err) {
 			        _getVersion(function(err, version) {
 			        	if(err || version != MCU_VERSION) {
+			        		console.log("failed to activate MCU!");
 			        		callback && callback("unable to connect to MCU");
 			        	} else {
 			        		callback && callback(err, version);

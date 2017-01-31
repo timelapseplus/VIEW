@@ -72,7 +72,9 @@ if (VIEW_HARDWARE) {
     updates.installIcons();
     oled.init();
     mcu.init(function(err){
-        inputs.start({knob:err?true:false, mcu: mcu});
+        var useInputsForKnob = err ? true : false;
+        console.log("Using MCU for knob: ", !useInputsForKnob);
+        inputs.start({knob:useMcu, mcu: mcu});
     });
 
     var configureWifi = function() {
