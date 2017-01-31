@@ -5,7 +5,7 @@ var async = require('async');
 var power = new EventEmitter();
 
 power.chargeLight = 'enabled';
-power.gpsEnabled = null;
+power.gpsEnabled = 'enabled';
 power.wifiEnabled = true;
 power.autoOffMinutes = 10;
 power.autoOffDisabled = false;
@@ -59,7 +59,7 @@ power.init = function(disableLight) {
 
 function setPower(callback) {
     var setting = powerControlBase;
-    if(power.gpsEnabled) setting |= powerGps;
+    if(power.gpsEnabled != 'disabled') setting |= powerGps;
     if(power.wifiEnabled) setting |= powerWifi;
     console.log("setting power control to 0x" + setting.toString(16));
     axpSet(0x12, setting, callback); // set power switches
@@ -141,7 +141,7 @@ power.enableAutoOff = function() {
 power.gps = function(enable, callback) {
     if(enable) console.log("powering on GPS");
     else console.log("powering off GPS");
-    power.gpsEnabled = enable;
+    power.gpsEnabled = enable ? 'enabled' : 'disabled';
     setPower(callback);
 }
 

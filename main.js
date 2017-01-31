@@ -1503,6 +1503,30 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var gpsEnableMenu = {
+        name: "GPS Enabled",
+        type: "options",
+        items: [{
+            name: "GPS Enabled",
+            value: "enabled",
+            help: help.gpsEnableMenu,
+            action: ui.set(power, 'gpsEnabled', 'enabled', function(cb){
+                db.set('gpsEnabled', "yes");
+                power.gps(true);
+                cb && cb();
+            })
+        }, {
+            name: "GPS Enabled",
+            value: "disabled",
+            help: help.gpsEnableMenu,
+            action: ui.set(power, 'gpsEnabled', 'disabled', function(cb){
+                db.set('gpsEnabled', "no");
+                power.gps(false);
+                cb && cb();
+            })
+        }]
+    }
+
     var gestureEnableMenu = {
         name: "Gesture Sensor",
         type: "options",
@@ -1847,6 +1871,13 @@ if (VIEW_HARDWARE) {
             name: "Auto Power Off",
             action: autoPowerOffMenu,
             help: help.autoPowerOffMenu
+        }, {
+            name: "GPS Module",
+            action: gpsEnableMenu,
+            help: help.gpsEnableMenu
+            condition: function() {
+                return gpsExists;
+            },
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
@@ -2364,8 +2395,31 @@ db.get('chargeLightDisabled', function(err, en) {
     }
 });
 
+var gpsExists = null;
+
 db.get('gpsEnabled', function(err, en) {
-    power.gps(en != "no");
+    if(!en) {
+        if(mcu.gpsAvailable === null) {
+            mcu.once('gps', function(status) {
+                if(!gpsExists) {
+                    gpsExists = (status > 0);
+                    db.set('gpsExists', gpsExists : 'yes' : 'no');
+                }
+                power.gps(status > 0);
+            });
+        } else {
+            if(!gpsExists) {
+                gpsExists = mcu.gpsAvailable;
+                db.set('gpsExists', gpsExists : 'yes' : 'no');
+            }
+            power.gps(mcu.gpsAvailable);
+        }
+    } else {
+        power.gps(en != "no");
+    }
+});
+db.get('gpsExists', function(err, e) {
+    if(!err) gpsExists = (e == 'yes');
 });
 
 db.get('buttonMode', function(err, mode) {

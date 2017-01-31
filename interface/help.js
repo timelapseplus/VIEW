@@ -110,4 +110,7 @@ exports.sunAndMoon = "This displays the current sun and moon info based on the c
 
 exports.infoMenu = "Various system, power, GPS and sun/moon info (if available) can be found here";
 
+exports.gpsEnableMenu = "Enables/disables GPS module.  Disabling the GPS improves battery life.";
+
+
 

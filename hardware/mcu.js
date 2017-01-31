@@ -11,7 +11,7 @@ var MCU_VERSION = 2;
 var mcu = new EventEmitter();
 
 mcu.ready = null;
-mcu.gpsAvailable = false;
+mcu.gpsAvailable = null;
 mcu.gps = gps.state;
 mcu.lastGpsFix = null;
 mcu.knob = 0;
@@ -56,6 +56,12 @@ function _parseData(data) {
 			var version = parseInt(data.substr(1, 2));
 			mcu.version = version;
 			console.log("MCU firmware version: " + mcu.version);
+			setTimeout(function(){
+				if(mcu.gpsAvailable === null) {
+					mcu.gpsAvailable = false;
+					mcu.emit('gps', 0);
+				}
+			}, 2000);
 		} else if(data.substr(0, 1) == '$') {
 			gps.update(data);
 			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
@@ -69,7 +75,7 @@ function _parseData(data) {
 					}
 				}
 			}
-			if(!mcu.gpsAvailable) {
+			if(mcu.gpsAvailable === null) {
 				mcu.gpsAvailable = true;
 				mcu.emit('gps', 1);
 			}
