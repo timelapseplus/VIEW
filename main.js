@@ -46,6 +46,7 @@ var suncalc = require('suncalc');
 
 var previewImage = null;
 var liveviewOn = false;
+var gpsExists = null;
 
 var cache = {};
 
@@ -1798,7 +1799,7 @@ if (VIEW_HARDWARE) {
 
     var gpsInfo = function() {
         var info = "";
-        if(power.gpsEnabled && mcu.gpsAvailable) {
+        if(power.gpsEnabled != 'disabled' && mcu.gpsAvailable) {
             if(mcu.lastGpsFix) {
                 var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
                 info = "GPS enabled\t";
@@ -1824,8 +1825,8 @@ if (VIEW_HARDWARE) {
         info += "Timelapse+ VIEW\t";
         info += "Firmware: " + updates.version + "\t";
         info += "MCU Firmware: " + mcu.version + "\t";
-        info += "GPhoto2: " + updates.libgphoto2Version + "\t";
-        info += "GPS Module: " + gpsExists ? 'installed':'not installed' + "\t";
+        info += "LibGPhoto2: " + updates.libgphoto2Version + "\t";
+        info += "GPS Module: " + (gpsExists ? 'installed':'not installed') + "\t";
         return info;
     }
 
@@ -2411,8 +2412,6 @@ db.get('chargeLightDisabled', function(err, en) {
         power.init(en == "yes");
     }
 });
-
-var gpsExists = null;
 
 db.get('gpsEnabled', function(err, en) {
     if(!en) {
