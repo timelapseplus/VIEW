@@ -74,7 +74,7 @@ if (VIEW_HARDWARE) {
     mcu.init(function(err){
         var useInputsForKnob = err ? true : false;
         console.log("Using MCU for knob: ", !useInputsForKnob);
-        inputs.start({knob:useMcu, mcu: mcu});
+        inputs.start({knob:useInputsForKnob, mcu: mcu});
     });
 
     var configureWifi = function() {
