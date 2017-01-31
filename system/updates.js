@@ -31,6 +31,7 @@ function checkLibGPhotoUpdate(callback) {
 			var parts = stdout.match(/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/);
 			if(parts && parts.length > 1 ) {
 				var version = parts[1].trim();
+				exports.libgphoto2Version = version;
 				if(version != libgphoto2Version) {
 					console.log("libgphoto2 update required (current version = " + version + ")");
 					callback(null, true);

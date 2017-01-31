@@ -1819,6 +1819,16 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
+    var systemInfo = function() {
+        var info = "";
+        info += "Timelapse+ VIEW\t";
+        info += "Firmware: " + updates.version + "\t";
+        info += "MCU Firmware: " + mcu.version + "\t";
+        info += "GPhoto2: " + updates.libgphoto2Version + "\t";
+        info += "GPS Module: " + gpsExists ? 'installed':'not installed' + "\t";
+        return info;
+    }
+
     var astroInfo = function() {
         var info = "";
         if(mcu.lastGpsFix) {
@@ -1918,6 +1928,13 @@ if (VIEW_HARDWARE) {
                 ui.alert('Power Info', power.infoText());
             },
             help: help.powerInfo
+        }, {
+            name: "System Info",
+            action: function(){
+                ui.back();
+                ui.alert('System Info', systemInfo());
+            },
+            help: help.systemInfo
         }, {
             name: "GPS Info",
             action: function(){

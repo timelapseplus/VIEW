@@ -112,5 +112,6 @@ exports.infoMenu = "Various system, power, GPS and sun/moon info (if available) 
 
 exports.gpsEnableMenu = "Enables/disables GPS module.  Disabling the GPS improves battery life.";
 
+exports.systemInfo = "System and version information";
 
 
