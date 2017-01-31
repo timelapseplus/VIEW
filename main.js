@@ -1874,7 +1874,7 @@ if (VIEW_HARDWARE) {
         }, {
             name: "GPS Module",
             action: gpsEnableMenu,
-            help: help.gpsEnableMenu
+            help: help.gpsEnableMenu,
             condition: function() {
                 return gpsExists;
             },
