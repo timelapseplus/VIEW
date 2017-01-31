@@ -2403,14 +2403,14 @@ db.get('gpsEnabled', function(err, en) {
             mcu.once('gps', function(status) {
                 if(!gpsExists) {
                     gpsExists = (status > 0);
-                    db.set('gpsExists', gpsExists : 'yes' : 'no');
+                    db.set('gpsExists', gpsExists ? 'yes' : 'no');
                 }
                 power.gps(status > 0);
             });
         } else {
             if(!gpsExists) {
                 gpsExists = mcu.gpsAvailable;
-                db.set('gpsExists', gpsExists : 'yes' : 'no');
+                db.set('gpsExists', gpsExists ? 'yes' : 'no');
             }
             power.gps(mcu.gpsAvailable);
         }
