@@ -1931,7 +1931,7 @@ if (VIEW_HARDWARE) {
             name: "Power Info",
             action: function(){
                 ui.back();
-                ui.alert('Power Info', power.infoText());
+                ui.alert('Power Info', power.infoText);
             },
             help: help.powerInfo
         }, {
@@ -1945,7 +1945,7 @@ if (VIEW_HARDWARE) {
             name: "GPS Info",
             action: function(){
                 ui.back();
-                ui.alert('GPS Info', gpsInfo());
+                ui.alert('GPS Info', gpsInfo);
             },
             condition: function() {
                 return mcu.gpsAvailable;
@@ -1955,7 +1955,7 @@ if (VIEW_HARDWARE) {
             name: "Sun and Moon",
             action: function(){
                 ui.back();
-                ui.alert('Sun and Moon', astroInfo());
+                ui.alert('Sun and Moon', astroInfo);
             },
             condition: function() {
                 return mcu.gpsAvailable;

@@ -646,29 +646,24 @@ oled.text = function(name, value) {
     oled.writeMenu();
 }
 
-oled.displayText = function(title, text) {
-    oled.textInput = null;
-    oled.textLines = null;
-    oled.imageMenu = null;
-    oled.setting = null;
-    oled.textTitle = title;
+function parseTextIntoLines(text) {
+    var lines = [];
     var maxWidth = 158;
     if(typeof text !== "string") {
         text = "an unknown error occurred";
     }
     var words = text.replace(/[\n\r]+/g, ' \n ').replace(/[\t]+/g, ' \t ').replace(/[ ]+/g, ' ').split(' ');
-    oled.textLines = [];
     fb.font(MENU_TEXT_FONT_SIZE, false, FONT_DEFAULT);
     var i = 0;
     var line = "";
     for(i = 0; i < words.length; i++) {
         if(words[i] == "\n") {
-            if(line.length > 0) oled.textLines.push(line);
+            if(line.length > 0) lines.push(line);
             line = "";
-            oled.textLines.push(' ');
+            lines.push(' ');
             continue;
         } else if(words[i] == "\t") {
-            if(line.length > 0) oled.textLines.push(line);
+            if(line.length > 0) lines.push(line);
             line = "";
             continue;
         }
@@ -677,12 +672,27 @@ oled.displayText = function(title, text) {
         if(size.width <= maxWidth) {
             line = newLine;
         } else {
-            oled.textLines.push(line);
+            lines.push(line);
             line = (words[i]).trim();
         }
     }
-    if(line.length > 0) oled.textLines.push(line);
+    if(line.length > 0) lines.push(line);
+    return lines;
+}
+
+oled.displayText = function(title, text) {
+    oled.textInput = null;
+    oled.textLines = null;
+    oled.imageMenu = null;
+    oled.setting = null;
+    oled.textTitle = title;
+    oled.textLines = parseTextIntoLines(text);
     oled.selected = 0;
+    oled.writeMenu();
+}
+
+oled.updateDisplayText = function(text) {
+    oled.textLines = parseTextIntoLines(text);
     oled.writeMenu();
 }
 

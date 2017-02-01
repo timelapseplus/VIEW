@@ -115,6 +115,10 @@ function load(program, selected) {
 
 exports.load = function(menuProgram, noPush, selected, forceStack) {
     exports.busy = false;
+    if(currentProgram.intervalHandle) {
+        clearInterval(currentProgram.intervalHandle)
+        currentProgram.intervalHandle = null;
+    }
     if ((forceStack && backupProgram != null) || (backupProgram != null && !noPush && backupProgram.type != "options" && backupProgram.type != "function")) {
         stack.push({
             program: backupProgram,
@@ -215,13 +219,22 @@ exports.help = function() {
         });
     }
 }
-exports.alert = function(title, text) {
+exports.alert = function(title, text, updateInterval) {
     activity();
+    var f, intervalHandle = null;
+    if(typeof text === 'function') {
+        f = text;
+        text = f();
+        intervalHandle = setInterval(function() {
+            oled.updateDisplayText(f());
+        }, updateInterval||1000);
+    }
     exports.load({
         type: "textDisplay",
         origin: "alert",
         name: title,
-        value: text
+        value: text,
+        intervalHandle: intervalHandle
     });
 }
 exports.currentOrigin = function() {
