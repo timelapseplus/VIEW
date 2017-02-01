@@ -694,6 +694,7 @@ oled.displayText = function(title, text) {
 oled.updateDisplayText = function(text) {
     oled.textLines = parseTextIntoLines(text);
     oled.writeMenu();
+    oled.update();
 }
 
 oled.getTextValue = function() {
