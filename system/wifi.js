@@ -119,7 +119,9 @@ iw.on('former', function(data) {
 
 iw.on('leave', function() {
 	console.log("[Wifi] Leave");
-	wifi.emit("disconnect", wifi.connected);
+	if(wifi.connected) {
+		wifi.emit("disconnect", wifi.connected);
+	}
 	wifi.connected = false;
 });
 
@@ -239,6 +241,9 @@ wifi.connect = function(network, password, callback) {
 }
 
 wifi.disconnect = function(callback) {
+	if(wifi.connected) {
+		wifi.emit("disconnect", wifi.connected);
+	}
 	wifi.connected = false;
 	iw.dhcpStop(function(){
 		console.log("[Wifi] Stopped DHCP, leaving wifi network...")

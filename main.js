@@ -161,20 +161,24 @@ if (VIEW_HARDWARE) {
 
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
+        app.enableRemote();
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {
+        app.disableRemote();
         oled.setIcon('wifi', false);
         ui.reload();
     });
     wifi.on('disabled', function(enabled) {
+        app.disableRemote();
         oled.setIcon('wifi', false);
         ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
+        app.disableRemote();
         oled.setIcon('wifi', false);
         ui.status('wifi disconnected');
         if(previousConnection && previousConnection.address) {

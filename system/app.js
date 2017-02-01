@@ -17,6 +17,7 @@ var wss = new WebSocketServer({
 var EventEmitter = require("events").EventEmitter;
 
 var app = new EventEmitter();
+app.remoteEnabled = false;
 
 express.use(Express.static('/home/view/current/frontend/www'));
 
@@ -56,7 +57,7 @@ var remotePingHandle = null;
 
 
 function connectRemote() {
-    if (app.remote) return;
+    if (app.remote || !app.remoteEnabled) return;
     console.log("connecting to view.tl");
     wsRemote = new WebSocket('ws://incoming.view.tl/socket/device', {
         headers: {
@@ -131,6 +132,7 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
 });
 
 function closeApp() {
+    app.remoteEnabled = false;
     closeHttpServer();
     if(wsRemote && wsRemote.destroy) {
         wsRemote.close();
@@ -266,6 +268,18 @@ function receive_message(msg_string, socket) {
     } catch (err) {
         console.log("Error while parsing message:", msg_string, err);
         return;
+    }
+}
+
+app.enableRemote = function() {
+    app.remoteEnabled = true;    
+    connectRemote();
+}
+
+app.disableRemote = function() {
+    app.remoteEnabled = false;
+    if(wsRemote && wsRemote.destroy) {
+        wsRemote.close();
     }
 }
 
