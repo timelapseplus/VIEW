@@ -38,7 +38,7 @@
     "uid": "0.0.2",
     "underscore": "latest",
     "wireless": "elijahparker/node-wireless",
-    "ws": "^0.7.2"
+    "ws": "^0.8.1"
   },
   "devDependencies": {
     "mocha": "latest"
