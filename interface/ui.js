@@ -115,7 +115,7 @@ function load(program, selected) {
 
 exports.load = function(menuProgram, noPush, selected, forceStack) {
     exports.busy = false;
-    if(currentProgram.intervalHandle) {
+    if(currentProgram && currentProgram.intervalHandle) {
         clearInterval(currentProgram.intervalHandle)
         currentProgram.intervalHandle = null;
     }
