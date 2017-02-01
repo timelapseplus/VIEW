@@ -228,7 +228,6 @@ power.infoText = function() {
     if(!power.stats.pluggedIn) info += "\tBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
     if(power.stats.pluggedIn) info += "\tCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
     info += "\tPMIC Temp: " + twoDigits(power.stats.axpTemperature) + "°C";
-    info += "\nNote: the values are not updated while shown. Exit and open again to refresh.";
     return info;
 }
 

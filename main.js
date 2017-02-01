@@ -1827,7 +1827,7 @@ if (VIEW_HARDWARE) {
     var systemInfo = function() {
         var info = "";
         info += "Timelapse+ VIEW\t";
-        info += "Serial Number: " + app.serial + "\t";
+        info += "UID: " + app.serial + "\t";
         info += "Version: " + updates.version + "\t";
         info += "MCU Firmware: " + mcu.version + "\t";
         info += "LibGPhoto2: " + updates.libgphoto2Version + "\t";
