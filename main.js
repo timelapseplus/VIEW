@@ -2798,11 +2798,10 @@ camera.ptp.on('connected', function() {
     }, 1000);
 });
 
-setTimeout(function(){
-    var s = "VIEW " + updates.getCurrentVersion();
-    ui.defaultStatus(s);
-    console.log("Setting default status to '" + s + "'")
-}, 1000);
+var s = "VIEW " + updates.getCurrentVersion();
+ui.defaultStatus(s);
+ui.status(s);
+console.log("Setting default status to '" + s + "'")
 
 camera.ptp.on('exiting', function() {
     oled.setIcon('camera', false);
