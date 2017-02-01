@@ -75,7 +75,7 @@ function _parseData(data) {
 					}
 				}
 			}
-			if(mcu.gpsAvailable === null) {
+			if(!mcu.gpsAvailable) {
 				mcu.gpsAvailable = true;
 				mcu.emit('gps', 1);
 			}

@@ -113,6 +113,7 @@ function connectRemote() {
     });
 }
 
+app.serial = "unknown";
 // get cpu serial number as unique id for view device
 exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
     lines = stdout.split('\n');
@@ -122,6 +123,7 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
             if(matches.length > 1) {
                 viewId = matches[1];
                 console.log("VIEW_ID:", viewId);
+                app.serial = viewId;
                 connectRemote();
             }
         }

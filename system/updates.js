@@ -214,6 +214,10 @@ if(installs.indexOf('current') !== -1) {
 	exports.version = current;
 }
 
+exports.getCurrentVersion = function() {
+	return current;	
+}
+
 exports.developerMode = false;
 var cachedVersions = null;
 exports.getVersions = function(callback){

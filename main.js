@@ -1823,7 +1823,8 @@ if (VIEW_HARDWARE) {
     var systemInfo = function() {
         var info = "";
         info += "Timelapse+ VIEW\t";
-        info += "Firmware: " + updates.version + "\t";
+        info += "Serial Number: " + app.serial + "\t";
+        info += "Version: " + updates.version + "\t";
         info += "MCU Firmware: " + mcu.version + "\t";
         info += "LibGPhoto2: " + updates.libgphoto2Version + "\t";
         info += "GPS Module: " + (gpsExists ? 'installed':'not installed') + "\t";
@@ -2794,7 +2795,9 @@ camera.ptp.on('connected', function() {
 });
 
 setTimeout(function(){
-    ui.defaultStatus("VIEW " + updates.version);
+    var s = "VIEW " + updates.getCurrentVersion();
+    ui.defaultStatus(s);
+    console.log("Setting default status to '" + s + "'")
 }, 1000);
 
 camera.ptp.on('exiting', function() {
