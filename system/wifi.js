@@ -241,10 +241,10 @@ wifi.connect = function(network, password, callback) {
 }
 
 wifi.disconnect = function(callback) {
-	if(wifi.connected) {
-		wifi.emit("disconnect", wifi.connected);
-	}
 	wifi.connected = false;
+	if(wifi.connected) {
+		wifi.emit("disconnect", false);
+	}
 	iw.dhcpStop(function(){
 		console.log("[Wifi] Stopped DHCP, leaving wifi network...")
 		iw.leave(callback);

@@ -108,9 +108,10 @@ function connectRemote() {
     wsRemote.once('error', function() {
         if (remotePingHandle) clearInterval(remotePingHandle);
         remotePingHandle = null;
-        //console.log("Error connecting to view.tl");
+        console.log("Disconnected from view.tl");
+        app.emit('connected', false);
         app.remote = false;
-        setTimeout(connectRemote, 15000);
+        setTimeout(connectRemote, 5000);
     });
 }
 
@@ -281,6 +282,7 @@ app.disableRemote = function() {
     if(wsRemote && wsRemote.destroy) {
         wsRemote.close();
     }
+    app.emit('connected', false);
 }
 
 app.send = send_message;
