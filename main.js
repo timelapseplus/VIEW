@@ -1801,7 +1801,8 @@ if (VIEW_HARDWARE) {
         }, ]
     }
     var limitPrecison = function(n, p) {
-        n = Math.round(n * Math.pow(10, p));
+        var f = Math.pow(10, p);
+        n = Math.round(n * f) / f;
         return n;
     }
     var gpsInfo = function() {
@@ -2130,7 +2131,6 @@ if (VIEW_HARDWARE) {
         oled.activity();
         power.activity();
         ui.status = "app.view.tl code: " + code;
-        ui.update();
         //displayAuthCode(code);
     });
 
