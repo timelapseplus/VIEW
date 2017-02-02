@@ -2365,8 +2365,9 @@ function closeSystem(callback) {
     try {
         db.set('intervalometer.currentProgram', intervalometer.currentProgram);
         if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb) {
-            lastGpsFix.fromDb = true;
-            db.set('lastGpsFix', lastGpsFix);
+            mcu.lastGpsFix.fromDb = true;
+            console.log("saving gps data: ", mcu.lastGpsFix);
+            db.set('lastGpsFix', mcu.lastGpsFix);
         }
     } catch(e) {
         console.log("Error while saving timelapse settings:", e);
@@ -2489,6 +2490,7 @@ db.get('autoOffMinutes', function(err, minutes) {
 
 db.get('lastGpsFix', function(err, res) {
     if(!err && res && !mcu.lastGpsFix) {
+        res.fromDb = true;
         mcu.lastGpsFix = res;
     }
 });
