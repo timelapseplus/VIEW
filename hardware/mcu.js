@@ -30,7 +30,7 @@ mcu.init = function(callback) {
 }
 
 mcu.setTz = function(tz) {
-	if(!tzSet) {
+	if(!mcu.tzAutoSet) {
 		process.env.TZ = tz;
 	}
 }
