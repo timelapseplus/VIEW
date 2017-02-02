@@ -2509,6 +2509,7 @@ mcu.on('timezone', function(tz) {
 
 mcu.on('gps', function(index) {
     oled.setIcon('gps', index == 2);
+    ui.reload();
 });
 
 light.start();

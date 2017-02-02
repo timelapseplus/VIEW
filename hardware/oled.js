@@ -27,7 +27,7 @@ var ICON_CAMERA = '';
 var ICON_WIFI = '';
 var ICON_WEB = '';
 var ICON_BT = '';
-var ICON_GPS = '';
+var ICON_GPS = '';
 
 var icon = {};
 
