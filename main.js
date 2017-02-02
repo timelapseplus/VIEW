@@ -36,6 +36,7 @@ if (VIEW_HARDWARE) {
     var mcu = require('./hardware/mcu.js');
 }
 intervalometer.addNmx(nmx);
+intervalometer.addMcu(mcu);
 
 var wifi = require('./system/wifi.js');
 if(power) wifi.power = power; // allow wifi module to control power
@@ -2122,6 +2123,7 @@ if (VIEW_HARDWARE) {
         }, null, null, true);
     }
 
+    var saveDefault = ui.defaultStatusString;
     app.on('auth-required', function(code) {
         if(updates.installing) return;
         //if(authDisplayed) {
@@ -2130,6 +2132,8 @@ if (VIEW_HARDWARE) {
         //}
         oled.activity();
         power.activity();
+        saveDefault = ui.defaultStatusString;
+        ui.defaultStatus("app.view.tl code: " + code);
         ui.status("app.view.tl code: " + code);
         //displayAuthCode(code);
     });
@@ -2141,6 +2145,7 @@ if (VIEW_HARDWARE) {
         }
         oled.activity();
         power.activity();
+        ui.defaultStatus(saveDefault);
         ui.status('connected to view.tl');
     });
 

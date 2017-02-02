@@ -48,7 +48,7 @@ function getJpeg(path, crop, callback) {
     }
 }
 
-exports.writeXMP = function(fileName, exposureCompensation, description, name) {
+exports.writeXMP = function(fileName, exposureCompensation, description, name, lat, lon) {
     var template = '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.5-c002 1.148022, 2012/07/15-18:06:45        ">\n\
  <rdf:RDF xmlns:rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >\n\
   <rdf:Description rdf:about=""\n\
@@ -75,18 +75,27 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name) {
      </rdf:Alt>\n\
     </dc:description>\n\
   </rdf:Description>\n\
+  <rdf:Description rdf:about="" xmlns:exif="http://ns.adobe.com/exif/1.0/">\n\
+    <exif:GPSLatitude>{{LAT}}</exif:GPSLatitude>\n\
+    <exif:GPSLongitude>{{LON}}</exif:GPSLongitude>\n\
+  </rdf:Description>\n\
   <rdf:Description rdf:about=""\n\
     xmlns:lrt="http://lrtimelapse.com/">\n\
     <lrt:ExternalExposureDefault>{{LRTEXP}}</lrt:ExternalExposureDefault>\n\
   </rdf:Description>\n\
   </rdf:RDF>\n\
 </x:xmpmeta>';
+    
+    if(lat == null) lat = "";
+    if(lon == null) lon = "";
 
     var expString = (exposureCompensation >= 0 ? "+" : "") + exposureCompensation.toString();
     var xmpData = template.replace("{{EXP}}", expString);
     xmpData = xmpData.replace("{{LRTEXP}}", expString);
     xmpData = xmpData.replace("{{NAME}}", name);
     xmpData = xmpData.replace("{{DESC}}", description);
+    xmpData = xmpData.replace("{{LAT}}", lat);
+    xmpData = xmpData.replace("{{LON}}", lon);
 
     console.log("writing XMP file");
     fs.writeFileSync(fileName.replace(/\.[0-9a-z]+$/i, '.xmp'), xmpData);

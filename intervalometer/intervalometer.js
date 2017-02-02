@@ -68,6 +68,7 @@ intervalometer.autoSettings = {
 
 var nmx = null;
 var db = null;
+var mcu = null;
 
 intervalometer.timelapseFolder = false;
 
@@ -111,7 +112,7 @@ function writeFile() {
 }
 
 function getDetails(file) {
-    return {
+    var d = {
         frames: status.frames,
         evCorrection: status.evDiff,
         targetEv: exp.status.targetEv,
@@ -122,8 +123,13 @@ function getDetails(file) {
         fileName: file || status.path,
         p: exp.status.pComponent,
         i: exp.status.iComponent,
-        d: exp.status.dComponent
+        d: exp.status.dComponent,
+    };
+    if(mcu && mcu.lastGpsFix) {
+        d.latitude = mcu.lastGpsFix.lat;
+        d.longitude = mcu.lastGpsFix.lon;
     }
+    return d;
 }
 
 var startShutterEv = -1;
@@ -561,6 +567,10 @@ intervalometer.run = function(program) {
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
+                if(mcu && mcu.lastGpsFix) {
+                    status.latitude = mcu.lastGpsFix.lat;
+                    status.longitude = mcu.lastGpsFix.lon;
+                }
                 var options = {
                     isoMax: program.isoMax,
                     isoMin: program.isoMin,
@@ -1007,7 +1017,7 @@ intervalometer.writeXMPs = function(clipNumber, cameraNumber, destinationFolder,
                 var xmpFile = destinationFolder + "/" + data[i].fileNumberString + ".xmp";
                 console.log("Writing " + xmpFile);
                 var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
-                image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name);
+                image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data.latitude, data.longitude);
             }
             if (callback) callback();
         } else {
@@ -1023,6 +1033,10 @@ intervalometer.addNmx = function(nmxObject) {
 
 intervalometer.addDb = function(dbObject) {
     db = dbObject;
+}
+
+intervalometer.addMcu = function(mcuObject) {
+    mcu = mcuObject;
 }
 
 
