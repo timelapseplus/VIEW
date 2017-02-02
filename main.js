@@ -1842,9 +1842,9 @@ if (VIEW_HARDWARE) {
     var astroInfo = function() {
         var info = "";
         if(mcu.lastGpsFix) {
-            var suntimes = suncalc.getTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
-            var moontimes = suncalc.getMoonTimes(mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
-            var mooninfo = suncalc.getMoonIllumination(mcu.lastGpsFix.time, true);
+            var suntimes = suncalc.getTimes(mcu.gps.time || mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
+            var moontimes = suncalc.getMoonTimes(mcu.gps.time || mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
+            var mooninfo = suncalc.getMoonIllumination(mcu.gps.time || mcu.lastGpsFix.time, true);
             var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
             var sunrise = moment(new Date(suntimes.sunrise));
             var sunset = moment(new Date(suntimes.sunset));
@@ -2130,7 +2130,7 @@ if (VIEW_HARDWARE) {
         //}
         oled.activity();
         power.activity();
-        ui.status = "app.view.tl code: " + code;
+        ui.status("app.view.tl code: " + code);
         //displayAuthCode(code);
     });
 
@@ -2359,6 +2359,10 @@ function closeSystem(callback) {
     }
     try {
         db.set('intervalometer.currentProgram', intervalometer.currentProgram);
+        if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb) {
+            lastGpsFix.fromDb = true;
+            db.set('lastGpsFix', lastGpsFix);
+        }
     } catch(e) {
         console.log("Error while saving timelapse settings:", e);
     }
@@ -2478,6 +2482,12 @@ db.get('autoOffMinutes', function(err, minutes) {
     }
 });
 
+db.get('lastGpsFix', function(err, res) {
+    if(!err && res && !mcu.lastGpsFix) {
+        mcu.lastGpsFix = res;
+    }
+});
+
 db.get('timezone', function(err, tz) {
     if(!err && tz) {
         mcu.setTz(tz);
@@ -2490,6 +2500,10 @@ mcu.on('timezone', function(tz) {
             db.set('timezone', tz);
         }
     });
+});
+
+mcu.on('gps', function(index) {
+    oled.setIcon('gps', index == 2);
 });
 
 light.start();

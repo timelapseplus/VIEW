@@ -27,6 +27,7 @@ var ICON_CAMERA = '';
 var ICON_WIFI = '';
 var ICON_WEB = '';
 var ICON_BT = '';
+var ICON_GPS = '';
 
 var icon = {};
 
@@ -329,6 +330,10 @@ function drawStatusBar() {
     }
     if(icon.camera) {
         fb.text(statusIconX, MENU_STATUS_YOFFSET - 0.5, ICON_CAMERA);
+        statusIconX -= 10;
+    }
+    if(icon.gps) {
+        fb.text(statusIconX, MENU_STATUS_YOFFSET - 0.5, ICON_GPS);
         statusIconX -= 10;
     }
 
