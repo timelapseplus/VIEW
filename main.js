@@ -2362,18 +2362,16 @@ function closeSystem(callback) {
     } catch(e) {
         console.log("Error while saving timelapse settings:", e);
     }
-    setTimeout(function() {
-        console.log("closing db...");
-        db.close(function(){
-            console.log("db closed.");
-            if (VIEW_HARDWARE) {
-                oled.close();
-                callback && callback();
-            } else {
-                callback && callback();
-            }
-        });
-    }, 1000);
+    console.log("closing db...");
+    db.close(function(){
+        console.log("db closed.");
+        if (VIEW_HARDWARE) {
+            oled.close();
+            callback && callback();
+        } else {
+            callback && callback();
+        }
+    });
     //db.setCache('intervalometer.status', intervalometer.status);
 }
 
