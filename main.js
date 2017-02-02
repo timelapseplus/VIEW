@@ -1814,6 +1814,7 @@ if (VIEW_HARDWARE) {
                 info = "GPS enabled\t";
                 info += "Lat: " + limitPrecison(mcu.lastGpsFix.lat, 6) + "\t";
                 info += "Lon: " + limitPrecison(mcu.lastGpsFix.lon, 6) + "\t";
+                info += "Altitude: " + limitPrecison(mcu.lastGpsFix.alt, 1) + "\t";
                 info += "Date: " + now.format("D MMMM YYYY") + "\t";
                 info += "Time: " + now.format("h:mm:ss A") + "\t";
                 info += "Timezone: " + now.format("z (ZZ)") + "\t";
