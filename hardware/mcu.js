@@ -15,6 +15,7 @@ mcu.gpsAvailable = null;
 mcu.gps = gps.state;
 mcu.lastGpsFix = null;
 mcu.knob = 0;
+mcu.tzAutoSet = false;
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -26,6 +27,12 @@ mcu.init = function(callback) {
 			callback && callback(err);
 		}
 	});
+}
+
+mcu.setTz = function(tz) {
+	if(!tzSet) {
+		process.env.TZ = tz;
+	}
 }
 
 function _getVersion(callback) {
@@ -70,6 +77,7 @@ function _parseData(data) {
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz && process.env.TZ != tz) {
 						process.env.TZ = tz;
+						mcu.tzAutoSet = true;
 						console.log("set timezone to", tz);
 						mcu.emit('timezone', tz);
 					}

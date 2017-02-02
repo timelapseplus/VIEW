@@ -1800,15 +1800,18 @@ if (VIEW_HARDWARE) {
             help: help.buttonModeMenu
         }, ]
     }
-
+    var limitPrecison = function(n, p) {
+        n = Math.round(n * Math.pow(10, p));
+        return n;
+    }
     var gpsInfo = function() {
         var info = "";
         if(power.gpsEnabled != 'disabled' && mcu.gpsAvailable) {
             if(mcu.lastGpsFix) {
                 var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
                 info = "GPS enabled\t";
-                info += "Lat: " + mcu.lastGpsFix.lat + "\t";
-                info += "Lon: " + mcu.lastGpsFix.lon + "\t";
+                info += "Lat: " + limitPrecison(mcu.lastGpsFix.lat, 6) + "\t";
+                info += "Lon: " + limitPrecison(mcu.lastGpsFix.lon, 6) + "\t";
                 info += "Date: " + now.format("D MMMM YYYY") + "\t";
                 info += "Time: " + now.format("h:mm:ss A") + "\t";
                 info += "Timezone: " + now.format("z (ZZ)") + "\t";
@@ -2120,13 +2123,15 @@ if (VIEW_HARDWARE) {
 
     app.on('auth-required', function(code) {
         if(updates.installing) return;
-        if(authDisplayed) {
-            ui.back();
-            authDisplayed = false;
-        }
+        //if(authDisplayed) {
+        //    ui.back();
+        //    authDisplayed = false;
+        //}
         oled.activity();
         power.activity();
-        displayAuthCode(code);
+        ui.status = "app.view.tl code: " + code;
+        ui.update();
+        //displayAuthCode(code);
     });
 
     app.on('auth-complete', function(code) {
@@ -2419,7 +2424,7 @@ db.get('chargeLightDisabled', function(err, en) {
 });
 
 db.get('gpsEnabled', function(err, en) {
-    if(!en) {
+    if(err || !en) {
         if(mcu.gpsAvailable === null) {
             mcu.once('gps', function(status) {
                 if(!gpsExists) {
@@ -2473,6 +2478,20 @@ db.get('autoOffMinutes', function(err, minutes) {
         if(!minutes) minutes = false;
         power.setAutoOff(minutes);
     }
+});
+
+db.get('timezone', function(err, tz) {
+    if(!err && tz) {
+        mcu.setTz(tz);
+    }
+});
+
+mcu.on('timezone', function(tz) {
+    db.get('timezone', function(err, tzOld) {
+        if(err || !tzOld || tzOld != tz) {
+            db.set('timezone', tz);
+        }
+    });
 });
 
 light.start();
