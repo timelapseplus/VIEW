@@ -310,7 +310,7 @@ function setupExposure(cb) {
             shutterMax: intervalometer.currentProgram.shutterMax,
             apertureMax: intervalometer.currentProgram.apertureMax,
             apertureMin: intervalometer.currentProgram.apertureMin,
-            parameters: intervalometer.currentProgram.rampMethod || 'si';
+            parameters: intervalometer.currentProgram.rampMethod || 'si'
         }, function(err, res) {
             status.evDiff = res.ev - status.rampEv;
             console.log("EXP: program:", "capture");
