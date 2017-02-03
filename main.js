@@ -683,14 +683,14 @@ if (VIEW_HARDWARE) {
             action: apertureMin,
             help: help.apertureMin,
             condition: function() {
-                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
             }
         }, {
             name: apertureValueDisplay("Max Aperture", intervalometer.currentProgram, 'apertureMax'),
             action: apertureMax,
             help: help.apertureMax,
             condition: function() {
-                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
             }
         }, ]
     }
