@@ -79,6 +79,7 @@ var MENU_XOFFSET = 5;
 var MENU_YOFFSET = 35;
 var MENU_LINE_HEIGHT = 25;
 var MENU_FONT_SIZE = 14;
+var MENU_SELECT_FONT_SIZE = 18
 var MENU_TEXT_FONT_SIZE = 12;
 var MENU_STATUS_FONT_SIZE = 8;
 var MENU_STATUS_XOFFSET = 5;
@@ -391,7 +392,7 @@ oled.writeMenu = function() {
         color("secondary");
         fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 5, name);
 
-        fb.font(MENU_FONT_SIZE * 1.5, false, FONT_DEFAULT);
+        fb.font(MENU_SELECT_FONT_SIZE, false, FONT_DEFAULT);
         color("primary");
         fb.text(MENU_XOFFSET, 128 / 2 + 5, value);
 
@@ -416,7 +417,7 @@ oled.writeMenu = function() {
         color("secondary");
         fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 12, name);
 
-        fb.font(MENU_FONT_SIZE * 1.5, false, FONT_MONO); // monospace font
+        fb.font(MENU_SELECT_FONT_SIZE, false, FONT_MONO); // monospace font
         color("primary");
         var xAdvance = 15;
         var xStart;
