@@ -411,18 +411,86 @@ if (VIEW_HARDWARE) {
     });
 
 
+    var rampMethod = {
+        name: "Ramping Method",
+        type: "options",
+        items: [{
+            name: "Ramping Method",
+            help: help.rampMethod,
+            value: "Shutter, ISO",
+            action: ui.set(intervalometer.currentProgram, 'rampMethod', 'si')
+        }, {
+            name: "Ramping Method",
+            help: help.rampMethod,
+            value: "Shutter, ISO, Aperture",
+            action: ui.set(intervalometer.currentProgram, 'rampMethod', 'sia')
+        }]
+    };
+
     var manualAperture = {
         name: "Manual Aperture",
         type: "options",
         items: []
     }
     for (var i = 0; i < camera.lists.aperture.length; i++) {
-        if(camera.lists.aperture[i].ev != null && camera.lists.aperture[i].ev <= -2) {
+        if(camera.lists.aperture[i].ev != null) {
             manualAperture.items.push({
                 name: "Manual Aperture",
                 help: help.manualAperture,
                 value: camera.lists.aperture[i].name,
                 action: ui.set(intervalometer.currentProgram, 'manualAperture', camera.lists.aperture[i].ev)
+            });
+        }
+    }
+
+    var apertureMin = {
+        name: "Min Aperture",
+        type: "options",
+        items: []
+    }
+    apertureMin.items.push({
+        name: "Min Aperture",
+        help: help.apertureMin,
+        value: "no min limit",
+        action: ui.set(intervalometer.currentProgram, 'apertureMin', null)
+    });
+    for (var i = 0; i < camera.lists.aperture.length; i++) {
+        if(camera.lists.aperture[i].ev != null) {
+            var ev = camera.lists.aperture[i].ev;
+            apertureMin.items.push({
+                name: "Widest Aperture",
+                help: help.apertureMin,
+                value: camera.lists.aperture[i].name,
+                action: ui.set(intervalometer.currentProgram, 'apertureMin', camera.lists.aperture[i].ev),
+                condition: function(){
+                    return (intervalometer.currentProgram.apertureMax == null || ev <= intervalometer.currentProgram.apertureMax);
+                }
+            });
+        }
+    }
+
+    var apertureMax = {
+        name: "Max Aperture",
+        type: "options",
+        items: []
+    }
+    apertureMax.items.push({
+        name: "Max Aperture",
+        help: help.apertureMax,
+        value: "no max limit",
+        action: ui.set(intervalometer.currentProgram, 'apertureMax', null)
+    });
+    for (var i = 0; i < camera.lists.aperture.length; i++) {
+        if(camera.lists.aperture[i].ev != null) {
+            var ev = camera.lists.aperture[i].ev;
+            apertureMax.items.push({
+                name: "Max Aperture",
+                help: help.apertureMax,
+                value: camera.lists.aperture[i].name,
+                action: ui.set(intervalometer.currentProgram, 'apertureMax', camera.lists.aperture[i].ev),
+                condition: function(){
+                    return (intervalometer.currentProgram.apertureMin == null || ev >= intervalometer.currentProgram.apertureMin);
+                }
             });
         }
     }
@@ -606,6 +674,24 @@ if (VIEW_HARDWARE) {
             name: shutterValueDisplay("Max Shutter", intervalometer.currentProgram, 'shutterMax'),
             action: shutterMax,
             help: help.shutterMax
+        }, {
+            name: valueDisplay("Ramp Method", intervalometer.currentProgram, 'rampMethod'),
+            action: rampMethod,
+            help: help.rampMethod
+        }, {
+            name: apertureValueDisplay("Min Aperture", intervalometer.currentProgram, 'apertureMin'),
+            action: apertureMin,
+            help: help.apertureMin
+            condition: function() {
+                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+            }
+        }, {
+            name: apertureValueDisplay("Max Aperture", intervalometer.currentProgram, 'apertureMax'),
+            action: apertureMax,
+            help: help.apertureMax
+            condition: function() {
+                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+            }
         }, ]
     }
 
@@ -1818,7 +1904,7 @@ if (VIEW_HARDWARE) {
                 info += "Date: " + now.format("D MMMM YYYY") + "\t";
                 info += "Time: " + now.format("h:mm:ss A") + "\t";
                 info += "Timezone: " + now.format("z (ZZ)") + "\t";
-                info += "Active Sats: " + mcu.lastGpsFix.satsActive.length + "\t";
+                if(mcu.gps.satsActive) info += "Active Sats: " + mcu.gps.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
                info += "Visible Sats: " + mcu.gps.satsVisible.length + "\t";
