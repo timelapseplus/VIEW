@@ -43,6 +43,9 @@ defaultProgram = {
     nightCompensation: -1,
     isoMax: -6,
     isoMin:  0,
+    rampMethod:  'si',
+    apertureMax: -2,
+    apertureMin:  -4,
     manualAperture: -5,
     keyframes: [{
         focus: 0,
@@ -304,7 +307,10 @@ function setupExposure(cb) {
             maxShutterLengthMs: maxShutterLengthMs,
             isoMax: intervalometer.currentProgram.isoMax,
             isoMin: intervalometer.currentProgram.isoMin,
-            shutterMax: intervalometer.currentProgram.shutterMax
+            shutterMax: intervalometer.currentProgram.shutterMax,
+            apertureMax: intervalometer.currentProgram.apertureMax,
+            apertureMin: intervalometer.currentProgram.apertureMin,
+            parameters: intervalometer.currentProgram.rampMethod || 'si';
         }, function(err, res) {
             status.evDiff = res.ev - status.rampEv;
             console.log("EXP: program:", "capture");

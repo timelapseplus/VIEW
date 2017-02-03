@@ -159,8 +159,11 @@ camera.setEv = function(ev, options, cb) {
         var aperture = settings.aperture;
         var iso = settings.iso;
 
+        var apertureEnabled = false;
+        if(options.parameters && options.parameters.indexOf('a') !== -1) apertureEnabled = true
+
         if (!aperture) {
-            options.apertureEnabled = false;
+            apertureEnabled = false;
             aperture = {
                 ev: camera.fixedApertureEv
             };
@@ -237,12 +240,12 @@ camera.setEv = function(ev, options, cb) {
             while (ev < currentEv - 1 / 6) {
                 //console.log("ev < currentEv");
                 var s = lists.decEv(shutter, shutterList);
-                if (options.apertureEnabled) var a = lists.decEv(aperture, apertureList);
+                if (apertureEnabled) var a = lists.decEv(aperture, apertureList);
                 var i = lists.decEv(iso, isoList);
 
                 if (s && shutter.ev != s.ev) {
                     shutter = s;
-                } else if (options.apertureEnabled && a && aperture.ev != a.ev) {
+                } else if (apertureEnabled && a && aperture.ev != a.ev) {
                     aperture = a;
                 } else if (i && iso.ev != i.ev) {
                     iso = i;
@@ -257,12 +260,12 @@ camera.setEv = function(ev, options, cb) {
             while (ev > currentEv + 1 / 6) {
                 //console.log("ev > currentEv");
                 var s = lists.incEv(shutter, shutterList);
-                if (options.apertureEnabled) var a = lists.incEv(aperture, apertureList);
+                if (apertureEnabled) var a = lists.incEv(aperture, apertureList);
                 var i = lists.incEv(iso, isoList);
 
                 if (i && iso.ev != i.ev) {
                     iso = i;
-                } else if (options.apertureEnabled && a && aperture.ev != a.ev) {
+                } else if (oapertureEnabled && a && aperture.ev != a.ev) {
                     aperture = a;
                 } else if (s && shutter.ev != s.ev) {
                     shutter = s;
