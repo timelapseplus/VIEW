@@ -84,6 +84,18 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name, l
     
     var gpsData = "";
     if(lat != null && lat != null) {
+        if(lat < 0) {
+            lat = 0 - lat;
+            lat = "S" + lat.toString();
+        } else {
+            lat = "N" + lat.toString();
+        }
+        if(lon < 0) {
+            lon = 0 - lon;
+            lon = "W" + lon.toString();
+        } else {
+            lon = "E" + lon.toString();
+        }
         var gpsData = '  <rdf:Description rdf:about="" xmlns:exif="http://ns.adobe.com/exif/1.0/">\n\
             <exif:GPSLatitude>{{LAT}}</exif:GPSLatitude>\n\
             <exif:GPSLongitude>{{LON}}</exif:GPSLongitude>\n\
