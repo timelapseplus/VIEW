@@ -996,7 +996,9 @@ intervalometer.getTimelapseData = function (clipNumber, cameraNumber, callback) 
                     dataSet.push({
                         fileNumberString: fileNumberString,
                         evCorrection: clipFrames[i].details.evCorrection,
-                        evSetting: clipFrames[i].details.targetEv
+                        evSetting: clipFrames[i].details.targetEv,
+                        latitude: clipFrames[i].details.latitude,
+                        longitude: clipFrames[i].details.longitude,
                     });
                 }
                 if (callback) callback(null, dataSet);
