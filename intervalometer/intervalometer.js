@@ -1023,7 +1023,7 @@ intervalometer.writeXMPs = function(clipNumber, cameraNumber, destinationFolder,
                 var xmpFile = destinationFolder + "/" + data[i].fileNumberString + ".xmp";
                 console.log("Writing " + xmpFile);
                 var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
-                image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data.latitude, data.longitude);
+                image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
             }
             if (callback) callback();
         } else {
