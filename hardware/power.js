@@ -203,7 +203,7 @@ function getPowerStats(callback) {
                 if(stats.batteryPercent < 1) stats.batteryPercent = 100;
                 if(stats.batteryWarning) stats.batteryPercent = 0;
                 //console.log(stats);
-                var logString = stats.batteryPercent "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning;
+                var logString = stats.batteryPercent + "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning + ',' + stats.shutdownNow;
                 exec('echo "' + logString + '" >> /home/root/powerlog.txt', function(){});
 
                 callback && callback(null, stats);
