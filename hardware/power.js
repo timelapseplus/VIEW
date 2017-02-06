@@ -203,6 +203,9 @@ function getPowerStats(callback) {
                 if(stats.batteryPercent < 1) stats.batteryPercent = 100;
                 if(stats.batteryWarning) stats.batteryPercent = 0;
                 //console.log(stats);
+                var logString = stats.batteryPercent "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning;
+                exec('echo "' + logString + '" >> /home/root/powerlog.txt', function(){});
+
                 callback && callback(null, stats);
             } else {
                 callback && callback(err);
@@ -295,6 +298,7 @@ power.button3Light = function(on) {
     }
 }
 
-setInterval(power.update, 5000);
+//setInterval(power.update, 5000);
+setInterval(power.update, 60000);
 
 module.exports = power;
