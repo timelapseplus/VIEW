@@ -205,7 +205,7 @@ function getPowerStats(callback) {
                 //console.log(stats);
                 var logString = stats.batteryPercent + "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning + ',' + stats.shutdownNow;
                 exec('echo "' + logString + '" >> /home/root/powerlog.txt', function(err, stderr){
-                    if(err) echo stderr;
+                    if(err) console.log(stderr);
                 });
 
                 callback && callback(null, stats);
