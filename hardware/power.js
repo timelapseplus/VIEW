@@ -1,6 +1,7 @@
 var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var async = require('async');
+var interpolate = require('../intervalometer/interpolate.js');
 
 var power = new EventEmitter();
 
@@ -173,6 +174,16 @@ var statsRegs = {
     BAT_WARN: 0x49
 }
 
+var BAT_LUT = [
+    {x: 99, y: 100},
+    {x: 80, y: 85},
+    {x: 60, y: 70},
+    {x: 45, y: 62},
+    {x: 16, y: 53},
+    {x: 7, y: 40},
+    {x: 1, y: 0},
+];
+
 function getPowerStats(callback) {
     var stats = {};
     axpSet(0x82, 0xff, function() {
@@ -182,16 +193,16 @@ function getPowerStats(callback) {
             if(!err && res) {
                 stats.batteryCharging = ((res.POWER_OP_MODE & 0x40) / 64) ? true : false;        
                 stats.axpTemperature = ((res.TEMP_MSB << 4) | (res.TEMP_LSB & 0x0F)) * 0.1 - 144.7; 
-                stats.batteryPercent = res.BAT_GAUGE;
+                stats.batteryPercent = interpolate.linear(BAT_LUT, res.BAT_GAUGE);
                 stats.batteryVoltage = ((res.BAT_VOLT_MSB << 4) | (res.BAT_VOLT_LSB & 0x0F)) * 1.1 / 1000;
                 stats.usbVoltage = ((res.USB_VOLT_MSB << 4) | (res.USB_VOLT_LSB & 0x0F)) * 1.7 / 1000;
                 stats.usbCurrent = ((res.USB_CURR_MSB << 4) | (res.USB_CURR_LSB & 0x0F)) * 0.375 / 1000;
                 stats.usbWatts = stats.usbVoltage * stats.usbCurrent;
                 stats.batteryDischargeCurrent = ((res.BAT_IDISCHG_MSB << 5) | (res.BAT_IDISCHG_LSB & 0x0F)) * 0.5 / 1000;
                 stats.batteryChargeCurrent = ((res.BAT_ICHG_MSB << 4) | (res.BAT_ICHG_LSB & 0x0F)) * 0.5 / 1000;
-                stats.batteryWarning = ((res.BAT_WARN & 0x20) / 32) ? true : false;       
+                stats.batteryWarning = stats.batteryDischargeCurrent > 0 && stats.batteryVoltage < 3.25; //((res.BAT_WARN & 0x20) / 32) ? true : false;       
                 stats.batteryWatts = stats.batteryVoltage * stats.batteryDischargeCurrent;
-                stats.shutdownNow = ((res.BAT_WARN & 0x10) / 16) ? true : false;       
+                stats.shutdownNow = stats.batteryDischargeCurrent > 0 && stats.batteryVoltage < 3.1; //((res.BAT_WARN & 0x10) / 16) ? true : false;       
                 stats.pluggedIn = stats.usbWatts > 0 ? true : false;
                 if(stats.batteryPercent >= 100) {
                     if(stats.batteryCharging) {
