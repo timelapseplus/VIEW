@@ -80,15 +80,16 @@ function serialize(object) {
 function unserialize(string) {
 	try {
 		var data = ns.unserialize(string.replace(/`~`/g, "'"));
-		if(data && data.hasOwnProperty('data')) {
-			var res = data.data;
-			for(var key in res) {
-				if(res.hasOwnProperty(key) && typeof res[key] == 'object') { // recover arrays
-				}
-			}
-		} else {
-			return false;
-		}
+		if(data && data.hasOwnProperty('data')) return data.data else return false;
+		//if(data && data.hasOwnProperty('data')) {
+		//	var res = data.data;
+		//	for(var key in res) {
+		//		if(res.hasOwnProperty(key) && typeof res[key] == 'object') { // recover arrays
+		//		}
+		//	}
+		//} else {
+		//	return false;
+		//}
 	} catch(e) {
 		console.log("error unserializing object", e);
 		return false;
