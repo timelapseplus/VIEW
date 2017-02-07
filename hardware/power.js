@@ -15,6 +15,8 @@ var powerControlBase = 0x17; // gps off, wifi off
 var powerWifi = 0x40;
 var powerGps = 0x8;
 
+var BAT_AH = 3.3; // approximate actual battery capacity
+
 var powerDownTimerHandle = null;
 
 function axpSet(reg, val, callback) {
@@ -240,6 +242,13 @@ power.infoText = function() {
     if(power.stats.pluggedIn) info += "\tUSB Volts: " + twoDigits(power.stats.usbVoltage) + "V";
     if(power.stats.pluggedIn) info += "\tUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
     info += "\tBattery Level: " + Math.round(power.stats.batteryPercent) + "%";
+    if(!power.stats.pluggedIn) {
+        var minLeft = (BAT_AH/power.stats.batteryDischargeCurrent)*(power.stats.batteryPercent/100);
+        var hLeft = Math.floor(minLeft/60);
+        var mLeft = (minLeft % 60).toString();
+        if(mLeft.length < 2) mLeft = '0' + mLeft;
+        info += "\tBattery Time Left: " + hLeft + "h" + mLeft + "m";
+    }
     info += "\tBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
     if(!power.stats.pluggedIn) info += "\tBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
     if(power.stats.pluggedIn) info += "\tCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
