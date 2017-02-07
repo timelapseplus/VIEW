@@ -211,7 +211,7 @@ function getPowerStats(callback) {
                         stats.batteryPercent = 100;
                     }
                 }
-                if(stats.batteryPercent < 1) stats.batteryPercent = 100;
+                if(stats.batteryPercent < 1) stats.batteryPercent = 1;
                 if(stats.batteryWarning) stats.batteryPercent = 0;
                 //console.log(stats);
                 var logString = stats.batteryPercent + "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning + ',' + stats.shutdownNow;

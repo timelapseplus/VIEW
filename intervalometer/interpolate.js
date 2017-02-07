@@ -6,7 +6,7 @@ exports.linear = function(xyPoints, xVal) {
         return a.x - b.x;
     });
 
-    if(typeof p != 'array' || p.length == 0) return null;
+    if(typeof p != 'object' || !p.length) return null;
 
     var limits = {max: p[0].y, min: p[0].y};
 
