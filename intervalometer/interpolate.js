@@ -15,9 +15,9 @@ exports.linear = function(xyPoints, xVal) {
         if(limits.min > p[i].y) limits.min = p[i].y;
     }
 
-    console.log("---- interpolate.linear ----");
-    console.log("xyPoints:", p);
-    console.log("xVal:", xVal);
+    //console.log("---- interpolate.linear ----");
+    //console.log("xyPoints:", p);
+    //console.log("xVal:", xVal);
 
     var res = null;
     for (var i = 0; i < p.length; i++) {
@@ -44,7 +44,7 @@ exports.linear = function(xyPoints, xVal) {
     if(res > limits.max) res = limits.max;
     if(res < limits.min) res = limits.min;
 
-    console.log("Interpolated result:", res);
+    //console.log("Interpolated result:", res);
 
     return res;
 }
