@@ -243,11 +243,11 @@ power.infoText = function() {
     if(power.stats.pluggedIn) info += "\tUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
     info += "\tBattery Level: " + Math.round(power.stats.batteryPercent) + "%";
     if(!power.stats.pluggedIn) {
-        var minLeft = Math.round((BAT_AH/power.stats.batteryDischargeCurrent)*(power.stats.batteryPercent/100));
+        var minLeft = Math.round((BAT_AH/power.stats.batteryDischargeCurrent)*(power.stats.batteryPercent/100)*60);
         var hLeft = Math.floor(minLeft / 60);
         var mLeft = (minLeft - hLeft * 60).toString();
         if(mLeft.length < 2) mLeft = '0' + mLeft;
-        info += "\tBattery Time Left: " + hLeft + "h" + mLeft + "m";
+        info += "\tBattery Time Left: " + hLeft + ":" + mLeft + "";
     }
     info += "\tBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
     if(!power.stats.pluggedIn) info += "\tBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
