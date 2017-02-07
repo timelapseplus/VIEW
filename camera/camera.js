@@ -265,7 +265,7 @@ camera.setEv = function(ev, options, cb) {
 
                 if (i && iso.ev != i.ev) {
                     iso = i;
-                } else if (oapertureEnabled && a && aperture.ev != a.ev) {
+                } else if (apertureEnabled && a && aperture.ev != a.ev) {
                     aperture = a;
                 } else if (s && shutter.ev != s.ev) {
                     shutter = s;

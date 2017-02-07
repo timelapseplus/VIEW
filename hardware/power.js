@@ -214,10 +214,10 @@ function getPowerStats(callback) {
                 if(stats.batteryPercent < 1) stats.batteryPercent = 1;
                 if(stats.batteryWarning) stats.batteryPercent = 0;
                 //console.log(stats);
-                var logString = stats.batteryPercent + "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning + ',' + stats.shutdownNow;
-                exec('echo "' + logString + '" >> /root/powerlog.txt', function(err, stderr){
-                    if(err) console.log(stderr);
-                });
+                //var logString = stats.batteryPercent + "," + stats.batteryVoltage + "," + stats.batteryDischargeCurrent + ',' + stats.batteryWarning + ',' + stats.shutdownNow;
+                //exec('echo "' + logString + '" >> /root/powerlog.txt', function(err, stderr){
+                //    if(err) console.log(stderr);
+                //});
 
                 callback && callback(null, stats);
             } else {
@@ -239,7 +239,7 @@ power.infoText = function() {
     if(!power.stats.pluggedIn) info += "\tConsumption: " + twoDigits(power.stats.batteryWatts) + "W";
     if(power.stats.pluggedIn) info += "\tUSB Volts: " + twoDigits(power.stats.usbVoltage) + "V";
     if(power.stats.pluggedIn) info += "\tUSB Current: " + twoDigits(power.stats.usbCurrent) + "A";
-    info += "\tBattery Level: " + twoDigits(power.stats.batteryPercent) + "%";
+    info += "\tBattery Level: " + Math.round(power.stats.batteryPercent) + "%";
     info += "\tBattery Volts: " + twoDigits(power.stats.batteryVoltage) + "V";
     if(!power.stats.pluggedIn) info += "\tBattery Current: " + twoDigits(power.stats.batteryDischargeCurrent) + "A";
     if(power.stats.pluggedIn) info += "\tCharge Current: " + twoDigits(power.stats.batteryChargeCurrent) + "A";
@@ -311,7 +311,6 @@ power.button3Light = function(on) {
     }
 }
 
-//setInterval(power.update, 5000);
-setInterval(power.update, 60000);
+setInterval(power.update, 10000);
 
 module.exports = power;
