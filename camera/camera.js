@@ -211,12 +211,12 @@ camera.setEv = function(ev, options, cb) {
         }
         if (apertureList && options && options.apertureMax != null) {
             apertureList = apertureList.filter(function(item) {
-                return item.ev >= options.apertureMax;
+                return item.ev <= options.apertureMax;
             });
         }
         if (apertureList && options && options.apertureMin != null) {
             apertureList = apertureList.filter(function(item) {
-                return item.ev <= options.apertureMin;
+                return item.ev >= options.apertureMin;
             });
         }
 
@@ -314,7 +314,7 @@ camera.setEv = function(ev, options, cb) {
             name: 'shutter',
             val: shutter.cameraName || shutter.name
         });
-        if (options.apertureEnabled && aperture.ev != settings.aperture.ev) setQueue.push({
+        if (apertureEnabled && aperture.ev != settings.aperture.ev) setQueue.push({
             name: 'aperture',
             val: aperture.cameraName || aperture.name
         });
@@ -399,12 +399,12 @@ camera.evStats = function(settings, options) {
     }
     if (res.apertureList && options && options.apertureMax != null) {
         res.apertureList = res.apertureList.filter(function(item) {
-            return item.ev >= options.apertureMax;
+            return item.ev <= options.apertureMax;
         });
     }
     if (res.apertureList && options && options.apertureMin != null) {
         res.apertureList = res.apertureList.filter(function(item) {
-            return item.ev <= options.apertureMin;
+            return item.ev >= options.apertureMin;
         });
     }
 
