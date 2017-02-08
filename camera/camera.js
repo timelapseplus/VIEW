@@ -358,7 +358,7 @@ camera.evStats = function(settings, options) {
     var av;
     if (settings.aperture && settings.aperture.ev != null) {
         av = settings.aperture.ev;
-        if(options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
+        if(options && options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
     } else {
         apertureEnabled = false;
         av = camera.fixedApertureEv;
