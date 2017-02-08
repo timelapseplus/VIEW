@@ -2465,8 +2465,10 @@ function closeSystem(callback) {
         console.log("Error while saving timelapse settings:", e);
     }
     console.log("closing db...");
+    var cbDone = false;
     db.close(function(){
         console.log("db closed.");
+        cbDone = true;
         if (VIEW_HARDWARE) {
             oled.close();
             callback && callback();
@@ -2474,6 +2476,13 @@ function closeSystem(callback) {
             callback && callback();
         }
     });
+    setTimeout(function(){
+        if(!cbDone) {
+            console.log("db failed to close, continuing...");
+            cbDone = true;
+            callback && callback();
+        }
+    }, 1000);
     //db.setCache('intervalometer.status', intervalometer.status);
 }
 
