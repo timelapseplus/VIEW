@@ -411,19 +411,24 @@ if (VIEW_HARDWARE) {
     });
 
 
-    var rampMethod = {
-        name: "Ramping Method",
+    var rampParameters = {
+        name: "Ramp Parameters",
         type: "options",
         items: [{
-            name: "Ramping Method",
-            help: help.rampMethod,
+            name: "Ramp Parameters",
+            help: help.rampParameters,
             value: "Shutter, ISO",
-            action: ui.set(intervalometer.currentProgram, 'rampMethod', 'si')
+            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S+I')
         }, {
-            name: "Ramping Method",
-            help: help.rampMethod,
-            value: "Shutter, ISO, Aperture",
-            action: ui.set(intervalometer.currentProgram, 'rampMethod', 'sia')
+            name: "Ramp Parameters",
+            help: help.rampParameters,
+            value: "Shutter, ISO (balanced)",
+            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S~I')
+        }, {
+            name: "Ramp Parameters",
+            help: help.rampParameters,
+            value: "Shutter, Aperture, ISO",
+            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S+A+I')
         }]
     };
 
@@ -675,22 +680,22 @@ if (VIEW_HARDWARE) {
             action: shutterMax,
             help: help.shutterMax
         }, {
-            name: valueDisplay("Ramp Method", intervalometer.currentProgram, 'rampMethod'),
-            action: rampMethod,
-            help: help.rampMethod
+            name: valueDisplay("Ramp Params", intervalometer.currentProgram, 'rampParameters'),
+            action: rampParameters,
+            help: help.rampParameters
         }, {
             name: apertureValueDisplay("Min Aperture", intervalometer.currentProgram, 'apertureMin'),
             action: apertureMin,
             help: help.apertureMin,
             condition: function() {
-                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
             }
         }, {
             name: apertureValueDisplay("Max Aperture", intervalometer.currentProgram, 'apertureMax'),
             action: apertureMax,
             help: help.apertureMax,
             condition: function() {
-                return intervalometer.currentProgram.rampMethod && intervalometer.currentProgram.rampMethod.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('a') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
             }
         }, ]
     }
@@ -2978,7 +2983,7 @@ intervalometer.on('status', function(msg) {
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
-        apertureText: camera.ptp.settings.details.aperture ? "f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) : camera.ptp.settings.aperture,
+        apertureText: camera.ptp.settings.details.aperture ? camera.ptp.settings.aperture : ("f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,

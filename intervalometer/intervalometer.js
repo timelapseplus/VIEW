@@ -43,7 +43,7 @@ defaultProgram = {
     nightCompensation: -1,
     isoMax: -6,
     isoMin:  0,
-    rampMethod:  'si',
+    rampParameters:  'S+I',
     apertureMax: -2,
     apertureMin:  -4,
     manualAperture: -5,
@@ -291,6 +291,22 @@ function processKeyframes(setupFirst, callback) {
 
 }
 
+function getEvOptions() {
+    var maxShutterLengthMs = status.intervalMs;
+    if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+    return {
+        settingsDetails: camera.ptp.settings.details,
+        maxShutterLengthMs: maxShutterLengthMs,
+        isoMax: intervalometer.currentProgram.isoMax,
+        isoMin: intervalometer.currentProgram.isoMin,
+        shutterMax: intervalometer.currentProgram.shutterMax,
+        apertureMax: intervalometer.currentProgram.apertureMax,
+        apertureMin: intervalometer.currentProgram.apertureMin,
+        parameters: intervalometer.currentProgram.rampParameters || 'S+I',
+        blendParams: intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('~') !== -1
+    }
+}
+
 var busyExposure = false;
 
 function setupExposure(cb) {
@@ -298,20 +314,7 @@ function setupExposure(cb) {
     camera.getEv(function(err, currentEv, params) {
         console.log("EXP: current interval: ", status.intervalMs);
         console.log("EXP: current ev: ", currentEv);
-        var maxShutterLengthMs = status.intervalMs;
-        console.log("EXP: maxShutterLengthMs:", status.intervalMs);
-        if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
-        console.log("EXP: maxShutterLengthMs (interval limted):", maxShutterLengthMs);
-        camera.setEv(status.rampEv, {
-            settingsDetails: camera.ptp.settings.details, // this was just refreshed from the above getEv
-            maxShutterLengthMs: maxShutterLengthMs,
-            isoMax: intervalometer.currentProgram.isoMax,
-            isoMin: intervalometer.currentProgram.isoMin,
-            shutterMax: intervalometer.currentProgram.shutterMax,
-            apertureMax: intervalometer.currentProgram.apertureMax,
-            apertureMin: intervalometer.currentProgram.apertureMin,
-            parameters: intervalometer.currentProgram.rampMethod || 'si'
-        }, function(err, res) {
+        camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
             status.evDiff = res.ev - status.rampEv;
             console.log("EXP: program:", "capture");
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
@@ -427,7 +430,7 @@ function runPhoto() {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
                     }
                     intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 1000; // add a second for setting exposure
-                    status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings), camera.maxEv(camera.ptp.settings));
+                    status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
                     status.message = "running";
@@ -577,12 +580,7 @@ intervalometer.run = function(program) {
                     status.latitude = mcu.lastGpsFix.lat;
                     status.longitude = mcu.lastGpsFix.lon;
                 }
-                var options = {
-                    isoMax: program.isoMax,
-                    isoMin: program.isoMin,
-                    shutterMax: program.shutterMax
-                };
-                exp.init(camera.minEv(camera.ptp.settings, options), camera.maxEv(camera.ptp.settings, options), program.nightCompensation);
+                exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
                 status.running = true;
                 intervalometer.emit("status", status);
                 console.log("program:", "starting", program);

@@ -118,5 +118,5 @@ exports.apertureMin = "The minimum aperture (widest opening, e.g., f/2.8) settin
 
 exports.apertureMin = "The maximum aperture (smallest opening, e.g., f/16) setting to use when ramping exposure.\nIt's recommended to limit the maximum aperture to about f/8 to avoid flicker caused by irregularities at a smaller aperture setting.";
 
-exports.rampMethod = "Method used for ramping.  Currently defines whether or not to ramp aperture, but more options are planned for future releases.";
+exports.rampParameters = "Camera parameters used for ramping.  Currently defines whether or not to ramp aperture, but more options are planned for future releases.";
 
