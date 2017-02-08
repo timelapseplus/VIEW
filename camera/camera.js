@@ -152,6 +152,7 @@ camera.getEv = function(callback) {
     });
 }
 
+var lastParam = null;
 camera.setEv = function(ev, options, cb) {
     if (!options) options = {};
     var doSet = function(settings) {
@@ -236,9 +237,9 @@ camera.setEv = function(ev, options, cb) {
             return;
         }
 
-        var lastParam;
+        if(!options.blendParams) lastParam = null;
+
         for (var trys = 0; trys < 3; trys++) {
-            lastParam = null;
             while (ev < currentEv - 1 / 6) {
                 //console.log("ev < currentEv");
                 var s = lists.decEv(shutter, shutterList);
@@ -255,6 +256,7 @@ camera.setEv = function(ev, options, cb) {
                     iso = i;
                     if(options.blendParams) lastParam = 'i';
                 } else {
+                    lastParam = null;
                     currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
                     break;
                 }
@@ -262,7 +264,6 @@ camera.setEv = function(ev, options, cb) {
                 //console.log(" update: ", currentEv);
             }
 
-            lastParam = null;
             while (ev > currentEv + 1 / 6) {
                 //console.log("ev > currentEv");
                 var s = lists.incEv(shutter, shutterList);
@@ -279,6 +280,7 @@ camera.setEv = function(ev, options, cb) {
                     shutter = s;
                     if(options.blendParams) lastParam = 's';
                 } else {
+                    lastParam = null;
                     currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
                     break;
                 }

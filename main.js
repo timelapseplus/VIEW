@@ -422,12 +422,12 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Ramp Parameters",
             help: help.rampParameters,
-            value: "Shutter, ISO (balanced)",
-            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S~I')
+            value: "Sh, ISO (balanced)",
+            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S=I')
         }, {
             name: "Ramp Parameters",
             help: help.rampParameters,
-            value: "Shutter, Aperture, ISO",
+            value: "Sh, Aperture, ISO",
             action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S+A+I')
         }]
     };
@@ -2992,7 +2992,7 @@ intervalometer.on('status', function(msg) {
     var statusScreen = {
         isoText: camera.ptp.settings.iso,
         shutterText: camera.ptp.settings.shutter,
-        apertureText: camera.ptp.settings.details.aperture ? camera.ptp.settings.aperture : ("f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) + ' (m)'),
+        apertureText: camera.ptp.settings.details.aperture ? ("f/" + camera.ptp.settings.aperture) : ("f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,

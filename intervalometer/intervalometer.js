@@ -303,7 +303,7 @@ function getEvOptions() {
         apertureMax: intervalometer.currentProgram.apertureMax,
         apertureMin: intervalometer.currentProgram.apertureMin,
         parameters: intervalometer.currentProgram.rampParameters || 'S+I',
-        blendParams: intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('~') !== -1
+        blendParams: intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('=') !== -1
     }
 }
 
