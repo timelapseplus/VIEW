@@ -296,6 +296,7 @@ exports.set = function(object, key, value, callback) {
     return {
         type: "function",
         fn: function(arg, cb) {
+            console.log("ui.set: " + key + " = " + value);
             object[key] = value;
             if(callback) {
                 callback(cb);

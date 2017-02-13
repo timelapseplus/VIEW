@@ -1952,9 +1952,9 @@ if (VIEW_HARDWARE) {
             if(mooninfo.phase == 0 || mooninfo.phase == 1) phase = "New Moon"; 
             else if(mooninfo.phase < 0.25) phase = "Waxing Crescent"; 
             else if(mooninfo.phase == 0.25) phase = "First Quarter";
-            else if(mooninfo.phase > 0.25 || mooninfo.phase < 0.5) phase = "Waxing Gibbous";
+            else if(mooninfo.phase > 0.25 && mooninfo.phase < 0.5) phase = "Waxing Gibbous";
             else if(mooninfo.phase == 0.5) phase = "Full Moon";
-            else if(mooninfo.phase > 0.5 || mooninfo.phase < 0.75) phase = "Waning Gibbous";
+            else if(mooninfo.phase > 0.5 && mooninfo.phase < 0.75) phase = "Waning Gibbous";
             else if(mooninfo.phase == 0.75) phase = "Last Quarter";
             else if(mooninfo.phase > 0.75) phase = "Waning Crescent";
             info += "Phase: " + phase + "\t";
