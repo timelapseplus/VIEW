@@ -2723,6 +2723,7 @@ app.on('message', function(msg) {
                         var fragment = 0;
 
                         var sendFragment = function(){
+                            console.log("sending time-lapse fragment " + fragment + " of " + fragments);
                             intervalometer.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
                                 msg.reply('timelapse-images', {
                                     index: msg.index,
@@ -2739,6 +2740,7 @@ app.on('message', function(msg) {
 
                             });
                         };
+                        sendFragment();
                     }
 
                 });
