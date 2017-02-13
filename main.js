@@ -1003,7 +1003,7 @@ if (VIEW_HARDWARE) {
                                 oled.video(c.path, c.frames, 30, cb2);
                             } else {
                                 var cam = 1;
-                                if(c.primary_camera == 1) cam = 2;
+                                if(dbClip.primary_camera == '1') cam = 2;
                                 db.getTimelapseFrames(c.id, cam, function(err, clipFrames){
                                     if(!err && clipFrames) {
                                         var framesPaths = clipFrames.map(function(frame){
