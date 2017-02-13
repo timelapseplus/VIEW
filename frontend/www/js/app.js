@@ -562,6 +562,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     } else if(msg.fragment != null) {
                         if(!timelapseFragments[msg.index]) timelapseFragments[msg.index] = [];
                         timelapseFragments[msg.index][msg.fragment] = msg.images;
+                        console.log("adding fragment of " + msg.images.length + "");
                         var complete = true;
                         for(var i = 0; i < msg.fragments; i++) {
                             if(!timelapseFragments[msg.index][i]) {
