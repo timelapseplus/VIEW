@@ -2725,22 +2725,33 @@ app.on('message', function(msg) {
                         var sendFragment = function(){
                             console.log("sending time-lapse fragment " + fragment + " of " + fragments);
                             intervalometer.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
-                                msg.reply('timelapse-images', {
-                                    index: msg.index,
-                                    fragment: fragment,
-                                    fragments: fragments,
-                                    images: images.map(function(image) {
-                                        image = new Buffer(image).toString('base64');
-                                        return image;
-                                    })
-                                }, function() {
-                                    fragment++;
-                                    if(fragment < fragments) process.nextTick(sendFragment);
-                                });
-
+                                if(!err && images) {
+                                    msg.reply('timelapse-images', {
+                                        index: msg.index,
+                                        fragment: fragment,
+                                        fragments: fragments,
+                                        images: images.map(function(image) {
+                                            image = new Buffer(image).toString('base64');
+                                            return image;
+                                        })
+                                    }, function() {
+                                        fragment++;
+                                        if(fragment < fragments) process.nextTick(sendFragment);
+                                    });
+                                } else {
+                                    msg.reply('timelapse-images', {
+                                        index: msg.index,
+                                        error: "failed to retrieve images"
+                                    });
+                                }
                             });
                         };
                         sendFragment();
+                    } else {
+                        msg.reply('timelapse-images', {
+                            index: msg.index,
+                            error: "failed to retrieve images"
+                        });
                     }
 
                 });

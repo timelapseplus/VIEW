@@ -371,7 +371,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     var retrievedTimelapseProgram = false;
     var timelapseFragments = {};
-    
+
     function connect(wsAddress) {
         if (ws || connecting) {
             return;
@@ -557,7 +557,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     callback(null, $scope.clips);
                     break;
                 case 'timelapse-images':
-                    if(msg.fragment != null) {
+                    if(msg.error) {
+                        callback(msg.error);
+                    } else if(msg.fragment != null) {
                         if(!timelapseFragments[msg.index]) timelapseFragments[msg.index] = [];
                         timelapseFragments[msg.index][msg.fragment] = msg.images;
                         var complete = true;
@@ -573,6 +575,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 timelapseImages[msg.index].concat(timelapseFragments[msg.index][i]);
                             }
                             timelapseFragments[msg.index] = null;
+                            console.log("received all image fragements, count = " + timelapseImages[msg.index].length);
                             callback(null, msg);
                             playTimelapse(msg.index);
                         }
