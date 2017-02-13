@@ -824,31 +824,31 @@ if (VIEW_HARDWARE) {
                     });
                 }
             }
-        }, {
-            name: "Preview Camera #2",
-            action: {
-                type: "function",
-                fn: function(arg, cb) {
-                    intervalometer.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) {
-                            var cam = 1;
-                            if(timelapse.primary_camera == '1') cam = 2;
-                            db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
-                                if(!err && clipFrames) {
-                                    var framesPaths = clipFrames.map(function(frame){
-                                        return frame.thumbnail;
-                                    });
-                                    oled.video(null, framesPaths, 30, cb);
-                                }
-                            });
-                        } 
-                    });
-                }
-            },
-            help: help.playbackCamera,
-            condition: function() {
-                return parseInt(timelapse.cameras) > 1;
-            }
+        //}, {
+        //    name: "Preview Camera #2",
+        //    action: {
+        //        type: "function",
+        //         fn: function(arg, cb) {
+        //            intervalometer.getLastTimelapse(function(err, timelapse) {
+        //                if (timelapse) {
+        //                    var cam = 1;
+        //                    if(timelapse.primary_camera == '1') cam = 2;
+        //                    db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
+        //                        if(!err && clipFrames) {
+        //                            var framesPaths = clipFrames.map(function(frame){
+        //                                return frame.thumbnail;
+        //                            });
+        //                            oled.video(null, framesPaths, 30, cb);
+        //                        }
+        //                    });
+        //                } 
+        //            });
+        //        }
+        //    },
+        //    help: help.playbackCamera,
+        //    condition: function() {
+        //        return parseInt(intervalometer.currentProgram.cameras) > 1;
+        //    }
         }, {
             name: "Stop Time-lapse",
             action: stopConfirm
