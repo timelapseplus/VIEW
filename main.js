@@ -825,6 +825,36 @@ if (VIEW_HARDWARE) {
                 }
             }
         }, {
+            name: "Preview Camera #2",
+            action: {
+                type: "function",
+                arg: clip,
+                fn: function(arg, cb) {
+                    intervalometer.getLastTimelapse(function(err, timelapse) {
+                        if (timelapse) {
+                            if(timelapse.path) {
+                                oled.video(timelapse.path, timelapse.frames, 30, cb);
+                            } else {
+                                var cam = 1;
+                                if(timelapse.primary_camera == '1') cam = 2;
+                                db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
+                                    if(!err && clipFrames) {
+                                        var framesPaths = clipFrames.map(function(frame){
+                                            return frame.thumbnail;
+                                        });
+                                        oled.video(null, framesPaths, 30, cb);
+                                    }
+                                });
+                            }
+                        } 
+                    });
+                }
+            },
+            help: help.playbackCamera,
+            condition: function() {
+                return parseInt(timelapse.cameras) > 1;
+            }
+        }, {
             name: "Stop Time-lapse",
             action: stopConfirm
         }]
