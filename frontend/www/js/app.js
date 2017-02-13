@@ -370,7 +370,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     };
 
     var retrievedTimelapseProgram = false;
-
+    var timelapseFragments = {};
+    
     function connect(wsAddress) {
         if (ws || connecting) {
             return;
