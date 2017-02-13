@@ -1017,7 +1017,7 @@ if (VIEW_HARDWARE) {
                     },
                     help: help.playbackCamera,
                     condition: function() {
-                        return clip.cameras > 1;
+                        return parseInt(clip.cameras) > 1;
                     }
                 }, {
                     name: "Write XMPs to SD card",
