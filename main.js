@@ -994,6 +994,32 @@ if (VIEW_HARDWARE) {
                 name: "clipsContext",
                 type: "menu",
                 items: [{
+                    name: "Playback Camera #2",
+                    action: {
+                        type: "function",
+                        arg: clip,
+                        fn: function(c, cb2) {
+                            if(c.path) {
+                                oled.video(c.path, c.frames, 30, cb2);
+                            } else {
+                                var cam = 1;
+                                if(c.primary_camera == 1) cam = 2;
+                                db.getTimelapseFrames(c.id, cam, function(err, clipFrames){
+                                    if(!err && clipFrames) {
+                                        var framesPaths = clipFrames.map(function(frame){
+                                            return frame.thumbnail;
+                                        });
+                                        oled.video(null, framesPaths, 30, cb2);
+                                    }
+                                });
+                            }
+                        }
+                    },
+                    help: help.playbackCamera,
+                    condition: function() {
+                        return clip.cameras > 1;
+                    }
+                }, {
                     name: "Write XMPs to SD card",
                     action: function(){
                         confirmSaveXMPs(clip);
@@ -2476,13 +2502,17 @@ function closeSystem(callback) {
             callback && callback();
         }
     });
-    setTimeout(function(){
-        if(!cbDone) {
-            console.log("db failed to close, continuing...");
-            cbDone = true;
-            callback && callback();
-        }
-    }, 1000);
+
+    cbDone = true;
+    callback && callback();
+
+    //setTimeout(function(){
+    //    if(!cbDone) {
+    //        console.log("db failed to close, continuing...");
+    //        cbDone = true;
+    //        callback && callback();
+    //    }
+    //}, 1000);
     //db.setCache('intervalometer.status', intervalometer.status);
 }
 
@@ -2741,7 +2771,12 @@ app.on('message', function(msg) {
                                 } else {
                                     msg.reply('timelapse-images', {
                                         index: msg.index,
-                                        error: "failed to retrieve images"
+                                        fragment: fragment,
+                                        fragments: fragments,
+                                        images: []
+                                    }, function() {
+                                        fragment++;
+                                        if(fragment < fragments) process.nextTick(sendFragment);
                                     });
                                 }
                             });
