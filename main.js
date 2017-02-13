@@ -828,7 +828,6 @@ if (VIEW_HARDWARE) {
             name: "Preview Camera #2",
             action: {
                 type: "function",
-                arg: clip,
                 fn: function(arg, cb) {
                     intervalometer.getLastTimelapse(function(err, timelapse) {
                         if (timelapse) {
