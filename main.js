@@ -467,9 +467,9 @@ if (VIEW_HARDWARE) {
                 help: help.apertureMin,
                 value: camera.lists.aperture[i].name,
                 action: ui.set(intervalometer.currentProgram, 'apertureMin', camera.lists.aperture[i].ev),
-                condition: function(){
-                    return (intervalometer.currentProgram.apertureMax == null || ev <= intervalometer.currentProgram.apertureMax);
-                }
+                condition: (function(aEv) { return function(){
+                    return (intervalometer.currentProgram.apertureMax == null || aEv <= intervalometer.currentProgram.apertureMax);
+                } })(ev)
             });
         }
     }
@@ -493,9 +493,9 @@ if (VIEW_HARDWARE) {
                 help: help.apertureMax,
                 value: camera.lists.aperture[i].name,
                 action: ui.set(intervalometer.currentProgram, 'apertureMax', camera.lists.aperture[i].ev),
-                condition: function(){
-                    return (intervalometer.currentProgram.apertureMin == null || ev >= intervalometer.currentProgram.apertureMin);
-                }
+                condition: (function(aEv) { return function(){
+                    return (intervalometer.currentProgram.apertureMin == null || aEv >= intervalometer.currentProgram.apertureMin);
+                } })(ev)
             });
         }
     }
