@@ -573,8 +573,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         if(complete) {
                             timelapseImages[msg.index] = [];
                             for(var i = 0; i < msg.fragments; i++) {
-                                console.log("concatenating " + timelapseFragments[msg.index][i].length + " images..." + timelapseImages[msg.index].length);
-                                timelapseImages[msg.index].concat(timelapseFragments[msg.index][i]);
+                                timelapseImages[msg.index] = timelapseImages[msg.index].concat(timelapseFragments[msg.index][i]);
                             }
                             timelapseFragments[msg.index] = null;
                             console.log("received all image fragements, count = " + timelapseImages[msg.index].length);
