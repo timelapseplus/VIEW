@@ -556,9 +556,30 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     callback(null, $scope.clips);
                     break;
                 case 'timelapse-images':
-                    timelapseImages[msg.index] = msg.images;
-                    callback(null, msg);
-                    playTimelapse(msg.index);
+                    if(msg.fragment != null) {
+                        if(!timelapseFragments[msg.index]) timelapseFragments[msg.index] = [];
+                        timelapseFragments[msg.index][msg.fragment] = msg.images;
+                        var complete = true;
+                        for(var i = 0; i < msg.fragments; i++) {
+                            if(!timelapseFragments[msg.index][i]) {
+                                complete = false;
+                                break;
+                            }
+                        }
+                        if(complete) {
+                            timelapseImages[msg.index] = [];
+                            for(var i = 0; i < msg.fragments; i++) {
+                                timelapseImages[msg.index].concat(timelapseFragments[msg.index][i]);
+                            }
+                            timelapseFragments[msg.index] = null;
+                            callback(null, msg);
+                            playTimelapse(msg.index);
+                        }
+                    } else {
+                        timelapseImages[msg.index] = msg.images;
+                        callback(null, msg);
+                        playTimelapse(msg.index);
+                    }
                     break;
                 case 'xmp-to-card':
                     if (msg.error) {

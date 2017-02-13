@@ -703,6 +703,8 @@ function getClipFramesCount(clipNumber, callback) {
     });
 }
 
+intervalometer.getClipFramesCount = getClipFramesCount;
+
 intervalometer.getTimelapseClip = function(clipNumber, callback) {
     //console.log("fetching timelapse clip " + clipNumber);
     var clip = {};
@@ -791,7 +793,7 @@ intervalometer.getRecentTimelapseClips = function(count, callback) {
     });
 }
 
-intervalometer.getTimelapseImages = function(clipNumber, callback) {
+intervalometer.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callback) {
     try {
         //console.log("fetching timelapse clip " + clipNumber);
         var clip = {};
@@ -800,6 +802,7 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
             if(!err && dbClip) {
                 db.getTimelapseFrames(dbClip.id, 1, function(err, clipFrames){
                     if(!err && clipFrames) {
+                        clipFrames = clipFrames.slice(startFrame, startFrame + limitFrames);
                         var framesPaths = clipFrames.map(function(frame){
                             return frame.thumbnail;
                         });
@@ -833,6 +836,7 @@ intervalometer.getTimelapseImages = function(clipNumber, callback) {
 
                     var clipImages = [];
                     for (var i = 0; i < clip.frames; i++) clipImages.push(i);
+                    clipImages = clipImages.slice(startFrame, startFrame + limitFrames);
 
                     async.map(clipImages, getTimelapseImage, function(err, images) {
                         callback(null, images.filter(function(image) {

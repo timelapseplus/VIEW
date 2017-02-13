@@ -246,12 +246,12 @@ function send_message(type, object, socket, callback) {
 function receive_message(msg_string, socket) {
     try {
     	var buildReply = function(nMsg, nSocket) {
-    		return function(type, object) {
+    		return function(type, object, callback) {
     			if(!object) object = {};
     			object.ack = nMsg.ack;
     			object._cbId = nMsg._cbId;
 
-                send_message(type, object, nSocket);
+                send_message(type, object, nSocket, callback);
     		}
     	}
 

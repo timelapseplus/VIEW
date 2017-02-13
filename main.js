@@ -463,7 +463,7 @@ if (VIEW_HARDWARE) {
         if(camera.lists.aperture[i].ev != null) {
             var ev = camera.lists.aperture[i].ev;
             apertureMin.items.push({
-                name: "Widest Aperture",
+                name: "Min Aperture",
                 help: help.apertureMin,
                 value: camera.lists.aperture[i].name,
                 action: ui.set(intervalometer.currentProgram, 'apertureMin', camera.lists.aperture[i].ev),
@@ -2717,14 +2717,30 @@ app.on('message', function(msg) {
                 break;
 
             case 'timelapse-images':
-                intervalometer.getTimelapseImages(msg.index, function(err, images) {
-                    msg.reply('timelapse-images', {
-                        index: msg.index,
-                        images: images.map(function(image) {
-                            image = new Buffer(image).toString('base64');
-                            return image;
-                        })
-                    });
+                intervalometer.getClipFramesCount(msg.index, function(err, frames) {
+                    if(!err && frames) {
+                        var fragments = Math.ceil(frames / 100);
+                        var fragment = 0;
+
+                        var sendFragment = function(){
+                            intervalometer.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
+                                msg.reply('timelapse-images', {
+                                    index: msg.index,
+                                    fragment: fragment,
+                                    fragments: fragments,
+                                    images: images.map(function(image) {
+                                        image = new Buffer(image).toString('base64');
+                                        return image;
+                                    })
+                                }, function() {
+                                    fragment++;
+                                    if(fragment < fragments) process.nextTick(sendFragment);
+                                });
+
+                            });
+                        };
+                    }
+
                 });
                 break;
 
