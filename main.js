@@ -2567,11 +2567,10 @@ nodeCleanup(function (exitCode, signal) {
             //console.log("_getActiveHandles:", process._getActiveHandles());
             //console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
+            exec("sleep 2; kill -s 9 " + process.pid, function(){
+                
+            });
             process.kill(process.pid);
-            process.exit();
-            setTimeout(function(){
-                process.kill(process.pid, 'SIGKILL');
-            }, 1000);
         });
     }
     return false;
