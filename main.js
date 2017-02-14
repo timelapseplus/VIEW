@@ -1042,7 +1042,7 @@ if (VIEW_HARDWARE) {
                     },
                     help: help.playbackCamera,
                     condition: function() {
-                        return parseInt(dbClip.cameras) > 1;
+                        return dbClip && parseInt(dbClip.cameras) > 1;
                     }
                 }, {
                     name: "Write XMPs to SD card",
@@ -2564,11 +2564,14 @@ nodeCleanup(function (exitCode, signal) {
     } else {
         closeSystem(function() {
             console.log("Shutting down complete, exiting");
-            console.log("_getActiveHandles:", process._getActiveHandles());
-            console.log("_getActiveRequests:", process._getActiveRequests());
+            //console.log("_getActiveHandles:", process._getActiveHandles());
+            //console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
-            //process.exit();
             process.kill(process.pid);
+            process.exit();
+            setTimeout(function(){
+                process.kill(process.pid, 'SIGKILL');
+            }, 1000);
         });
     }
     return false;
