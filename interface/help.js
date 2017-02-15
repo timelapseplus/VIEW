@@ -121,3 +121,7 @@ exports.apertureMin = "The maximum aperture (smallest opening, e.g., f/16) setti
 exports.rampParameters = "Camera parameters used for ramping.  Currently defines whether or not to ramp aperture, but more options are planned for future releases.";
 
 exports.playbackCamera = "Plays the time-lapse clip as captured by the secondary camera";
+
+exports.registrationInfo = "Info and instructions for pairing with app.view.tl";
+
+

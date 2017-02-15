@@ -1983,6 +1983,32 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
+    var registrationEmail = false;
+    db.get('registrationEmail', function(err, email) {
+        if(!err && email) registrationEmail = email;
+    });
+
+    var registrationInfo = function() {
+        var info = "";
+        if(registrationEmail) {
+                info += "This VIEW device is registered to " + registrationEmail + "\n";
+                if(app.remote) {
+                    info += "For remote operation, open app.view.tl on your phone and sign in with the above email address.\n";
+                } else {
+                    info += "Connect the VIEW to wifi to enable remote operation via app.view.tl\n";
+                }
+        } else {
+            if(app.authCode) {
+                info += "To complete registration and pair with the remote app, please complete the following:\n";
+                info += "1) On your phone, open http://app.view.tl and sign in.\n";
+                info += "2) Once signed into app.view.tl, click 'Add device' and enter this number: " + app.authCode + "\n";
+            } else {
+                info += "This device has not yet been registered with the remote app via app.view.tl\nTo complete this process, connect the VIEW to wifi and come back to this menu for further instructions.";
+            }
+        }
+        return info;
+    }
+
     var astroInfo = function() {
         var info = "";
         if(mcu.lastGpsFix) {
@@ -2089,6 +2115,13 @@ if (VIEW_HARDWARE) {
                 ui.alert('System Info', systemInfo());
             },
             help: help.systemInfo
+        }, {
+            name: "Registration & App",
+            action: function(){
+                ui.back();
+                ui.alert('Registration', registrationInfo);
+            },
+            help: help.registrationInfo
         }, {
             name: "GPS Info",
             action: function(){
@@ -2266,7 +2299,7 @@ if (VIEW_HARDWARE) {
         }, null, null, true);
     }
 
-    var saveDefault = ui.defaultStatusString;
+    var saveDefault = false;
     app.on('auth-required', function(code) {
         if(updates.installing) return;
         //if(authDisplayed) {
@@ -2281,14 +2314,19 @@ if (VIEW_HARDWARE) {
         //displayAuthCode(code);
     });
 
-    app.on('auth-complete', function(code) {
+    app.on('auth-complete', function(email) {
+        if(registrationEmail && registrationEmail != email) {
+            registrationEmail = email;
+            db.set('registrationEmail', email);
+        }
         if(authDisplayed) {
             ui.back();
             authDisplayed = false;
         }
         oled.activity();
         power.activity();
-        ui.defaultStatus(saveDefault);
+        if(saveDefault) ui.defaultStatus(saveDefault);
+        saveDefault = false;
         ui.status('connected to view.tl');
     });
 
@@ -2568,7 +2606,7 @@ nodeCleanup(function (exitCode, signal) {
             //console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
             exec("sleep 2; kill -s 9 " + process.pid, function(){
-                
+
             });
             process.kill(process.pid);
         });

@@ -75,7 +75,7 @@ function connectRemote() {
                 if(msg.connected) {
                     app.remote = true;
                     app.authCode = null;
-                    app.emit('auth-complete', app.authCode);
+                    app.emit('auth-complete', msg.email);
                     app.emit('connected', true);
                     console.log("Connected to view.tl");
                     remotePingHandle = setInterval(function() {

@@ -96,6 +96,16 @@ function getUserByEmail(email, callback) {
     });
 }
 
+function getUserById(userId, callback) {
+    db.query('SELECT * FROM `users` WHERE `id` = ?', userId, function(err, rows, fields) {
+      if (err) callback(err);
+      if(rows && rows.length > 0) {
+        return callback(null, rows[0]);
+      }
+      return callback(null, null);
+    });
+}
+
 function getUserBySubdomain(subdomain, callback) {
     db.query('SELECT * FROM `users` WHERE `subdomain` = ?', subdomain, function(err, rows, fields) {
       if (err) callback(err);
@@ -344,14 +354,19 @@ wssNet.on('connection', function connection(ws) {
 });
 
 var startViewConnection = function(ws) {
-    sendViewMessage({
-        connected: true
-    }, ws);
-    sendViewMessage({
-        type: "get",
-        key: "camera"
-    }, ws);
-    sendIntervalometerUpdate(null, ws.userId, ws.viewId);
+    getUserById(ws.userId, function(err, user) {
+        var email = null;
+        if(!err && user) email = user.email;
+        sendViewMessage({
+            connected: true,
+            email: email
+        }, ws);
+        sendViewMessage({
+            type: "get",
+            key: "camera"
+        }, ws);
+        sendIntervalometerUpdate(null, ws.userId, ws.viewId);
+    });
 }
 
 var viewConnected = {};
