@@ -2316,7 +2316,8 @@ if (VIEW_HARDWARE) {
 
     app.on('auth-complete', function(email) {
         console.log("connected to view.tl:", email);
-        if(registrationEmail && registrationEmail != email) {
+        if(email && registrationEmail != email) {
+            console.log("updating registrationInfo for", email);
             registrationEmail = email;
             db.set('registrationEmail', email);
         }
