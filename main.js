@@ -1348,7 +1348,7 @@ if (VIEW_HARDWARE) {
                                 }]);
                                 oled.update();
                                 closeSystem(function(){
-                                    exec('nohup /bin/sh /root/startup.sh', function() {}); // restarting system
+                                    exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
                                 });
                             });
                         } else {
@@ -1367,7 +1367,7 @@ if (VIEW_HARDWARE) {
                                         oled.update();
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
-                                                exec('nohup /bin/sh /root/startup.sh', function() {}); // restarting system
+                                                exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
                                             });
                                         });
                                     });
