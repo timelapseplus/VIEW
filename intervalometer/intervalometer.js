@@ -384,7 +384,7 @@ function runPhoto() {
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
-                if (intervalometer.status.framesRemaining < 1 || status.running == false || status.stopping == true) {
+                if (status.framesRemaining < 1 || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
                     status.running = false;
                     status.message = "done";
@@ -445,7 +445,7 @@ function runPhoto() {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                     console.log("TL: error:", err);
                 }
-                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || status.running == false || status.stopping == true) {
+                if ((intervalometer.currentProgram.intervalMode == "fixed" && status.framesRemaining < 1) || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
                     status.running = false;
                     status.stopping = false;
