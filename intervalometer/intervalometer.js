@@ -390,10 +390,13 @@ function runPhoto() {
                     status.message = "done";
                     status.framesRemaining = 0;
                     intervalometer.cancel('done');
-                }
-                processKeyframes(false, function() {
+                } else if(!err) {
+                    processKeyframes(false, function() {
+                        busyPhoto = false;
+                    });
+                } else {
                     busyPhoto = false;
-                });
+                }
             });
         } else {
             if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
@@ -452,10 +455,13 @@ function runPhoto() {
                     status.message = "done";
                     status.framesRemaining = 0;
                     intervalometer.cancel('done');
-                }
-                processKeyframes(false, function() {
+                } else if(!err) {
+                    processKeyframes(false, function() {
+                        busyPhoto = false;
+                    });
+                } else {
                     busyPhoto = false;
-                });
+                }
             });
         }
     }
