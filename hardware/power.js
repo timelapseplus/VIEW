@@ -124,11 +124,11 @@ power.activity = function() {
 power.activity();
 
 power.shutdown = function() {
-    exec("nohup init 0");
+    exec('nohup sh -c "killall node; sleep 2; kill -s 9 ' + process.pid +  '; init 0"');
 }
 
 power.reboot = function() {
-    exec("nohup init 6");
+    exec('nohup sh -c "killall node; sleep 2; kill -s 9 ' + process.pid +  '; init 6"');
 }
 
 power.disableAutoOff = function() {
