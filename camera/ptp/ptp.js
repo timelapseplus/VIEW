@@ -457,11 +457,8 @@ camera.capture = function(options, callback) {
     }
     if(camera.supports.destination || options) { // time-lapse program or basic capture
         var imagePath;
-        if(!options) options = {};
-        if(options.saveRaw) {
-            imagePath = options.saveRaw;
-        }
         var cameraIndex = 0;
+        if(!options) options = {thumbnail: true};
         if(options.saveRaw) {
             imagePath = options.saveRaw;
         }
