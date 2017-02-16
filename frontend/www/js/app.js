@@ -1134,7 +1134,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.modalExposure.hide();
     };
     $scope.addKeyframe = function() {
-        if (!$scope.timelapse.keyframes) $scope.timelapse.keyframes = [];
+        if (!$scope.timelapse.keyframes) $scope.timelapse.keyframes = [{motor:{}}];
+        //if()
         var lastKf = $scope.timelapse.keyframes[$scope.timelapse.keyframes.length - 1];
         var kf = {
             focus: lastKf.focus,
