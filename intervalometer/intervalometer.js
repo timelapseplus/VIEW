@@ -386,7 +386,6 @@ function runPhoto() {
                 }
                 if (status.framesRemaining < 1 || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
-                    status.running = false;
                     status.message = "done";
                     status.framesRemaining = 0;
                     intervalometer.cancel('done');
@@ -447,7 +446,6 @@ function runPhoto() {
                 }
                 if ((intervalometer.currentProgram.intervalMode == "fixed" && status.framesRemaining < 1) || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
-                    status.running = false;
                     status.stopping = false;
                     status.message = "done";
                     status.framesRemaining = 0;
