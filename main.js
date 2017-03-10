@@ -51,8 +51,17 @@ var gpsExists = null;
 
 var cache = {};
 
-var Segfault = require('segfault');
-Segfault.registerHandler("segfault.log");
+var SegfaultHandler = require('segfault-handler');
+//Segfault.registerHandler("segfault.log");
+SegfaultHandler.registerHandler("segfault.log", function(signal, address, stack) {
+   closeSystem(function(){
+      exec("sleep 2; kill -s 9 " + process.pid, function(){
+ 
+      });
+      process.kill(process.pid);
+      
+   });
+});
 var nodeCleanup = require('node-cleanup');
 
 process.stdin.resume();
@@ -72,7 +81,9 @@ if (VIEW_HARDWARE) {
         });
     });
     updates.installIcons();
+    console.log("Initializing OLED...");
     oled.init();
+    console.log("Initializing MCU...");
     mcu.init(function(err){
         var useInputsForKnob = err ? true : false;
         console.log("Using MCU for knob: ", !useInputsForKnob);
@@ -125,6 +136,7 @@ if (VIEW_HARDWARE) {
             }
         });
     }
+    console.log("Setting up wifi...");
     configureWifi();
 
     var ERRORCOMPILING = "An error occurred while building the latest libgphoto2 code for camera support. Please report this to support@timelapseplus.com.\nSystem message:\n";

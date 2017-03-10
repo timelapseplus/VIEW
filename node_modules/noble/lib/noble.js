@@ -77,7 +77,9 @@ Noble.prototype.startScanning = function(serviceUuids, allowDuplicates, callback
     }
   } else {
     if (callback) {
-      this.once('scanStart', callback);
+      this.once('scanStart', function(filterDuplicates) {
+        callback(null, filterDuplicates);
+      });
     }
 
     this._discoveredPeripheralUUids = [];
@@ -272,7 +274,9 @@ Noble.prototype.onRead = function(peripheralUuid, serviceUuid, characteristicUui
   if (characteristic) {
     characteristic.emit('data', data, isNotification);
 
-    characteristic.emit('read', data, isNotification); // for backwards compatbility
+    if (!isNotification) {
+      characteristic.emit('read', data, isNotification); // for backwards compatbility
+    }
   } else {
     this.emit('warning', 'unknown peripheral ' + peripheralUuid + ', ' + serviceUuid + ', ' + characteristicUuid + ' read!');
   }

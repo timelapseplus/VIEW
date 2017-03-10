@@ -1,7 +1,7 @@
 require('rootpath')();
 var ptp = require('camera/ptp/ptp.js');
 var lists = require('camera/ptp/lists.js');
-var bulb = require('node-bulb');
+var bulb = {};//require('node-bulb');
 
 var camera = {};
 

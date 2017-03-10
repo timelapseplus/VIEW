@@ -53,6 +53,7 @@ setupButton(powerButton);
 setupButton(buttons);
 
 function setupButton(buttonConfig) {
+    console.log("Setting up button: ", buttonConfig.platformEvent);
     buttonConfig._button = new Button(buttonConfig.platformEvent);
 
     buttonConfig._btnPowerPressedTimer = null;
