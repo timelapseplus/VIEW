@@ -14,6 +14,7 @@ var _ = require('underscore');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
+var HOTSHOE_IN = 34;
 
 gpio.setMode(gpio.MODE_RAW);
 
@@ -25,6 +26,15 @@ gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, function(err){
 gpio.setup(AUXRING_OUT, gpio.DIR_OUT, function(err){
     if(err) console.log("GPIO error: ", err);
     gpio.write(AUXRING_OUT, 1);
+});
+
+gpio.setup(HOTSHOE_IN, gpio.DIR_IN, function(err){
+    if(err) console.log("GPIO error: ", err);
+    setInterval(function(){
+        gpio.read(HOTSHOE_IN, function(err, val) {
+            console.log("hotshoe:", val);
+        });
+    }, 1000);
 });
 
 var intervalometer = new EventEmitter();
