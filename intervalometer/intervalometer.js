@@ -30,11 +30,6 @@ gpio.setup(AUXRING_OUT, gpio.DIR_OUT, function(err){
 
 gpio.setup(HOTSHOE_IN, gpio.DIR_IN, function(err){
     if(err) console.log("GPIO error: ", err);
-    setInterval(function(){
-        gpio.read(HOTSHOE_IN, function(err, val) {
-            console.log("hotshoe:", val);
-        });
-    }, 1000);
 });
 
 var intervalometer = new EventEmitter();
@@ -106,12 +101,20 @@ auxTrigger.on('error', function(err) {
 
 function motionSyncPulse() {
     if (status.running && intervalometer.currentProgram.intervalMode != 'aux') {
-        console.log("=> AUX Pulse");
-        gpio.write(AUXTIP_OUT, 0, function() {
-            setTimeout(function(){
-                gpio.write(AUXTIP_OUT, 1);
-            }, 200);
+        gpio.read(HOTSHOE_IN, function(err, shutterClosed) {
+            console.log("hotshoe:", shutterClosed);
+            if(shutterClosed) {
+                console.log("=> AUX Pulse");
+                gpio.write(AUXTIP_OUT, 0, function() {
+                    setTimeout(function(){
+                        gpio.write(AUXTIP_OUT, 1);
+                    }, 200);
+                });
+            } else {
+                setTimeout(motionSyncPulse, 100);
+            }
         });
+
     } 
 }
 
@@ -372,7 +375,7 @@ function runPhoto() {
             status.intervalMs = intervalometer.currentProgram.interval * 1000;
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
-            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1000);
+            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1500);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     status.path = photoRes.file;
@@ -420,7 +423,7 @@ function runPhoto() {
             intervalometer.emit("status", status);
             var shutterEv;
             if(camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
-            var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1000;
+            var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
             setTimeout(motionSyncPulse, msDelayPulse);
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
