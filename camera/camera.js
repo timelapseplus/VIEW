@@ -172,9 +172,9 @@ camera.setEv = function(ev, options, cb) {
             };
         }
 
-        console.log("current shutter", shutter);
-        console.log("current aperture", aperture);
-        console.log("current iso", iso);
+        //console.log("current shutter", shutter);
+        //console.log("current aperture", aperture);
+        //console.log("current iso", iso);
 
         var shutterList = camera.ptp.settings.lists.shutter;
         var apertureList = camera.ptp.settings.lists.aperture;
@@ -223,7 +223,7 @@ camera.setEv = function(ev, options, cb) {
             });
         }
 
-        console.log("apertureList: ", apertureList);
+        //console.log("apertureList: ", apertureList);
 
         var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
         console.log("setEv: currentEv: ", currentEv);

@@ -327,7 +327,6 @@ function setupExposure(cb) {
     console.log("\n\nEXP: setupExposure");
     busyExposure = true;
     camera.getEv(function(err, currentEv, params) {
-        var expSetupStartTime = new Date() / 1000;
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         console.log("EXP: current ev: ", currentEv);
         camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
