@@ -166,6 +166,7 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
+        camera.connectSonyWifi();
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {

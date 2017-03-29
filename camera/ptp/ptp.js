@@ -389,6 +389,9 @@ scanner.on('done', function() {
 scanner.run();
 */
 
+camera.connectSonyWifi = function() {
+    startWorker('SonyWifi');
+}
 
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
