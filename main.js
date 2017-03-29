@@ -3057,6 +3057,7 @@ camera.ptp.on('nmxSerial', function(status) {
 });
 
 camera.ptp.on('connected', function() {
+    if(camera.ptp.model == "SonyWifi") app.disableRemote();
     oled.setIcon('camera', true);
     setTimeout(function() {
         app.send('camera', {
