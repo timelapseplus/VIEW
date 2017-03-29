@@ -197,6 +197,10 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 }
 
 exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, callback) {
+    return exports.downsizeJpeg(jpeg, size, crop, callback);
+    
+
+
     console.log("(sharp) Resizing photo...");
     var startTime = new Date() / 1000;
     if (!size) size = {};
