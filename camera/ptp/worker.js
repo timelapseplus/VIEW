@@ -315,20 +315,33 @@ function capture(options, callback) {
                 sdWriting = false;
                 //if (!options.index) options.index = 0;
                 if(options.index || options.index===0) {
-                    saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                     sendEvent('status', "analyzing photo");
-                    image.exposureValue(photo, function(err, ev) {
-                        console.log("adjusting ev by ", options.exposureCompensation);
-                        ev = ev + options.exposureCompensation;
-                        console.log("ev:", ev);
-                        sendEvent('status', "photo ev: " + ev);
-                        //sendEvent('ev', ev);
-                        if (callback) callback(err, {
-                            ev: ev,
-                            file: info,
-                            thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
+                    var size = {
+                        x: 100,
+                        q: 80
+                    }
+                    image.downsizeJpeg(photo, size, null, function(err, lowResJpg) {
+                        var img;
+                        if (!err && lowResJpg) {
+                            img = lowResJpg;
+                        } else {
+                            img = photo;
+                        }
+                        image.exposureValue(img, function(err, ev) {
+                            console.log("adjusting ev by ", options.exposureCompensation);
+                            ev = ev + options.exposureCompensation;
+                            console.log("ev:", ev);
+                            sendEvent('status', "photo ev: " + ev);
+                            //sendEvent('ev', ev);
+                            if (callback) callback(err, {
+                                ev: ev,
+                                file: info,
+                                thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
+                            });
                         });
                     });
+
+                    saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                 }
                 sendEvent('photo', {
                     jpeg: photo,
