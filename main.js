@@ -3006,7 +3006,7 @@ camera.ptp.on('photo', function() {
                 x: 160,
                 q: 80
             }
-            if (VIEW_HARDWARE) {
+            if (VIEW_HARDWARE && (camera.ptp.photo.type != 'preview' || liveviewOn)) {
                 image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
