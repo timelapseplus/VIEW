@@ -67,6 +67,17 @@ process.on('message', function(msg) {
                     }
                     callback && callback(null, res);
                 }
+                camera.takePicture = function(options, callback) {
+                    if(options.preview) {
+                        if(!camera.lvMode) {
+                            camera.startViewFinder();
+                            camera.lvMode = true;
+                        }
+                        camera.once('liveviewJpeg', function(img) {
+                            callback && callback(null, img);
+                        })
+                    }
+                }
                 console.log('Found', camera.model);
 
                 camera.once('update', function(){
@@ -696,7 +707,7 @@ function getConfig(noEvent, cached, cb) {
                     } else {
                         try {
                             console.log("processing item", item);
-                            if (item == 'shutterspeed' && data.status.children.manufacturer.value == 'Sony Corporation') {
+                            if (item == 'shutterspeed' && data.status && data.status.children.manufacturer.value == 'Sony Corporation') {
                                 console.log("manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
                                 supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
