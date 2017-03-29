@@ -323,13 +323,16 @@ function getEvOptions() {
 var busyExposure = false;
 
 function setupExposure(cb) {
+    var expSetupStartTime = new Date() / 1000;
+    console.log("\n\nEXP: setupExposure");
     busyExposure = true;
     camera.getEv(function(err, currentEv, params) {
-        console.log("EXP: current interval: ", status.intervalMs);
+        var expSetupStartTime = new Date() / 1000;
+        console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         console.log("EXP: current ev: ", currentEv);
         camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
             status.evDiff = res.ev - status.rampEv;
-            console.log("EXP: program:", "capture");
+            console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             busyExposure = false;
             cb && cb(err);
