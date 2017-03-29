@@ -3010,7 +3010,7 @@ camera.ptp.on('photo', function() {
                 image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
-                            oled.jpeg(path);
+                            oled.jpeg(path, 15, 0, true);
                             oled.update(true);
                         });
                     }
