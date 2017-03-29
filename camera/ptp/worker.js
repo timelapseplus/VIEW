@@ -50,11 +50,11 @@ process.on('message', function(msg) {
     if (msg.type == 'port') {
         port = msg.port;
         // List cameras / assign list item to variable to use below options
-        if(port == "sonywifi") {
+        if(port == "SonyWifi") {
             camera = new SonyCamera();
             camera.connect(function(err) {
                 if (err) {
-                    console.log("No cameras found, exiting worker");
+                    console.log("No (wifi) cameras found, exiting worker");
                     exit();
                     return;
                 }
