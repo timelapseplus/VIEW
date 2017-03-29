@@ -2,6 +2,7 @@ var gphoto2 = require('gphoto2');
 var GPhoto = new gphoto2.GPhoto2();
 var fs = require('fs');
 var execFile = require('child_process').execFile;
+var SonyCamera = require('sony-camera');
 
 require('rootpath')();
 var LISTS = require('camera/ptp/lists.js');
@@ -49,30 +50,55 @@ process.on('message', function(msg) {
     if (msg.type == 'port') {
         port = msg.port;
         // List cameras / assign list item to variable to use below options
-        console.log("Searching for camera at port " + port + "...");
-        GPhoto.list(function(list) {
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].model != 'Mass Storage Camera' && list[i].port == port) {
-                    camera = list[i];
-                    console.log("camera:", camera);
-                    break;
+        if(port == "sonywifi") {
+            camera = new SonyCamera();
+            camera.connect(function(err) {
+                if (err) {
+                    console.log("No cameras found, exiting worker");
+                    exit();
+                    return;
                 }
-            }
-            if (!camera) {
-                console.log("No cameras found, exiting worker");
-                exit();
-                return;
-            }
-            //waitEvent();
+                camera.model = 'SonyWifi';
+                camera.getConfig = function(callback) {
+                    var res = {
+                        main: {
+                            children: camera.params
+                        }
+                    }
+                    callback && callback(null, res);
+                }
+                console.log('Found', camera.model);
 
-            console.log('Found', camera.model);
-
-            getConfig(false, false, function() {
-                sendEvent('connected', camera.model);
+                camera.once('update', function(){
+                    sendEvent('connected', camera.model);
+                });
             });
-            //setInterval(getConfig, 2000);
+        } else {
+            console.log("Searching for camera at port " + port + "...");
+            GPhoto.list(function(list) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].model != 'Mass Storage Camera' && list[i].port == port) {
+                        camera = list[i];
+                        console.log("camera:", camera);
+                        break;
+                    }
+                }
+                if (!camera) {
+                    console.log("No cameras found, exiting worker");
+                    exit();
+                    return;
+                }
+                //waitEvent();
 
-        });
+                console.log('Found', camera.model);
+
+                getConfig(false, false, function() {
+                    sendEvent('connected', camera.model);
+                });
+                //setInterval(getConfig, 2000);
+
+            });
+        }
     }
     if (msg.type == 'command') {
         if (msg.do == 'exit') {
@@ -649,24 +675,11 @@ function getConfig(noEvent, cached, cb) {
                 for (m in maps) {
                     var section = maps[m].section;
                     var item = maps[m].item;
-                    try {
-                        console.log("processing item", item);
-                        if (item == 'shutterspeed' && data.status.children.manufacturer.value == 'Sony Corporation') {
-                            console.log("manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
-                            supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
-                            var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
-                            for (var j = 0; j < l.length; j++) {
-                                data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
-                            }
-                        }
-                    } catch (e) {
-                        console.log("error manually adding shutter speeds:", e);
-                    }
-                    if (data[section] && data[section].children && data[section].children[item]) {
-                        list = mapCameraList(handle, data[section].children[item].choices);
+                    if(section == null && data[item] && data[item].available) {
+                        list = mapCameraList(handle, data[item].available);
                         var halfs = false;
                         if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
-                            var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices);
+                            var listHalfs = mapCameraList(handle + 'Halfs', data[item].available);
                             if(listHalfs && (listHalfs.length > list.length)) {
                                 console.log("using half stops for", handle);
                                 halfs = true;
@@ -675,11 +688,44 @@ function getConfig(noEvent, cached, cb) {
                             }
                         }
                         //console.log("list:", handle, list);
-                        value = data[section].children[item].value;
+                        value = data[item].current;
                         detail = mapParam(handle, value, halfs);
                         name = item;
                         if(detail) console.log(name + " = " + value + " (" + detail.name + ")");
                         break;
+                    } else {
+                        try {
+                            console.log("processing item", item);
+                            if (item == 'shutterspeed' && data.status.children.manufacturer.value == 'Sony Corporation') {
+                                console.log("manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
+                                supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
+                                var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
+                                for (var j = 0; j < l.length; j++) {
+                                    data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
+                                }
+                            }
+                        } catch (e) {
+                            console.log("error manually adding shutter speeds:", e);
+                        }
+                        if (data[section] && data[section].children && data[section].children[item]) {
+                            list = mapCameraList(handle, data[section].children[item].choices);
+                            var halfs = false;
+                            if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
+                                var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices);
+                                if(listHalfs && (listHalfs.length > list.length)) {
+                                    console.log("using half stops for", handle);
+                                    halfs = true;
+                                    halfsUsed = true;
+                                    list = listHalfs; // item seems to be in half stops
+                                }
+                            }
+                            //console.log("list:", handle, list);
+                            value = data[section].children[item].value;
+                            detail = mapParam(handle, value, halfs);
+                            name = item;
+                            if(detail) console.log(name + " = " + value + " (" + detail.name + ")");
+                            break;
+                        }
                     }
                 }
                 mapped[handle] = value;

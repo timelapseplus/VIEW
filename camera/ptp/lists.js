@@ -40,6 +40,9 @@ lists.paramMap = [{
     maps: [{
         section: "imgsettings",
         item: "iso"
+    }, {
+        section: null,
+        item: 'isoSpeedRate'
     }]
 }, {
     name: "aperture",
@@ -49,6 +52,9 @@ lists.paramMap = [{
     }, {
         section: "capturesettings",
         item: "f-number"
+    }, {
+        section: null,
+        item: "fNumber"
     }]
 }, {
     name: "shutter",
@@ -58,6 +64,9 @@ lists.paramMap = [{
     }, {
         section: "capturesettings",
         item: "shutterspeed"
+    }, {
+        section: null,
+        item: "shutterSpeed"
     }]
 }];
 

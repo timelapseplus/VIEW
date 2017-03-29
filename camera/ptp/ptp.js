@@ -184,7 +184,7 @@ var startWorker = function(port) {
                     if(worker.model.match(/sony/i)) {
                         console.log("matched sony, setting supports.destination = false");
                         worker.supports.destination = false;
-                        if(worker.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                        if(worker.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68|SONYWIFI)/i)) {
                             worker.supports.liveview = true;
                         }
                     } else if(worker.model.match(/panasonic/i)) {
