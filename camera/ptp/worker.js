@@ -317,14 +317,14 @@ function capture(options, callback) {
                 if(options.index || options.index===0) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 40,
+                        x: 20,
                         q: 80
                     }
                     console.log("downsizing preview for luminance calc...");
                     image.downsizeJpeg(photo, size, null, function(err, lowResJpg) {
                         var img;
                         if (!err && lowResJpg) {
-                            console.log("running luminance calc on low-res preview...");
+                            console.log("running luminance calc on low-res preview...", lowResJpg.length, "bytes");
                             img = lowResJpg;
                         } else {
                             console.log("running luminance calc on full-res preview...");
