@@ -770,6 +770,7 @@ camera.getSettings = function(callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         get: 'settings',
+        time: new Date() / 1000,
         id: getCallbackId(worker.port, 'getSettings', callback)
     }); else callback && callback("not connected");
 }
