@@ -20,6 +20,8 @@ camera.fixedApertureEv = -4;
 var cbStore = {};
 var cbIndex = 0;
 
+console.log(">>>>>>> Starting camera module >>>>>>>>");
+
 function getCallbackId(cb) {
     if (!cb) return 0;
     cbIndex++;
