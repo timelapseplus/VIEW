@@ -81,7 +81,7 @@ process.on('message', function(msg) {
                         })
                     } else {
                         camera.capture(function(err, name, image) {
-                            callback && callback(err, image, info);
+                            callback && callback(err, image, name);
                         });
                     }
                 }
