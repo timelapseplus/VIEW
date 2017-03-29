@@ -79,6 +79,10 @@ process.on('message', function(msg) {
                         camera.once('liveviewJpeg', function(img) {
                             callback && callback(null, img, 'preview');
                         })
+                    } else {
+                        camera.capture(function(err, name, image) {
+                            callback && callback(err, image, info);
+                        });
                     }
                 }
                 console.log('Found', camera.model);
