@@ -24,6 +24,7 @@ var camera = require('./camera/camera.js');
 //var screen = require('./hardware/screen.js');
 var updates = require('./system/updates.js');
 var intervalometer = require('./intervalometer/intervalometer.js');
+var clips = require('./intervalometer/clips.js');
 var nmx = require('./drivers/nmx.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
@@ -807,7 +808,7 @@ if (VIEW_HARDWARE) {
             action: {
                 type: "function",
                 fn: function(arg, cb) {
-                    intervalometer.getLastTimelapse(function(err, timelapse) {
+                    clips.getLastTimelapse(function(err, timelapse) {
                         if (timelapse) {
                             if(timelapse.path) {
                                 oled.video(timelapse.path, timelapse.frames, 30, cb);
@@ -830,7 +831,7 @@ if (VIEW_HARDWARE) {
         //    action: {
         //        type: "function",
         //         fn: function(arg, cb) {
-        //            intervalometer.getLastTimelapse(function(err, timelapse) {
+        //            clips.getLastTimelapse(function(err, timelapse) {
         //                if (timelapse) {
         //                    var cam = 1;
         //                    if(timelapse.primary_camera == '1') cam = 2;
@@ -860,7 +861,7 @@ if (VIEW_HARDWARE) {
         name: "time-lapse",
         type: "timelapse",
         enter: function(){
-            var timelapse = intervalometer.getLastTimelapse(function(err, timelapse) {
+            var timelapse = clips.getLastTimelapse(function(err, timelapse) {
                 if (timelapse) {
                     if(timelapse.path) {
                         oled.video(timelapse.path, timelapse.frames, 30, function(){
@@ -1090,7 +1091,7 @@ if (VIEW_HARDWARE) {
 
     var clipsMenu = function(cb) {
         console.log("fetching clips...");
-        intervalometer.getRecentTimelapseClips(15, function(err, clips) {
+        clips.getRecentTimelapseClips(15, function(err, clips) {
             //console.log("########################################################################################################################");
             if (clips && clips.length > 0) {
                 var cm = {
@@ -1849,7 +1850,7 @@ if (VIEW_HARDWARE) {
                 type: 'function',
                 fn: function(arg, cb) {
                     db.eraseAll();
-                    intervalometer.eraseAll();
+                    clips.eraseAll();
                     exec("sudo rm /etc/udev/rules.d/70-persistent-net.rules");
                     setTimeout(cb, 500);
                 }
@@ -2238,7 +2239,7 @@ if (VIEW_HARDWARE) {
             }]);
             oled.update();
             if(clip) {
-                intervalometer.saveXMPsToCard(clip.index, function(err) {
+                clips.saveXMPsToCard(clip.index, function(err) {
                     ui.back();
                     cb();
                 }); 
@@ -2257,7 +2258,7 @@ if (VIEW_HARDWARE) {
             }]);
             oled.update();
             if(clip) {
-                intervalometer.deleteTimelapseClip(clip.index, function(err) {
+                clips.deleteTimelapseClip(clip.index, function(err) {
                     ui.back();
                     cb();
                 });
@@ -2345,7 +2346,7 @@ if (VIEW_HARDWARE) {
             intervalometer.currentProgram.destination = 'sd';
             ui.reload();
         }
-        intervalometer.getLastTimelapse(function(err, timelapse) {
+        clips.getLastTimelapse(function(err, timelapse) {
             if(!err && timelapse) confirmSaveXMPs(timelapse);
         });
     });
@@ -2430,7 +2431,7 @@ if (VIEW_HARDWARE) {
                 oled.videoSkipFrames(30*10);
             } else {
                 gestureVideoPlaying = true;
-                intervalometer.getLastTimelapse(function(err, timelapse) {
+                clips.getLastTimelapse(function(err, timelapse) {
                     if (timelapse) {
                         if(timelapse.path) {
                             oled.video(timelapse.path, timelapse.frames, 30, function() {
@@ -2802,7 +2803,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'timelapse-clips':
-                intervalometer.getRecentTimelapseClips(30, function(err, clips) {
+                clips.getRecentTimelapseClips(30, function(err, clips) {
                     if (clips) {
                         msg.reply('timelapse-clips', {
                             clips: clips.map(function(clip) {
@@ -2815,14 +2816,14 @@ app.on('message', function(msg) {
                 break;
 
             case 'timelapse-images':
-                intervalometer.getClipFramesCount(msg.index, function(err, frames) {
+                clips.getClipFramesCount(msg.index, function(err, frames) {
                     if(!err && frames) {
                         var fragments = Math.ceil(frames / 100);
                         var fragment = 0;
 
                         var sendFragment = function(){
                             console.log("sending time-lapse fragment " + fragment + " of " + fragments);
-                            intervalometer.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
+                            clips.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
                                 if(!err && images) {
                                     msg.reply('timelapse-images', {
                                         index: msg.index,
@@ -2861,7 +2862,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'xmp-to-card':
-                intervalometer.saveXMPsToCard(msg.index, function(err) {
+                clips.saveXMPsToCard(msg.index, function(err) {
                     msg.reply('xmp-to-card', {
                         index: msg.index,
                         error: err
@@ -2870,7 +2871,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'delete-clip':
-                intervalometer.deleteTimelapseClip(msg.index, function(err) {
+                clips.deleteTimelapseClip(msg.index, function(err) {
                     msg.reply('delete-clip', {
                         index: msg.index,
                         error: err

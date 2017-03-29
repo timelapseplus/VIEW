@@ -5,7 +5,10 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 
+var db = require('system/db.js');
 var camera = require('camera/camera.js');
+
+var clips = {};
 
 clips.getLastTimelapse = function(callback) {
     fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {

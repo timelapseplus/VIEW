@@ -320,6 +320,7 @@ function capture(options, callback) {
                         x: 100,
                         q: 80
                     }
+                    console.log("downsizing preview for luminance calc...");
                     image.downsizeJpeg(photo, size, null, function(err, lowResJpg) {
                         var img;
                         if (!err && lowResJpg) {
@@ -327,10 +328,11 @@ function capture(options, callback) {
                         } else {
                             img = photo;
                         }
+                        console.log("running luminance calc on preview...");
                         image.exposureValue(img, function(err, ev) {
                             console.log("adjusting ev by ", options.exposureCompensation);
                             ev = ev + options.exposureCompensation;
-                            console.log("ev:", ev);
+                            console.log("luminance calc complete. ev:", ev);
                             sendEvent('status', "photo ev: " + ev);
                             //sendEvent('ev', ev);
                             if (callback) callback(err, {
