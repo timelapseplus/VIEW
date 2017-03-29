@@ -67,6 +67,9 @@ process.on('message', function(msg) {
                     }
                     callback && callback(null, res);
                 }
+                camera.setConfigValue = function(item, value, callback) {
+                    camera.set(item, value, callback);
+                }
                 camera.takePicture = function(options, callback) {
                     if(options.preview) {
                         if(!camera.lvMode) {
@@ -80,7 +83,7 @@ process.on('message', function(msg) {
                 }
                 console.log('Found', camera.model);
 
-                camera.once('update', function(){
+                camera._processEvents(false, function(){
                     getConfig(false, false, function() {
                         sendEvent('connected', camera.model);
                     });
@@ -457,6 +460,7 @@ function captureTethered(timeoutSeconds, callback) {
 liveViewTimerHandle = null;
 
 function liveViewOff() {
+    console.log("setting liveview off");
     previewCrop = null;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
@@ -528,6 +532,15 @@ function preview(callback) {
 
 function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter', etc
     console.log('setting ' + item + ' to ' + value + " (" + (typeof value) + ")");
+    if(port == "SonyWifi" && item == "liveview") {
+        if(value) {            
+            if(!camera.lvMode) camera.startViewfinder();
+        } else {
+            camera.stopViewfinder();
+            camera.lvMode = false;
+        }
+        return callback && callback();
+    }
     getConfig(true, true, function() {
         if (!settings.mapped) {
             console.log('error', "unable to retrieve camera settings");

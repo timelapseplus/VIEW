@@ -181,7 +181,7 @@ var startWorker = function(port) {
                     worker.connected = true;
                     worker.model = msg.value;
                     console.log("Camera connected: ", camera.model);
-                    if(worker.model.match(/sony/i)) {
+                    if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
                         console.log("matched sony, setting supports.destination = false");
                         worker.supports.destination = false;
                         if(worker.model.match(/(a6300|A7r II|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68|SONYWIFI)/i)) {
