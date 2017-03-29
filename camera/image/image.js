@@ -241,10 +241,10 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                         top: Math.round(crop.y),
                         width: Math.round(size.x),
                         height: Math.round(size.y)
-                    }).sharpen().jpeg().quality(size.q).toBuffer(callback);
+                    }).sharpen().jpeg().quality(size.q).toBuffer(cb);
                 } else {
                     console.log("failed to read image size; not cropping");
-                    img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(callback);
+                    img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(cb);
                 }
             });
         } else {
@@ -271,14 +271,14 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                         console.log("exposure compensation done");
                         var out = sharp(buf, {
                             raw: info
-                        }).gamma(2.2).sharpen().jpeg().quality(size.q).toBuffer(callback);
+                        }).gamma(2.2).sharpen().jpeg().quality(size.q).toBuffer(cb);
                     } else {
                         console.log("Error creating buffer", err);
                         if (callback) callback(err, null);
                     }
                 });
             } else {
-                img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(callback);
+                img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(cb);
             }
         }
         console.log("Done.");
