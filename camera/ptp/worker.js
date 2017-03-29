@@ -638,7 +638,7 @@ function mapParam(type, value, halfs) {
             }
         }
     }
-    console.log("list item not found:", type, "[" + value + "]");
+    if(!halfs) console.log("list item not found:", type, "[" + value + "]");
     return null;
 }
 
