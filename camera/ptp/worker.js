@@ -81,7 +81,9 @@ process.on('message', function(msg) {
                 console.log('Found', camera.model);
 
                 camera.once('update', function(){
-                    sendEvent('connected', camera.model);
+                    getConfig(false, false, function() {
+                        sendEvent('connected', camera.model);
+                    });
                 });
             });
         } else {
@@ -499,7 +501,7 @@ function preview(callback) {
                 q: 70
             }
             image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
-                fs.unlink(tmp);
+                if(typeof tmp == 'string') fs.unlink(tmp);
                 if (centerFaces && !previewCrop) {
                     image.faceDetection(jpg, function(jpgface) {
                         console.log("photo length: ", jpgface.length);
