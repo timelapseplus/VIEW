@@ -765,7 +765,7 @@ camera.get = function(item) {
 }
 camera.getSettings = function(callback) {
     console.log("retreiving settings from camera");
-    console.trace();
+    //console.trace();
     var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({
         type: 'camera',

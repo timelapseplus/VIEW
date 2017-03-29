@@ -198,6 +198,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
 exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, callback) {
     console.log("(sharp) Resizing photo...");
+    var startTime = new Date() / 1000;
     if (!size) size = {};
     if (!size.x) x = (size.y > 0) ? size.y * 1.5 : 300;
     if (!size.y) size.y = size.x / 1.5;
@@ -218,6 +219,11 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
         //    data: jpegBuf
         //});
         var thm;
+        var cb = function(err) {
+            var processingTime = (new Date() / 1000) - startTime;
+            console.log("(sharp) Done resizing photo in ", processingTime, "seconds");
+            callback && callback(err);
+        }
         if (crop && crop.xPercent && crop.yPercent) {
             img.metadata(function(err, metadata) {
                 if (!err && metadata) {

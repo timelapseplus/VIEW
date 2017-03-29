@@ -317,8 +317,7 @@ function capture(options, callback) {
                 if(options.index || options.index===0) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 15,
-                        y: 10,
+                        x: 60,
                         q: 80
                     }
                     console.log("downsizing preview for luminance calc...");
@@ -331,11 +330,11 @@ function capture(options, callback) {
                             console.log("running luminance calc on full-res preview...");
                             img = photo;
                         }
-                        var startTime = new Date();
+                        var startTime = new Date() / 1000;
                         image.exposureValue(img, function(err, ev) {
                             console.log("adjusting ev by ", options.exposureCompensation);
                             ev = ev + options.exposureCompensation;
-                            var processingTime = new Date() - startTime;
+                            var processingTime = (new Date() / 1000) - startTime;
                             console.log("luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
                             sendEvent('status', "photo ev: " + ev);
                             //sendEvent('ev', ev);

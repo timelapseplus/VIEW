@@ -68,6 +68,33 @@ function setPower(callback) {
     axpSet(0x12, setting, callback); // set power switches
 }
 
+power.performance = function(mode, callback) {
+    var voltFreq = {
+        low: {
+            voltage: 1.2,
+            frequency: 384
+        },
+        medium: {
+            voltage: 1.25,
+            frequency: 528
+        },
+        high: {
+            voltage: 1.3,
+            frequency: 624
+        }
+    }
+    if(!voltFreq[mode]) mode = "medium";
+    var config = voltFreq[mode];
+    var voltReg = (config.voltage - 0.7) / 0.025;
+    axpSet(0x27, voltReg, function() {
+        axpSet(0x23, voltReg, function() {
+            exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
+                callback && callback(err);
+            });
+        });
+    });
+}
+
 var blinkIntervalHandle = null;
 power.setButtons = function(mode) {
     if(!mode) mode = "disabled";
