@@ -388,3 +388,5 @@ clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback
         }
     });
 }
+
+module.exports = clips;

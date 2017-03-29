@@ -317,7 +317,8 @@ function capture(options, callback) {
                 if(options.index || options.index===0) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 20,
+                        x: 15,
+                        y: 10,
                         q: 80
                     }
                     console.log("downsizing preview for luminance calc...");
@@ -343,16 +344,16 @@ function capture(options, callback) {
                                 file: info,
                                 thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
                             });
+                            sendEvent('photo', {
+                                jpeg: photo,
+                                zoomed: false,
+                                type: 'thumbnail'
+                            });
+                            saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                         });
                     });
 
-                    saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                 }
-                sendEvent('photo', {
-                    jpeg: photo,
-                    zoomed: false,
-                    type: 'thumbnail'
-                });
             } else {
                 sendEvent('status', "converting photo");
                 console.log("Received photo", photo);
