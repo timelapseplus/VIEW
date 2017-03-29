@@ -317,7 +317,7 @@ function capture(options, callback) {
                 if(options.index || options.index===0) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 100,
+                        x: 40,
                         q: 80
                     }
                     console.log("downsizing preview for luminance calc...");
