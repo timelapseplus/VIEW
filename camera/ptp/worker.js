@@ -70,11 +70,11 @@ process.on('message', function(msg) {
                 camera.takePicture = function(options, callback) {
                     if(options.preview) {
                         if(!camera.lvMode) {
-                            camera.startViewFinder();
+                            camera.startViewfinder();
                             camera.lvMode = true;
                         }
                         camera.once('liveviewJpeg', function(img) {
-                            callback && callback(null, img);
+                            callback && callback(null, img, 'preview');
                         })
                     }
                 }
