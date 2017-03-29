@@ -701,6 +701,9 @@ function getConfig(noEvent, cached, cb) {
             firstSettings = false;
         }
         cameraBusy = false;
+
+        var getConfigStartTime = new Date() / 1000;
+        
         if (data && data.main && data.main.children) {
             data = data.main.children;
 
@@ -787,6 +790,8 @@ function getConfig(noEvent, cached, cb) {
 
             settings.mapped = mapped;
             data.mapped = mapped;
+
+            console.log("Mapped settings in ", (new Date() / 1000) - getConfigStartTime, "seconds");
 
             //console.log("mapped settings:", mapped);
             configCache = data;
