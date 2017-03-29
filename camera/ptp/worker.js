@@ -324,11 +324,12 @@ function capture(options, callback) {
                     image.downsizeJpeg(photo, size, null, function(err, lowResJpg) {
                         var img;
                         if (!err && lowResJpg) {
+                            console.log("running luminance calc on low-res preview...");
                             img = lowResJpg;
                         } else {
+                            console.log("running luminance calc on full-res preview...");
                             img = photo;
                         }
-                        console.log("running luminance calc on preview...");
                         image.exposureValue(img, function(err, ev) {
                             console.log("adjusting ev by ", options.exposureCompensation);
                             ev = ev + options.exposureCompensation;
