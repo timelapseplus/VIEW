@@ -10,17 +10,6 @@ var camera = require('camera/camera.js');
 
 var clips = {};
 
-clips.getLastTimelapse = function(callback) {
-    fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {
-        if (!tlIndex) {
-            return callback(err);
-        } else {
-            tlIndex = parseInt(tlIndex);
-        }
-        return clips.getTimelapseClip(tlIndex, callback);
-    });
-}
-
 function getClipFramesCount(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
     //console.log("reading frame count for", clipNumber);
@@ -96,6 +85,17 @@ clips.getTimelapseClip = function(clipNumber, callback) {
     });
 }
 
+clips.getLastTimelapse = function(callback) {
+    fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {
+        if (!tlIndex) {
+            return callback(err);
+        } else {
+            tlIndex = parseInt(tlIndex);
+        }
+        return clips.getTimelapseClip(tlIndex, callback);
+    });
+}
+
 clips.getRecentTimelapseClips = function(count, callback) {
     var tlIndex = fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {
         if (!tlIndex) {
@@ -105,20 +105,20 @@ clips.getRecentTimelapseClips = function(count, callback) {
             tlIndex = parseInt(tlIndex);
         }
 
-        var clips = [];
+        var clipsResults = [];
         fs.readdir(TLROOT, function(err, files) {
             files = files.map(function(file) {
                 return file.toLowerCase();
             });
             var getNextClip = function() {
-                if(tlIndex > 0 && clips.length < count) {
+                if(tlIndex > 0 && clipsResults.length < count) {
                     if(files.indexOf('tl-' + tlIndex) === -1) {
                         tlIndex--;
                         getNextClip();
                     } else {
                         clips.getTimelapseClip(tlIndex, function(err, clip) {
                             if(!err && clip && clip.name) {
-                                clips.push(clip);
+                                clipsResults.push(clip);
                             }
                             tlIndex--;
                             getNextClip();
@@ -126,8 +126,8 @@ clips.getRecentTimelapseClips = function(count, callback) {
                     }
                 } else {
                     setTimeout(function(){
-                        //console.log("clips:", clips);
-                        clips = clips.sort(function(a, b){
+                        //console.log("clipsResults:", clipsResults);
+                        clipsResults = clipsResults.sort(function(a, b){
                             if(a.index < b.index) {
                                 return 1;
                             }
@@ -136,7 +136,7 @@ clips.getRecentTimelapseClips = function(count, callback) {
                             }
                             return 0;
                         });
-                        callback(null, clips); 
+                        callback(null, clipsResults); 
                     });
                 }
             }
