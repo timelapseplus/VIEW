@@ -181,6 +181,7 @@ function thumbnailFileFromIndex(index, cameraIndex) {
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     if (thumbnailPath) {
+        var thumbnailStartTime = new Date() / 1000;
         var indexStr = (index + 1).toString();
         fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
             var size = {
@@ -190,7 +191,7 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
             image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
                     fs.writeFile(thumbnailFileFromIndex(index, cameraIndex), jpgBuf, function() {
-                        console.log(">>>>>>>>>> completed saveThumbnail", index);
+                        console.log(">>>>>>>>>> completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
                     });
                 }
             });
