@@ -349,15 +349,20 @@ function capture(options, callback) {
                                 file: info,
                                 thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
                             });
-                            sendEvent('photo', {
-                                jpeg: photo,
-                                zoomed: false,
-                                type: 'thumbnail'
-                            });
-                            saveThumbnail(photo, options.index, options.cameraIndex, options.exposureCompensation);
                         });
                     });
-
+                    var size = {
+                        x: 320,
+                        q: 80
+                    }
+                    image.downsizeJpeg(photo, size, null, function(err, mediumJpeg) {
+                        saveThumbnail(mediumJpeg, options.index, options.cameraIndex, options.exposureCompensation);
+                        sendEvent('photo', {
+                            jpeg: mediumJpeg,
+                            zoomed: false,
+                            type: 'thumbnail'
+                        });
+                    });
                 }
             } else {
                 sendEvent('status', "converting photo");
