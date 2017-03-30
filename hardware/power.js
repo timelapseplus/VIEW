@@ -86,13 +86,30 @@ power.performance = function(mode, callback) {
     if(!voltFreq[mode]) mode = "medium";
     var config = voltFreq[mode];
     var voltReg = (config.voltage - 0.7) / 0.025;
-    axpSet(0x27, voltReg, function() {
-        axpSet(0x23, voltReg, function() {
-            exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
-                console.log("set system performance to", mode, err || "");
-                callback && callback(err);
-            });
-        });
+    axpGet(0x27, function(err, val) {
+        if(!err) {
+            if(val > voltReg) {
+                exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
+                    axpSet(0x27, voltReg, function() {
+                        axpSet(0x23, voltReg, function() {
+                            console.log("lowered system performance to", mode, err || "");
+                            callback && callback(err);
+                        });
+                    });
+                });
+            } else {
+                axpSet(0x27, voltReg, function() {
+                    axpSet(0x23, voltReg, function() {
+                        exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
+                            console.log("increased system performance to", mode, err || "");
+                            callback && callback(err);
+                        });
+                    });
+                });
+            }
+        } else {
+            console.log("error reading system voltage, not changing performance", err);
+        }
     });
 }
 
