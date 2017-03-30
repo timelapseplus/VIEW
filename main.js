@@ -54,6 +54,11 @@ var cache = {};
 
 var Segfault = require('segfault');
 Segfault.registerHandler("segfault.log");
+//var Segfault = require('segfault-handler');
+//Segfault.registerHandler("crash.log", function(signal, address, stack) {
+//    console.log("recevied SIGSEGV, killing process...");
+//    process.kill(process.pid, 'SIGKILL');
+//});
 var nodeCleanup = require('node-cleanup');
 
 process.stdin.resume();
