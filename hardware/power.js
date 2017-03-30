@@ -97,7 +97,7 @@ power.performance = function(mode, callback) {
                         });
                     });
                 });
-            } else {
+            } else if(val < voltReg) {
                 axpSet(0x27, voltReg, function() {
                     axpSet(0x23, voltReg, function() {
                         exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
