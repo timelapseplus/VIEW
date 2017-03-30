@@ -3,6 +3,7 @@ var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var image = require('camera/image/image.js');
+var power = require('hardware/power.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
@@ -552,6 +553,7 @@ intervalometer.cancel = function(reason) {
             console.log("==========> END TIMELAPSE", status.tlName);
         });
     }
+    power.performance('low');
 }
 
 intervalometer.run = function(program) {
@@ -559,6 +561,8 @@ intervalometer.run = function(program) {
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
+
+    power.performance('high');
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 

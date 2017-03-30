@@ -89,6 +89,7 @@ power.performance = function(mode, callback) {
     axpSet(0x27, voltReg, function() {
         axpSet(0x23, voltReg, function() {
             exec('cpufreq-set -u ' + config.frequency + 'MHz; cpufreq-set -f ' + config.frequency + 'MHz', function(err){
+                console.log("set system performance to", mode, err || "");
                 callback && callback(err);
             });
         });
