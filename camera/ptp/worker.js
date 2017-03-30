@@ -190,7 +190,7 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
             image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
                     fs.writeFile(thumbnailFileFromIndex(index, cameraIndex), jpgBuf, function() {
-                        console.log(">>>>>>>>>> completed saveThumbnail")
+                        console.log(">>>>>>>>>> completed saveThumbnail", index);
                     });
                 }
             });
