@@ -356,9 +356,9 @@ function capture(options, callback) {
                         q: 80
                     }
                     image.downsizeJpeg(photo, size, null, function(err, mediumJpeg) {
-                        saveThumbnail(mediumJpeg, options.index, options.cameraIndex, options.exposureCompensation);
+                        saveThumbnail(mediumJpeg || photo, options.index, options.cameraIndex, options.exposureCompensation);
                         sendEvent('photo', {
-                            jpeg: mediumJpeg,
+                            jpeg: mediumJpeg || photo,
                             zoomed: false,
                             type: 'thumbnail'
                         });
