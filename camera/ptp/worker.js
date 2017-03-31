@@ -180,7 +180,7 @@ function thumbnailFileFromIndex(index, cameraIndex) {
 }
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
-    if (thumbnailPath) {
+    if (thumbnailPath && index != null) {
         var thumbnailStartTime = new Date() / 1000;
         var indexStr = (index + 1).toString();
         fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
@@ -320,7 +320,7 @@ function capture(options, callback) {
             if (options.thumbnail && supports.thumbnail) {
                 sdWriting = false;
                 //if (!options.index) options.index = 0;
-                if(options.index || options.index===0) {
+                if(options.calculateEv) {
                     sendEvent('status', "analyzing photo");
                     var size = {
                         x: 60,
@@ -351,19 +351,25 @@ function capture(options, callback) {
                             });
                         });
                     });
-                    var size = {
-                        x: 320,
-                        q: 80
-                    }
-                    image.downsizeJpeg(photo, size, null, function(err, mediumJpeg) {
-                        saveThumbnail(mediumJpeg || photo, options.index, options.cameraIndex, options.exposureCompensation);
-                        sendEvent('photo', {
-                            jpeg: mediumJpeg || photo,
-                            zoomed: false,
-                            type: 'thumbnail'
-                        });
+                } else {
+                    if (callback) callback(err, {
+                        ev: null,
+                        file: info,
+                        thumbnailPath: options.index != null ? thumbnailFileFromIndex(options.index, options.cameraIndex) : null
                     });
                 }
+                var size = {
+                    x: 320,
+                    q: 80
+                }
+                image.downsizeJpeg(photo, size, null, function(err, mediumJpeg) {
+                    saveThumbnail(mediumJpeg || photo, options.index, options.cameraIndex, options.exposureCompensation);
+                    sendEvent('photo', {
+                        jpeg: mediumJpeg || photo,
+                        zoomed: false,
+                        type: 'thumbnail'
+                    });
+                });
             } else {
                 sendEvent('status', "converting photo");
                 console.log("Received photo", photo);

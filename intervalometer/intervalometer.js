@@ -379,6 +379,7 @@ function runPhoto() {
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1500);
+            captureOptions.calculateEv = false;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     status.path = photoRes.file;
@@ -413,6 +414,7 @@ function runPhoto() {
         } else {
             if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
             captureOptions.exposureCompensation = status.evDiff || 0;
+            captureOptions.calculateEv = true;
 
             if(intervalometer.currentProgram.intervalMode == 'aux') {
                 if(status.intervalStartTime) status.intervalMs = ((new Date() / 1000) - status.intervalStartTime) * 1000;
