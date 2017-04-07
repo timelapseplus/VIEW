@@ -59,6 +59,9 @@ process.on('message', function(msg) {
                     exit();
                     return;
                 }
+                camera.once('disconnect', function(img) {
+                    exit();
+                });
                 camera.model = 'SonyWifi';
                 camera.getConfig = function(callback) {
                     var res = {

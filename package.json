@@ -31,7 +31,7 @@
     "sensor_tsl2561": "latest",
     "serialport": "latest",
     "sharp": "latest",
-    "sony-camera": "0.0.4",
+    "sony-camera": "0.0.5",
     "spawn-sync": "latest",
     "sqlite3": "^3.1.6",
     "suncalc": "^1.8.0",
