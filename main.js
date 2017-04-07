@@ -3152,6 +3152,17 @@ intervalometer.on('status', function(msg) {
     }
 });
 
+camera.ptp.on('connectionError', function(msg) {
+    if(ui.currentOrigin() == 'alert') {
+        ui.back();
+    }
+    ui.alert('ERROR', msg);
+    app.send('connectionError', {
+        msg: msg
+    });
+    console.log("Camera connection ERROR: ", msg);
+});
+
 intervalometer.on('error', function(msg) {
     if(ui.currentOrigin() == 'alert') {
         ui.back();

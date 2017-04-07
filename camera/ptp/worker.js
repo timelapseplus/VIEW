@@ -54,6 +54,7 @@ process.on('message', function(msg) {
             camera = new SonyCamera();
             camera.connect(function(err) {
                 if (err) {
+                    if(err.message) sendEvent('connectionError', err.message);
                     console.log("No (wifi) cameras found, exiting worker");
                     exit();
                     return;
