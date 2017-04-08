@@ -59,7 +59,7 @@ process.on('message', function(msg) {
                     exit();
                     return;
                 }
-                camera.on('disconnect', function() {
+                camera.on('disconnected', function() {
                     console.log('(worker) Camera lost connection, exiting...');
                     exit();
                 });
