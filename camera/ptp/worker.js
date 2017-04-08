@@ -59,7 +59,8 @@ process.on('message', function(msg) {
                     exit();
                     return;
                 }
-                camera.once('disconnect', function(img) {
+                camera.on('disconnect', function() {
+                    console.log('(worker) Camera lost connection, exiting...');
                     exit();
                 });
                 camera.model = 'SonyWifi';
