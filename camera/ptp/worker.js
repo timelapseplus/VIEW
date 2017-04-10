@@ -216,8 +216,9 @@ function processRawPath(path, options, info, callback) {
             dest = options.saveRaw + info.substr(-4); // get extension
             console.log("Saving RAW image " + path + " to " + dest);
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
-                if(err) {
-                    sendEvent('saveError', "Error saving RAW file " + dest);
+                if(err || stderr) {
+                    console.log("#################### ERROR SAVING RAW IMAGE:", err, stderr);
+                    sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
                 }
                 sdWriting = false;
                 fs.unlink(path);

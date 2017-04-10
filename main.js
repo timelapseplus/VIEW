@@ -541,7 +541,7 @@ if (VIEW_HARDWARE) {
         action: ui.set(intervalometer.currentProgram, 'isoMin', null)
     });
     for (var i = 0; i < camera.lists.iso.length; i++) {
-        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev >= -2) {
+        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev >= -3) {
             isoMin.items.push({
                 name: "Minimum ISO",
                 help: help.isoMin,
