@@ -374,13 +374,15 @@ if (VIEW_HARDWARE) {
         type: "options",
         items: []
     }
-    for (var i = 2; i < 5; i += 0.2) dayInterval.items.push({
+    for (var i = 2; i < 5; i += 0.2) {
         i = Math.floor(i * 10) / 10;
-        name: "Day Interval",
-        help: help.dayInterval,
-        value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
-    });
+        dayInterval.items.push({
+            name: "Day Interval",
+            help: help.dayInterval,
+            value: i + " seconds",
+            action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
+        });
+    }
     for (var i = 5; i < 12; i++) dayInterval.items.push({
         name: "Day Interval",
         help: help.dayInterval,
@@ -405,13 +407,15 @@ if (VIEW_HARDWARE) {
         type: "options",
         items: []
     }
-    for (var i = 1.8; i < 5; i += 0.2) interval.items.push({
+    for (var i = 1.8; i < 5; i += 0.2) {
         i = Math.floor(i * 10) / 10;
-        name: "Interval",
-        help: help.interval,
-        value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'interval', i)
-    });
+        interval.items.push({
+            name: "Interval",
+            help: help.interval,
+            value: i + " seconds",
+            action: ui.set(intervalometer.currentProgram, 'interval', i)
+        });
+    }
     for (var i = 5; i < 12; i++) interval.items.push({
         name: "Interval",
         help: help.interval,
