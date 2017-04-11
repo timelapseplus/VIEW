@@ -2,6 +2,9 @@ var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
+var db = require('system/db.js');
+var mcu = require('hardware/mcu.js');
+var nmx = require('drivers/nmx.js');
 var image = require('camera/image/image.js');
 var power = require('hardware/power.js');
 var exp = require('intervalometer/exposure.js');
@@ -677,21 +680,6 @@ intervalometer.run = function(program) {
 
 }
 
-intervalometer.addCamera = function(cameraObject) {
-    camera = cameraObject;
-}
-
-intervalometer.addNmx = function(nmxObject) {
-    nmx = nmxObject;
-}
-
-intervalometer.addDb = function(dbObject) {
-    db = dbObject;
-}
-
-intervalometer.addMcu = function(mcuObject) {
-    mcu = mcuObject;
-}
 
 
 module.exports = intervalometer;

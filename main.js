@@ -63,8 +63,6 @@ var nodeCleanup = require('node-cleanup');
 
 process.stdin.resume();
 
-intervalometer.addDb(db);
-
 console.log('Modules loaded.');
 
 if (VIEW_HARDWARE) {
