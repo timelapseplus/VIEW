@@ -36,8 +36,6 @@ if (VIEW_HARDWARE) {
     var power = require('./hardware/power.js');
     var mcu = require('./hardware/mcu.js');
 }
-intervalometer.addNmx(nmx);
-intervalometer.addMcu(mcu);
 
 var wifi = require('./system/wifi.js');
 if(power) wifi.power = power; // allow wifi module to control power
