@@ -33,6 +33,7 @@
     "sharp": "latest",
     "sony-camera": "0.0.6",
     "spawn-sync": "latest",
+    "speaker": "^0.3.0",
     "sqlite3": "^3.1.6",
     "suncalc": "^1.8.0",
     "udev": "^0.1.5",
