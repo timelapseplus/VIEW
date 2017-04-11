@@ -10,7 +10,7 @@ var screenSaverHandle = null;
 var beepEnter = beep.sine(2954, 0.04);
 var beepBack = beep.sine(1447, 0.04);
 var beepClick = beep.sine(738, 0.02);
-var beepAlarm = beep.sine2((2954, 1540, 0.5);
+var beepAlarm = beep.sine2(2954, 1540, 0.5);
 
 exports.busy = false;
 
