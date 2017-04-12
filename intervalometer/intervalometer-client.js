@@ -38,6 +38,13 @@ function errorCallbacks(err, port) {
     }
 }
 
+// buffered data
+core.cameraSettings = {};
+core.cameraConnected = false;
+core.cameraModel = "";
+core.cameraCount = 0;
+core.cameraSupports = {};
+core.intervalometerStatus = {};
 
 var client = net.connect('/tmp/intervalometer.sock', function() {
   console.log('connected to server!');
