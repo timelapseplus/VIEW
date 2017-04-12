@@ -55,9 +55,15 @@ var gpio = require('linux-gpio');
 var _ = require('underscore');
 var net = require('net');
 
+var clientCounter = 0;
+var clients = [];
+
 var server = net.createServer(function(c) {
   // 'connection' listener
   console.log('client connected');
+  clientCounter++;
+  c.index = clientCounter;
+  clients.push(c);
   c.on('data', function(data) {
   	console.log("received:", data);
     try {
@@ -68,20 +74,25 @@ var server = net.createServer(function(c) {
   });
   c.on('end', function() {
     console.log('client disconnected');
+    for(var i = 0; i < clients.length; i++) {
+      if(clients[i].index == client.index) {
+        clients.splice(i, 1);
+      }
+    }
   });
-  c.write('hello\r\n');
-  //c.pipe(c);
 });
 
 server.on('error', function(err) {
   throw err;
 });
-server.listen('/tmp/intervalometer.sock',  function() {
-  console.log('server bound');
+fs.unlink('/tmp/intervalometer.sock', function(){
+  server.listen('/tmp/intervalometer.sock',  function() {
+    console.log('server bound');
+  });
 });
 
 function broadcast(data) {
-    server.clients.forEach(function each(client) {
+    clients.forEach(function each(client) {
         //console.log("client:", client);
         try {
             if (client) client.send(data);
