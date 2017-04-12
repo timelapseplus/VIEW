@@ -119,7 +119,7 @@ function call(method, args, callback) {
         args: args,
         id: cbId
     });
-    client.send(payload);
+    client.write(payload);
 }
 
 core.connectSonyWifi = function(callback) {
