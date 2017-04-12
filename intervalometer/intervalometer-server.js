@@ -42,6 +42,7 @@ require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
 var nmx = require('drivers/nmx.js');
+var noble = require('noble');
 var image = require('camera/image/image.js');
 var exp = require('intervalometer/exposure.js');
 var intervalometer = require('intervalometer/intervalometer.js');
@@ -200,6 +201,10 @@ function runCommand(type, args, callback) {
     case 'camera.ptp.set':
       camera.ptp.set(args.key, args.val, callback);
       break;
+
+    case 'nmx.move':
+      nmx.move(args.motor, args.steps, callback);
+      break;
   }
 }
 
@@ -280,7 +285,8 @@ function clearScanTimeouts() {
 }
 
 function startScan() {
-    if(btleScanStarting || updates.installing) return;
+    //if(btleScanStarting || updates.installing) return;
+    if(btleScanStarting) return;
     btleScanStarting = true;
     clearScanTimeouts()
     scanTimerHandle = setTimeout(startScan, 30000);
@@ -299,9 +305,9 @@ function startScan() {
         }, 8000);
     } else {
         btleScanStarting = false;
-        if(wifi.btEnabled) {
-            wifi.resetBt();
-        }
+        //if(wifi.btEnabled) {
+        //    wifi.resetBt();
+        //}
     }
 }
 startScan();
@@ -330,16 +336,13 @@ noble.on('discover', function(peripheral) {
 nmx.connect();
 
 nmx.on('status', function(status) {
+    sendEvent('nmx.status', status);
     if (status.connected) {
-        oled.setIcon('bt', true);
         stopScan();
-        ui.reload();
     } else {
-        oled.setIcon('bt', false);
-        ui.reload();
-        wifi.resetBt(function(){
+        //wifi.resetBt(function(){
             startScan();
-        });
+        //});
     }
 });
 

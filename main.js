@@ -16,15 +16,12 @@ console.log('Server modules loaded');
 var sys = require('sys')
 console.log('System modules loaded');
 
-var noble = require('noble');
-console.log('BT modules loaded');
-
 require('rootpath')();
 var lists = require('./camera/ptp/lists.js');
 var updates = require('./system/updates.js');
 var clips = require('./intervalometer/clips.js');
 var core = require('./intervalometer/intervalometer-client.js');
-var nmx = require('./drivers/nmx.js');
+//var nmx = require('./drivers/nmx.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
@@ -2700,7 +2697,7 @@ app.on('message', function(msg) {
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, steps, reply) {
-                        if(driver == 'NMX') nmx.move(motor, steps, function() {
+                        if(driver == 'NMX') core.moveNMX(motor, steps, function() {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
@@ -3101,8 +3098,13 @@ core.on('intervalometer.error', function(msg) {
     console.log("Intervalometer ERROR: ", msg);
 });
 
-function getMotionStatus() {
-    var status = nmx.getStatus();
+var nmxStatus = {connected:false};
+function getMotionStatus(status) {
+    if(status) {
+        nmxStatus = status;
+    } else {
+        status = nmxStatus;
+    }
     var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
     var motors = [];
     motors.push({driver:'NMX', motor:1, connected:status.motor1});
@@ -3114,8 +3116,19 @@ function getMotionStatus() {
     };
 }
 
-nmx.on('status', function(){
-    var motion = getMotionStatus();
+core.on('nmx.status', function(status) {
+    var motion = getMotionStatus(status);
     app.send('motion', motion);
+    if (status.connected) {
+        oled.setIcon('bt', true);
+        //stopScan();
+        ui.reload();
+    } else {
+        oled.setIcon('bt', false);
+        ui.reload();
+        wifi.resetBt(function(){
+            //startScan();
+        });
+    }
 });
 

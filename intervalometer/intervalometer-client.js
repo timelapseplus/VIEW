@@ -151,6 +151,9 @@ core.set = function(key, val, callback) {
     call('camera.ptp.set', {key:key, val:val}, callback);
 };
 
+core.moveNMX = function(motor, steps, callback) {
+    call('nmx.move', {motor:motor, steps:steps}, callback);
+};
 
 defaultProgram = {
     rampMode: "fixed",
