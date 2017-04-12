@@ -122,7 +122,7 @@ function parseData(data, client) {
 
 
 function runCommand(type, args, callback) {
-  switch type {
+  switch(type) {
     /*case 'load':
       intervalometer.load(args, callback);
       break;
