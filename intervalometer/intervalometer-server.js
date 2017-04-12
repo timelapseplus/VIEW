@@ -110,7 +110,7 @@ function parseData(data, client) {
   if(data && data.type) {
     var type = data.type;
     var args = data.args || {};
-    var callback = (function(id, c) {function(err, data) {
+    var callback = (function(id, c) { return function(err, data) {
       if(id) {
         send('callback', {id:id, err:err, data:data}, c);
       }
