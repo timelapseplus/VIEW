@@ -33,7 +33,7 @@ camera.synchronized = true;
 var cbStore = {};
 var cbIndex = 0;
 
-camera.cameraList = function() {
+camera.cameraList = function(callback) {
     var list = [];
     for(var i = 0; i < workers.length; i++) {
         if(workers[i].connected) {
@@ -44,10 +44,11 @@ camera.cameraList = function() {
             });
         }
     }
+    callback && callback(list);
     return list;
 }
 
-camera.switchPrimary = function(cameraObject) {
+camera.switchPrimary = function(cameraObject, callback) {
     if(cameraObject._port) {
         console.log("switching primary camera to ", cameraObject.model);            
         var index = getWorkerIndex(cameraObject._port);
@@ -58,6 +59,7 @@ camera.switchPrimary = function(cameraObject) {
         camera.model = workers[index].model;
         camera.emit('connected', camera.model);
     }
+    callback && callback();
 }
 
 function getCallbackId(port, callerName, cb) {
@@ -350,8 +352,8 @@ monitor.on('remove', function(device) {
         camera.emit("nmxSerial", "disconnected");
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card removed:", device.DEVNAME);
-        camera.emit("media-remove", "sd");
         camera.sdPresent = false;
+        camera.emit("media-remove", "sd");
         if (camera.sdMounted) {
             //unmount card
             camera.unmountSd();
@@ -595,6 +597,11 @@ camera.lvOff = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
+    var cb = function(err, data){
+        if(!data) data = {};
+        data.zoomed = camera.zoomed;
+        callback && callback(err, data);
+    }
     var worker = getPrimaryWorker();
     var data = {
         reset: true
@@ -611,7 +618,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'zoom',
-        id: getCallbackId(worker.port, 'zoom', callback),
+        id: getCallbackId(worker.port, 'zoom', cb),
         data: data
     }); else callback && callback("not connected");
 }

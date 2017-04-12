@@ -181,7 +181,7 @@ function thumbnailFileFromIndex(index, cameraIndex) {
         indexStr = '0' + indexStr;
     }
     if(!cameraIndex) cameraIndex = 1;
-    return thumbnailPath + "/img" + indexStr + "-cam" + cameraIndex + ".jpg"
+    return thumbnailPath + "/cam-" + cameraIndex + "-" + indexStr + ".jpg"
 }
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {

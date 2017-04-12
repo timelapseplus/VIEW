@@ -3,10 +3,8 @@ var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
-var mcu = require('hardware/mcu.js');
 var nmx = require('drivers/nmx.js');
 var image = require('camera/image/image.js');
-var power = require('hardware/power.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
@@ -41,56 +39,16 @@ var intervalometer = new EventEmitter();
 var timerHandle = null;
 var delayHandle = null;
 
-defaultProgram = {
-    rampMode: "fixed",
-    intervalMode: "fixed",
-    interval: 5,
-    dayInterval: 5,
-    nightInterval: 35,
-    frames: 300,
-    destination: 'camera',
-    nightCompensation: -1,
-    isoMax: -6,
-    isoMin:  0,
-    rampParameters:  'S+I',
-    apertureMax: -2,
-    apertureMin:  -4,
-    manualAperture: -5,
-    keyframes: [{
-        focus: 0,
-        ev: "not set",
-        motor: {}
-    }]
-};
-
 var rate = 0;
-var status = {
-    running: false,
-    frames: 0,
-    framesRemaining: 0,
-    rampRate: 0,
-    intervalMs: 0,
-    message: "",
-    rampEv: null
-}
 
 intervalometer.autoSettings = {
     paddingTimeMs: 5000
 }
 
-var nmx = null;
-var db = null;
-var mcu = null;
 
 intervalometer.timelapseFolder = false;
 
 intervalometer.status = status;
-
-intervalometer.load = function(program) {
-    if(!program.frames) program.frames = Infinity; // Infinity comes back as null from the DB
-    intervalometer.currentProgram = _.extendOwn(defaultProgram, intervalometer.currentProgram, program);
-}
-intervalometer.load(defaultProgram);
 
 var auxTrigger = new Button('input-aux2');
 
@@ -145,9 +103,9 @@ function getDetails(file) {
         i: exp.status.iComponent,
         d: exp.status.dComponent,
     };
-    if(mcu && mcu.lastGpsFix) {
-        d.latitude = mcu.lastGpsFix.lat;
-        d.longitude = mcu.lastGpsFix.lon;
+    if(intervalometer.gpsData) {
+        d.latitude = gpsData.lat;
+        d.longitude = gpsData.lon;
     }
     return d;
 }
@@ -557,8 +515,7 @@ intervalometer.cancel = function(reason) {
             intervalometer.emit("status", status);
             console.log("==========> END TIMELAPSE", status.tlName);
         });
-    }
-    power.performance('low');
+    }    
 }
 
 intervalometer.run = function(program) {
@@ -566,8 +523,6 @@ intervalometer.run = function(program) {
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
-
-    power.performance('high');
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
@@ -599,9 +554,9 @@ intervalometer.run = function(program) {
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
-                if(mcu && mcu.lastGpsFix) {
-                    status.latitude = mcu.lastGpsFix.lat;
-                    status.longitude = mcu.lastGpsFix.lon;
+                if(intervalometer.gpsData) {
+                    status.latitude = gpsData.lat;
+                    status.longitude = gpsData.lon;
                 }
                 exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
                 status.running = true;
@@ -680,6 +635,10 @@ intervalometer.run = function(program) {
 
 }
 
+intervalometer.addGpsData = function(gpsData, callback) {
+    intervalometer.gpsData = gpsData;
+    callback && callback();
+}
 
 
 module.exports = intervalometer;
