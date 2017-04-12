@@ -113,7 +113,7 @@ function send(event, data, client) {
     type: event,
     data: data
   }
-  client.write(JSON.stringify(packet)+'\0');
+  if(client && client.ready) client.write(JSON.stringify(packet)+'\0');
 }
 
 function sendEvent(event, data) {
