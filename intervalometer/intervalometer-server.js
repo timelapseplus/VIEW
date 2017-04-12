@@ -79,7 +79,7 @@ server.listen('/tmp/intervalometer.sock',  function() {
   console.log('server bound');
 });
 
-function broadcast = function (data) {
+function broadcast(data) {
     server.clients.forEach(function each(client) {
         //console.log("client:", client);
         try {
