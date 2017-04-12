@@ -92,14 +92,14 @@ fs.unlink('/tmp/intervalometer.sock', function(){
 });
 
 function broadcast(data) {
-    clients.forEach(function each(client) {
+    for(var i = 0; i < clients.length; i++) {
         //console.log("client:", client);
         try {
-            if (client) client.send(data);
+            if (clients[i]) clients[i].write(data);
         } catch (err) {
             console.log("broadcast error:", err);
         }
-    });
+    }
 };
 
 function send(event, data, client) {
