@@ -59,6 +59,8 @@ function connect() {
         chunk = chunk.toString('utf8');
         var pieces = chunk.split('\0');
         for(var i = 0; i < pieces.length; i++) {
+            pieces[i] = pieces[i].trim();
+            if(!pieces[i]) continue;
             var data = JSON.parse(pieces[i]);
             if(data.id) {
                 runCallback(data);

@@ -71,7 +71,9 @@ var server = net.createServer(function(c) {
       var pieces = data.split('\0');
       var piece;
       for(var i = 0; i < pieces.length; i++) {
-        piece = JSON.parse(pieces[i]);
+        piece = pieces[i].trim();
+        if(!piece) continue;
+        piece = JSON.parse(piece);
         parseData(piece);
       }
     } catch(e) {
