@@ -69,12 +69,13 @@ var server = net.createServer(function(c) {
     try {
       data = data.toString('utf8');
       var pieces = data.split('\0');
+      var piece;
       for(var i = 0; i < pieces.length; i++) {
-        var piece = JSON.parse(pieces[i]);
+        piece = JSON.parse(pieces[i]);
         parseData(piece);
       }
     } catch(e) {
-      console.log("failed parsing", data, e);
+      console.log("failed parsing", data, "piece:", piece, e);
     }
   });
   c.on('end', function() {
