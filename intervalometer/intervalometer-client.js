@@ -56,7 +56,8 @@ function connect() {
     });
     client.on('data', function(data) {
       try {
-        data = JSON.parse(data.toString());
+        data = data.toString('utf8');
+        data = JSON.parse(data);
         if(data.id) {
             runCallback(data);
         } else {
