@@ -48,63 +48,71 @@ core.cameraCount = 0;
 core.cameraSupports = {};
 core.intervalometerStatus = {};
 
-var client = net.connect('/tmp/intervalometer.sock', function() {
-  console.log('connected to server!');
-  client.write('world!\r\n');
-});
-client.on('data', function(data) {
-  try {
-    data = JSON.parse(data.toString());
-    if(data.id) {
-        runCallback(data);
-    } else {
-        if(data.type == 'camera.photo') {
-            core.photo = data.data;
-            data.data = null;
-        } else if(data.type == 'camera.settings') {
-            core.cameraSettings = data.data;
-        } else if(data.type == 'camera.connected') {
-            core.cameraConnected = data.data.connected;
-            core.cameraModel = data.data.model;
-            core.cameraCount = data.data.count;
-            core.cameraSupports = data.data.supports;
-        } else if(data.type == 'camera.exiting') {
-            core.cameraConnected = data.data.connected;
-            core.cameraModel = data.data.model;
-            core.cameraCount = data.data.count;
-            core.cameraSupports = data.data.supports;
-        } else if(data.type == 'media.present') {
-            core.sdMounted = data.data;
-            core.sdPresent = true;
-        } else if(data.type == 'media.insert') {
-            core.sdPresent = true;
-        } else if(data.type == 'media.remove') {
-            core.sdPresent = false;
-        } else if(data.type == 'intervalometer.status') {
-            core.intervalometerStatus = data.data;
-            if(core.intervalometerStatus.running == false) {
-                power.performance('low');
+var client;
+function connect() {
+    client = net.connect('/tmp/intervalometer.sock', function() {
+      console.log('connected to server!');
+      client.ready = true;
+    });
+    client.on('data', function(data) {
+      try {
+        data = JSON.parse(data.toString());
+        if(data.id) {
+            runCallback(data);
+        } else {
+            if(data.type == 'camera.photo') {
+                core.photo = data.data;
+                data.data = null;
+            } else if(data.type == 'camera.settings') {
+                core.cameraSettings = data.data;
+            } else if(data.type == 'camera.connected') {
+                core.cameraConnected = data.data.connected;
+                core.cameraModel = data.data.model;
+                core.cameraCount = data.data.count;
+                core.cameraSupports = data.data.supports;
+            } else if(data.type == 'camera.exiting') {
+                core.cameraConnected = data.data.connected;
+                core.cameraModel = data.data.model;
+                core.cameraCount = data.data.count;
+                core.cameraSupports = data.data.supports;
+            } else if(data.type == 'media.present') {
+                core.sdMounted = data.data;
+                core.sdPresent = true;
+            } else if(data.type == 'media.insert') {
+                core.sdPresent = true;
+            } else if(data.type == 'media.remove') {
+                core.sdPresent = false;
+            } else if(data.type == 'intervalometer.status') {
+                core.intervalometerStatus = data.data;
+                if(core.intervalometerStatus.running == false) {
+                    power.performance('low');
+                }
             }
+            core.emit(data.type, data.data);
         }
-        core.emit(data.type, data.data);
-    }
-  } catch(e) {
-    console.log("Error parsing data:", data, e);
-  }
-  client.end();
-});
-client.on('end', function() {
-  console.log('disconnected from server');
-});
-client.on('error', function(err) {
-    if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT')) {
-        console.log("Error: server not ready");
-    } else {
-        console.log("error: ", err);
-    }
-});
+      } catch(e) {
+        console.log("Error parsing data:", data, e);
+      }
+    });
+    client.on('end', function() {
+      client.ready = false;
+      console.log('disconnected from server');
+    });
+    client.on('error', function(err) {
+        if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT')) {
+            console.log("Error: server not ready");
+            setTimeout(connect, 1000);
+        } else {
+            console.log("error: ", err);
+        }
+        client.ready = false;
+        client.end();
+    });
+}
+connect();
 
 function call(method, args, callback) {
+    if(!client.ready) return;
     var cbId = getCallbackId(method, callback);
     var payload = JSON.stringify({
         type: method,
