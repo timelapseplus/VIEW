@@ -54,42 +54,45 @@ function connect() {
       console.log('connected to server!');
       client.ready = true;
     });
-    client.on('data', function(data) {
+    client.on('data', function(chunk) {
       try {
-        data = data.toString('utf8');
-        data = JSON.parse(data);
-        if(data.id) {
-            runCallback(data);
-        } else {
-            if(data.type == 'camera.photo') {
-                core.photo = data.data;
-                data.data = null;
-            } else if(data.type == 'camera.settings') {
-                core.cameraSettings = data.data;
-            } else if(data.type == 'camera.connected') {
-                core.cameraConnected = data.data.connected;
-                core.cameraModel = data.data.model;
-                core.cameraCount = data.data.count;
-                core.cameraSupports = data.data.supports;
-            } else if(data.type == 'camera.exiting') {
-                core.cameraConnected = data.data.connected;
-                core.cameraModel = data.data.model;
-                core.cameraCount = data.data.count;
-                core.cameraSupports = data.data.supports;
-            } else if(data.type == 'media.present') {
-                core.sdMounted = data.data;
-                core.sdPresent = true;
-            } else if(data.type == 'media.insert') {
-                core.sdPresent = true;
-            } else if(data.type == 'media.remove') {
-                core.sdPresent = false;
-            } else if(data.type == 'intervalometer.status') {
-                core.intervalometerStatus = data.data;
-                if(core.intervalometerStatus.running == false) {
-                    power.performance('low');
+        chunk = chunk.toString('utf8');
+        var pieces = chunk.split('\0');
+        for(var i = 0; i < pieces.length; i++) {
+            var data = JSON.parse(pieces[i]);
+            if(data.id) {
+                runCallback(data);
+            } else {
+                if(data.type == 'camera.photo') {
+                    core.photo = data.data;
+                    data.data = null;
+                } else if(data.type == 'camera.settings') {
+                    core.cameraSettings = data.data;
+                } else if(data.type == 'camera.connected') {
+                    core.cameraConnected = data.data.connected;
+                    core.cameraModel = data.data.model;
+                    core.cameraCount = data.data.count;
+                    core.cameraSupports = data.data.supports;
+                } else if(data.type == 'camera.exiting') {
+                    core.cameraConnected = data.data.connected;
+                    core.cameraModel = data.data.model;
+                    core.cameraCount = data.data.count;
+                    core.cameraSupports = data.data.supports;
+                } else if(data.type == 'media.present') {
+                    core.sdMounted = data.data;
+                    core.sdPresent = true;
+                } else if(data.type == 'media.insert') {
+                    core.sdPresent = true;
+                } else if(data.type == 'media.remove') {
+                    core.sdPresent = false;
+                } else if(data.type == 'intervalometer.status') {
+                    core.intervalometerStatus = data.data;
+                    if(core.intervalometerStatus.running == false) {
+                        power.performance('low');
+                    }
                 }
+                core.emit(data.type, data.data);
             }
-            core.emit(data.type, data.data);
         }
       } catch(e) {
         console.log("Error parsing data:", data, e);
@@ -120,7 +123,7 @@ function call(method, args, callback) {
         args: args,
         id: cbId
     });
-    client.write(payload);
+    client.write(payload+'\0');
 }
 
 core.connectSonyWifi = function(callback) {

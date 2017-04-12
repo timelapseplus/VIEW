@@ -68,8 +68,11 @@ var server = net.createServer(function(c) {
   	console.log("received:", data);
     try {
       data = data.toString('utf8');
-      data = JSON.parse(data);
-      parseData(data);
+      var pieces = data.split('\0');
+      for(var i = 0; i < pieces.length; i++) {
+        var piece = JSON.parse(pieces[i]);
+        parseData(piece);
+      }
     } catch(e) {
       console.log("failed parsing", data, e);
     }
@@ -109,7 +112,7 @@ function send(event, data, client) {
     type: event,
     data: data
   }
-  client.write(JSON.stringify(packet));
+  client.write(JSON.stringify(packet)+'\0');
 }
 
 function sendEvent(event, data) {
@@ -117,7 +120,7 @@ function sendEvent(event, data) {
     type: event,
     data: data
   });
-  broadcast(payload);
+  broadcast(payload+'\0');
 }
 
 function parseData(data, client) {
