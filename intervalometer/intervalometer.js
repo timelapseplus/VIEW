@@ -48,6 +48,18 @@ intervalometer.autoSettings = {
 
 intervalometer.timelapseFolder = false;
 
+status = {
+    running: false,
+    frames: 0,
+    framesRemaining: 0,
+    rampRate: 0,
+    intervalMs: 0,
+    message: "",
+    rampEv: null,
+    autoSettings: {
+        paddingTimeMs: 5000
+    }
+}
 intervalometer.status = status;
 
 var auxTrigger = new Button('input-aux2');
