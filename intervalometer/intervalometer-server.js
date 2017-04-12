@@ -212,6 +212,12 @@ function runCommand(type, args, callback) {
     case 'camera.ptp.set':
       camera.ptp.set(args.key, args.val, callback);
       break;
+    case 'camera.ptp.mountSd':
+      camera.ptp.mountSd(callback);
+      break;
+    case 'camera.ptp.unmountSd':
+      camera.ptp.unmountSd(callback);
+      break;
 
     case 'nmx.move':
       nmx.move(args.motor, args.steps, callback);

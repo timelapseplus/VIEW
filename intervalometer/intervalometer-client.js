@@ -11,6 +11,8 @@ var core = new EventEmitter();
 var cbStore = {};
 var cbIndex = 0;
 
+console.log(">>>>>>>>>>>>>>>>>>>>> starting intervalometer client >>>>>>>>>>>>>>>>>>>");
+
 function getCallbackId(callerName, cb) {
     if (!cb) return 0;
     cbIndex++;
@@ -72,6 +74,7 @@ client.on('data', function(data) {
             core.cameraCount = data.data.count;
             core.cameraSupports = data.data.supports;
         } else if(data.type == 'media.present') {
+            core.sdMounted = data.data;
             core.sdPresent = true;
         } else if(data.type == 'media.insert') {
             core.sdPresent = true;
@@ -149,6 +152,15 @@ core.runSupportTest = function(callback) {
 };
 core.set = function(key, val, callback) {
     call('camera.ptp.set', {key:key, val:val}, callback);
+};
+core.mountSd = function(callback) {
+    call('camera.ptp.mountSd', {}, function(err, res){
+        core.sdMounted = 
+        callback(err, res)
+    });
+};
+core.unmountSd = function(callback) {
+    call('camera.ptp.unmountSd', {}, callback);
 };
 
 core.moveNMX = function(motor, steps, callback) {

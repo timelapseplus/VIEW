@@ -247,12 +247,12 @@ if(blockDevices.indexOf('mmcblk1p1') !== -1) {
     camera.sdDevice = '/dev/mmcblk1p1';
     console.log("SD card added:", camera.sdDevice);
     camera.sdPresent = true;
-    camera.emit("media", "sd");
 
     exec("mount", function(err, stdout, stderr) {
         if(stdout.indexOf('/dev/mmcblk1p1') !== -1) {
             camera.sdMounted = true;
         }
+        camera.emit("media", camera.sdMounted);
     });
 } else {
     exec("mount", function(err, stdout, stderr) {
@@ -397,15 +397,15 @@ camera.connectSonyWifi = function() {
 
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
-        if(camera.sdMounted) return callback && callback(null);
+        if(camera.sdMounted) return callback && callback(null, camera.sdMounted);
         console.log("mounting SD card");
         //exec("mount -o nonempty " + camera.sdDevice + " /media", function(err) { // this caused FAT32 cards to fail to mount
         exec("mount " + camera.sdDevice + " /media", function(err) {
             if (!err) camera.sdMounted = true; else console.log("error mounting sd card: ", err);
-            if (callback) callback(err);
+            if (callback) callback(err, camera.sdMounted);
         });
     } else {
-        if (callback) callback(true);
+        if (callback) callback(true, camera.sdMounted);
     }
 }
 
@@ -426,10 +426,10 @@ camera.unmountSd = function(callback) {
                 camera.sdMounted = false;
             }
             sdUnmountErrors = 0;
-            if (callback) callback(err);
+            if (callback) callback(err, camera.sdMounted);
         });
     } else {
-        if (callback) callback(null);
+        if (callback) callback(null, camera.sdMounted);
     }
 }
 

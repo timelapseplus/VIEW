@@ -1,12 +1,12 @@
 var exec = require('child_process').exec;
 require('rootpath')();
 var image = require('camera/image/image.js');
+var core = require('intervalometer/intervalometer-client.js');
 var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 
 var db = require('system/db.js');
-var camera = require('camera/camera.js');
 
 var clips = {};
 
@@ -204,9 +204,9 @@ clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callbac
 }
 
 clips.saveXMPsToCard = function(clipNumber, callback) {
-    if (camera.ptp.sdPresent) {
-        camera.ptp.mountSd(function() {
-            if (camera.ptp.sdMounted) {
+    if (core.sdPresent) {
+        core.mountSd(function() {
+            if (core.sdMounted) {
                 var destFolder = "/media/tl-" + clipNumber + "-xmp";
                 console.log("writing XMPs to " + destFolder);
                 fs.mkdir(destFolder, function(err) {
@@ -242,7 +242,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                                                         });
                                                     } else {
                                                         setTimeout(function() {
-                                                            camera.ptp.unmountSd(function() {
+                                                            core.unmountSd(function() {
                                                                 if(callback) callback();
                                                             });
                                                         }, 500);
@@ -256,7 +256,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                                 } else {
                                     clips.writeXMPs(clipNumber, 1, destFolder, function(){
                                         setTimeout(function() {
-                                            camera.ptp.unmountSd(function() {
+                                            core.unmountSd(function() {
                                                 if(callback) callback();
                                             });
                                         }, 500);
@@ -265,7 +265,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                             } else {
                                 clips.writeXMPs(clipNumber, 0, destFolder, function(){
                                     setTimeout(function() {
-                                        camera.ptp.unmountSd(function() {
+                                        core.unmountSd(function() {
                                             if(callback) callback();
                                         });
                                     }, 500);
