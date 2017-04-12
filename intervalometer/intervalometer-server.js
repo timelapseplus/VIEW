@@ -67,7 +67,9 @@ var server = net.createServer(function(c) {
   c.on('data', function(data) {
   	console.log("received:", data);
     try {
-      parseData(JSON.parse(data.toString()));
+      data = data.toString('utf8');
+      data = JSON.parse(data);
+      parseData(data);
     } catch(e) {
       console.log("failed parsing", data, e);
     }
