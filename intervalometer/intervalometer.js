@@ -116,8 +116,8 @@ function getDetails(file) {
         d: exp.status.dComponent,
     };
     if(intervalometer.gpsData) {
-        d.latitude = gpsData.lat;
-        d.longitude = gpsData.lon;
+        d.latitude = intervalometer.gpsData.lat;
+        d.longitude = intervalometer.gpsData.lon;
     }
     return d;
 }
@@ -567,8 +567,8 @@ intervalometer.run = function(program) {
                 status.rampEv = null;
                 status.bufferSeconds = 0;
                 if(intervalometer.gpsData) {
-                    status.latitude = gpsData.lat;
-                    status.longitude = gpsData.lon;
+                    status.latitude = intervalometer.gpsData.lat;
+                    status.longitude = intervalometer.gpsData.lon;
                 }
                 exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
                 status.running = true;
