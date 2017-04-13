@@ -74,7 +74,7 @@ var server = net.createServer(function(c) {
         piece = pieces[i].trim();
         if(!piece) continue;
         piece = JSON.parse(piece);
-        parseData(piece);
+        parseData(piece, c);
       }
     } catch(e) {
       console.log("failed parsing", data, "piece:", piece, e);
@@ -111,11 +111,11 @@ function broadcast(data) {
 };
 
 function send(event, data, client) {
-  var packet = {
+  var payload = JSON.stringify({
     type: event,
     data: data
-  }
-  if(client && client.ready) client.write(JSON.stringify(packet)+'\0');
+  });
+  if(client && client.ready) client.write(payload+'\0');
 }
 
 function sendEvent(event, data) {
