@@ -468,6 +468,8 @@ intervalometer.validate = function(program) {
     var results = {
         errors: []
     };
+    if(program.frames === null) program.frames = Infinity;
+    
     if (parseInt(program.delay) < 1) program.delay = 2;
     if(program.rampMode == 'fixed') {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});

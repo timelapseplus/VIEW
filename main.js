@@ -3074,7 +3074,7 @@ core.on('intervalometer.status', function(msg) {
         running: msg.running
     }
     console.log("statusScreen", statusScreen);
-    oled.updateTimelapseStatus(statusScreen);
+    //oled.updateTimelapseStatus(statusScreen);
     ui.reload();
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
         ui.status(msg.message);

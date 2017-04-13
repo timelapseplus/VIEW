@@ -56,13 +56,14 @@ function connect() {
       client.ready = true;
     });
     client.on('data', function(chunk) {
+      var data;
       try {
         chunk = chunk.toString('utf8');
         var pieces = chunk.split('\0');
         for(var i = 0; i < pieces.length; i++) {
             pieces[i] = pieces[i].trim();
             if(!pieces[i]) continue;
-            var data = JSON.parse(pieces[i]);
+            data = JSON.parse(pieces[i]);
             console.log("CORE:", data.type, "event");
             if(data.type == 'callback') {
                 runCallback(data.data);
