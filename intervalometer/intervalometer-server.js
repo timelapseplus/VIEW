@@ -85,7 +85,7 @@ var server = net.createServer(function(c) {
     c.ready = false;
     console.log('client disconnected');
     for(var i = 0; i < clients.length; i++) {
-      if(clients[i].index == client.index) {
+      if(clients[i].index == c.index) {
         clients.splice(i, 1);
       }
     }
@@ -208,8 +208,8 @@ function runCommand(type, args, callback) {
       break;
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
-        sendEvent('camera.settings', camera.ptp.settings.mapped);
-        callback(err, camera.ptp.settings.mapped);
+        sendEvent('camera.settings', camera.ptp.settings);
+        callback(err, camera.ptp.settings);
       });
       break;
     case 'camera.ptp.cameraList':
@@ -262,7 +262,7 @@ camera.ptp.on('photo', function() {
   sendEvent('camera.photo', camera.ptp.photo);
 });
 camera.ptp.on('settings', function(data) {
-  sendEvent('camera.settings', data);
+  sendEvent('camera.settings', camera.ptp.settings);
 });
 camera.ptp.on('connected', function(model) {
   var data = {
