@@ -128,9 +128,10 @@ function sendEvent(event, data) {
     data: data
   });
   if(clients.length > 0) {
+    broadcast(payload+'\0');
+  } else {
     eventQueue.push(payload+'\0');
   }
-  broadcast(payload+'\0');
 }
 
 function parseData(data, client) {
