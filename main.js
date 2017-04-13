@@ -2826,7 +2826,7 @@ app.on('message', function(msg) {
                 if (liveviewOn) {
                     if (previewImage) msg.reply(previewImage);
                 } else {
-                    core.preview();
+                    if(!core.intervalometerStatus.running) core.preview();
                 }
                 break;
 
@@ -2974,6 +2974,7 @@ core.on('camera.photo', function() {
             app.send('thumbnail', previewImage);
         } else if (previewImage.type == "preview" && !core.intervalometerStatus.running) {
             liveviewOn = true;
+            console.log("LV: requesting next frame");
             core.preview();
         }
     }
@@ -3044,7 +3045,7 @@ core.on('camera.status', function(msg) {
 });
 
 core.on('intervalometer.status', function(msg) {
-    //console.log("intervalometer.status", msg);
+    console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
     if(msg.running) {
