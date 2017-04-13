@@ -21,7 +21,7 @@ function getCallbackId(callerName, cb) {
     return cbIndex;
 }
 
-function runCallback(cbData) {
+function runCallback(cbData) {    
     if (cbData && cbData.id && cbStore[cbData.id.toString()]) {
         var cb = cbStore[cbData.id.toString()];
         console.log("running callback for ", cb.name);
@@ -63,8 +63,8 @@ function connect() {
             pieces[i] = pieces[i].trim();
             if(!pieces[i]) continue;
             var data = JSON.parse(pieces[i]);
-            if(data.id) {
-                runCallback(data);
+            if(data.type == 'callback') {
+                runCallback(data.data);
             } else {
                 if(data.type == 'camera.photo') {
                     core.photo = data.data;
