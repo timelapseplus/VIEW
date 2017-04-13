@@ -724,7 +724,7 @@ if (VIEW_HARDWARE) {
     }
 
     var exposureMenu = {
-        name: "capture",
+        name: "exposure",
         type: "function",
         fn: function(args, cb) {
             blockInputs = true;
@@ -1329,10 +1329,12 @@ if (VIEW_HARDWARE) {
 
             oled.block();
             liveviewOn = true;
+            inputs.on('B', captureButtonHandler);
+            console.log("started liveview, getting settings...");
             core.getSettings(function() {
+                console.log("done getting settings, enabling knob");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
-                inputs.on('B', captureButtonHandler);
                 inputs.on('D', captureDialHandler);
             });
             core.preview();
