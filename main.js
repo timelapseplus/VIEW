@@ -3060,7 +3060,7 @@ core.on('intervalometer.status', function(msg) {
     var statusScreen = {
         isoText: core.cameraSettings.iso,
         shutterText: core.cameraSettings.shutter,
-        apertureText: core.cameraSettings.details.aperture ? ("f/" + core.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
+        apertureText: (core.cameraSettings.details && core.cameraSettings.details.aperture) ? ("f/" + core.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: core.intervalometerStatus.autoSettings ? core.intervalometerStatus.autoSettings.paddingTimeMs / 1000 : 5,
