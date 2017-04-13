@@ -785,10 +785,12 @@ if (VIEW_HARDWARE) {
 
             liveviewOn = true;
             core.preview();
+            console.log("started liveview, getting settings...");
+            inputs.on('B', captureButtonHandler);
             core.getSettings(function() {
+                console.log("done getting settings, enabling knob handler");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
-                inputs.on('B', captureButtonHandler);
                 inputs.on('D', captureDialHandler);
             });
         }

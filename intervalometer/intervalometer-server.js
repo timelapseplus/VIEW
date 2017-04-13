@@ -65,7 +65,7 @@ var server = net.createServer(function(c) {
   c.index = clientCounter;
   clients.push(c);
   c.on('data', function(data) {
-  	console.log("received:", data);
+  	//console.log("received:", data);
     try {
       data = data.toString('utf8');
       var pieces = data.split('\0');
@@ -202,7 +202,9 @@ function runCommand(type, args, callback) {
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
         callback(err, data);
-        sendEvent('camera.settings', camera.ptp.settings);
+        setTimeout(function(){
+          sendEvent('camera.settings', camera.ptp.settings);
+        });
       });
       break;
     case 'camera.ptp.cameraList':
