@@ -57,7 +57,8 @@ var server = net.createServer(function(c) {
   c.index = clientCounter;
   c.ready = true;
   clients.push(c);
-  while(var ev = eventQueue.shift()) c.write(ev);
+  var ev;
+  while(ev = eventQueue.shift()) c.write(ev);
   c.on('data', function(data) {
   	//console.log("received:", data);
     try {
