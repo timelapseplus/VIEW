@@ -132,6 +132,7 @@ function parseData(data, client) {
     var args = data.args || {};
     var callback = (function(id, c) { return function(err, data) {
       if(id) {
+        console.log("sending callback for ", id, c.ready);
         send('callback', {id:id, err:err, data:data}, c);
       }
     }})(data.id, client);
