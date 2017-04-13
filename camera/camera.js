@@ -339,12 +339,12 @@ camera.setEv = function(ev, options, cb) {
 }
 
 camera.minEv = function(settings, options) {
-    var stats = camera.evStats(settings, options);
+    var stats = lists.evStats(settings, options);
     return stats.minEv;
 }
 
 camera.maxEv = function(settings, options) {
-    var stats = camera.evStats(settings, options);
+    var stats = lists.evStats(settings, options);
     return stats.maxEv;
 }
 
