@@ -823,61 +823,63 @@ if (VIEW_HARDWARE) {
     }
 
 
-    var timelapseRunningMenu = {
-        name: "time-lapse",
-        type: "menu",
-        items: [{
-            name: valueDisplay("Play Preview", core.intervalometerStatus, 'frames'),
-            action: {
-                type: "function",
-                fn: function(arg, cb) {
-                    clips.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) {
-                            if(timelapse.path) {
-                                oled.video(timelapse.path, timelapse.frames, 30, cb);
-                            } else {
-                                db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
-                                    if(!err && clipFrames) {
-                                        var framesPaths = clipFrames.map(function(frame){
-                                            return frame.thumbnail;
-                                        });
-                                        oled.video(null, framesPaths, 30, cb);
-                                    }
-                                });
-                            }
-                        } 
-                    });
+    var timelapseRunningMenu = function() {
+        return {
+            name: "time-lapse",
+            type: "menu",
+            items: [{
+                name: valueDisplay("Play Preview", core.intervalometerStatus, 'frames'),
+                action: {
+                    type: "function",
+                    fn: function(arg, cb) {
+                        clips.getLastTimelapse(function(err, timelapse) {
+                            if (timelapse) {
+                                if(timelapse.path) {
+                                    oled.video(timelapse.path, timelapse.frames, 30, cb);
+                                } else {
+                                    db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
+                                        if(!err && clipFrames) {
+                                            var framesPaths = clipFrames.map(function(frame){
+                                                return frame.thumbnail;
+                                            });
+                                            oled.video(null, framesPaths, 30, cb);
+                                        }
+                                    });
+                                }
+                            } 
+                        });
+                    }
                 }
-            }
-        //}, {
-        //    name: "Preview Camera #2",
-        //    action: {
-        //        type: "function",
-        //         fn: function(arg, cb) {
-        //            clips.getLastTimelapse(function(err, timelapse) {
-        //                if (timelapse) {
-        //                    var cam = 1;
-        //                    if(timelapse.primary_camera == '1') cam = 2;
-        //                    db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
-        //                        if(!err && clipFrames) {
-        //                            var framesPaths = clipFrames.map(function(frame){
-        //                                return frame.thumbnail;
-        //                            });
-        //                            oled.video(null, framesPaths, 30, cb);
-        //                        }
-        //                    });
-        //                } 
-        //            });
-        //        }
-        //    },
-        //    help: help.playbackCamera,
-        //    condition: function() {
-        //        return parseInt(core.currentProgram.cameras) > 1;
-        //    }
-        }, {
-            name: "Stop Time-lapse",
-            action: stopConfirm
-        }]
+            //}, {
+            //    name: "Preview Camera #2",
+            //    action: {
+            //        type: "function",
+            //         fn: function(arg, cb) {
+            //            clips.getLastTimelapse(function(err, timelapse) {
+            //                if (timelapse) {
+            //                    var cam = 1;
+            //                    if(timelapse.primary_camera == '1') cam = 2;
+            //                    db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
+            //                        if(!err && clipFrames) {
+            //                            var framesPaths = clipFrames.map(function(frame){
+            //                                return frame.thumbnail;
+            //                            });
+            //                            oled.video(null, framesPaths, 30, cb);
+            //                        }
+            //                    });
+            //                } 
+            //            });
+            //        }
+            //    },
+            //    help: help.playbackCamera,
+            //    condition: function() {
+            //        return parseInt(core.currentProgram.cameras) > 1;
+            //    }
+            }, {
+                name: "Stop Time-lapse",
+                action: stopConfirm
+            }]
+        }
     }
 
     var timelapseStatusMenu = {
@@ -906,7 +908,7 @@ if (VIEW_HARDWARE) {
             });
         },
         button3: function(){
-            ui.load(timelapseRunningMenu);
+            ui.load(timelapseRunningMenu());
         },
         help: help.timelapseStatus
     }
@@ -3045,7 +3047,7 @@ core.on('camera.status', function(msg) {
 });
 
 core.on('intervalometer.status', function(msg) {
-    console.log("intervalometer.status", core.intervalometerStatus);
+    //console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
     if(msg.running) {
