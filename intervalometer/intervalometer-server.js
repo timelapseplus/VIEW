@@ -63,6 +63,7 @@ var server = net.createServer(function(c) {
   console.log('client connected');
   clientCounter++;
   c.index = clientCounter;
+  c.ready = true;
   clients.push(c);
   c.on('data', function(data) {
   	//console.log("received:", data);
@@ -81,6 +82,7 @@ var server = net.createServer(function(c) {
     }
   });
   c.on('end', function() {
+    c.ready = false;
     console.log('client disconnected');
     for(var i = 0; i < clients.length; i++) {
       if(clients[i].index == client.index) {
