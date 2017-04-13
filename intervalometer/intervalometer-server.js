@@ -93,7 +93,7 @@ var server = net.createServer(function(c) {
 });
 
 server.on('error', function(err) {
-  throw err;
+  console.log("server error", err);
 });
 fs.unlink('/tmp/intervalometer.sock', function(){
   server.listen('/tmp/intervalometer.sock',  function() {
@@ -117,7 +117,11 @@ function send(event, data, client) {
     type: event,
     data: data
   });
-  if(client && client.ready) client.write(payload+'\0');
+  try {
+    if(client && client.ready) client.write(payload+'\0');
+  } catch (err) {
+      console.log("send error:", err);
+  }
 }
 
 function sendEvent(event, data) {
