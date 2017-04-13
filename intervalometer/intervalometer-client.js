@@ -2,6 +2,7 @@ var EventEmitter = require("events").EventEmitter;
 require('rootpath')();
 var mcu = require('hardware/mcu.js');
 var power = require('hardware/power.js');
+var watchdog = require('system/watchdog.js');
 var _ = require('underscore');
 var net = require('net');
 
@@ -67,6 +68,9 @@ function connect() {
             console.log("CORE:", data.type, "event");
             if(data.type == 'callback') {
                 runCallback(data.data);
+            } else if(data.type == 'watchdog') {
+                var pid = parseInt(data.data);
+                watchdog.watch(pid);
             } else {
                 if(data.type == 'camera.photo') {
                     core.photo = data.data;
@@ -78,6 +82,7 @@ function connect() {
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
                     core.cameraSupports = data.data.supports;
+                    core.getSettings();
                 } else if(data.type == 'camera.exiting') {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
@@ -106,6 +111,7 @@ function connect() {
     client.on('end', function() {
       client.ready = false;
       console.log('disconnected from server');
+      setTimeout(connect, 2000);
     });
     client.on('error', function(err) {
         if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT')) {
@@ -128,7 +134,7 @@ function call(method, args, callback) {
         args: args,
         id: cbId
     });
-    client.write(payload+'\0');
+    if(client.ready) client.write(payload+'\0');
 }
 
 core.connectSonyWifi = function(callback) {
@@ -182,6 +188,10 @@ core.unmountSd = function(callback) {
 
 core.moveNMX = function(motor, steps, callback) {
     call('nmx.move', {motor:motor, steps:steps}, callback);
+};
+
+core.watchdog = function(callback) {
+    call('watchdog', {pid:process.pid}, callback);
 };
 
 defaultProgram = {
@@ -243,5 +253,7 @@ mcu.on('gps', function(status){
         core.addGpsData(mcu.lastGpsFix);
     }
 });
+
+setInterval(core.watchdog, 5000); // this will have the server kill this process if it ever gets stuck
 
 module.exports = core;

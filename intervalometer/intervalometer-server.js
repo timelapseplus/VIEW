@@ -36,27 +36,19 @@ event                  payload
 
 */
 
-var EventEmitter = require("events").EventEmitter;
-var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
-var db = require('system/db.js');
 var nmx = require('drivers/nmx.js');
 var noble = require('noble');
-var image = require('camera/image/image.js');
-var exp = require('intervalometer/exposure.js');
 var intervalometer = require('intervalometer/intervalometer.js');
-var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
-var async = require('async');
 var TLROOT = "/root/time-lapse";
-var Button = require('gpio-button');
-var gpio = require('linux-gpio');
-var _ = require('underscore');
+var watchdog = require('system/watchdog.js');
 var net = require('net');
 
 var clientCounter = 0;
 var clients = [];
+var eventQueue = [];
 
 var server = net.createServer(function(c) {
   // 'connection' listener
@@ -65,6 +57,7 @@ var server = net.createServer(function(c) {
   c.index = clientCounter;
   c.ready = true;
   clients.push(c);
+  while(var ev = eventQueue.shift()) c.write(ev);
   c.on('data', function(data) {
   	//console.log("received:", data);
     try {
@@ -118,7 +111,11 @@ function send(event, data, client) {
     data: data
   });
   try {
-    if(client && client.ready) client.write(payload+'\0');
+    if(client && client.ready) {
+      client.write(payload+'\0');
+    } else {
+      sendEvent(event, data);
+    }
   } catch (err) {
       console.log("send error:", err);
   }
@@ -129,6 +126,9 @@ function sendEvent(event, data) {
     type: event,
     data: data
   });
+  if(clients.length > 0) {
+    eventQueue.push(payload+'\0');
+  }
   broadcast(payload+'\0');
 }
 
@@ -236,6 +236,11 @@ function runCommand(type, args, callback) {
 
     case 'nmx.move':
       nmx.move(args.motor, args.steps, callback);
+      break;
+
+    case 'watchdog':
+      if(args.pid) watchdog.watch(args.pid);
+      callback();
       break;
   }
 }
