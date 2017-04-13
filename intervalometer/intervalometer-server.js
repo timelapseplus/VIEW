@@ -208,8 +208,8 @@ function runCommand(type, args, callback) {
       break;
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
-        sendEvent('camera.settings', camera.ptp.settings);
-        callback(err, data);
+        sendEvent('camera.settings', camera.ptp.settings.mapped);
+        callback(err, camera.ptp.settings.mapped);
       });
       break;
     case 'camera.ptp.cameraList':
