@@ -385,7 +385,7 @@ function runPhoto() {
                 });
             });
         } else {
-            if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
+            if (status.rampEv === null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
             captureOptions.exposureCompensation = status.evDiff || 0;
             captureOptions.calculateEv = true;
 
