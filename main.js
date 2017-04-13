@@ -3044,6 +3044,7 @@ core.on('camera.status', function(msg) {
 });
 
 core.on('intervalometer.status', function(msg) {
+    console.log("intervalometer.status", msg);
     if(msg.running) {
         power.disableAutoOff();
     } else if(cache.intervalometerStatus.running) {
