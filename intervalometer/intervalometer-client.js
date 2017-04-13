@@ -63,6 +63,7 @@ function connect() {
             pieces[i] = pieces[i].trim();
             if(!pieces[i]) continue;
             var data = JSON.parse(pieces[i]);
+            console.log("CORE:", data.type, "event");
             if(data.type == 'callback') {
                 runCallback(data.data);
             } else {
