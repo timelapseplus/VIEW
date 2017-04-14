@@ -5,6 +5,7 @@ var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var Button = require('gpio-button');
 var GestureLib = require('apds-gesture');
+var db = require("./system/db.js");
 
 var inputs = new EventEmitter();
 
