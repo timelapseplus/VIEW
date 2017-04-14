@@ -21,8 +21,6 @@ gesture.on('error', function(err) {
 });
 
 gesture.on('movement', function(dir) {
-    console.log("INPUTS: gesture", dir);
-    inputs.emit('G', 'test');
     inputs.emit('G', dir.substr(0, 1).toUpperCase());
 });
 

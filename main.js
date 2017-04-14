@@ -45,6 +45,7 @@ var liveviewOn = false;
 var gpsExists = null;
 
 var cache = {};
+var gestureString = "";
 
 var Segfault = require('segfault');
 Segfault.registerHandler("segfault.log");
@@ -1967,7 +1968,11 @@ if (VIEW_HARDWARE) {
             name: "Calibrate Gesture",
             action: function(cb) {
                 inputs.calibrateGesture(function(err, status, done) {
-                    if(done) cb();
+                    if(done) {
+                        cb();
+                        gestureString = "Calibration Complete!\nMove your hand in front to test the sensor.\n";
+                        ui.alert('Gesture Test', function(){return gestureString;});
+                    }
                 });
             },
             condition: function(){
@@ -2432,8 +2437,11 @@ if (VIEW_HARDWARE) {
         }, 5000);
     }
 
+
     inputs.on('G', function(move) {
         console.log("Gesture: " + move);
+        gestureString += move;
+        if(gestureString.length > 500) gestureString = "";
         power.activity();
         if (blockInputs) return;
         if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
