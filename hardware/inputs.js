@@ -12,8 +12,6 @@ var inputs = new EventEmitter();
 
 var gesture = GestureLib.use(2); //i2c port 2
 
-gesture.debug = true;
-
 gesture.on('ready', function() {
     console.log("INPUTS: found a gesture sensor");
 });
@@ -22,6 +20,10 @@ gesture.on('error', function(err) {
     console.log("INPUTS: Gesture Error: ", err);
 });
 
+gesture.on('movement', function(dir) {
+    console.log("INPUTS: gesture", dir);
+    inputs.emit('G', dir.substr(0, 1).toUpperCase());
+});
 
 var inputsProcess = null;
 var inputsRunning = false;
@@ -168,11 +170,6 @@ inputs.calibrateGesture = function(statusCallback) {
         statusCallback && statusCallback(err, status, (calResults || err) ? true : false);
     });
 }
-
-gesture.on('movement', function(dir) {
-    console.log("INPUTS: gesture", dir);
-    inputs.emit('G', dir.substr(0, 1).toUpperCase());
-});
 
 inputs.stop = function(callback) {
     process.nextTick(function(){
