@@ -1967,11 +1967,19 @@ if (VIEW_HARDWARE) {
         },{
             name: "Calibrate Gesture",
             action: function(cb) {
+                cb();
+                ui.back();
+                gestureString = "Calibrating gesture sensor.\nKeep area in front of sensor clear during calibration.\n";
+                ui.alert('Calibrating...', function(){return gestureString;});
                 inputs.calibrateGesture(function(err, status, done) {
+                    gestureString = "Calibrating gesture sensor.\nKeep area in front of sensor clear during calibration.\n";
+                    gestureString += status + "\n";
                     if(done) {
-                        cb();
                         gestureString = "Calibration Complete!\nMove your hand in front to test the sensor.\n";
-                        ui.alert('Gesture Test', function(){return gestureString;});
+                        ui.back();
+                        ui.alert('Gesture Test', function(){return gestureString;}, 200);
+                    } else {
+
                     }
                 });
             },
