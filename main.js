@@ -2433,10 +2433,10 @@ if (VIEW_HARDWARE) {
     }
 
     inputs.on('G', function(move) {
+        console.log("Gesture: " + move);
         power.activity();
         if (blockInputs) return;
         if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
-        console.log("Gesture: " + move);
         if (blockGesture) {
             console.log("(blocked)");
             return;
