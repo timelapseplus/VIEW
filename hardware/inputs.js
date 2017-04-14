@@ -151,6 +151,7 @@ inputs.start = function(knobOptions) {
 inputs.startGesture = function() {
     inputs.gestureStatus = "enabled";
     db.get('gestureCalibration', function(err, gestureCalibration) {
+        if(err || !gestureCalibration) gestureCalibration = {};
         gesture.setup(gestureCalibration, function(){
             gesture.start();
         });
