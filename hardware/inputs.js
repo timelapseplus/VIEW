@@ -4,8 +4,22 @@ var EventEmitter = require("events").EventEmitter;
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var Button = require('gpio-button');
+var GestureLib = require('apds-gesture');
 
 var inputs = new EventEmitter();
+
+var gesture = GestureLib.use(I2C_PORT);
+
+gesture.debug = true;
+
+gesture.on('ready', function() {
+    console.log("INPUTS: found a gesture sensor");
+});
+
+gesture.on('error', function(err) {
+    console.log("INPUTS: Gesture Error: ", err);
+});
+
 
 var inputsProcess = null;
 var inputsRunning = false;
@@ -133,33 +147,28 @@ inputs.start = function(knobOptions) {
 }
 
 inputs.startGesture = function() {
-    stopGesture = false;
     inputs.gestureStatus = "enabled";
-    if(gestureRunning) return;
-    gestureProcess = spawn(GESTURE_BIN_PATH);
-    gestureRunning = true;
-    console.log("gesture process started");
-    gestureProcess.stdout.on('data', function(chunk) {
-        console.log("gesture stdin: " + chunk.toString());
-        var matches = chunk.toString().match(/([A-Z])=([A-Z0-9\-]+)/);
-        if (matches && matches.length > 1) {
-            inputs.emit(matches[1], matches[2]);
-        }
-    });
-    gestureProcess.stderr.on('data', function(chunk) {
-        console.log("gesture stderr: " + chunk.toString());
-        chunk = null;
-    });
-    gestureProcess.on('close', function(code) {
-        console.log("gesture process exited");
-        gestureRunning = false;
-        if (!stopGesture) {
-            setTimeout(function() {
-                if(!stopGesture) inputs.startGesture();
-            }, 100);
-        }
+    db.get('gestureCalibration', function(err, gestureCalibration) {
+        gesture.setup(gestureCalibration, function(){
+            gesture.start();
+        });
     });
 }
+inputs.calibrateGesture = function(statusCallback) {
+    gesture.calibrate(function(err, status, calResults) {
+        if(calResults) {
+            db.set('gestureCalibration', calResults);
+            gesture.start();
+        } else if(err) {
+            console.log("INPUTS: error calibrating gesture: ", err);
+        }
+        statusCallback && statusCallback(err, status, (calResults || err) ? true : false);
+    });
+}
+
+gesture.on('movement', function(dir) {
+    inputs.emit('G', dir.substr(0, 1).toUpperCase());
+});
 
 inputs.stop = function(callback) {
     process.nextTick(function(){
@@ -183,20 +192,9 @@ inputs.stop = function(callback) {
 }
 
 inputs.stopGesture = function() {
-    stopGesture = true;
     inputs.gestureStatus = "disabled";
-    if (gestureRunning) {
-        console.log("gesture process exiting...");
-        try {
-            gestureProcess.stdin.write('\n\n\n');
-            gestureProcess.stdin.end();
-        } catch (e) {
-            console.log("gesture close error: ", e);                
-            setTimeout(function(){
-                gestureProcess.kill();
-            }, 1000);
-        }
-    }    
+    gesture.stop();
+    gesture.disable();
 }
 
 module.exports = inputs;

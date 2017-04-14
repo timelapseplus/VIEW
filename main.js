@@ -1964,6 +1964,17 @@ if (VIEW_HARDWARE) {
             action: gestureEnableMenu,
             help: help.gestureEnableMenu
         },{
+            name: "Calibrate Gesture",
+            action: function(cb) {
+                inputs.calibrateGesture(function(err, status, done) {
+                    if(done) cb();
+                });
+            },
+            condition: function(){
+                return inputs.gestureStatus == 'enabled';
+            }
+            help: help.gestureEnableMenu
+        },{
             name: valueDisplay("Theme", oled, 'theme'),
             action: colorThemeMenu,
             help: help.colorThemeMenu
