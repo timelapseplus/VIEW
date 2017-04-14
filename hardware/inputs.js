@@ -8,7 +8,7 @@ var GestureLib = require('apds-gesture');
 
 var inputs = new EventEmitter();
 
-var gesture = GestureLib.use(I2C_PORT);
+var gesture = GestureLib.use(2); //i2c port 2
 
 gesture.debug = true;
 
