@@ -1972,7 +1972,7 @@ if (VIEW_HARDWARE) {
             },
             condition: function(){
                 return inputs.gestureStatus == 'enabled';
-            }
+            },
             help: help.gestureEnableMenu
         },{
             name: valueDisplay("Theme", oled, 'theme'),
