@@ -273,15 +273,15 @@ GestureSensor.prototype.processGesture = function(length, callback) {
     var start = -1;
     var end = 0;
 
-    var up = "", down = "", left = "", right = "";
-    for (var i = 0; i < length; i++) up += self.fifoData['up'][i] + ",";
-    for (var i = 0; i < length; i++) down += self.fifoData['down'][i] + ",";
-    for (var i = 0; i < length; i++) left += self.fifoData['left'][i] + ",";
-    for (var i = 0; i < length; i++) right += self.fifoData['right'][i] + ",";
-    console.log(up);
-    console.log(down);
-    console.log(left);
-    console.log(right);
+    //var up = "", down = "", left = "", right = "";
+    //for (var i = 0; i < length; i++) up += self.fifoData['up'][i] + ",";
+    //for (var i = 0; i < length; i++) down += self.fifoData['down'][i] + ",";
+    //for (var i = 0; i < length; i++) left += self.fifoData['left'][i] + ",";
+    //for (var i = 0; i < length; i++) right += self.fifoData['right'][i] + ",";
+    //console.log(up);
+    //console.log(down);
+    //console.log(left);
+    //console.log(right);
 
     // get first and last values above threshold
     for (var i = 0; i < length; i++) {
@@ -302,7 +302,7 @@ GestureSensor.prototype.processGesture = function(length, callback) {
     if (start == -1 || end == 0) {
         // if either is 0 then no values passed threshold
         if (self.debug) {
-            console.log("no values passed threshold");
+            //console.log("no values passed threshold");
         }
         return callback();
     }
@@ -320,7 +320,7 @@ GestureSensor.prototype.processGesture = function(length, callback) {
     self.gesture_ud_diff = self.gesture_ud_diff + ud_diff;
     self.gesture_lr_diff = self.gesture_lr_diff + lr_diff;
 
-    console.log("lrd: ", self.gesture_lr_diff, " udd:", self.gesture_ud_diff);
+    //console.log("lrd: ", self.gesture_lr_diff, " udd:", self.gesture_ud_diff);
 
     self.dir = {
         'up': 0,
@@ -357,15 +357,19 @@ GestureSensor.prototype.processGesture = function(length, callback) {
 
     if (self.dir['up'] == -1 && self.dir['left'] == 0) {
         self.resetGesture();
+        console.log("GESTURE: down");
         self.emit('movement', 'down');
     } else if (self.dir['up'] == 1 && self.dir['left'] == 0) {
         self.resetGesture();
+        console.log("GESTURE: up");
         self.emit('movement', 'up');
     } else if (self.dir['up'] == 0 && self.dir['left'] == -1) {
         self.resetGesture();
+        console.log("GESTURE: right");
         self.emit('movement', 'right');
     } else if (self.dir['up'] == 0 && self.dir['left'] == 1) {
         self.resetGesture();
+        console.log("GESTURE: left");
         self.emit('movement', 'left');
     } else if (self.dir['up'] != 0 && self.dir['down'] != 0) {
         self.resetGesture();
