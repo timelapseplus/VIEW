@@ -6,6 +6,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
+    "apds-gesture": "git://github.com/elijahparker/apds-gesture",
     "async": "latest",
     "bcrypt": "latest",
     "bodyparser": "latest",
