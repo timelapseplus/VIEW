@@ -1,12 +1,12 @@
 require('rootpath')();
 var INPUTS_BIN_PATH = "/home/view/current/bin/inputs";
 var GESTURE_BIN_PATH = "/home/view/current/bin/gesture";
-var EventEmitter = require("events").EventEmitter;
+var GestureLib = require('apds-gesture');
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var Button = require('gpio-button');
-var GestureLib = require('apds-gesture');
 var db = require("system/db.js");
+var EventEmitter = require("events").EventEmitter;
 
 var inputs = new EventEmitter();
 
@@ -22,6 +22,7 @@ gesture.on('error', function(err) {
 
 gesture.on('movement', function(dir) {
     console.log("INPUTS: gesture", dir);
+    inputs.emit('G', 'test');
     inputs.emit('G', dir.substr(0, 1).toUpperCase());
 });
 
