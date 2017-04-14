@@ -170,6 +170,7 @@ inputs.calibrateGesture = function(statusCallback) {
 }
 
 gesture.on('movement', function(dir) {
+    console.log("INPUTS: gesture", dir);
     inputs.emit('G', dir.substr(0, 1).toUpperCase());
 });
 
