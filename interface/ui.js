@@ -1,4 +1,4 @@
-var beep = require('interface/beep.js');
+//var beep = require('interface/beep.js');
 var _ = require('underscore');
 var oled = null;
 var currentProgram = null;
@@ -7,10 +7,10 @@ var currentName = "";
 var stack = [];
 var screenSaverHandle = null;
 
-var beepEnter = beep.sine(2954, 0.04);
-var beepBack = beep.sine(1447, 0.04);
-var beepClick = beep.sine(738, 0.02);
-var beepAlarm = beep.sine2(2954, 1540, 0.5);
+//var beepEnter = beep.sine(2954, 0.04);
+//var beepBack = beep.sine(1447, 0.04);
+//var beepClick = beep.sine(738, 0.02);
+//var beepAlarm = beep.sine2(2954, 1540, 0.5);
 
 exports.busy = false;
 
@@ -186,7 +186,7 @@ exports.down = function(alt) {
 exports.enter = function(alt) {
     activity();
     if(exports.busy) return;
-    beep.play(beepEnter);
+    //beep.play(beepEnter);
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
     } else if (currentProgram.type == "textInput") {
@@ -206,7 +206,7 @@ exports.enter = function(alt) {
 exports.help = function() {
     activity();
     if(exports.busy) return;
-    beep.play(beepClick);
+    //beep.play(beepClick);
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
         back();
     } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
@@ -255,7 +255,7 @@ exports.dismissAlert = function() {
 exports.button3 = function() {
     activity();
     if(exports.busy) return;
-    beep.play(beepClick);
+    //beep.play(beepClick);
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
     } else if (currentProgram.type == "textInput") {
@@ -295,7 +295,7 @@ exports.backButton = function() {
     if (stack.length > 0) {
         activity();
         if(exports.busy) return;
-        beep.play(beepBack);
+        //beep.play(beepBack);
         back();
     } else {
         if (oled.visible) oled.hide();
