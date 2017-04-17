@@ -326,7 +326,7 @@ function capture(options, callback) {
                 if(options.calculateEv) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 60,
+                        x: 120,
                         q: 80
                     }
                     //console.log("WORKER: downsizing preview for luminance calc...");
