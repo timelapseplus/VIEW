@@ -2639,7 +2639,9 @@ db.get('buttonMode', function(err, mode) {
 
 db.get('gestureSensor', function(err, en) {
     if(en != "no") {
-        inputs.startGesture();
+        setTimeout(function(){
+            inputs.startGesture();
+        }, 30000);
     } else {
         inputs.stopGesture();
     }
