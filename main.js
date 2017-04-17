@@ -2641,7 +2641,7 @@ db.get('gestureSensor', function(err, en) {
     if(en != "no") {
         setTimeout(function(){
             inputs.startGesture();
-        }, 30000);
+        }, 60000);
     } else {
         inputs.stopGesture();
     }

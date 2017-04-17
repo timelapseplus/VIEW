@@ -154,6 +154,7 @@ inputs.startGesture = function() {
     db.get('gestureCalibration', function(err, gestureCalibration) {
         if(err || !gestureCalibration) gestureCalibration = {};
         gesture.setup(gestureCalibration, function(){
+            console.log("INPUTS: starting gesture sensor " + gestureCalibration.gUOffset ? "(calibrated)" : "")
             gesture.start();
         });
     });
