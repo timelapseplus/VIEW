@@ -65,7 +65,6 @@ function connect() {
             pieces[i] = pieces[i].trim();
             if(!pieces[i]) continue;
             data = JSON.parse(pieces[i]);
-            console.log("CORE:", data.type, "event");
             if(data.type == 'callback') {
                 runCallback(data.data);
             } else if(data.type == 'watchdog') {
@@ -101,6 +100,7 @@ function connect() {
                         power.performance('low');
                     }
                 }
+                console.log("CORE:", data.type, "event");
                 core.emit(data.type, data.data);
             }
         }

@@ -2407,7 +2407,7 @@ if (VIEW_HARDWARE) {
         });
     });
 
-    core.on('media-remove', function(type) {
+    core.on('media.remove', function(type) {
         console.log("media removed: ", type);
         if(type = 'sd') {
             core.currentProgram.destination = 'camera';
