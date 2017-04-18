@@ -322,9 +322,13 @@ monitor.on('add', function(device) {
         captureIndex = 1;
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
-        if(camera.sdMounted) camera.unmountSd(function(){
+        if(camera.sdMounted) {
+            camera.unmountSd(function(){
+                camera.emit("media-insert", "sd");
+            });
+        } else {
             camera.emit("media-insert", "sd");
-        });
+        }
     } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'Dynamic_Perception_LLC') {
         console.log("NMX connected:", device.DEVNAME);
         camera.nmxConnected = true;
