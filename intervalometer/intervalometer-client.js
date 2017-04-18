@@ -178,7 +178,7 @@ core.set = function(key, val, callback) {
 };
 core.mountSd = function(callback) {
     call('camera.ptp.mountSd', {}, function(err, res){
-        core.sdMounted = 
+        core.sdMounted = res;
         callback(err, res)
     });
 };
