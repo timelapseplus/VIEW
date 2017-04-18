@@ -335,10 +335,6 @@ function sendLog(logPath, tlName, reasonCode, callback) {
 	if(logPath) {
 		var matches = logPath.match(/([^\/]+)$/);
 		if(matches && matches.length > 1) {
-			var parts = logPath.split('//'); // correct for new log location outside of app folder
-			if(parts && parts.length > 1) {
-				logPath = '/' + parts[1];
-			}
 			if(!reasonCode) reasonCode = "000";
 			var logName = matches[1].replace(/\.txt$/, "") + '-' + reasonCode;
 			if(tlName) logName = tlName + "-" + logName;
@@ -365,8 +361,13 @@ exports.sendLog = function(clipName, reasonCode, callback) {
 		exports.getTimelapseByName(clipName, function(err, clip) {
 			console.log("clipInfo", clip, err);
 			if(!err && clip && clip.logfile) {
-				console.log("creating log for " + clipName + "...", clip.logfile);
-				sendLog(clip.logfile, clipName, reasonCode, callback);
+				var logPath = clip.logfile;
+				var parts = logPath.split('//'); // correct for new log location outside of app folder
+				if(parts && parts.length > 1) {
+					logPath = '/' + parts[1];
+				}
+				console.log("creating log for " + clipName + "...", logPath);
+				sendLog(logPath, clipName, reasonCode, callback);
 			} else {
 				callback && callback(err || true);
 			}
