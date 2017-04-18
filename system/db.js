@@ -335,6 +335,10 @@ function sendLog(logPath, tlName, reasonCode, callback) {
 	if(logPath) {
 		var matches = logPath.match(/([^\/]+)$/);
 		if(matches && matches.length > 1) {
+			var parts = logPath.split('//'); // correct for new log location outside of app folder
+			if(parts && parts.length > 1) {
+				logPath = '/' + parts[1];
+			}
 			if(!reasonCode) reasonCode = "000";
 			var logName = matches[1].replace(/\.txt$/, "") + '-' + reasonCode;
 			if(tlName) logName = tlName + "-" + logName;

@@ -370,7 +370,6 @@ clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback
             var i = 0;
             var writeXMPfile = function() {
                 if(i < data.length) {
-                    i++;
                     var smoothCorrection = 0;
                     if(smoothing && i > smoothing && i < data.length - smoothing) {
                         var evSetting = data[i].evSetting;
@@ -383,6 +382,7 @@ clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback
                     console.log("Writing " + xmpFile);
                     var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
                     image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
+                    i++;
                     setImmediate(writeXMPfile);
                 } else {
                     if (callback) callback();
