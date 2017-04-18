@@ -263,7 +263,7 @@ camera.ptp.on('media-insert', function(data) {
   sendEvent('media.insert', data);
 });
 camera.ptp.on('media-remove', function(data) {
-  sendEvent('media.insert', data);
+  sendEvent('media.remove', data);
 });
 camera.ptp.on('photo', function() {
   sendEvent('camera.photo', camera.ptp.photo);

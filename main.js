@@ -2293,8 +2293,11 @@ if (VIEW_HARDWARE) {
             if(clip) {
                 clips.saveXMPsToCard(clip.index, function(err) {
                     ui.back();
-                    cb();
-                    ui.alert("Error writing XMPs: " + err);
+                    if(err) {
+                        ui.alert("Error writing XMPs: " + err);
+                    } else {
+                        cb();
+                    }
                 }); 
             } else {
                 ui.back();
