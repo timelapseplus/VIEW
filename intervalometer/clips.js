@@ -363,7 +363,7 @@ clips.getTimelapseData = function (clipNumber, cameraNumber, callback) {
 
 clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback) {
     var name = "tl-" + clipNumber;
-    var smoothing = 5; // blend changes across +/- 5 frames (11 frame average)
+    var smoothing = 8; // blend changes across +/- 8 frames (15 frame average)
 
     clips.getTimelapseData(clipNumber, cameraNumber, function(err, data) {
         if (!err && data) {
@@ -379,9 +379,9 @@ clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback
                         smoothCorrection = evSum / (smoothing * 2 + 1) - evSetting;
                     }
                     var xmpFile = destinationFolder + "/" + data[i].fileNumberString + ".xmp";
-                    console.log("Writing " + xmpFile, ",", data[i].evSetting, ",", data[i].evCorrection - smoothCorrection, ",", smoothCorrection);
-                    var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
-                    image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
+                    console.log("Writing " + xmpFile, ",", data[i].evSetting, ",", data[i].evCorrection + smoothCorrection, ",", smoothCorrection);
+                    var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection + smoothCorrection;
+                    image.writeXMP(xmpFile, data[i].evCorrection + smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
                     i++;
                     setImmediate(writeXMPfile);
                 } else {
