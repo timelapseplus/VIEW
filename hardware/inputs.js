@@ -10,7 +10,10 @@ var EventEmitter = require("events").EventEmitter;
 
 var inputs = new EventEmitter();
 
-var gesture = GestureLib.use(2); //i2c port 2
+VAR GESTURE_INT_GPIO = 72;
+VAR GESTURE_I2C_BUS = 2;
+
+var gesture = GestureLib.use(GESTURE_I2C_BUS, GESTURE_INT_GPIO);
 
 gesture.on('ready', function() {
     console.log("INPUTS: found a gesture sensor");
