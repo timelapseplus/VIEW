@@ -95,7 +95,8 @@ if (VIEW_HARDWARE) {
                             if(!wifi.connected) {
                                 if(wifiStatus.apMode) {
                                     wifi.enableAP();
-                                } else if(wifiStatus.connect) {
+                                }
+                                if(wifiStatus.connect) {
                                     wifi.connect(wifiStatus.connect, wifiStatus.password);
                                 }
                             }
@@ -1549,11 +1550,13 @@ if (VIEW_HARDWARE) {
                                     ui.status('connecting to ' + item.ssid);
                                     wifi.connect(item, result);
                                     db.setWifi(item.address, result);
-                                    db.set('wifi-status', {
-                                        apMode: false,
-                                        connect: item,
-                                        enabled: true,
-                                        password: result
+                                    db.get('wifi-status', function(err, status) {
+                                        db.set('wifi-status', {
+                                            apMode: status.apMode,
+                                            connect: item,
+                                            enabled: true,
+                                            password: result
+                                        });
                                     });
                                     ui.back();
                                 }
@@ -1562,10 +1565,12 @@ if (VIEW_HARDWARE) {
                     } else {
                         ui.status('connecting to ' + item.ssid);
                         wifi.connect(item);
-                        db.set('wifi-status', {
-                            apMode: false,
-                            connect: item,
-                            enabled: true
+                        db.get('wifi-status', function(err, status) {
+                            db.set('wifi-status', {
+                                apMode: status.apMode,
+                                connect: item,
+                                enabled: true
+                            });
                         });
                         ui.back();
                         ui.back();
@@ -1602,15 +1607,32 @@ if (VIEW_HARDWARE) {
             help: help.wifiApMenu,
             action: function(){
                 wifi.enableAP(function(){
-                    db.set('wifi-status', {
-                        apMode: true,
-                        enabled: true
+                    db.get('wifi-status', function(err, status) {
+                        status.apMode = true;
+                        status.enabled = true;
+                        db.set('wifi-status', status);
                     });
                     ui.back();
                 });
             },
             condition: function() {
                 return wifi.enabled && !wifi.apMode;
+            }
+        }, {
+            name: "Disable TL+VIEW AP",
+            help: help.wifiApDisMenu,
+            action: function(){
+                wifi.disableAP(function(){
+                    db.get('wifi-status', function(err, status) {
+                        status.apMode = false;
+                        status.enabled = true;
+                        db.set('wifi-status', status);
+                    });
+                    ui.back();
+                });
+            },
+            condition: function() {
+                return wifi.enabled && wifi.apMode;
             }
         }, {
             name: "Disable Bluetooth",

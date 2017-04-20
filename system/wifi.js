@@ -206,7 +206,6 @@ wifi.enable = function(cb) {
 wifi.disable = function(cb) {
 	var disable = function() {
 		wifi.disconnect();
-		wifi.connected = false;
 		wifi.stop();
 		iw.disable(function(){
 			wifi.enabled = false;
@@ -233,11 +232,11 @@ wifi.connect = function(network, password, callback) {
 			});
 		});
 	};
-	if(wifi.apMode) {
-		wifi.disableAP(join);		
-	} else {
+	//if(wifi.apMode) {
+	//	wifi.disableAP(join);		
+	//} else {
 		wifi.disconnect(join);
-	}
+	//}
 }
 
 wifi.disconnect = function(callback) {
@@ -246,30 +245,30 @@ wifi.disconnect = function(callback) {
 		wifi.emit("disconnect", false);
 	}
 	iw.dhcpStop(function(){
-		console.log("[Wifi] Stopped DHCP, leaving wifi network...")
+		//console.log("[Wifi] Stopped DHCP, leaving wifi network...")
 		iw.leave(callback);
 	});
 }
 
 wifi.enableAP = function(callback) {
-	wifi.connected = false;
+	//wifi.connected = false;
 	wifi.apMode = true;
 	var enableAP = function() {
 		exec(ENABLE_AP, function(err) {
 			if(callback) callback(err);
 		});
 	}
-	if(wifi.connected) {
-		wifi.disconnect(enableAP);
-	} else {
+	//if(wifi.connected) {
+	//	wifi.disconnect(enableAP);
+	//} else {
 		enableAP();
-	}
+	//}
 
 }
 
 wifi.disableAP = function(callback) {
 	wifi.apMode = false;
-	wifi.connected = false;
+	//wifi.connected = false;
 	exec(DISABLE_AP, function(err) {
 		if(callback) callback(err);
 	});
