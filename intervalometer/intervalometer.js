@@ -42,7 +42,7 @@ var delayHandle = null;
 var rate = 0;
 
 intervalometer.autoSettings = {
-    paddingTimeMs: 5000
+    paddingTimeMs: 2000
 }
 
 
@@ -57,7 +57,7 @@ status = {
     message: "",
     rampEv: null,
     autoSettings: {
-        paddingTimeMs: 5000
+        paddingTimeMs: 2000
     }
 }
 intervalometer.status = status;
@@ -419,7 +419,7 @@ function runPhoto() {
                     } else {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 1000; // add a second for setting exposure
+                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
@@ -475,9 +475,9 @@ intervalometer.validate = function(program) {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
         if(program.intervalMode == 'fixed' || program.rampMode == 'fixed') {
-            if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
+            if (parseInt(program.interval) < 1) results.errors.push({param:'interval', reason: 'interval not set or too short'});
         } else {
-            if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});
+            if (parseInt(program.dayInterval) < 2) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 2 seconds'});
             if (parseInt(program.nightInterval) < program.dayInterval) results.errors.push({param:'nightInterval', reason: 'nightInterval shorter than dayInterval'});
         }        
     }

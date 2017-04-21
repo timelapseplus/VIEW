@@ -148,10 +148,9 @@ process.on('message', function(msg) {
         }
         if(msg.do == 'waitComplete') waitComplete(buildCB(msg.id));
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
-        if (msg.get == 'all') getConfig(false, msg.cached, buildCB(msg.id));
         if (msg.get == 'settings') {
             console.log("WORKER: called getConfig in", new Date() / 1000 - msg.time, "seconds");
-            getConfig(false, msg.cached, buildCB(msg.id));
+            getConfig(false, msg.cache, buildCB(msg.id));
         }
     }
     if (msg.type == 'setup') {
@@ -584,7 +583,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         return callback && callback();
     }
     getConfig(true, true, function() {
-        if (!settings.mapped) {
+        if (!settings) {
             console.log('WORKER: error', "unable to retrieve camera settings");
             sendEvent('error', "unable to retrieve camera settings");
             if (callback) callback("unable to retrieve camera settings");
@@ -598,8 +597,8 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         for (var i in LISTS.paramMap) {
             var handle = LISTS.paramMap[i].name;
             if (handle == item) {
-                item = settings.mapped.names[handle];
-                list = settings.mapped.lists[handle];
+                item = settings.names[handle];
+                list = settings.lists[handle];
                 if (LISTS.paramMap[i].type == "toggle") {
                     toggle = true;
                 }
@@ -701,14 +700,10 @@ function getConfig(noEvent, cached, cb) {
         return;
     } 
     if (cameraBusy) {
-        if (configCache) {
-            if (cb) cb(null, configCache);
-        } else {
-            clearTimeout(configTimeoutHandle);
-            configTimeoutHandle = setTimeout(function() {
-                getConfig(noEvent, cached, cb);
-            }, 1000);
-        }
+        clearTimeout(configTimeoutHandle);
+        configTimeoutHandle = setTimeout(function() {
+            getConfig(noEvent, cached, cb);
+        }, 200);
         return;
     }
     cameraBusy = true;
@@ -806,17 +801,17 @@ function getConfig(noEvent, cached, cb) {
                 mapped.names[handle] = name;
             }
 
-            settings.mapped = mapped;
-            data.mapped = mapped;
+            settings = mapped;
 
             console.log("WORKER: Mapped settings in ", (new Date() / 1000) - getConfigStartTime, "seconds");
 
             //console.log("mapped settings:", mapped);
-            configCache = data;
-            if (!noEvent) sendEvent('settings', data);
-            if (cb) cb(null, data);
+            configCache = mapped;
+            //if (!noEvent) 
+            sendEvent('settings', settings);
+            if (cb) cb(null, settings);
         } else {
-            settings.mapped = null;
+            settings = null;
             if (cb) cb(er, null);
         }
     });

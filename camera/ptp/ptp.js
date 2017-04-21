@@ -220,15 +220,16 @@ var startWorker = function(port) {
                 }
                 if (!msg.value) msg.value = false;
                 if (msg.event == "settings") {
-                    var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
-                    if (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings)) {
-                        if(worker.port == camera.primaryPort) camera.emit(msg.event, msg.value);
-                    }
+                    var newSettings = msg.value ? msg.value : {};
                     console.log("capture target: ", newSettings.target);
                     if (!camera.target) camera.target = "CARD";
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target, null, worker);
-                    if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
+                    //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
+                    if (worker.port == camera.primaryPort && (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings))) {
+                        worker.settings = newSettings;
+                        camera.emit(msg.event, msg.value);
+                    }
                     worker.settings = newSettings;
                     if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
@@ -765,16 +766,7 @@ camera.set = function(item, value, callback, _worker) {
         callback && callback("not connected");
     }
 }
-camera.get = function(item) {
-    var worker = getPrimaryWorker();
-    if (worker && camera.connected) {
-        console.log("PTP: retrieving settings...");
-        camera.getSettings(function() {
-            camera.emit("config", camera.settings);
-        });
-    } else callback && callback("not connected");
-}
-camera.getSettings = function(callback) {
+camera.getSettings = function(callback, disableCache) {
     console.log("retreiving settings from camera");
     //console.trace();
     var worker = getPrimaryWorker();
@@ -782,6 +774,7 @@ camera.getSettings = function(callback) {
         type: 'camera',
         get: 'settings',
         time: new Date() / 1000,
+        disableCache: (disableCache ? true : false),
         id: getCallbackId(worker.port, 'getSettings', callback)
     }); else callback && callback("not connected");
 }

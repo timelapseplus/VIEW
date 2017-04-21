@@ -57,7 +57,7 @@ exposure.prototype.setEv = function(ev) {
 }
 
 exposure.prototype._valueShift = function(stops, paramKey) {
-    var list = this.camera.ptp.settings.mapped.lists[paramKey];
+    var list = this.camera.ptp.settings.lists[paramKey];
     if (!list) return null;
     var currentEV = this[paramKey + 'Ev'];
     var newEv = currentEV;

@@ -1,7 +1,7 @@
 #!/bin.sh
-killall wpa_supplicant
+#killall wpa_supplicant
 killall hostapd
-killall dhclient
+#killall dhclient
 rm /run/hostapd.pid
 rm /var/run/hostapd/wlan1
 ip addr flush dev wlan1
