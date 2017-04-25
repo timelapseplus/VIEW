@@ -247,6 +247,7 @@ function runCommand(type, args, callback) {
 
     case 'bt.reset':
       console.log("CORE: reloading BT module");
+      delete noble;
       delete require.cache[require.resolve('noble')];
       noble = require('noble');
       setUpBT();
