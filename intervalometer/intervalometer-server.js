@@ -247,10 +247,10 @@ function runCommand(type, args, callback) {
 
     case 'bt.reset':
       console.log("CORE: reloading BT module");
-      delete noble;
-      delete require.cache[require.resolve('noble')];
-      noble = require('noble');
-      setUpBT();
+      //delete noble;
+      //delete require.cache[require.resolve('noble')];
+      //noble = require('noble');
+      //setUpBT();
       callback();
       break;
   }
@@ -365,33 +365,31 @@ function stopScan() {
     noble.stopScanning();
 }
 
-function setUpBT() {
-  noble.on('stateChange', function(state) {
-      console.log("BLE state changed to", state);
-      if (state == "poweredOn") {
-          setTimeout(function() {
-              startScan()
-          });
-      }
-  });
+noble.on('stateChange', function(state) {
+    console.log("BLE state changed to", state);
+    if (state == "poweredOn") {
+        setTimeout(function() {
+            startScan()
+        });
+    }
+});
 
-  noble.on('discover', function(peripheral) {
-      //console.log('ble', peripheral);
-      stopScan();
-      nmx.connect(peripheral);
-  });
+noble.on('discover', function(peripheral) {
+    //console.log('ble', peripheral);
+    stopScan();
+    nmx.connect(peripheral);
+});
 
-  nmx.on('status', function(status) {
-      sendEvent('nmx.status', status);
-      if (status.connected) {
-          stopScan();
-      } else {
-          //wifi.resetBt(function(){
-              startScan();
-          //});
-      }
-  });
-  startScan();
-}
-setUpBT();
+nmx.on('status', function(status) {
+    sendEvent('nmx.status', status);
+    if (status.connected) {
+        stopScan();
+    } else {
+        //wifi.resetBt(function(){
+            startScan();
+        //});
+    }
+});
+startScan();
+
 nmx.connect();
