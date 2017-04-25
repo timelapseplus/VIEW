@@ -52,8 +52,6 @@ function hostApdConfig(ssid, channel, callback) {
 	});
 }
 
-hostApdConfig('TL+VIEW', 6);
-
 function powerControl(enable, callback) {
 	if(wifi.power) {
 		wifi.power.wifi(enable, callback);
@@ -114,6 +112,9 @@ iw.on('join', function(data) {
 	console.log("[Wifi] Join:", data);
 	wifi.connected = data;
 	wifi.emit("connect", data.ssid);
+	if(wifi.connected.channel && wifi.apMode) {
+		wifi.enableAP(); // resets the AP to use the current channel
+	}
 });
 
 iw.on('former', function(data) {
@@ -256,18 +257,23 @@ wifi.disconnect = function(callback) {
 }
 
 wifi.enableAP = function(callback) {
-	//wifi.connected = false;
-	wifi.apMode = true;
 	var enableAP = function() {
-		exec(ENABLE_AP, function(err) {
-			if(callback) callback(err);
+		wifi.apMode = true;
+		var channel = (wifi.connected && wifi.connected.channel) ? wifi.connected.channel : 6;
+		var ssid = 'TL+VIEW';
+		hostApdConfig(ssid, channel, function(){
+			exec(ENABLE_AP, function(err) {
+				if(callback) callback(err);
+			});
 		});
 	}
-	//if(wifi.connected) {
-	//	wifi.disconnect(enableAP);
-	//} else {
+	if(wifi.apMode) {
+		wifi.disableAP(function(){
+			enableAP();
+		});
+	} else {
 		enableAP();
-	//}
+	}
 
 }
 
