@@ -23,6 +23,7 @@ var Wireless = function(config) {
 
     // Interface to listen on. TODO: handle multiple
     this.iface = config.iface || 'wlan0';
+    this.iface2 = config.iface2 || 'wlan1';
 
     // How often to poll the listing of networks
     this.updateFrequency = config.updateFrequency || 60;
@@ -39,6 +40,7 @@ var Wireless = function(config) {
     for (var command in this.commands) {
         this.commands[command] = this._translate(this.commands[command], {
             'interface': this.iface,
+            'interface2': this.iface2,
         });
     }
 };
@@ -47,6 +49,7 @@ util.inherits(Wireless, EventEmitter);
 
 Wireless.prototype.COMMANDS = {
     scan: 'sudo iw dev :INTERFACE scan',
+    scan2: 'sudo iw dev :INTERFACE2 scan',
     stat: 'sudo iw dev :INTERFACE link',
     disable: 'sudo ifconfig :INTERFACE down',
     enable: 'sudo ifconfig :INTERFACE up',
@@ -330,13 +333,13 @@ Wireless.prototype._parseScan = function(scanResults) {
 };
 
 // Executes a scan, reporting each network we see
-Wireless.prototype._executeScan = function() {
+Wireless.prototype._executeScan = function(cmd) {
     var self = this;
-
+    var scanCommand = cmd || this.commands.scan;
     // Make this a non annonymous function, run immediately, then run interval which runs function
-    this.emit('command', this.commands.scan);
+    this.emit('command', scanCommand);
 
-    exec(this.commands.scan, function(err, stdout, stderr) {
+    exec(scanCommand, function(err, stdout, stderr) {
         if (err) {
             if (self.killing) {
                 // Of course we got an error the main app is being killed, taking iwlist down with it
@@ -363,6 +366,7 @@ Wireless.prototype._executeScan = function() {
         if (!stdout) {
             return;
         } else if (stderr.match(/scan aborted!/)) {
+            if(!cmd) return self._executeScan(this.commands.scan2);
             return;
         }
 
