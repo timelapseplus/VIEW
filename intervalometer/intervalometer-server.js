@@ -244,6 +244,12 @@ function runCommand(type, args, callback) {
       if(args.pid) watchdog.watch(args.pid);
       callback();
       break;
+
+    case 'bt.reset':
+      noble = require('noble');
+      setUpBT();
+      callback();
+      break;
   }
 }
 
@@ -344,44 +350,45 @@ function startScan() {
         }, 8000);
     } else {
         btleScanStarting = false;
+        nmx.disconnect();
         //if(wifi.btEnabled) {
         //    wifi.resetBt();
         //}
     }
 }
-startScan();
 
 function stopScan() {
     clearScanTimeouts();
     noble.stopScanning();
 }
 
-noble.on('stateChange', function(state) {
-    console.log("BLE state changed to", state);
-    if (state == "poweredOn") {
-        setTimeout(function() {
-            startScan()
-        });
-    }
-});
+function setUpBT() {
+  noble.on('stateChange', function(state) {
+      console.log("BLE state changed to", state);
+      if (state == "poweredOn") {
+          setTimeout(function() {
+              startScan()
+          });
+      }
+  });
 
-noble.on('discover', function(peripheral) {
-    //console.log('ble', peripheral);
-    stopScan();
-    nmx.connect(peripheral);
-});
+  noble.on('discover', function(peripheral) {
+      //console.log('ble', peripheral);
+      stopScan();
+      nmx.connect(peripheral);
+  });
 
-
+  nmx.on('status', function(status) {
+      sendEvent('nmx.status', status);
+      if (status.connected) {
+          stopScan();
+      } else {
+          //wifi.resetBt(function(){
+              startScan();
+          //});
+      }
+  });
+  startScan();
+}
+setUpBT();
 nmx.connect();
-
-nmx.on('status', function(status) {
-    sendEvent('nmx.status', status);
-    if (status.connected) {
-        stopScan();
-    } else {
-        //wifi.resetBt(function(){
-            startScan();
-        //});
-    }
-});
-
