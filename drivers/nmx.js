@@ -532,6 +532,8 @@ function _parseNMXData(dataBuf) {
     var len = dataBuf[dataOffset - 2];
     var type = dataBuf[dataOffset - 1];
 
+    console.log("NMX: data type", type, "length", len);
+
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
     if (type == 1 && dataBuf.length >= dataOffset + 2) return dataBuf.readUInt16BE(dataOffset);
     if (type == 2 && dataBuf.length >= dataOffset + 2) return dataBuf.readInt16BE(dataOffset);

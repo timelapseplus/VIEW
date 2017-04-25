@@ -9,11 +9,11 @@ var ENABLE_AP = "/bin/sh /home/view/current/bin/enable_ap.sh";
 var DISABLE_AP = "/bin/sh /home/view/current/bin/disable_ap.sh";
 var WIFI_SHUTDOWN = "sudo modprobe -r 8723bu";
 var WIFI_POWERON = "sudo modprobe 8723bu";
-var BT_DISABLE = "sudo modprobe -r btusb";
-var BT_ENABLE = "sudo modprobe btusb";
 var BT_RESET = "sudo rfkill block bluetooth; sleep 1; sudo rfkill unblock bluetooth";
 var BT_BLOCK = "sudo rfkill block bluetooth;";
 var BT_UNBLOCK = "sudo rfkill unblock bluetooth;";
+var BT_DISABLE = BT_BLOCK;//"sudo modprobe -r btusb";
+var BT_ENABLE = BT_UNBLOCK;//"sudo modprobe btusb";
 
 var iw = new Wireless({ iface:'wlan0', updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -103,18 +103,14 @@ iw.on('empty', function() {
 
 iw.on('join', function(data) {
 	console.log("[Wifi] Join:", data);
-	if(!wifi.apMode) {
-		wifi.connected = data;
-		wifi.emit("connect", data.ssid);
-	}
+	wifi.connected = data;
+	wifi.emit("connect", data.ssid);
 });
 
 iw.on('former', function(data) {
 	console.log("[Wifi] Former:", data);
-	if(!wifi.apMode) {
-		wifi.connected = data;
-		wifi.emit("connect", data.ssid);
-	}
+	wifi.connected = data;
+	wifi.emit("connect", data.ssid);
 });
 
 iw.on('leave', function() {
