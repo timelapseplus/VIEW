@@ -313,7 +313,8 @@ camera.ptp.on('nmxSerial', function(status) {
         nmx.connect(camera.ptp.nmxDevice);
     } else {
         console.log("NMX detached");
-        nmx.disconnect();
+        var status = nmx.getStatus();
+        if(status.connected && status.type == "serial") nmx.disconnect();
     }
 });
 
@@ -353,7 +354,8 @@ function startScan() {
         }, 8000);
     } else {
         btleScanStarting = false;
-        nmx.disconnect();
+        var status = nmx.getStatus();
+        if(status.connected && status.type == "bt") nmx.disconnect();
         //if(wifi.btEnabled) {
         //    wifi.resetBt();
         //}
@@ -371,6 +373,9 @@ noble.on('stateChange', function(state) {
         setTimeout(function() {
             startScan()
         });
+    } else if(state == "poweredOff") {
+        var status = nmx.getStatus();
+        if(status.connected && status.type == "bt") nmx.disconnect();
     }
 });
 

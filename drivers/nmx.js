@@ -54,8 +54,10 @@ var _nmxReadCh = null;
 
 
 function getStatus() {
+    var type = (_dev && _dev.type) ? _dev.type : null;
     return {
         connected: _dev && _dev.connected,
+        connectionType: type,
         motor1: motorConnected[0],
         motor2: motorConnected[1],
         motor3: motorConnected[2]
@@ -295,6 +297,7 @@ function _connectSerial(path, callback) {
         console.log('Serial Opened');
         if (!_dev) return;
         _dev.connected = true;
+        _dev.type = "serial";
         _dev.state = "connected";
 
         _dev.port.once('disconnect', function(err) {
@@ -388,6 +391,7 @@ function _connectBt(btPeripheral, callback) {
                         _nmxReadCh.subscribe(function(){
                             _dev = btPeripheral;
                             _dev.connected = true;
+                            _dev.type = "bt";
                             _nmxReadCh.subscribe();
                             _nmxReadCh.on('data', function(data, isNotification) {
                                 if(isNotification) {
