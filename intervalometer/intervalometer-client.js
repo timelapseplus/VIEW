@@ -194,6 +194,10 @@ core.watchdog = function(callback) {
     call('watchdog', {pid:process.pid}, callback);
 };
 
+core.resetBt = function(callback) {
+    call('bt.reset', {}, callback);
+};
+
 defaultProgram = {
     rampMode: "fixed",
     intervalMode: "fixed",
