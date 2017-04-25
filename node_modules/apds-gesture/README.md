@@ -1,8 +1,8 @@
-#APDS Gesture control driver
+# APDS Gesture control driver
 
 Updated for use on a generic system and added a calibration routine.
 
-##Usage
+## Usage
 
 Install with `npm install apds-gesture`
 
@@ -19,7 +19,7 @@ gesture.debug = true;
 
 gesture.on('ready', function(){
   console.log("found a gesture sensor");
-  gesture.setup(function(){
+  gesture.setup({}, function(){
      gesture.readGesture();
   });
 });
