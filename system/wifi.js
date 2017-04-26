@@ -45,6 +45,7 @@ wifi.btEnabled = false;
 
 
 function hostApdConfig(ssid, channel, callback) {
+	console.log("WIFI: configuring AP with SSID '" + ssid "' on channel " + channel);
 	var content = hostapdConfig.replace('{SSID}', ssid);
 	content = content.replace('{CHANNEL}', channel.toString());
 	fs.writeFile(HOSTAPD_CONFIG_PATH, content, function(err) {

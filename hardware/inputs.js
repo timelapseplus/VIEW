@@ -10,7 +10,7 @@ var EventEmitter = require("events").EventEmitter;
 
 var inputs = new EventEmitter();
 
-var GESTURE_INT_GPIO = 72;
+var GESTURE_INT_GPIO = 72;//PC8
 var GESTURE_I2C_BUS = 2;
 
 var gesture = GestureLib.use(GESTURE_I2C_BUS, GESTURE_INT_GPIO);
