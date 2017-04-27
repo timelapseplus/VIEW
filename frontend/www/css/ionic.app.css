@@ -21,6 +21,11 @@ input.view-input {
     border-bottom: 1px dotted white !important;
 }
 
+.popup-body input {
+  color: #000;
+  font-weight: bold;
+}
+
 .big {
   font-size: 105%;
 }

@@ -120,6 +120,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
+        } else if(toState.name == "app.capture") {
+            var joystick = new window.TouchControl('joystick');
+            joystick.on('pos', function(x, y) {
+              console.log("joystick pos", x, y);
+            });
         }
     });
 
