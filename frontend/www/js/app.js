@@ -127,9 +127,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 controls.joystick.delete();
                 delete controls.joystick;
             }
-            controls.joystick = new window.TouchControl('joystick');
-            controls.joystick.on('pos', function(x, y) {
-              console.log("joystick pos", x, y);
+            $timeout(function(){
+                controls.joystick = new window.TouchControl('joystick');
+                controls.joystick.on('pos', function(x, y) {
+                  console.log("joystick pos", x, y);
+                });
             });
         }
     });
