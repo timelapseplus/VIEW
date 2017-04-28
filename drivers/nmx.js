@@ -115,7 +115,7 @@ function move(motorId, steps, callback) {
 }
 
 function constantMove(motorId, speed, callback) {
-    if (motorRunning[motorId]) return console.log("NMX: motor already running");
+    //if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor (constant) " + motorId);
     enable(motorId);
     var m = new Buffer(4);
