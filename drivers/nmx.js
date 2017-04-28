@@ -223,7 +223,7 @@ function joystickMode(en, callback) {
     var cmd = {
         motor: 0,
         command: CMD_JOYSTICK_MODE,
-        dataBuf: new Buffer(en ? "01" : "00", 'hex');
+        dataBuf: new Buffer(en ? "01" : "00", 'hex')
     }
     _queueCommand(cmd, function(err) {
         if (callback) callback(err);
