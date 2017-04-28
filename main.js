@@ -159,7 +159,7 @@ if (VIEW_HARDWARE) {
         }
     });
 
-
+    var wifiWasDisabled = false;
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         app.enableRemote();
@@ -172,11 +172,15 @@ if (VIEW_HARDWARE) {
     wifi.on('enabled', function(enabled) {
         app.disableRemote();
         oled.setIcon('wifi', false);
-        core.resetBt();
-        wifi.resetBt();
+        if(wifiWasDisabled) {
+            wifiWasDisabled = false;
+            //core.resetBt();
+            wifi.resetBt();
+        }
         ui.reload();
     });
     wifi.on('disabled', function(enabled) {
+        wifiWasDisabled = true;
         app.disableRemote();
         oled.setIcon('wifi', false);
         ui.reload();

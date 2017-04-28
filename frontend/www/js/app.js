@@ -130,8 +130,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $timeout(function(){
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
-                    $scope.joystick($scope.axis[1].id, x * 100);
-                    $scope.joystick($scope.axis[2].id, y * 100);
+                    $scope.joystick('pan', x);
+                    $scope.joystick('tilt', y);
                     console.log("joystick pos", x, y);
                 });
                 controls.joystick.on('start', function(x, y) {
