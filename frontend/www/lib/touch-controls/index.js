@@ -143,7 +143,6 @@ window.TouchControl = function(canvasId) {
     disableScroll();
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
-    object.stopPropagation();
     object.preventDefault();
     return false;
   });
@@ -177,7 +176,6 @@ window.TouchControl = function(canvasId) {
     }
     if(self._events.pos) self._events.pos(left, top);
     //console.log(left, top);
-    object.stopPropagation();
     object.preventDefault();
     return false;
   });
