@@ -38,6 +38,11 @@ var CMD_CONNECTED_MOTORS = {
     hasReponse: true,
     delay: 200
 }
+var CMD_JOYSTICK_MODE = {
+    cmd: 0x17,
+    hasReponse: false,
+    delay: 200
+}
 
 var COMMAND_SPACING_MS = 100
 
@@ -114,10 +119,13 @@ function move(motorId, steps, callback) {
     });
 }
 
+var inJoystickMode = false;
+var enabled = {};
 function constantMove(motorId, speed, callback) {
     //if (motorRunning[motorId]) return console.log("NMX: motor already running");
-    console.log("NMX: moving motor (constant) " + motorId);
-    enable(motorId);
+    console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
+    if(!inJoystickMode) joystickMode(true);
+    if(enabled[motorId]) enable(motorId);
     var m = new Buffer(4);
     m.fill(0);
     speed = Math.floor(speed * 100);
@@ -210,8 +218,21 @@ function resetMotorPosition(motorId, callback) {
     });
 }
 
+function joystickMode(en, callback) {
+    inJoystickMode = en ? true : false;
+    var cmd = {
+        motor: 0,
+        command: CMD_JOYSTICK_MODE,
+        dataBuf: new Buffer(en ? "01" : "00", 'hex');
+    }
+    _queueCommand(cmd, function(err) {
+        if (callback) callback(err);
+    });
+}
+
 function enable(motorId) {
     if (!motorId) return;
+    enabled[motorId] = true;
     var cmd = {
         motor: motorId,
         command: CMD_ENABLE_MOTOR,
@@ -222,6 +243,7 @@ function enable(motorId) {
 
 function disable(motorId) {
     if (!motorId) return;
+    enabled[motorId] = false;
     var cmd = {
         motor: motorId,
         command: CMD_ENABLE_MOTOR,
