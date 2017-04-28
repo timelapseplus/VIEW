@@ -999,7 +999,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 console.log("joystick motor" + axisId, speed);
                 sendMessage('motion', {
                     key: 'joystick',
-                    val: speed,
+                    val: speed * 100,
                     driver: driver,
                     motor: motor
                 });
