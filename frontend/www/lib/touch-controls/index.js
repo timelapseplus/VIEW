@@ -3,6 +3,7 @@ function preventDefault(e) {
   e = e || window.event;
   if (e.preventDefault)
       e.preventDefault();
+    console.log("blocking scroll");
   e.returnValue = false;  
 }
 
