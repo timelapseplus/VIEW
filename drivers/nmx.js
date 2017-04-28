@@ -77,7 +77,8 @@ function getStatus() {
 function move(motorId, steps, callback) {
     if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor " + motorId);
-    enable(motorId);
+    if(inJoystickMode) joystickMode(false);
+    if(!enabled[motorId]) enable(motorId);
     var m = new Buffer(5);
     m.fill(0);
     if (steps < 0) {
@@ -125,7 +126,7 @@ function constantMove(motorId, speed, callback) {
     //if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
     if(!inJoystickMode) joystickMode(true);
-    if(enabled[motorId]) enable(motorId);
+    if(!enabled[motorId]) enable(motorId);
     var m = new Buffer(4);
     m.fill(0);
     speed = Math.floor(speed * 100);
