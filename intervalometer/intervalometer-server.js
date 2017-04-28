@@ -373,6 +373,7 @@ function stopScan() {
 }
 
 function setUpBt() {
+  console.log("CORE: setting up bluetooth");
   noble.on('stateChange', function(state) {
       console.log("BLE state changed to", state);
       if (state == "poweredOn") {
@@ -381,7 +382,11 @@ function setUpBt() {
           });
       } else if(state == "poweredOff") {
           var status = nmx.getStatus();
-          if(status.connected && status.type == "bt") nmx.disconnect();
+          console.log("CORE: NMX status:", status);
+          if(status.connected && status.type == "bt") {
+            console.log("CORE: disconnected NMX, bluetooth powered off");
+            nmx.disconnect();
+          }
       }
   });
 
