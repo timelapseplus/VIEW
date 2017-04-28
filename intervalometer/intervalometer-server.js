@@ -251,7 +251,7 @@ function runCommand(type, args, callback) {
       delete noble;
       delete require.cache[require.resolve('noble')];
       var noble = require('noble');
-      setUpBT();
+      setUpBt();
       callback();
       break;
   }
