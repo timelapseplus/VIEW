@@ -173,6 +173,7 @@ if (VIEW_HARDWARE) {
         app.disableRemote();
         oled.setIcon('wifi', false);
         core.resetBt();
+        wifi.resetBt();
         ui.reload();
     });
     wifi.on('disabled', function(enabled) {
