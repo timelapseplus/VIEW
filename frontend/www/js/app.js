@@ -130,8 +130,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $timeout(function(){
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
-                    $scope.joystick($scope.axis[0].id, x * 100);
-                    $scope.joystick($scope.axis[1].id, y * 100);
+                    $scope.joystick($scope.axis[1].id, x * 100);
+                    $scope.joystick($scope.axis[2].id, y * 100);
                     console.log("joystick pos", x, y);
                 });
                 controls.joystick.on('start', function(x, y) {
@@ -982,12 +982,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
-        if (steps && parts.length == 2) {
+        if (parts.length == 2) {
             var driver = parts[0];
             var motor = parts[1];
             console.log("joystick motor" + axisId, speed);
-            $scope.axis[index].moving = true;
-            $scope.axis[index].pos -= steps;
+            //$scope.axis[index].moving = true;
+            //$scope.axis[index].pos -= steps;
             sendMessage('motion', {
                 key: 'joystick',
                 val: speed,
