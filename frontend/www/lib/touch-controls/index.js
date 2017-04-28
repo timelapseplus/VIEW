@@ -175,7 +175,7 @@ window.TouchControl = function(canvasId) {
     }
     if(self._events.pos) self._events.pos(left, top);
     //console.log(left, top);
-\    return false;
+    return false;
   });
 
   return this;
