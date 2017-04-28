@@ -139,6 +139,7 @@ window.TouchControl = function(canvasId) {
     disableScroll();
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
+    if(self._events.start) self._events.start();
     return false;
   });
   this._canvas.on('mouse:up', function(object){
@@ -150,6 +151,7 @@ window.TouchControl = function(canvasId) {
     self._joystick.animate('left', self._centerLeft, self._animationOptions);
     self._joystick.animate('top', self._centerTop, self._animationOptions);
     if(self._events.pos) self._events.pos(0, 0);
+    if(self._events.stop) self._events.stop();
   });
   this._canvas.on('object:moving', function(object){
     var left = (object.target.left - self._centerLeft + self._border) / ((self._canvas.width-self._border)/2 - self._width/2);
