@@ -278,6 +278,7 @@ nmx.disconnect = disconnect;
 nmx.disable = disable;
 nmx.enable = enable;
 nmx.move = move;
+nmx.constantMove = constantMove;
 nmx.getStatus = getStatus;
 
 module.exports = nmx;

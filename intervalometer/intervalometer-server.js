@@ -239,6 +239,9 @@ function runCommand(type, args, callback) {
     case 'nmx.move':
       nmx.move(args.motor, args.steps, callback);
       break;
+    case 'nmx.joystick':
+      nmx.constantMove(args.motor, args.speed, callback);
+      break;
 
     case 'watchdog':
       if(args.pid) watchdog.watch(args.pid);
