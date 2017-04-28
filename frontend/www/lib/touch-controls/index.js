@@ -143,7 +143,6 @@ window.TouchControl = function(canvasId) {
     disableScroll();
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
-    object.preventDefault();
     return false;
   });
   this._canvas.on('mouse:up', function(object){
@@ -176,8 +175,7 @@ window.TouchControl = function(canvasId) {
     }
     if(self._events.pos) self._events.pos(left, top);
     //console.log(left, top);
-    object.preventDefault();
-    return false;
+\    return false;
   });
 
   return this;
