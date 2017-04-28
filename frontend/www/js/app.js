@@ -134,12 +134,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
                 controls.joystick.on('start', function(x, y) {
                     $scope.$apply(function(){
+                        console.log("disabing scroll");
                         $ionicSideMenuDelegate.canDragContent(false);
                         $ionicScrollDelegate.getScrollView().options.scrollingY = false;
                     });
                 });
                 controls.joystick.on('stop', function(x, y) {
                     $scope.$apply(function(){
+                        console.log("enabling scroll");
                         $ionicSideMenuDelegate.canDragContent(true);
                         $ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });

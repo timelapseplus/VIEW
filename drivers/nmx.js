@@ -3,6 +3,11 @@ var CMD_MOVE_MOTOR = {
     hasReponse: false,
     delay: 0
 }
+var CMD_MOVE_MOTOR_CONSTANT = {
+    cmd: 0x0D,
+    hasReponse: false,
+    delay: 0
+}
 var CMD_ENABLE_MOTOR = {
     cmd: 0x03,
     hasReponse: false,
@@ -107,6 +112,50 @@ function move(motorId, steps, callback) {
             motorRunning[motorId] = false;
         }
     });
+}
+
+function constantMove(motorId, speed, callback) {
+    if (motorRunning[motorId]) return console.log("NMX: motor already running");
+    console.log("NMX: moving motor (constant) " + motorId);
+    enable(motorId);
+    var m = new Buffer(4);
+    m.fill(0);
+    speed = Math.floor(speed * 100);
+    m.writeInt32BE(speed, 1, 4);
+    motorRunning[motorId] = true;
+
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOVE_MOTOR_CONSTANT,
+        dataBuf: m
+    }
+
+    (function check(motorId, motorSpeed) {
+        _queueCommand(cmd, function(err) {
+            if (!err) {
+                motorRunning[motorId] = false;
+                    if(motorSpeed != 0) return callback && callback(null); // only check position when stopped
+                    setTimeout(function() {
+                        checkMotorRunning(motorId, function(moving) {
+                            if(moving === undefined) return;
+                            if (moving) {
+                                motorRunning[motorId] = true;
+                                check(motorId); // keep checking until stop
+                            } else {
+                                motorRunning[motorId] = false;
+                                if (callback) callback(null);
+                                checkMotorPosition(motorId, function(position) {
+                                    motorPos[motorId] = position;
+                                })
+                            }
+                        });
+                    }, 200);
+            } else {
+                if (callback) callback(err);
+                motorRunning[motorId] = false;
+            }
+        });
+    })(motorId, motorSpeed);
 }
 
 function checkMotorRunning(motorId, callback) {
