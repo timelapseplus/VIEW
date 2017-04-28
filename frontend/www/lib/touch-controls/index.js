@@ -1,22 +1,4 @@
 
-function preventDefault(e) {
-  e = e || window.event;
-  if (e.preventDefault)
-      e.preventDefault();
-    console.log("blocking scroll");
-  e.returnValue = false;
-  return false;
-}
-
-
-function disableScroll() {
-  window.ontouchmove  = preventDefault; // mobile
-}
-
-function enableScroll() {
-    window.ontouchmove = null;  
-}
-
 window.TouchControl = function(canvasId) {
   this._events = {};
   this._canvas = new fabric.Canvas(canvasId);
@@ -135,8 +117,6 @@ window.TouchControl = function(canvasId) {
   var self = this;
   this._canvas.on('mouse:down', function(object){
     if(!object.target) return;
-    //console.log("start");
-    disableScroll();
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
     if(self._events.start) self._events.start();
@@ -144,8 +124,6 @@ window.TouchControl = function(canvasId) {
   });
   this._canvas.on('mouse:up', function(object){
     if(!object.target) return;
-    //console.log("stop");
-    enableScroll();
     object.target.setFill(self._releasedColor);
     self._canvas.renderAll();
     self._joystick.animate('left', self._centerLeft, self._animationOptions);

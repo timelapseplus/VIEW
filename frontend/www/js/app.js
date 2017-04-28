@@ -73,7 +73,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
 })
 
-.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicHistory', '$ionicSlideBoxDelegate', '$ionicScrollDelegate', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicHistory, $ionicSlideBoxDelegate, $ionicScrollDelegate) {
+.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicHistory', '$ionicSideMenuDelegate', '$ionicScrollDelegate', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicHistory, $ionicSideMenuDelegate, $ionicScrollDelegate) {
     console.log("AppCtrl");
 
     $scope.moment = moment;
@@ -134,13 +134,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
                 controls.joystick.on('start', function(x, y) {
                     $scope.$apply(function(){
-                        $ionicSlideBoxDelegate.enableSlide(false);
+                        $ionicSideMenuDelegate.canDragContent(false);
                         $ionicScrollDelegate.getScrollView().options.scrollingY = false;
                     });
                 });
                 controls.joystick.on('stop', function(x, y) {
                     $scope.$apply(function(){
-                        $ionicSlideBoxDelegate.enableSlide(true);
+                        $ionicSideMenuDelegate.canDragContent(true);
                         $ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });
                 });
