@@ -231,6 +231,7 @@ function joystickMode(en, callback) {
         command: CMD_JOYSTICK_MODE,
         dataBuf: new Buffer(en ? "01" : "00", 'hex')
     }
+    console.log("NMX: joystick mode: ", inJoystickMode);
     _queueCommand(cmd, function(err) {
         cmd = {
             motor: 0,
