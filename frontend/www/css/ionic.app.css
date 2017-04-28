@@ -12,6 +12,13 @@ For example, you might change some of the default colors:
   color: #eee;
   background-color: #222; }
 
+.lock-screen {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    position: fixed;
+}
+
 input.view-input {
     border: none !important;
     background-color: transparent !important;
