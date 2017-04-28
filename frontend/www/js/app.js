@@ -123,7 +123,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (toState.name == "app.view") {
             $scope.getClips();
         } else if(toState.name == "app.capture") {
-            if(controls.joystick) delete controls.joystick;
+            if(controls.joystick) return;//delete controls.joystick;
             controls.joystick = new window.TouchControl('joystick');
             controls.joystick.on('pos', function(x, y) {
               console.log("joystick pos", x, y);
