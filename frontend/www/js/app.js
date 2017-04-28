@@ -127,6 +127,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 controls.joystick.delete();
                 delete controls.joystick;
             }
+            if(controls.slider) {
+                controls.slider.delete();
+                delete controls.slider;
+            }
             $timeout(function(){
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
@@ -142,6 +146,25 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     });
                 });
                 controls.joystick.on('stop', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("enabling scroll");
+                        $ionicSideMenuDelegate.canDragContent(true);
+                        $ionicScrollDelegate.getScrollView().options.scrollingY = true;
+                    });
+                });
+                controls.slider = new window.TouchControl('slider');
+                controls.slider.on('pos', function(x) {
+                    $scope.slider('slide', x);
+                    console.log("slider pos", x);
+                });
+                controls.slider.on('start', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("disabing scroll");
+                        $ionicSideMenuDelegate.canDragContent(false);
+                        $ionicScrollDelegate.getScrollView().options.scrollingY = false;
+                    });
+                });
+                controls.slider.on('stop', function(x, y) {
                     $scope.$apply(function(){
                         console.log("enabling scroll");
                         $ionicSideMenuDelegate.canDragContent(true);
