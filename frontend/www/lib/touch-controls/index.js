@@ -138,16 +138,18 @@ window.TouchControl = function(canvasId) {
   
   var self = this;
   this._canvas.on('mouse:down', function(object){
+    if(!object.target) return;
     //console.log("start");
     disableScroll();
-    document.body.className += " lock-screen";
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
+    object.stopPropagation();
+    object.preventDefault();
+    return false;
   });
   this._canvas.on('mouse:up', function(object){
     //console.log("stop");
     enableScroll();
-    document.body.className = document.body.className.replace(" lock-screen", "");
     object.target.setFill(self._releasedColor);
     self._canvas.renderAll();
     self._joystick.animate('left', self._centerLeft, self._animationOptions);
@@ -175,6 +177,9 @@ window.TouchControl = function(canvasId) {
     }
     if(self._events.pos) self._events.pos(left, top);
     //console.log(left, top);
+    object.stopPropagation();
+    object.preventDefault();
+    return false;
   });
 
   return this;
