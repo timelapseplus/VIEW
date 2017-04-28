@@ -154,7 +154,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
                 controls.slider = new window.TouchControl('slider');
                 controls.slider.on('pos', function(x) {
-                    $scope.slider('slide', x);
+                    $scope.joystick('slide', x);
                     console.log("slider pos", x);
                 });
                 controls.slider.on('start', function(x, y) {
