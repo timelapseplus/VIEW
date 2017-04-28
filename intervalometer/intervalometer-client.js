@@ -190,6 +190,10 @@ core.moveNMX = function(motor, steps, callback) {
     call('nmx.move', {motor:motor, steps:steps}, callback);
 };
 
+core.moveNMXjoystick = function(motor, speed, callback) {
+    call('nmx.joystick', {motor:motor, speed:speed}, callback);
+};
+
 core.watchdog = function(callback) {
     call('watchdog', {pid:process.pid}, callback);
 };

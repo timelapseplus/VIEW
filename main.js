@@ -2767,6 +2767,17 @@ app.on('message', function(msg) {
                             });
                         });
                     })(msg.driver, msg.motor, msg.val, msg.reply);
+                } else if (msg.key == "joystick" && msg.motor && msg.driver) {
+                    console.log("moving motor " + msg.motor);
+                    (function(driver, motor, speed, reply) {
+                        if(driver == 'NMX') core.moveNMXjoystick(motor, speed, function() {
+                            reply('move', {
+                                complete: true,
+                                motor: motor,
+                                driver: driver
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.val, msg.reply);
                 }
                 break;
 

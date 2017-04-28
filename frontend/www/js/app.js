@@ -130,7 +130,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $timeout(function(){
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
-                  console.log("joystick pos", x, y);
+                    $scope.joystick(0, x * 100);
+                    $scope.joystick(1, y * 100);
+                    console.log("joystick pos", x, y);
                 });
                 controls.joystick.on('start', function(x, y) {
                     $scope.$apply(function(){
@@ -460,7 +462,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     callback(null, $scope.camera);
                     if (msg.connected) {
                         $scope.status = '';
-                        setTimeout(function() {
+                        $timeout(function() {
                             sendMessage('get', {
                                 key: 'settings'
                             });
@@ -969,6 +971,26 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
+                driver: driver,
+                motor: motor
+            });
+        }
+    }
+
+    $scope.joystick = function(axisId, speed) {
+        console.log("moving ", axisId);
+        var index = $scope.getAxisIndex(axisId);
+        if(index === null) return false;
+        var parts = axisId.split('-');
+        if (steps && parts.length == 2) {
+            var driver = parts[0];
+            var motor = parts[1];
+            console.log("joystick motor" + axisId, speed);
+            $scope.axis[index].moving = true;
+            $scope.axis[index].pos -= steps;
+            sendMessage('motion', {
+                key: 'joystick',
+                val: speed,
                 driver: driver,
                 motor: motor
             });
