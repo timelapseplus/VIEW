@@ -235,7 +235,7 @@ function joystickMode(en, callback) {
     cmd2 = {
         motor: 0,
         command: CMD_JOYSTICK_WATCHDOG,
-        dataBuf: new Buffer(1)
+        dataBuf: new Buffer("00", 'hex')
     }
     _queueCommand(cmd2, function(err) {
         inJoystickMode = en ? true : false;
@@ -260,7 +260,7 @@ function disable(motorId) {
     var cmd = {
         motor: motorId,
         command: CMD_ENABLE_MOTOR,
-        dataBuf: new Buffer(1)
+        dataBuf: new Buffer("00", 'hex')
     }
     _queueCommand(cmd);
 }
