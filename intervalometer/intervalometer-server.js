@@ -248,9 +248,8 @@ function runCommand(type, args, callback) {
     case 'bt.reset':
       console.log("CORE: reloading BT module");
       noble = null;
-      delete noble;
       delete require.cache[require.resolve('noble')];
-      var noble = require('noble');
+      noble = require('noble');
       setUpBt();
       callback();
       break;
@@ -356,7 +355,10 @@ function startScan() {
     } else {
         btleScanStarting = false;
         var status = nmx.getStatus();
-        if(status.connected && status.type == "bt") nmx.disconnect();
+        if(status.connected && status.type == "bt") {
+          console.log("CORE: disconnected NMX, bluetooth powered off");
+          nmx.disconnect();
+        }
         //if(wifi.btEnabled) {
         //    wifi.resetBt();
         //}
@@ -387,17 +389,19 @@ function setUpBt() {
       nmx.connect(peripheral);
   });
 
-  nmx.on('status', function(status) {
-      sendEvent('nmx.status', status);
-      if (status.connected) {
-          stopScan();
-      } else {
-          //wifi.resetBt(function(){
-              startScan();
-          //});
-      }
-  });
   startScan();
 }
 setUpBt();
+
 nmx.connect();
+
+nmx.on('status', function(status) {
+    sendEvent('nmx.status', status);
+    if (status.connected) {
+        stopScan();
+    } else {
+        //wifi.resetBt(function(){
+            startScan();
+        //});
+    }
+});
