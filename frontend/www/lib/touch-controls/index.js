@@ -146,6 +146,7 @@ window.TouchControl = function(canvasId) {
     return false;
   });
   this._canvas.on('mouse:up', function(object){
+    if(!object.target) return;
     //console.log("stop");
     enableScroll();
     object.target.setFill(self._releasedColor);
