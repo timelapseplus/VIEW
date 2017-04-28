@@ -4,21 +4,16 @@ function preventDefault(e) {
   if (e.preventDefault)
       e.preventDefault();
     console.log("blocking scroll");
-  e.returnValue = false;  
+  e.returnValue = false;
+  return false;
 }
 
 
 function disableScroll() {
-  if (window.addEventListener) // older FF
-      window.addEventListener('DOMMouseScroll', preventDefault, false);
-  window.onwheel = preventDefault; // modern standard
   window.ontouchmove  = preventDefault; // mobile
 }
 
 function enableScroll() {
-    if (window.removeEventListener)
-        window.removeEventListener('DOMMouseScroll', preventDefault, false);
-    window.onwheel = null; 
     window.ontouchmove = null;  
 }
 
