@@ -254,7 +254,7 @@ function runCommand(type, args, callback) {
       noble = null;
       delete require.cache[require.resolve('noble')];
       noble = require('noble');
-      setUpBt();
+      //setUpBt();
       callback();
       break;
   }
@@ -359,8 +359,7 @@ function startScan() {
     } else {
         btleScanStarting = false;
         var status = nmx.getStatus();
-        console.log("CORE: NMX status:", status);
-        if(status.connected && status.type == "bt") {
+        if(status.connected && status.connectionType: == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
         }
@@ -386,7 +385,7 @@ function setUpBt() {
       } else if(state == "poweredOff") {
           var status = nmx.getStatus();
           console.log("CORE: NMX status:", status);
-          if(status.connected && status.type == "bt") {
+          if(status.connected && status.connectionType: == "bt") {
             console.log("CORE: disconnected NMX, bluetooth powered off");
             nmx.disconnect();
           }
