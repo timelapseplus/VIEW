@@ -130,32 +130,22 @@ function constantMove(motorId, speed, callback) {
         dataBuf: m
     }
 
-    (function check(motorId, motorSpeed) {
-        _queueCommand(cmd, function(err) {
-            if (!err) {
-                motorRunning[motorId] = false;
-                    if(motorSpeed != 0) return callback && callback(null); // only check position when stopped
-                    setTimeout(function() {
-                        checkMotorRunning(motorId, function(moving) {
-                            if(moving === undefined) return;
-                            if (moving) {
-                                motorRunning[motorId] = true;
-                                check(motorId); // keep checking until stop
-                            } else {
-                                motorRunning[motorId] = false;
-                                if (callback) callback(null);
-                                checkMotorPosition(motorId, function(position) {
-                                    motorPos[motorId] = position;
-                                })
-                            }
-                        });
-                    }, 200);
-            } else {
-                if (callback) callback(err);
-                motorRunning[motorId] = false;
-            }
-        });
-    })(motorId, motorSpeed);
+    _queueCommand(cmd, function(err) {
+        if (!err) {
+            motorRunning[motorId] = false;
+                if(speed != 0) return callback && callback(null); // only check position when stopped
+                setTimeout(function() {
+                    motorRunning[motorId] = false;
+                    checkMotorPosition(motorId, function(position) {
+                        motorPos[motorId] = position;
+                        if (callback) callback(null);
+                    });
+                }, 200);
+        } else {
+            if (callback) callback(err);
+            motorRunning[motorId] = false;
+        }
+    });
 }
 
 function checkMotorRunning(motorId, callback) {
