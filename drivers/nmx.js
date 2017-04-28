@@ -130,7 +130,7 @@ function constantMove(motorId, speed, callback) {
     var m = new Buffer(4);
     m.fill(0);
     speed = Math.floor(speed * 100);
-    m.writeInt32BE(speed, 1, 4);
+    m.writeInt32BE(speed, 0, 4);
     motorRunning[motorId] = true;
 
     var cmd = {
