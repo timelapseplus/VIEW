@@ -43,6 +43,11 @@ var CMD_JOYSTICK_MODE = {
     hasReponse: false,
     delay: 200
 }
+var CMD_JOYSTICK_WATCHDOG = {
+    cmd: 0x0E,
+    hasReponse: false,
+    delay: 200
+}
 
 var COMMAND_SPACING_MS = 100
 
@@ -227,7 +232,14 @@ function joystickMode(en, callback) {
         dataBuf: new Buffer(en ? "01" : "00", 'hex')
     }
     _queueCommand(cmd, function(err) {
-        if (callback) callback(err);
+        cmd = {
+            motor: 0,
+            command: CMD_JOYSTICK_WATCHDOG,
+            dataBuf: new Buffer(1)
+        }
+        _queueCommand(cmd, function(err) {
+            if (callback) callback(err);
+        });
     });
 }
 
