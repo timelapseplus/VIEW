@@ -217,7 +217,7 @@ wifi.disable = function(cb) {
 		iw.disable(function(){
 			wifi.enabled = false;
 			powerControl(false, function(err) {
-				wifi.emit('enabled', false);
+				wifi.emit('disabled', false);
 				if(cb) cb(err);
 			});
 		});

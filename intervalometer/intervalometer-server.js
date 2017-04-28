@@ -247,6 +247,7 @@ function runCommand(type, args, callback) {
 
     case 'bt.reset':
       console.log("CORE: reloading BT module");
+      stopScan();
       noble = null;
       delete require.cache[require.resolve('noble')];
       noble = require('noble');
@@ -355,6 +356,7 @@ function startScan() {
     } else {
         btleScanStarting = false;
         var status = nmx.getStatus();
+        console.log("CORE: NMX status:", status);
         if(status.connected && status.type == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
