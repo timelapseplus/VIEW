@@ -1,6 +1,43 @@
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+
+function preventDefault(e) {
+  e = e || window.event;
+  if (e.preventDefault)
+      e.preventDefault();
+  e.returnValue = false;  
+}
+
+function preventDefaultForScrollKeys(e) {
+    if (keys[e.keyCode]) {
+        preventDefault(e);
+        return false;
+    }
+}
+
+function disableScroll() {
+  if (window.addEventListener) // older FF
+      window.addEventListener('DOMMouseScroll', preventDefault, false);
+  window.onwheel = preventDefault; // modern standard
+  window.onmousewheel = document.onmousewheel = preventDefault; // older browsers, IE
+  window.ontouchmove  = preventDefault; // mobile
+  document.onkeydown  = preventDefaultForScrollKeys;
+}
+
+function enableScroll() {
+    if (window.removeEventListener)
+        window.removeEventListener('DOMMouseScroll', preventDefault, false);
+    window.onmousewheel = document.onmousewheel = null; 
+    window.onwheel = null; 
+    window.ontouchmove = null;  
+    document.onkeydown = null;  
+}
+
 window.TouchControl = function(canvasId) {
   this._events = {};
   this._canvas = new fabric.Canvas(canvasId);
+  this._canvas.selection = false;
   var min = Math.min(this._canvas.width, this._canvas.height);
   var max = Math.max(this._canvas.width, this._canvas.height);
   this._radius = min / 6;
@@ -115,11 +152,13 @@ window.TouchControl = function(canvasId) {
   var self = this;
   this._canvas.on('mouse:down', function(object){
     //console.log("start");
+    disableScroll();
     object.target.setFill(self._pressedColor);
     self._canvas.renderAll();
   });
   this._canvas.on('mouse:up', function(object){
     //console.log("stop");
+    enableScroll();
     object.target.setFill(self._releasedColor);
     self._canvas.renderAll();
     self._joystick.animate('left', self._centerLeft, self._animationOptions);
