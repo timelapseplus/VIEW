@@ -977,24 +977,34 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     }
 
-    $scope.joystick = function(axisId, speed) {
-        console.log("moving ", axisId);
-        var index = $scope.getAxisIndex(axisId);
-        if(index === null) return false;
-        var parts = axisId.split('-');
-        if (parts.length == 2) {
-            var driver = parts[0];
-            var motor = parts[1];
-            console.log("joystick motor" + axisId, speed);
-            //$scope.axis[index].moving = true;
-            //$scope.axis[index].pos -= steps;
-            sendMessage('motion', {
-                key: 'joystick',
-                val: speed,
-                driver: driver,
-                motor: motor
-            });
+    var joystickTimers = {};
+    $scope.joystick = function(axisName, speed) {
+        var index = null;
+        var axisId = null;
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].name.toLowerCase() == axisName.toLowerCase()) {
+                index = i;
+                axisId = $scope.axis[index].id;
+                break;
+            }
         }
+        if(index === null) return false;
+        if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
+        joystickTimers[axisName] = $timeout(function(){
+            console.log("moving ", axisId);
+            var parts = axisId.split('-');
+            if (parts.length == 2) {
+                var driver = parts[0];
+                var motor = parts[1];
+                console.log("joystick motor" + axisId, speed);
+                sendMessage('motion', {
+                    key: 'joystick',
+                    val: speed,
+                    driver: driver,
+                    motor: motor
+                });
+            }
+        }, 200);
     }
 
     $scope.focusPos = 0;
