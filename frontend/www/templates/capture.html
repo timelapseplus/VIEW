@@ -4,6 +4,13 @@
           <h2 class="title">Reconnecting...</h2>
         </div>
         <div ng-include="'templates/_connect.html'"></div>
+
+        <div class="list">
+            <div class="row">
+                <canvas id="joystick" width="300px" height="300px"></canvas>
+            </div>
+        </div>
+        
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 
@@ -34,9 +41,6 @@
                     <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
                     <button class="button button-dark button-block" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-skip-forward"></i></button>
                 </div>
-            </div>
-            <div class="row">
-                <canvas id="joystick" width="400px" height="400px"></canvas>
             </div>
 
             <div class="row">

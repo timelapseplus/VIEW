@@ -115,14 +115,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $ionicHistory.clearHistory();
     }*/
 
+    var controls = {};
+
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
         localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
         } else if(toState.name == "app.capture") {
-            var joystick = new window.TouchControl('joystick');
-            joystick.on('pos', function(x, y) {
+            if(controls.joystick) delete controls.joystick;
+            controls.joystick = new window.TouchControl('joystick');
+            controls.joystick.on('pos', function(x, y) {
               console.log("joystick pos", x, y);
             });
         }
