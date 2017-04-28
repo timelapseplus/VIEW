@@ -368,34 +368,36 @@ function stopScan() {
     noble.stopScanning();
 }
 
-noble.on('stateChange', function(state) {
-    console.log("BLE state changed to", state);
-    if (state == "poweredOn") {
-        setTimeout(function() {
-            startScan()
-        });
-    } else if(state == "poweredOff") {
-        var status = nmx.getStatus();
-        if(status.connected && status.type == "bt") nmx.disconnect();
-    }
-});
+function setUpBt() {
+  noble.on('stateChange', function(state) {
+      console.log("BLE state changed to", state);
+      if (state == "poweredOn") {
+          setTimeout(function() {
+              startScan()
+          });
+      } else if(state == "poweredOff") {
+          var status = nmx.getStatus();
+          if(status.connected && status.type == "bt") nmx.disconnect();
+      }
+  });
 
-noble.on('discover', function(peripheral) {
-    //console.log('ble', peripheral);
-    stopScan();
-    nmx.connect(peripheral);
-});
+  noble.on('discover', function(peripheral) {
+      //console.log('ble', peripheral);
+      stopScan();
+      nmx.connect(peripheral);
+  });
 
-nmx.on('status', function(status) {
-    sendEvent('nmx.status', status);
-    if (status.connected) {
-        stopScan();
-    } else {
-        //wifi.resetBt(function(){
-            startScan();
-        //});
-    }
-});
-startScan();
-
+  nmx.on('status', function(status) {
+      sendEvent('nmx.status', status);
+      if (status.connected) {
+          stopScan();
+      } else {
+          //wifi.resetBt(function(){
+              startScan();
+          //});
+      }
+  });
+  startScan();
+}
+setUpBT();
 nmx.connect();
