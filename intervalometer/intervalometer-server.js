@@ -399,5 +399,5 @@ function setUpBt() {
   });
   startScan();
 }
-setUpBT();
+setUpBt();
 nmx.connect();
