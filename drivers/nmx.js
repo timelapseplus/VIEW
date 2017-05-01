@@ -177,7 +177,7 @@ function constantMove(motorId, speed, callback) {
 
 function checkJoystickMode(callback) {
     var cmd = {
-        motor: motorId,
+        motor: 0,
         command: CMD_CHECK_JOYSTICK_MODE
     }
     _queueCommand(cmd, function(err, jsMode) {
