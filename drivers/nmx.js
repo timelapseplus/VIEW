@@ -139,7 +139,11 @@ function constantMove(motorId, speed, callback) {
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
     if(!enabled[motorId]) enable(motorId);
     if(!inJoystickMode) return joystickMode(true, function(){
-        constantMove(motorId, speed, callback);
+        if(inJoystickMode) {
+            constantMove(motorId, speed, callback);
+        } else {
+            callback && callback("failed to enter joystick mode");
+        }
     });
     var m = new Buffer(4);
     m.fill(0);
@@ -267,6 +271,7 @@ function joystickMode(en, callback) {
                 } else {
                     tries++;
                     if(tries > 5) {
+                        console.log("NMX: failed to change joystick mode. Current:", inJoystickMode);
                         callback && callback(err);
                     } else {
                         setTimeout(checkMode, 100);
@@ -274,7 +279,7 @@ function joystickMode(en, callback) {
                 }
             });
         }
-        if (callback) callback(err);
+        checkMode();
     });
 }
 

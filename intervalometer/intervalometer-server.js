@@ -61,7 +61,17 @@ var server = net.createServer(function(c) {
   c.on('error', function(err) {
     console.log("client error:", err);
   });
-  while(ev = eventQueue.shift()) c.write(ev);
+  try {
+    sendCameraUpdate();
+    if(camera.ptp.sdPresent) {
+      sendEvent('media.present', camera.ptp.sdMounted);
+    }
+    var status = nmx.getStatus();
+    sendEvent('nmx.status', status);
+    while(ev = eventQueue.shift()) c.write(ev);
+  } catch (e) {
+    console.log("error during event queue write:", e);
+  }
   c.on('data', function(data) {
   	//console.log("received:", data);
     try {
@@ -289,6 +299,16 @@ intervalometer.on('error', function(data) {
 });
 
 
+function sendCameraUpdate() {
+  var data = {
+    connected: camera.ptp.connected,
+    model: camera.ptp.model,
+    count: camera.ptp.count,
+    supports: camera.ptp.supports
+  };
+  sendEvent('camera.connected', data);
+}
+
 camera.ptp.on('media', function(data) {
   sendEvent('media.present', data);
 });
@@ -305,22 +325,10 @@ camera.ptp.on('settings', function(data) {
   sendEvent('camera.settings', camera.ptp.settings);
 });
 camera.ptp.on('connected', function(model) {
-  var data = {
-    connected: camera.ptp.connected,
-    model: camera.ptp.model,
-    count: camera.ptp.count,
-    supports: camera.ptp.supports
-  };
-  sendEvent('camera.connected', data);
+  sendCameraUpdate();
 });
 camera.ptp.on('exiting', function(model) {
-  var data = {
-    connected: camera.ptp.connected,
-    model: camera.ptp.model,
-    count: camera.ptp.count,
-    supports: camera.ptp.supports
-  };
-  sendEvent('camera.exiting', data);
+  sendCameraUpdate();
 });
 camera.ptp.on('error', function(data) {
   sendEvent('camera.error', data);
