@@ -60,7 +60,6 @@ var server = net.createServer(function(c) {
   var ev;
   c.on('error', function(err) {
     console.log("client error:", err);
-    c.close();
   });
   while(ev = eventQueue.shift()) c.write(ev);
   c.on('data', function(data) {
