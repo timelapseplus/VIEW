@@ -59,6 +59,9 @@ var server = net.createServer(function(c) {
   clients.push(c);
   var ev;
   while(ev = eventQueue.shift()) c.write(ev);
+  c.on('error', function(err) {
+    console.log("client error:", err);
+  });
   c.on('data', function(data) {
   	//console.log("received:", data);
     try {
@@ -99,7 +102,9 @@ function broadcast(data) {
     for(var i = 0; i < clients.length; i++) {
         //console.log("client:", client);
         try {
-            if (clients[i] && clients[i].ready) clients[i].write(data);
+            if (clients[i] && clients[i].ready) {
+              clients[i].write(data);
+            }
         } catch (err) {
             console.log("broadcast error:", err);
         }
