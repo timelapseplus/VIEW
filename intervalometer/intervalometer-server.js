@@ -58,10 +58,11 @@ var server = net.createServer(function(c) {
   c.ready = true;
   clients.push(c);
   var ev;
-  while(ev = eventQueue.shift()) c.write(ev);
   c.on('error', function(err) {
     console.log("client error:", err);
+    c.close();
   });
+  while(ev = eventQueue.shift()) c.write(ev);
   c.on('data', function(data) {
   	//console.log("received:", data);
     try {
