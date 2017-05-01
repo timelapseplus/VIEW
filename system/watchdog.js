@@ -1,5 +1,6 @@
 var exec = require('child_process').exec;
 var processes = {};
+var onKillCallback = null;
 
 function kill(pid) {
 	delete(processes[pid])
@@ -12,6 +13,7 @@ function kill(pid) {
 
 function timer(pid, timeout) {
 	return setTimeout(function(){
+		onKillCallback && onKillCallback(pid);
 		kill(pid);
 	}, timeout);
 }
@@ -27,4 +29,8 @@ exports.watch = function(pid, timeout) {
 			timer: timer(pid, timeout)
 		}
 	}
+}
+
+exports.onKill = function(callback) {
+	onKillCallback = callback;
 }

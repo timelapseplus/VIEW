@@ -99,12 +99,24 @@ function broadcast(data) {
     for(var i = 0; i < clients.length; i++) {
         //console.log("client:", client);
         try {
-            if (clients[i]) clients[i].write(data);
+            if (clients[i] && clients[i].ready) clients[i].write(data);
         } catch (err) {
             console.log("broadcast error:", err);
         }
     }
 };
+
+watchdog.onKill(function(pid){
+    for(var i = 0; i < clients.length; i++) {
+        try {
+            if (clients[i] && clients[i].ready && clients[i].pid == pid) {
+              clients[i].ready = false;
+            }
+        } catch (err) {
+            console.log("error:", err);
+        }
+    }
+});
 
 function send(event, data, client) {
   var payload = JSON.stringify({
@@ -145,12 +157,12 @@ function parseData(data, client) {
       }
     }})(data.id, client);
 
-    runCommand(type, args, callback);
+    runCommand(type, args, callback, client);
   }
 }
 
 
-function runCommand(type, args, callback) {
+function runCommand(type, args, callback, client) {
   switch(type) {
     /*case 'load':
       intervalometer.load(args, callback);
@@ -244,7 +256,10 @@ function runCommand(type, args, callback) {
       break;
 
     case 'watchdog':
-      if(args.pid) watchdog.watch(args.pid);
+      if(args.pid) {
+        client.pid = args.pid;
+        watchdog.watch(args.pid);
+      }
       callback();
       break;
 
