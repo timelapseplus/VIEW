@@ -33,6 +33,11 @@ var CMD_FIRMWARE_VERSION = {
     hasReponse: true,
     delay: 0
 }
+var CMD_CHECK_JOYSTICK_MODE = {
+    cmd: 0x78,
+    hasReponse: true,
+    delay: 0
+}
 var CMD_CONNECTED_MOTORS = {
     cmd: 0x7C,
     hasReponse: true,
@@ -82,8 +87,10 @@ function getStatus() {
 function move(motorId, steps, callback) {
     if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor " + motorId);
-    if(inJoystickMode) joystickMode(false);
     if(!enabled[motorId]) enable(motorId);
+    if(inJoystickMode) return joystickMode(false, function() {
+        move(motorId, steps, callback);
+    });
     var m = new Buffer(5);
     m.fill(0);
     if (steps < 0) {
@@ -130,8 +137,10 @@ var enabled = {};
 function constantMove(motorId, speed, callback) {
     //if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
-    if(!inJoystickMode) joystickMode(true);
     if(!enabled[motorId]) enable(motorId);
+    if(!inJoystickMode) return joystickMode(true, function(){
+        constantMove(motorId, speed, callback);
+    });
     var m = new Buffer(4);
     m.fill(0);
     speed = Math.floor(speed * 100);
@@ -159,6 +168,18 @@ function constantMove(motorId, speed, callback) {
             if (callback) callback(err);
             motorRunning[motorId] = false;
         }
+    });
+}
+
+function checkJoystickMode(callback) {
+    var cmd = {
+        motor: motorId,
+        command: CMD_CHECK_JOYSTICK_MODE
+    }
+    _queueCommand(cmd, function(err, jsMode) {
+        console.log("joystick mode: ", jsMode);
+        inJoystickMode = jsMode;
+        if (callback) callback(jsMode);
     });
 }
 
@@ -238,7 +259,21 @@ function joystickMode(en, callback) {
         dataBuf: new Buffer("00", 'hex')
     }
     _queueCommand(cmd2, function(err) {
-        inJoystickMode = en ? true : false;
+        var tries = 0;
+        var checkMode = function(){
+            checkJoystickMode(function(jsMode){
+                if(jsMode == en) {
+                    callback && callback(err);
+                } else {
+                    tries++;
+                    if(tries > 5) {
+                        callback && callback(err);
+                    } else {
+                        setTimeout(checkMode, 100);
+                    }
+                }
+            });
+        }
         if (callback) callback(err);
     });
 }

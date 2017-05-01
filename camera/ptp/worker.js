@@ -150,7 +150,7 @@ process.on('message', function(msg) {
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
         if (msg.get == 'settings') {
             console.log("WORKER: called getConfig in", new Date() / 1000 - msg.time, "seconds");
-            getConfig(false, msg.cache, buildCB(msg.id));
+            getConfig(false, false, buildCB(msg.id));
         }
     }
     if (msg.type == 'setup') {
