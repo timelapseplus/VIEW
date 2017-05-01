@@ -568,6 +568,8 @@ intervalometer.run = function(program) {
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
+                status.cameraSettings = camera.ptp.settings;
+
                 if(intervalometer.gpsData) {
                     status.latitude = intervalometer.gpsData.lat;
                     status.longitude = intervalometer.gpsData.lon;

@@ -3135,17 +3135,17 @@ core.on('intervalometer.status', function(msg) {
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
     var evText = (Math.round(lists.getEvFromSettings(core.cameraSettings) * 10) / 10).toString();
     var statusScreen = {
-        isoText: core.cameraSettings.iso,
-        shutterText: core.cameraSettings.shutter,
-        apertureText: (core.cameraSettings.details && core.cameraSettings.details.aperture) ? ("f/" + core.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
+        isoText: msg.cameraSettings.iso,
+        shutterText: msg.cameraSettings.shutter,
+        apertureText: (msg.cameraSettings.details && msg.cameraSettings.details.aperture) ? ("f/" + msg.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
-        bufferSeconds: core.intervalometerStatus.autoSettings ? core.intervalometerStatus.autoSettings.paddingTimeMs / 1000 : 5,
+        bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
         rampModeText: core.currentProgram.rampMode,
         intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
-        shutterSeconds: core.cameraSettings.details.shutter ? lists.getSecondsFromEv(core.cameraSettings.details.shutter.ev) : 0,
+        shutterSeconds: msg.cameraSettings.details.shutter ? lists.getSecondsFromEv(msg.cameraSettings.details.shutter.ev) : 0,
         durationSeconds: (new Date() / 1000) - msg.startTime,
         captureStartTime: msg.captureStartTime,
         running: msg.running
