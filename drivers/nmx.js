@@ -158,7 +158,10 @@ function constantMove(motorId, speed, callback) {
     });
     var m = new Buffer(4);
     m.fill(0);
-    speed = Math.floor(speed * 100);
+    if(speed > 1) speed = 1;
+    if(speed < -1) speed = -1;
+    var maxSpeed =  4250 + 750;
+    speed = Math.floor(speed * maxSpeed);
     m.writeInt32BE(speed, 0, 4);
     motorRunning[motorId] = true;
 
@@ -204,7 +207,7 @@ function checkMotorRunning(motorId, callback) {
         command: CMD_MOTOR_STATUS
     }
     _queueCommand(cmd, function(err, moving) {
-        console.log("motor moving (" + motorId + "): ", moving);
+        console.log("NMX: motor " + motorId + " moving: ", moving);
         if (callback) callback(moving);
     });
 }
@@ -233,7 +236,7 @@ function checkMotorPosition(motorId, callback) {
         readbackDelayMs: 50
     }
     _queueCommand(cmd, function(err, position) {
-        console.log("motor position (" + motorId + "): ", position);
+        console.log("NMX: motor " + motorId + " position: ", position);
         if (callback) callback(position);
     });
 }
@@ -260,38 +263,46 @@ function resetMotorPosition(motorId, callback) {
     });
 }
 
+var enteringJoystickMode = null;
 function joystickMode(en, callback) {
     console.log("NMX: setting joystick mode to ", en);
-    var cmd = {
-        motor: 0,
-        command: CMD_JOYSTICK_MODE,
-        dataBuf: new Buffer(en ? "01" : "00", 'hex')
-    }
-    _queueCommand(cmd, function(err) {});
-    cmd2 = {
-        motor: 0,
-        command: CMD_JOYSTICK_WATCHDOG,
-        dataBuf: new Buffer("00", 'hex')
-    }
-    _queueCommand(cmd2, function(err) {
-        var tries = 0;
-        var checkMode = function(){
-            checkJoystickMode(function(jsMode){
-                if(jsMode == en) {
+    var checkMode = function(){
+        checkJoystickMode(function(jsMode){
+            if(jsMode == en) {
+                enteringJoystickMode = null;
+                callback && callback(err);
+            } else {
+                tries++;
+                if(tries > 5) {
+                    console.log("NMX: failed to change joystick mode. Current:", inJoystickMode);
                     callback && callback(err);
                 } else {
-                    tries++;
-                    if(tries > 5) {
-                        console.log("NMX: failed to change joystick mode. Current:", inJoystickMode);
-                        callback && callback(err);
-                    } else {
-                        setTimeout(checkMode, 100);
-                    }
+                    setTimeout(checkMode, 100);
                 }
-            });
+            }
+        });
+    }
+
+    if(enteringJoystickMode === null) {
+        enteringJoystickMode = en ? true : false;
+        var cmd = {
+            motor: 0,
+            command: CMD_JOYSTICK_MODE,
+            dataBuf: new Buffer(en ? "01" : "00", 'hex')
         }
+        _queueCommand(cmd, function(err) {});
+        cmd2 = {
+            motor: 0,
+            command: CMD_JOYSTICK_WATCHDOG,
+            dataBuf: new Buffer("00", 'hex')
+        }
+        _queueCommand(cmd2, function(err) {
+            var tries = 0;
+            checkMode();
+        });
+    } else {
         checkMode();
-    });
+    }
 }
 
 function enable(motorId) {
@@ -322,6 +333,7 @@ function disconnect() {
     } else {
         _dev = null;
     }
+    nmx.emit("status", getStatus());
 }
 
 function connect(device, callback) {
