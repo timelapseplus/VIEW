@@ -283,6 +283,7 @@ function enableAppMode(callback) {
 var enteringJoystickMode = null;
 function joystickMode(en, callback) {
     console.log("NMX: setting joystick mode to ", en);
+    var tries = 0;
     var checkMode = function(){
         checkJoystickMode(function(jsMode){
             if(jsMode == en) {
@@ -314,7 +315,6 @@ function joystickMode(en, callback) {
             dataBuf: new Buffer("00", 'hex')
         }
         _queueCommand(cmd2, function(err) {
-            var tries = 0;
             checkMode();
         });
     } else {
