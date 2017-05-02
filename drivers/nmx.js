@@ -283,8 +283,8 @@ function enableAppMode(callback) {
 var enteringJoystickMode = null;
 function joystickMode(en, callback) {
     console.log("NMX: setting joystick mode to ", en);
-    var tries = 0;
-    var checkMode = function(){
+    var checkMode = function(tries){
+        if(!tries) tries = 0;
         checkJoystickMode(function(jsMode){
             if(jsMode == en) {
                 enteringJoystickMode = null;
@@ -295,7 +295,9 @@ function joystickMode(en, callback) {
                     console.log("NMX: failed to change joystick mode. Current:", inJoystickMode);
                     callback && callback(err);
                 } else {
-                    setTimeout(checkMode, 100);
+                    setTimeout(function() {
+                        checkMode(tries);
+                    }, 100);
                 }
             }
         });
