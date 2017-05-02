@@ -509,15 +509,15 @@ function _connectSerial(path, callback) {
         checkMotorAttachment(function(){
             nmx.emit("status", getStatus());
         });
-        setProgramMode(1, function(){
-            console.log("NMX: enabled continuous mode");
-        });
         firmwareVersion(function(err, version) {
             console.log("NMX: connected!");
             console.log("NMX: firmware version: ", version);
             resetMotorPosition(1);
             resetMotorPosition(2);
             resetMotorPosition(3);
+            setProgramMode(1, function(){
+                console.log("NMX: enabled continuous mode");
+            });
         });
         if (callback) callback(true);
     });
@@ -567,14 +567,14 @@ function _connectBt(btPeripheral, callback) {
                             checkMotorAttachment(function(){
                                 nmx.emit("status", getStatus());
                             });
-                            setProgramMode(1, function(){
-                                console.log("NMX: enabled continuous mode");
-                            });
                             firmwareVersion(function(err, version) {
                                 console.log("NMX: firmware version: ", version);
                                 resetMotorPosition(1);
                                 resetMotorPosition(2);
                                 resetMotorPosition(3);
+                                setProgramMode(1, function(){
+                                    console.log("NMX: enabled continuous mode");
+                                });
                             });
                             if (callback) callback(true);
                         });
