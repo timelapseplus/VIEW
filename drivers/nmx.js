@@ -565,6 +565,9 @@ function _connectBt(btPeripheral, callback) {
                             checkMotorAttachment(function(){
                                 nmx.emit("status", getStatus());
                             });
+                            enableAppMode(function(){
+                                console.log("NMX: enabled app mode");
+                            });
                             firmwareVersion(function(err, version) {
                                 console.log("NMX: firmware version: ", version);
                                 resetMotorPosition(1);
