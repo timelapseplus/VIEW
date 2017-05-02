@@ -164,10 +164,10 @@ function constantMove(motorId, speed, callback) {
     });
     var m = new Buffer(4);
     m.fill(0);
-    if(speed > 1) speed = 1;
-    if(speed < -1) speed = -1;
     var maxSpeed =  4250 + 750;
-    speed = Math.floor(speed * maxSpeed);
+    speed = Math.floor((speed / 100) * maxSpeed);
+    if(speed > maxSpeed) speed = maxSpeed;
+    if(speed < -maxSpeed) speed = -maxSpeed;
     m.writeInt32BE(speed, 0, 4);
     motorRunning[motorId] = true;
 
