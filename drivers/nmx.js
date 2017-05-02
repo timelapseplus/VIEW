@@ -310,7 +310,7 @@ function joystickMode(en, callback) {
                 tries++;
                 if(tries > 5) {
                     console.log("NMX: failed to change joystick mode. Current:", inJoystickMode);
-                    callback && callback(err);
+                    callback && callback("failed to change joystick mode");
                 } else {
                     setTimeout(function() {
                         checkMode(tries);
