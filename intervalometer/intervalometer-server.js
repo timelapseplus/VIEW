@@ -306,7 +306,7 @@ function sendCameraUpdate() {
     count: camera.ptp.count,
     supports: camera.ptp.supports
   };
-  sendEvent('camera.connected', data);
+  sendEvent(camera.ptp.connected ? 'camera.connected' : 'camera.disconnected', data);
 }
 
 camera.ptp.on('media', function(data) {
