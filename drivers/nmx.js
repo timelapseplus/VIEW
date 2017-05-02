@@ -507,6 +507,9 @@ function _connectSerial(path, callback) {
         checkMotorAttachment(function(){
             nmx.emit("status", getStatus());
         });
+        enableAppMode(function(){
+            console.log("NMX: enabled app mode");
+        });
         firmwareVersion(function(err, version) {
             console.log("NMX: connected!");
             console.log("NMX: firmware version: ", version);
