@@ -325,9 +325,11 @@ camera.ptp.on('settings', function(data) {
   sendEvent('camera.settings', camera.ptp.settings);
 });
 camera.ptp.on('connected', function(model) {
+  console.log("CORE: camera connected", model);
   sendCameraUpdate();
 });
 camera.ptp.on('exiting', function(model) {
+  console.log("CORE: camera disconnected");
   sendCameraUpdate();
 });
 camera.ptp.on('error', function(data) {
