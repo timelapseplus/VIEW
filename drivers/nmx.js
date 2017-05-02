@@ -58,6 +58,12 @@ var CMD_JOYSTICK_MODE = {
     hasAck: true,
     delay: 200
 }
+var CMD_APP_MODE = {
+    cmd: 0x33,
+    hasReponse: false,
+    hasAck: true,
+    delay: 200
+}
 var CMD_JOYSTICK_WATCHDOG = {
     cmd: 0x0E,
     hasReponse: false,
@@ -256,6 +262,17 @@ function resetMotorPosition(motorId, callback) {
     var cmd = {
         motor: motorId,
         command: CMD_MOTOR_RESET,
+        readback: false
+    }
+    _queueCommand(cmd, function(err) {
+        if (callback) callback(err);
+    });
+}
+
+function enableAppMode(callback) {
+    var cmd = {
+        motor: 0,
+        command: CMD_APP_MODE,
         readback: false
     }
     _queueCommand(cmd, function(err) {
