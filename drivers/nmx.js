@@ -268,11 +268,11 @@ function resetMotorPosition(motorId, callback) {
         if (callback) callback(err);
     });
 }
-
-function enableAppMode(callback) {
+function setProgramMode(mode, callback) {
     var cmd = {
         motor: 0,
-        command: CMD_APP_MODE,
+        command: CMD_PROGRAM_MODE,
+        dataBuf: new Buffer("0" + mode.toString(), 'hex'),
         readback: false
     }
     _queueCommand(cmd, function(err) {
@@ -509,8 +509,8 @@ function _connectSerial(path, callback) {
         checkMotorAttachment(function(){
             nmx.emit("status", getStatus());
         });
-        enableAppMode(function(){
-            console.log("NMX: enabled app mode");
+        setProgramMode(1, function(){
+            console.log("NMX: enabled continuous mode");
         });
         firmwareVersion(function(err, version) {
             console.log("NMX: connected!");
@@ -567,8 +567,8 @@ function _connectBt(btPeripheral, callback) {
                             checkMotorAttachment(function(){
                                 nmx.emit("status", getStatus());
                             });
-                            enableAppMode(function(){
-                                console.log("NMX: enabled app mode");
+                            setProgramMode(1, function(){
+                                console.log("NMX: enabled continuous mode");
                             });
                             firmwareVersion(function(err, version) {
                                 console.log("NMX: firmware version: ", version);
