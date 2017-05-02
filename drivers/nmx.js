@@ -64,6 +64,12 @@ var CMD_PROGRAM_MODE = {
     hasAck: true,
     delay: 200
 }
+var CMD_APP_MODE = {
+    cmd: 0x33,
+    hasReponse: false,
+    hasAck: true,
+    delay: 200
+}
 var CMD_JOYSTICK_WATCHDOG = {
     cmd: 0x0E,
     hasReponse: false,
@@ -273,6 +279,17 @@ function setProgramMode(mode, callback) {
         motor: 0,
         command: CMD_PROGRAM_MODE,
         dataBuf: new Buffer("0" + mode.toString(), 'hex'),
+        readback: false
+    }
+    _queueCommand(cmd, function(err) {
+        if (callback) callback(err);
+    });
+}
+function setAppMode(callback) {
+    var cmd = {
+        motor: 0,
+        command: CMD_APP_MODE,
+        dataBuf: new Buffer("01", 'hex'),
         readback: false
     }
     _queueCommand(cmd, function(err) {
@@ -517,6 +534,9 @@ function _connectSerial(path, callback) {
             resetMotorPosition(3);
             setProgramMode(1, function(){
                 console.log("NMX: enabled continuous mode");
+                setAppMode(function(){
+                    console.log("NMX: enabled app mode");
+                });
             });
         });
         if (callback) callback(true);
@@ -574,6 +594,9 @@ function _connectBt(btPeripheral, callback) {
                                 resetMotorPosition(3);
                                 setProgramMode(1, function(){
                                     console.log("NMX: enabled continuous mode");
+                                    setAppMode(function(){
+                                        console.log("NMX: enabled app mode");
+                                    });
                                 });
                             });
                             if (callback) callback(true);
