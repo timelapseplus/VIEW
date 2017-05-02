@@ -58,8 +58,8 @@ var CMD_JOYSTICK_MODE = {
     hasAck: true,
     delay: 200
 }
-var CMD_APP_MODE = {
-    cmd: 0x33,
+var CMD_PROGRAM_MODE = {
+    cmd: 0x16,
     hasReponse: false,
     hasAck: true,
     delay: 200
