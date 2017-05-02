@@ -532,8 +532,10 @@ camera.capture = function(options, callback) {
                                 console.log("list", list);
                                 while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
                             }
+                            var index = 0;
                             var err = doEachCamera(function(port, isPrimary, worker) {
                                 if(!isPrimary) return;
+                                index++;
                                 var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
                                 if(!options) options = {};
                                 options.saveRaw = saveRaw;

@@ -1,56 +1,67 @@
 var CMD_MOVE_MOTOR = {
     cmd: 0x0F,
     hasReponse: false,
+    hasAck: true,
     delay: 0
 }
 var CMD_MOVE_MOTOR_CONSTANT = {
     cmd: 0x0D,
     hasReponse: false,
+    hasAck: false,
     delay: 0
 }
 var CMD_ENABLE_MOTOR = {
     cmd: 0x03,
     hasReponse: false,
+    hasAck: true,
     delay: 0
 }
 var CMD_MOTOR_STATUS = {
     cmd: 0x6B,
     hasReponse: true,
+    hasAck: true,
     delay: 10
 }
 var CMD_MOTOR_POSITION = {
     cmd: 0x6A,
     hasReponse: true,
+    hasAck: true,
     delay: 50
 }
 var CMD_MOTOR_RESET = {
     cmd: 0x1B,
     hasReponse: false,
+    hasAck: true,
     delay: 0
 }
 var CMD_FIRMWARE_VERSION = {
     cmd: 0x64,
     hasReponse: true,
+    hasAck: true,
     delay: 0
 }
 var CMD_CHECK_JOYSTICK_MODE = {
     cmd: 0x78,
     hasReponse: true,
+    hasAck: true,
     delay: 0
 }
 var CMD_CONNECTED_MOTORS = {
     cmd: 0x7C,
     hasReponse: true,
+    hasAck: true,
     delay: 200
 }
 var CMD_JOYSTICK_MODE = {
     cmd: 0x17,
     hasReponse: false,
+    hasAck: true,
     delay: 200
 }
 var CMD_JOYSTICK_WATCHDOG = {
     cmd: 0x0E,
     hasReponse: false,
+    hasAck: true,
     delay: 200
 }
 
@@ -181,7 +192,7 @@ function checkJoystickMode(callback) {
         command: CMD_CHECK_JOYSTICK_MODE
     }
     _queueCommand(cmd, function(err, jsMode) {
-        console.log("joystick mode: ", jsMode);
+        console.log("NMX: joystick mode: ", jsMode);
         inJoystickMode = jsMode;
         if (callback) callback(jsMode);
     });
@@ -250,12 +261,12 @@ function resetMotorPosition(motorId, callback) {
 }
 
 function joystickMode(en, callback) {
+    console.log("NMX: setting joystick mode to ", en);
     var cmd = {
         motor: 0,
         command: CMD_JOYSTICK_MODE,
         dataBuf: new Buffer(en ? "01" : "00", 'hex')
     }
-    console.log("NMX: joystick mode: ", inJoystickMode);
     _queueCommand(cmd, function(err) {});
     cmd2 = {
         motor: 0,
@@ -320,7 +331,7 @@ function connect(device, callback) {
         _connectBt(device, callback);
     } else if (!device || typeof device == "function") {
         SerialPort.list(function(err, ports) {
-            console.log("scanned serial ports:", ports);
+            console.log("NMX: scanned serial ports:", ports);
             for (var i = 0; i < ports.length; i++) {
                 if (ports[i].manufacturer == 'Dynamic_Perception_LLC') {
                     _connectSerial(ports[i].comName, callback)
@@ -395,7 +406,7 @@ function readData(cb) {
                 tries--;
                 setTimeout(checkForData, 100);
             } else {
-                console.log("NMX timed out waiting for data");
+                console.log("NMX: timed out waiting for data");
                 if (cb) cb("timed out");
             }
         }
@@ -404,12 +415,12 @@ function readData(cb) {
 }
 
 function _connectSerial(path, callback) {
-    console.log("connecting to NMX via " + path);
+    console.log("NMX: connecting via " + path);
     _dev = {};
     _dev.port = new SerialPort(path, {
         baudrate: 19200
     }, function() {
-        console.log('Serial Opened');
+        console.log('NMX: serial opened');
         if (!_dev) return;
         _dev.connected = true;
         _dev.type = "serial";
@@ -419,18 +430,18 @@ function _connectSerial(path, callback) {
             if (err && _dev.connected) {
                 _dev = null;
                 nmx.emit("status", getStatus());
-                console.log("ERROR: NMX Disconnected: ", err);
-                console.log("NMX reconnecting");
+                console.log("NMX: ERROR: NMX Disconnected: ", err);
+                console.log("NMX: reconnecting");
                 process.nextTick(function() {
                     _connectSerial(path);
                 });
             }
         });
         _dev.port.once('error', function(err) {
-            console.log("NMX ERROR: ", err);
+            console.log("NMX: ERROR: ", err);
         });
         _dev.port.once('close', function() {
-            console.log("NMX CLOSED");
+            console.log("NMX: CLOSED");
         });
 
         _dev.port.on('data', function(data) {
@@ -468,8 +479,8 @@ function _connectSerial(path, callback) {
             nmx.emit("status", getStatus());
         });
         firmwareVersion(function(err, version) {
-            console.log("NMX connected!");
-            console.log("NMX firmware version: ", version);
+            console.log("NMX: connected!");
+            console.log("NMX: firmware version: ", version);
             resetMotorPosition(1);
             resetMotorPosition(2);
             resetMotorPosition(3);
@@ -484,7 +495,7 @@ function _connectBt(btPeripheral, callback) {
             if (callback) callback(false);
             return;
         }
-        console.log('BLE Connected!');
+        console.log('NMX: connecting via BLE');
         btPeripheral.discoverServices(nmx.btServiceIds, function(err2, services) {
             if (services && services[0]) {
                 services[0].discoverCharacteristics([], function(err, characteristics) {
@@ -518,12 +529,12 @@ function _connectBt(btPeripheral, callback) {
                                     parseIncoming();
                                 }
                             });
-                            console.log("NMX connected!");
+                            console.log("NMX: connected!");
                             checkMotorAttachment(function(){
                                 nmx.emit("status", getStatus());
                             });
                             firmwareVersion(function(err, version) {
-                                console.log("NMX firmware version: ", version);
+                                console.log("NMX: firmware version: ", version);
                                 resetMotorPosition(1);
                                 resetMotorPosition(2);
                                 resetMotorPosition(3);
@@ -542,7 +553,7 @@ function _connectBt(btPeripheral, callback) {
         });
 
         btPeripheral.on('disconnect', function() {
-            console.log("NMX disconnected");
+            console.log("NMX: disconnected");
             _dev = null;
             nmx.emit("status", getStatus());
         });
@@ -556,6 +567,7 @@ function _queueCommand(object, callback) {
     var command = object.command; // required
     var dataBuf = object.dataBuf || null;
     var readback = object.command.hasReponse !== false;
+    var ack = object.command.hasAck !== false;
     var readbackDelayMs = object.command.delay || 100;
 
     var template = new Buffer("0000000000FF03000000", 'hex');
@@ -578,6 +590,7 @@ function _queueCommand(object, callback) {
     var queueItem = {
         buffer: cmd,
         readback: readback,
+        ack: ack,
         readbackDelayMs: readbackDelayMs,
         callback: callback
     };
@@ -600,13 +613,13 @@ function _runQueue(queueItem, rec) {
     if (!_dev || !_dev.state || _dev.state != "connected") {
         _queueRunning = false;
         _nmxQueue = [];
-        console.log("NMX err: not connected");
+        console.log("NMX: error not connected");
         if (nextItem && nextItem.callback) nextItem.callback("not connected");
     }
 
 
     if (nextItem) {
-        console.log("writing to NMX:", nextItem.buffer);
+        console.log("NMX: writing", nextItem.buffer);
         (function(item) {
             _nmxCommandCh.write(item.buffer, true, function(err) {
                 if(err) console.log("NMX: error writing:", err);
@@ -617,15 +630,17 @@ function _runQueue(queueItem, rec) {
                             ///console.log("NMX: reading data...");
                             readData(function(err, data) {
                                 if(err) console.log("NMX: error reading:", err);
-                                console.log("read data:", data);
+                                console.log("NMX: read data:", data);
                                 item.callback(null, _parseNMXData(data));
                             });
                         }, item.readbackDelayMs);
-                    } else {
+                    } else if(item.ack) {
                         readData(function(err, data) {
                             //console.log("read data (discarded):", data);
                             item.callback(null);
                         });
+                    } else {
+                        item.callback(null);
                     }
                 } else {
                     readData(function(err, data) {
@@ -651,7 +666,7 @@ function _parseNMXData(dataBuf) {
     var len = dataBuf[dataOffset - 2];
     var type = dataBuf[dataOffset - 1];
 
-    console.log("NMX: data type", type, "length", len);
+    //console.log("NMX: data type", type, "length", len);
 
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
     if (type == 1 && dataBuf.length >= dataOffset + 2) return dataBuf.readUInt16BE(dataOffset);
@@ -661,7 +676,7 @@ function _parseNMXData(dataBuf) {
     if (type == 5 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset) / 100;
     if (type == 6 && dataBuf.length >= dataOffset + 1) return dataBuf.toString('ascii', dataOffset);
 
-    console.log("NMX data length mismatch (type: " + type + ", length: " + dataBuf.length + ")");
+    console.log("NMX: error: data length mismatch (type: " + type + ", length: " + dataBuf.length + ")");
 
     return null;
 }
