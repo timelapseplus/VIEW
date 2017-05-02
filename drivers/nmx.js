@@ -270,7 +270,7 @@ function joystickMode(en, callback) {
         checkJoystickMode(function(jsMode){
             if(jsMode == en) {
                 enteringJoystickMode = null;
-                callback && callback(err);
+                callback && callback(null);
             } else {
                 tries++;
                 if(tries > 5) {
