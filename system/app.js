@@ -184,10 +184,15 @@ function sendLogs(callback, uploaded) {
     if(!uploaded) uploaded = 0;
     if(app.remote) {
         console.log("Checking for logs to upload...", uploaded);
-        var logs = fs.readdirSync("/home/view/logsForUpload");
-        logs = logs.filter(function(log) {
-            return log.match(/^(log|TL)/) ? true : false;
-        });
+        var logs = null;
+        try {
+            logs = fs.readdirSync("/home/view/logsForUpload");
+            logs = logs.filter(function(log) {
+                return log.match(/^(log|TL)/) ? true : false;
+            });
+        } catch(e) {
+            logs = null;
+        }
 
         if(logs && logs.length > 0) {
             var nextLogName = logs.pop();
