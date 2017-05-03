@@ -217,7 +217,11 @@ function processRawPath(path, options, info, callback) {
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
                 if(err || stderr) {
                     console.log("WORKER: #################### ERROR SAVING RAW IMAGE:", err, stderr);
-                    sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
+                    if(stderr.indexOf("No space left on device") !== -1) {
+                        sendEvent('saveErrorCardFull', "Error saving RAW file " + dest + "\nNo space left on SD card.");
+                    } else {
+                        sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
+                    }
                 }
                 sdWriting = false;
                 fs.unlink(path);

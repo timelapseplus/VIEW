@@ -460,7 +460,13 @@ function error(msg) {
 camera.ptp.on('saveError', function(msg) {
     if (intervalometer.status.running) {
         intervalometer.cancel('err');
-        error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.");
+        error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.\nSystem message: " + msg);
+    }
+});
+camera.ptp.on('saveErrorCardFull', function(msg) {
+    if (intervalometer.status.running) {
+        intervalometer.cancel('err');
+        error("SD card full! Unabled to save RAW images.\nThe time-lapse has been stopped.");
     }
 });
 

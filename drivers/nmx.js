@@ -1,16 +1,22 @@
-var CMD_MOVE_MOTOR = {
+var CMD_MOTOR_MOVE = {
     cmd: 0x0F,
     hasReponse: false,
     hasAck: true,
     delay: 0
 }
-var CMD_MOVE_MOTOR_CONSTANT = {
+var CMD_MOTOR_MOVE_CONSTANT = {
     cmd: 0x0D,
     hasReponse: false,
     hasAck: false,
     delay: 0
 }
-var CMD_ENABLE_MOTOR = {
+var CMD_MOTOR_SET_ACCEL = {
+    cmd: 0x0E,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
+var CMD_MOTOR_ENABLE = {
     cmd: 0x03,
     hasReponse: false,
     hasAck: true,
@@ -125,7 +131,7 @@ function move(motorId, steps, callback) {
 
     var cmd = {
         motor: motorId,
-        command: CMD_MOVE_MOTOR,
+        command: CMD_MOTOR_MOVE,
         dataBuf: m
     }
 
@@ -155,6 +161,25 @@ function move(motorId, steps, callback) {
     });
 }
 
+function setAccel(motorId, rate, callback) {
+    if (motorRunning[motorId]) return console.log("NMX: motor running");
+    console.log("NMX: setting accel for " + motorId);
+
+    var m = new Buffer(4);
+    m.fill(0);
+    m.writeUInt32BE(rate, 0, 4);
+
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_SET_ACCEL,
+        dataBuf: m
+    }
+
+    _queueCommand(cmd, function(err) {
+        if (callback) callback(err);
+    });
+}
+
 var inJoystickMode = false;
 var enabled = {};
 function constantMove(motorId, speed, callback) {
@@ -179,7 +204,7 @@ function constantMove(motorId, speed, callback) {
 
     var cmd = {
         motor: motorId,
-        command: CMD_MOVE_MOTOR_CONSTANT,
+        command: CMD_MOTOR_MOVE_CONSTANT,
         dataBuf: m
     }
 
@@ -346,7 +371,7 @@ function enable(motorId) {
     enabled[motorId] = true;
     var cmd = {
         motor: motorId,
-        command: CMD_ENABLE_MOTOR,
+        command: CMD_MOTOR_ENABLE,
         dataBuf: new Buffer("01", 'hex')
     }
     _queueCommand(cmd);
@@ -357,7 +382,7 @@ function disable(motorId) {
     enabled[motorId] = false;
     var cmd = {
         motor: motorId,
-        command: CMD_ENABLE_MOTOR,
+        command: CMD_MOTOR_ENABLE,
         dataBuf: new Buffer("00", 'hex')
     }
     _queueCommand(cmd);
@@ -532,6 +557,9 @@ function _connectSerial(path, callback) {
             resetMotorPosition(1);
             resetMotorPosition(2);
             resetMotorPosition(3);
+            setAccel(1, 25000);
+            setAccel(2, 25000);
+            setAccel(3, 25000);
             setProgramMode(1, function(){
                 console.log("NMX: enabled continuous mode");
                 setAppMode(function(){
@@ -592,6 +620,9 @@ function _connectBt(btPeripheral, callback) {
                                 resetMotorPosition(1);
                                 resetMotorPosition(2);
                                 resetMotorPosition(3);
+                                setAccel(1, 25000);
+                                setAccel(2, 25000);
+                                setAccel(3, 25000);
                                 setProgramMode(1, function(){
                                     console.log("NMX: enabled continuous mode");
                                     setAppMode(function(){
@@ -684,32 +715,32 @@ function _runQueue(queueItem, rec) {
             _nmxCommandCh.write(item.buffer, true, function(err) {
                 if(err) console.log("NMX: error writing:", err);
                 //console.log("checking callback");
-                if (item.callback) {
-                    if (item.readback) {
-                        setTimeout(function() {
-                            ///console.log("NMX: reading data...");
-                            readData(function(err, data) {
-                                if(err) console.log("NMX: error reading:", err);
-                                console.log("NMX: read data:", data);
-                                item.callback(null, _parseNMXData(data));
-                            });
-                        }, item.readbackDelayMs);
-                    } else if(item.ack) {
+                if (item.readback) {
+                    setTimeout(function() {
+                        ///console.log("NMX: reading data...");
                         readData(function(err, data) {
-                            //console.log("read data (discarded):", data);
-                            item.callback(null);
+                            if(err) console.log("NMX: error reading:", err);
+                            console.log("NMX: read data:", data);
+                            item.callback && item.callback(null, _parseNMXData(data));
+                            setTimeout(function() {
+                                _runQueue(null, true);
+                            }, COMMAND_SPACING_MS);
                         });
-                    } else {
-                        item.callback(null);
-                    }
-                } else {
+                    }, item.readbackDelayMs);
+                } else if(item.ack) {
                     readData(function(err, data) {
-                        //console.log("read data (discarded) (ncb):", data);
+                        //console.log("read data (discarded):", data);
+                        item.callback && item.callback(null);
+                        setTimeout(function() {
+                            _runQueue(null, true);
+                        }, COMMAND_SPACING_MS);
                     });
+                } else {
+                    item.callback && item.callback(null);
+                    setTimeout(function() {
+                        _runQueue(null, true);
+                    }, COMMAND_SPACING_MS);
                 }
-                setTimeout(function() {
-                    _runQueue(null, true);
-                }, COMMAND_SPACING_MS);
             });
         })(nextItem);
     } else {
