@@ -3037,7 +3037,7 @@ core.on('camera.photo', function() {
         }
 
         previewImage = {
-            jpeg: new Buffer(core.photo.jpeg).toString('base64'),
+            jpeg: core.photo.base64,
             zoomed: core.photo.zoomed,
             type: core.photo.type
         };

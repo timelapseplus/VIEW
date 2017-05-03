@@ -1195,7 +1195,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $timeout(function() {
             $scope.preview(false);
             if ($scope.currentKf) {
-                $scope.currentKf.jpeg = $scope.lastImage.jpeg;
+                $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
             }
         }, delay);
         if ($scope.currentKfIndex == 0) {

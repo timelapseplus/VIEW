@@ -319,6 +319,19 @@ camera.ptp.on('media-remove', function(data) {
   sendEvent('media.remove', data);
 });
 camera.ptp.on('photo', function() {
+  var obj = {};
+  for(var i in camera.ptp.photo) {
+    if(camera.ptp.photo.hasOwnProperty(i)) {
+      if(i == 'jpeg') {
+        obj.base64 = new Buffer(camera.ptp.photo.jpeg).toString('base64');
+      } else {
+        obj[i] = camera.ptp.photo[i];
+      }
+    }
+  }
+  if(camera.ptp.photo.jpeg) {
+
+  }
   sendEvent('camera.photo', camera.ptp.photo);
 });
 camera.ptp.on('settings', function(data) {

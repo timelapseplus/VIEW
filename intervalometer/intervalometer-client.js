@@ -72,6 +72,9 @@ function connect() {
                 watchdog.watch(pid);
             } else {
                 if(data.type == 'camera.photo') {
+                    if(data.data.base64) {
+                        data.data.jpeg = new Buffer(data.data.base64, 'base64');
+                    }
                     core.photo = data.data;
                     data.data = null;
                 } else if(data.type == 'camera.settings') {
