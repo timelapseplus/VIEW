@@ -91,8 +91,8 @@ var SerialPort = require('serialport');
 var nmx = new EventEmitter();
 
 
-var motorRunning = [];
-var motorPos = [];
+var motorRunning = {'1': false, '2': false, '3': false};
+var motorPos = {'1': 0, '2': 0, '3': 0};
 var motorConnected = [false, false, false];
 
 var _nmxQueue = [];
@@ -548,26 +548,24 @@ function _connectSerial(path, callback) {
                 _dev.port = null;
             });
         }
-        checkMotorAttachment(function(){
-            nmx.emit("status", getStatus());
-        });
-        firmwareVersion(function(err, version) {
-            console.log("NMX: connected!");
-            console.log("NMX: firmware version: ", version);
-            resetMotorPosition(1);
-            resetMotorPosition(2);
-            resetMotorPosition(3);
-            setAccel(1, 25000);
-            setAccel(2, 25000);
-            setAccel(3, 25000);
-            setProgramMode(1, function(){
-                console.log("NMX: enabled continuous mode");
-                setAppMode(function(){
-                    console.log("NMX: enabled app mode");
-                });
-            });
-        });
+        init();
         if (callback) callback(true);
+    });
+}
+
+function init() {
+    checkMotorAttachment(function(){
+        nmx.emit("status", getStatus());
+    });
+    firmwareVersion(function(err, version) {
+        console.log("NMX: connected!");
+        console.log("NMX: firmware version: ", version);
+        resetMotorPosition(1);
+        resetMotorPosition(2);
+        resetMotorPosition(3);
+        setAccel(1, 25000);
+        setAccel(2, 25000);
+        setAccel(3, 25000);
     });
 }
 
@@ -612,24 +610,7 @@ function _connectBt(btPeripheral, callback) {
                                 }
                             });
                             console.log("NMX: connected!");
-                            checkMotorAttachment(function(){
-                                nmx.emit("status", getStatus());
-                            });
-                            firmwareVersion(function(err, version) {
-                                console.log("NMX: firmware version: ", version);
-                                resetMotorPosition(1);
-                                resetMotorPosition(2);
-                                resetMotorPosition(3);
-                                setAccel(1, 25000);
-                                setAccel(2, 25000);
-                                setAccel(3, 25000);
-                                setProgramMode(1, function(){
-                                    console.log("NMX: enabled continuous mode");
-                                    setAppMode(function(){
-                                        console.log("NMX: enabled app mode");
-                                    });
-                                });
-                            });
+                            init();
                             if (callback) callback(true);
                         });
                     } else {
