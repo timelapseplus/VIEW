@@ -50,16 +50,23 @@ core.cameraCount = 0;
 core.cameraSupports = {};
 core.intervalometerStatus = {};
 
+var dataBuf = new Buffer(0);
 var client;
 function connect() {
     client = net.connect('/tmp/intervalometer.sock', function() {
       console.log('connected to server!');
       client.ready = true;
     });
-    client.on('data', function(chunk) {
+    client.on('data', function(rawChunk) {
       var data;
       try {
-        chunk = chunk.toString('utf8');
+        if(!rawChunk.length) return;
+        Buffer.concat(dataBuf, rawChunk);
+        if(rawChunk[rawChunk.length - 1] != 0) {
+            return;
+        }
+        var chunk = dataBuf.toString('utf8');
+        dataBuf = new Buffer(0);
         var pieces = chunk.split('\0');
         for(var i = 0; i < pieces.length; i++) {
             pieces[i] = pieces[i].trim();

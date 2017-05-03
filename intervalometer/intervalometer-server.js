@@ -72,10 +72,17 @@ var server = net.createServer(function(c) {
   } catch (e) {
     console.log("error during event queue write:", e);
   }
-  c.on('data', function(data) {
-  	//console.log("received:", data);
+  c.dataBuf = new Buffer(0);
+  c.on('data', function(rawData) {
+  	//console.log("received:", rawData);
     try {
-      data = data.toString('utf8');
+      if(!rawData.length) return;
+      Buffer.concat(c.dataBuf, rawData);
+      if(rawData[rawData.length - 1] != 0) {
+        return;
+      }
+      var data = c.dataBuf.toString('utf8');
+      c.dataBuf = new Buffer(0);
       var pieces = data.split('\0');
       var piece;
       for(var i = 0; i < pieces.length; i++) {
