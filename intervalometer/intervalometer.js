@@ -173,15 +173,17 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
             console.log("KF: Seconds since start: " + secondsSinceStart);
+            var totalSeconds = 0;
             kfPoints = keyframes.map(function(kf) {
+                totalSeconds += kf.seconds;
                 if(axisSubIndex != null) {
                     return {
-                        x: kf.seconds,
+                        x: totalSeconds,
                         y: kf[axisName][axisSubIndex] || 0
                     }
                 } else {
                     return {
-                        x: kf.seconds,
+                        x: totalSeconds,
                         y: kf[axisName] || 0
                     }
                 }

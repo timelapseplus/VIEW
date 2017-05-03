@@ -545,8 +545,8 @@ function preview(callback) {
         if (callback) callback();
         if (!err && tmp) {
             var size = {
-                x: 300,
-                y: 200,
+                x: 600,
+                y: 400,
                 q: 70
             }
             image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
