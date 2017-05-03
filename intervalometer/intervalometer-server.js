@@ -329,10 +329,7 @@ camera.ptp.on('photo', function() {
       }
     }
   }
-  if(camera.ptp.photo.jpeg) {
-
-  }
-  sendEvent('camera.photo', camera.ptp.photo);
+  sendEvent('camera.photo', obj);
 });
 camera.ptp.on('settings', function(data) {
   sendEvent('camera.settings', camera.ptp.settings);
