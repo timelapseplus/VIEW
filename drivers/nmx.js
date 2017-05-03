@@ -71,7 +71,7 @@ var CMD_PROGRAM_MODE = {
     delay: 200
 }
 var CMD_APP_MODE = {
-    cmd: 0x32,
+    cmd: 0x33,
     hasReponse: false,
     hasAck: true,
     delay: 200
@@ -356,7 +356,7 @@ function joystickMode(en, callback) {
         cmd2 = {
             motor: 0,
             command: CMD_JOYSTICK_WATCHDOG,
-            dataBuf: new Buffer("01", 'hex')
+            dataBuf: new Buffer("00", 'hex')
         }
         _queueCommand(cmd2, function(err) {
             checkMode();
