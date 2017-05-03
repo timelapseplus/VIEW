@@ -3182,11 +3182,10 @@ core.on('intervalometer.error', function(msg) {
 
 var nmxStatus = {connected:false};
 function getMotionStatus(status) {
-    if(status) {
-        nmxStatus = status;
-    } else {
-        status = nmxStatus;
+    if(!status) {
+        status = core.nmxStatus || nmxStatus;
     }
+    nmxStatus = status;
     var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
     var motors = [];
     motors.push({driver:'NMX', motor:1, connected:status.motor1});

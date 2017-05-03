@@ -87,6 +87,8 @@ function connect() {
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
                     core.cameraSupports = data.data.supports;
+                } else if(data.type == 'nmx.status') {
+                    core.nmxStatus = data.data;
                 } else if(data.type == 'media.present') {
                     core.sdMounted = data.data;
                     core.sdPresent = true;
