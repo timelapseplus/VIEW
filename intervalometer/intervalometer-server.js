@@ -77,7 +77,7 @@ var server = net.createServer(function(c) {
   	//console.log("received:", rawData);
     try {
       if(!rawData.length) return;
-      Buffer.concat(c.dataBuf, rawData);
+      c.dataBuf = Buffer.concat(c.dataBuf, rawData);
       if(rawData[rawData.length - 1] != 0) {
         return;
       }

@@ -61,7 +61,7 @@ function connect() {
       var data;
       try {
         if(!rawChunk.length) return;
-        Buffer.concat(dataBuf, rawChunk);
+        dataBuf = Buffer.concat(dataBuf, rawChunk);
         if(rawChunk[rawChunk.length - 1] != 0) {
             return;
         }
