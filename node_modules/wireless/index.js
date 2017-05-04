@@ -67,7 +67,7 @@ Wireless.prototype.COMMANDS = {
 // Translates strings. Looks for :SOMETHING in string, and replaces is with data.something.
 Wireless.prototype._translate = function(string, data) {
     for (var index in data) {
-        if (!data.hasOwnProperty(index)) continue;
+        if (!data.hasOwnProperty(index) || !data[index]) continue;
         var safe = data[index].match(/^[a-z0-9~!@#$%^&*()\-+=_\[\]{}\\|\/,.<>?'’: ]+$/i);
         if(safe) {   
             string = string.replace(':' + index.toUpperCase(), data[index]);
