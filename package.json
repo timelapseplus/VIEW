@@ -6,12 +6,14 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
+    "apds-gesture": "git://github.com/elijahparker/apds-gesture",
     "async": "latest",
     "bcrypt": "latest",
     "bodyparser": "latest",
     "epeg": "^0.7.0",
     "express": "~4.0",
     "geo-tz": "^3.2.0",
+    "gl-vec2": "^1.0.0",
     "gphoto2": "elijahparker/node-gphoto2",
     "gpio-button": "^0.2.0",
     "gps": "^0.2.0",

@@ -16,16 +16,12 @@ console.log('Server modules loaded');
 var sys = require('sys')
 console.log('System modules loaded');
 
-var noble = require('noble');
-console.log('BT modules loaded');
-
 require('rootpath')();
-var camera = require('./camera/camera.js');
-//var screen = require('./hardware/screen.js');
+var lists = require('./camera/ptp/lists.js');
 var updates = require('./system/updates.js');
-var intervalometer = require('./intervalometer/intervalometer.js');
 var clips = require('./intervalometer/clips.js');
-var nmx = require('./drivers/nmx.js');
+var core = require('./intervalometer/intervalometer-client.js');
+//var nmx = require('./drivers/nmx.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
@@ -49,6 +45,7 @@ var liveviewOn = false;
 var gpsExists = null;
 
 var cache = {};
+var gestureString = "";
 
 var Segfault = require('segfault');
 Segfault.registerHandler("segfault.log");
@@ -98,7 +95,8 @@ if (VIEW_HARDWARE) {
                             if(!wifi.connected) {
                                 if(wifiStatus.apMode) {
                                     wifi.enableAP();
-                                } else if(wifiStatus.connect) {
+                                }
+                                if(wifiStatus.connect) {
                                     wifi.connect(wifiStatus.connect, wifiStatus.password);
                                 }
                             }
@@ -161,22 +159,28 @@ if (VIEW_HARDWARE) {
         }
     });
 
-
+    var wifiWasDisabled = false;
     var wifiConnectionTime = 0;
     wifi.on('connect', function(ssid) {
         app.enableRemote();
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
-        if(ssid.substr(0, 7) == "DIRECT-") camera.ptp.connectSonyWifi();
+        if(ssid.substr(0, 7) == "DIRECT-") core.connectSonyWifi();
         ui.reload();
     });
     wifi.on('enabled', function(enabled) {
         app.disableRemote();
         oled.setIcon('wifi', false);
+        if(wifiWasDisabled) {
+            wifiWasDisabled = false;
+            //core.resetBt();
+            wifi.resetBt();
+        }
         ui.reload();
     });
     wifi.on('disabled', function(enabled) {
+        wifiWasDisabled = true;
         app.disableRemote();
         oled.setIcon('wifi', false);
         ui.reload();
@@ -224,12 +228,12 @@ if (VIEW_HARDWARE) {
             name: "Timelapse Mode",
             value: "Basic - Fixed",
             help: help.rampingOptions,
-            action: ui.set(intervalometer.currentProgram, 'rampMode', 'fixed')
+            action: ui.set(core.currentProgram, 'rampMode', 'fixed')
         }, {
             name: "Timelapse Mode",
             value: "Auto Ramping",
             help: help.rampingOptions,
-            action: ui.set(intervalometer.currentProgram, 'rampMode', 'auto')
+            action: ui.set(core.currentProgram, 'rampMode', 'auto')
         }]
     }
 
@@ -240,67 +244,67 @@ if (VIEW_HARDWARE) {
             name: "Frames",
             value: "100",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 100)
+            action: ui.set(core.currentProgram, 'frames', 100)
         }, {
             name: "Frames",
             value: "200",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 200)
+            action: ui.set(core.currentProgram, 'frames', 200)
         }, {
             name: "Frames",
             value: "300",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 300)
+            action: ui.set(core.currentProgram, 'frames', 300)
         }, {
             name: "Frames",
             value: "400",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 400)
+            action: ui.set(core.currentProgram, 'frames', 400)
         }, {
             name: "Frames",
             value: "500",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 500)
+            action: ui.set(core.currentProgram, 'frames', 500)
         }, {
             name: "Frames",
             value: "600",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 600)
+            action: ui.set(core.currentProgram, 'frames', 600)
         }, {
             name: "Frames",
             value: "700",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 700)
+            action: ui.set(core.currentProgram, 'frames', 700)
         }, {
             name: "Frames",
             value: "800",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 800)
+            action: ui.set(core.currentProgram, 'frames', 800)
         }, {
             name: "Frames",
             value: "900",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 900)
+            action: ui.set(core.currentProgram, 'frames', 900)
         }, {
             name: "Frames",
             value: "1200",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 1200)
+            action: ui.set(core.currentProgram, 'frames', 1200)
         }, {
             name: "Frames",
             value: "1500",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 1500)
+            action: ui.set(core.currentProgram, 'frames', 1500)
         }, {
             name: "Frames",
             value: "1800",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', 1800)
+            action: ui.set(core.currentProgram, 'frames', 1800)
         }, {
             name: "Frames",
             value: "Until Stopped",
             help: help.framesOptions,
-            action: ui.set(intervalometer.currentProgram, 'frames', Infinity)
+            action: ui.set(core.currentProgram, 'frames', Infinity)
         }]
     }
 
@@ -311,17 +315,17 @@ if (VIEW_HARDWARE) {
             name: "Interval Mode",
             value: "Fixed Length",
             help: help.intervalOptions,
-            action: ui.set(intervalometer.currentProgram, 'intervalMode', 'fixed')
+            action: ui.set(core.currentProgram, 'intervalMode', 'fixed')
         }, {
             name: "Interval Mode",
             value: "Auto Variable",
             help: help.intervalOptions,
-            action: ui.set(intervalometer.currentProgram, 'intervalMode', 'auto')
+            action: ui.set(core.currentProgram, 'intervalMode', 'auto')
         }, {
             name: "Interval Mode",
             value: "External AUX2",
             help: help.intervalOptions,
-            action: ui.set(intervalometer.currentProgram, 'intervalMode', 'aux')
+            action: ui.set(core.currentProgram, 'intervalMode', 'aux')
         }]
     }
 
@@ -332,12 +336,12 @@ if (VIEW_HARDWARE) {
             name: "Save To",
             value: "Camera",
             help: help.destinationOptions,
-            action: ui.set(intervalometer.currentProgram, 'destination', 'camera')
+            action: ui.set(core.currentProgram, 'destination', 'camera')
         }, {
             name: "Save To",
             value: "SD Card",
             help: help.destinationOptions,
-            action: ui.set(intervalometer.currentProgram, 'destination', 'sd')
+            action: ui.set(core.currentProgram, 'destination', 'sd')
         }]
     }
 
@@ -350,19 +354,19 @@ if (VIEW_HARDWARE) {
         name: "Night Interval",
         help: help.nightInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
+        action: ui.set(core.currentProgram, 'nightInterval', i)
     });
     for (var i = 12; i < 35; i += 2) nightInterval.items.push({
         name: "Night Interval",
         help: help.nightInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
+        action: ui.set(core.currentProgram, 'nightInterval', i)
     });
     for (var i = 35; i < 90; i += 5) nightInterval.items.push({
         name: "Night Interval",
         help: help.nightInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'nightInterval', i)
+        action: ui.set(core.currentProgram, 'nightInterval', i)
     });
 
     var dayInterval = {
@@ -376,26 +380,26 @@ if (VIEW_HARDWARE) {
             name: "Day Interval",
             help: help.dayInterval,
             value: i + " seconds",
-            action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
+            action: ui.set(core.currentProgram, 'dayInterval', i)
         });
     }
     for (var i = 5; i < 12; i++) dayInterval.items.push({
         name: "Day Interval",
         help: help.dayInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
+        action: ui.set(core.currentProgram, 'dayInterval', i)
     });
     for (var i = 12; i < 35; i += 2) dayInterval.items.push({
         name: "Day Interval",
         help: help.dayInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
+        action: ui.set(core.currentProgram, 'dayInterval', i)
     });
     for (var i = 35; i < 90; i += 5) dayInterval.items.push({
         name: "Day Interval",
         help: help.dayInterval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'dayInterval', i)
+        action: ui.set(core.currentProgram, 'dayInterval', i)
     });
 
     var interval = {
@@ -409,32 +413,32 @@ if (VIEW_HARDWARE) {
             name: "Interval",
             help: help.interval,
             value: i + " seconds",
-            action: ui.set(intervalometer.currentProgram, 'interval', i)
+            action: ui.set(core.currentProgram, 'interval', i)
         });
     }
     for (var i = 5; i < 12; i++) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'interval', i)
+        action: ui.set(core.currentProgram, 'interval', i)
     });
     for (var i = 12; i < 35; i += 2) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'interval', i)
+        action: ui.set(core.currentProgram, 'interval', i)
     });
     for (var i = 35; i < 90; i += 5) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " seconds",
-        action: ui.set(intervalometer.currentProgram, 'interval', i)
+        action: ui.set(core.currentProgram, 'interval', i)
     });
     for (var i = 2; i < 15; i += 1) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " minutes",
-        action: ui.set(intervalometer.currentProgram, 'interval', i * 60)
+        action: ui.set(core.currentProgram, 'interval', i * 60)
     });
 
 
@@ -445,17 +449,17 @@ if (VIEW_HARDWARE) {
             name: "Ramp Parameters",
             help: help.rampParameters,
             value: "Shutter, ISO",
-            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S+I')
+            action: ui.set(core.currentProgram, 'rampParameters', 'S+I')
         }, {
             name: "Ramp Parameters",
             help: help.rampParameters,
             value: "Sh, ISO (balanced)",
-            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S=I')
+            action: ui.set(core.currentProgram, 'rampParameters', 'S=I')
         }, {
             name: "Ramp Parameters",
             help: help.rampParameters,
             value: "Sh, Aperture, ISO",
-            action: ui.set(intervalometer.currentProgram, 'rampParameters', 'S+A+I')
+            action: ui.set(core.currentProgram, 'rampParameters', 'S+A+I')
         }]
     };
 
@@ -464,13 +468,13 @@ if (VIEW_HARDWARE) {
         type: "options",
         items: []
     }
-    for (var i = 0; i < camera.lists.aperture.length; i++) {
-        if(camera.lists.aperture[i].ev != null) {
+    for (var i = 0; i < lists.aperture.length; i++) {
+        if(lists.aperture[i].ev != null) {
             manualAperture.items.push({
                 name: "Manual Aperture",
                 help: help.manualAperture,
-                value: camera.lists.aperture[i].name,
-                action: ui.set(intervalometer.currentProgram, 'manualAperture', camera.lists.aperture[i].ev)
+                value: lists.aperture[i].name,
+                action: ui.set(core.currentProgram, 'manualAperture', lists.aperture[i].ev)
             });
         }
     }
@@ -484,18 +488,18 @@ if (VIEW_HARDWARE) {
         name: "Min Aperture",
         help: help.apertureMin,
         value: "no min limit",
-        action: ui.set(intervalometer.currentProgram, 'apertureMin', null)
+        action: ui.set(core.currentProgram, 'apertureMin', null)
     });
-    for (var i = 0; i < camera.lists.aperture.length; i++) {
-        if(camera.lists.aperture[i].ev != null) {
-            var ev = camera.lists.aperture[i].ev;
+    for (var i = 0; i < lists.aperture.length; i++) {
+        if(lists.aperture[i].ev != null) {
+            var ev = lists.aperture[i].ev;
             apertureMin.items.push({
                 name: "Min Aperture",
                 help: help.apertureMin,
-                value: camera.lists.aperture[i].name,
-                action: ui.set(intervalometer.currentProgram, 'apertureMin', camera.lists.aperture[i].ev),
+                value: lists.aperture[i].name,
+                action: ui.set(core.currentProgram, 'apertureMin', lists.aperture[i].ev),
                 condition: (function(aEv) { return function(){
-                    return (intervalometer.currentProgram.apertureMax == null || aEv <= intervalometer.currentProgram.apertureMax);
+                    return (core.currentProgram.apertureMax == null || aEv <= core.currentProgram.apertureMax);
                 } })(ev)
             });
         }
@@ -510,18 +514,18 @@ if (VIEW_HARDWARE) {
         name: "Max Aperture",
         help: help.apertureMax,
         value: "no max limit",
-        action: ui.set(intervalometer.currentProgram, 'apertureMax', null)
+        action: ui.set(core.currentProgram, 'apertureMax', null)
     });
-    for (var i = 0; i < camera.lists.aperture.length; i++) {
-        if(camera.lists.aperture[i].ev != null) {
-            var ev = camera.lists.aperture[i].ev;
+    for (var i = 0; i < lists.aperture.length; i++) {
+        if(lists.aperture[i].ev != null) {
+            var ev = lists.aperture[i].ev;
             apertureMax.items.push({
                 name: "Max Aperture",
                 help: help.apertureMax,
-                value: camera.lists.aperture[i].name,
-                action: ui.set(intervalometer.currentProgram, 'apertureMax', camera.lists.aperture[i].ev),
+                value: lists.aperture[i].name,
+                action: ui.set(core.currentProgram, 'apertureMax', lists.aperture[i].ev),
                 condition: (function(aEv) { return function(){
-                    return (intervalometer.currentProgram.apertureMin == null || aEv >= intervalometer.currentProgram.apertureMin);
+                    return (core.currentProgram.apertureMin == null || aEv >= core.currentProgram.apertureMin);
                 } })(ev)
             });
         }
@@ -536,15 +540,15 @@ if (VIEW_HARDWARE) {
         name: "Maximum ISO",
         help: help.isoMax,
         value: "no max limit",
-        action: ui.set(intervalometer.currentProgram, 'isoMax', null)
+        action: ui.set(core.currentProgram, 'isoMax', null)
     });
-    for (var i = 0; i < camera.lists.iso.length; i++) {
-        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev <= -2) {
+    for (var i = 0; i < lists.iso.length; i++) {
+        if(lists.iso[i].ev != null && lists.iso[i].ev <= -2) {
             isoMax.items.push({
                 name: "Maximum ISO",
                 help: help.isoMax,
-                value: camera.lists.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMax', camera.lists.iso[i].ev)
+                value: lists.iso[i].name,
+                action: ui.set(core.currentProgram, 'isoMax', lists.iso[i].ev)
             });
         }
     }
@@ -558,15 +562,15 @@ if (VIEW_HARDWARE) {
         name: "Minimum ISO",
         help: help.isoMin,
         value: "no min limit",
-        action: ui.set(intervalometer.currentProgram, 'isoMin', null)
+        action: ui.set(core.currentProgram, 'isoMin', null)
     });
-    for (var i = 0; i < camera.lists.iso.length; i++) {
-        if(camera.lists.iso[i].ev != null && camera.lists.iso[i].ev >= -3) {
+    for (var i = 0; i < lists.iso.length; i++) {
+        if(lists.iso[i].ev != null && lists.iso[i].ev >= -3) {
             isoMin.items.push({
                 name: "Minimum ISO",
                 help: help.isoMin,
-                value: camera.lists.iso[i].name,
-                action: ui.set(intervalometer.currentProgram, 'isoMin', camera.lists.iso[i].ev)
+                value: lists.iso[i].name,
+                action: ui.set(core.currentProgram, 'isoMin', lists.iso[i].ev)
             });
         }
     }
@@ -580,15 +584,15 @@ if (VIEW_HARDWARE) {
         name: "Max Shutter Length",
         help: help.shutterMax,
         value: "no limit",
-        action: ui.set(intervalometer.currentProgram, 'shutterMax', null)
+        action: ui.set(core.currentProgram, 'shutterMax', null)
     });
-    for (var i = 0; i < camera.lists.shutter.length; i++) {
-        if(camera.lists.shutter[i].ev != null && camera.lists.shutter[i].ev <= -6) {
+    for (var i = 0; i < lists.shutter.length; i++) {
+        if(lists.shutter[i].ev != null && lists.shutter[i].ev <= -6) {
             shutterMax.items.push({
                 name: "Max Shutter Length",
                 help: help.shutterMax,
-                value: camera.lists.shutter[i].name,
-                action: ui.set(intervalometer.currentProgram, 'shutterMax', camera.lists.shutter[i].ev)
+                value: lists.shutter[i].name,
+                action: ui.set(core.currentProgram, 'shutterMax', lists.shutter[i].ev)
             });
         }
     }
@@ -604,7 +608,7 @@ if (VIEW_HARDWARE) {
     var isoValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var itemName = camera.lists.getNameFromEv(camera.lists.iso, object[key]);
+                var itemName = lists.getNameFromEv(lists.iso, object[key]);
                 if(name) {
                     return name + "~" + itemName;
                 } else {
@@ -619,7 +623,7 @@ if (VIEW_HARDWARE) {
     var apertureValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var itemName = camera.lists.getNameFromEv(camera.lists.aperture, object[key]);
+                var itemName = lists.getNameFromEv(lists.aperture, object[key]);
                 if(name) {
                     return name + "~" + itemName;
                 } else {
@@ -634,7 +638,7 @@ if (VIEW_HARDWARE) {
     var shutterValueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) {
-                var itemName = camera.lists.getNameFromEv(camera.lists.shutter, object[key]);
+                var itemName = lists.getNameFromEv(lists.shutter, object[key]);
                 if(name) {
                     return name + "~" + itemName;
                 } else {
@@ -653,37 +657,37 @@ if (VIEW_HARDWARE) {
             name: "Night Exposure Compensation",
             value: "0 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', 0)
+            action: ui.set(core.currentProgram, 'nightCompensation', 0)
         }, {
             name: "Night Exposure Compensation",
             value: "-1/3 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1/3)
+            action: ui.set(core.currentProgram, 'nightCompensation', -1/3)
         }, {
             name: "Night Exposure Compensation",
             value: "-2/3 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2/3)
+            action: ui.set(core.currentProgram, 'nightCompensation', -2/3)
         }, {
             name: "Night Exposure Compensation",
             value: "-1 stop",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1)
+            action: ui.set(core.currentProgram, 'nightCompensation', -1)
         }, {
             name: "Night Exposure Compensation",
             value: "-1 1/3 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 1 / 3)
+            action: ui.set(core.currentProgram, 'nightCompensation', -1 - 1 / 3)
         }, {
             name: "Night Exposure Compensation",
             value: "-1 2/3 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -1 - 2 / 3)
+            action: ui.set(core.currentProgram, 'nightCompensation', -1 - 2 / 3)
         }, {
             name: "Night Exposure Compensation",
             value: "-2 stops",
             help: help.rampingNightCompensation,
-            action: ui.set(intervalometer.currentProgram, 'nightCompensation', -2)
+            action: ui.set(core.currentProgram, 'nightCompensation', -2)
         }]
     }
 
@@ -691,44 +695,44 @@ if (VIEW_HARDWARE) {
         name: "Ramping Options",
         type: "menu",
         items: [{
-            name: valueDisplay("Night Exposure", intervalometer.currentProgram, 'nightCompensation'),
+            name: valueDisplay("Night Exposure", core.currentProgram, 'nightCompensation'),
             action: rampingNightCompensation,
             help: help.rampingNightCompensation
         }, {
-            name: isoValueDisplay("Maximum ISO", intervalometer.currentProgram, 'isoMax'),
+            name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
             action: isoMax,
             help: help.isoMax
         }, {
-            name: isoValueDisplay("Minimum ISO", intervalometer.currentProgram, 'isoMin'),
+            name: isoValueDisplay("Minimum ISO", core.currentProgram, 'isoMin'),
             action: isoMin,
             help: help.isoMin
         }, {
-            name: shutterValueDisplay("Max Shutter", intervalometer.currentProgram, 'shutterMax'),
+            name: shutterValueDisplay("Max Shutter", core.currentProgram, 'shutterMax'),
             action: shutterMax,
             help: help.shutterMax
         }, {
-            name: valueDisplay("Ramp Params", intervalometer.currentProgram, 'rampParameters'),
+            name: valueDisplay("Ramp Params", core.currentProgram, 'rampParameters'),
             action: rampParameters,
             help: help.rampParameters
         }, {
-            name: apertureValueDisplay("Min Aperture", intervalometer.currentProgram, 'apertureMin'),
+            name: apertureValueDisplay("Min Aperture", core.currentProgram, 'apertureMin'),
             action: apertureMin,
             help: help.apertureMin,
             condition: function() {
-                return intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('A') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return core.currentProgram.rampParameters && core.currentProgram.rampParameters.indexOf('A') !== -1 && (core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, {
-            name: apertureValueDisplay("Max Aperture", intervalometer.currentProgram, 'apertureMax'),
+            name: apertureValueDisplay("Max Aperture", core.currentProgram, 'apertureMax'),
             action: apertureMax,
             help: help.apertureMax,
             condition: function() {
-                return intervalometer.currentProgram.rampParameters && intervalometer.currentProgram.rampParameters.indexOf('A') !== -1 && (camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return core.currentProgram.rampParameters && core.currentProgram.rampParameters.indexOf('A') !== -1 && (core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, ]
     }
 
     var exposureMenu = {
-        name: "capture",
+        name: "exposure",
         type: "function",
         fn: function(args, cb) {
             blockInputs = true;
@@ -740,15 +744,15 @@ if (VIEW_HARDWARE) {
                 if (b == 1 || b == 4) {
                     liveviewOn = false;
                     blockInputs = false;
-                    camera.ptp.lvOff();
+                    core.lvOff();
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                 } else if (b == 2) {
-                    if (camera.zoomed) {
-                        camera.ptp.zoom();
+                    if (core.cameraZoomed) {
+                        core.zoom();
                     } else {
-                        camera.ptp.zoom(0.5, 0.5);
+                        core.zoom(0.5, 0.5);
                     }
                 }
             }
@@ -757,7 +761,7 @@ if (VIEW_HARDWARE) {
                 oled.activity();
                 power.activity();
                 //console.log("captureDialHandler", d, stats, ev);
-                if (camera.ptp.photo && camera.zoomed) {
+                if (core.photo && core.cameraZoomed) {
                     var f = 0;
                     if (d == 'U') {
                         f = +2;
@@ -765,22 +769,22 @@ if (VIEW_HARDWARE) {
                     if (d == 'D') {
                         f = -2;
                     }
-                    camera.ptp.focus(f);
+                    core.focus(f, 1);
                 } else {
                     if (d == 'U') {
                         if (stats.ev < stats.maxEv) {
                             ev += 1 / 3;
                             console.log("setting ev to ", ev);
-                            camera.setEv(ev, {
-                                settingsDetails: camera.ptp.settings.details
+                            core.setEv(ev, {
+                                settingsDetails: core.cameraSettings.details
                             });
                         }
                     } else if (d == 'D') {
                         if (stats.ev > stats.minEv) {
                             ev -= 1 / 3;
                             console.log("setting ev to ", ev);
-                            camera.setEv(ev, {
-                                settingsDetails: camera.ptp.settings.details
+                            core.setEv(ev, {
+                                settingsDetails: core.cameraSettings.details
                             });
                         }
                     }
@@ -788,11 +792,13 @@ if (VIEW_HARDWARE) {
             }
 
             liveviewOn = true;
-            camera.ptp.preview();
-            camera.ptp.getSettings(function() {
-                stats = camera.evStats(camera.ptp.settings);
+            core.preview();
+            console.log("started liveview, getting settings...");
+            inputs.on('B', captureButtonHandler);
+            core.getSettings(function() {
+                console.log("done getting settings, enabling knob handler");
+                stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
-                inputs.on('B', captureButtonHandler);
                 inputs.on('D', captureDialHandler);
             });
         }
@@ -816,7 +822,7 @@ if (VIEW_HARDWARE) {
             action: {
                 type: 'function',
                 fn: function(arg, cb) {
-                    intervalometer.cancel();
+                    core.stopIntervalometer();
                     cb();
                     ui.back();
                 }
@@ -825,61 +831,63 @@ if (VIEW_HARDWARE) {
     }
 
 
-    var timelapseRunningMenu = {
-        name: "time-lapse",
-        type: "menu",
-        items: [{
-            name: valueDisplay("Play Preview", intervalometer.status, 'frames'),
-            action: {
-                type: "function",
-                fn: function(arg, cb) {
-                    clips.getLastTimelapse(function(err, timelapse) {
-                        if (timelapse) {
-                            if(timelapse.path) {
-                                oled.video(timelapse.path, timelapse.frames, 30, cb);
-                            } else {
-                                db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
-                                    if(!err && clipFrames) {
-                                        var framesPaths = clipFrames.map(function(frame){
-                                            return frame.thumbnail;
-                                        });
-                                        oled.video(null, framesPaths, 30, cb);
-                                    }
-                                });
-                            }
-                        } 
-                    });
+    var timelapseRunningMenu = function() {
+        return {
+            name: "time-lapse",
+            type: "menu",
+            items: [{
+                name: valueDisplay("Play Preview", core.intervalometerStatus, 'frames'),
+                action: {
+                    type: "function",
+                    fn: function(arg, cb) {
+                        clips.getLastTimelapse(function(err, timelapse) {
+                            if (timelapse) {
+                                if(timelapse.path) {
+                                    oled.video(timelapse.path, timelapse.frames, 30, cb);
+                                } else {
+                                    db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
+                                        if(!err && clipFrames) {
+                                            var framesPaths = clipFrames.map(function(frame){
+                                                return frame.thumbnail;
+                                            });
+                                            oled.video(null, framesPaths, 30, cb);
+                                        }
+                                    });
+                                }
+                            } 
+                        });
+                    }
                 }
-            }
-        //}, {
-        //    name: "Preview Camera #2",
-        //    action: {
-        //        type: "function",
-        //         fn: function(arg, cb) {
-        //            clips.getLastTimelapse(function(err, timelapse) {
-        //                if (timelapse) {
-        //                    var cam = 1;
-        //                    if(timelapse.primary_camera == '1') cam = 2;
-        //                    db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
-        //                        if(!err && clipFrames) {
-        //                            var framesPaths = clipFrames.map(function(frame){
-        //                                return frame.thumbnail;
-        //                            });
-        //                            oled.video(null, framesPaths, 30, cb);
-        //                        }
-        //                    });
-        //                } 
-        //            });
-        //        }
-        //    },
-        //    help: help.playbackCamera,
-        //    condition: function() {
-        //        return parseInt(intervalometer.currentProgram.cameras) > 1;
-        //    }
-        }, {
-            name: "Stop Time-lapse",
-            action: stopConfirm
-        }]
+            //}, {
+            //    name: "Preview Camera #2",
+            //    action: {
+            //        type: "function",
+            //         fn: function(arg, cb) {
+            //            clips.getLastTimelapse(function(err, timelapse) {
+            //                if (timelapse) {
+            //                    var cam = 1;
+            //                    if(timelapse.primary_camera == '1') cam = 2;
+            //                    db.getTimelapseFrames(timelapse.id, cam, function(err, clipFrames){
+            //                        if(!err && clipFrames) {
+            //                            var framesPaths = clipFrames.map(function(frame){
+            //                                return frame.thumbnail;
+            //                            });
+            //                            oled.video(null, framesPaths, 30, cb);
+            //                        }
+            //                    });
+            //                } 
+            //            });
+            //        }
+            //    },
+            //    help: help.playbackCamera,
+            //    condition: function() {
+            //        return parseInt(core.currentProgram.cameras) > 1;
+            //    }
+            }, {
+                name: "Stop Time-lapse",
+                action: stopConfirm
+            }]
+        }
     }
 
     var timelapseStatusMenu = {
@@ -908,7 +916,7 @@ if (VIEW_HARDWARE) {
             });
         },
         button3: function(){
-            ui.load(timelapseRunningMenu);
+            ui.load(timelapseRunningMenu());
         },
         help: help.timelapseStatus
     }
@@ -917,9 +925,9 @@ if (VIEW_HARDWARE) {
         name: "time-lapse",
         type: "menu",
         alternate: function() {
-            if (intervalometer.status.running) {
+            if (core.intervalometerStatus.running) {
                 return timelapseStatusMenu;
-            } else if (camera.ptp.connected) {
+            } else if (core.cameraConnected) {
                 return false;
             } else {
                 return {
@@ -931,7 +939,7 @@ if (VIEW_HARDWARE) {
             }
         },
         items: [{
-            name: valueDisplay("Camera", camera.ptp, 'model'),
+            name: valueDisplay("Camera", core, 'cameraModel'),
             help: help.cameraSelection,
             action: function(cb) {
                 var cm = {
@@ -939,90 +947,91 @@ if (VIEW_HARDWARE) {
                     type: "options",
                     items: []
                 }
-                var list = camera.ptp.cameraList();
-                for(var i = 0; i < list.length; i++) {
-                    cm.items.push({
-                        name: "Primary Camera",
-                        value: list[i].model,
-                        help: help.cameraSelection,
-                        action: (function(cam) { return function(cb2) {
-                            camera.ptp.switchPrimary(cam);
-                            ui.back();
-                            ui.back();
-                        };})(list[i])
-                    });
-                }
-                cb(null, cm);
+                core.cameraList(function(list){
+                    for(var i = 0; i < list.length; i++) {
+                        cm.items.push({
+                            name: "Primary Camera",
+                            value: list[i].model,
+                            help: help.cameraSelection,
+                            action: (function(cam) { return function(cb2) {
+                                core.switchPrimary(cam);
+                                ui.back();
+                                ui.back();
+                            };})(list[i])
+                        });
+                    }
+                    cb(null, cm);
+                });
             },
             condition: function() {
-                return camera.ptp.count > 1;
+                return core.cameraCount > 1;
             }
         }, {
-            name: valueDisplay("Exposure", camera.ptp.settings.stats, 'ev'),
+            name: valueDisplay("Exposure", core.cameraSettings.stats, 'ev'),
             help: help.exposureMenu,
             action: exposureMenu,
             condition: function() {
-                return camera.ptp.supports.liveview;
+                return core.cameraSupports.liveview;
             }
         }, {
-            name: valueDisplay("Timelapse Mode", intervalometer.currentProgram, 'rampMode'),
+            name: valueDisplay("Timelapse Mode", core.currentProgram, 'rampMode'),
             help: help.rampingOptions,
             action: rampingOptions
         }, {
-            name: valueDisplay("Interval Mode", intervalometer.currentProgram, 'intervalMode'),
+            name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
             action: intervalOptions,
             condition: function() {
-                return intervalometer.currentProgram.rampMode != 'fixed';
+                return core.currentProgram.rampMode != 'fixed';
             }
         }, {
-            name: valueDisplay("Interval", intervalometer.currentProgram, 'interval'),
+            name: valueDisplay("Interval", core.currentProgram, 'interval'),
             action: interval,
             help: help.interval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'fixed' || intervalometer.currentProgram.rampMode == 'fixed';
+                return core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed';
             }
         }, {
-            name: valueDisplay("Day Interval", intervalometer.currentProgram, 'dayInterval'),
+            name: valueDisplay("Day Interval", core.currentProgram, 'dayInterval'),
             action: dayInterval,
             help: help.dayInterval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'auto' && intervalometer.currentProgram.rampMode == 'auto';
+                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
             }
         }, {
-            name: valueDisplay("Night Interval", intervalometer.currentProgram, 'nightInterval'),
+            name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
             action: nightInterval,
             help: help.nightInterval,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'auto' && intervalometer.currentProgram.rampMode == 'auto';
+                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
             }
         }, {
-            name: valueDisplay("Frames", intervalometer.currentProgram, 'frames'),
+            name: valueDisplay("Frames", core.currentProgram, 'frames'),
             action: framesOptions,
             help: help.framesOptions,
             condition: function() {
-                return intervalometer.currentProgram.intervalMode == 'fixed' || intervalometer.currentProgram.rampMode == 'fixed';
+                return core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed';
             }
         }, {
-            name: valueDisplay("Destination", intervalometer.currentProgram, 'destination'),
+            name: valueDisplay("Destination", core.currentProgram, 'destination'),
             action: destinationOptions,
             help: help.destinationOptions,
             condition: function() {
-                return camera.ptp.sdPresent;
+                return core.sdPresent;
             }
         }, {
             name: "Ramping Options",
             action: rampingOptionsMenu,
             help: help.rampingOptionsMenu,
             condition: function() {
-                return intervalometer.currentProgram.rampMode != 'fixed';
+                return core.currentProgram.rampMode != 'fixed';
             }
         }, {
-            name: apertureValueDisplay("Manual Aperture", intervalometer.currentProgram, 'manualAperture'),
+            name: apertureValueDisplay("Manual Aperture", core.currentProgram, 'manualAperture'),
             action: manualAperture,
             help: help.manualAperture,
             condition: function() {
-                return intervalometer.currentProgram.rampMode != 'fixed' && !(camera.ptp.settings.aperture && camera.ptp.settings.details && camera.ptp.settings.details.aperture && camera.ptp.settings.details.aperture.ev != null);
+                return core.currentProgram.rampMode != 'fixed' && !(core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, {
             name: "START",
@@ -1030,9 +1039,9 @@ if (VIEW_HARDWARE) {
             action: {
                 type: "function",
                 fn: function(arg, cb) {
-                    intervalometer.currentProgram.keyframes = null;
+                    core.currentProgram.keyframes = null;
                     oled.timelapseStatus = null;
-                    intervalometer.run(intervalometer.currentProgram);
+                    core.startIntervalometer(core.currentProgram);
                     cb();
                 }
             }
@@ -1078,20 +1087,20 @@ if (VIEW_HARDWARE) {
                     },
                     help: help.writeXMPs,
                     condition: function() {
-                        return camera.ptp.sdPresent;
+                        return core.sdPresent;
                     }
                 }, {
                     name: "Use time-lapse setup",
                     action: function(){
-                        var newProgram = _.extend(intervalometer.currentProgram, dbClip.program);
+                        var newProgram = _.extend(core.currentProgram, dbClip.program);
                         console.log("setting current program to ", newProgram);
-                        intervalometer.load(newProgram);
+                        core.loadProgram(newProgram);
                         ui.back();
                         ui.load(timelapseMenu);
                     },
                     help: help.useTimelapseSetup,
                     condition: function() {
-                        return dbClip && dbClip.program && !intervalometer.status.running;
+                        return dbClip && dbClip.program && !core.intervalometerStatus.running;
                     }
                 }, {
                     name: "Send log for review",
@@ -1201,7 +1210,7 @@ if (VIEW_HARDWARE) {
             value: "Shutting Down"
         }]);
         oled.update();
-        if (intervalometer.status.running) intervalometer.cancel();
+        if (core.intervalometerStatus.running) core.stopIntervalometer();
         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
         closeSystem(function(){
             console.log("closeSystem complete, running power.shutdown()");
@@ -1232,7 +1241,7 @@ if (VIEW_HARDWARE) {
                         value: "Shutting Down"
                     }]);
                     oled.update();
-                    //if (!intervalometer.status.running) {
+                    //if (!core.intervalometerStatus.running) {
                         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
                         closeSystem(function(){
                             console.log("closeSystem complete, running power.shutdown()");
@@ -1256,7 +1265,7 @@ if (VIEW_HARDWARE) {
         type: "function",
         help: help.captureMenu,
         alternate: function() {
-            if (camera.ptp.connected) {
+            if (core.cameraConnected) {
                 return false;
             } else {
                 return {
@@ -1277,14 +1286,14 @@ if (VIEW_HARDWARE) {
                 if (b == 1) {
                     oled.unblock();
                     liveviewOn = false;
-                    camera.ptp.lvOff();
+                    core.lvOff();
                     blockInputs = false;
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                 } else if (b == 4) {
                     liveviewOn = false;
-                    camera.ptp.capture(null, function(err) {
+                    core.capture(null, function(err) {
                         if(err) {
                             oled.unblock();
                             liveviewOn = false;
@@ -1299,7 +1308,7 @@ if (VIEW_HARDWARE) {
                             }, 600);
                         } else {
                             liveviewOn = true;
-                            camera.ptp.preview();
+                            core.preview();
                         }
                     });
                 }
@@ -1313,16 +1322,16 @@ if (VIEW_HARDWARE) {
                     if (stats.ev < stats.maxEv) {
                         ev += 1 / 3;
                         console.log("setting ev to ", ev);
-                        camera.setEv(ev, {
-                            settingsDetails: camera.ptp.settings.details
+                        core.setEv(ev, {
+                            settingsDetails: core.cameraSettings.details
                         });
                     }
                 } else if (d == 'D') {
                     if (stats.ev > stats.minEv) {
                         ev -= 1 / 3;
                         console.log("setting ev to ", ev);
-                        camera.setEv(ev, {
-                            settingsDetails: camera.ptp.settings.details
+                        core.setEv(ev, {
+                            settingsDetails: core.cameraSettings.details
                         });
                     }
                 }
@@ -1330,13 +1339,15 @@ if (VIEW_HARDWARE) {
 
             oled.block();
             liveviewOn = true;
-            camera.ptp.getSettings(function() {
-                stats = camera.evStats(camera.ptp.settings);
+            inputs.on('B', captureButtonHandler);
+            console.log("started liveview, getting settings...");
+            core.getSettings(function() {
+                console.log("done getting settings, enabling knob");
+                stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
-                inputs.on('B', captureButtonHandler);
                 inputs.on('D', captureDialHandler);
             });
-            camera.ptp.preview();
+            core.preview();
         }
     }
 
@@ -1545,11 +1556,13 @@ if (VIEW_HARDWARE) {
                                     ui.status('connecting to ' + item.ssid);
                                     wifi.connect(item, result);
                                     db.setWifi(item.address, result);
-                                    db.set('wifi-status', {
-                                        apMode: false,
-                                        connect: item,
-                                        enabled: true,
-                                        password: result
+                                    db.get('wifi-status', function(err, status) {
+                                        db.set('wifi-status', {
+                                            apMode: status.apMode,
+                                            connect: item,
+                                            enabled: true,
+                                            password: result
+                                        });
                                     });
                                     ui.back();
                                 }
@@ -1558,10 +1571,12 @@ if (VIEW_HARDWARE) {
                     } else {
                         ui.status('connecting to ' + item.ssid);
                         wifi.connect(item);
-                        db.set('wifi-status', {
-                            apMode: false,
-                            connect: item,
-                            enabled: true
+                        db.get('wifi-status', function(err, status) {
+                            db.set('wifi-status', {
+                                apMode: status.apMode,
+                                connect: item,
+                                enabled: true
+                            });
                         });
                         ui.back();
                         ui.back();
@@ -1598,15 +1613,32 @@ if (VIEW_HARDWARE) {
             help: help.wifiApMenu,
             action: function(){
                 wifi.enableAP(function(){
-                    db.set('wifi-status', {
-                        apMode: true,
-                        enabled: true
+                    db.get('wifi-status', function(err, status) {
+                        status.apMode = true;
+                        status.enabled = true;
+                        db.set('wifi-status', status);
                     });
                     ui.back();
                 });
             },
             condition: function() {
                 return wifi.enabled && !wifi.apMode;
+            }
+        }, {
+            name: "Disable TL+VIEW AP",
+            help: help.wifiApDisMenu,
+            action: function(){
+                wifi.disableAP(function(){
+                    db.get('wifi-status', function(err, status) {
+                        status.apMode = false;
+                        status.enabled = true;
+                        db.set('wifi-status', status);
+                    });
+                    ui.back();
+                });
+            },
+            condition: function() {
+                return wifi.enabled && wifi.apMode;
             }
         }, {
             name: "Disable Bluetooth",
@@ -1961,6 +1993,29 @@ if (VIEW_HARDWARE) {
             action: gestureEnableMenu,
             help: help.gestureEnableMenu
         },{
+            name: "Calibrate Gesture",
+            action: function(cb) {
+                cb();
+                ui.back();
+                gestureString = "Calibrating gesture sensor.\nKeep area in front of sensor clear during calibration.\n";
+                ui.alert('Calibrating...', function(){return gestureString;});
+                inputs.calibrateGesture(function(err, status, done) {
+                    gestureString = "Calibrating gesture sensor.\nKeep area in front of sensor clear during calibration.\n";
+                    gestureString += status + "\n";
+                    if(done) {
+                        gestureString = "Calibration Complete!\nMove your hand in front to test the sensor.\n";
+                        ui.back();
+                        ui.alert('Gesture Test', function(){return gestureString;}, 200);
+                    } else {
+
+                    }
+                });
+            },
+            condition: function(){
+                return inputs.gestureStatus == 'enabled';
+            },
+            help: help.gestureEnableMenu
+        },{
             name: valueDisplay("Theme", oled, 'theme'),
             action: colorThemeMenu,
             help: help.colorThemeMenu
@@ -2106,13 +2161,13 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Send camera report",
             action: function(){
-                camera.ptp.runSupportTest(function() {
+                core.runSupportTest(function() {
                     ui.back();
                     app.sendLogs();
                 });
             },
             condition: function() {
-                return camera.ptp.connected && !intervalometer.status.running;
+                return core.cameraConnected && !core.intervalometerStatus.running;
             },
             help: help.sendCameraReport
         }, {
@@ -2184,7 +2239,7 @@ if (VIEW_HARDWARE) {
             action: captureMenu,
             help: help.captureMenu,
             condition: function() {
-                return camera.ptp.supports.liveview && !intervalometer.status.running;
+                return core.cameraSupports.liveview && !core.intervalometerStatus.running;
             }
         }, {
             name: "Time-lapse Clips",
@@ -2266,7 +2321,11 @@ if (VIEW_HARDWARE) {
             if(clip) {
                 clips.saveXMPsToCard(clip.index, function(err) {
                     ui.back();
-                    cb();
+                    if(err) {
+                        ui.alert('Error Writing', "Error writing XMPs: " + err);
+                    } else {
+                        cb();
+                    }
                 }); 
             } else {
                 ui.back();
@@ -2363,12 +2422,12 @@ if (VIEW_HARDWARE) {
         ui.alert('Success', help.logFilesUploaded);    
     })
 
-    camera.ptp.on('media-insert', function(type) {
+    core.on('media.insert', function(type) {
         console.log("media inserted: ", type);
         oled.activity();
         power.activity();
         if(type = 'sd') {
-            intervalometer.currentProgram.destination = 'sd';
+            core.currentProgram.destination = 'sd';
             ui.reload();
         }
         clips.getLastTimelapse(function(err, timelapse) {
@@ -2376,10 +2435,10 @@ if (VIEW_HARDWARE) {
         });
     });
 
-    camera.ptp.on('media-remove', function(type) {
+    core.on('media.remove', function(type) {
         console.log("media removed: ", type);
         if(type = 'sd') {
-            intervalometer.currentProgram.destination = 'camera';
+            core.currentProgram.destination = 'camera';
             ui.reload();
         }
     });
@@ -2418,11 +2477,14 @@ if (VIEW_HARDWARE) {
         }, 5000);
     }
 
+
     inputs.on('G', function(move) {
+        console.log("Gesture: " + move);
+        gestureString += move;
+        if(gestureString.length > 500) gestureString = "";
         power.activity();
         if (blockInputs) return;
-        if(!intervalometer.status.running) return; // only use gesture sensor when a time-lapse is running
-        console.log("Gesture: " + move);
+        if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
         if (blockGesture) {
             console.log("(blocked)");
             return;
@@ -2484,96 +2546,18 @@ if (VIEW_HARDWARE) {
 
 }
 
-var scanTimerHandle = null;
-var scanTimerHandle2 = null;
-var scanTimerHandle3 = null;
-var btleScanStarting = false;
-
-function clearScanTimeouts() {
-    if(scanTimerHandle) clearTimeout(scanTimerHandle);
-    if(scanTimerHandle2) clearTimeout(scanTimerHandle2);
-    if(scanTimerHandle3) clearTimeout(scanTimerHandle3);
-    scanTimerHandle = null;
-    scanTimerHandle2 = null;
-    scanTimerHandle3 = null;
-}
-
-function startScan() {
-    if(btleScanStarting || updates.installing) return;
-    btleScanStarting = true;
-    clearScanTimeouts()
-    scanTimerHandle = setTimeout(startScan, 30000);
-    if (noble.state == "poweredOn") {
-        scanTimerHandle2 = setTimeout(function() {
-            noble.stopScanning();
-        }, 500);
-        scanTimerHandle3 = setTimeout(function() {
-            if (noble.state == "poweredOn") {
-                //console.log("Starting BLE scan...");
-                noble.startScanning(nmx.btServiceIds, false, function(err){
-                    console.log("BLE scan started: ", err);
-                });
-            }
-            btleScanStarting = false;
-        }, 8000);
-    } else {
-        btleScanStarting = false;
-        if(wifi.btEnabled) {
-            wifi.resetBt();
-        }
-    }
-}
-startScan();
-
-function stopScan() {
-    clearScanTimeouts();
-    noble.stopScanning();
-}
-
-noble.on('stateChange', function(state) {
-    console.log("BLE state changed to", state);
-    if (state == "poweredOn") {
-        setTimeout(function() {
-            startScan()
-        });
-    }
-});
-
-noble.on('discover', function(peripheral) {
-    //console.log('ble', peripheral);
-    stopScan();
-    nmx.connect(peripheral);
-});
-
-
-nmx.connect();
-
-nmx.on('status', function(status) {
-    if (status.connected) {
-        oled.setIcon('bt', true);
-        stopScan();
-        ui.reload();
-    } else {
-        oled.setIcon('bt', false);
-        ui.reload();
-        wifi.resetBt(function(){
-            startScan();
-        });
-    }
-});
-
 var systemClosed = false;
 function closeSystem(callback) {
     systemClosed = true;
     console.log("Shutting down!");
     app.close();
-    nmx.disconnect();
+    //nmx.disconnect();
     if (VIEW_HARDWARE) {
         console.log("closing inputs...");
         inputs.stop();
     }
     try {
-        db.set('intervalometer.currentProgram', intervalometer.currentProgram);
+        db.set('intervalometer.currentProgram', core.currentProgram);
         if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb) {
             mcu.lastGpsFix.fromDb = true;
             console.log("saving gps data: ", mcu.lastGpsFix);
@@ -2605,7 +2589,7 @@ function closeSystem(callback) {
     //        callback && callback();
     //    }
     //}, 1000);
-    //db.setCache('intervalometer.status', intervalometer.status);
+    //db.setCache('intervalometer.status', core.intervalometerStatus);
 }
 
 nodeCleanup(function (exitCode, signal) {
@@ -2646,7 +2630,7 @@ nodeCleanup(function (exitCode, signal) {
 db.get('intervalometer.currentProgram', function(err, data) {
     if(!err && data) {
         console.log("Loading saved intervalometer settings...", data);
-        intervalometer.load(data);
+        core.loadProgram(data);
     }
 });
 
@@ -2687,7 +2671,9 @@ db.get('buttonMode', function(err, mode) {
 
 db.get('gestureSensor', function(err, en) {
     if(en != "no") {
-        inputs.startGesture();
+        setTimeout(function(){
+            inputs.startGesture();
+        }, 60000);
     } else {
         inputs.stopGesture();
     }
@@ -2778,7 +2764,18 @@ app.on('message', function(msg) {
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, steps, reply) {
-                        if(driver == 'NMX') nmx.move(motor, steps, function() {
+                        if(driver == 'NMX') core.moveNMX(motor, steps, function() {
+                            reply('move', {
+                                complete: true,
+                                motor: motor,
+                                driver: driver
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.val, msg.reply);
+                } else if (msg.key == "joystick" && msg.motor && msg.driver) {
+                    console.log("moving motor " + msg.motor);
+                    (function(driver, motor, speed, reply) {
+                        if(driver == 'NMX') core.moveNMXjoystick(motor, speed, function() {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
@@ -2791,21 +2788,21 @@ app.on('message', function(msg) {
 
             case 'focus':
                 if (msg.key == "manual") {
-                    camera.ptp.focus(msg.val, msg.repeat);
+                    core.focus(msg.val, msg.repeat);
                 }
                 break;
 
             case 'capture':
                 (function(lastLV) {
                     liveviewOn = 0;
-                    camera.ptp.capture(null, function(err){
+                    core.capture(null, function(err){
                         if(err) {
                             msg.reply('captureError', {msg:err});
                         }
                         setTimeout(function(){
                             if(lastLV && liveviewOn !== false) {
                                 liveviewOn = true;
-                                camera.ptp.preview();
+                                core.preview();
                             } else {
                                 liveviewOn = false;
                             }
@@ -2813,18 +2810,13 @@ app.on('message', function(msg) {
                     });
                 })(liveviewOn);
                 break;
-
-            case 'test':
-                camera.autoSetEv();
-                //camera.testBulb();
-                break;
     
             case 'run':
-                intervalometer.run(msg.program);
+                core.startIntervalometer(msg.program);
                 break;
 
             case 'stop':
-                intervalometer.cancel();
+                core.stopIntervalometer();
                 break;
 
             case 'timelapse-clips':
@@ -2908,24 +2900,24 @@ app.on('message', function(msg) {
                 if (liveviewOn) {
                     if (previewImage) msg.reply(previewImage);
                 } else {
-                    camera.ptp.preview();
+                    if(!core.intervalometerStatus.running) core.preview();
                 }
                 break;
 
             case 'previewStop':
-                camera.ptp.lvOff();
+                core.lvOff();
                 break;
 
             case 'zoom':
                 if (!msg.reset && msg.xPercent && msg.yPercent) {
-                    camera.ptp.zoom(msg.xPercent, msg.yPercent);
+                    core.zoom(msg.xPercent, msg.yPercent);
                 } else {
-                    camera.ptp.zoom();
+                    core.zoom();
                 }
                 break;
 
             case 'set':
-                if (msg.key && msg.val) camera.ptp.set(msg.key, msg.val);
+                if (msg.key && msg.val) core.set(msg.key, msg.val);
                 break;
 
             case 'dismiss-error':
@@ -2934,12 +2926,12 @@ app.on('message', function(msg) {
 
             case 'setEv':
                 if (msg.ev) {
-                    if (camera.ptp.connected) {
-                        camera.setEv(msg.ev, {}, function() {
-                            camera.ptp.getSettings(function() {
-                                camera.ptp.settings.stats = camera.evStats(camera.ptp.settings);
+                    if (core.cameraConnected) {
+                        core.setEv(msg.ev, {}, function() {
+                            core.getSettings(function() {
+                                core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
-                                    settings: camera.ptp.settings
+                                    settings: core.cameraSettings
                                 });
                             });
                         });
@@ -2949,11 +2941,11 @@ app.on('message', function(msg) {
 
             case 'get':
                 if (msg.key == "settings") {
-                    if (camera.ptp.connected) {
-                        camera.ptp.getSettings(function() {
-                            camera.ptp.settings.stats = camera.evStats(camera.ptp.settings);
+                    if (core.cameraConnected) {
+                        core.getSettings(function() {
+                            core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                             msg.reply('settings', {
-                                settings: camera.ptp.settings
+                                settings: core.cameraSettings
                             });
                         });
                     } else {
@@ -2969,26 +2961,26 @@ app.on('message', function(msg) {
                     var motion = getMotionStatus();
                     msg.reply('motion', motion);
                 } else if (msg.key == "program") {
-                    if(!intervalometer.currentProgram.keyframes) {
-                        intervalometer.currentProgram.keyframes = [{
+                    if(!core.currentProgram.keyframes) {
+                        core.currentProgram.keyframes = [{
                             focus: 0,
                             ev: "not set",
                             motor: {}
                         }]
                     }
-                    msg.reply('timelapseProgram', {program: intervalometer.currentProgram});
+                    msg.reply('timelapseProgram', {program: core.currentProgram});
                 } else if (msg.key == "thumbnail") {
-                    if (camera.ptp.photo && camera.ptp.photo.jpeg) {
+                    if (core.photo && core.photo.jpeg) {
                         msg.reply('thumbnail', {
-                            jpeg: new Buffer(camera.ptp.photo.jpeg).toString('base64'),
-                            zoomed: camera.ptp.photo.zoomed,
-                            type: camera.ptp.photo.type
+                            jpeg: new Buffer(core.photo.jpeg).toString('base64'),
+                            zoomed: core.photo.zoomed,
+                            type: core.photo.type
                         });
                     }
                 } else if (msg.key == "camera") {
                     msg.reply('camera', {
-                        connected: camera.ptp.connected,
-                        model: camera.ptp.connected ? camera.ptp.model : '',
+                        connected: core.cameraConnected,
+                        model: core.cameraConnected ? core.cameraModel : '',
                     });
                     if (cache.intervalometerStatus) {
                         msg.reply('intervalometerStatus', {
@@ -3008,17 +3000,17 @@ app.on('message', function(msg) {
 });
 
 var thmIndex = "1";
-camera.ptp.on('photo', function() {
-    if (camera.ptp.photo && camera.ptp.photo.jpeg) {
+core.on('camera.photo', function() {
+    if (core.photo && core.photo.jpeg) {
 
-        if (intervalometer.status.running) {
+        if (core.intervalometerStatus.running) {
             var size = {
                 x: 105,
                 y: 65,
                 q: 80
             }
             if (VIEW_HARDWARE) {
-                image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
+                image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm" + thmIndex, jpgBuf, function(err, path) {
                             if(thmIndex == "1") thmIndex = "2"; else thmIndex = "1"; // alternate to avoid reading partial file
@@ -3032,8 +3024,8 @@ camera.ptp.on('photo', function() {
                 x: 160,
                 q: 80
             }
-            if (VIEW_HARDWARE && (camera.ptp.photo.type != 'preview' || liveviewOn)) {
-                image.downsizeJpeg(new Buffer(camera.ptp.photo.jpeg), size, null, function(err, jpgBuf) {
+            if (VIEW_HARDWARE && (core.photo.type != 'preview' || liveviewOn)) {
+                image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {
                             oled.jpeg(path, 0, 15, true);
@@ -3045,18 +3037,19 @@ camera.ptp.on('photo', function() {
         }
 
         previewImage = {
-            jpeg: new Buffer(camera.ptp.photo.jpeg).toString('base64'),
-            zoomed: camera.ptp.photo.zoomed,
-            type: camera.ptp.photo.type
+            jpeg: core.photo.base64,
+            zoomed: core.photo.zoomed,
+            type: core.photo.type
         };
 
-        if(intervalometer.status.running) liveviewOn = false;
+        if(core.intervalometerStatus.running) liveviewOn = false;
         if (previewImage.type == "photo" || !liveviewOn) {
             app.send('photo');
             app.send('thumbnail', previewImage);
-        } else if (previewImage.type == "preview" && !intervalometer.status.running) {
+        } else if (previewImage.type == "preview" && !core.intervalometerStatus.running) {
             liveviewOn = true;
-            camera.ptp.preview();
+            console.log("LV: requesting next frame");
+            core.preview();
         }
     }
 });
@@ -3066,32 +3059,22 @@ app.on('connected', function(connected) {
     ui.reload();
 });
 
-camera.ptp.on('settings', function() {
+core.on('camera.settings', function() {
     app.send('settings', {
-        settings: camera.ptp.settings
+        settings: core.cameraSettings
     });
 });
 
-camera.ptp.on('nmxSerial', function(status) {
-    if (status == "connected") {
-        console.log("NMX attached");
-        nmx.connect(camera.ptp.nmxDevice);
-    } else {
-        console.log("NMX detached");
-        nmx.disconnect();
-    }
-});
-
-camera.ptp.on('connected', function() {
-    if(camera.ptp.model == "SonyWifi") app.disableRemote();
+core.on('camera.connected', function() {
+    if(core.cameraModel == "SonyWifi") app.disableRemote();
     oled.setIcon('camera', true);
     setTimeout(function() {
         app.send('camera', {
             connected: true,
-            model: camera.ptp.model
+            model: core.cameraModel
         });
         if (VIEW_HARDWARE) {
-            ui.status(camera.ptp.model);
+            ui.status(core.cameraModel);
             ui.reload();
         }
     }, 1000);
@@ -3102,7 +3085,7 @@ ui.defaultStatus(s);
 ui.status(s);
 console.log("Setting default status to '" + s + "'")
 
-camera.ptp.on('exiting', function() {
+core.on('camera.exiting', function() {
     oled.setIcon('camera', false);
     app.send('camera', {
         connected: false,
@@ -3115,27 +3098,30 @@ camera.ptp.on('exiting', function() {
     }
 });
 
-camera.ptp.on('error', function(err) {
+core.on('camera.error', function(err) {
     app.send('error', {
         error: err
     });
 });
 
-camera.ptp.on('status', function(msg) {
+core.on('camera.status', function(msg) {
     app.send('status', {
         status: msg
     });
     if (!blockInputs && VIEW_HARDWARE) {
         ui.status(msg);
-        if (camera.ptp.connected) {
-            ui.defaultStatus(camera.ptp.model);
+        if (core.cameraConnected) {
+            ui.defaultStatus(core.cameraModel);
         } else {
             ui.defaultStatus("VIEW " + updates.version);
         }
     }
 });
 
-intervalometer.on('status', function(msg) {
+core.on('intervalometer.status', function(msg) {
+    //console.log("intervalometer.status", core.intervalometerStatus);
+    //console.log("core.cameraSettings", core.cameraSettings);
+    //return;
     if(msg.running) {
         power.disableAutoOff();
     } else if(cache.intervalometerStatus.running) {
@@ -3147,19 +3133,19 @@ intervalometer.on('status', function(msg) {
     cache.intervalometerStatus = msg;
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
-    var evText = (Math.round(camera.getEvFromSettings(camera.ptp.settings) * 10) / 10).toString();
+    var evText = (Math.round(lists.getEvFromSettings(core.cameraSettings) * 10) / 10).toString();
     var statusScreen = {
-        isoText: camera.ptp.settings.iso,
-        shutterText: camera.ptp.settings.shutter,
-        apertureText: camera.ptp.settings.details.aperture ? ("f/" + camera.ptp.settings.aperture) : ("f/" + camera.lists.getNameFromEv(camera.lists.aperture, intervalometer.currentProgram.manualAperture) + ' (m)'),
+        isoText: msg.cameraSettings.iso,
+        shutterText: msg.cameraSettings.shutter,
+        apertureText: (msg.cameraSettings.details && msg.cameraSettings.details.aperture) ? ("f/" + msg.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
-        bufferSeconds: intervalometer.autoSettings.paddingTimeMs / 1000,
-        rampModeText: intervalometer.currentProgram.rampMode,
-        intervalModeText: intervalometer.currentProgram.rampMode == 'auto' ? intervalometer.currentProgram.intervalMode : 'fixed',
+        bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
+        rampModeText: core.currentProgram.rampMode,
+        intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
-        shutterSeconds: camera.ptp.settings.details.shutter ? camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) : 0,
+        shutterSeconds: msg.cameraSettings.details.shutter ? lists.getSecondsFromEv(msg.cameraSettings.details.shutter.ev) : 0,
         durationSeconds: (new Date() / 1000) - msg.startTime,
         captureStartTime: msg.captureStartTime,
         running: msg.running
@@ -3172,7 +3158,7 @@ intervalometer.on('status', function(msg) {
     }
 });
 
-camera.ptp.on('connectionError', function(msg) {
+core.on('camera.connectionError', function(msg) {
     if(ui.currentOrigin() == 'alert') {
         ui.back();
     }
@@ -3183,7 +3169,7 @@ camera.ptp.on('connectionError', function(msg) {
     console.log("Camera connection ERROR: ", msg);
 });
 
-intervalometer.on('error', function(msg) {
+core.on('intervalometer.error', function(msg) {
     if(ui.currentOrigin() == 'alert') {
         ui.back();
     }
@@ -3194,8 +3180,12 @@ intervalometer.on('error', function(msg) {
     console.log("Intervalometer ERROR: ", msg);
 });
 
-function getMotionStatus() {
-    var status = nmx.getStatus();
+var nmxStatus = {connected:false};
+function getMotionStatus(status) {
+    if(!status) {
+        status = core.nmxStatus || nmxStatus;
+    }
+    nmxStatus = status;
     var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
     var motors = [];
     motors.push({driver:'NMX', motor:1, connected:status.motor1});
@@ -3207,8 +3197,19 @@ function getMotionStatus() {
     };
 }
 
-nmx.on('status', function(){
-    var motion = getMotionStatus();
+core.on('nmx.status', function(status) {
+    var motion = getMotionStatus(status);
     app.send('motion', motion);
+    if (status.connected) {
+        oled.setIcon('bt', true);
+        //stopScan();
+        ui.reload();
+    } else {
+        oled.setIcon('bt', false);
+        ui.reload();
+        wifi.resetBt(function(){
+            //startScan();
+        });
+    }
 });
 

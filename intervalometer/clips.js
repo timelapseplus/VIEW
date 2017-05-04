@@ -1,12 +1,12 @@
 var exec = require('child_process').exec;
 require('rootpath')();
 var image = require('camera/image/image.js');
+var core = require('intervalometer/intervalometer-client.js');
 var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 
 var db = require('system/db.js');
-var camera = require('camera/camera.js');
 
 var clips = {};
 
@@ -204,9 +204,9 @@ clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callbac
 }
 
 clips.saveXMPsToCard = function(clipNumber, callback) {
-    if (camera.ptp.sdPresent) {
-        camera.ptp.mountSd(function() {
-            if (camera.ptp.sdMounted) {
+    if (core.sdPresent) {
+        core.mountSd(function() {
+            if (core.sdMounted) {
                 var destFolder = "/media/tl-" + clipNumber + "-xmp";
                 console.log("writing XMPs to " + destFolder);
                 fs.mkdir(destFolder, function(err) {
@@ -242,7 +242,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                                                         });
                                                     } else {
                                                         setTimeout(function() {
-                                                            camera.ptp.unmountSd(function() {
+                                                            core.unmountSd(function() {
                                                                 if(callback) callback();
                                                             });
                                                         }, 500);
@@ -256,7 +256,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                                 } else {
                                     clips.writeXMPs(clipNumber, 1, destFolder, function(){
                                         setTimeout(function() {
-                                            camera.ptp.unmountSd(function() {
+                                            core.unmountSd(function() {
                                                 if(callback) callback();
                                             });
                                         }, 500);
@@ -265,7 +265,7 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
                             } else {
                                 clips.writeXMPs(clipNumber, 0, destFolder, function(){
                                     setTimeout(function() {
-                                        camera.ptp.unmountSd(function() {
+                                        core.unmountSd(function() {
                                             if(callback) callback();
                                         });
                                     }, 500);
@@ -350,7 +350,7 @@ clips.getTimelapseData = function (clipNumber, cameraNumber, callback) {
                     dataSet.push({
                         fileNumberString: fileNumberString,
                         evCorrection: clipFrames[i].details.evCorrection,
-                        evSetting: clipFrames[i].details.targetEv,
+                        evSetting: clipFrames[i].details.actualEv,
                         latitude: clipFrames[i].details.latitude,
                         longitude: clipFrames[i].details.longitude,
                     });
@@ -363,25 +363,32 @@ clips.getTimelapseData = function (clipNumber, cameraNumber, callback) {
 
 clips.writeXMPs = function(clipNumber, cameraNumber, destinationFolder, callback) {
     var name = "tl-" + clipNumber;
-    var smoothing = 5; // blend changes across +/- 5 frames (11 frame average)
+    var smoothing = 8; // blend changes across +/- 8 frames (15 frame average)
 
     clips.getTimelapseData(clipNumber, cameraNumber, function(err, data) {
         if (!err && data) {
-            for (var i = 1; i < data.length; i++) {
-                var smoothCorrection = 0;
-                if(smoothing && i > smoothing && i < data.length - smoothing) {
-                    var evSetting = data[i].evSetting;
-                    var evSum = evSetting;
-                    for(var j = 0; j < smoothing; j++) evSum += data[i - j].evSetting;
-                    for(var j = 0; j < smoothing; j++) evSum += data[i + j].evSetting;
-                    smoothCorrection = evSum / (smoothing * 2 + 1) - evSetting;
+            var i = 0;
+            var writeXMPfile = function() {
+                if(i < data.length) {
+                    var smoothCorrection = 0;
+                    if(smoothing && i > smoothing && i < data.length - smoothing) {
+                        var evSetting = data[i].evSetting;
+                        var evSum = evSetting;
+                        for(var j = 0; j < smoothing; j++) evSum += data[i - j].evSetting;
+                        for(var j = 0; j < smoothing; j++) evSum += data[i + j].evSetting;
+                        smoothCorrection = evSum / (smoothing * 2 + 1) - evSetting;
+                    }
+                    var xmpFile = destinationFolder + "/" + data[i].fileNumberString + ".xmp";
+                    console.log("Writing " + xmpFile, ",", data[i].evSetting, ",", data[i].evCorrection - smoothCorrection, ",", smoothCorrection);
+                    var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
+                    image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
+                    i++;
+                    setImmediate(writeXMPfile);
+                } else {
+                    if (callback) callback();
                 }
-                var xmpFile = destinationFolder + "/" + data[i].fileNumberString + ".xmp";
-                console.log("Writing " + xmpFile);
-                var desc = name + " created with the Timelapse+ VIEW\nImage #" + data[i].fileNumberString + "\nBase Exposure: " + data[i].evCorrection - smoothCorrection;
-                image.writeXMP(xmpFile, data[i].evCorrection - smoothCorrection, desc, name, data[i].latitude, data[i].longitude);
             }
-            if (callback) callback();
+            writeXMPfile();
         } else {
             console.log("clips.writeXMPs: ", err);
             if (callback) callback(err);

@@ -73,7 +73,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
 })
 
-.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicHistory', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicHistory) {
+.controller('AppCtrl', ['$scope', '$timeout', '$http', '$websocket', '$location', '$ionicPopup', '$ionicActionSheet', '$interval', '$ionicModal', '$state', 'localStorageService', '$ionicHistory', '$ionicSideMenuDelegate', '$ionicScrollDelegate', function($scope, $timeout, $http, $websocket, $location, $ionicPopup, $ionicActionSheet, $interval, $ionicModal, $state, localStorageService, $ionicHistory, $ionicSideMenuDelegate, $ionicScrollDelegate) {
     console.log("AppCtrl");
 
     $scope.moment = moment;
@@ -115,12 +115,68 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $ionicHistory.clearHistory();
     }*/
 
+    var controls = {};
+
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
         localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
-        }
+        } /*else if(toState.name == "app.capture") {
+            if(controls.joystick) {
+                controls.joystick.delete();
+                delete controls.joystick;
+            }
+            if(controls.slider) {
+                controls.slider.delete();
+                delete controls.slider;
+            }
+            $timeout(function(){
+                controls.joystick = new window.TouchControl('joystick');
+                controls.joystick.on('pos', function(x, y) {
+                    $scope.joystick('pan', x);
+                    $scope.joystick('tilt', y);
+                    console.log("joystick pos", x, y);
+                });
+                controls.joystick.on('start', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("disabing scroll");
+                        $ionicSideMenuDelegate.canDragContent(false);
+                        $ionicScrollDelegate.freezeAllScrolls(false);
+                        //$ionicScrollDelegate.getScrollView().options.scrollingY = false;
+                    });
+                });
+                controls.joystick.on('stop', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("enabling scroll");
+                        $ionicSideMenuDelegate.canDragContent(true);
+                        $ionicScrollDelegate.freezeAllScrolls(true);
+                        //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
+                    });
+                });
+                controls.slider = new window.TouchControl('slider');
+                controls.slider.on('pos', function(x) {
+                    $scope.joystick('slide', x);
+                    console.log("slider pos", x);
+                });
+                controls.slider.on('start', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("disabing scroll");
+                        $ionicSideMenuDelegate.canDragContent(false);
+                        $ionicScrollDelegate.freezeAllScrolls(false);
+                        //$ionicScrollDelegate.getScrollView().options.scrollingY = false;
+                    });
+                });
+                controls.slider.on('stop', function(x, y) {
+                    $scope.$apply(function(){
+                        console.log("enabling scroll");
+                        $ionicSideMenuDelegate.canDragContent(true);
+                        $ionicScrollDelegate.freezeAllScrolls(true);
+                        //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
+                    });
+                });
+            });
+        }*/
     });
 
     function updateCache() {
@@ -433,7 +489,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     callback(null, $scope.camera);
                     if (msg.connected) {
                         $scope.status = '';
-                        setTimeout(function() {
+                        $timeout(function() {
                             sendMessage('get', {
                                 key: 'settings'
                             });
@@ -948,6 +1004,36 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     }
 
+    var joystickTimers = {};
+    $scope.joystick = function(axisName, speed) {
+        var index = null;
+        var axisId = null;
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].name.toLowerCase() == axisName.toLowerCase()) {
+                index = i;
+                axisId = $scope.axis[index].id;
+                break;
+            }
+        }
+        if(index === null) return false;
+        if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
+        joystickTimers[axisName] = $timeout(function(){
+            console.log("moving ", axisId);
+            var parts = axisId.split('-');
+            if (parts.length == 2) {
+                var driver = parts[0];
+                var motor = parts[1];
+                console.log("joystick motor" + axisId, speed);
+                sendMessage('motion', {
+                    key: 'joystick',
+                    val: speed * 100,
+                    driver: driver,
+                    motor: motor
+                });
+            }
+        }, 200);
+    }
+
     $scope.focusPos = 0;
     $scope.focus = function(dir, repeat) {
         if (!repeat) repeat = 1;
@@ -1109,7 +1195,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $timeout(function() {
             $scope.preview(false);
             if ($scope.currentKf) {
-                $scope.currentKf.jpeg = $scope.lastImage.jpeg;
+                $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
             }
         }, delay);
         if ($scope.currentKfIndex == 0) {
@@ -1233,6 +1319,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             axis.motor = axisInfo.motor;
             axis.driver = axisInfo.driver;
             axis.connected = axisInfo.connected;
+            axis.pos = 0;
 
             var axisIndex = $scope.getAxisIndex(axisId);
             if(!$scope.axis) $scope.axis = [];        

@@ -3,10 +3,8 @@ var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
-var mcu = require('hardware/mcu.js');
 var nmx = require('drivers/nmx.js');
 var image = require('camera/image/image.js');
-var power = require('hardware/power.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
@@ -41,56 +39,28 @@ var intervalometer = new EventEmitter();
 var timerHandle = null;
 var delayHandle = null;
 
-defaultProgram = {
-    rampMode: "fixed",
-    intervalMode: "fixed",
-    interval: 5,
-    dayInterval: 5,
-    nightInterval: 35,
-    frames: 300,
-    destination: 'camera',
-    nightCompensation: -1,
-    isoMax: -6,
-    isoMin:  0,
-    rampParameters:  'S+I',
-    apertureMax: -2,
-    apertureMin:  -4,
-    manualAperture: -5,
-    keyframes: [{
-        focus: 0,
-        ev: "not set",
-        motor: {}
-    }]
-};
-
 var rate = 0;
-var status = {
+
+intervalometer.autoSettings = {
+    paddingTimeMs: 2000
+}
+
+
+intervalometer.timelapseFolder = false;
+
+status = {
     running: false,
     frames: 0,
     framesRemaining: 0,
     rampRate: 0,
     intervalMs: 0,
     message: "",
-    rampEv: null
+    rampEv: null,
+    autoSettings: {
+        paddingTimeMs: 2000
+    }
 }
-
-intervalometer.autoSettings = {
-    paddingTimeMs: 5000
-}
-
-var nmx = null;
-var db = null;
-var mcu = null;
-
-intervalometer.timelapseFolder = false;
-
 intervalometer.status = status;
-
-intervalometer.load = function(program) {
-    if(!program.frames) program.frames = Infinity; // Infinity comes back as null from the DB
-    intervalometer.currentProgram = _.extendOwn(defaultProgram, intervalometer.currentProgram, program);
-}
-intervalometer.load(defaultProgram);
 
 var auxTrigger = new Button('input-aux2');
 
@@ -145,9 +115,9 @@ function getDetails(file) {
         i: exp.status.iComponent,
         d: exp.status.dComponent,
     };
-    if(mcu && mcu.lastGpsFix) {
-        d.latitude = mcu.lastGpsFix.lat;
-        d.longitude = mcu.lastGpsFix.lon;
+    if(intervalometer.gpsData) {
+        d.latitude = intervalometer.gpsData.lat;
+        d.longitude = intervalometer.gpsData.lon;
     }
     return d;
 }
@@ -158,22 +128,8 @@ function calculateIntervalMs(interval, currentEv) {
     var dayEv = 8;
     var nightEv = -2;
     if (intervalometer.currentProgram.intervalMode == 'fixed') {
-        //console.log("using fixed interval: ", interval);
         return interval * 1000;
     } else {
-        /*if (status.frames == 0) {
-            startShutterEv = shutterEv;
-            if (startShutterEv < -5) startShutterEv = -5;
-        }
-        var thirtySecondEv = -11;
-        var newInterval = interpolate.linear([{
-            x: startShutterEv,
-            y: parseInt(intervalometer.currentProgram.dayInterval)
-        }, {
-            x: thirtySecondEv,
-            y: parseInt(intervalometer.currentProgram.nightInterval)
-        }], shutterEv);*/
-
         var newInterval = interpolate.linear([{
             x: dayEv,
             y: parseInt(intervalometer.currentProgram.dayInterval)
@@ -203,20 +159,22 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
             console.log("KF: Seconds since start: " + secondsSinceStart);
+            var totalSeconds = 0;
             kfPoints = keyframes.map(function(kf) {
+                totalSeconds += kf.seconds;
                 if(axisSubIndex != null) {
                     return {
-                        x: kf.seconds,
+                        x: totalSeconds,
                         y: kf[axisName][axisSubIndex] || 0
                     }
                 } else {
                     return {
-                        x: kf.seconds,
+                        x: totalSeconds,
                         y: kf[axisName] || 0
                     }
                 }
             });
-            kfSet = interpolate.linear(kfPoints, secondsSinceStart);
+            kfSet = interpolate.catmullRomSpline(kfPoints, secondsSinceStart);
             console.log("FK: " + axisName + " target: " + kfSet);
         }
         var axisNameExtension = '';
@@ -415,7 +373,7 @@ function runPhoto() {
                 });
             });
         } else {
-            if (status.rampEv === null) status.rampEv = camera.getEvFromSettings(camera.ptp.settings);
+            if (status.rampEv === null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
             captureOptions.exposureCompensation = status.evDiff || 0;
             captureOptions.calculateEv = true;
 
@@ -449,7 +407,7 @@ function runPhoto() {
                     } else {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 1000; // add a second for setting exposure
+                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
                     status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
@@ -490,7 +448,13 @@ function error(msg) {
 camera.ptp.on('saveError', function(msg) {
     if (intervalometer.status.running) {
         intervalometer.cancel('err');
-        error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.");
+        error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.\nSystem message: " + msg);
+    }
+});
+camera.ptp.on('saveErrorCardFull', function(msg) {
+    if (intervalometer.status.running) {
+        intervalometer.cancel('err');
+        error("SD card full! Unabled to save RAW images.\nThe time-lapse has been stopped.");
     }
 });
 
@@ -498,14 +462,16 @@ intervalometer.validate = function(program) {
     var results = {
         errors: []
     };
+    if(program.frames === null) program.frames = Infinity;
+    
     if (parseInt(program.delay) < 1) program.delay = 2;
     if(program.rampMode == 'fixed') {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
         if(program.intervalMode == 'fixed' || program.rampMode == 'fixed') {
-            if (parseInt(program.interval) < 2) results.errors.push({param:'interval', reason: 'interval not set or too short'});
+            if (parseInt(program.interval) < 1) results.errors.push({param:'interval', reason: 'interval not set or too short'});
         } else {
-            if (parseInt(program.dayInterval) < 5) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 5 seconds'});
+            if (parseInt(program.dayInterval) < 2) results.errors.push({param:'dayInterval', reason: 'dayInterval must be at least 2 seconds'});
             if (parseInt(program.nightInterval) < program.dayInterval) results.errors.push({param:'nightInterval', reason: 'nightInterval shorter than dayInterval'});
         }        
     }
@@ -557,8 +523,7 @@ intervalometer.cancel = function(reason) {
             intervalometer.emit("status", status);
             console.log("==========> END TIMELAPSE", status.tlName);
         });
-    }
-    power.performance('low');
+    }    
 }
 
 intervalometer.run = function(program) {
@@ -566,8 +531,6 @@ intervalometer.run = function(program) {
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
-
-    power.performance('high');
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
@@ -599,9 +562,11 @@ intervalometer.run = function(program) {
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
-                if(mcu && mcu.lastGpsFix) {
-                    status.latitude = mcu.lastGpsFix.lat;
-                    status.longitude = mcu.lastGpsFix.lon;
+                status.cameraSettings = camera.ptp.settings;
+
+                if(intervalometer.gpsData) {
+                    status.latitude = intervalometer.gpsData.lat;
+                    status.longitude = intervalometer.gpsData.lon;
                 }
                 exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
                 status.running = true;
@@ -680,6 +645,10 @@ intervalometer.run = function(program) {
 
 }
 
+intervalometer.addGpsData = function(gpsData, callback) {
+    intervalometer.gpsData = gpsData;
+    callback && callback();
+}
 
 
 module.exports = intervalometer;

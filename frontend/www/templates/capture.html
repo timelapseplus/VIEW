@@ -4,6 +4,16 @@
           <h2 class="title">Reconnecting...</h2>
         </div>
         <div ng-include="'templates/_connect.html'"></div>
+
+        <!--div class="list">
+            <div class="row">
+                <center style="width:100%">
+                    <canvas id="joystick" width="200px" height="200px"></canvas>
+                    <canvas id="slider" width="250px" height="60px"></canvas>
+                </center>
+            </div>
+        </div-->
+        
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 

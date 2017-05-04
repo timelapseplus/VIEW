@@ -12,6 +12,13 @@ For example, you might change some of the default colors:
   color: #eee;
   background-color: #222; }
 
+.lock-screen {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    position: fixed;
+}
+
 input.view-input {
     border: none !important;
     background-color: transparent !important;
@@ -19,6 +26,11 @@ input.view-input {
     font-weight: 200 !important;
     font-size: 36pt !important;
     border-bottom: 1px dotted white !important;
+}
+
+.popup-body input {
+  color: #000;
+  font-weight: bold;
 }
 
 .big {

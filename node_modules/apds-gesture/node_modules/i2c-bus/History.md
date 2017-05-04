@@ -1,0 +1,153 @@
+1.2.1 / Feb 12 2017
+===================
+
+  * documentation for forceAccess option improved
+  * upgrade to nan v2.5.1
+
+1.2.0 / Jan 06 2017
+===================
+
+  * added forceAccess option which allows access to devices even if they are already in use by a driver
+  * upgrade to nan v2.5.0, lodash v4.17.4 and async v2.1.4
+
+1.1.2 / Oct 05 2016
+===================
+
+  * allow scan and scanSync to continue scanning on all errors
+  * upgrade to lodash v4.16.3 and async v2.0.1
+
+1.1.1 / Jul 22 2016
+===================
+
+  * examples SI1145-sync.js and two-devices-win.js added
+  * nan 2.4.0, lodash 4.13.1, async 2.0.0
+
+1.1.0 / May 23 2016
+===================
+
+  * initial windows support
+
+1.0.3 / Apr 27 2016
+===================
+
+  * nan v2.3.2, lodash 4.11.1
+
+1.0.2 / Jan 29 2016
+===================
+
+  * nan 2.2.0, async 1.5.2, lodash 4.1.0
+
+1.0.1 / Dec 05 2015
+===================
+
+  * prevent Nan::ErrnoException related segmentation faults in v0.10.29
+
+1.0.0 / Oct 10 2015
+===================
+
+  * prevent leaking of fds for busy devices [#13](https://github.com/fivdi/i2c-bus/issues/13)
+  * refactored error objects [#12](https://github.com/fivdi/i2c-bus/issues/12)
+  * nan 2.1.0
+
+0.12.0 / Oct 06 2015
+====================
+
+  * added scan and scanSync [#11](https://github.com/fivdi/i2c-bus/issues/11)
+  * nan 2.0.9
+
+0.11.3 / Sep 02 2015
+====================
+  * nan1 to nan2 migration for iojs v3
+  * documented configuration on edison arduino base board
+  * documented configuration on the pi
+
+0.11.2 / May 07 2015
+====================
+  * io.js v2.0.0+ compatibility [#7](https://github.com/fivdi/i2c-bus/issues/7)
+
+0.11.1 / Mar 28 2015
+====================
+
+  * Simplify concurrent asynchronous access to multiple devices [#4](https://github.com/fivdi/i2c-bus/issues/4)
+  * nan 1.7.0
+
+0.11.0 / Feb 01 2015
+====================
+
+  * added writeBlock and writeBlockSync - UNTESTED and undocumented due to lack of supporting hardware
+  * added readBlock and readBlockSync - UNTESTED and undocumented due to lack of supporting hardware
+
+0.10.0 / Jan 24 2015
+====================
+
+  * added async example
+  * strerror replaced with strerror_r
+  * nan 1.5.3
+  * added async access to multiple devices concurrently example
+
+0.9.0 / Dec 22 2014
+===================
+
+  * callback for writeI2cBlock now gets 3 arguments (err, bytesWritten, buffer)
+  * added writeQuick and writeQuickSync
+  * added example i2cquickscan to scan a bus for devices like 'i2cdetect -y -q 1'
+  * fixed i2cscan example on the pi
+
+0.8.0 / Dec 19 2014
+===================
+
+  * added a plain i2c performance test
+  * added i2cFuncs and i2cFuncsSync
+  * added an example that does the same as command 'i2cdetect -F 1'
+  * renamed readBytes to readI2cBlock
+  * renamed readBytesSync to readI2cBlockSync
+  * renamed writeBytes to writeI2cBlock
+  * renamed writeBytesSync to writeI2cBlockSync
+  * added an example that scans a bus for devices like 'i2cdetect -y -r 1'
+
+0.7.0 / Dec 16 2014
+===================
+
+  * faster compile
+  * added plain i2cRead, i2cReadSync, i2cWrite, and i2cWriteSync methods
+
+0.6.0 / Dec 15 2014
+===================
+
+  * use __u8, __u16, and __s32 where appropriate
+  * added brute force memory leak tests
+  * added performance tests
+  * added an example using two devices on the same bus
+  * renamed all public api methods
+
+0.5.0 / Dec 14 2014
+===================
+
+  * added block operations
+
+0.4.0 / Dec 13 2014
+===================
+
+  * check for valid arguments in addon methods
+  * added sync and async tests
+
+0.3.0 / Dec 13 2014
+===================
+
+  * improved example
+
+0.2.0 / Dec 13 2014
+===================
+
+  * corrected initial release date
+  * use callbacks rather than events for asychronous open method
+  * documentation
+  * return this in synchronous write methods
+  * added close and closeSync methods
+  * added example
+
+0.1.0 / Dec 09 2014
+===================
+
+  * initial release
+

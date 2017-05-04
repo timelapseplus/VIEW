@@ -55,12 +55,12 @@ process.on('message', function(msg) {
             camera.connect(function(err) {
                 if (err) {
                     if(err.message) sendEvent('connectionError', err.message);
-                    console.log("No (wifi) cameras found, exiting worker");
+                    console.log("WORKER: No (wifi) cameras found, exiting worker");
                     exit();
                     return;
                 }
                 camera.on('disconnected', function() {
-                    console.log('(worker) Camera lost connection, exiting...');
+                    console.log('WORKER: Camera lost connection, exiting...');
                     exit();
                 });
                 camera.model = 'SonyWifi';
@@ -90,7 +90,7 @@ process.on('message', function(msg) {
                         });
                     }
                 }
-                console.log('Found', camera.model);
+                console.log('WORKER: Found', camera.model);
 
                 camera._processEvents(false, function(){
                     getConfig(false, false, function() {
@@ -99,23 +99,23 @@ process.on('message', function(msg) {
                 });
             });
         } else {
-            console.log("Searching for camera at port " + port + "...");
+            console.log("WORKER: Searching for camera at port " + port + "...");
             GPhoto.list(function(list) {
                 for (var i = 0; i < list.length; i++) {
                     if (list[i].model != 'Mass Storage Camera' && list[i].port == port) {
                         camera = list[i];
-                        console.log("camera:", camera);
+                        console.log("WORKER: camera:", camera);
                         break;
                     }
                 }
                 if (!camera) {
-                    console.log("No cameras found, exiting worker");
+                    console.log("WORKER: No cameras found, exiting worker");
                     exit();
                     return;
                 }
                 //waitEvent();
 
-                console.log('Found', camera.model);
+                console.log('WORKER: Found', camera.model);
 
                 getConfig(false, false, function() {
                     sendEvent('connected', camera.model);
@@ -127,12 +127,12 @@ process.on('message', function(msg) {
     }
     if (msg.type == 'command') {
         if (msg.do == 'exit') {
-            console.log("Received message, exiting worker");
+            console.log("WORKER: Received message, exiting worker");
             exit();
         }
     }
     if (msg.type == 'camera' && camera) {
-        if (msg.do) console.log("Worker: ", msg.do, msg.options);
+        if (msg.do) console.log("WORKER: ", msg.do, msg.options);
         if (msg.do == 'capture') capture(msg.options, buildCB(msg.id));
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(buildCB(msg.id));
@@ -143,15 +143,14 @@ process.on('message', function(msg) {
                 previewCrop = null;
             } else {
                 previewCrop = msg.data;
-                console.log("setting crop:", previewCrop);
+                console.log("WORKER: setting crop:", previewCrop);
             }
         }
         if(msg.do == 'waitComplete') waitComplete(buildCB(msg.id));
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
-        if (msg.get == 'all') getConfig(false, msg.cached, buildCB(msg.id));
         if (msg.get == 'settings') {
-            console.log("called getConfig in", new Date() / 1000 - msg.time, "seconds");
-            getConfig(false, msg.cached, buildCB(msg.id));
+            console.log("WORKER: called getConfig in", new Date() / 1000 - msg.time, "seconds");
+            getConfig(false, false, buildCB(msg.id));
         }
     }
     if (msg.type == 'setup') {
@@ -181,7 +180,7 @@ function thumbnailFileFromIndex(index, cameraIndex) {
         indexStr = '0' + indexStr;
     }
     if(!cameraIndex) cameraIndex = 1;
-    return thumbnailPath + "/img" + indexStr + "-cam" + cameraIndex + ".jpg"
+    return thumbnailPath + "/cam-" + cameraIndex + "-" + indexStr + ".jpg"
 }
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
@@ -196,7 +195,7 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
             image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
                     fs.writeFile(thumbnailFileFromIndex(index, cameraIndex), jpgBuf, function() {
-                        console.log(">>>>>>>>>> completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
+                        console.log("WORKER: completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
                     });
                 }
             });
@@ -214,11 +213,15 @@ function processRawPath(path, options, info, callback) {
         var dest;
         if (options.saveRaw) {
             dest = options.saveRaw + info.substr(-4); // get extension
-            console.log("Saving RAW image " + path + " to " + dest);
+            console.log("WORKER: Saving RAW image " + path + " to " + dest);
             execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
                 if(err || stderr) {
-                    console.log("#################### ERROR SAVING RAW IMAGE:", err, stderr);
-                    sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
+                    console.log("WORKER: #################### ERROR SAVING RAW IMAGE:", err, stderr);
+                    if(stderr.indexOf("No space left on device") !== -1) {
+                        sendEvent('saveErrorCardFull', "Error saving RAW file " + dest + "\nNo space left on SD card.");
+                    } else {
+                        sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
+                    }
                 }
                 sdWriting = false;
                 fs.unlink(path);
@@ -250,8 +253,8 @@ function processRawPath(path, options, info, callback) {
                 }
                 image.exposureValue(img, function(err, ev) {
                     ev = ev + options.exposureCompensation;
-                    console.log("ev:", ev, " (compensation: " + options.exposureCompensation + ")");
-                    sendEvent('status', "photo ev: " + ev);
+                    console.log("WORKER: ev:", ev, " (compensation: " + options.exposureCompensation + ")");
+                    sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
                     sendEvent('ev', ev);
                     if (callback) {
                         callback(err, {
@@ -293,13 +296,11 @@ function capture(options, callback) {
     cameraBusy = true;
     sendEvent('status', "waiting on camera");
     if (!options) {
-        console.log("worker: capture: initializing options");
         options = {
             thumbnail: true
         };
     }
     if (!options.exposureCompensation) options.exposureCompensation = 0;
-    console.log("running camera.takePicture()");
     var captureOptions = {};
     if (options.saveRaw) {
         captureOptions = {
@@ -314,41 +315,40 @@ function capture(options, callback) {
             keepOnCamera: true
         }
     }
-    console.log("cameraOptions:", captureOptions);
-    console.log("options:", options);
+    //console.log("cameraOptions:", captureOptions);
+    //console.log("options:", options);
+    console.log("WORKER: running camera.takePicture()");
     camera.takePicture(captureOptions, function(err, photo, info) {
-        console.log("running camera.takePicture() -> callback()");
+        console.log("WORKER: running camera.takePicture() -> callback(). File:", info);
         cameraBusy = false;
-        console.log("file info:", info);
         if (!err && photo) {
             errCount = 0;
-            console.log("file info:", info);
             if (options.thumbnail && supports.thumbnail) {
                 sdWriting = false;
                 //if (!options.index) options.index = 0;
                 if(options.calculateEv) {
                     sendEvent('status', "analyzing photo");
                     var size = {
-                        x: 60,
+                        x: 120,
                         q: 80
                     }
-                    console.log("downsizing preview for luminance calc...");
+                    //console.log("WORKER: downsizing preview for luminance calc...");
                     image.downsizeJpeg(photo, size, null, function(err, lowResJpg) {
                         var img;
                         if (!err && lowResJpg) {
-                            console.log("running luminance calc on low-res preview...", lowResJpg.length, "bytes");
+                            console.log("WORKER: running luminance calc on low-res preview...", lowResJpg.length, "bytes");
                             img = lowResJpg;
                         } else {
-                            console.log("running luminance calc on full-res preview...");
+                            console.log("WORKER: running luminance calc on full-res preview...");
                             img = photo;
                         }
                         var startTime = new Date() / 1000;
                         image.exposureValue(img, function(err, ev) {
-                            console.log("adjusting ev by ", options.exposureCompensation);
+                            console.log("WORKER: adjusting ev by ", options.exposureCompensation);
                             ev = ev + options.exposureCompensation;
                             var processingTime = (new Date() / 1000) - startTime;
-                            console.log("luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
-                            sendEvent('status', "photo ev: " + ev);
+                            console.log("WORKER: luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
+                            sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
                             //sendEvent('ev', ev);
                             if (callback) callback(err, {
                                 ev: ev,
@@ -378,7 +378,7 @@ function capture(options, callback) {
                 });
             } else {
                 sendEvent('status', "converting photo");
-                console.log("Received photo", photo);
+                console.log("WORKER: Received photo", photo);
                 processRawPath(photo, options, info, callback);
             }
         } else {
@@ -389,7 +389,7 @@ function capture(options, callback) {
                 sendEvent('captureFailed', err);
                 if (callback) callback(err, null);
             } else {
-                console.log("Error during capture:", err, "(retrying " + errCount + " of 5)");
+                console.log("WORKER: Error during capture:", err, "(retrying " + errCount + " of 5)");
                 setTimeout(function() {
                     capture(options, callback);
                 });
@@ -403,7 +403,7 @@ function captureTethered(timeoutSeconds, callback) {
     if (!timeoutSeconds) timeoutSeconds = 5;
     timeoutSeconds = Math.ceil(timeoutSeconds);
     if (timeoutSeconds < 0) timeoutSeconds = 1;
-    console.log("tethered capture timeout: ", timeoutSeconds);
+    console.log("WORKER: tethered capture timeout: ", timeoutSeconds);
 
     var startSeconds = new Date() / 1000;
 
@@ -412,7 +412,7 @@ function captureTethered(timeoutSeconds, callback) {
             timeoutMs: 1000
         }, function(err1, event, path) {
             if (!err1 && event == "file_added" && path) {
-                console.log("New Photo: ", path);
+                console.log("WORKER: New Photo: ", path);
                 camera.downloadPicture({
                     keepOnCamera: true,
                     thumbnail: thumbnail,
@@ -420,11 +420,11 @@ function captureTethered(timeoutSeconds, callback) {
                     targetPath: '/tmp/tmpXXXXXX'
                 }, function(err2, tmp) {
                     if (!err2 && tmp) {
-                        console.log("Received image: ", err2, tmp);
+                        console.log("WORKER: Received image: ", err2, tmp);
                         if (thumbnail) {
                             image.getJpegBuffer(tmp, function(err3, jpg) {
                                 if (!err3 && jpg) {
-                                    console.log("read to buffer");
+                                    console.log("WORKER: read to buffer");
                                     if (thumbnailPath) {
                                         fs.readFile(thumbnailPath + "/count.txt", function(err, data) {
                                             var count = 0;
@@ -442,11 +442,11 @@ function captureTethered(timeoutSeconds, callback) {
                                         });
                                     }
                                     sendEvent('status', "analyzing photo");
-                                    console.log("analyzing photo");
+                                    console.log("WORKER: analyzing photo");
                                     image.exposureValue(jpg, function(err, ev) {
                                         ev = ev + options.exposureCompensation;
-                                        console.log("ev:", ev);
-                                        sendEvent('status', "photo ev: " + ev);
+                                        //console.log("ev:", ev);
+                                        sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
                                         sendEvent('ev', ev);
                                         if (callback) callback(null, ev);
                                     });
@@ -456,7 +456,7 @@ function captureTethered(timeoutSeconds, callback) {
                                         type: 'thumbnail'
                                     });
                                 } else {
-                                    console.log("error reading jpeg to buffer", err3);
+                                    console.log("WORKER: error reading jpeg to buffer", err3);
                                     if (callback) callback(err3, null);
                                 }
                                 fs.unlink(tmp);
@@ -467,8 +467,8 @@ function captureTethered(timeoutSeconds, callback) {
                                     sendEvent('status', "analyzing photo");
                                     image.exposureValue(jpg, function(err4, ev) {
                                         ev = ev + options.exposureCompensation;
-                                        console.log("ev:", ev);
-                                        sendEvent('status', "photo ev: " + ev);
+                                        //console.log("ev:", ev);
+                                        sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
                                         if (callback) callback(null, ev);
                                     });
                                     sendEvent('photo', {
@@ -484,7 +484,7 @@ function captureTethered(timeoutSeconds, callback) {
                         }
                     } else {
                         if (callback) callback(err, null);
-                        console.log("downloadFailed:", err);
+                        console.log("WORKER: downloadFailed:", err);
                         sendEvent('downloadFailed', err);
                     }
                 });
@@ -493,7 +493,7 @@ function captureTethered(timeoutSeconds, callback) {
                 if (seconds - startSeconds < timeoutSeconds) {
                     setTimeout(waitEvent);
                 } else {
-                    console.log("tethered capture timed out at ", seconds - startSeconds);
+                    console.log("WORKER: tethered capture timed out at ", seconds - startSeconds);
                     if (callback) callback("timed out", null);
                 }
             }
@@ -505,7 +505,7 @@ function captureTethered(timeoutSeconds, callback) {
 liveViewTimerHandle = null;
 
 function liveViewOff() {
-    console.log("setting liveview off");
+    console.log("WORKER: setting liveview off");
     previewCrop = null;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
@@ -531,7 +531,7 @@ function preview(callback) {
         return;
     }
     cameraBusy = true;
-    console.log("preview");
+    //console.log("WORKER: preview");
 
     liveViewOffTimerReset(6000);
 
@@ -545,15 +545,15 @@ function preview(callback) {
         if (callback) callback();
         if (!err && tmp) {
             var size = {
-                x: 300,
-                y: 200,
+                x: 600,
+                y: 400,
                 q: 70
             }
             image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
                 if(typeof tmp == 'string') fs.unlink(tmp);
                 if (centerFaces && !previewCrop) {
                     image.faceDetection(jpg, function(jpgface) {
-                        console.log("photo length: ", jpgface.length);
+                        console.log("WORKER: photo length: ", jpgface.length);
                         sendEvent('photo', {
                             jpeg: jpgface,
                             zoomed: false,
@@ -576,7 +576,7 @@ function preview(callback) {
 }
 
 function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter', etc
-    console.log('setting ' + item + ' to ' + value + " (" + (typeof value) + ")");
+    console.log('WORKER: setting ' + item + ' to ' + value + " (" + (typeof value) + ")");
     if(port == "SonyWifi" && item == "liveview") {
         if(value) {            
             if(!camera.lvMode) camera.startViewfinder();
@@ -587,8 +587,8 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         return callback && callback();
     }
     getConfig(true, true, function() {
-        if (!settings.mapped) {
-            console.log('error', "unable to retrieve camera settings");
+        if (!settings) {
+            console.log('WORKER: error', "unable to retrieve camera settings");
             sendEvent('error', "unable to retrieve camera settings");
             if (callback) callback("unable to retrieve camera settings");
             return;
@@ -597,12 +597,12 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         var list = null;
         var toggle = false;
 
-        console.log("checking list... (" + item + ")");
+        //console.log("checking list... (" + item + ")");
         for (var i in LISTS.paramMap) {
             var handle = LISTS.paramMap[i].name;
             if (handle == item) {
-                item = settings.mapped.names[handle];
-                list = settings.mapped.lists[handle];
+                item = settings.names[handle];
+                list = settings.lists[handle];
                 if (LISTS.paramMap[i].type == "toggle") {
                     toggle = true;
                 }
@@ -611,7 +611,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         }
         if (list) {
             if (toggle) {
-                console.log("   (set " + item + " = " + value + ") (toggle)");
+                console.log("WORKER:  (set " + item + " = " + value + ") (toggle)");
                 camera.setConfigValue(item, value, function(err) {
                     if (err) sendEvent('error', err);
                     if (callback) callback(err);
@@ -620,7 +620,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             }
             for (var i = 0; i < list.length; i++) {
                 if (list[i].cameraName == value || list[i].name == value) {
-                    console.log("   (set " + item + " = " + value + ")");
+                    console.log("WORKER:  (set " + item + " = " + value + ")");
                     camera.setConfigValue(item, list[i].cameraName || value, function(err) {
                         if (err) sendEvent('error', err);
                         if (callback) callback(err);
@@ -628,14 +628,12 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
                     return;
                 }
             }
-            console.log('error', "invalid value for " + item);
+            console.log('WORKER: error', "invalid value for " + item);
             sendEvent('error', "invalid value for " + item);
             if (callback) callback("invalid value for " + item);
             return;
         } else {
-            console.log('error', "item not found in list: " + item + " = [" + value + "] (trying anyway)");
-            console.log("worker.js set() stack trace:");
-            console.trace();
+            console.log('WORKER: error', "item not found in list: " + item + " = [" + value + "] (trying anyway)");
             camera.setConfigValue(item, value, function(err) {
                 if (err) sendEvent('error', err);
                 if (callback) callback(err);
@@ -661,7 +659,7 @@ function mapParam(type, value, halfs) {
             }
         }
     }
-    if(!halfs) console.log("list item not found:", type, "[" + value + "]");
+    //console.log("list item not found:", type, "[" + value + "]");
     return null;
 }
 
@@ -689,7 +687,7 @@ function mapCameraList(type, cameraList) {
         }
         return list;
     } else {
-        console.log("list not found:", type);
+        //console.log("list not found:", type);
         return cameraList;
     }
 }
@@ -701,26 +699,22 @@ var firstSettings = true;
 
 function getConfig(noEvent, cached, cb) {
     if (cached && configCache) {
-        console.log("using cache for camera config");
+        console.log("WORKER: using cache for camera config");
         if (cb) cb(null, configCache);
         return;
     } 
     if (cameraBusy) {
-        if (configCache) {
-            if (cb) cb(null, configCache);
-        } else {
-            clearTimeout(configTimeoutHandle);
-            configTimeoutHandle = setTimeout(function() {
-                getConfig(noEvent, cached, cb);
-            }, 1000);
-        }
+        clearTimeout(configTimeoutHandle);
+        configTimeoutHandle = setTimeout(function() {
+            getConfig(noEvent, cached, cb);
+        }, 200);
         return;
     }
     cameraBusy = true;
-    console.log("Worker: retrieving settings...");
+    console.log("WORKER: Worker: retrieving settings...");
     camera.getConfig(function(er, data) {
         if(firstSettings) {
-            console.log("camera config:", JSON.stringify(data));
+            console.log("WORKER: camera config:", JSON.stringify(data));
             firstSettings = false;
         }
         cameraBusy = false;
@@ -755,7 +749,7 @@ function getConfig(noEvent, cached, cb) {
                         if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
                             var listHalfs = mapCameraList(handle + 'Halfs', data[item].available);
                             if(listHalfs && (listHalfs.length > list.length)) {
-                                console.log("using half stops for", handle);
+                                console.log("WORKER: using half stops for", handle);
                                 halfs = true;
                                 halfsUsed = true;
                                 list = listHalfs; // item seems to be in half stops
@@ -769,9 +763,9 @@ function getConfig(noEvent, cached, cb) {
                         break;
                     } else {
                         try {
-                            console.log("processing item", item);
+                            //console.log("processing item", item);
                             if (item == 'shutterspeed' && data.status && data.status.children.manufacturer.value == 'Sony Corporation') {
-                                console.log("manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
+                                console.log("WORKER: manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
                                 supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
                                 for (var j = 0; j < l.length; j++) {
@@ -779,7 +773,7 @@ function getConfig(noEvent, cached, cb) {
                                 }
                             }
                         } catch (e) {
-                            console.log("error manually adding shutter speeds:", e);
+                            console.log("WORKER: error manually adding shutter speeds:", e);
                         }
                         if (data[section] && data[section].children && data[section].children[item]) {
                             list = mapCameraList(handle, data[section].children[item].choices);
@@ -787,7 +781,7 @@ function getConfig(noEvent, cached, cb) {
                             if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
                                 var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices);
                                 if(listHalfs && (listHalfs.length > list.length)) {
-                                    console.log("using half stops for", handle);
+                                    console.log("WORKER: using half stops for", handle);
                                     halfs = true;
                                     halfsUsed = true;
                                     list = listHalfs; // item seems to be in half stops
@@ -797,7 +791,7 @@ function getConfig(noEvent, cached, cb) {
                             value = data[section].children[item].value;
                             detail = mapParam(handle, value, halfs);
                             name = item;
-                            if(detail) console.log(name + " = " + value + " (" + detail.name + ")");
+                            if(detail) console.log("WORKER: ", name + " = " + value + " (" + detail.name + ")");
                             break;
                         }
                     }
@@ -811,17 +805,17 @@ function getConfig(noEvent, cached, cb) {
                 mapped.names[handle] = name;
             }
 
-            settings.mapped = mapped;
-            data.mapped = mapped;
+            settings = mapped;
 
-            console.log("Mapped settings in ", (new Date() / 1000) - getConfigStartTime, "seconds");
+            console.log("WORKER: Mapped settings in ", (new Date() / 1000) - getConfigStartTime, "seconds");
 
             //console.log("mapped settings:", mapped);
-            configCache = data;
-            if (!noEvent) sendEvent('settings', data);
-            if (cb) cb(null, data);
+            configCache = mapped;
+            //if (!noEvent) 
+            sendEvent('settings', settings);
+            if (cb) cb(null, settings);
         } else {
-            settings.mapped = null;
+            settings = null;
             if (cb) cb(er, null);
         }
     });

@@ -33,7 +33,7 @@ camera.synchronized = true;
 var cbStore = {};
 var cbIndex = 0;
 
-camera.cameraList = function() {
+camera.cameraList = function(callback) {
     var list = [];
     for(var i = 0; i < workers.length; i++) {
         if(workers[i].connected) {
@@ -44,10 +44,11 @@ camera.cameraList = function() {
             });
         }
     }
+    callback && callback(list);
     return list;
 }
 
-camera.switchPrimary = function(cameraObject) {
+camera.switchPrimary = function(cameraObject, callback) {
     if(cameraObject._port) {
         console.log("switching primary camera to ", cameraObject.model);            
         var index = getWorkerIndex(cameraObject._port);
@@ -58,6 +59,7 @@ camera.switchPrimary = function(cameraObject) {
         camera.model = workers[index].model;
         camera.emit('connected', camera.model);
     }
+    callback && callback();
 }
 
 function getCallbackId(port, callerName, cb) {
@@ -218,15 +220,16 @@ var startWorker = function(port) {
                 }
                 if (!msg.value) msg.value = false;
                 if (msg.event == "settings") {
-                    var newSettings = (msg.value && msg.value.mapped) ? msg.value.mapped : {};
-                    if (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings)) {
-                        if(worker.port == camera.primaryPort) camera.emit(msg.event, msg.value);
-                    }
+                    var newSettings = msg.value ? msg.value : {};
                     console.log("capture target: ", newSettings.target);
                     if (!camera.target) camera.target = "CARD";
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target, null, worker);
-                    if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
+                    //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
+                    if (worker.port == camera.primaryPort && (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings))) {
+                        worker.settings = newSettings;
+                        camera.emit(msg.event, msg.value);
+                    }
                     worker.settings = newSettings;
                     if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
@@ -245,12 +248,12 @@ if(blockDevices.indexOf('mmcblk1p1') !== -1) {
     camera.sdDevice = '/dev/mmcblk1p1';
     console.log("SD card added:", camera.sdDevice);
     camera.sdPresent = true;
-    camera.emit("media", "sd");
 
     exec("mount", function(err, stdout, stderr) {
         if(stdout.indexOf('/dev/mmcblk1p1') !== -1) {
             camera.sdMounted = true;
         }
+        camera.emit("media", camera.sdMounted);
     });
 } else {
     exec("mount", function(err, stdout, stderr) {
@@ -320,9 +323,13 @@ monitor.on('add', function(device) {
         captureIndex = 1;
         camera.sdPresent = true;
         camera.sdDevice = device.DEVNAME;
-        if(camera.sdMounted) camera.unmountSd(function(){
+        if(camera.sdMounted) {
+            camera.unmountSd(function(){
+                camera.emit("media-insert", "sd");
+            });
+        } else {
             camera.emit("media-insert", "sd");
-        });
+        }
     } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'Dynamic_Perception_LLC') {
         console.log("NMX connected:", device.DEVNAME);
         camera.nmxConnected = true;
@@ -350,8 +357,8 @@ monitor.on('remove', function(device) {
         camera.emit("nmxSerial", "disconnected");
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card removed:", device.DEVNAME);
-        camera.emit("media-remove", "sd");
         camera.sdPresent = false;
+        camera.emit("media-remove", "sd");
         if (camera.sdMounted) {
             //unmount card
             camera.unmountSd();
@@ -395,15 +402,15 @@ camera.connectSonyWifi = function() {
 
 camera.mountSd = function(callback) {
     if (camera.sdPresent) {
-        if(camera.sdMounted) return callback && callback(null);
+        if(camera.sdMounted) return callback && callback(null, camera.sdMounted);
         console.log("mounting SD card");
         //exec("mount -o nonempty " + camera.sdDevice + " /media", function(err) { // this caused FAT32 cards to fail to mount
         exec("mount " + camera.sdDevice + " /media", function(err) {
             if (!err) camera.sdMounted = true; else console.log("error mounting sd card: ", err);
-            if (callback) callback(err);
+            if (callback) callback(err, camera.sdMounted);
         });
     } else {
-        if (callback) callback(true);
+        if (callback) callback(true, camera.sdMounted);
     }
 }
 
@@ -424,10 +431,10 @@ camera.unmountSd = function(callback) {
                 camera.sdMounted = false;
             }
             sdUnmountErrors = 0;
-            if (callback) callback(err);
+            if (callback) callback(err, camera.sdMounted);
         });
     } else {
-        if (callback) callback(null);
+        if (callback) callback(null, camera.sdMounted);
     }
 }
 
@@ -525,8 +532,10 @@ camera.capture = function(options, callback) {
                                 console.log("list", list);
                                 while(list.indexOf(name + padNumber(captureIndex, width)) !== -1) captureIndex++;
                             }
+                            var index = 0;
                             var err = doEachCamera(function(port, isPrimary, worker) {
                                 if(!isPrimary) return;
+                                index++;
                                 var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
                                 if(!options) options = {};
                                 options.saveRaw = saveRaw;
@@ -595,6 +604,11 @@ camera.lvOff = function(callback) {
     }); else callback && callback("not connected");
 }
 camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
+    var cb = function(err, data){
+        if(!data) data = {};
+        data.zoomed = camera.zoomed;
+        callback && callback(err, data);
+    }
     var worker = getPrimaryWorker();
     var data = {
         reset: true
@@ -611,7 +625,7 @@ camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     if (worker && camera.connected) worker.send({
         type: 'camera',
         do: 'zoom',
-        id: getCallbackId(worker.port, 'zoom', callback),
+        id: getCallbackId(worker.port, 'zoom', cb),
         data: data
     }); else callback && callback("not connected");
 }
@@ -753,15 +767,6 @@ camera.set = function(item, value, callback, _worker) {
     })){
         callback && callback("not connected");
     }
-}
-camera.get = function(item) {
-    var worker = getPrimaryWorker();
-    if (worker && camera.connected) {
-        console.log("PTP: retrieving settings...");
-        camera.getSettings(function() {
-            camera.emit("config", camera.settings);
-        });
-    } else callback && callback("not connected");
 }
 camera.getSettings = function(callback) {
     console.log("retreiving settings from camera");
