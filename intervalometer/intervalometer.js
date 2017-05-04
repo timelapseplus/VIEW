@@ -128,22 +128,8 @@ function calculateIntervalMs(interval, currentEv) {
     var dayEv = 8;
     var nightEv = -2;
     if (intervalometer.currentProgram.intervalMode == 'fixed') {
-        //console.log("using fixed interval: ", interval);
         return interval * 1000;
     } else {
-        /*if (status.frames == 0) {
-            startShutterEv = shutterEv;
-            if (startShutterEv < -5) startShutterEv = -5;
-        }
-        var thirtySecondEv = -11;
-        var newInterval = interpolate.linear([{
-            x: startShutterEv,
-            y: parseInt(intervalometer.currentProgram.dayInterval)
-        }, {
-            x: thirtySecondEv,
-            y: parseInt(intervalometer.currentProgram.nightInterval)
-        }], shutterEv);*/
-
         var newInterval = interpolate.linear([{
             x: dayEv,
             y: parseInt(intervalometer.currentProgram.dayInterval)
@@ -188,7 +174,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
                     }
                 }
             });
-            kfSet = interpolate.linear(kfPoints, secondsSinceStart);
+            kfSet = interpolate.catmullRomSpline(kfPoints, secondsSinceStart);
             console.log("FK: " + axisName + " target: " + kfSet);
         }
         var axisNameExtension = '';
