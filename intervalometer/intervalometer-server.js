@@ -141,9 +141,8 @@ watchdog.onKill(function(pid){
 });
 
 function send(event, data, client) {
-  if(data && data.cameraResults) {
-    console.log("CORE: removing circular structure");
-    data.cameraResults = null; // remove circular references
+  if(data && data.data && data.data.cameraResults) {
+    data.data.cameraResults = null; // remove circular references
   }
   var payload = JSON.stringify({
     type: event,
