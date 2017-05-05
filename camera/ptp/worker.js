@@ -358,6 +358,7 @@ function capture(options, callback) {
                         });
                     });
                 } else {
+                    sendEvent('status', "photo saved to camera");
                     if (callback) callback(err, {
                         ev: null,
                         file: info,
