@@ -202,6 +202,10 @@ core.moveNMX = function(motor, steps, callback) {
     call('nmx.move', {motor:motor, steps:steps}, callback);
 };
 
+core.zeroNMX = function(motor, callback) {
+    call('nmx.zero', {motor:motor}, callback);
+};
+
 core.moveNMXjoystick = function(motor, speed, callback) {
     call('nmx.joystick', {motor:motor, speed:speed}, callback);
 };

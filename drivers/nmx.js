@@ -100,12 +100,21 @@ var _queueRunning = false;
 var _dev = null;
 var _nmxCommandCh = null;
 var _nmxReadCh = null;
+var _keepAliveHandle = null;
 
-setTimeout(function(){
-    if(_dev && _dev.connected) {
-        checkMotorAttachment();
+function keepAlive(enable) {
+    if(enable === undefined) enable = true;
+    if(_keepAliveHandle) clearInterval(_keepAliveHandle);
+    if(enable) {
+        _keepAliveHandle = setInterval(function(){
+            if(_dev && _dev.connected) {
+                checkMotorAttachment();
+            } else {
+                keepAlive(false);
+            }
+        }, 15000);
     }
-}, 15000);
+}
 
 function getStatus() {
     var type = (_dev && _dev.type) ? _dev.type : null;
@@ -114,7 +123,10 @@ function getStatus() {
         connectionType: type,
         motor1: motorConnected[0],
         motor2: motorConnected[1],
-        motor3: motorConnected[2]
+        motor3: motorConnected[2],
+        motor1pos: motorPos[1],
+        motor2pos: motorPos[2],
+        motor3pos: motorPos[3]
     }   
 }
 
@@ -151,15 +163,17 @@ function move(motorId, steps, callback) {
                             check(motorId); // keep checking until stop
                         } else {
                             motorRunning[motorId] = false;
-                            if (callback) callback(null);
                             checkMotorPosition(motorId, function(position) {
                                 motorPos[motorId] = position;
+                                keepAlive(true);
+                                if (callback) callback(null, position);
                             })
                         }
                     });
                 }, 200);
             })(motorId);
         } else {
+            keepAlive(true);
             if (callback) callback(err);
             motorRunning[motorId] = false;
         }
@@ -221,7 +235,7 @@ function constantMove(motorId, speed, callback) {
                     motorRunning[motorId] = false;
                     checkMotorPosition(motorId, function(position) {
                         motorPos[motorId] = position;
-                        if (callback) callback(null);
+                        if (callback) callback(null, position);
                     });
                 }, 200);
         } else {
@@ -279,6 +293,7 @@ function checkMotorPosition(motorId, callback) {
     }
     _queueCommand(cmd, function(err, position) {
         console.log("NMX: motor " + motorId + " position: ", position);
+        motorPos[motorId] = position;
         if (callback) callback(position);
     });
 }
@@ -434,6 +449,7 @@ nmx.enable = enable;
 nmx.move = move;
 nmx.constantMove = constantMove;
 nmx.getStatus = getStatus;
+nmx.resetMotorPosition = resetMotorPosition;
 
 module.exports = nmx;
 
@@ -560,14 +576,18 @@ function _connectSerial(path, callback) {
 
 function init() {
     checkMotorAttachment(function(){
-        nmx.emit("status", getStatus());
+        checkMotorPosition(1);
+        checkMotorPosition(2);
+        checkMotorPosition(3, function(){
+            nmx.emit("status", getStatus());
+        });
     });
     firmwareVersion(function(err, version) {
         console.log("NMX: connected!");
         console.log("NMX: firmware version: ", version);
-        resetMotorPosition(1);
-        resetMotorPosition(2);
-        resetMotorPosition(3);
+        //resetMotorPosition(1);
+        //resetMotorPosition(2);
+        //resetMotorPosition(3);
         setAccel(1, 25000);
         setAccel(2, 25000);
         setAccel(3, 25000);

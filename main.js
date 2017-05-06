@@ -2764,25 +2764,39 @@ app.on('message', function(msg) {
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, steps, reply) {
-                        if(driver == 'NMX') core.moveNMX(motor, steps, function() {
+                        if(driver == 'NMX') core.moveNMX(motor, steps, function(err, position) {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
-                                driver: driver
+                                driver: driver,
+                                position: position
                             });
                         });
                     })(msg.driver, msg.motor, msg.val, msg.reply);
                 } else if (msg.key == "joystick" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, speed, reply) {
-                        if(driver == 'NMX') core.moveNMXjoystick(motor, speed, function() {
+                        if(driver == 'NMX') core.moveNMXjoystick(motor, speed, function(err, position) {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
-                                driver: driver
+                                driver: driver,
+                                position: position
                             });
                         });
                     })(msg.driver, msg.motor, msg.val, msg.reply);
+                } else if (msg.key == "zero" && msg.motor && msg.driver) {
+                    console.log("moving motor " + msg.motor);
+                    (function(driver, motor, reply) {
+                        if(driver == 'NMX') core.zeroNMX(motor, function(err) {
+                            reply('move', {
+                                complete: true,
+                                motor: motor,
+                                driver: driver,
+                                position: 0
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.reply);
                 }
                 break;
 
@@ -3188,9 +3202,9 @@ function getMotionStatus(status) {
     nmxStatus = status;
     var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
     var motors = [];
-    motors.push({driver:'NMX', motor:1, connected:status.motor1});
-    motors.push({driver:'NMX', motor:2, connected:status.motor2});
-    motors.push({driver:'NMX', motor:3, connected:status.motor3});
+    motors.push({driver:'NMX', motor:1, connected:status.motor1, position:status.motor1pos});
+    motors.push({driver:'NMX', motor:2, connected:status.motor2, position:status.motor2pos});
+    motors.push({driver:'NMX', motor:3, connected:status.motor3, position:status.motor3pos});
     return {
         available: available,
         motors: motors

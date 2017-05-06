@@ -276,6 +276,9 @@ function runCommand(type, args, callback, client) {
     case 'nmx.move':
       nmx.move(args.motor, args.steps, callback);
       break;
+    case 'nmx.zero':
+      nmx.resetMotorPosition(args.motor, callback);
+      break;
     case 'nmx.joystick':
       nmx.constantMove(args.motor, args.speed, callback);
       break;

@@ -516,6 +516,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     var index = $scope.getAxisIndex(msg.driver + '-' + msg.motor);
                     if (msg.complete && msg.driver && $scope.axis[index]) {
                         $scope.axis[index].moving = false;
+                        $scope.axis[index].pos = msg.position;
+                        if($scope.axis[index].callback) {
+                            $scope.axis[index].callback(msg.position);
+                            $scope.axis[index].callback = null;
+                        }
                     }
                     callback(null, msg.complete);
                 case 'settings':
@@ -994,7 +999,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
-            $scope.axis[index].pos -= steps;
+            //$scope.axis[index].pos = position;//-= steps;
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
@@ -1213,7 +1218,30 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.focusPos = 0;
 
             for(var i = 0; i < $scope.axis.length; i++) {
-                $scope.axis[i].pos = 0;
+                var parts = $scope.axis[i].id.split('-');
+                if (steps && parts.length == 2) {
+                    var driver = parts[0];
+                    var motor = parts[1];
+
+                    if($scope.axis[i].moving) {
+                        (function(d, m){
+                            $scope.axis[index].callback = function(position) {
+                                sendMessage('motion', {
+                                    key: 'zero',
+                                    driver: d,
+                                    motor: m
+                                });
+                            };
+                        })(driver, motor);
+                    } else {
+                        sendMessage('motion', {
+                            key: 'zero',
+                            driver: driver,
+                            motor: motor
+                        });
+                    }
+                    //$scope.axis[i].pos = 0;
+                }
             }
 
         }
@@ -1319,15 +1347,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             axis.motor = axisInfo.motor;
             axis.driver = axisInfo.driver;
             axis.connected = axisInfo.connected;
-            axis.pos = 0;
+            axis.pos = axisInfo.position;
 
             var axisIndex = $scope.getAxisIndex(axisId);
             if(!$scope.axis) $scope.axis = [];        
             if(axisIndex === null) {
                 $scope.axis.push(axis);
             } else {
-                axis.pos = $scope.axis[axisIndex].pos;
-                axis.moving = $scope.axis[axisIndex].moving;
+                //axis.pos = $scope.axis[axisIndex].pos;
+                axis.moving = false;//$scope.axis[axisIndex].moving;
                 $scope.axis[axisIndex] = axis;
             }
             console.log("$scope.axis", $scope.axis);
