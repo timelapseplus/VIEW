@@ -101,6 +101,11 @@ var _dev = null;
 var _nmxCommandCh = null;
 var _nmxReadCh = null;
 
+setTimeout(function(){
+    if(_dev && _dev.connected) {
+        checkMotorAttachment();
+    }
+}, 15000);
 
 function getStatus() {
     var type = (_dev && _dev.type) ? _dev.type : null;
