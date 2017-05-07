@@ -768,8 +768,8 @@ function _parseNMXData(dataBuf) {
     if (type == 0 && dataBuf.length >= dataOffset + 1) return dataBuf.readUInt8(dataOffset);
     if (type == 1 && dataBuf.length >= dataOffset + 2) return dataBuf.readUInt16BE(dataOffset);
     if (type == 2 && dataBuf.length >= dataOffset + 2) return dataBuf.readInt16BE(dataOffset);
-    if (type == 3 && dataBuf.length >= dataOffset + 4) return dataBuf.readUInt32BE(dataOffset);
-    if (type == 4 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset);
+    if (type == 3 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset);
+    if (type == 4 && dataBuf.length >= dataOffset + 4) return dataBuf.readUInt32BE(dataOffset);
     if (type == 5 && dataBuf.length >= dataOffset + 4) return dataBuf.readInt32BE(dataOffset) / 100;
     if (type == 6 && dataBuf.length >= dataOffset + 1) return dataBuf.toString('ascii', dataOffset);
 

@@ -1224,7 +1224,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     var motor = parts[1];
 
                     if($scope.axis[i].moving) {
-                        (function(d, m){
+                        (function(d, m, index){
                             $scope.axis[index].callback = function(position) {
                                 sendMessage('motion', {
                                     key: 'zero',
@@ -1232,7 +1232,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                     motor: m
                                 });
                             };
-                        })(driver, motor);
+                        })(driver, motor, i);
                     } else {
                         sendMessage('motion', {
                             key: 'zero',
