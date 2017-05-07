@@ -1219,7 +1219,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
             for(var i = 0; i < $scope.axis.length; i++) {
                 var parts = $scope.axis[i].id.split('-');
-                if (steps && parts.length == 2) {
+                if (parts.length == 2) {
                     var driver = parts[0];
                     var motor = parts[1];
 

@@ -144,6 +144,8 @@ lists.getSecondsFromEv = function(ev) { // only accurate to 1/3 stop
 }
 
 lists.getEv = function(shutter, aperture, iso) {
+    if(shutter == null || aperture == null || iso == null) return null;
+    
     if (shutter.ev) shutterEv = shutter.ev;
     else shutterEv = shutter;
     if (aperture.ev) apertureEv = aperture.ev;
