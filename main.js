@@ -1534,10 +1534,10 @@ if (VIEW_HARDWARE) {
 
     var wifiConnectMenu = function(cb) {
         if(wifi.list.length == 0) {
-            cp(null, {
+            cb(null, {
                 name: "wifi connect",
-                type: "text",
-                text: "No wifi networks are available.\nExit this screen and try again to refresh."
+                type: "menu",
+                items: []
             });
         }
         var m = {
