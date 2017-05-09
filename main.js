@@ -1532,13 +1532,19 @@ if (VIEW_HARDWARE) {
         }
     }    
 
-    var wifiConnectMenu = {
-        name: "wifi connect",
-        type: "menu",
-        items: {name:'searching...', action:null}
-    };
-    var wifiListHandler = function(list){
-        wifiConnectMenu.items = list.map(function(item){return {
+    var wifiConnectMenu = function(cb) {
+        if(wifi.list.length == 0) {
+            cp(null, {
+                name: "wifi connect",
+                type: "text",
+                text: "No wifi networks are available.\nExit this screen and try again to refresh."
+            });
+        }
+        var m = {
+            name: "wifi connect",
+            type: "menu"
+        }
+        m.items = wifi.list.map(function(item){return {
             name:item.ssid + ((wifi.connected && wifi.connected.address == item.address) ? "~connected" : ""), 
             help: help.wifiConnect,
             action: {
@@ -1558,7 +1564,7 @@ if (VIEW_HARDWARE) {
                                     db.setWifi(item.address, result);
                                     db.get('wifi-status', function(err, status) {
                                         db.set('wifi-status', {
-                                            apMode: status.apMode,
+                                            apMode: false, //status.apMode,
                                             connect: item,
                                             enabled: true,
                                             password: result
@@ -1573,7 +1579,7 @@ if (VIEW_HARDWARE) {
                         wifi.connect(item);
                         db.get('wifi-status', function(err, status) {
                             db.set('wifi-status', {
-                                apMode: status.apMode,
+                                apMode: false, //status.apMode,
                                 connect: item,
                                 enabled: true
                             });
@@ -1584,6 +1590,9 @@ if (VIEW_HARDWARE) {
                 }
             }
         };});
+        cb(null, m);
+    };
+    var wifiListHandler = function(list){
     }
     wifi.listHandler(wifiListHandler);
 
