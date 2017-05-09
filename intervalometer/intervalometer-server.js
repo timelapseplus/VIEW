@@ -293,11 +293,8 @@ function runCommand(type, args, callback, client) {
 
     case 'bt.reset':
       console.log("CORE: reloading BT module");
-      stopScan();
-      noble = null;
-      delete require.cache[require.resolve('noble')];
-      noble = require('noble');
-      //setUpBt();
+      cleanUpBt();
+      setUpBt();
       callback();
       break;
   }
@@ -427,29 +424,40 @@ function stopScan() {
     noble.stopScanning();
 }
 
+function btStateChange(state) {
+    console.log("BLE state changed to", state);
+    if (state == "poweredOn") {
+        setTimeout(function() {
+            startScan()
+        });
+    } else if(state == "poweredOff") {
+        var status = nmx.getStatus();
+        console.log("CORE: NMX status:", status);
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected NMX, bluetooth powered off");
+          nmx.disconnect();
+        }
+    }
+}
+function btDiscover(peripheral) {
+    //console.log('ble', peripheral);
+    stopScan();
+    nmx.connect(peripheral);
+}
+
+function cleanUpBt() {
+  stopScan();
+  noble.removeListener('stateChange', btStateChange);
+  noble.removeListener('discover', btDiscover);
+  noble = null;
+  purgeCache('noble');
+  noble = require('noble');
+}
+
 function setUpBt() {
   console.log("CORE: setting up bluetooth");
-  noble.on('stateChange', function(state) {
-      console.log("BLE state changed to", state);
-      if (state == "poweredOn") {
-          setTimeout(function() {
-              startScan()
-          });
-      } else if(state == "poweredOff") {
-          var status = nmx.getStatus();
-          console.log("CORE: NMX status:", status);
-          if(status.connected && status.connectionType == "bt") {
-            console.log("CORE: disconnected NMX, bluetooth powered off");
-            nmx.disconnect();
-          }
-      }
-  });
-
-  noble.on('discover', function(peripheral) {
-      //console.log('ble', peripheral);
-      stopScan();
-      nmx.connect(peripheral);
-  });
+  noble.on('stateChange', btStateChange);
+  noble.on('discover', btDiscover);
 
   startScan();
 }
@@ -467,3 +475,48 @@ nmx.on('status', function(status) {
         //});
     }
 });
+
+/**
+ * Removes a module from the cache
+ */
+function purgeCache(moduleName) {
+    // Traverse the cache looking for the files
+    // loaded by the specified module name
+    searchCache(moduleName, function (mod) {
+        delete require.cache[mod.id];
+    });
+
+    // Remove cached paths to the module.
+    // Thanks to @bentael for pointing this out.
+    Object.keys(module.constructor._pathCache).forEach(function(cacheKey) {
+        if (cacheKey.indexOf(moduleName)>0) {
+            delete module.constructor._pathCache[cacheKey];
+        }
+    });
+};
+
+/**
+ * Traverses the cache to search for all the cached
+ * files of the specified module name
+ */
+function searchCache(moduleName, callback) {
+    // Resolve the module identified by the specified name
+    var mod = require.resolve(moduleName);
+
+    // Check if the module has been resolved and found within
+    // the cache
+    if (mod && ((mod = require.cache[mod]) !== undefined)) {
+        // Recursively go over the results
+        (function traverse(mod) {
+            // Go over each of the module's children and
+            // traverse them
+            mod.children.forEach(function (child) {
+                traverse(child);
+            });
+
+            // Call the specified callback providing the
+            // found cached module
+            callback(mod);
+        }(mod));
+    }
+};

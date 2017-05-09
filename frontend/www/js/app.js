@@ -1211,7 +1211,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 for(var j = 0; j < $scope.axis.length; j++) {
                     if($scope.axis[j].connected) {
                         var id = $scope.axis[j].id;
-                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                        if($scope.axis[i].moving) {
+                            $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos; // need to setup as callback for axis
+                        } else {
+                            $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                        }
                     }
                 }
             }

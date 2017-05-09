@@ -141,7 +141,8 @@ function calculateIntervalMs(interval, currentEv) {
     }
 }
 
-function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
+function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod, motionFunction) {
+    if(interpolationMethod != 'catmullRomSpline') interpolationMethod = 'linear';
     var keyframes = intervalometer.currentProgram.keyframes;
     if (status.running && keyframes && keyframes.length > 0 && keyframes[0][axisName] != null) {
         var kfSet = null;
@@ -174,7 +175,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, motionFunction) {
                     }
                 }
             });
-            kfSet = interpolate.catmullRomSpline(kfPoints, secondsSinceStart);
+            kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
             console.log("FK: " + axisName + " target: " + kfSet);
         }
         var axisNameExtension = '';
@@ -217,12 +218,12 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    doKeyframeAxis('ev', null, setupFirst, function(ev) {
+    doKeyframeAxis('ev', null, setupFirst, 'linear', function(ev) {
         //if (ev != null && camera.settings.ev != ev) camera.setEv(ev);
         checkDone();
     });
 
-    doKeyframeAxis('focus', null, setupFirst, function(focus) {
+    doKeyframeAxis('focus', null, setupFirst, 'linear', function(focus) {
         if (focus) {
             camera.ptp.preview(function() {
                 setTimeout(function() {
@@ -240,7 +241,7 @@ function processKeyframes(setupFirst, callback) {
     });
 
     if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
-        doKeyframeAxis('motor', motorId, setupFirst, function(move) {
+        doKeyframeAxis('motor', motorId, setupFirst, 'catmullRomSpline', function(move) {
             var parts = motorId.split('-');
             if (move && parts.length == 2) {
                 var driver = parts[0];

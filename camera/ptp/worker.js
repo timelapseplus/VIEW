@@ -119,8 +119,8 @@ process.on('message', function(msg) {
 
                 getConfig(false, false, function() {
                     sendEvent('connected', camera.model);
+                    setTimeout(getConfig, 3000);
                 });
-                //setInterval(getConfig, 2000);
 
             });
         }

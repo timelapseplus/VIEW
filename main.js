@@ -1591,7 +1591,7 @@ if (VIEW_HARDWARE) {
         name: "wifi",
         type: "menu",
         items: [{
-            name: "Connect to AP",
+            name: "Connect to Network",
             action: wifiConnectMenu,
             help: help.wifiConnectMenu,
             condition: function() {
@@ -1609,7 +1609,7 @@ if (VIEW_HARDWARE) {
                 return !wifi.enabled;
             }
         }, {
-            name: "Enable TL+VIEW AP",
+            name: "Enable built-in AP",
             help: help.wifiApMenu,
             action: function(){
                 wifi.enableAP(function(){
