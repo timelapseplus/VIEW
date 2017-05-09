@@ -520,6 +520,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         if($scope.axis[index].callback) {
                             $scope.axis[index].callback(msg.position);
                             $scope.axis[index].callback = null;
+                        } else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
+                            sendMessage('motion', {
+                                key: 'zero',
+                                driver: msg.driver,
+                                motor: msg.motor
+                            });
                         }
                     }
                     callback(null, msg.complete);
@@ -990,6 +996,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.move = function(axisId, steps, noReverse) {
         console.log("moving ", axisId);
+        if($scope.currentKf) $scope.currentKf.motionEdited = true;
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
@@ -1040,10 +1047,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.focusPos = 0;
-    $scope.focus = function(dir, repeat) {
+    $scope.focus = function(dir, repeat, noUpdate) {
         if (!repeat) repeat = 1;
-        if (dir > 0) $scope.focusPos += repeat;
-        if (dir < 0) $scope.focusPos -= repeat;
+        if(!noUpdate) {
+            if (dir > 0) $scope.focusPos += repeat;
+            if (dir < 0) $scope.focusPos -= repeat;
+            if($scope.currentKf) $scope.currentKf.focusEdited = true;
+        }
         sendMessage('focus', {
             key: 'manual',
             val: dir,
@@ -1166,16 +1176,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.openExposure = function(kf, index) {
         $scope.currentKf = kf;
         $scope.currentKfIndex = index;
+        $scope.currentKf.focusEdited = false; 
+        $scope.currentKf.motionEdited = false; 
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;
             if (kf.ev != null) $scope.setEv(kf.ev);
-            if (kf.focus != null) {
-                var focusDiff = kf.focus - $scope.focusPos;
-                var dir = focusDiff < 0 ? -1 : 1;
-                var repeat = Math.abs(focusDiff);
-                if (repeat > 0) $scope.focus(dir, repeat);
-            }
+            //if (kf.focus != null) {
+            //    var focusDiff = kf.focus - $scope.focusPos;
+            //    var dir = focusDiff < 0 ? -1 : 1;
+            //    var repeat = Math.abs(focusDiff);
+            //    if (repeat > 0) $scope.focus(dir, repeat);
+            //}
 
             if(!kf.motor) kf.motor = {};
             for(var i = 0; i < $scope.axis.length; i++) {
@@ -1191,6 +1203,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.preview(true);
         $scope.modalExposure.show();
     };
+    $scope.focusModeToKeyframe = function() {
+        var focusDiff = $scope.currentKf.focus - $scope.focusPos;
+        var dir = focusDiff < 0 ? -1 : 1;
+        var repeat = Math.abs(focusDiff);
+        if (repeat > 0) $scope.focus(dir, repeat);
+    }
     $scope.closeExposure = function() {
         var delay = 0;
         if ($scope.focusMode) {
@@ -1206,55 +1224,60 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if ($scope.currentKfIndex == 0) {
             for (var i = 1; i < $scope.timelapse.keyframes.length; i++) {
 
-                $scope.timelapse.keyframes[i].focus -= $scope.focusPos;
+                if($scope.currentKf.focusEdited) $scope.timelapse.keyframes[i].focus -= $scope.focusPos;
 
-                for(var j = 0; j < $scope.axis.length; j++) {
-                    if($scope.axis[j].connected) {
-                        var id = $scope.axis[j].id;
-                        if($scope.axis[i].moving) {
-                            $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos; // need to setup as callback for axis
-                        } else {
-                            $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                if($scope.currentKf.motionEdited) {
+                    for(var j = 0; j < $scope.axis.length; j++) {
+                        if($scope.axis[j].connected) {
+                            var id = $scope.axis[j].id;
+                            if($scope.axis[i].moving) {
+                                $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos; // need to setup as callback for axis
+                            } else {
+                                $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                            }
                         }
                     }
                 }
             }
-            $scope.focusPos = 0;
+            if($scope.currentKf.focusEdited) $scope.focusPos = 0;
 
-            for(var i = 0; i < $scope.axis.length; i++) {
-                var parts = $scope.axis[i].id.split('-');
-                if (parts.length == 2) {
-                    var driver = parts[0];
-                    var motor = parts[1];
+            if($scope.currentKf.motionEdited) {
+                for(var i = 0; i < $scope.axis.length; i++) {
+                    var parts = $scope.axis[i].id.split('-');
+                    if (parts.length == 2) {
+                        var driver = parts[0];
+                        var motor = parts[1];
 
-                    if($scope.axis[i].moving) {
-                        (function(d, m, index){
-                            $scope.axis[index].callback = function(position) {
-                                sendMessage('motion', {
-                                    key: 'zero',
-                                    driver: d,
-                                    motor: m
-                                });
-                            };
-                        })(driver, motor, i);
-                    } else {
-                        sendMessage('motion', {
-                            key: 'zero',
-                            driver: driver,
-                            motor: motor
-                        });
+                        if($scope.axis[i].moving) {
+                            (function(d, m, index){
+                                $scope.axis[index].callback = function(position) {
+                                    sendMessage('motion', {
+                                        key: 'zero',
+                                        driver: d,
+                                        motor: m
+                                    });
+                                };
+                            })(driver, motor, i);
+                        } else {
+                            sendMessage('motion', {
+                                key: 'zero',
+                                driver: driver,
+                                motor: motor
+                            });
+                        }
+                        //$scope.axis[i].pos = 0;
                     }
-                    //$scope.axis[i].pos = 0;
                 }
             }
-
         }
-        $scope.currentKf.focus = $scope.focusPos;
+        if($scope.currentKf.focusEdited) $scope.currentKf.focus = $scope.focusPos;
 
-        for(var i = 0; i < $scope.axis.length; i++) {
-            if($scope.axis[i].connected) {
-                var id = $scope.axis[i].id;
-                $scope.currentKf.motor[id] = $scope.axis[i].pos;
+        if($scope.currentKf.motionEdited) {
+            for(var i = 0; i < $scope.axis.length; i++) {
+                if($scope.axis[i].connected) {
+                    var id = $scope.axis[i].id;
+                    $scope.currentKf.motor[id] = $scope.axis[i].pos;
+                }
             }
         }
         $scope.currentKf.ev = $scope.camera.ev;
