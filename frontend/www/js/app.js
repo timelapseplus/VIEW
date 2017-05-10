@@ -1065,6 +1065,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             val: dir,
             repeat: repeat
         });
+        console.log("focusPos:", $scope.focusPos);
     }
 
     function dbGet(key, callback) {
@@ -1216,8 +1217,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var repeat = Math.abs(focusDiff);
         if (repeat > 0) $scope.focus(dir, repeat);
     }
-    $scope.focusCurrentDistance = function() {
-        return $scope.currentKf && $scope.currentKf.focus ? $scope.currentKf.focus - $scope.focusPos : 0;
+    $scope.focusCurrentDistance = function(currentKf) {
+        return currentKf ? currentKf.focus - $scope.focusPos : 0;
     }
     $scope.closeExposure = function() {
         var delay = 0;
