@@ -1216,7 +1216,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (repeat > 0) $scope.focus(dir, repeat);
     }
     $scope.focusCurrentDistance = function() {
-        return $scope.currentKf.focus - $scope.focusPos;
+        return $scope.currentKf && $scope.currentKf.focus ? $scope.currentKf.focus - $scope.focusPos : 0;
     }
     $scope.closeExposure = function() {
         var delay = 0;
