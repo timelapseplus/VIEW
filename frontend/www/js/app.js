@@ -1211,14 +1211,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.preview(true);
         $scope.modalExposure.show();
     };
-    $scope.focusMoveToKeyframe = function() {
-        var focusDiff = $scope.focusCurrentDistance();
+    $scope.focusMoveToKeyframe = function(currentKf) {
+        var focusDiff = $scope.focusCurrentDistance(currentKf);
         var dir = focusDiff < 0 ? -1 : 1;
         var repeat = Math.abs(focusDiff);
         if (repeat > 0) $scope.focus(dir, repeat);
     }
     $scope.focusCurrentDistance = function(currentKf) {
         return currentKf ? currentKf.focus - $scope.focusPos : 0;
+    }
+    $scope.focusResetKeyframe = function(currentKf) {
+        currentKf.focus = $scope.focusPos;
     }
     $scope.closeExposure = function() {
         var delay = 0;
