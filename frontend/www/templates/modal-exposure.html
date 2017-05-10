@@ -97,7 +97,11 @@
                 <button class="button button-dark button-block" ng-click="focus(1)">far <i class="icon ion-arrow-right-b"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(1, 10)"><i class="icon ion-arrow-right-b"></i><i class="icon ion-arrow-right-b"></i></button>
             </div>
-            <small ng-hide="!currentKf.focus||focusCurrentDistance()==0">focus point for keyframe is {{focusCurrentDistance()}} steps from current focus</small>
+            <div class="row" ng-hide="!currentKf.focus||focusCurrentDistance()==0">
+                <div class="col center">
+                    <small>focus point for keyframe is {{focusCurrentDistance()}} steps from current focus</small>
+                </div>
+            </div>
             <div class="button-bar" ng-hide="!currentKf.focus||focusCurrentDistance()==0">
                 <button class="button button-dark button-block" ng-click="focusMoveToKeyframe()">Move to KF</button>
                 <button class="button button-dark button-block" ng-click="currentKf.focus=focusPos">Reset KF to current</button>

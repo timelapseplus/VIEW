@@ -1181,6 +1181,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.timingSliderMax = TIMING_SLIDER_RANGE;
     $scope.openExposure = function(kf, index) {
         $scope.currentKf = kf;
+        if(!$scope.currentKf.focus) $scope.currentKf.focus = 0; 
         $scope.currentKfIndex = index;
         $scope.currentKf.focusEdited = false; 
         $scope.currentKf.motionEdited = false; 
