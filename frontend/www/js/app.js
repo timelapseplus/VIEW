@@ -1209,11 +1209,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.preview(true);
         $scope.modalExposure.show();
     };
-    $scope.focusModeToKeyframe = function() {
-        var focusDiff = $scope.currentKf.focus - $scope.focusPos;
+    $scope.focusMoveToKeyframe = function() {
+        var focusDiff = $scope.focusCurrentDistance();
         var dir = focusDiff < 0 ? -1 : 1;
         var repeat = Math.abs(focusDiff);
         if (repeat > 0) $scope.focus(dir, repeat);
+    }
+    $scope.focusCurrentDistance = function() {
+        return $scope.currentKf.focus - $scope.focusPos;
     }
     $scope.closeExposure = function() {
         var delay = 0;
@@ -1237,7 +1240,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         if($scope.axis[j].connected) {
                             var id = $scope.axis[j].id;
                             if($scope.axis[j].moving) {
-                                $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos; // need to setup as callback for axis
+                                (function(kfIndex, axisIndex){
+                                    $scope.axis[j].callback = function() {
+                                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                                    }
+                                })(i, j);
                             } else {
                                 $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
                             }
