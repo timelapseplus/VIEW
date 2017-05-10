@@ -90,15 +90,15 @@
                     <small>tap image to return to 100%</small>
                 </div>
             </div>
-            <div class="button-bar" ng-show="focusPos==currentKf.focus">
+            <div class="button-bar" ng-show="!currentKf.focus||focusPos==currentKf.focus">
                 <button class="button button-dark button-block" ng-click="focus(-1, 10)"><i class="icon ion-arrow-left-b"></i><i class="icon ion-arrow-left-b"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(-1)"><i class="icon ion-arrow-left-b"></i> near</button>
                 <button class="button button-dark button-block disabled">{{focusPos}}</button>
                 <button class="button button-dark button-block" ng-click="focus(1)">far <i class="icon ion-arrow-right-b"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(1, 10)"><i class="icon ion-arrow-right-b"></i><i class="icon ion-arrow-right-b"></i></button>
             </div>
-            <small ng-hide="focusPos==currentKf.focus">focus point for keyframe is {{focusPos-currentKf.focusPos}} steps from current focus</small>
-            <div class="button-bar" ng-hide="focusPos==currentKf.focusPos">
+            <small ng-hide="!currentKf.focus||focusPos==currentKf.focus">focus point for keyframe is {{focusPos-currentKf.focusPos}} steps from current focus</small>
+            <div class="button-bar" ng-hide="!currentKf.focus||focusPos==currentKf.focusPos">
                 <button class="button button-dark button-block" ng-click="focusModeToKeyframe()">Move to KF</button>
                 <button class="button button-dark button-block" ng-click="currentKf.focus=focusPos">Reset KF to current</button>
             </div>
