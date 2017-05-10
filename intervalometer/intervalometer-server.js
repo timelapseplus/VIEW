@@ -412,6 +412,8 @@ function startScan() {
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
+          status = nmx.getStatus();
+          sendEvent('nmx.status', status);
         }
         //if(wifi.btEnabled) {
         //    wifi.resetBt();
@@ -425,7 +427,7 @@ function stopScan() {
 }
 
 function btStateChange(state) {
-    console.log("BLE state changed to", state);
+    console.log("CORE: BLE state changed to", state);
     if (state == "poweredOn") {
         setTimeout(function() {
             startScan()

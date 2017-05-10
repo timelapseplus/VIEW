@@ -410,6 +410,7 @@ function disable(motorId) {
 
 function disconnect() {
     if (_dev && _dev.connected) {
+        _dev.connected = false;
         _dev.disconnect();
     } else {
         _dev = null;

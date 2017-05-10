@@ -542,6 +542,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.shutterNew = $scope.camera.shutter;
                             } else if($scope.camera.shutterChanged) {
                                 updateParams();
+                            } else {
+                                $scope.camera.shutterNew = $scope.camera.shutter;
                             }
                         } else {
                             $scope.camera.shutterChanged = false;
@@ -556,6 +558,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.isoNew = $scope.camera.iso;
                             } else if($scope.camera.isoChanged) {
                                 updateParams();
+                            } else {
+                                $scope.camera.isoNew = $scope.camera.iso;
                             }
                         } else {
                             $scope.camera.isoChanged = false;
@@ -570,6 +574,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 $scope.camera.apertureNew = $scope.camera.aperture;
                             } else if($scope.camera.apertureChanged) {
                                 updateParams();
+                            } else {
+                                $scope.camera.apertureNew = $scope.camera.aperture;
                             }
                         } else {
                             $scope.camera.apertureChanged = false;
