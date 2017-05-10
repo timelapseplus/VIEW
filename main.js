@@ -174,7 +174,7 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', false);
         if(wifiWasDisabled) {
             wifiWasDisabled = false;
-            //core.resetBt();
+            core.resetBt();
             wifi.resetBt();
         }
         ui.reload();
@@ -1532,6 +1532,18 @@ if (VIEW_HARDWARE) {
         }
     }    
 
+    var wifiScanWait = function() {
+        if(wifi.list.length > 0) {
+            process.nextTick(function(){
+                ui.back();
+                ui.load(wifiConnectMenu);
+            });
+            return "Wifi networks found, reloading...";
+        } else {
+            return "No wifi networks found.\nScanning...";
+        }
+    }
+
     var wifiConnectMenu = function(cb) {
         if(wifi.list.length == 0) {
             cb(null, {
@@ -1539,6 +1551,9 @@ if (VIEW_HARDWARE) {
                 type: "menu",
                 items: []
             });
+            ui.back();
+            ui.alert('wifi connect', wifiScanWait);
+            return;
         }
         var m = {
             name: "wifi connect",

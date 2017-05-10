@@ -436,6 +436,8 @@ function btStateChange(state) {
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
+          status = nmx.getStatus();
+          sendEvent('nmx.status', status);
         }
     }
 }
