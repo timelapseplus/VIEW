@@ -516,8 +516,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     var index = $scope.getAxisIndex(msg.driver + '-' + msg.motor);
                     if (msg.complete && msg.driver && $scope.axis[index]) {
                         $scope.axis[index].moving = false;
-                        $scope.axis[index].pos = msg.position;
                         if($scope.axis[index].callback) {
+                            $scope.axis[index].pos = msg.position;
                             $scope.axis[index].callback(msg.position);
                             $scope.axis[index].callback = null;
                         } else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
@@ -526,6 +526,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                                 driver: msg.driver,
                                 motor: msg.motor
                             });
+                        } else {
+                            $scope.axis[index].pos = msg.position;
                         }
                     }
                     callback(null, msg.complete);
@@ -1012,10 +1014,40 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
-            $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
+            if($scope.currentKf || $scope.axis[index].pos != 0) $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
+                driver: driver,
+                motor: motor
+            });
+        }
+    }
+
+    $scope.atHomePosition = function() {
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].connected && $scope.axis[i].pos != 0) return false; 
+        }
+        return true;
+    }
+
+    $scope.setHomePosition = function() {
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].connected && $scope.axis[i].pos != 0) $scope.zeroAxis($scope.axis[i].id); 
+        }
+    }
+
+    $scope.zeroAxis = function(axisName) {
+        console.log("zeroing ", axisId);
+        var index = $scope.getAxisIndex(axisId);
+        if(index === null) return false;
+        var parts = axisId.split('-');
+        if (steps && parts.length == 2) {
+            var driver = parts[0];
+            var motor = parts[1];
+            $scope.axis[index].pos = 0; // will be overwritten by motor driver response
+            sendMessage('motion', {
+                key: 'zero',
                 driver: driver,
                 motor: motor
             });
