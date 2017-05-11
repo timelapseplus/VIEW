@@ -20,6 +20,8 @@ var installLibGPhoto2 = "/usr/bin/test -e /home/view/current/lib/libgphoto2_" + 
 var getKernelVersion = "uname -v";
 var doKernelUpdate = "/usr/bin/test -e /home/view/current/boot/zImage && /usr/bin/test -e /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb && mount /dev/mmcblk0p1 /boot && cp /home/view/current/boot/zImage /boot/ && cp /home/view/current/boot/sun5i-a13-timelapseplus-view.dtb /boot/ && /bin/sync && umount /boot";
 
+var updateWifiModprobe = "/usr/bin/test -e /home/view/current/lib/8723bu.conf && cp /home/view/current/lib/8723bu.conf /etc/modprobe.d/";
+
 var getUBootVersion = "/bin/dd if=/dev/mmcblk0 bs=1024 count=32 | /usr/bin/strings | /bin/grep \"U-Boot SPL\"";
 var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-spl.bin && /bin/dd if=/home/view/current/boot/u-boot-sunxi-with-spl.bin of=/dev/mmcblk0 bs=1024 seek=8";
 

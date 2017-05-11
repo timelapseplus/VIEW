@@ -1012,7 +1012,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
-            //$scope.axis[index].pos = position;//-= steps;
+            $scope.axis[index].pos = -= steps; // will be overwritten by motor driver response
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
@@ -1189,7 +1189,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;
-            if (kf.ev != null) $scope.setEv(kf.ev);
+            //if (kf.ev != null) $scope.setEv(kf.ev);
             //if (kf.focus != null) {
             //    var focusDiff = kf.focus - $scope.focusPos;
             //    var dir = focusDiff < 0 ? -1 : 1;
@@ -1229,12 +1229,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.zoom();
             delay = 1000;
         }
-        $timeout(function() {
-            $scope.preview(false);
-            if ($scope.currentKf) {
-                $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
-            }
-        }, delay);
+        if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited) {
+            $timeout(function() {
+                $scope.preview(false);
+                if ($scope.currentKf) {
+                    $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
+                }
+            }, delay);
+        }
         if ($scope.currentKfIndex == 0) {
             for (var i = 1; i < $scope.timelapse.keyframes.length; i++) {
 
