@@ -1622,7 +1622,7 @@ if (VIEW_HARDWARE) {
                 return wifi.enabled;// && !wifi.connected && !wifi.apMode;
             }
         }, {
-            name: "Enable Wifi",
+            name: "Enable Wireless",
             help: help.wifiEnableMenu,
             action: function(){
                 wifi.enable(function(){
@@ -1649,7 +1649,7 @@ if (VIEW_HARDWARE) {
                 return wifi.enabled && !wifi.apMode;
             }
         }, {
-            name: "Disable TL+VIEW AP",
+            name: "Disable built-in AP",
             help: help.wifiApDisMenu,
             action: function(){
                 wifi.disableAP(function(){
@@ -1693,7 +1693,7 @@ if (VIEW_HARDWARE) {
                 return !wifi.btEnabled && wifi.enabled;
             }
         }, {
-            name: "Disable Wifi",
+            name: "Disable Wireless",
             help: help.wifiDisableMenu,
             action: function(){
                 wifi.disable(function(){
