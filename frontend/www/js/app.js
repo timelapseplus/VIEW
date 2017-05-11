@@ -1012,7 +1012,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
-            $scope.axis[index].pos = -= steps; // will be overwritten by motor driver response
+            $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
