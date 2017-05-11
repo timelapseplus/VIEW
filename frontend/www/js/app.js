@@ -1278,7 +1278,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             if($scope.axis[j].moving) {
                                 (function(kfIndex, axisIndex){
                                     $scope.axis[j].callback = function() {
-                                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
+                                        $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[axisIndex].pos;
                                     }
                                 })(i, j);
                             } else {
@@ -1293,11 +1293,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.currentKf.motionEdited) {
                 for(var i = 0; i < $scope.axis.length; i++) {
                     if($scope.axis[i].moving) {
-                        (function(id){
+                        (function(id, i){
                             $scope.axis[index].callback = function(position) {
                                 $scope.zeroAxis(id);
                             };
-                        })($scope.axis[i].id);
+                        })($scope.axis[i].id, i);
                     } else {
                         $scope.zeroAxis($scope.axis[i].id);
                     }
