@@ -521,11 +521,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             $scope.axis[index].callback(msg.position);
                             $scope.axis[index].callback = null;
                         } else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
-                            sendMessage('motion', {
-                                key: 'zero',
-                                driver: msg.driver,
-                                motor: msg.motor
-                            });
+                            $scope.zeroAxis($scope.axis[index].id);
                         } else {
                             $scope.axis[index].pos = msg.position;
                         }
@@ -1014,7 +1010,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
-            if($scope.currentKf || $scope.axis[index].pos != 0) $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
+            //if($scope.currentKf || $scope.axis[index].pos != 0) 
+            $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
@@ -1295,30 +1292,16 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
             if($scope.currentKf.motionEdited) {
                 for(var i = 0; i < $scope.axis.length; i++) {
-                    var parts = $scope.axis[i].id.split('-');
-                    if (parts.length == 2) {
-                        var driver = parts[0];
-                        var motor = parts[1];
-
-                        if($scope.axis[i].moving) {
-                            (function(d, m, index){
-                                $scope.axis[index].callback = function(position) {
-                                    sendMessage('motion', {
-                                        key: 'zero',
-                                        driver: d,
-                                        motor: m
-                                    });
-                                };
-                            })(driver, motor, i);
-                        } else {
-                            sendMessage('motion', {
-                                key: 'zero',
-                                driver: driver,
-                                motor: motor
-                            });
-                        }
-                        //$scope.axis[i].pos = 0;
+                    if($scope.axis[i].moving) {
+                        (function(id){
+                            $scope.axis[index].callback = function(position) {
+                                $scope.zeroAxis(id);
+                            };
+                        })($scope.axis[i].id);
+                    } else {
+                        $scope.zeroAxis($scope.axis[i].id);
                     }
+                    $scope.axis[i].pos = 0;
                 }
             }
         }
