@@ -1037,7 +1037,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     }
 
-    $scope.zeroAxis = function(axisName) {
+    $scope.zeroAxis = function(axisId) {
         console.log("zeroing ", axisId);
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
