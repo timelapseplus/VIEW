@@ -1294,7 +1294,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 for(var i = 0; i < $scope.axis.length; i++) {
                     if($scope.axis[i].moving) {
                         (function(id, i){
-                            $scope.axis[index].callback = function(position) {
+                            $scope.axis[i].callback = function(position) {
                                 $scope.zeroAxis(id);
                             };
                         })($scope.axis[i].id, i);
