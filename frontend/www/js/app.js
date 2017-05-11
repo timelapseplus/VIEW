@@ -432,17 +432,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (ws || connecting) {
             return;
         } else if (!wsAddress) {
+            connecting = true;
             console.log("-> Looking up websocket address...");
-            $http.get('/socket/address', {headers: {'x-view-session': $scope.sid}}).success(function(data) {
+            $http.get('/socket/address', {headers: {'x-view-session': $scope.sid}}).then(function(response) {
+                var data = response.data;
                 console.log(data);
+                connecting = false;
                 if (data && data.address) {
                     connect(data.address);
                 } else if(data && data.action == 'login_required') {
                     $scope.openLogin();
-                } else {
-                    connecting = false;
                 }
-            }).error(function(err) {
+            }, function(response) { // error
                 connecting = false;
             });
             return;
@@ -734,8 +735,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.nodevice = false;
             $scope.status = "Lost connection to view.tl";
             $scope.connected = -1;
-            $timeout(connect, 3000);
             ws = null;
+            $timeout(connect, 3000);
         })
 
         ws.onError(function(err) {
