@@ -197,7 +197,7 @@ wifi.unblockBt = function(cb) {
 wifi.powerCycle = function(cb) {
 	wifi.disable(function(){
 		wifi.enable(cb);
-	});
+	}, true);
 }
 
 wifi.enable = function(cb) {
@@ -219,14 +219,14 @@ wifi.enable = function(cb) {
 	});
 }
 
-wifi.disable = function(cb) {
+wifi.disable = function(cb, disableEvents) {
 	var disable = function() {
 		wifi.disconnect();
 		wifi.stop();
 		iw.disable(function(){
-			wifi.enabled = false;
+			if(!disableEvents) wifi.enabled = false;
 			powerControl(false, function(err) {
-				wifi.emit('disabled', false);
+				if(!disableEvents) wifi.emit('disabled', false);
 				if(cb) cb(err);
 			});
 		});
