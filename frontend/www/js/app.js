@@ -1042,7 +1042,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
-        if (steps && parts.length == 2) {
+        if (parts.length == 2) {
             var driver = parts[0];
             var motor = parts[1];
             $scope.axis[index].pos = 0; // will be overwritten by motor driver response
