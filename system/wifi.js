@@ -194,6 +194,12 @@ wifi.unblockBt = function(cb) {
 	});
 }
 
+wifi.powerCycle = function(cb) {
+	wifi.disable(function(){
+		wifi.enable(cb);
+	});
+}
+
 wifi.enable = function(cb) {
 	powerControl(true, function(err) {
 		iw.enable(function(err) {
@@ -242,7 +248,9 @@ wifi.connect = function(network, password, callback) {
 	};
 	if(wifi.apMode && !dualInterface) {
 		wifi.disableAP(function(){
-			setTimeout(join, 2000);
+			wifi.powerCycle(function(){
+				setTimeout(join, 2000);
+			});
 		});		
 	} else {
 		wifi.disconnect(function() {
@@ -282,12 +290,13 @@ wifi.enableAP = function(callback) {
 			enableAP();
 		});
 	} else {
-		enableAP();
 		if(dualInterface) {
 			enableAP();
 		} else {
 			wifi.disconnect(function(){
-				enableAP();
+				wifi.powerCycle(function(){
+					enableAP();
+				});
 			})
 		}
 	}
