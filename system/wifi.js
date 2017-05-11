@@ -203,11 +203,12 @@ wifi.enable = function(cb) {
 					wifi.enabled = true;
 					wifi.emit('enabled', true);
 					wifi.scan();
+					if(cb) cb(err);
 				});
 			} else {
 				console.log("Error Enabling WiFi:", err);
+				if(cb) cb(err);
 			}
-			if(cb) cb(err);
 		});
 	});
 }
@@ -263,12 +264,16 @@ wifi.disconnect = function(callback) {
 
 wifi.enableAP = function(callback) {
 	var enableAP = function() {
-		wifi.apMode = true;
-		var channel = (wifi.connected && wifi.connected.channel) ? wifi.connected.channel : 6;
-		var ssid = 'TL+VIEW';
-		hostApdConfig(ssid, channel, function(){
-			exec(ENABLE_AP, function(err) {
-				if(callback) callback(err);
+		wifi.disconnect();
+		wifi.stop();
+		iw.disable(function(){
+			wifi.apMode = true;
+			var channel = (wifi.connected && wifi.connected.channel) ? wifi.connected.channel : 6;
+			var ssid = 'TL+VIEW';
+			hostApdConfig(ssid, channel, function(){
+				exec(ENABLE_AP, function(err) {
+					if(callback) callback(err);
+				});
 			});
 		});
 	}
@@ -292,7 +297,7 @@ wifi.disableAP = function(callback) {
 	wifi.apMode = false;
 	//wifi.connected = false;
 	exec(DISABLE_AP, function(err) {
-		if(callback) callback(err);
+		wifi.enable(callback);
 	});
 }
 
