@@ -169,7 +169,7 @@ if (VIEW_HARDWARE) {
         if(ssid.substr(0, 7) == "DIRECT-") core.connectSonyWifi();
         ui.reload();
     });
-    wifi.on('enabled', function(enabled) {
+    wifi.on('enabled', function(reload) {
         app.disableRemote();
         oled.setIcon('wifi', false);
         if(wifiWasDisabled) {
@@ -177,13 +177,13 @@ if (VIEW_HARDWARE) {
             core.resetBt();
             wifi.resetBt();
         }
-        ui.reload();
+        if(reload) ui.reload();
     });
-    wifi.on('disabled', function(enabled) {
+    wifi.on('disabled', function(reload) {
         wifiWasDisabled = true;
         app.disableRemote();
         oled.setIcon('wifi', false);
-        ui.reload();
+        if(reload) ui.reload();
     });
     wifi.on('disconnect', function(previousConnection) {
         app.disableRemote();

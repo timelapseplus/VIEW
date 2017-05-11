@@ -226,7 +226,7 @@ wifi.disable = function(cb, disableEvents) {
 		iw.disable(function(){
 			if(!disableEvents) wifi.enabled = false;
 			powerControl(false, function(err) {
-				if(!disableEvents) wifi.emit('disabled', false);
+				wifi.emit('disabled', !disableEvents);
 				if(cb) cb(err);
 			});
 		});
@@ -306,7 +306,7 @@ wifi.disableAP = function(callback) {
 	wifi.apMode = false;
 	//wifi.connected = false;
 	exec(DISABLE_AP, function(err) {
-		wifi.enable(callback);
+		wifi.powerCycle(callback);
 	});
 }
 
