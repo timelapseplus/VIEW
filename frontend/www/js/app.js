@@ -1241,8 +1241,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             //    var repeat = Math.abs(focusDiff);
             //    if (repeat > 0) $scope.focus(dir, repeat);
             //}
-
-            $scope.moveToKeyframePosition(kf);
+            //$scope.motionMoveToKeyframe(kf);
         }
         $scope.preview(true);
         $scope.modalExposure.show();
