@@ -231,9 +231,13 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        setTimeout(checkDone, 800);
+                        setTimeout(function(){
+                            camera.ptp.lvOff(function(){
+                                setTimeout(checkDone, 500);                                
+                            });
+                        }, 500);
                     });
-                }, 800);
+                }, 1000);
             });
         } else {
             checkDone();
