@@ -2828,7 +2828,7 @@ app.on('message', function(msg) {
                 if (msg.key == "manual") {
                     core.focus(msg.val, msg.repeat, function(err){
                         console.log("MAIN: focus complete");
-                        reply('focus', {
+                        msg.reply('focus', {
                             complete: true,
                         });
                     });
