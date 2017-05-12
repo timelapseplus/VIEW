@@ -537,6 +537,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     }
                     callback(null, msg.complete);
                 case 'focus':
+                    console.log("focus callback", msg);
                     if (msg.complete) {
                         $scope.focusMoving = false;
                     }
