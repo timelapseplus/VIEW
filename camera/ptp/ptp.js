@@ -641,16 +641,24 @@ function focusCanon(step, repeat, callback) {
         param = "Far 1";
         if (step > 1) param = "Far 2";
     }
+    var errCount = 0;
+    var errorLimit = 10;
+
     var doFocus = function() {
         camera.lvTimerReset();
         worker.send({
             type: 'camera',
-            set: 'manualfocusdrive',
+            setDirect: 'manualfocusdrive',
             value: param,
-            id: getCallbackId(worker.port, 'focusCanon', function() {
-                repeat--;
+            id: getCallbackId(worker.port, 'focusCanon', function(err) {
+                if(err) {
+                    errCount++;
+                    if(errCount > errorLimit) return callback && callback(err);
+                } else {
+                    repeat--;
+                }
                 if (repeat > 0) {
-                    setTimeout(doFocus, 15);
+                    setTimeout(doFocus, 10);
                 } else {
                     if (callback) callback();
                 }
@@ -677,14 +685,22 @@ function focusNikon(step, repeat, callback) {
             delay = 500;
         }
     }
+    var errCount = 0;
+    var errorLimit = 10;
+
     var doFocus = function() {
         camera.lvTimerReset();
         worker.send({
             type: 'camera',
-            set: 'manualfocusdrive',
+            setDirect: 'manualfocusdrive',
             value: param,
-            id: getCallbackId(worker.port, 'focusNikon', function() {
-                repeat--;
+            id: getCallbackId(worker.port, 'focusNikon', function(err) {
+                if(err) {
+                    errCount++;
+                    if(errCount > errorLimit) return callback && callback(err);
+                } else {
+                    repeat--;
+                }
                 if (repeat > 0) {
                     setTimeout(doFocus, delay);
                 } else {
