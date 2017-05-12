@@ -2826,7 +2826,11 @@ app.on('message', function(msg) {
 
             case 'focus':
                 if (msg.key == "manual") {
-                    core.focus(msg.val, msg.repeat);
+                    core.focus(msg.val, msg.repeat, function(err){
+                        reply('focus', {
+                            complete: true,
+                        });
+                    });
                 }
                 break;
 

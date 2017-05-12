@@ -517,6 +517,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     var index = $scope.getAxisIndex(msg.driver + '-' + msg.motor);
                     if (msg.complete && msg.driver && $scope.axis[index]) {
                         $scope.axis[index].moving = false;
+                        var moving = false;
+                        for(var i = 0; i < $scope.axis.length; i++) {
+                            if($scope.axis[i].moving) {
+                                moving = true;
+                                break;
+                            }
+                        }
+                        $scope.motionMoving = moving;
                         if($scope.axis[index].callback) {
                             $scope.axis[index].pos = msg.position;
                             $scope.axis[index].callback(msg.position);
@@ -526,6 +534,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         } else {
                             $scope.axis[index].pos = msg.position;
                         }
+                    }
+                    callback(null, msg.complete);
+                case 'focus':
+                    if (msg.complete) {
+                        $scope.focusMoving = false;
                     }
                     callback(null, msg.complete);
                 case 'settings':
@@ -1011,6 +1024,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[index].reverse && !noReverse) steps = 0 - steps;
             console.log("moving motor" + axisId, steps);
             $scope.axis[index].moving = true;
+            $scope.motionMoving = true;
             //if($scope.currentKf || $scope.axis[index].pos != 0) 
             $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
             sendMessage('motion', {
@@ -1090,6 +1104,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if (dir < 0) $scope.focusPos -= repeat;
             if($scope.currentKf) $scope.currentKf.focusEdited = true;
         }
+        $scope.focusMoving = true;
         sendMessage('focus', {
             key: 'manual',
             val: dir,
@@ -1227,31 +1242,49 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             //    if (repeat > 0) $scope.focus(dir, repeat);
             //}
 
-            if(!kf.motor) kf.motor = {};
-            for(var i = 0; i < $scope.axis.length; i++) {
-                if($scope.axis[i].connected) {
-                    var id = $scope.axis[i].id;
-                    if(!kf.motor[id]) kf.motor[id] = 0;
-                    var diff = kf.motor[id] - $scope.axis[i].pos;
-                    $scope.move(id, 0 - diff, true);
-                }
-            }
-
+            $scope.moveToKeyframePosition(kf);
         }
         $scope.preview(true);
         $scope.modalExposure.show();
     };
-    $scope.focusMoveToKeyframe = function(currentKf) {
-        var focusDiff = $scope.focusCurrentDistance(currentKf);
+    $scope.focusMoveToKeyframe = function(keyframe) {
+        var focusDiff = $scope.focusCurrentDistance(keyframe);
         var dir = focusDiff < 0 ? -1 : 1;
         var repeat = Math.abs(focusDiff);
         if (repeat > 0) $scope.focus(dir, repeat);
     }
-    $scope.focusCurrentDistance = function(currentKf) {
-        return currentKf ? currentKf.focus - $scope.focusPos : 0;
+    $scope.focusCurrentDistance = function(keyframe) {
+        return keyframe ? keyframe.focus - $scope.focusPos : 0;
     }
-    $scope.focusResetKeyframe = function(currentKf) {
-        currentKf.focus = $scope.focusPos;
+    $scope.focusResetKeyframe = function(keyframe) {
+        keyframe.focus = $scope.focusPos;
+    }
+
+    $scope.motionAtKeyframe = function(keyframe) {
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].connected && keyframe && $scope.axis[i].pos != keyframe.motor[$scope.axis[i].id]) return false; 
+        }
+        return true;
+    }
+    $scope.motionResetKeyframe = function(keyframe) {
+        keyframe.motionEdited = true;
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].connected) {
+                var id = $scope.axis[i].id;
+                keyframe.motor[id] = $scope.axis[i].pos;
+            }
+        }
+    }
+    $scope.motionMoveToKeyframe = function(keyframe) {
+        if(!keyframe.motor) keyframe.motor = {};
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].connected) {
+                var id = $scope.axis[i].id;
+                if(!keyframe.motor[id]) keyframe.motor[id] = 0;
+                var diff = keyframe.motor[id] - $scope.axis[i].pos;
+                $scope.move(id, 0 - diff, true);
+            }
+        }
     }
     $scope.closeExposure = function() {
         var delay = 0;
@@ -1387,6 +1420,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.setupAxis.reverse = reverse;
     }
 
+    $scope.motionMoving = false;
     function setupAxis(axisInfo) {
         var axisId = axisInfo.driver + '-' + axisInfo.motor;
         console.log("setting up axis: ", axisId);
@@ -1421,6 +1455,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 axis.moving = false;//$scope.axis[axisIndex].moving;
                 $scope.axis[axisIndex] = axis;
             }
+            var moving = false;
+            for(var i = 0; i < $scope.axis.length; i++) {
+                if($scope.axis[i].moving) {
+                    moving = true;
+                    break;
+                }
+            }
+            $scope.motionMoving = moving;
             console.log("$scope.axis", $scope.axis);
         });
     }

@@ -29,10 +29,10 @@
             </div>
 
             <div class="button-bar" ng-show="focusMode && previewActive && !intervalometerStatus.running">
-                <button class="button button-dark button-block" ng-click="focus(-2, 1, true)"><i class="icon ion-skip-backward"></i></button>
-                <button class="button button-dark button-block" ng-click="focus(-1, 1, true)"><i class="icon ion-arrow-left-b"></i></button>
-                <button class="button button-dark button-block" ng-click="focus(1, 1, true)"><i class="icon ion-arrow-right-b"></i></button>
-                <button class="button button-dark button-block" ng-click="focus(2, 1, true)"><i class="icon ion-skip-forward"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(-2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-backward"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(-1, 1, true)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(1, 1, true)" ng-disabled="focusMoving"><i class="icon ion-arrow-right-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-forward"></i></button>
             </div>
 
             <div class="row" ng-hide="focusMode||intervalometerStatus.running" ng-repeat="a in axis | filter:{'connected':true}">

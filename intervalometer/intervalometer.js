@@ -231,9 +231,9 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        checkDone();
+                        setTimeout(checkDone, 800);
                     });
-                }, 500);
+                }, 800);
             });
         } else {
             checkDone();

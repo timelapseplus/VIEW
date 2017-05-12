@@ -650,7 +650,7 @@ function focusCanon(step, repeat, callback) {
             id: getCallbackId(worker.port, 'focusCanon', function() {
                 repeat--;
                 if (repeat > 0) {
-                    setTimeout(doFocus, 10);
+                    setTimeout(doFocus, 15);
                 } else {
                     if (callback) callback();
                 }

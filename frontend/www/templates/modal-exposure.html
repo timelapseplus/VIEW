@@ -91,11 +91,11 @@
                 </div>
             </div>
             <div class="button-bar" ng-show="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
-                <button class="button button-dark button-block" ng-click="focus(-1, 10)"><i class="icon ion-arrow-left-b"></i><i class="icon ion-arrow-left-b"></i></button>
-                <button class="button button-dark button-block" ng-click="focus(-1)"><i class="icon ion-arrow-left-b"></i> near</button>
+                <button class="button button-dark button-block" ng-click="focus(-1, 10)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i><i class="icon ion-arrow-left-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(-1)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i> near</button>
                 <button class="button button-dark button-block disabled">{{focusPos}}</button>
-                <button class="button button-dark button-block" ng-click="focus(1)">far <i class="icon ion-arrow-right-b"></i></button>
-                <button class="button button-dark button-block" ng-click="focus(1, 10)"><i class="icon ion-arrow-right-b"></i><i class="icon ion-arrow-right-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(1)" ng-disabled="focusMoving">far <i class="icon ion-arrow-right-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(1, 10)" ng-disabled="focusMoving"><i class="icon ion-arrow-right-b"></i><i class="icon ion-arrow-right-b"></i></button>
             </div>
             <div class="row" ng-hide="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
                 <div class="col center">
@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="button-bar" ng-hide="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
-                <button class="button button-dark button-block" ng-click="focusMoveToKeyframe(currentKf)">Move to KF</button>
+                <button class="button button-dark button-block" ng-click="focusMoveToKeyframe(currentKf)" ng-disabled="focusMoving">Move to KF</button>
                 <button class="button button-dark button-block" ng-click="focusResetKeyframe(currentKf)">Reset KF to current</button>
             </div>
         </div>
@@ -132,14 +132,20 @@
                     <em>connect NMX to enable keyframe motion</em>
                 </div>
             </div>
-            <div class="row" ng-repeat="a in axis | filter:{'connected':true}">
-                <div class="button-bar" ng-hide="a.setup">
-                    <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>
+            <div ng-show="motionAvailable">
+                <div class="row" ng-hide="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <button class="button button-dark button-block" ng-click="motionMoveToKeyframe(currentKf)" ng-disabled="motionMoving">Move to KF</button>
+                    <button class="button button-dark button-block" ng-click="motionResetKeyframe(currentKf)">Reset KF to current</button>
                 </div>
-                <div class="button-bar" ng-show="a.setup">
-                    <button class="button button-dark button-block" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-skip-backward"></i></button>
-                    <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
-                    <button class="button button-dark button-block" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-skip-forward"></i></button>
+                <div class="row" ng-repeat="a in axis | filter:{'connected':true}" ng-show="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <div class="button-bar" ng-hide="a.setup">
+                        <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>
+                    </div>
+                    <div class="button-bar" ng-show="a.setup">
+                        <button class="button button-dark button-block" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-skip-backward"></i></button>
+                        <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                        <button class="button button-dark button-block" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-skip-forward"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
