@@ -295,7 +295,6 @@ function setupExposure(cb) {
         camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
             status.evDiff = res.ev - status.rampEv;
             console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-            status.lastPhotoTime = new Date() / 1000 - status.startTime;
             busyExposure = false;
             cb && cb(err);
         });
@@ -339,9 +338,9 @@ function runPhoto() {
         if (intervalometer.currentProgram.rampMode == "fixed") {
             status.intervalMs = intervalometer.currentProgram.interval * 1000;
             if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
-            status.lastPhotoTime = new Date() / 1000 - status.startTime;
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1500);
             captureOptions.calculateEv = false;
+            status.lastPhotoTime = new Date() / 1000 - status.startTime;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     status.path = photoRes.file;
@@ -392,6 +391,7 @@ function runPhoto() {
             if(camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
             var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
             setTimeout(motionSyncPulse, msDelayPulse);
+            status.lastPhotoTime = new Date() / 1000 - status.startTime;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
