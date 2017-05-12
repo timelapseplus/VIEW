@@ -148,7 +148,7 @@ process.on('message', function(msg) {
         }
         if(msg.do == 'waitComplete') waitComplete(buildCB(msg.id));
         if (msg.set) set(msg.set, msg.value, buildCB(msg.id));
-        if (msg.setDirect) setDirect(msg.set, msg.value, buildCB(msg.id));
+        if (msg.setDirect) setDirect(msg.setDirect, msg.value, buildCB(msg.id));
         if (msg.get == 'settings') {
             console.log("WORKER: called getConfig in", new Date() / 1000 - msg.time, "seconds");
             getConfig(false, false, buildCB(msg.id));
