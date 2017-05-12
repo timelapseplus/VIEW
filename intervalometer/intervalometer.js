@@ -13,6 +13,7 @@ var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
 var gpio = require('linux-gpio');
 var _ = require('underscore');
+var suncalc = require('suncalc');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
@@ -118,6 +119,9 @@ function getDetails(file) {
     if(intervalometer.gpsData) {
         d.latitude = intervalometer.gpsData.lat;
         d.longitude = intervalometer.gpsData.lon;
+        d.sunPos = suncalc.getPosition(new Date(), d.latitude, d.longitude);
+        d.moonPos = suncalc.getMoonPosition(new Date(), d.latitude, d.longitude);
+        d.moonIllumination = suncalc.getMoonIllumination(new Date());
     }
     return d;
 }
