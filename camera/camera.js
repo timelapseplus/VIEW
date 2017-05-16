@@ -145,9 +145,9 @@ var lastParam = null;
 camera.setEv = function(ev, options, cb) {
     if (!options) options = {};
     var doSet = function(settings) {
-        var shutter = settings.shutter;
-        var aperture = settings.aperture;
-        var iso = settings.iso;
+        var shutter = settings.details.shutter;
+        var aperture = settings.details.aperture;
+        var iso = settings.details.iso;
 
         var apertureEnabled = false;
         if(options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
@@ -163,9 +163,9 @@ camera.setEv = function(ev, options, cb) {
         //console.log("current aperture", aperture);
         //console.log("current iso", iso);
 
-        var shutterList = camera.ptp.settings.lists.shutter;
-        var apertureList = camera.ptp.settings.lists.aperture;
-        var isoList = camera.ptp.settings.lists.iso;
+        var shutterList = settings.lists.shutter;
+        var apertureList = settings.lists.aperture;
+        var isoList = settings.lists.iso;
 
         //console.log("options: ", options);
 
@@ -213,10 +213,12 @@ camera.setEv = function(ev, options, cb) {
         //console.log("apertureList: ", apertureList);
 
         var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
-        console.log("setEv: currentEv: ", currentEv);
-        console.log("setEv: newEv: ", ev);
+        console.log("setEv: currentEv: ", currentEv, "targetEv:", ev);
+
+        console.log("setEv: list lengths: s:", shutterList ? shutterList.length : -1, "i:", isoList ? isoList.length : -1, "a:", apertureList ? apertureList.length : -1);
 
         if (ev === null) {
+            console.log("setEv: unable to set ev, insufficient settings available");
             if (cb) cb(null, {
                 ev: currentEv,
                 shutter: shutter,
@@ -282,7 +284,7 @@ camera.setEv = function(ev, options, cb) {
         }
 
 
-        console.log("   done: ", currentEv);
+        console.log("setEv: finalEv: ", currentEv);
 
         function runQueue(queue, callback) {
             set = queue.pop();
@@ -301,15 +303,15 @@ camera.setEv = function(ev, options, cb) {
 
         var setQueue = [];
 
-        if (shutter.ev != settings.shutter.ev) setQueue.push({
+        if (shutter.ev != settings.details.shutter.ev) setQueue.push({
             name: 'shutter',
             val: shutter.cameraName || shutter.name
         });
-        if (apertureEnabled && aperture.ev != settings.aperture.ev) setQueue.push({
+        if (apertureEnabled && aperture.ev != settings.details.aperture.ev) setQueue.push({
             name: 'aperture',
             val: aperture.cameraName || aperture.name
         });
-        if (iso.ev != settings.iso.ev) setQueue.push({
+        if (iso.ev != settings.details.iso.ev) setQueue.push({
             name: 'iso',
             val: iso.cameraName || iso.name
         });
@@ -325,13 +327,13 @@ camera.setEv = function(ev, options, cb) {
         });
     }
 
-    if (options && options.settingsDetails) {
+    if (options && options.cameraSettings) {
         console.log("setEv: using provided settings");
-        doSet(options.settingsDetails);
+        doSet(options.cameraSettings);
     } else {
         camera.ptp.getSettings(function() {
             console.log("setEv: retreived settings from camera");
-            var settings = camera.ptp.settings.details;
+            var settings = camera.ptp.settings;
             doSet(settings);
         });
     }

@@ -279,7 +279,7 @@ function getEvOptions() {
     var maxShutterLengthMs = status.intervalMs;
     if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
     return {
-        settingsDetails: camera.ptp.settings.details,
+        cameraSettings: camera.ptp.settings,
         maxShutterLengthMs: maxShutterLengthMs,
         isoMax: intervalometer.currentProgram.isoMax,
         isoMin: intervalometer.currentProgram.isoMin,
