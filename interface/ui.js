@@ -1,4 +1,4 @@
-//var beep = require('interface/beep.js');
+var beep = require('interface/beep.js');
 var _ = require('underscore');
 var oled = null;
 var currentProgram = null;
@@ -10,9 +10,10 @@ var screenSaverHandle = null;
 //var beepEnter = beep.sine(2954, 0.04);
 //var beepBack = beep.sine(1447, 0.04);
 //var beepClick = beep.sine(738, 0.02);
-//var beepAlarm = beep.sine2(2954, 1540, 0.5);
+var beepAlarm = beep.sine2(2954, 1540, 0.25);
 
 exports.busy = false;
+exports.audio = 'disabled';
 
 function activity() {
     oled.activity();
@@ -186,7 +187,6 @@ exports.down = function(alt) {
 exports.enter = function(alt) {
     activity();
     if(exports.busy) return;
-    //beep.play(beepEnter);
     if (currentProgram.type == "menu" || currentProgram.type == "options") {
         if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
     } else if (currentProgram.type == "textInput") {
@@ -206,7 +206,6 @@ exports.enter = function(alt) {
 exports.help = function() {
     activity();
     if(exports.busy) return;
-    //beep.play(beepClick);
     if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
         back();
     } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
@@ -227,8 +226,9 @@ exports.help = function() {
         });
     }
 }
-exports.alert = function(title, text, updateInterval) {
+exports.alert = function(title, text, updateInterval, audioAlert) {
     activity();
+    if(audioAlert && exports.audio) beep.play(beepAlarm, 5, 0.5);
     var f, intervalHandle = null;
     if(typeof text === 'function') {
         f = text;

@@ -776,7 +776,7 @@ if (VIEW_HARDWARE) {
                             ev += 1 / 3;
                             console.log("setting ev to ", ev);
                             core.setEv(ev, {
-                                settingsDetails: core.cameraSettings.details
+                                cameraSettings: core.cameraSettings
                             });
                         }
                     } else if (d == 'D') {
@@ -784,7 +784,7 @@ if (VIEW_HARDWARE) {
                             ev -= 1 / 3;
                             console.log("setting ev to ", ev);
                             core.setEv(ev, {
-                                settingsDetails: core.cameraSettings.details
+                                cameraSettings: core.cameraSettings
                             });
                         }
                     }
@@ -1323,7 +1323,7 @@ if (VIEW_HARDWARE) {
                         ev += 1 / 3;
                         console.log("setting ev to ", ev);
                         core.setEv(ev, {
-                            settingsDetails: core.cameraSettings.details
+                            cameraSettings: core.cameraSettings
                         });
                     }
                 } else if (d == 'D') {
@@ -1331,7 +1331,7 @@ if (VIEW_HARDWARE) {
                         ev -= 1 / 3;
                         console.log("setting ev to ", ev);
                         core.setEv(ev, {
-                            settingsDetails: core.cameraSettings.details
+                            cameraSettings: core.cameraSettings
                         });
                     }
                 }
@@ -1963,6 +1963,28 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var audioAlertsMenu = {
+        name: "Audio Alerts",
+        type: "options",
+        items: [{
+            name: "Audio Alerts",
+            value: "disabled",
+            help: help.audioAlertsMenu,
+            action: ui.set(ui, 'audio', 'disabled', function(cb){
+                db.set('audioAlerts', "disabled");
+                cb && cb();
+            })
+        }, {
+            name: "Audio Alerts",
+            value: "enabled",
+            help: help.audioAlertsMenu,
+            action: ui.set(ui, 'audio', 'enabled', function(cb){
+                db.set('audioAlerts', "enabled");
+                cb && cb();
+            })
+        }]
+    }
+
     var buttonModeMenu = {
         name: "Button Backlights",
         type: "options",
@@ -2043,6 +2065,10 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Theme", oled, 'theme'),
             action: colorThemeMenu,
             help: help.colorThemeMenu
+        },{
+            name: valueDisplay("Audio Alerts", ui, 'audio'),
+            action: audioAlertsMenu,
+            help: help.audioAlertsMenu
         },{
             name: valueDisplay("Buttons", power, 'buttonMode'),
             action: buttonModeMenu,
@@ -2346,7 +2372,7 @@ if (VIEW_HARDWARE) {
                 clips.saveXMPsToCard(clip.index, function(err) {
                     ui.back();
                     if(err) {
-                        ui.alert('Error Writing', "Error writing XMPs: " + err);
+                        ui.alert('Error Writing', "Error writing XMPs: " + err, null, true);
                     } else {
                         cb();
                     }
@@ -2706,6 +2732,12 @@ db.get('gestureSensor', function(err, en) {
 db.get('colorTheme', function(err, theme) {
     if(!err && theme) {
         oled.setTheme(theme);
+    }
+});
+
+db.get('audioAlerts', function(err, audio) {
+    if(!err && audio) {
+        ui.audio = audio;
     }
 });
 
@@ -3205,7 +3237,7 @@ core.on('camera.connectionError', function(msg) {
     if(ui.currentOrigin() == 'alert') {
         ui.back();
     }
-    ui.alert('ERROR', msg);
+    ui.alert('ERROR', msg, null, true);
     app.send('connectionError', {
         msg: msg
     });
@@ -3216,7 +3248,7 @@ core.on('intervalometer.error', function(msg) {
     if(ui.currentOrigin() == 'alert') {
         ui.back();
     }
-    ui.alert('ERROR', msg);
+    ui.alert('ERROR', msg, null, true);
     app.send('intervalometerError', {
         msg: msg
     });

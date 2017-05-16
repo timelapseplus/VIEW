@@ -116,12 +116,16 @@ exports.systemInfo = "System and version information";
 
 exports.apertureMin = "The minimum aperture (widest opening, e.g., f/2.8) setting to use when ramping exposure.\nIt's recommended to limit the minimum to one stop above wide open to avoid a change in vignetting which is difficult to correct in post.";
 
-exports.apertureMin = "The maximum aperture (smallest opening, e.g., f/16) setting to use when ramping exposure.\nIt's recommended to limit the maximum aperture to about f/8 to avoid flicker caused by irregularities at a smaller aperture setting.";
+exports.apertureMax = "The maximum aperture (smallest opening, e.g., f/16) setting to use when ramping exposure.\nIt's recommended to limit the maximum aperture to about f/8 to avoid flicker caused by irregularities at a smaller aperture setting.";
 
-exports.rampParameters = "Camera parameters used for ramping.  Currently defines whether or not to ramp aperture, but more options are planned for future releases.";
+exports.rampParameters = "Camera parameters used for ramping.\n- Shutter, ISO (S+I):\n Ramps using shutter and ISO (not aperture)\n- Sh, ISO (balanced) (S=I)\n Ramps shutter and ISO together, causing a more gradual change in shutter speed.\n- Sh, Aperture, ISO (S+A+I)\n Ramps using all parameters, including aperture.";
 
 exports.playbackCamera = "Plays the time-lapse clip as captured by the secondary camera";
 
 exports.registrationInfo = "Info and instructions for pairing with app.view.tl";
+
+exports.cameraSelection = "Selects the primary camera used for setup and exposure tracking during ramping with multiple cameras.  Other cameras will mirror the primary camera's settings.";
+
+exports.audioAlertsMenu = "Configure audio alerts for popup errors and time-lapse completion";
 
 
