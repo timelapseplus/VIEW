@@ -12,6 +12,8 @@ var screenSaverHandle = null;
 //var beepClick = beep.sine(738, 0.02);
 var beepAlarm = beep.sine2(2954, 1540, 0.25);
 
+beep.enable(true);
+
 exports.busy = false;
 exports.audio = 'disabled';
 
