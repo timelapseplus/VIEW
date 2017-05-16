@@ -228,7 +228,7 @@ exports.help = function() {
 }
 exports.alert = function(title, text, updateInterval, audioAlert) {
     activity();
-    if(audioAlert && exports.audio) beep.play(beepAlarm, 5, 0.5);
+    if(audioAlert && exports.audio != 'disabled') beep.play(beepAlarm, 5, 0.5);
     var f, intervalHandle = null;
     if(typeof text === 'function') {
         f = text;
