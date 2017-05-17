@@ -1090,7 +1090,7 @@ if (VIEW_HARDWARE) {
                         return core.sdPresent;
                     }
                 }, {
-                    name: "Write CSV data to SD card",
+                    name: "Write CSV data to SD",
                     action: function(){
                         confirmSaveSpreadsheet(clip);
                     },
