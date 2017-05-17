@@ -1090,6 +1090,15 @@ if (VIEW_HARDWARE) {
                         return core.sdPresent;
                     }
                 }, {
+                    name: "Write CSV data to SD card",
+                    action: function(){
+                        confirmSaveSpreadsheet(clip);
+                    },
+                    help: help.writeSpreadsheet,
+                    condition: function() {
+                        return core.sdPresent && updates.developerMode;
+                    }
+                }, {
                     name: "Use time-lapse setup",
                     action: function(){
                         var newProgram = _.extend(core.currentProgram, dbClip.program);
@@ -2373,6 +2382,29 @@ if (VIEW_HARDWARE) {
                     ui.back();
                     if(err) {
                         ui.alert('Error Writing', "Error writing XMPs: " + err, null, true);
+                    } else {
+                        cb();
+                    }
+                }); 
+            } else {
+                ui.back();
+                //cb();
+            }
+        }, null);
+    }
+
+    var confirmSaveSpreadsheet = function(clip) {
+        ui.confirmationPrompt("Save CSV file to SD?", "write to SD", "cancel", help.writeSpreadsheet, function(cb){
+            oled.value([{
+                name: "Writing to card",
+                value: "please wait"
+            }]);
+            oled.update();
+            if(clip) {
+                clips.saveSpreadsheetToCard(clip.index, function(err) {
+                    ui.back();
+                    if(err) {
+                        ui.alert('Error Writing', "Error writing CSV: " + err, null, true);
                     } else {
                         cb();
                     }

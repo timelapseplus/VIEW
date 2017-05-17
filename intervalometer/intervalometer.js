@@ -108,6 +108,7 @@ function getDetails(file) {
         evCorrection: status.evDiff,
         targetEv: exp.status.targetEv,
         actualEv: status.rampEv,
+        cameraEv: status.cameraEv,
         rampRate: exp.status.rate,
         intervalMs: status.intervalMs,
         timestamp: status.lastPhotoTime,
@@ -297,11 +298,14 @@ function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     console.log("\n\nEXP: setupExposure");
     busyExposure = true;
-    camera.getEv(function(err, currentEv, params) {
+    camera.ptp.getSettings(function() {
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         console.log("EXP: current ev: ", currentEv);
         camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
-            status.evDiff = res.ev - status.rampEv;
+            if(res.ev != null) {
+                status.cameraEv = res.ev;
+            } 
+            status.evDiff = status.cameraEv - status.rampEv;
             console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
             busyExposure = false;
             cb && cb(err);
@@ -381,7 +385,10 @@ function runPhoto() {
                 });
             });
         } else {
-            if (status.rampEv === null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+            if (status.rampEv === null) {
+                status.cameraEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                status.rampEv = status.cameraEv;
+            }
             captureOptions.exposureCompensation = status.evDiff || 0;
             captureOptions.calculateEv = true;
 

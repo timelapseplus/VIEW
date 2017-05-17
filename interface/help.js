@@ -128,4 +128,7 @@ exports.cameraSelection = "Selects the primary camera used for setup and exposur
 
 exports.audioAlertsMenu = "Configure audio alerts for popup errors and time-lapse completion";
 
+exports.writeSpreadsheet = "Writes a spreadsheet file to the SD card with technical data from the clip";
+
+
 

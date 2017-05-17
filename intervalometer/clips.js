@@ -283,6 +283,34 @@ clips.saveXMPsToCard = function(clipNumber, callback) {
     }
 }
 
+clips.saveSpreadsheetToCard = function(clipNumber, callback) {
+    if (core.sdPresent) {
+        core.mountSd(function() {
+            if (core.sdMounted) {
+                var destPath = "/media/tl-" + clipNumber + "-data";
+                console.log("writing CSV to " + destPath);
+                clips.getSpreadsheet(clipNumber, 0, function(err, csv){
+                    if(!err && csv) {
+                        fs.writeFile(destPath, csv, function(err){
+                            setTimeout(function() {
+                                core.unmountSd(function() {
+                                    if(callback) callback(err);
+                                });
+                            }, 500);
+                        });
+                    } else {
+                        if(callback) callback(err);
+                    }
+                });
+            } else {
+                callback("SD card error");
+            }
+        });
+    } else {
+        callback("SD card not present");
+    }
+}
+
 clips.eraseAll = function() {
     exec("sudo rm -rf " + TLROOT + "/*", function() {
         exec("cp -r /home/view/current/demo/* " + TLROOT + "/");
@@ -295,6 +323,49 @@ clips.deleteTimelapseClip = function(clipNumber, callback) {
     db.deleteTimelapse(name, function(err1) {
         exec("sudo rm -rf " + folder, function(err) {
             callback && callback(err);
+        });
+    });
+}
+
+clips.getSpreadsheet = function(clipNumber, cameraNumber, callback) {
+    var name = "tl-" + clipNumber;
+    var header = [];
+    var rows = [];
+    db.getTimelapseByName(name, function(err, clip) {
+        if(err || !clip) {
+            console.log("error opening clip info from db", err);
+            return callback && callback("error opening clip info");
+        }
+        if(cameraNumber > clip.cameras) {
+            console.log("camera number out of range", err);
+            return callback && callback("invalid camera number");
+        }
+        console.log("getting frames for", name);
+        db.getTimelapseFrames(clip.id, cameraNumber, function(err, clipFrames){
+            if(err || !clipFrames) {
+                console.log("error getting clip frames from db", err);
+                return callback && callback("error opening clip frames");
+            }
+            console.log("retrieved " + clipFrames.length + " frames for", name);
+            for(var i = 0; i < clipFrames.length; i++) {
+                var details = clipFrames[i].details;
+                var row = [];
+                for(var key in details) {
+                    var index = header.indexOf(key);
+                    if(index === -1) {
+                        header.push(key);
+                        index = header.length -1;
+                    }
+                    row[index] = details[key];
+                }
+                rows.push(row);
+            }
+            var csv = header.join(',') + "\n";
+            for(var i = 0; i < rows.length; i++) {
+                while(rows[i].length < header.length) rows[i].push('');
+                csv += rows[i].join(',') + "\n";
+            }
+            if (callback) callback(null, csv);
         });
     });
 }

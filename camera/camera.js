@@ -212,14 +212,17 @@ camera.setEv = function(ev, options, cb) {
 
         //console.log("apertureList: ", apertureList);
 
-        var currentEv = lists.getEv(shutter.ev, aperture.ev, iso.ev);
+        var currentEv = null;
+        if(shutter && aperture && iso && shutter.ev && aperture.ev && iso.ev) {
+            lists.getEv(shutter.ev, aperture.ev, iso.ev);
+        }
         console.log("setEv: currentEv: ", currentEv, "targetEv:", ev);
 
         console.log("setEv: list lengths: s:", shutterList ? shutterList.length : -1, "i:", isoList ? isoList.length : -1, "a:", apertureList ? apertureList.length : -1);
 
         if (ev === null) {
             console.log("setEv: unable to set ev, insufficient settings available");
-            if (cb) cb(null, {
+            if (cb) cb("unable to set ev, insufficient settings available", {
                 ev: currentEv,
                 shutter: shutter,
                 aperture: aperture,
