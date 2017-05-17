@@ -287,7 +287,7 @@ clips.saveSpreadsheetToCard = function(clipNumber, callback) {
     if (core.sdPresent) {
         core.mountSd(function() {
             if (core.sdMounted) {
-                var destPath = "/media/tl-" + clipNumber + "-data";
+                var destPath = "/media/tl-" + clipNumber + "-data.csv";
                 console.log("writing CSV to " + destPath);
                 clips.getSpreadsheet(clipNumber, 0, function(err, csv){
                     if(!err && csv) {
@@ -351,12 +351,23 @@ clips.getSpreadsheet = function(clipNumber, cameraNumber, callback) {
                 var details = clipFrames[i].details;
                 var row = [];
                 for(var key in details) {
-                    var index = header.indexOf(key);
-                    if(index === -1) {
-                        header.push(key);
-                        index = header.length -1;
+                    if(typeof details[key] == 'object') {
+                        for(var subKey in details[key]) {
+                            var index = header.indexOf(key + '.' + subKey);
+                            if(index === -1) {
+                                header.push(key + '.' + subKey);
+                                index = header.length -1;
+                            }
+                            row[index] = details[key][subKey];
+                        }
+                    } else {
+                        var index = header.indexOf(key);
+                        if(index === -1) {
+                            header.push(key);
+                            index = header.length -1;
+                        }
+                        row[index] = details[key];
                     }
-                    row[index] = details[key];
                 }
                 rows.push(row);
             }
