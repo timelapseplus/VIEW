@@ -8,12 +8,12 @@ var exec = require('child_process').exec;
 
 var closed = false;
 dbSys.serialize(function(){
-	dbSys.run("CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value BLOB)");
-	dbSys.run("CREATE TABLE IF NOT EXISTS wifi (address TEXT PRIMARY KEY, password TEXT)");
+	dbRun(dbSys, "CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value BLOB)");
+	dbRun(dbSys, "CREATE TABLE IF NOT EXISTS wifi (address TEXT PRIMARY KEY, password TEXT)");
 });
 
 dbTl.serialize(function(){
-	dbTl.run("CREATE TABLE IF NOT EXISTS clips (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+	dbRun(dbTl, "CREATE TABLE IF NOT EXISTS clips (id INTEGER PRIMARY KEY AUTOINCREMENT,\
 													 name TEXT,\
 													 date TEXT,\
 													 program BLOB,\
@@ -24,25 +24,25 @@ dbTl.serialize(function(){
 													 thumbnail TEXT,\
 													 frames INTEGER\
 													 )");
-	dbTl.run("CREATE INDEX IF NOT EXISTS name ON clips (name)");
+	dbRun(dbTl, "CREATE INDEX IF NOT EXISTS name ON clips (name)");
 
-	dbTl.run("CREATE TABLE IF NOT EXISTS clip_frames (id INTEGER PRIMARY KEY AUTOINCREMENT,\
+	dbRun(dbTl, "CREATE TABLE IF NOT EXISTS clip_frames (id INTEGER PRIMARY KEY AUTOINCREMENT,\
 													 clip_id INTEGER,\
 													 ev_correction REAL,\
 													 details BLOB,\
 													 camera INTEGER DEFAULT 1,\
 													 thumbnail TEXT\
 													 )");
-	dbTl.run("CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
+	dbRun(dbTl, "CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
 
 	try {
-		dbTl.run("ALTER TABLE clips ADD COLUMN primary_camera DEFAULT 1", function(err) {
+		dbRun(dbTl, "ALTER TABLE clips ADD COLUMN primary_camera DEFAULT 1", function(err) {
 			console.log("alter clips table:", err);
 		});
-		dbTl.run("ALTER TABLE clips ADD COLUMN cameras DEFAULT 1", function(err) {
+		dbRun(dbTl, "ALTER TABLE clips ADD COLUMN cameras DEFAULT 1", function(err) {
 			console.log("alter clips table:", err);
 		});
-		dbTl.run("ALTER TABLE clip_frames ADD COLUMN camera DEFAULT 1", function(err) {
+		dbRun(dbTl, "ALTER TABLE clip_frames ADD COLUMN camera DEFAULT 1", function(err) {
 			console.log("alter clip_frames table:", err);
 		});
 	} catch(e) {
@@ -51,7 +51,7 @@ dbTl.serialize(function(){
 });
 
 dbCache.serialize(function(){
-	dbCache.run("CREATE TABLE IF NOT EXISTS cache (name TEXT PRIMARY KEY, value BLOB)");
+	dbRun(dbCache, "CREATE TABLE IF NOT EXISTS cache (name TEXT PRIMARY KEY, value BLOB)");
 });
 
 var currentLog = null;
@@ -99,7 +99,7 @@ function unserialize(string) {
 exports.setCache = function(key, object, callback) {
 	if(closed) return callback && callback(true);
 	var data = serialize(object);
-	dbCache.run("INSERT OR REPLACE INTO cache (name, value) VALUES ('" + key + "', '" + data + "')", callback);
+	dbRun(dbCache, "INSERT OR REPLACE INTO cache (name, value) VALUES ('" + key + "', '" + data + "')", callback);
 }
 
 exports.getCache = function(key, callback) {
@@ -117,7 +117,7 @@ exports.getCache = function(key, callback) {
 exports.set = function(key, object, callback) {
 	if(closed) return callback && callback(true);
 	var data = serialize(object);
-	dbSys.run("INSERT OR REPLACE INTO settings (name, value) VALUES ('" + key + "', '" + data + "')", callback);
+	dbRun(dbTl, "INSERT OR REPLACE INTO settings (name, value) VALUES ('" + key + "', '" + data + "')", callback);
 }
 
 exports.get = function(key, callback) {
@@ -144,8 +144,8 @@ exports.setTimelapse = function(name, program, cameras, primaryCamera, status, c
 	primaryCamera = parseInt(primaryCamera);
 	primaryCamera = primaryCamera || 1;
 
-	dbTl.run("INSERT INTO clips (name, date, program, cameras, primary_camera, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + cameras + "', '" + primaryCamera + "', '" + status + "', '" + logfile + "')", function(err) {
-		callback && callback(err, this.lastID);
+	dbRun(dbTl, "INSERT INTO clips (name, date, program, cameras, primary_camera, status, logfile) VALUES ('" + name + "', '" + date + "', '" + program + "', '" + cameras + "', '" + primaryCamera + "', '" + status + "', '" + logfile + "')", function(err, lastID) {
+		callback && callback(err, lastID);
 	});
 }
 
@@ -179,10 +179,10 @@ exports.deleteTimelapse = function(tlName, callback) {
 	if(closed) return callback && callback(true);
 	exports.getTimelapseByName(tlName, function(err, clip) {
 		if(!err && clip) {
-			dbTl.run("DELETE FROM clips WHERE id = '" + clip.id + "'", function(err) {
+			dbRun(dbTl, "DELETE FROM clips WHERE id = '" + clip.id + "'", function(err) {
 				if(err) console.log("error deleting clip:", err);
 			});
-			dbTl.run("DELETE FROM clip_frames WHERE clip_id = '" + clip.id + "'", function(err) {
+			dbRun(dbTl, "DELETE FROM clip_frames WHERE clip_id = '" + clip.id + "'", function(err) {
 				if(err) console.log("error deleting clip_frames:", err);
 				if(callback) callback(err);
 			});
@@ -240,12 +240,32 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			frames++;
 			if(!data.thumbnail && thumbnail && data.primary_camera == cameraNumber) {
 				console.log("setting clip thumbnail to:", thumbnail);
-				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
+				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
 			} else {
-				dbTl.run("UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
+				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
 			}
 			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail, " clip thumbnail:'" + data.thumbnail + "'");
-			dbTl.run("INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
+			dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
+		}
+	});
+}
+
+function dbRun(database, query, callback, _attempts) {
+	if(!_attempts) _attempts = 0;
+	database.run(query, [], function(err) {
+		if(err) {
+			_attempts++;
+			if(_attempts > 10) {
+				console.log("DB: query failed after 10 attempts: ", err, query);
+				return callback && callback(err);
+			} else {
+				setTimeout(function(){
+					dbRun(database, query, callback, _attempts);
+				}, 1000);
+				console.log("DB: retrying query in one second due to error: ", err);
+			}
+		} else {
+			return callback && callback(null, this.lastID);
 		}
 	});
 }
@@ -280,7 +300,7 @@ exports.getTimelapseList = function(limit, offset, callback) {
 exports.setWifi = function(address, password, callback) {
 	if(closed) return callback && callback(true);
 	var data = serialize(password);
-	dbSys.run("INSERT OR REPLACE INTO wifi (address, password) VALUES ('" + address + "', '" + data + "')", callback);
+	dbRun(dbSys, "INSERT OR REPLACE INTO wifi (address, password) VALUES ('" + address + "', '" + data + "')", callback);
 }
 
 exports.getWifi = function(address, callback) {
@@ -298,10 +318,10 @@ exports.getWifi = function(address, callback) {
 // WARNING! This erases all saved settings! //
 exports.eraseAll = function() {
 	if(closed) return callback && callback(true);
-	dbSys.run("DELETE FROM wifi WHERE 1");
-	dbSys.run("DELETE FROM settings WHERE 1");
-	dbTl.run("DELETE FROM clips WHERE 1");
-	dbTl.run("DELETE FROM clip_frames WHERE 1");
+	dbRun(dbSys, "DELETE FROM wifi WHERE 1");
+	dbRun(dbSys, "DELETE FROM settings WHERE 1");
+	dbRun(dbTl, ("DELETE FROM clips WHERE 1");
+	dbRun(dbTl, "DELETE FROM clip_frames WHERE 1");
 }
 
 
