@@ -366,7 +366,7 @@ clips.getSpreadsheet = function(clipNumber, cameraNumber, callback) {
                             header.push(key);
                             index = header.length -1;
                         }
-                        row[index] = details[key];
+                        row[index] = details[key].replace('\0', '/');
                     }
                 }
                 rows.push(row);
