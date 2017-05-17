@@ -56,16 +56,17 @@ var enabled = true;
 
 exports.play = function(beep, count, intervalSeconds) {
   if(!enabled) return null;
+  speaker.write(beep);
   if(count > 0 && intervalSeconds > 0) {
     return handle = setInterval(function(){
       speaker.write(beep);
-      if(--count) {
+      count--;
+      if(count <= 0) {
         clearInterval(handle);
         handle = null;
       }
     }, intervalSeconds * 1000)
   } else {
-    speaker.write(beep);
     return null;
   }
 }
