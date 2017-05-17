@@ -1,5 +1,6 @@
 var Speaker = require('speaker');
 var fs = require('fs');
+var exec = require('child_process').exec;
  
 var sampleRate = 44100;
   
@@ -58,6 +59,7 @@ exports.play = function(beep, count, intervalSeconds) {
   if(!enabled) return null;
   speaker.write(beep);
   if(count > 0 && intervalSeconds > 0) {
+    count--;
     return handle = setInterval(function(){
       speaker.write(beep);
       count--;
@@ -77,7 +79,10 @@ exports.cancel = function() {
   }
 }
 
-exports.enable = function(enable) {
+exports.enable = function(enable, callback) {
   enabled = enable;
+  exec("amixer set 'Power Amplifier' 100%", function(err){
+    callback && callback(err);
+  });
 }
 

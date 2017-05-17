@@ -300,7 +300,6 @@ function setupExposure(cb) {
     busyExposure = true;
     camera.ptp.getSettings(function() {
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-        console.log("EXP: current ev: ", currentEv);
         camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
             if(res.ev != null) {
                 status.cameraEv = res.ev;

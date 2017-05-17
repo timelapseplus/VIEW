@@ -117,7 +117,7 @@ exports.getCache = function(key, callback) {
 exports.set = function(key, object, callback) {
 	if(closed) return callback && callback(true);
 	var data = serialize(object);
-	dbRun(dbTl, "INSERT OR REPLACE INTO settings (name, value) VALUES ('" + key + "', '" + data + "')", callback);
+	dbRun(dbSys, "INSERT OR REPLACE INTO settings (name, value) VALUES ('" + key + "', '" + data + "')", callback);
 }
 
 exports.get = function(key, callback) {
