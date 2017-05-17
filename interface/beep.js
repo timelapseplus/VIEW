@@ -17,11 +17,10 @@ function sineWaveAt(sampleNumber, tone) {
   return Math.sin(sampleNumber / (sampleFreq / (Math.PI*2)))
 }
 
-exports.sine = function(freq, duration, name) {
+exports.sine = function(freq, duration) {
   var toneSamples = sampleRate * duration * 2;
   var totalSamples = sampleRate * (duration < 0.1 ? 0.1 : duration) * 2;
   var beep = new Buffer(totalSamples);
-   
    
   var val = 0;
   for(var i = 0; i < beep.length / 2; i++) {
@@ -32,11 +31,10 @@ exports.sine = function(freq, duration, name) {
     }
     beep.writeInt16LE(val, i * 2);
   }
-  if(name) beeps[name] = beep;
   return beep;
 } 
 
-exports.sine2 = function(freq1, freq2, duration, name) {
+exports.sine2 = function(freq1, freq2, duration) {
   var toneSamples = sampleRate * duration * 2;
   var totalSamples = sampleRate * (duration < 0.1 ? 0.1 : duration) * 2;
   var beep = new Buffer(totalSamples);
@@ -59,7 +57,7 @@ var enabled = true;
 exports.play = function(beep, count, intervalSeconds) {
   if(!enabled) return null;
   if(count > 0 && intervalSeconds > 0) {
-    handle = setInterval(function(){
+    return handle = setInterval(function(){
       speaker.write(beep);
       if(--count) {
         clearInterval(handle);

@@ -320,7 +320,7 @@ exports.eraseAll = function() {
 	if(closed) return callback && callback(true);
 	dbRun(dbSys, "DELETE FROM wifi WHERE 1");
 	dbRun(dbSys, "DELETE FROM settings WHERE 1");
-	dbRun(dbTl, ("DELETE FROM clips WHERE 1");
+	dbRun(dbTl, "DELETE FROM clips WHERE 1");
 	dbRun(dbTl, "DELETE FROM clip_frames WHERE 1");
 }
 
