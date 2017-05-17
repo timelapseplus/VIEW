@@ -369,7 +369,7 @@ clips.getSpreadsheet = function(clipNumber, cameraNumber, callback) {
                         if(key == 'fileName') {
                             var fileNumberString = details[key].match(/([A-Z0-9_]{8}\.[A-Z0-9]+)$/i)[1];
                             row[index] = fileNumberString;
-                        } else if(details[key]) {
+                        } else if(details[key] != null) {
                             row[index] = details[key].toString();
                         } else {
                             row[index] = '';
