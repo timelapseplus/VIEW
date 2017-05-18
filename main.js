@@ -60,6 +60,8 @@ process.stdin.resume();
 
 console.log('Modules loaded.');
 
+updates.cleanup(); // cleanup old version installations
+
 if (VIEW_HARDWARE) {
     updates.updateUBoot(function(err) {
         updates.updateKernel(function(err, reboot) {
@@ -1511,33 +1513,46 @@ if (VIEW_HARDWARE) {
                 }
             });
         } else {
-            console.log("Getting cached versions from DB...");
-            db.get('versions-installed', function(err, dbVersions) {
-                var versions = [];
-                for(var key in dbVersions) {
-                    if(dbVersions.hasOwnProperty(key)) {
-                        versions.push(dbVersions[key]);
-                    }
-                }
+            updates.getInstalledVersions(function(err, versions) {
                 if(!err && versions) {
-                    for(var i = 0; i < versions.length; i++) {
-                        if(updates.version == versions[i].version) {
-                            versions[i].current = true;
-                        } else {
-                            versions[i].current = false;
-                        }
-                    }
-                    console.log("Building menu from cache", versions);
                     buildUpdateMenu(err, versions);
                 } else {
-                    console.log("ERROR: no cached versions available");
+                    ui.back();
+                    console.log("ERROR: no installed versions available");
                     oled.value([{
                         name: "Version Update Error",
-                        value: "WiFi Required"
+                        value: "Not Available"
                     }]);
                     oled.update();
                 }
             });
+            //console.log("Getting cached versions from DB...");
+            //db.get('versions-installed', function(err, dbVersions) {
+            //    var versions = [];
+            //    for(var key in dbVersions) {
+            //        if(dbVersions.hasOwnProperty(key)) {
+            //            versions.push(dbVersions[key]);
+            //        }
+            //    }
+            //    if(!err && versions) {
+            //        for(var i = 0; i < versions.length; i++) {
+            //            if(updates.version == versions[i].version) {
+            //                versions[i].current = true;
+            //            } else {
+            //                versions[i].current = false;
+            //            }
+            //        }
+            //        console.log("Building menu from cache", versions);
+            //        buildUpdateMenu(err, versions);
+            //    } else {
+            //        console.log("ERROR: no cached versions available");
+            //        oled.value([{
+            //            name: "Version Update Error",
+            //            value: "WiFi Required"
+            //        }]);
+            //        oled.update();
+            //    }
+            //});
         }
     }    
 
@@ -2655,9 +2670,9 @@ function closeSystem(callback) {
         cbDone = true;
         if (VIEW_HARDWARE) {
             oled.close();
-            callback && callback();
+            //callback && callback();
         } else {
-            callback && callback();
+            //callback && callback();
         }
     });
 
