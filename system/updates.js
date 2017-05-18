@@ -281,7 +281,7 @@ exports.cleanup = function() {
 			var keepInstalls = sortInstalls(stableInstalls.concat(betaInstalls)).slice(0, maxKeep - 1);
 
 			var deleteInstalls = installs.filter(function(item){
-				return keepInstalls.indexOf(item) === -1 || item == current;
+				return keepInstalls.indexOf(item) === -1 && item != current;
 			});
 
 			if(deleteInstalls.length > 0) {
