@@ -357,6 +357,8 @@ exports.getInstalledVersions = function(callback){
 	installs = installs.filter(function(item) {
 		return item.match(/^v[0-9]+\.[0-9]+/);
 	});
+	installs = sortInstalls(installs, true);
+
 	for(var i = 0; i < installs.length; i++) {
 		var beta = installs[i].match(/beta/) ? true : false;
 		list.push({
@@ -370,7 +372,6 @@ exports.getInstalledVersions = function(callback){
 			current: installs[i] == current
 		});
 	}
-	list = sortInstalls(list, true);
 	callback(null, list);
 };
 
