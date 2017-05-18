@@ -36,14 +36,14 @@ dbTl.serialize(function(){
 	dbRun(dbTl, "CREATE INDEX IF NOT EXISTS clip_id ON clip_frames (clip_id)");
 
 	try {
-		dbRun(dbTl, "ALTER TABLE clips ADD COLUMN primary_camera DEFAULT 1", function(err) {
-			console.log("alter clips table:", err);
+		dbTl.run("ALTER TABLE clips ADD COLUMN primary_camera DEFAULT 1", function(err) {
+			//console.log("alter clips table:", err);
 		});
-		dbRun(dbTl, "ALTER TABLE clips ADD COLUMN cameras DEFAULT 1", function(err) {
-			console.log("alter clips table:", err);
+		dbTl.run("ALTER TABLE clips ADD COLUMN cameras DEFAULT 1", function(err) {
+			//console.log("alter clips table:", err);
 		});
-		dbRun(dbTl, "ALTER TABLE clip_frames ADD COLUMN camera DEFAULT 1", function(err) {
-			console.log("alter clip_frames table:", err);
+		dbTl.run("ALTER TABLE clip_frames ADD COLUMN camera DEFAULT 1", function(err) {
+			//console.log("alter clip_frames table:", err);
 		});
 	} catch(e) {
 		console.log("extra columns already added");

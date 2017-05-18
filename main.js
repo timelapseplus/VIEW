@@ -1474,7 +1474,7 @@ if (VIEW_HARDWARE) {
                 };
                 for (var i = 0; i < versions.length; i++) {
                     if (versions[i]) sm.items.push({
-                        name: versions[i].version + (versions[i].current ? " (current)" : ""),
+                        name: versions[i].version + (versions[i].current ? " (current)" : (versions[i].installed ? " (installed)" : "")),
                         help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versions[i].notes,
                         action: {
                             type: "function",
