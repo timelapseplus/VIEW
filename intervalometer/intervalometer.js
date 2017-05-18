@@ -304,6 +304,7 @@ function setupExposure(cb) {
             if(res.ev != null) {
                 status.cameraEv = res.ev;
             } 
+            status.cameraSettings = camera.ptp.settings;
             status.evDiff = status.cameraEv - status.rampEv;
             console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
             busyExposure = false;
