@@ -1,5 +1,7 @@
 var fs = require('fs');
-var exec = require('child_process').exec;
+var child_process = require('child_process');
+var spawn = child_process.spawn;
+var exec = child_process.exec;
 
 var baseInstallPath = "/home/view/";
 var current = fs.readlinkSync(baseInstallPath + 'current');
@@ -7,7 +9,7 @@ current = current.match(/[^\/]+$/)[0];
 
 cleanup();
 
-function checkInstall() {
+function doInstall() {
 	var sdContents = fs.readdirSync("/media/");
 	console.log('sdContents', sdContents);
 	var versions = sdContents.filter(function(item){
@@ -19,12 +21,56 @@ function checkInstall() {
 			return item.replace('VIEW-', 'v');
 		});
 		versions = sortInstalls(versions, true);
-		var installZip = '/media/' + versions[0].replace('v', 'VIEW-');
+		var installVersion = versions[0];
+		var installZip = '/media/' + installVersion.replace('v', 'VIEW-');
 		console.log("installing", installZip);
+		extract(installZip, baseInstallPath + installVersion, function(err, destFolder) {
+			if(err) {
+				console.log("extract failed");
+				process.exit(1);
+			} else {
+				fs.writeFile(baseInstallPath + installVersion + "/version.json", JSON.stringify({version: installVersion}), function(){
+					setVersion(installVersion, function(err){
+						console.log("installation complete!");
+						process.exit(0);
+					});
+				});
+			}
+		});
 	}
 }
 
-checkInstall();
+doInstall();
+
+function setVersion(versionName, callback) {
+	var installs = fs.readdirSync(baseInstallPath);
+	if(installs.indexOf('current') !== -1) {
+		fs.unlinkSync(baseInstallPath + 'current');
+	}
+	fs.symlink(baseInstallPath + versionName, baseInstallPath + 'current', function(err) {
+		callback && callback(err);
+	});
+} 
+
+
+function extract(zipPath, destFolder, callback) {
+	var unzip = spawn('unzip', ['-q', zipPath, '-d', destFolder + '_zip_extract']);
+	console.log("extracting...");
+	unzip.once('close', function(code) {
+		fs.readdir(destFolder + '_zip_extract', function(err, files) {
+			console.log(err, files);
+			if(files && files.length > 0) {
+				fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
+					fs.rmdir(destFolder + '_zip_extract');
+					console.log("done extracting");
+					callback(err, destFolder);
+				});
+			} else {
+				callback(err, destFolder);
+			}
+		});
+	});
+}
 
 function cleanup() {
 	try {
