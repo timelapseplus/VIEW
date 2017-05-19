@@ -23,6 +23,7 @@ function doInstall() {
 		versions = sortInstalls(versions, true);
 		var installVersion = versions[0];
 		var installZip = '/media/' + installVersion.replace('v', 'VIEW-');
+		installVersion = installVersion.replace('.zip', '').trim();
 		console.log("installing", installZip);
 		extract(installZip, baseInstallPath + installVersion, function(err, destFolder) {
 			if(err) {
