@@ -270,7 +270,7 @@ var sortInstalls = function(list, reverse){
 
 exports.cleanup = function() {
 	try {
-		var maxKeep = 5;
+		var maxKeep = 4;
 		var maxBeta = Math.floor(maxKeep / 2);
 
 		var list = fs.readdirSync(baseInstallPath);
