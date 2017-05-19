@@ -7,24 +7,13 @@ current = current.match(/[^\/]+$/)[0];
 
 cleanup();
 
-var blockDevices = fs.readdirSync("/sys/class/block/mmcblk1p1");
-if(blockDevices.indexOf('mmcblk1p1') !== -1) {
-    exec("mount", function(err, stdout, stderr) {
-        if(stdout.indexOf('/dev/mmcblk1p1') !== -1) { // already mounted
-        	checkInstall();
-        } else {
-        	exec("mount /dev/mmcblk1p1 /media", function(err, stdout, stderr) {
-        		checkInstall();
-        	});
-        }
-    });
-}
-
 function checkInstall() {
 	var sdContents = fs.readdirSync("/media/");
+	console.log('sdContents', sdContents);
 	var versions = sdContents.filter(function(item){
 		return item.match(/^VIEW-[0-9]+\.[0-9]+(-beta)?[0-9.]*(-beta)?\.zip$/);
 	});
+	console.log('versions', versions);
 	if(versions.length > 0) {
 		versions = versions.map(function(item){
 			return item.replace('VIEW-', 'v');
@@ -34,6 +23,8 @@ function checkInstall() {
 		console.log("installing", installZip);
 	}
 }
+
+checkInstall();
 
 function cleanup() {
 	try {
