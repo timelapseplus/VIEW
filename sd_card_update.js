@@ -59,7 +59,7 @@ function cleanup() {
 	}
 }
 
-var versionParse = function(item) {
+function versionParse(item) {
 	var numbers = item.split(/[\-.]/);
 	if(numbers.length >= 3) {
 		var n1 = 0, n2 = 0, n3 = 0, n4 = 0;
@@ -91,7 +91,7 @@ var versionParse = function(item) {
 	}
 }
 
-var sortInstalls = function(list, reverse){
+function sortInstalls(list, reverse){
 	return list.sort(function(a, b) {
 		var a = versionParse(a);
 		var b = versionParse(b);
