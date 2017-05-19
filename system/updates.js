@@ -254,13 +254,13 @@ var sortInstalls = function(list, reverse){
 		var b = versionParse(b);
 		if(a && b) {
 			for(var i = 0; i < 4; i++) {
-				if(a[i] > b[i]) return reverse ? 1 : -1;
-				if(a[i] < b[i]) return reverse ? -1 : 1;
+				if(a[i] > b[i]) return reverse ? -1 : 1;
+				if(a[i] < b[i]) return reverse ? 1 : -1;
 			}
 			return 0;
 		} else {
-			if(a && !b) return reverse ? 1 : -1;
-			if(!a && b) return reverse ? -1 : 1;
+			if(a && !b) return reverse ? -1 : 1;
+			if(!a && b) return reverse ? 1 : -1;
 			return 0;
 		}
 	});
