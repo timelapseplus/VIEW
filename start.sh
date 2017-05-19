@@ -6,8 +6,9 @@ if (/opt/sunxi-tools/pio -m PB10 | grep -q "PB10<0><1><0><0>") && test -e /sys/c
     if ls /media/VIEW-*.zip 1> /dev/null 2>&1; then
 	    echo "firmware available"
 	    ACTION="install"
+	else
+		umount /media
 	fi
-	umount /media
 fi
 
 if [ "$ACTION" = "install" ]; then
@@ -16,6 +17,7 @@ if [ "$ACTION" = "install" ]; then
 	cd /home/view/current;
 	node sd_card_update.js
 	echo "installation complete!"
+	umount /media
 else
 	killall fbi
 	fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
