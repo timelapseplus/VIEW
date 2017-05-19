@@ -3187,8 +3187,15 @@ core.on('camera.settings', function() {
     });
 });
 
+var btBlockedForSony = false;
 core.on('camera.connected', function() {
-    if(core.cameraModel == "SonyWifi") app.disableRemote();
+    if(core.cameraModel == "SonyWifi") {
+        app.disableRemote();
+        if(wifi.btEnabled) {
+            wifi.blockBt();
+            btBlockedForSony = true;
+        }
+    }
     oled.setIcon('camera', true);
     setTimeout(function() {
         app.send('camera', {
@@ -3207,12 +3214,16 @@ ui.defaultStatus(s);
 ui.status(s);
 console.log("Setting default status to '" + s + "'")
 
-core.on('camera.exiting', function() {
+core.on('camera.exiting', function() {    
+    if(btBlockedForSony) {
+        wifi.unblockBt();
+    }
     oled.setIcon('camera', false);
     app.send('camera', {
         connected: false,
         model: ''
     });
+    if(btBlockedForSony)
     if (VIEW_HARDWARE) {
         ui.defaultStatus("VIEW " + updates.version);
         ui.status("camera disconnected");

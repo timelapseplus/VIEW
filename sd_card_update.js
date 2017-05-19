@@ -7,7 +7,6 @@ var baseInstallPath = "/home/view/";
 var current = fs.readlinkSync(baseInstallPath + 'current');
 current = current.match(/[^\/]+$/)[0];
 
-cleanup();
 
 function doInstall() {
 	var sdContents = fs.readdirSync("/media/");
@@ -55,55 +54,25 @@ function setVersion(versionName, callback) {
 
 
 function extract(zipPath, destFolder, callback) {
-	var unzip = spawn('unzip', ['-q', zipPath, '-d', destFolder + '_zip_extract']);
-	console.log("extracting...");
-	unzip.once('close', function(code) {
-		fs.readdir(destFolder + '_zip_extract', function(err, files) {
-			console.log(err, files);
-			if(files && files.length > 0) {
-				fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
-					fs.rmdir(destFolder + '_zip_extract');
-					console.log("done extracting");
+	exec("test -e " + destFolder + '_zip_extract' + " && rm -rf " + destFolder + '_zip_extract', function(err){
+		var unzip = spawn('unzip', ['-q', zipPath, '-d', destFolder + '_zip_extract']);
+		console.log("extracting...");
+		unzip.once('close', function(code) {
+			fs.readdir(destFolder + '_zip_extract', function(err, files) {
+				console.log(err, files);
+				if(files && files.length > 0) {
+					exec("test -e " + destFolder + " && rm -rf " + destFolder, function(err){
+						fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
+							console.log("done extracting");
+							callback(err, destFolder);
+						});
+					});
+				} else {
 					callback(err, destFolder);
-				});
-			} else {
-				callback(err, destFolder);
-			}
+				}
+			});
 		});
 	});
-}
-
-function cleanup() {
-	try {
-		var maxKeep = 5;
-		var maxBeta = Math.floor(maxKeep / 2);
-
-		var list = fs.readdirSync(baseInstallPath);
-		var installs = list.filter(function(item){return item.match(/^v[0-9]+\.[0-9]+/)});
-
-		if(installs.length > maxKeep) {
-			var betaInstalls = sortInstalls(installs.filter(function(item){return item.match(/beta/)})).slice(0, maxBeta - 1);
-			var stableInstalls = sortInstalls(installs.filter(function(item){return item.match(/^(?:(?!beta).)+$/)})).slice(0, maxKeep - 1);
-
-			var keepInstalls = sortInstalls(stableInstalls.concat(betaInstalls)).slice(0, maxKeep - 1);
-
-			var deleteInstalls = installs.filter(function(item){
-				return keepInstalls.indexOf(item) === -1 && item != current;
-			});
-
-			if(deleteInstalls.length > 0) {
-				for(var i = 0; i < deleteInstalls.length; i++) {
-					if(deleteInstalls[i].length > 5) {
-						var deleteCommand = "rm -rf " + baseInstallPath + deleteInstalls[i];
-						console.log("UPDATES: cleaning up: ", deleteCommand);
-						exec(deleteCommand);
-					}
-				}
-			}
-		}
-	} catch(e) {
-		console.log("UPDATES: error while cleaning up", e);
-	}
 }
 
 function versionParse(item) {

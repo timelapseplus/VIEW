@@ -116,20 +116,22 @@ function download(href, path, callback) {
 }
 
 function extract(zipPath, destFolder, callback) {
-	var unzip = spawn('unzip', ['-q', zipPath, '-d', destFolder + '_zip_extract']);
-	console.log("extracting...");
-	unzip.once('close', function(code) {
-		fs.readdir(destFolder + '_zip_extract', function(err, files) {
-			console.log(err, files);
-			if(files && files.length > 0) {
-				fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
-					fs.rmdir(destFolder + '_zip_extract');
-					console.log("done extracting");
+	exec("test -e " + destFolder + '_zip_extract' + " && rm -rf " + destFolder + '_zip_extract', function(err){
+		var unzip = spawn('unzip', ['-q', zipPath, '-d', destFolder + '_zip_extract']);
+		console.log("extracting...");
+		unzip.once('close', function(code) {
+			fs.readdir(destFolder + '_zip_extract', function(err, files) {
+				console.log(err, files);
+				if(files && files.length > 0) {
+					fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
+						fs.rmdir(destFolder + '_zip_extract');
+						console.log("done extracting");
+						callback(err, destFolder);
+					});
+				} else {
 					callback(err, destFolder);
-				});
-			} else {
-				callback(err, destFolder);
-			}
+				}
+			});
 		});
 	});
 }
@@ -275,10 +277,10 @@ exports.cleanup = function() {
 		var installs = list.filter(function(item){return item.match(/^v[0-9]+\.[0-9]+/)});
 
 		if(installs.length > maxKeep) {
-			var betaInstalls = sortInstalls(installs.filter(function(item){return item.match(/beta/)})).slice(0, maxBeta - 1);
-			var stableInstalls = sortInstalls(installs.filter(function(item){return item.match(/^(?:(?!beta).)+$/)})).slice(0, maxKeep - 1);
+			var betaInstalls = sortInstalls(installs.filter(function(item){return item.match(/beta/)}), true).slice(0, maxBeta - 1);
+			var stableInstalls = sortInstalls(installs.filter(function(item){return item.match(/^(?:(?!beta).)+$/)}), true).slice(0, maxKeep - 1);
 
-			var keepInstalls = sortInstalls(stableInstalls.concat(betaInstalls)).slice(0, maxKeep - 1);
+			var keepInstalls = sortInstalls(stableInstalls.concat(betaInstalls), true).slice(0, maxKeep - 1);
 
 			var deleteInstalls = installs.filter(function(item){
 				return keepInstalls.indexOf(item) === -1 && item != current;
