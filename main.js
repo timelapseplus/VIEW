@@ -81,50 +81,53 @@ if (VIEW_HARDWARE) {
     });
 
     var configureWifi = function() {
-        db.get('wifi-status', function(err, wifiStatus) {
-            if(wifiStatus) {
-                if(wifiStatus.enabled) {
+        db.get('wifi-ap-name', function(wifiApName) {
+            wifi.setApName(wifiApName);
+            db.get('wifi-status', function(err, wifiStatus) {
+                if(wifiStatus) {
+                    if(wifiStatus.enabled) {
+                        wifi.btEnabled = true;
+                        wifi.enable(function(){
+                            db.get('bt-status', function(err, status) {
+                                if(status && status.enabled) {
+                                    wifi.enableBt();
+                                } else {
+                                    wifi.disableBt();
+                                }
+                            });
+                            setTimeout(function(){
+                                if(!wifi.connected) {
+                                    if(wifiStatus.apMode) {
+                                        wifi.enableAP();
+                                    }
+                                    if(wifiStatus.connect) {
+                                        wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                    }
+                                }
+                            },5000);
+                        });
+                    } else {
+                        wifi.disable();
+                    }
+                } else {
                     wifi.btEnabled = true;
                     wifi.enable(function(){
-                        db.get('bt-status', function(err, status) {
-                            if(status && status.enabled) {
-                                wifi.enableBt();
-                            } else {
-                                wifi.disableBt();
-                            }
-                        });
                         setTimeout(function(){
+                            db.get('bt-status', function(err, status) {
+                                if(status && status.enabled) {
+                                    wifi.enableBt();
+                                } else {
+                                    wifi.disableBt();
+                                }
+                            });
+
                             if(!wifi.connected) {
-                                if(wifiStatus.apMode) {
-                                    wifi.enableAP();
-                                }
-                                if(wifiStatus.connect) {
-                                    wifi.connect(wifiStatus.connect, wifiStatus.password);
-                                }
+                                wifi.enableAP();
                             }
                         },5000);
                     });
-                } else {
-                    wifi.disable();
                 }
-            } else {
-                wifi.btEnabled = true;
-                wifi.enable(function(){
-                    setTimeout(function(){
-                        db.get('bt-status', function(err, status) {
-                            if(status && status.enabled) {
-                                wifi.enableBt();
-                            } else {
-                                wifi.disableBt();
-                            }
-                        });
-
-                        if(!wifi.connected) {
-                            wifi.enableAP();
-                        }
-                    },5000);
-                });
-            }
+            });
         });
     }
     configureWifi();
@@ -1631,9 +1634,26 @@ if (VIEW_HARDWARE) {
         };});
         cb(null, m);
     };
-    var wifiListHandler = function(list){
+
+    var setAccessPointNameAction = {
+        type: 'function',
+        fn: function(res, cb){
+            db.getWifi(item.address, function(err, password) {
+                cb(null, {
+                    name: "WiFi Built-in AP Name",
+                    help: help.wifiAccessPointName,
+                    type: "textInput",
+                    value: wifi.apName,
+                    onSave: function(result) {
+                        db.set('wifi-ap-name', result);
+                        wifi.setApName(result);
+                        ui.back();
+                    }
+                });
+            });
+        }
     }
-    wifi.listHandler(wifiListHandler);
+
 
     var wifiMenu = {
         name: "wifi",
@@ -1731,6 +1751,10 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return wifi.enabled;
             }
+        }, {
+            name: "Set built-in AP Name",
+            help: help.setAccessPointName,
+            action: setAccessPointNameAction
         }, ]
     }
 
@@ -1827,6 +1851,7 @@ if (VIEW_HARDWARE) {
             })
         }]
     }
+
 
     var createErrorReportReasonMenu = function(tlName) {
         ui.back();

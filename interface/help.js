@@ -130,5 +130,8 @@ exports.audioAlertsMenu = "Configure audio alerts for popup errors and time-laps
 
 exports.writeSpreadsheet = "Writes a spreadsheet file to the SD card with technical data from the clip";
 
+exports.wifiAccessPointName = "This sets the name (SSID) of the built-in access point.\n  Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turning to move the cursor.\nWhen complete, press the middle right button to save, or use the top right to cancel.";
+
+exports.setAccessPointName = "This sets the name (SSID) of the built-in access point.";
 
 

@@ -44,6 +44,7 @@ wifi.enabled = false;
 wifi.connected = false;
 wifi.list = [];
 wifi.btEnabled = false;
+wifi.apName = "TL+VIEW";
 
 
 function hostApdConfig(ssid, channel, callback) {
@@ -277,7 +278,7 @@ wifi.enableAP = function(callback) {
 		iw.disable(function(){
 			wifi.apMode = true;
 			var channel = (wifi.connected && wifi.connected.channel) ? wifi.connected.channel : 6;
-			var ssid = 'TL+VIEW';
+			var ssid = wifi.apName || 'TL+VIEW';
 			hostApdConfig(ssid, channel, function(){
 				exec(ENABLE_AP, function(err) {
 					if(callback) callback(err);
@@ -299,6 +300,16 @@ wifi.enableAP = function(callback) {
 				});
 			})
 		}
+	}
+}
+
+wifi.setApName = function(apName) {
+	if(!apName) return;
+	wifi.apName = apName;
+	if(wifi.apMode) {
+		wifi.disableAP(function(){
+			setTimeout(wifi.enableAP, 2000);
+		});
 	}
 }
 
