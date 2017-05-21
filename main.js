@@ -1638,18 +1638,16 @@ if (VIEW_HARDWARE) {
     var setAccessPointNameAction = {
         type: 'function',
         fn: function(res, cb){
-            db.getWifi(item.address, function(err, password) {
-                cb(null, {
-                    name: "WiFi Built-in AP Name",
-                    help: help.wifiAccessPointName,
-                    type: "textInput",
-                    value: wifi.apName,
-                    onSave: function(result) {
-                        db.set('wifi-ap-name', result);
-                        wifi.setApName(result);
-                        ui.back();
-                    }
-                });
+            cb(null, {
+                name: "WiFi Built-in AP Name",
+                help: help.wifiAccessPointName,
+                type: "textInput",
+                value: wifi.apName,
+                onSave: function(result) {
+                    db.set('wifi-ap-name', result);
+                    wifi.setApName(result);
+                    ui.back();
+                }
             });
         }
     }
