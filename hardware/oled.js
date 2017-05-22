@@ -244,7 +244,7 @@ function drawTimeLapseStatus(status) {
     color("background");
     var histX = 105;
     var histY = 90;
-    var histH = 40;
+    var histH = 37;
     var histW = 55;
     if(statusDetails.histogram) {
         fb.rect(histX, histY, histW, histH, false);
@@ -253,6 +253,7 @@ function drawTimeLapseStatus(status) {
             var x = histX + histW * (i/255);
             var h = statusDetails.histogram[i] ? histH * (statusDetails.histogram[i]/256) : 0;
             fb.line(x, histY + histH - h, x, histY + histH, 1);
+            console.log("histogram: ", x, h);
         }
     } else {
         fb.rect(histX, histY, histW, histH, false); 
