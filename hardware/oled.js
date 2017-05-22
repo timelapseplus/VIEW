@@ -242,17 +242,17 @@ function drawTimeLapseStatus(status) {
 
     // histogram window
     color("background");
-    var histX = 105;
+    var histX = 110;
     var histY = 90;
     var histH = 37;
-    var histW = 55;
+    var histW = 50;
     if(statusDetails.histogram) {
         fb.rect(histX, histY, histW, histH, false);
         color("primary");
         for(var i = 0; i < 256; i++) {
-            var x = histX - 1 + (histW - 2) * (i/255);
+            var x = histX + 1 + (histW - 2) * (i/255);
             var h = statusDetails.histogram[i] ? (histH - 2) * (statusDetails.histogram[i]/256) : 0;
-            fb.line(x, histY - 1 + histH - h, x, histY - 1 + histH, 1);
+            fb.line(x, histY + 1 + histH - h, x, histY + 1 + histH, 1);
         }
     } else {
         fb.rect(histX, histY, histW, histH, false); 
