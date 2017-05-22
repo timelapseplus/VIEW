@@ -248,12 +248,11 @@ function drawTimeLapseStatus(status) {
     var histW = 55;
     if(statusDetails.histogram) {
         fb.rect(histX, histY, histW, histH, false);
-        color("secondary");
+        color("primary");
         for(var i = 0; i < 256; i++) {
-            var x = histX + histW * (i/255);
-            var h = statusDetails.histogram[i] ? histH * (statusDetails.histogram[i]/256) : 0;
-            fb.line(x, histY + histH - h, x, histY + histH, 1);
-            console.log("histogram: ", x, h);
+            var x = histX - 1 + (histW - 2) * (i/255);
+            var h = statusDetails.histogram[i] ? (histH - 2) * (statusDetails.histogram[i]/256) : 0;
+            fb.line(x, histY - 1 + histH - h, x, histY - 1 + histH, 1);
         }
     } else {
         fb.rect(histX, histY, histW, histH, false); 
