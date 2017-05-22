@@ -242,7 +242,14 @@ function drawTimeLapseStatus(status) {
 
     // histogram window
     color("background");
-    fb.rect(105, 67, 55, 26, false); 
+    fb.rect(105, 90, 55, 30, false); 
+    if(statusDetails.histogram) {
+        for(var i = 0; i < 256; i++) {
+            var x = 105 + 55 * (i/255);
+            var h = statusDetails.histogram[i] ? 30 * (statusDetails.histogram[i]/256) : 0;
+            fb.line(x, 90+30, x, 90+30 - h);
+        }
+    }
 
     // interval/exposure status line
     var lw = 156; // line width
