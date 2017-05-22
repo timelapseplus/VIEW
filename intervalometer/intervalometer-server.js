@@ -341,6 +341,9 @@ camera.ptp.on('photo', function() {
   }
   sendEvent('camera.photo', obj);
 });
+camera.ptp.on('histogram', function(data) {
+  sendEvent('camera.histogram', data);
+});
 camera.ptp.on('settings', function(data) {
   sendEvent('camera.settings', camera.ptp.settings);
 });

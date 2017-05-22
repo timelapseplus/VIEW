@@ -3198,6 +3198,10 @@ core.on('camera.photo', function() {
     }
 });
 
+core.on('camera.histogram', function(histogram) {
+    oled.updateHistogram(histogram);
+});
+
 app.on('connected', function(connected) {
     oled.setIcon('web', connected);
     ui.reload();

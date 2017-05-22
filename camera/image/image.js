@@ -346,7 +346,7 @@ exports.exposureValue = function(jpegBuffer, callback) {
                     lum += res.clipped * highlightProtection;
                 }
             }
-            if (callback) callback(err, lum);
+            if (callback) callback(err, lum, res.histogram);
         });
     });
 }

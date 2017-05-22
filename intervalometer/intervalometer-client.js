@@ -49,6 +49,7 @@ core.cameraModel = "";
 core.cameraCount = 0;
 core.cameraSupports = {};
 core.intervalometerStatus = {};
+core.histogram = [];
 
 var dataBuf = new Buffer(0);
 var client;
@@ -86,6 +87,8 @@ function connect() {
                     data.data = null;
                 } else if(data.type == 'camera.settings') {
                     core.cameraSettings = data.data;
+                } else if(data.type == 'camera.histogram') {
+                    core.histogram = data.data;
                 } else if(data.type == 'camera.connected') {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;

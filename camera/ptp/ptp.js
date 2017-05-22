@@ -218,6 +218,9 @@ var startWorker = function(port) {
                 if (msg.event == "ev") {
                     camera.ev = msg.value;
                 }
+                //if (msg.event == "histogram") {
+                //    camera.histogram = msg.value;
+                //}
                 if (!msg.value) msg.value = false;
                 if (msg.event == "settings") {
                     var newSettings = msg.value ? msg.value : {};

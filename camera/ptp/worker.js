@@ -252,10 +252,11 @@ function processRawPath(path, options, info, callback) {
                 } else {
                     img = jpg;
                 }
-                image.exposureValue(img, function(err, ev) {
+                image.exposureValue(img, function(err, ev, histogram) {
                     ev = ev + options.exposureCompensation;
                     console.log("WORKER: ev:", ev, " (compensation: " + options.exposureCompensation + ")");
                     sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
+                    sendEvent('histogram', histogram);
                     sendEvent('ev', ev);
                     if (callback) {
                         callback(err, {
@@ -344,12 +345,13 @@ function capture(options, callback) {
                             img = photo;
                         }
                         var startTime = new Date() / 1000;
-                        image.exposureValue(img, function(err, ev) {
+                        image.exposureValue(img, function(err, ev, histogram) {
                             console.log("WORKER: adjusting ev by ", options.exposureCompensation);
                             ev = ev + options.exposureCompensation;
                             var processingTime = (new Date() / 1000) - startTime;
                             console.log("WORKER: luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
                             sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
+                            sendEvent('histogram', histogram);
                             //sendEvent('ev', ev);
                             if (callback) callback(err, {
                                 ev: ev,
@@ -445,11 +447,12 @@ function captureTethered(timeoutSeconds, callback) {
                                     }
                                     sendEvent('status', "analyzing photo");
                                     console.log("WORKER: analyzing photo");
-                                    image.exposureValue(jpg, function(err, ev) {
+                                    image.exposureValue(jpg, function(err, ev, histogram) {
                                         ev = ev + options.exposureCompensation;
                                         //console.log("ev:", ev);
                                         sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
                                         sendEvent('ev', ev);
+                                        sendEvent('histogram', histogram);
                                         if (callback) callback(null, ev);
                                     });
                                     sendEvent('photo', {
@@ -467,10 +470,11 @@ function captureTethered(timeoutSeconds, callback) {
                             image.getJpegBuffer(tmp, function(err3, jpg) {
                                 if (!err3 && jpg) {
                                     sendEvent('status', "analyzing photo");
-                                    image.exposureValue(jpg, function(err4, ev) {
+                                    image.exposureValue(jpg, function(err4, ev, histogram) {
                                         ev = ev + options.exposureCompensation;
                                         //console.log("ev:", ev);
                                         sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
+                                        sendEvent('histogram', histogram);
                                         if (callback) callback(null, ev);
                                     });
                                     sendEvent('photo', {

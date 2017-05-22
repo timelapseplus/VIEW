@@ -241,8 +241,8 @@ function drawTimeLapseStatus(status) {
     //fb.rect(110, 88, 50, 40, true);
 
     // histogram window
-    //color("background");
-    //fb.rect(105, 67, 55, 26, false); 
+    color("background");
+    fb.rect(105, 67, 55, 26, false); 
 
     // interval/exposure status line
     var lw = 156; // line width
@@ -294,6 +294,11 @@ oled.updateTimelapseStatus = function(status) {
 oled.updateThumbnailPreview = function(path) {
     setTimeout(function(){
         statusDetails.img110 = path;
+    }, 100);
+}
+oled.updateHistogram = function(histogram) {
+    setTimeout(function(){
+        statusDetails.histogram = histogram;
     }, 100);
 }
 
