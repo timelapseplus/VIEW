@@ -6,7 +6,7 @@
 #include <math.h>
 
 unsigned int size;
-unsigned int histogram[256];
+unsigned int histogram[3][256];
 unsigned int width;
 unsigned int height;
 double luminance;
@@ -111,7 +111,7 @@ int read_jpeg_file(char *filename)
   height = cinfo.output_height;
   luminance = 0.0;
   size = cinfo.output_width*cinfo.output_height*cinfo.num_components*sizeof(unsigned int);
-  memset(histogram, 0, sizeof(int)*256);
+  memset(histogram, 0, sizeof(int)*256*3);
   row_pointer[0] = (unsigned char *)malloc(cinfo.output_width*cinfo.num_components);
   unsigned long count = 0;
   while (cinfo.output_scanline < cinfo.image_height) {
@@ -119,13 +119,13 @@ int read_jpeg_file(char *filename)
       for (i=0; i<cinfo.image_width;i+=cinfo.num_components) {
           pixel = 0.0;
           for(component=0;component<cinfo.num_components;component++) {
-              if(component < 2) {
+              if(component < 3) {
                   pixel = (double) row_pointer[0][i + component];
                   pixel = lum(pixel);
                   if(pixel > 4) clipped++;
                   luminance += pixel;
                   count++;
-//          histogram[(int)pixel]++;
+                  histogram[component][(int)pixel]++;
               }
           }
       }
