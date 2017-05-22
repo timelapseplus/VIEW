@@ -1639,14 +1639,13 @@ if (VIEW_HARDWARE) {
         type: 'function',
         fn: function(res, cb){
             cb(null, {
-                name: "WiFi Built-in AP Name",
+                name: "WiFi Built-in AP name",
                 help: help.wifiAccessPointName,
                 type: "textInput",
                 value: wifi.apName,
                 onSave: function(result) {
                     db.set('wifi-ap-name', result);
                     wifi.setApName(result);
-                    ui.back();
                 }
             });
         }
