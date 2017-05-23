@@ -261,6 +261,7 @@ function processRawPath(path, options, info, callback) {
                     if (callback) {
                         callback(err, {
                             ev: ev,
+                            histogram: histogram,
                             file: info,
                             thumbnailPath: thumbnailFileFromIndex(options.index)
                         });
@@ -355,6 +356,7 @@ function capture(options, callback) {
                             //sendEvent('ev', ev);
                             if (callback) callback(err, {
                                 ev: ev,
+                                histogram: histogram,
                                 file: info,
                                 thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
                             });

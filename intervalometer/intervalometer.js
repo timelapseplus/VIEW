@@ -424,7 +424,7 @@ function runPhoto() {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
                     }
                     intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
-                    status.rampEv = exp.calculate(status.rampEv, photoRes.ev, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
+                    status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, status.rampEv, photoRes.ev, photoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
                     status.message = "running";

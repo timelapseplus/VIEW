@@ -17,6 +17,7 @@ exp.init = function(minEv, maxEv, nightCompensation) {
         evArray: [],
         historyArray: [],
         rateHistoryArray: [],
+        targetLum: null,
         first: true
     };
 
@@ -59,10 +60,46 @@ exp.init = function(minEv, maxEv, nightCompensation) {
     return exp.config;
 }
 
-exp.calculate = function(currentEv, lastPhotoLum, minEv, maxEv) {
+exp.calculate = function(algorithm, currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     if(minEv != null) exp.config.minEv = minEv;
     if(maxEv != null) exp.config.maxEv = maxEv;
 
+    if(algorithm == "LRTimelapse") {
+        return exp.calculate_LRTtimelapse(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
+    } else {
+        return exp.calculate_TLPAuto(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
+    }
+}
+
+exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
+    var lum = 0;
+    for(var i = 0; i < 256; i++) {
+        lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
+    }
+    local.lumArray.push(lum);
+    if(local.lumArray.length > 3) {
+        local.lumArray.slice(0, 3);
+    }
+    var averageLum = local.lumArray.reduce(function(sum, val){
+        return sum + val;
+    }, 0) / local.lumArray.length;
+
+    if(targetLum === null) {
+        exp.status.rampEv = currentEv;
+        targetLum = averageLum;
+    }
+
+    if(averageLum >= targetLum + targetLum * 0.1) {
+        exp.status.rampEv = currentEv - 1/3;
+    }
+    if(averageLum <= targetLum - targetLum * 0.1) {
+        exp.status.rampEv = currentEv + 1/3;
+    }
+
+    return exp.status.rampEv;
+}
+
+exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     // measure the interval
     exp.status.intervalSeconds = 0;
     var thisPhotoTime = new Date();
