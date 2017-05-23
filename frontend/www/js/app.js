@@ -473,6 +473,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 case 'nodevice':
                     $scope.camera = {};
                     $scope.lastImage = null;
+                    $scope.histogram = [];
                     $scope.camera.model = '';
                     $scope.camera.connected = false;
                     $scope.view.connected = false;
@@ -485,6 +486,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.view.connected = true;
                     $scope.camera = {};
                     $scope.lastImage = null;
+                    $scope.histogram = [];
                     $scope.camera.model = msg.model;
                     $scope.camera.connected = msg.connected;
                     callback(null, $scope.camera);
@@ -615,6 +617,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 case 'thumbnail':
                     if ($scope.previewActive) sendMessage('preview');
                     $scope.lastImage = msg;
+                    callback(null, msg);
+                    break;
+                case 'histogram':
+                    $scope.histogram = msg;
                     callback(null, msg);
                     break;
                 case 'status':
@@ -1292,13 +1298,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.zoom();
             delay = 1000;
         }
-        if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited) {
+        if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited || ($scope.currentKf && !$scope.currentKf.jpeg)) {
             $timeout(function() {
                 $scope.preview(false);
                 if ($scope.currentKf) {
                     $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
                 }
             }, delay);
+        } else {
+            $scope.preview(false);
         }
         if ($scope.currentKfIndex == 0) {
             for (var i = 1; i < $scope.timelapse.keyframes.length; i++) {
