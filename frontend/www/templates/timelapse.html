@@ -198,7 +198,9 @@
                 </div>
             </div>
             <div class="row">
-                <div ng-repeat="hist in histogram" style="width:0.390625%; height: {{hist}}px; padding-top:{{256-hist}}px"></div>
+                <div ng-repeat="hist in histogram" style="width:0.390625%; height: 256px;">
+                    <div style="width:0.390625%; height: {{hist}}px; padding-top:{{256-hist}}px"></div>
+                </div>
             </div>
             <div class="row">
                 <div class="col">
