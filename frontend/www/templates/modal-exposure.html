@@ -12,6 +12,9 @@
     <ion-content class="bg-dark">
 
         <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)"><br>
+        <div class="row" ng-show="lastImage && lastImage.histogram">
+            <div ng-repeat="col in lastImage.histogram track by $index" style="width:0.390625%; height: {{col/2}}px; margin-top:{{128-col/2}}px; background-color: #ddd"></div>
+        </div>
 
         <div class="row">
             <div class="col center">

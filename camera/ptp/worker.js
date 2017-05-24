@@ -276,11 +276,36 @@ function processRawPath(path, options, info, callback) {
                 });
             }
         }
-        sendEvent('photo', {
-            jpeg: jpg,
-            zoomed: false,
-            type: 'test'
-        });
+
+        if(options.mode == 'test') {
+            var size = {
+                x: 160,
+                q: 80
+            }
+            image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
+                var img;
+                if (!err && lowResJpg) {
+                    img = lowResJpg;
+                } else {
+                    img = jpg;
+                }
+                image.exposureValue(img, function(err, ev, histogram) {
+                    sendEvent('photo', {
+                        jpeg: jpg,
+                        ev: ev,
+                        histogram: histogram,
+                        zoomed: false,
+                        type: 'test'
+                    });
+                });
+            });
+        } else {
+            sendEvent('photo', {
+                jpeg: jpg,
+                zoomed: false,
+                type: 'image'
+            });
+        }
     });
 }
 
