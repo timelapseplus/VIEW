@@ -331,6 +331,7 @@ function capture(options, callback) {
     if (!options.exposureCompensation) options.exposureCompensation = 0;
     var captureOptions = {};
     if(options.mode == 'test') {
+        console.log("WORKER: running test photo");
         captureOptions = {
             targetPath: '/tmp/tmpXXXXXX',
             keepOnCamera: false,
