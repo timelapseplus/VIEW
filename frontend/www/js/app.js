@@ -620,7 +620,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     callback(null, msg);
                     break;
                 case 'histogram':
-                    $scope.histogram = msg;
+                    $scope.histogram = msg.histogram;
                     callback(null, msg);
                     break;
                 case 'status':

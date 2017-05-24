@@ -508,7 +508,7 @@ camera.capture = function(options, callback) {
                     var res = results[0]
                     res.cameraCount = results.length;
                     res.cameraResults = results;
-                    console.log("camera.capture results:", res);
+                    //console.log("camera.capture results:", res);
                     callback && callback(err, res);
                 } else {
                     callback && callback(err, results);

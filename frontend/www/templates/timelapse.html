@@ -198,9 +198,7 @@
                 </div>
             </div>
             <div class="row">
-                <div ng-repeat="hist in histogram" style="width:0.390625%; height: 256px;">
-                    <div style="width:0.390625%; height: {{hist}}px; padding-top:{{256-hist}}px"></div>
-                </div>
+                <div ng-repeat="hist in histogram" style="width:0.390625%; height: {{hist/2}}px; padding-top:{{128-hist/2}}px; background-color: #ddd"></div>
             </div>
             <div class="row">
                 <div class="col">
@@ -211,7 +209,7 @@
                     {{intervalometerStatus.message}}<br>
                     {{status}}<br>
                     <hr>
-                    EV: {{keyframe.ev|number:1}}<br>
+                    <!--EV: {{keyframe.ev|number:1}}<br-->
                     Shutter: {{camera.shutter}}<br>
                     ISO: {{camera.iso}}<br>
                     Aperture: {{camera.aperture}}

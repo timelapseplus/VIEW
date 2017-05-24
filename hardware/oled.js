@@ -90,6 +90,7 @@ var IMAGE_HEIGHT = 40;
 oled.IMAGE_WIDTH = IMAGE_WIDTH;
 oled.IMAGE_HEIGHT = IMAGE_HEIGHT;
 
+var TEXT_MAX_CHARS = 32;
 var TEXT_LIST = {};
 TEXT_LIST.alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 TEXT_LIST.num = " 0123456789";
@@ -165,7 +166,7 @@ function textUpdateCurrent() {
 }
 
 oled.textMoveForward = function() {
-    if(oled.selected < 24) oled.selected++;    
+    if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
     textInitPos(true);
     oled.writeMenu();
     oled.update();
