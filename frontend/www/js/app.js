@@ -825,6 +825,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         sendMessage('capture');
     }
 
+    $scope.captureTest = function() {
+        //$scope.previewActive = false;
+        console.log("CaptureTest");
+        if($scope.previewActive) $scope.preview(false);
+        sendMessage('capture-test');
+    }
+
     $scope.getClips = function() {
         sendMessage('timelapse-clips');
     }

@@ -468,7 +468,22 @@ camera.capture = function(options, callback) {
     if(!camera.connected) {
         return callback && callback("not connected");
     }
-    if(camera.supports.destination || options) { // time-lapse program or basic capture
+    if(options && options.mode == 'test') {
+        options = {mode:'test'};
+        var err = doEachCamera(function(port, isPrimary, worker) {
+            if(!isPrimary) return;
+            var capture = {
+                type: 'camera',
+                do: 'capture',
+                options: options,
+                id: isPrimary ? getCallbackId(worker.port, 'capture', function(err){
+                    callback && callback(err);
+                }) : null
+            }
+            console.log(capture);
+            worker.send(capture);
+        });
+    } else if(camera.supports.destination || options) { // time-lapse program or basic capture
         var imagePath;
         var cameraIndex = 0;
         if(!options) options = {thumbnail: true};

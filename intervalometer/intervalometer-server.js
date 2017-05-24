@@ -260,6 +260,9 @@ function runCommand(type, args, callback, client) {
     case 'camera.ptp.capture':
       camera.ptp.capture(args.options, callback);
       break;
+    case 'camera.ptp.capture-test':
+      camera.ptp.capture({mode:'test'}, callback);
+      break;
     case 'camera.ptp.runSupportTest':
       camera.ptp.runSupportTest(callback);
       break;

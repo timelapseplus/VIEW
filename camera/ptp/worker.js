@@ -235,7 +235,7 @@ function processRawPath(path, options, info, callback) {
                 if (options.exposureCompensation != null) image.writeXMP(dest, options.exposureCompensation, desc, name);
             }
         } else {
-            sdWriting
+            sdWriting = false;
             fs.unlink(path);
         }
 
@@ -279,7 +279,7 @@ function processRawPath(path, options, info, callback) {
         sendEvent('photo', {
             jpeg: jpg,
             zoomed: false,
-            type: 'image'
+            type: 'test'
         });
     });
 }
@@ -305,7 +305,13 @@ function capture(options, callback) {
     }
     if (!options.exposureCompensation) options.exposureCompensation = 0;
     var captureOptions = {};
-    if (options.saveRaw) {
+    if(options.mode == 'test') {
+        captureOptions = {
+            targetPath: '/tmp/tmpXXXXXX',
+            keepOnCamera: false,
+            thumbnail: false
+        }
+    } else if (options.saveRaw) {
         captureOptions = {
             targetPath: '/tmp/tmpXXXXXX',
             keepOnCamera: false,

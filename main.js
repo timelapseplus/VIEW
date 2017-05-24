@@ -2955,6 +2955,14 @@ app.on('message', function(msg) {
                 })(liveviewOn);
                 break;
     
+            case 'capture-test':
+                core.captureTest(function(err){
+                    if(err) {
+                        msg.reply('captureError', {msg:err});
+                    }
+                });
+                break;
+    
             case 'run':
                 core.startIntervalometer(msg.program);
                 break;

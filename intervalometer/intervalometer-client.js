@@ -185,6 +185,9 @@ core.switchPrimary = function(cameraObject, callback) {
 core.capture = function(options, callback) {
     call('camera.ptp.capture', {options:options}, callback);
 };
+core.captureTest = function(callback) {
+    call('camera.ptp.capture-test', {}, callback);
+};
 core.runSupportTest = function(callback) {
     call('camera.ptp.runSupportTest', {}, callback);
 };
