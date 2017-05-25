@@ -827,6 +827,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.captureTest = function() {
         //$scope.previewActive = false;
+        $scope.lastImage.expired = true;
         console.log("CaptureTest");
         if($scope.previewActive) $scope.preview(false);
         sendMessage('capture-test');

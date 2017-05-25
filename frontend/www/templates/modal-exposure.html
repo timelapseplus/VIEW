@@ -10,12 +10,11 @@
         </h1>
     </ion-header-bar>
     <ion-content class="bg-dark">
-        {{lastImage.imageType}}
         <div ng-hide="currentKf.imageCurrent" style="position: absolute; padding-left: 50%; padding-top: 35%; top: -1rem; left: -0rem; width:100%">
-            <span ng-click="captureTest()" style="margin-left:-70%; padding: 10%; border:1px solid #fff;"><i class="icon ion-alert-circled"></i> scene changed, tap to update photo</span>
+            <span ng-click="captureTest()" style="margin-left:-70%; padding: 10%; border:1px solid #fff; z-index:1;"><i class="icon ion-alert-circled"></i> scene changed, tap to update photo</span>
         </div>
         
-        <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)" style="{{currentKf.imageCurrent ? '' : 'opacity: 0.5;'}}"><br>
+        <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)" style="{{(currentKf.imageCurrent&&!lastImage.expired) ? '' : 'opacity: 0.5;'}}"><br>
 
         <div class="row">
             <div class="col center">
