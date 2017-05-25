@@ -2652,6 +2652,7 @@ if (VIEW_HARDWARE) {
                                     var framesPaths = clipFrames.map(function(frame){
                                         return frame.thumbnail;
                                     });
+                                    console.log("framesPaths", framesPaths);
                                     oled.video(null, framesPaths, 30, function() {
                                         gestureVideoPlaying = false;
                                         gestureModeTimer();
