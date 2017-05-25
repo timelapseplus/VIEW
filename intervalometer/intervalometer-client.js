@@ -219,7 +219,7 @@ core.moveNMXjoystick = function(motor, speed, callback) {
 var wdtInterval = null;
 core.watchdogEnable = function(callback) {
     if(wdtInterval) clearInterval(wdtInterval);
-    wdtInterval = setInterval(core.watchdog, 5000); // this will have the server kill this process if it ever gets stuck
+    wdtInterval = setInterval(core.watchdogEnable, 5000); // this will have the server kill this process if it ever gets stuck
     call('watchdog.set', {pid:process.pid}, callback);
 };
 

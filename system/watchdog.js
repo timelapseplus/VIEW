@@ -3,6 +3,7 @@ var processes = {};
 var onKillCallback = null;
 
 function kill(pid) {
+	processes[pid] = null;
 	delete(processes[pid])
 	console.log("WATCHDOG: sending kill signal to", pid);
 	exec('kill ' + pid);
