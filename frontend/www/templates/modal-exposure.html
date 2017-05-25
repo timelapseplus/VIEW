@@ -11,7 +11,12 @@
     </ion-header-bar>
     <ion-content class="bg-dark">
 
+        <div ng-show="lastImage.type=='test'&&(currentKf.focusEdited||currentKf.motionEdited||currentKf.exposureEdited)" style="position: absolute;padding-left: 50%;padding-top: 25%;top: -1rem;left: -0rem;"><br><h1 ng-click="playTimelapse(tl.index)" ng-hide="tl.loading">
+            <span ng-click="captureTest()">scene changed, tap to update photo</span>
+        </div>
+        
         <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)"><br>
+
         <div class="row">
             <div class="col center">
                 <div class="button-bar">

@@ -1014,6 +1014,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 }
                 updateParams();
             }, 1500);
+            if($scope.currentKf) $scope.currentKf.exposureEdited = true;
         } else {
             return null;
         }
@@ -1245,6 +1246,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.currentKfIndex = index;
         $scope.currentKf.focusEdited = false; 
         $scope.currentKf.motionEdited = false; 
+        $scope.currentKf.exposureEdited = false; 
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;
@@ -1257,7 +1259,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             //}
             //$scope.motionMoveToKeyframe(kf);
         }
-        $scope.preview(true);
+        if($scope.currentKf.imageType != 'test') {
+            $scope.preview(true);
+        } else {
+            $scope.lastImage = {
+                jpeg: $scope.currentKf.jpeg,
+                type: 'test'
+            }
+        }
         $scope.modalExposure.show();
     };
     $scope.focusMoveToKeyframe = function(keyframe) {
@@ -1308,8 +1317,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited || ($scope.currentKf && !$scope.currentKf.jpeg)) {
             $timeout(function() {
                 $scope.preview(false);
-                if ($scope.currentKf) {
-                    $scope.currentKf.jpeg = $scope.lastImage ? $scope.lastImage.jpeg : null;
+                if ($scope.currentKf && $scope.lastImage) {
+                    $scope.currentKf.jpeg = $scope.lastImage.jpeg;
+                    $scope.currentKf.imageType = $scope.lastImage.type;
                 }
             }, delay);
         } else {
