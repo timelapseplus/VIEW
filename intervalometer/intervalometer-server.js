@@ -361,6 +361,7 @@ camera.ptp.on('settings', function(data) {
 camera.ptp.on('connected', function(model) {
   console.log("CORE: camera connected", model);
   sendCameraUpdate();
+  if(camera.ptp.count == 1) intervalometer.resume();
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");

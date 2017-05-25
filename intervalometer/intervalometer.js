@@ -164,7 +164,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
         } else {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
-            console.log("KF: Seconds since start: " + secondsSinceStart);
+            console.log("KF: Seconds since last: " + secondsSinceStart);
             var totalSeconds = 0;
             kfPoints = keyframes.map(function(kf) {
                 totalSeconds += kf.seconds;
@@ -314,6 +314,7 @@ function setupExposure(cb) {
 }
 
 var busyPhoto = false;
+var retryHandle = null;
 
 function runPhoto() {
     if(!status.running) {
@@ -322,7 +323,7 @@ function runPhoto() {
         return;
     }
     if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode == "auto") {
-        if (status.running) setTimeout(runPhoto, 100);
+        if (status.running) retryHandle = setTimeout(runPhoto, 100);
         return;
     }
     if(!status.running) return;
@@ -539,6 +540,17 @@ intervalometer.cancel = function(reason) {
             console.log("==========> END TIMELAPSE", status.tlName);
         });
     }    
+}
+
+intervalometer.resume = function() {
+    busyPhoto = false;
+    busyExposure = false;
+    clearTimeout(timerHandle);
+    clearTimeout(delayHandle);
+    clearTimeout(retryHandle);
+    var ms = status.intervalMs - ((new Date() / 1000) - (status.startTime + status.lastPhotoTime)) * 1000;
+    if(ms < 0) ms = 0;
+    setTimeout(runPhoto, ms);
 }
 
 intervalometer.run = function(program) {

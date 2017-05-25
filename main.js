@@ -2637,6 +2637,7 @@ if (VIEW_HARDWARE) {
             } else if(gestureVideoPlaying) {
                 oled.videoSkipFrames(30*10);
             } else {
+                console.log("running preview via gesture...");
                 gestureVideoPlaying = true;
                 clips.getLastTimelapse(function(err, timelapse) {
                     if (timelapse) {
@@ -2655,7 +2656,10 @@ if (VIEW_HARDWARE) {
                                         gestureVideoPlaying = false;
                                         gestureModeTimer();
                                     });
+                                } else {
+                                    console.log("error getting clip: ", err);
                                 }
+
                             });
                         }
                     } 
