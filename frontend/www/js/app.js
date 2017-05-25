@@ -1264,7 +1264,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         } else {
             $scope.lastImage = {
                 jpeg: $scope.currentKf.jpeg,
-                type: 'test'
+                imageType: 'test'
             }
         }
         $scope.modalExposure.show();
@@ -1319,7 +1319,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 $scope.preview(false);
                 if ($scope.currentKf && $scope.lastImage) {
                     $scope.currentKf.jpeg = $scope.lastImage.jpeg;
-                    $scope.currentKf.imageType = $scope.lastImage.type;
+                    $scope.currentKf.imageType = $scope.lastImage.imageType;
                 }
             }, delay);
         } else {

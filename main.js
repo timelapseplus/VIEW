@@ -3191,7 +3191,7 @@ core.on('camera.photo', function() {
         previewImage = {
             jpeg: core.photo.base64,
             zoomed: core.photo.zoomed,
-            type: core.photo.type,
+            imageType: core.photo.type,
             histogram: core.photo.histogram
         };
 
