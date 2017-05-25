@@ -830,6 +830,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         console.log("CaptureTest");
         if($scope.previewActive) $scope.preview(false);
         sendMessage('capture-test');
+        if($scope.currentKf) $scope.currentKf.imageCurrent = true;
     }
 
     $scope.getClips = function() {
@@ -893,6 +894,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             console.log("Preview");
             sendMessage('preview');
         }
+        if($scope.currentKf) $scope.currentKf.imageCurrent = true;
     }
 
     $scope.captureDelay = function(seconds) {
@@ -1015,6 +1017,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 updateParams();
             }, 1500);
             if($scope.currentKf) $scope.currentKf.exposureEdited = true;
+            if($scope.currentKf) $scope.currentKf.imageCurrent = false;
         } else {
             return null;
         }
@@ -1030,6 +1033,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.move = function(axisId, steps, noReverse) {
         console.log("moving ", axisId);
         if($scope.currentKf) $scope.currentKf.motionEdited = true;
+        if($scope.currentKf) $scope.currentKf.imageCurrent = false;
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
@@ -1118,6 +1122,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if (dir > 0) $scope.focusPos += repeat;
             if (dir < 0) $scope.focusPos -= repeat;
             if($scope.currentKf) $scope.currentKf.focusEdited = true;
+            if($scope.currentKf) $scope.currentKf.imageCurrent = false;
         }
         $scope.focusMoving = true;
         sendMessage('focus', {
@@ -1246,7 +1251,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.currentKfIndex = index;
         $scope.currentKf.focusEdited = false; 
         $scope.currentKf.motionEdited = false; 
-        $scope.currentKf.exposureEdited = false; 
+        $scope.currentKf.exposureEdited = false;
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;
@@ -1290,6 +1295,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
     $scope.motionResetKeyframe = function(keyframe) {
         keyframe.motionEdited = true;
+        if($scope.currentKf) $scope.currentKf.imageCurrent = false;
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) {
                 var id = $scope.axis[i].id;
@@ -1314,7 +1320,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.zoom();
             delay = 1000;
         }
-        if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited || ($scope.currentKf && !$scope.currentKf.jpeg)) {
+        if($scope.currentKf.focusEdited || $scope.currentKf.motionEdited || $scope.currentKf.exposureEdited || ($scope.currentKf && !$scope.currentKf.jpeg)) {
             $timeout(function() {
                 $scope.preview(false);
                 if ($scope.currentKf && $scope.lastImage) {
