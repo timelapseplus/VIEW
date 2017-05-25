@@ -286,10 +286,18 @@ function runCommand(type, args, callback, client) {
       nmx.constantMove(args.motor, args.speed, callback);
       break;
 
-    case 'watchdog':
+    case 'watchdog.set':
       if(args.pid) {
         client.pid = args.pid;
         watchdog.watch(args.pid);
+      }
+      callback();
+      break;
+
+    case 'watchdog.disable':
+      if(args.pid) {
+        client.pid = null;
+        watchdog.disable(args.pid);
       }
       callback();
       break;

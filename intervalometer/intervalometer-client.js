@@ -216,8 +216,18 @@ core.moveNMXjoystick = function(motor, speed, callback) {
     call('nmx.joystick', {motor:motor, speed:speed}, callback);
 };
 
-core.watchdog = function(callback) {
-    call('watchdog', {pid:process.pid}, callback);
+var wdtInterval = null;
+core.watchdogEnable = function(callback) {
+    if(wdtInterval) clearInterval(wdtInterval);
+    wdtInterval = setInterval(core.watchdog, 5000); // this will have the server kill this process if it ever gets stuck
+    call('watchdog.set', {pid:process.pid}, callback);
+};
+
+core.watchdogDisable = function(callback) {
+    call('watchdog.disable', {pid:process.pid}, function(err){
+        if(wdtInterval) clearInterval(wdtInterval);
+        callback && callback(err);
+    });
 };
 
 core.resetBt = function(callback) {
@@ -283,7 +293,5 @@ mcu.on('gps', function(status){
         core.addGpsData(mcu.lastGpsFix);
     }
 });
-
-setInterval(core.watchdog, 5000); // this will have the server kill this process if it ever gets stuck
 
 module.exports = core;

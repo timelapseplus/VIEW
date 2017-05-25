@@ -31,6 +31,13 @@ exports.watch = function(pid, timeout) {
 	}
 }
 
+exports.disable = function(pid) {
+	if(processes[pid]) {
+		clearTimeout(processes[pid].timer);
+		processes[pid] = null;
+	}
+}
+
 exports.onKill = function(callback) {
 	onKillCallback = callback;
 }

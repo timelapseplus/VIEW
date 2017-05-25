@@ -1405,6 +1405,7 @@ if (VIEW_HARDWARE) {
                             });
                         } else {
                             power.disableAutoOff();
+                            core.watchdogDisable();
                             wifi.blockBt();
                             ui.busy = true;
                             updates.installVersion(versionTarget, function(err){
@@ -2851,6 +2852,8 @@ mcu.on('gps', function(index) {
 });
 
 light.start();
+
+core.watchdogEnable();
 
 app.on('message', function(msg) {
     power.activity();
