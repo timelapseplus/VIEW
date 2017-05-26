@@ -276,6 +276,10 @@ function runCommand(type, args, callback, client) {
       camera.ptp.unmountSd(callback);
       break;
 
+    case 'db.currentTimelapseFrames':
+      callback(null, intervalometer.db.currentTimelapseFrames(args.cameraIndex));
+      break;
+
     case 'nmx.move':
       nmx.move(args.motor, args.steps, callback);
       break;

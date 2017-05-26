@@ -845,21 +845,10 @@ if (VIEW_HARDWARE) {
                 action: {
                     type: "function",
                     fn: function(arg, cb) {
-                        clips.getLastTimelapse(function(err, timelapse) {
-                            if (timelapse) {
-                                if(timelapse.path) {
-                                    oled.video(timelapse.path, timelapse.frames, 30, cb);
-                                } else {
-                                    db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
-                                        if(!err && clipFrames) {
-                                            var framesPaths = clipFrames.map(function(frame){
-                                                return frame.thumbnail;
-                                            });
-                                            oled.video(null, framesPaths, 30, cb);
-                                        }
-                                    });
-                                }
-                            } 
+                        core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
+                            if(framesPaths) {
+                                oled.video(null, framesPaths, 30, cb);
+                            }                            
                         });
                     }
                 }
@@ -899,25 +888,12 @@ if (VIEW_HARDWARE) {
         name: "time-lapse",
         type: "timelapse",
         enter: function(){
-            var timelapse = clips.getLastTimelapse(function(err, timelapse) {
-                if (timelapse) {
-                    if(timelapse.path) {
-                        oled.video(timelapse.path, timelapse.frames, 30, function(){
-                            ui.reload();
-                        });
-                    } else {
-                        db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
-                            if(!err && clipFrames) {
-                                var framesPaths = clipFrames.map(function(frame){
-                                    return frame.thumbnail;
-                                });
-                                oled.video(null, framesPaths, 30, function(){
-                                    ui.reload();
-                                });
-                            }
-                        });
-                    }
-                } 
+            core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
+                if(framesPaths) {
+                    oled.video(null, framesPaths, 30, function(){
+                        ui.reload();
+                    });
+                }                            
             });
         },
         button3: function(){
@@ -2639,32 +2615,17 @@ if (VIEW_HARDWARE) {
             } else {
                 console.log("running preview via gesture...");
                 gestureVideoPlaying = true;
-                clips.getLastTimelapse(function(err, timelapse) {
-                    if (timelapse) {
-                        if(timelapse.path) {
-                            oled.video(timelapse.path, timelapse.frames, 30, function() {
-                                gestureVideoPlaying = false;
-                                gestureModeTimer();
-                            });
-                        } else {
-                            db.getTimelapseFrames(timelapse.id, timelapse.primary_camera, function(err, clipFrames){
-                                if(!err && clipFrames) {
-                                    var framesPaths = clipFrames.map(function(frame){
-                                        return frame.thumbnail;
-                                    });
-                                    console.log("framesPaths", framesPaths);
-                                    oled.video(null, framesPaths, 30, function() {
-                                        gestureVideoPlaying = false;
-                                        gestureModeTimer();
-                                    });
-                                } else {
-                                    console.log("error getting clip: ", err);
-                                }
-
-                            });
-                        }
-                    } 
-                });
+                core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
+                    if(framesPaths) {
+                        oled.video(null, framesPaths, 30, function() {
+                            gestureVideoPlaying = false;
+                            gestureModeTimer();
+                        });
+                    } else {
+                        gestureVideoPlaying = false;
+                        gestureModeTimer();
+                    }                            
+                }) 
             }
         }
     });

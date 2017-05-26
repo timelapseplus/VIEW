@@ -222,6 +222,9 @@ exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
 	});
 }
 
+var _currentTimelapseClipId = null;
+var _currentTimelapseClipFrames = {};
+
 exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber, thumbnail, callback) {
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
@@ -231,6 +234,16 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	cameraNumber = parseInt(cameraNumber);
 	cameraNumber = cameraNumber || 0;
 
+	if(clipId != _currentTimelapseClipId) {
+		_currentTimelapseClipId = clipId;
+		_currentTimelapseClipFrames = {};
+		_currentTimelapsePrimaryCamera = 0;
+	}
+
+	if(!_currentTimelapseClipFrames[cameraNumber]) _currentTimelapseClipFrames[cameraNumber] = [];
+	_currentTimelapseClipFrames.push(thumbnail);
+
+
 	dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
 			callback(err);
@@ -238,6 +251,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			var frames = 0;
 			if(data.frames) frames = parseInt(data.frames);
 			frames++;
+			_currentTimelapsePrimaryCamera = data.primary_camera;
 			if(!data.thumbnail && thumbnail && data.primary_camera == cameraNumber) {
 				console.log("setting clip thumbnail to:", thumbnail);
 				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
@@ -248,6 +262,16 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
 		}
 	});
+}
+
+exports.currentTimelapseFrames = function(cameraNumber) {
+	if(cameraNumber == null) {
+		cameraNumber = _currentTimelapsePrimaryCamera;
+	} else {
+		cameraNumber = parseInt(cameraNumber);
+		cameraNumber = cameraNumber || 0;
+	}
+	return _currentTimelapseClipFrames[cameraNumber];
 }
 
 function dbRun(database, query, callback, _attempts) {

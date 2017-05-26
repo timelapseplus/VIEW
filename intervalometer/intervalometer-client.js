@@ -216,6 +216,10 @@ core.moveNMXjoystick = function(motor, speed, callback) {
     call('nmx.joystick', {motor:motor, speed:speed}, callback);
 };
 
+core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
+    call('db.currentTimelapseFrames', {cameraIndex:cameraIndex}, callback);
+};
+
 var wdtInterval = null;
 core.watchdogEnable = function(callback) {
     if(wdtInterval) clearInterval(wdtInterval);

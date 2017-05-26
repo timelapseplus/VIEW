@@ -37,6 +37,8 @@ gpio.setup(HOTSHOE_IN, gpio.DIR_IN, function(err){
 
 var intervalometer = new EventEmitter();
 
+intervalometer.db = db;
+
 var timerHandle = null;
 var delayHandle = null;
 
