@@ -241,7 +241,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	}
 
 	if(!_currentTimelapseClipFrames[cameraNumber]) _currentTimelapseClipFrames[cameraNumber] = [];
-	_currentTimelapseClipFrames.push(thumbnail);
+	_currentTimelapseClipFrames[cameraNumber].push(thumbnail);
 
 
 	dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
