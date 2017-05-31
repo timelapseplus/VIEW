@@ -625,7 +625,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 case 'thumbnail':
                     if ($scope.previewActive) sendMessage('preview');
                     $scope.lastImage = msg;
-                    if(!$scope.currentTimelapse.playing && $scope.intervalometerStatus.running && !$scope.scrubber.inUse) $scope.currentTimelapse.image = $scope.lastImage.jpeg;
+                    if(!$scope.currentTimelapse.playing && $scope.intervalometerStatus && $scope.intervalometerStatus.running && !$scope.scrubber.inUse) $scope.currentTimelapse.image = $scope.lastImage.jpeg;
                     callback(null, msg);
                     break;
                 case 'histogram':

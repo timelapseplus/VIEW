@@ -195,7 +195,10 @@
             <div style="background-color: #202020">
                 <div class="row" ng-show="currentTimelapse.image">
                     <div class="col">
-                        <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%"><br>
+                        <div ng-show="currentTimelapse.loading" style="position: absolute; padding-left: 50%; padding-top: 35%; top: -1rem; left: -0rem; width:100%; z-index:1;">
+                            <span style="margin-left:-70%; padding: 10%; border:1px solid #fff;">loading preview...</span>
+                        </div>        
+                        <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" style="{{currentTimelapse.loading ? 'opacity: 0.5;' : ''}}"><br>
                         <div class="item item-dark range">
                           <input class="dark" type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}" ng-disabled="scrubber.max>0?0:2">
                         </div>
@@ -232,7 +235,7 @@
                         <span ng-show="intervalometerStatus.framesRemaining">Remaining: {{intervalometerStatus.framesRemaining}}<br></span>
                         Interval: {{intervalometerStatus.intervalMs/1000|number:0}}<br>
                         Ramp Rate: {{intervalometerStatus.rampRate|number:2}}<br>
-                        <span class="stable">{{intervalometerStatus.message}}</span> <i>{{status}}</i><br>
+                        <span class="positive">{{intervalometerStatus.message}}</span> <span style="float:right;">{{status}}</span><br>
                     </div>
                 </div>
             </div>
