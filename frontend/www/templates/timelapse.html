@@ -195,7 +195,7 @@
             <div style="background-color: #202020">
                 <div class="row" ng-show="currentTimelapse.image">
                     <div class="col">
-                        <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
+                        <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%"><br>
                         <div class="item item-dark range">
                           <input class="dark" type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}" ng-disabled="scrubber.max>0?0:2">
                         </div>
@@ -204,12 +204,12 @@
                 <div class="row" ng-show="currentTimelapse.image">
                     <div class="col">
                         <div class="button-bar">
-                            <button class="button button-light button-small button-clear icon ion-skip-backward" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="updateScrubber(0)"></button>
-                            <button class="button button-light button-small button-clear icon ion-chevron-left" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="decScrubber(scrubber.pos)"></button>
-                            <button class="button button-light button-clear icon ion-play" ng-if="!currentTimelapse.playing" ng-click="playCurrent()"></button>
+                            <button class="button button-light button-clear icon ion-skip-backward" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="updateScrubber(0)"></button>
+                            <button class="button button-light button-clear icon ion-chevron-left" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="decScrubber(scrubber.pos)"></button>
+                            <button class="button button-light button-clear icon ion-play" ng-if="!currentTimelapse.playing" ng-click="playCurrent()" ng-disabled="currentTimelapse.loading?2:0"></button>
                             <button class="button button-light button-clear icon ion-pause" ng-if="currentTimelapse.playing" ng-click="pauseCurrent()"></button>
-                            <button class="button button-light button-small button-clear icon ion-chevron-right" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="incScrubber(scrubber.pos)"></button>
-                            <button class="button button-light button-small button-clear icon ion-skip-forward" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="updateScrubber(scrubber.max)"></button>
+                            <button class="button button-light button-clear icon ion-chevron-right" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="incScrubber(scrubber.pos)"></button>
+                            <button class="button button-light button-clear icon ion-skip-forward" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="updateScrubber(scrubber.max)"></button>
                         </div>
                     </div>
                 </div>
