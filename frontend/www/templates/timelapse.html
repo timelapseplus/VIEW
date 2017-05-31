@@ -192,29 +192,29 @@
         </div>
         <div ng-show="intervalometerStatus.running">
             <div class="item item-dark item-divider"><b>Time-lapse Running</b></div>
-            <div class="row">
+            <div class="row" ng-show="currentTimelapse.image">
                 <div class="col">
-                    <img ng-show="currentTimelapse.image" ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
+                    <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
                     <div class="item item-dark range">
                       <input class="dark" type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}" ng-disabled="scrubber.max>0?0:2">
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" ng-show="currentTimelapse.image">
                 <div class="col">
                     <div class="button-bar">
-                        <button class="button button-light button-small button-clear icon ion-ios-skipbackward"></button>
-                        <button class="button button-light button-small button-clear icon ion-ios-rewind"></button>
-                        <button class="button button-light button-small button-clear icon ion-ios-play"></button>
-                        <button class="button button-light button-small button-clear icon ion-ios-pause"></button>
-                        <button class="button button-light button-small button-clear icon ion-ios-fastforward"></button>
-                        <button class="button button-light button-small button-clear icon ion-ios-skipforward"></button>
+                        <button class="button button-light button-small button-clear icon ion-skip-backward" ng-disabled="scrubber.max>0?0:2"></button>
+                        <button class="button button-light button-small button-clear icon ion-chevron-left" ng-disabled="scrubber.max>0?0:2"></button>
+                        <button class="button button-light button-small button-clear icon ion-play" ng-hide="currentTimelapse.playing"></button>
+                        <button class="button button-light button-small button-clear icon ion-pause" ng-show="currentTimelapse.playing"></button>
+                        <button class="button button-light button-small button-clear icon ion-chevron-right" ng-disabled="scrubber.max>0?0:2"></button>
+                        <button class="button button-light button-small button-clear icon ion-skip-forward" ng-disabled="scrubber.max>0?0:2"></button>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/2}}px; margin-top:{{128-col/2}}px; background-color: #ddd"></div>
+                    <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/4}}px; margin-top:{{64-col/4}}px; background-color: #ddd; float: left;"></div>
                 </div>
                 <div class="col">
                     Shutter: {{camera.shutter}}<br>
