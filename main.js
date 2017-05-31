@@ -1370,8 +1370,8 @@ if (VIEW_HARDWARE) {
                             updates.installFromPath(versionTarget.zipPath, function(err){
                                 core.unmountSd(function(){
                                     if(err) {
-                                        ui.alert('error', "Installation failed!  Reason unknown.");
                                         cb();
+                                        ui.alert('error', "Installation failed!  Reason unknown.");
                                     } else {
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
@@ -1457,12 +1457,10 @@ if (VIEW_HARDWARE) {
                             fn: function(arg, cb) {
                                 core.mountSd(function(err) {
                                     if(err) {
-                                        cb();
                                         ui.alert('error', "Unable to access SD card");
                                     } else {
                                         updates.getValidVersionFromSdCard(function(err, res) {
                                             if(err) {
-                                                cb();
                                                 ui.alert('error', "Unable to install from SD card: " + err);
                                             } else {
                                                 ui.load(versionUpdateConfirmMenuBuild(res), null, null, true);
