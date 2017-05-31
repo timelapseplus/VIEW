@@ -2958,15 +2958,17 @@ app.on('message', function(msg) {
                     if(framesPaths) {
                         var startFrame = 0;
                         if(msg.start) startFrame = parseInt(msg.start);
+                        if(!startFrame) startFrame = 0;
                         if(startFrame >= framesPaths.length) {
                             msg.reply('current-images', {
+                                index: 0,
                                 fragment: 0,
                                 fragments: 0,
                                 images: []
                             });
                         } else {
                             framesPaths = framesPaths.slice(startFrame);
-                            var fragments = Math.ceil(framesPaths.count / 100);
+                            var fragments = Math.ceil(framesPaths.length / 100);
                             var fragment = 0;
                             var sendFragment = function(start){
                                 console.log("sending time-lapse fragment " + fragment + " of " + fragments);
