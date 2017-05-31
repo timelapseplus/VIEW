@@ -1367,12 +1367,21 @@ if (VIEW_HARDWARE) {
                             core.watchdogDisable();
                             wifi.blockBt();
                             ui.busy = true;
-                            updates.installFromPath(versionTarget.zipPath, function(err){
+                            oled.value([{
+                                name: "Installing...",
+                                value: "Please Wait"
+                            }]);
+                            oled.update();
+                            updates.installFromPath(versionTarget, function(err){
                                 core.unmountSd(function(){
                                     if(err) {
-                                        cb();
                                         ui.alert('error', "Installation failed!  Reason unknown.");
                                     } else {
+                                        oled.value([{
+                                            name: "Reloading app...",
+                                            value: "Please Wait"
+                                        }]);
+                                        oled.update();
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
                                                 exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
@@ -1465,6 +1474,7 @@ if (VIEW_HARDWARE) {
                                                     ui.alert('error', "Unable to install from SD card: " + err);
                                                 });
                                             } else {
+                                                condition.log("prompt: install? res=", res);
                                                 ui.load(versionUpdateConfirmMenuBuild(res), null, null, true);
                                             }
                                         });
