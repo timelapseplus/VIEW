@@ -428,7 +428,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     var ws;
     var connecting;
     var timelapseImages = {};
-    timelapseImages[0] = [];
+    timelapseImages['current'] = [];
     $scope.view = {
         connected: false
     };
@@ -869,7 +869,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             tl.playing = true;
             tl.loading = false;
             var frame = 0;
-            console.log("playing time-lapse with frame count of ");
+            console.log("playing time-lapse with frame count of ", timelapseImages[index].length);
             var intervalHandle = $interval(function() {
                 frame++;
                 if (tl.playing && frame < timelapseImages[index].length) {
@@ -894,9 +894,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.updateScrubber = function(frame) {
-        if(frame < timelapseImages[0].length) {
+        if(frame < timelapseImages['current'].length) {
             if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
-            $scope.currentTimelapse.image = timelapseImages[0][frame];
+            $scope.currentTimelapse.image = timelapseImages['current'][frame];
             resetCurrentImage();
         }
     }
@@ -924,10 +924,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.playCurrent = function() {
-        if(timelapseImages[0].length < $scope.intervalometerStatus.frames) {
+        if(timelapseImages['current'].length < $scope.intervalometerStatus.frames) {
             $scope.currentTimelapse.loading = true;
             sendMessage('current-images', {
-                start: timelapseImages[0] ? timelapseImages[0].length : 0
+                start: timelapseImages['current'] ? timelapseImages['current'].length : 0
             });
         } else {
             playTimelapse('current');
@@ -1266,7 +1266,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.currentTimelapse = {
             image: $scope.lastImage && $scope.lastImage.jpeg
         }
-        timelapseImages[0] = [];
+        timelapseImages['current'] = [];
         $scope.scrubber.max = -1;
         program.focusPos = $scope.focusPos;
         for(var i = 0; i < $scope.axis.length; i++) {
