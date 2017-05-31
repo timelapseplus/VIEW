@@ -40,6 +40,33 @@ function doInstall() {
 	}
 }
 
+function getValidVersion(callback) {
+	fs.readdir("/media/", function(err, sdContents) {
+		console.log('sdContents', sdContents);
+		if(!err && sdContents) {
+			var versions = sdContents.filter(function(item){
+				return item.match(/^VIEW-[0-9]+\.[0-9]+(-beta)?[0-9.]*(-beta)?\.zip$/);
+			});
+			console.log('versions', versions);
+			if(versions.length > 0) {
+				versions = versions.map(function(item){
+					return item.replace('VIEW-', 'v');
+				});
+				versions = sortInstalls(versions, true);
+				var result = {
+					version: versions[0].replace('.zip', '').trim(),
+					zipPath: '/media/' + versions[0].replace('v', 'VIEW-')
+				}
+				callback && callback(null, result);
+			} else {
+				callback && callback("no valid firmware found on SD card");
+			}
+		} else {
+			callback && callback("unable to read SD card");
+		}
+	});
+}
+
 doInstall();
 
 function setVersion(versionName, callback) {

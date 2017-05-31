@@ -432,6 +432,49 @@ exports.installIcons = function(callback) {
 	exec(installIcons, callback);
 }
 
+exports.installFromPath = function(versionInfo, callback) {
+	extract(versionInfo.zipPath, baseInstallPath + versionInfo.version, function(err, destFolder) {
+		if(err) {
+			callback && callback(true);
+		} else {
+			fs.writeFile(baseInstallPath + installVersion + "/version.json", JSON.stringify({version: installVersion}), function(){
+				setVersion(installVersion, function(err){
+					console.log("installation complete!");
+					callback && callback();
+				});
+			});
+		}
+	});
+}
+
+exports.getValidVersionFromSdCard = function(callback) {
+	fs.readdir("/media/", function(err, sdContents) {
+		console.log('sdContents', sdContents);
+		if(!err && sdContents) {
+			var versions = sdContents.filter(function(item){
+				return item.match(/^VIEW-[0-9]+\.[0-9]+(-beta)?[0-9.]*(-beta)?\.zip$/);
+			});
+			console.log('versions', versions);
+			if(versions.length > 0) {
+				versions = versions.map(function(item){
+					return item.replace('VIEW-', 'v');
+				});
+				versions = sortInstalls(versions, true);
+				var result = {
+					version: versions[0].replace('.zip', '').trim(),
+					zipPath: '/media/' + versions[0].replace('v', 'VIEW-')
+				}
+				callback && callback(null, result);
+			} else {
+				callback && callback("no valid firmware found on SD card");
+			}
+		} else {
+			callback && callback("unable to read SD card");
+		}
+	});
+}
+
+
 exports.download = download;
 exports.extract = extract;
 exports.apiRequest = apiRequest;

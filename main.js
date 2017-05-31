@@ -1362,59 +1362,80 @@ if (VIEW_HARDWARE) {
                 action: {
                     type: 'function',
                     fn: function(arg, cb) {
-                        if(updates.installing) {
-                            oled.value([{
-                                name: "Error",
-                                value: "Install in progress"
-                            }]);
-                            oled.update();
-                        } else if(versionTarget.installed) {
-                            updates.setVersion(versionTarget, function(){
-                                oled.value([{
-                                    name: "Reloading app...",
-                                    value: "Please Wait"
-                                }]);
-                                oled.update();
-                                closeSystem(function(){
-                                    exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
-                                });
-                            });
-                        } else {
+                        if(versionTarget.zipPath) {// SD install
                             power.disableAutoOff();
                             core.watchdogDisable();
                             wifi.blockBt();
                             ui.busy = true;
-                            updates.installVersion(versionTarget, function(err){
-                                ui.busy = false;
-                                if(!err) {
-                                    updates.setVersion(versionTarget, function(){
-                                        ui.status('update successful');
-                                        oled.value([{
-                                            name: "Reloading app...",
-                                            value: "Please Wait"
-                                        }]);
-                                        oled.update();
+                            updates.installFromPath(versionTarget.zipPath, function(err){
+                                core.unmountSd(function(){
+                                    if(err) {
+                                        ui.alert('error', "Installation failed!  Reason unknown.");
+                                        cb();
+                                    } else {
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
                                                 exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
                                             });
                                         });
-                                    });
-                                } else {
-                                    wifi.unblockBt();
-                                    ui.status('error updating');
-                                    if(cb) cb();
-                                    ui.back();
-                                }
-                            }, function(statusUpdate) {
-                                oled.value([{
-                                    name: statusUpdate,
-                                    value: "Please Wait"
-                                }]);
-                                ui.status(statusUpdate);
-                                oled.update();
-                                oled.activity();
+                                    }
+                                });
                             });
+                        } else {
+                            if(updates.installing) {
+                                oled.value([{
+                                    name: "Error",
+                                    value: "Install in progress"
+                                }]);
+                                oled.update();
+                            } else if(versionTarget.installed) {
+                                updates.setVersion(versionTarget, function(){
+                                    oled.value([{
+                                        name: "Reloading app...",
+                                        value: "Please Wait"
+                                    }]);
+                                    oled.update();
+                                    closeSystem(function(){
+                                        exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+                                    });
+                                });
+                            } else {
+                                power.disableAutoOff();
+                                core.watchdogDisable();
+                                wifi.blockBt();
+                                ui.busy = true;
+                                updates.installVersion(versionTarget, function(err){
+                                    ui.busy = false;
+                                    if(!err) {
+                                        updates.setVersion(versionTarget, function(){
+                                            ui.status('update successful');
+                                            oled.value([{
+                                                name: "Reloading app...",
+                                                value: "Please Wait"
+                                            }]);
+                                            oled.update();
+                                            wifi.unblockBt(function(){
+                                                closeSystem(function(){
+                                                    exec('nohup /bin/sh -c "killall node; sleep 2; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+                                                });
+                                            });
+                                        });
+                                    } else {
+                                        wifi.unblockBt();
+                                        ui.status('error updating');
+                                        if(cb) cb();
+                                        ui.back();
+                                    }
+                                }, function(statusUpdate) {
+                                    oled.value([{
+                                        name: statusUpdate,
+                                        value: "Please Wait"
+                                    }]);
+                                    ui.status(statusUpdate);
+                                    oled.update();
+                                    oled.activity();
+                                });
+                            }
                         }
                     }
                 }
@@ -1428,7 +1449,34 @@ if (VIEW_HARDWARE) {
                 var sm = {
                     name: "software update",
                     type: "menu",
-                    items: [],
+                    items: [{
+                        name: "Install from SD card",
+                        help: help.installFromSdCard,
+                        action: {
+                            type: 'function',
+                            fn: function(arg, cb) {
+                                core.mountSd(function(err) {
+                                    if(err) {
+                                        cb();
+                                        ui.alert('error', "Unable to access SD card");
+                                    } else {
+                                        updates.getValidVersionFromSdCard(function(err, res) {
+                                            if(err) {
+                                                cb();
+                                                ui.alert('error', "Unable to install from SD card: " + err);
+                                            } else {
+                                                ui.load(versionUpdateConfirmMenuBuild(res), null, null, true);
+                                                cb();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }, 
+                        condition: function() {
+                            return core.sdPresent;
+                        }
+                    }],
                     alternate: function(){
                         if(updates.installing || updates.installStatus) {
                             return {

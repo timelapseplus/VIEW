@@ -134,4 +134,5 @@ exports.wifiAccessPointName = "This sets the name (SSID) of the built-in access 
 
 exports.setAccessPointName = "This sets the name (SSID) of the built-in access point.";
 
+exports.installFromSdCard = "To install firmware from an SD card instead of over wifi, download the latest firmware zip file from the github releases page (github.com/timelapseplus/VIEW/releases), save it to the root folder of an SD card and insert it in the VIEW, then run 'Install from SD card' from the Software Version section.";
 
