@@ -420,6 +420,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.currentTimelapse = {};
 
+    $scope.scrubber = {
+        max: -1,
+        pos: 0
+    }
+
     var ws;
     var connecting;
     var timelapseImages = {};
@@ -850,7 +855,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var tl = null;
         if(index == 'current') {
             tl = $scope.currentTimelapse;
-            $scope.scrubberMax = timelapseImages[index].length - 1;
+            $scope.scrubber.max = timelapseImages[index].length - 1;
             console.log("playing current time-lapse");
         } else {
             for (i = 0; i < $scope.clips.length; i++) {
@@ -869,7 +874,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 frame++;
                 if (tl.playing && frame < timelapseImages[index].length) {
                     tl.image = timelapseImages[index][frame];
-                    $scope.scrubberPos = frame;
+                    $scope.scrubber.pos = frame;
                 } else {
                     $interval.cancel(intervalHandle);
                     tl.playing = false;
@@ -881,14 +886,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     var resetCurrentImageTimer = null;
     var resetCurrentImage = function(){
-        if(resetCurrentImageTimer) $timout.cancel(resetCurrentImageTimer);
+        if(resetCurrentImageTimer) $timeout.cancel(resetCurrentImageTimer);
         resetCurrentImageTimer = $timeout(function(){
             $scope.currentTimelapse.image = $scope.lastImage.jpeg;
-            $scope.scrubberPos = $scope.scrubberMax;
+            $scope.scrubber.pos = $scope.scrubber.max;
         }, 10000);
     }
 
-    $scope.scrubber = function(frame) {
+    $scope.updateScrubber = function(frame) {
         if(frame < timelapseImages[0].length) {
             if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
             $scope.currentTimelapse.image = timelapseImages[0][frame];
@@ -1262,7 +1267,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             image: $scope.lastImage && $scope.lastImage.jpeg
         }
         timelapseImages[0] = [];
-        $scope.scrubberMax = -1;
+        $scope.scrubber.max = -1;
         program.focusPos = $scope.focusPos;
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
