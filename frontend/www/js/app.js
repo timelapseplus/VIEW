@@ -418,6 +418,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.previewActive = false;
 
+    $scope.currentTimelapse = {};
+
     var ws;
     var connecting;
     var timelapseImages = {};
@@ -917,7 +919,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(timelapseImages[0].length < $scope.intervalometerStatus.frames) {
             $scope.currentTimelapse.loading = true;
             sendMessage('current-images', {
-                start: timelapseImages[0].length
+                start: timelapseImages[0] ? timelapseImages[0].length : 0
             });
         } else {
             playTimelapse(0);
