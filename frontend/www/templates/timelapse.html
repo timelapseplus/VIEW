@@ -220,9 +220,9 @@
                     <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/4}}px; margin-top:{{64-col/4}}px; background-color: #ddd; float: left;"></div>
                 </div>
                 <div class="col">
-                    Shutter: {{camera.shutter}}<br>
-                    ISO: {{camera.iso}}<br>
-                    Aperture: {{camera.aperture}}
+                    Shutter: {{intervalometerStatus.cameraSettings.shutter}}<br>
+                    ISO: {{intervalometerStatus.cameraSettings.iso}}<br>
+                    Aperture: {{intervalometerStatus.cameraSettings.aperture}}
                 </div>
             </div>
             <div style="background-color: #202020">
@@ -232,8 +232,7 @@
                         <span ng-show="intervalometerStatus.framesRemaining">Remaining: {{intervalometerStatus.framesRemaining}}<br></span>
                         Interval: {{intervalometerStatus.intervalMs/1000|number:0}}<br>
                         Ramp Rate: {{intervalometerStatus.rampRate|number:2}}<br>
-                        {{intervalometerStatus.message}}<br>
-                        {{status}}<br>
+                        <span class="stable">{{intervalometerStatus.message}}</span> <i>{{status}}</i><br>
                     </div>
                 </div>
             </div>
