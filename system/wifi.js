@@ -197,7 +197,9 @@ wifi.unblockBt = function(cb) {
 
 wifi.powerCycle = function(cb) {
 	wifi.disable(function(){
-		wifi.enable(cb);
+		setTimeout(function(){
+			wifi.enable(cb);
+		}, 2000);
 	}, true);
 }
 
