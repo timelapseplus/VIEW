@@ -850,6 +850,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(!index) {
             index = 0;
             tl = $scope.currentTimelapse;
+            $scope.scrubberMax = timelapseImages[index].length - 1;
+            console.log("playing current time-lapse");
         } else {
             for (i = 0; i < $scope.clips.length; i++) {
                 if ($scope.clips[i].index == index) {
@@ -862,9 +864,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             tl.playing = true;
             tl.loading = false;
             var frame = 0;
+            console.log("playing time-lapse with frame count of ");
             var intervalHandle = $interval(function() {
                 frame++;
-                if (tl.playing && frame < tl.frames) {
+                if (tl.playing && frame < timelapseImages[index].length) {
                     tl.image = timelapseImages[index][frame];
                     $scope.scrubberPos = frame;
                 } else {
@@ -881,7 +884,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(resetCurrentImageTimer) $timout.cancel(resetCurrentImageTimer);
         resetCurrentImageTimer = $timeout(function(){
             $scope.currentTimelapse.image = $scope.lastImage.jpeg;
-            $scope.scrubberPos = timelapseImages[0].length - 1;
+            $scope.scrubberPos = $scope.scrubberMax;
         }, 10000);
     }
 
@@ -1259,6 +1262,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             image: $scope.lastImage && $scope.lastImage.jpeg
         }
         timelapseImages[0] = [];
+        $scope.scrubberMax = -1;
         program.focusPos = $scope.focusPos;
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
