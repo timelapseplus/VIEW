@@ -1474,7 +1474,6 @@ if (VIEW_HARDWARE) {
                                                     ui.alert('error', "Unable to install from SD card: " + err);
                                                 });
                                             } else {
-                                                condition.log("prompt: install? res=", res);
                                                 ui.load(versionUpdateConfirmMenuBuild(res), null, null, true);
                                             }
                                         });
