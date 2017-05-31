@@ -672,7 +672,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             }
                         }
                         if(complete) {
-                            if(msg.index) timelapseImages[msg.index] = [];
+                            if(msg.index != 'current') timelapseImages[msg.index] = [];
                             for(var i = 0; i < msg.fragments; i++) {
                                 timelapseImages[msg.index] = timelapseImages[msg.index].concat(timelapseFragments[msg.index][i]);
                             }
@@ -682,10 +682,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             playTimelapse(msg.index);
                         }
                     } else {
-                        if(msg.index) {
-                            timelapseImages[msg.index] = msg.images;
-                        } else {
+                        if(msg.index == 'current') {
                             timelapseImages[msg.index].concat(msg.images);
+                        } else {
+                            timelapseImages[msg.index] = msg.images;
                         }
                         callback(null, msg);
                         playTimelapse(msg.index);

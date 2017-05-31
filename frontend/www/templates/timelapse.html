@@ -196,7 +196,7 @@
                 <div class="col">
                     <img ng-show="currentTimelapse.image" ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
                     <div class="item item-dark range" ng-show="scrubber.max>0">
-                      <input type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber()" min="0" max="{{scrubber.max}}">
+                      <input type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}">
                     </div>
                 </div>
             </div>
