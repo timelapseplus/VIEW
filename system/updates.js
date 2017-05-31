@@ -437,8 +437,8 @@ exports.installFromPath = function(versionInfo, callback) {
 		if(err) {
 			callback && callback(true);
 		} else {
-			fs.writeFile(baseInstallPath + installVersion + "/version.json", JSON.stringify({version: installVersion}), function(){
-				setVersion(installVersion, function(err){
+			fs.writeFile(baseInstallPath + versionInfo.version + "/version.json", JSON.stringify({version: versionInfo.version}), function(){
+				setVersion(versionInfo.version, function(err){
 					console.log("installation complete!");
 					callback && callback();
 				});
