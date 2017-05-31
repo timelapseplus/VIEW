@@ -206,14 +206,15 @@
                         <div class="button-bar">
                             <button class="button button-light button-small button-clear icon ion-skip-backward" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="updateScrubber(0)"></button>
                             <button class="button button-light button-small button-clear icon ion-chevron-left" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="decScrubber(scrubber.pos)"></button>
-                            <button class="button button-light button-small button-clear icon ion-play" ng-hide="currentTimelapse.playing" ng-click="playCurrent()"></button>
-                            <button class="button button-light button-small button-clear icon ion-pause" ng-show="currentTimelapse.playing" ng-click="pauseCurrent()"></button>
+                            <button class="button button-light button-clear icon ion-play" ng-if="!currentTimelapse.playing" ng-click="playCurrent()"></button>
+                            <button class="button button-light button-clear icon ion-pause" ng-if="currentTimelapse.playing" ng-click="pauseCurrent()"></button>
                             <button class="button button-light button-small button-clear icon ion-chevron-right" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="incScrubber(scrubber.pos)"></button>
                             <button class="button button-light button-small button-clear icon ion-skip-forward" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="updateScrubber(scrubber.max)"></button>
                         </div>
                     </div>
                 </div>
             </div>
+            <br>
             <div class="row">
                 <div class="col">
                     <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/4}}px; margin-top:{{64-col/4}}px; background-color: #ddd; float: left;"></div>
