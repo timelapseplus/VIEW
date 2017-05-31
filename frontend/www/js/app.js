@@ -869,6 +869,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             tl.playing = true;
             tl.loading = false;
             var frame = 0;
+            if($scope.scrubber.pos && $scope.scrubber.pos < $scope.scrubber.max) frame = $scope.scrubber.pos;
             console.log("playing time-lapse with frame count of ", timelapseImages[index].length);
             var intervalHandle = $interval(function() {
                 frame++;
@@ -897,9 +898,24 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.updateScrubber = function(frame) {
         if(frame < timelapseImages['current'].length) {
+            if($scope.scrubber.pos != frame) $scope.scrubber.pos = frame;
             if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
             $scope.currentTimelapse.image = timelapseImages['current'][frame];
             resetCurrentImage();
+        }
+    }
+
+    $scope.decScrubber = function(frame) {
+        if(frame > 0) {
+            frame--;
+            $scope.updateScrubber(frame);
+        }
+    }
+
+    $scope.incScrubber = function(frame) {
+        if(frame < timelapseImages['current'].length) {
+            frame++;
+            $scope.updateScrubber(frame);
         }
     }
 
@@ -923,6 +939,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
             }
         }
+    }
+
+    $scope.pauseCurrent = function() {
+        $scope.currentTimelapse.playing = false;
     }
 
     $scope.playCurrent = function() {
