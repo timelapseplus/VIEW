@@ -1,11 +1,13 @@
 #!/bin/sh
 
-if [ $0 != "sh /home/view/current/start.sh" && test -e /home/view/current/start.sh ]; then
-	echo "starting installed version...";
-	sh /home/view/current/start.sh
-	exit;
+echo "current script=$0"
+if [ "$0" != "/home/view/current/start.sh" ] && [ -e /home/view/current/start.sh ]
+then
+        echo "starting installed version...";
+        sh /home/view/current/start.sh
+        exit;
 else
-	echo "running recovery version...";
+        echo "running recovery version...";
 fi
 
 ACTION=""
