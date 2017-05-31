@@ -625,7 +625,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 case 'thumbnail':
                     if ($scope.previewActive) sendMessage('preview');
                     $scope.lastImage = msg;
-                    if(!$scope.currentTimelapse.playing && $scope.intervalometerStatus.running) $scope.currentTimelapse.image = $scope.lastImage.jpeg;
+                    if(!$scope.currentTimelapse.playing && $scope.intervalometerStatus.running && !$scope.scrubber.inUse) $scope.currentTimelapse.image = $scope.lastImage.jpeg;
                     callback(null, msg);
                     break;
                 case 'histogram':
@@ -886,8 +886,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     var resetCurrentImageTimer = null;
     var resetCurrentImage = function(){
+        $scope.scrubber.inUse = true;
         if(resetCurrentImageTimer) $timeout.cancel(resetCurrentImageTimer);
         resetCurrentImageTimer = $timeout(function(){
+            $scope.scrubber.inUse = false;
             $scope.currentTimelapse.image = $scope.lastImage.jpeg;
             $scope.scrubber.pos = $scope.scrubber.max;
         }, 10000);
