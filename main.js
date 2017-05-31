@@ -3006,6 +3006,7 @@ app.on('message', function(msg) {
                         }
                     }                            
                 });
+                break;
 
             case 'timelapse-images':
                 clips.getClipFramesCount(msg.index, function(err, frames) {
