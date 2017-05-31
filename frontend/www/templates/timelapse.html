@@ -194,7 +194,10 @@
             <div class="item item-dark item-divider"><b>Time-lapse Running</b></div>
             <div class="row">
                 <div class="col">
-                    <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%">
+                    <img ng-show="currentTimelapse.image" ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
+                    <div class="item range">
+                      <input type="range" name="scrubber">
+                    </div>
                 </div>
             </div>
             <div class="row">

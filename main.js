@@ -2953,6 +2953,58 @@ app.on('message', function(msg) {
                 });
                 break;
 
+            case 'current-images':
+                core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
+                    if(framesPaths) {
+                        var startFrame = 0;
+                        if(msg.start) startFrame = parseInt(msg.start);
+                        if(startFrame >= framesPaths.length) {
+                            msg.reply('current-images', {
+                                fragment: 0,
+                                fragments: 0,
+                                images: []
+                            });
+                        } else {
+                            framesPaths = framesPaths.slice(startFrame);
+                            var fragments = Math.ceil(framesPaths.count / 100);
+                            var fragment = 0;
+                            var sendFragment = function(start){
+                                console.log("sending time-lapse fragment " + fragment + " of " + fragments);
+                                clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * 100, fragment * 100 + 100), function(err, images) {
+                                    if(!err && images) {
+                                        msg.reply('current-images', {
+                                            index: 0,
+                                            start: fragment * 100 + start,
+                                            fragment: fragment,
+                                            fragments: fragments,
+                                            images: images.map(function(image) {
+                                                image = new Buffer(image).toString('base64');
+                                                return image;
+                                            })
+                                        }, function() {
+                                            fragment++;
+                                            if(fragment < fragments) process.nextTick(function(){sendFragment(start)});
+                                        });
+                                    } else {
+                                        msg.reply('current-images', {
+                                            index: 0,
+                                            start: fragment * 100 + start,
+                                            fragment: fragment,
+                                            fragments: fragments,
+                                            images: [],
+                                            err: err
+                                        }, function() {
+                                            fragment++;
+                                            if(fragment < fragments) process.nextTick(function(){sendFragment(start)});
+                                        });
+                                    }
+                                });
+                            };
+                            sendFragment(msg.start);
+                        }
+                    }                            
+                });
+
             case 'timelapse-images':
                 clips.getClipFramesCount(msg.index, function(err, frames) {
                     if(!err && frames) {
@@ -3277,7 +3329,7 @@ core.on('intervalometer.status', function(msg) {
     var statusScreen = {
         isoText: msg.cameraSettings.iso,
         shutterText: msg.cameraSettings.shutter,
-        apertureText: msg.cameraSettings.aperture ? ("f/" + msg.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
+        apertureText: (msg.cameraSettings.details && msg.cameraSettings.details.aperture) ? ("f/" + msg.cameraSettings.aperture) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,

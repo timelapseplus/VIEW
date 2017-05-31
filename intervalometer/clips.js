@@ -145,6 +145,12 @@ clips.getRecentTimelapseClips = function(count, callback) {
     });
 }
 
+clips.getTimelapseImagesFromPaths = function(framesPaths, callback) {
+    async.map(framesPaths, fs.readFile, function(err, images) {
+        callback(err, images);
+    });
+}
+
 clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callback) {
     try {
         //console.log("fetching timelapse clip " + clipNumber);
