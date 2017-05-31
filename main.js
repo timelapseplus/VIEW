@@ -2961,7 +2961,7 @@ app.on('message', function(msg) {
                         if(!startFrame) startFrame = 0;
                         if(startFrame >= framesPaths.length) {
                             msg.reply('current-images', {
-                                index: 0,
+                                index: 'current',
                                 fragment: 0,
                                 fragments: 0,
                                 images: []
@@ -2974,8 +2974,8 @@ app.on('message', function(msg) {
                                 console.log("sending time-lapse fragment " + fragment + " of " + fragments);
                                 clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * 100, fragment * 100 + 100), function(err, images) {
                                     if(!err && images) {
-                                        msg.reply('current-images', {
-                                            index: 0,
+                                        msg.reply('timelapse-images', {
+                                            index: 'current',
                                             start: fragment * 100 + start,
                                             fragment: fragment,
                                             fragments: fragments,
@@ -2988,8 +2988,8 @@ app.on('message', function(msg) {
                                             if(fragment < fragments) process.nextTick(function(){sendFragment(start)});
                                         });
                                     } else {
-                                        msg.reply('current-images', {
-                                            index: 0,
+                                        msg.reply('timelapse-images', {
+                                            index: 'current',
                                             start: fragment * 100 + start,
                                             fragment: fragment,
                                             fragments: fragments,

@@ -423,6 +423,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     var ws;
     var connecting;
     var timelapseImages = {};
+    timelapseImages[0] = [];
     $scope.view = {
         connected: false
     };
@@ -847,8 +848,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     function playTimelapse(index) {
         var tl = null;
-        if(!index) {
-            index = 0;
+        if(index == 'current') {
             tl = $scope.currentTimelapse;
             $scope.scrubberMax = timelapseImages[index].length - 1;
             console.log("playing current time-lapse");
@@ -873,7 +873,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 } else {
                     $interval.cancel(intervalHandle);
                     tl.playing = false;
-                    if(index == 0) resetCurrentImage();
+                    if(index == 'current') resetCurrentImage();
                 }
             }, 1000 / 24);
         }
@@ -925,7 +925,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 start: timelapseImages[0] ? timelapseImages[0].length : 0
             });
         } else {
-            playTimelapse(0);
+            playTimelapse('current');
         }
     }
 
