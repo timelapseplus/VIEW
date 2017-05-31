@@ -1365,7 +1365,6 @@ if (VIEW_HARDWARE) {
                         if(versionTarget.zipPath) {// SD install
                             power.disableAutoOff();
                             core.watchdogDisable();
-                            wifi.blockBt();
                             ui.busy = true;
                             oled.value([{
                                 name: "Installing...",

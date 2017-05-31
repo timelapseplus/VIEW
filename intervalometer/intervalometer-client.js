@@ -222,14 +222,18 @@ core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
 
 var wdtInterval = null;
 core.watchdogEnable = function(callback) {
-    if(wdtInterval) clearInterval(wdtInterval);
-    wdtInterval = setInterval(core.watchdogEnable, 5000); // this will have the server kill this process if it ever gets stuck
+    if(!wdtInterval) {
+        wdtInterval = setInterval(core.watchdogEnable, 5000); // this will have the server kill this process if it ever gets stuck
+    }
     call('watchdog.set', {pid:process.pid}, callback);
 };
 
 core.watchdogDisable = function(callback) {
+    if(wdtInterval) {
+        clearInterval(wdtInterval);
+        wdtInterval = null;
+    }
     call('watchdog.disable', {pid:process.pid}, function(err){
-        if(wdtInterval) clearInterval(wdtInterval);
         callback && callback(err);
     });
 };
