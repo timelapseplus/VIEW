@@ -1461,7 +1461,9 @@ if (VIEW_HARDWARE) {
                                     } else {
                                         updates.getValidVersionFromSdCard(function(err, res) {
                                             if(err) {
-                                                ui.alert('error', "Unable to install from SD card: " + err);
+                                                core.unmountSd(function(){
+                                                    ui.alert('error', "Unable to install from SD card: " + err);
+                                                });
                                             } else {
                                                 ui.load(versionUpdateConfirmMenuBuild(res), null, null, true);
                                             }
