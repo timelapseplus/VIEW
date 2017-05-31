@@ -33,7 +33,7 @@ if [ "$ACTION" = "install" ]; then
 	killall fbi
 	fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash-updating.png &
 	killall node
-	cd /home/view/current;
+	cd /root;
 	node sd_card_update.js
 	echo "installation complete!"
 	umount /media
