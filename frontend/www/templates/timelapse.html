@@ -195,13 +195,32 @@
             <div class="row">
                 <div class="col">
                     <img ng-show="currentTimelapse.image" ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" ng-click="playCurrent()"><br>
-                    <div class="item item-dark range" ng-show="scrubber.max>0">
-                      <input type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}">
+                    <div class="item item-dark range">
+                      <input class="dark" type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}" ng-disabled="scrubber.max>0?0:2">
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/2}}px; margin-top:{{128-col/2}}px; background-color: #ddd"></div>
+                <div class="col">
+                    <div class="button-bar">
+                        <button class="button button-light button-small button-clear icon ion-ios-skipbackward"></button>
+                        <button class="button button-light button-small button-clear icon ion-ios-rewind"></button>
+                        <button class="button button-light button-small button-clear icon ion-ios-play"></button>
+                        <button class="button button-light button-small button-clear icon ion-ios-pause"></button>
+                        <button class="button button-light button-small button-clear icon ion-ios-fastforward"></button>
+                        <button class="button button-light button-small button-clear icon ion-ios-skipforward"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/2}}px; margin-top:{{128-col/2}}px; background-color: #ddd"></div>
+                </div>
+                <div class="col">
+                    Shutter: {{camera.shutter}}<br>
+                    ISO: {{camera.iso}}<br>
+                    Aperture: {{camera.aperture}}
+                </div>
             </div>
             <div class="row">
                 <div class="col">
@@ -211,11 +230,6 @@
                     Ramp Rate: {{intervalometerStatus.rampRate|number:2}}<br>
                     {{intervalometerStatus.message}}<br>
                     {{status}}<br>
-                    <hr>
-                    <!--EV: {{keyframe.ev|number:1}}<br-->
-                    Shutter: {{camera.shutter}}<br>
-                    ISO: {{camera.iso}}<br>
-                    Aperture: {{camera.aperture}}
                 </div>
             </div>
             <div class="button-bar">
