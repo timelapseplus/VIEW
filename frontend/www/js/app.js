@@ -877,7 +877,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     var resetCurrentImageTimer = null;
     var resetCurrentImage = function(){
         if(resetCurrentImageTimer) $timout.cancel(resetCurrentImageTimer);
-        resetCurrentImageTimer $timeout(function(){
+        resetCurrentImageTimer = $timeout(function(){
             $scope.currentTimelapse.image = $scope.lastImage.jpeg;
             $scope.scrubberPos = timelapseImages[0].length - 1;
         }, 10000);
