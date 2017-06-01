@@ -422,7 +422,7 @@ exports.setVersion = function(versionInfo, callback) {
 	if(installs.indexOf('current') !== -1) {
 		fs.unlinkSync(baseInstallPath + 'current');
 	}
-	fs.symlink(baseInstallPath + versionInfo.version, baseInstallPath + 'current', function(err) {
+	fs.symlink(baseInstallPath + versionInfo, baseInstallPath + 'current', function(err) {
 		callback && callback(err);
 		console.log(err);
 	});
