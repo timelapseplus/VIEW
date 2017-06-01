@@ -1,15 +1,5 @@
 #!/bin/sh
 
-echo "current script=$0"
-if [ "$0" != "/home/view/current/start.sh" ] && [ -e /home/view/current/start.sh ]
-then
-        echo "starting installed version...";
-        sh /home/view/current/start.sh
-        exit;
-else
-        echo "running recovery version...";
-fi
-
 ACTION=""
 MD5=`md5sum /root/startup.sh`
 if [ "$MD5" = "72cc8b90d9ecaff265e29a3b5c836b40  /root/startup.sh" ]
@@ -39,6 +29,18 @@ if [ "$ACTION" = "install" ]; then
 	node sd_card_update.js
 	echo "installation complete!"
 	umount /media
+fi
+
+echo "current script=$0"
+if [ "$0" != "/home/view/current/start.sh" ] && [ -e /home/view/current/start.sh ]
+then
+        echo "starting installed version...";
+        sh /home/view/current/start.sh && exit;
+else
+	if [ "$0" != "/home/view/current/start.sh" ]
+	then
+        echo "running recovery version...";
+    fi
 fi
 
 killall fbi
