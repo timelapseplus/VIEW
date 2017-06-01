@@ -54,9 +54,21 @@ exports.linear = function(xyPoints, xVal) {
  //var f = [ {x:0,y:0},{x:5,y:5},{x:10,y:50} ];
 
 var vec2 = {};
-vec2.add = require('gl-vec2/add');
-vec2.scale = require('gl-vec2/scale');
-vec2.distance = require('gl-vec2/distance');
+vec2.add = function(out, a, b) {
+    out[0] = a[0] + b[0]
+    out[1] = a[1] + b[1]
+    return out
+}
+vec2.scale = function(out, a, b) {
+    out[0] = a[0] * b
+    out[1] = a[1] * b
+    return out
+}
+vec2.distance = function(a, b) {
+    var x = b[0] - a[0],
+        y = b[1] - a[1]
+    return Math.sqrt(x*x + y*y)
+}
 
 var interpolatePoint = function(p0, p1, p2, p3, t0, t1, t2, t3, t) {
   var a1, a2, a3, b1, b2, c;
