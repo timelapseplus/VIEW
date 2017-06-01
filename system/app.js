@@ -284,9 +284,10 @@ app.enableRemote = function() {
 
 app.disableRemote = function() {
     app.remoteEnabled = false;
-    if(wsRemote && wsRemote.destroy) {
+    if(wsRemote && wsRemote.close) {
         wsRemote.close();
     }
+    app.remote = false;
     app.emit('connected', false);
 }
 

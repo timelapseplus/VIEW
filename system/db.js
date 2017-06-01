@@ -61,8 +61,7 @@ try {
 	currentLog = null;
 }
 if(currentLog) {
-	var currentPath = fs.readlinkSync('/home/view/current');
-	exports.currentLogFile = currentPath + "/" + currentLog.trim();
+	exports.currentLogFile = currentLog.trim();
 } else {
 	exports.currentLogFile = "";
 }
