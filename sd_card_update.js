@@ -61,11 +61,11 @@ function extract(zipPath, destFolder, callback) {
 			fs.readdir(destFolder + '_zip_extract', function(err, files) {
 				console.log(err, files);
 				if(files && files.length > 0) {
-					exec("test -e " + destFolder + " && rm -rf " + destFolder, function(err){
+					exec("test -e " + destFolder + " && rm -rf " + destFolder, function(err2){
 						fs.rename(destFolder + '_zip_extract' + '/' + files[0], destFolder, function(){
 							fs.rmdir(destFolder + '_zip_extract');
 							console.log("done extracting");
-							callback(err, destFolder);
+							callback(null, destFolder);
 						});
 					});
 				} else {
