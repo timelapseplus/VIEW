@@ -414,7 +414,7 @@ function runPhoto() {
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
                     if(!status.bufferSeconds) {
                         status.bufferSeconds = bufferTime;
-                    } else if(bufferTime > status.bufferSeconds) {
+                    } else if(bufferTime != status.bufferSeconds) {
                         status.bufferSeconds = (status.bufferSeconds + bufferTime) / 2;
                     }
                     status.path = photoRes.file;
@@ -425,7 +425,7 @@ function runPhoto() {
                     } else {
                         db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
+                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
                     status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, status.rampEv, photoRes.ev, photoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                     status.rampRate = exp.status.rate;
                     status.path = photoRes.file;
