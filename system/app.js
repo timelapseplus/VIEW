@@ -188,7 +188,7 @@ function sendLogs(callback, uploaded) {
         try {
             logs = fs.readdirSync("/home/view/logsForUpload");
             logs = logs.filter(function(log) {
-                return log.match(/^(log|TL)/) ? true : false;
+                return log.match(/^(log|TL|view-)/) ? true : false;
             });
         } catch(e) {
             logs = null;
