@@ -81,7 +81,7 @@ if (VIEW_HARDWARE) {
     });
 
     var configureWifi = function() {
-        db.get('wifi-ap-name', function(wifiApName) {
+        db.get('wifi-ap-name', function(err, wifiApName) {
             console.log("wifi-ap-name:", wifiApName);
             wifi.setApName(wifiApName);
             db.get('wifi-status', function(err, wifiStatus) {
