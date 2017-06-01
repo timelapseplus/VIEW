@@ -1767,6 +1767,10 @@ if (VIEW_HARDWARE) {
                 return !wifi.btEnabled && wifi.enabled;
             }
         }, {
+            name: "Set built-in AP Name",
+            help: help.setAccessPointName,
+            action: setAccessPointNameAction
+        }, {
             name: "Disable Wireless",
             help: help.wifiDisableMenu,
             action: function(){
@@ -1781,10 +1785,6 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return wifi.enabled;
             }
-        }, {
-            name: "Set built-in AP Name",
-            help: help.setAccessPointName,
-            action: setAccessPointNameAction
         }, ]
     }
 
