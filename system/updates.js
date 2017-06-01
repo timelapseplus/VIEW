@@ -422,7 +422,7 @@ exports.setVersion = function(versionInfo, callback) {
 	if(installs.indexOf('current') !== -1) {
 		fs.unlinkSync(baseInstallPath + 'current');
 	}
-	fs.symlink(baseInstallPath + versionInfo, baseInstallPath + 'current', function(err) {
+	fs.symlink(baseInstallPath + versionInfo.version, baseInstallPath + 'current', function(err) {
 		callback && callback(err);
 		console.log(err);
 	});
@@ -438,7 +438,7 @@ exports.installFromPath = function(versionInfo, callback) {
 			callback && callback(true);
 		} else {
 			fs.writeFile(baseInstallPath + versionInfo.version + "/version.json", JSON.stringify({version: versionInfo.version}), function(){
-				exports.setVersion(versionInfo.version, function(err){
+				exports.setVersion(versionInfo, function(err){
 					console.log("installation complete!");
 					callback && callback();
 				});
