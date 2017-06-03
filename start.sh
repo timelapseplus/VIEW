@@ -3,11 +3,11 @@
 ACTION=""
 MD51=`md5sum /root/startup.sh`
 MD52=`md5sum /root/sd_card_update.js`
-if [ "$MD51" = "72cc8b90d9ecaff265e29a3b5c836b40  /root/startup.sh" || "$MD52" = "44fb0e4e8ea2dd85a7119b88dc2597ae  /root/sd_card_update.js" ]
+if [ "$MD51" = "72cc8b90d9ecaff265e29a3b5c836b40  /root/startup.sh" ] || [ "$MD52" = "44fb0e4e8ea2dd85a7119b88dc2597ae  /root/sd_card_update.js" ]
 then
 		test -e /home/view/current/media/view-splash-updating.png && cp /home/view/current/media/view-splash-updating.png /root/view-splash-updating.png
 		test -e /home/view/current/sd_card_update.js && cp /home/view/current/sd_card_update.js /root/sd_card_update.js
-		test -e /home/view/current/start.sh cp /home/view/current/start.sh /root/startup.sh
+		test -e /home/view/current/start.sh && cp /home/view/current/start.sh /root/startup.sh
         echo "md5 matches, copied files"
 fi
 
