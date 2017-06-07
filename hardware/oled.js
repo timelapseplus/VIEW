@@ -54,6 +54,17 @@ var RED_THEME = {
     background: [0.1, 0.0, 0.0]
 }
 
+var HC_THEME = {
+    primary: [1, 1, 1],
+    secondary: [1, 1, 1],
+    alert: [1, 0, 0],
+    batteryFull: [0.2, 1, 0.2],
+    batteryOk: [0.1, 0.5, 0.1],
+    batteryLow: [1, 0.2, 0.2],
+    help: [0, 1, 0],
+    background: [0.1, 0.1, 0.1]
+}
+
 
 oled.colors = DEFAULT_THEME;
 oled.theme = 'VIEW Default';
@@ -62,6 +73,9 @@ oled.setTheme = function(themeName) {
     if(themeName == 'red') {
         oled.theme = 'Night Red';
         oled.colors = RED_THEME;
+    } else if(themeName == 'hc') {
+        oled.theme = 'High Contrast';
+        oled.colors = HC_THEME;
     } else {
         oled.theme = 'VIEW Default';
         oled.colors = DEFAULT_THEME;

@@ -2039,6 +2039,15 @@ if (VIEW_HARDWARE) {
                 oled.setTheme("red");
                 cb && cb();
             })
+        }, {
+            name: "Color Theme",
+            value: "High Contrast",
+            help: help.colorThemeMenu,
+            action: ui.set(oled, 'theme', 'High Contrast', function(cb){
+                db.set('colorTheme', "hc");
+                oled.setTheme("hc");
+                cb && cb();
+            })
         }]
     }
 
