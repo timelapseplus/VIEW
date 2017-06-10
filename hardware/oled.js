@@ -56,7 +56,7 @@ var RED_THEME = {
 
 var HC_THEME = {
     primary: [1, 1, 1],
-    secondary: [1, 1, 1],
+    secondary: [1, 1, 0.5],
     alert: [1, 0, 0],
     batteryFull: [0.2, 1, 0.2],
     batteryOk: [0.1, 0.5, 0.1],

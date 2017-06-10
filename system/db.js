@@ -223,6 +223,7 @@ exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
 
 var _currentTimelapseClipId = null;
 var _currentTimelapseClipFrames = {};
+var _currentTimelapsePrimaryCamera = 0;
 
 exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber, thumbnail, callback) {
 	if(closed) return callback && callback(true);

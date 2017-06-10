@@ -651,7 +651,7 @@ function focusCanon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param;
-    if (!step) return;
+    if (!step) return callback && callback();
     if (step < 0) {
         param = "Near 1";
         if (step < -1) param = "Near 2";
@@ -689,7 +689,7 @@ function focusNikon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param, delay = 200;
-    if (!step) return;
+    if (!step) return callback && callback();
     if (step < 0) {
         param = -20.5;
         if (step < -1) { 
