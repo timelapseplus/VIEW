@@ -985,7 +985,7 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Timelapse Mode", core.currentProgram, 'rampMode'),
             help: help.rampingOptions,
             action: rampingOptions
-        }, {rampingAlgorithm
+        }, {
             name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
             action: intervalOptions,
