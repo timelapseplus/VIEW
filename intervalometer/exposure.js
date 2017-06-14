@@ -64,7 +64,7 @@ exp.calculate = function(algorithm, currentEv, lastPhotoLum, lastPhotoHistogram,
     if(minEv != null) exp.config.minEv = minEv;
     if(maxEv != null) exp.config.maxEv = maxEv;
 
-    if(algorithm == "LRTimelapse") {
+    if(algorithm == "lrt") {
         return exp.calculate_LRTtimelapse(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
     } else {
         return exp.calculate_TLPAuto(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);

@@ -45,7 +45,8 @@ function updateSessions(callback) {
 }
 updateSessions();
 
-function loginUser(email, password, callback) {
+function loginUser(email, password, agent, callback) {
+    console.log("trying to log in", email);
     getUserByEmail(email, function(err, user) {
         if(!err && user) {
             bcrypt.compare(password, user.password, function(err, res) {
@@ -53,7 +54,8 @@ function loginUser(email, password, callback) {
                     var session = {
                         user_id: user.id,
                         sid: uid(64) + user.id,
-                        date: (new Date()).toISOString()
+                        date: (new Date()).toISOString(),
+                        agent: agent || 'app'
                     }
                     db.query("INSERT INTO `sessions` SET ?", session, function(err) {
                         updateSessions(function(){
@@ -62,9 +64,11 @@ function loginUser(email, password, callback) {
                     });
                 } else {
                     callback("invalid username or password");
+                    console.log("invalid password for:", email);
                 }
             });
         } else {
+            console.log("user not found:", email);
             callback("invalid username or password");
         }
     });    
@@ -189,13 +193,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.post('/api/login', function(req, res) {
-    loginUser(req.body.email, req.body.password, function(err, session) {
+    loginUser(req.body.email, req.body.password, req.body.agent, function(err, session) {
         if(!err && session) {
             res.send({
                 action: 'login',
                 session: session.sid,
                 message: "successfully logged in"
             });
+            if(req.body.agent && req.body.agent == "tlw") {
+                console.log("registered Time-lapse Workflow plugin for ", req.body.email);   
+            }
         } else {
             res.send({
                 action: 'login_failed',
@@ -208,7 +215,7 @@ app.post('/api/login', function(req, res) {
 app.post('/api/register', function(req, res) {
     console.log("trying to register ", req.body.email);
     updateUser(req.body.email, req.body.subdomain, req.body.password, function(err) {
-        loginUser(req.body.email, req.body.password, function(err, session) {
+        loginUser(req.body.email, req.body.password, req.body.agent, function(err, session) {
             if(!err && session) {
                 console.log("registered ", req.body.email, req.body.subdomain);
                 res.send({

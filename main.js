@@ -240,6 +240,32 @@ if (VIEW_HARDWARE) {
             value: "Auto Ramping",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'auto')
+        }, {
+            name: "Timelapse Mode",
+            value: "LRTimelapse",
+            help: help.rampingAlgorithmLRTimelapse,
+            action: ui.set(core.currentProgram, 'rampMode', 'lrt')
+        }]
+    }
+
+    var rampingAlgorithm = {
+        name: "ramping algorithm",
+        type: "options",
+        items: [{
+            name: "Ramping Algorithm",
+            value: "PID Luminance",
+            help: help.rampingAlgorithmLuminance,
+            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lum')
+        }, {
+            name: "Ramping Algorithm",
+            value: "LRTimelapse",
+            help: help.rampingAlgorithmLRTimelapse,
+            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lrt')
+        }, {
+            name: "Ramping Algorithm",
+            value: "GPS Ramping",
+            help: help.rampingAlgorithmGPS,
+            action: ui.set(core.currentProgram, 'rampAlgorithm', 'gps')
         }]
     }
 
@@ -959,12 +985,19 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Timelapse Mode", core.currentProgram, 'rampMode'),
             help: help.rampingOptions,
             action: rampingOptions
-        }, {
+        }, {rampingAlgorithm
             name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
             action: intervalOptions,
             condition: function() {
                 return core.currentProgram.rampMode != 'fixed';
+            }
+        }, {
+            name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
+            help: help.rampingAlgorithm,
+            action: rampingAlgorithm,
+            condition: function() {
+                return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Interval", core.currentProgram, 'interval'),

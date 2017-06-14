@@ -136,3 +136,10 @@ exports.setAccessPointName = "This sets the name (SSID) of the built-in access p
 
 exports.installFromSdCard = "To install firmware from an SD card instead of over wifi, download the latest firmware zip file from the github releases page (github.com/timelapseplus/VIEW/releases), save it to the root folder of an SD card and insert it in the VIEW, then run 'Install from SD card' from the Software Version section.";
 
+exports.rampingAlgorithmLRTimelapse = "This auto-ramping method is developed by Gunther Wegner for use with LRTimelapse post-processing and does not require XMP files from the VIEW when processed with LRTimelapse"
+
+exports.rampingAlgorithmLuminance = "This the default auto-ramping method, developed by Elijah Parker using PID control based on the luminance of the images"
+
+exports.rampingAlgorithmGps = "This an experimental auto ramping algorithm based strictly on the sun position as calculated by GPS data and not on luminance or histogram"
+
+exports.rampingAlgorithm = "Determines the method used for auto ramping"
