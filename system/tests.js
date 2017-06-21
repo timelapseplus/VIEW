@@ -19,7 +19,7 @@ var tests = [
 				passed = false;
 				messages.push("IMU");
 			}
-			var res = {pass: passed, message: messages.join(",")};
+			var res = {err: !passed, message: messages.join(",")};
 			console.log(res);
 			return res;
 		}
