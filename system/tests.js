@@ -12,7 +12,8 @@ var tests = [
 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- \
 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- \
 60: -- -- -- -- -- -- -- -- 68 -- -- -- -- -- -- -- \
-70: -- -- -- -- -- -- -- -- \n"
+70: -- -- -- -- -- -- -- --                         \
+]"
 	},
 	{
 		description: "wifi module",
@@ -109,5 +110,5 @@ function runTests(testArray, callback) {
 
 runTests(tests, function(results) {
 	console.log(results)
+	process.exit()
 });
-
