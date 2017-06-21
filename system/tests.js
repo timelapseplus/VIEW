@@ -90,6 +90,7 @@ function runTests(testArray, callback) {
 		results = "";
 		results += "Test results: " + (pass ? "PASSED" : "FAILED") + "\n\n";
 		for(var i = 0; i < results.length; i++) {
+			console.log(".")
 			results += results[i] + "\n";
 		}
 		results += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
