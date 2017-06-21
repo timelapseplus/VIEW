@@ -4,16 +4,23 @@ var tests = [
 	{
 		description: "i2c-2 bus",
 		command: "i2cdetect -y 2",
-		output: "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\
-00:          -- -- -- -- -- -- -- -- -- -- -- -- -- \
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- \
-20: -- -- -- -- -- -- -- -- -- 29 -- -- -- -- -- -- \
-30: -- -- -- -- -- -- -- -- -- 39 -- -- -- -- -- -- \
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- \
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- \
-60: -- -- -- -- -- -- -- -- 68 -- -- -- -- -- -- -- \
-70: -- -- -- -- -- -- -- --                         \
-]"
+		output: function(stdout) {
+			vaer messages = [];
+			var passed = true;
+			if(stdout && stdout.indexOf("29") === -1) {
+				passed = false;
+				messages.push("Light Sensor");
+			}
+			if(stdout && stdout.indexOf("39") === -1) {
+				passed = false;
+				messages.push("Gesture Sensor");
+			}
+			if(stdout && stdout.indexOf("68") === -1) {
+				passed = false;
+				messages.push("IMU");
+			}
+			return {pass: passed, message: messages.join(",")};
+		}
 	},
 	{
 		description: "wifi module",
@@ -30,7 +37,10 @@ var tests = [
 
 function runTest(test, callback) {
 	exec(test.command, function(err, stdout, stderr) {
-		if(stdout.trim() == test.output) {
+		if(typeof(test.output) == "function") {
+			var res = test.output(stdout, stderr);
+			return callback && callback(res.pass, res.message);
+		} else if(stdout.trim() == test.output) {
 			return callback && callback();
 		} else {
 			return callback(err || -1, stdout, stderr)
@@ -99,6 +109,7 @@ function runTests(testArray, callback) {
 			console.log("(pre) ", results[index]);
 			index++;
 			if(index < testArray.length) {
+				console.log("running next index:", index);
 				run();
 			} else {
 				done();
