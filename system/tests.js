@@ -56,7 +56,7 @@ function runTests(testArray, callback) {
 			powerLight = true;
 			exec("echo 1 > /sys/class/leds/view-button-power/brightness");
 		}
-	}, 500);
+	}, 1000);
 
 	function done() {
 		if(pass) {
@@ -87,6 +87,7 @@ function runTests(testArray, callback) {
 			} else {
 				results[index] = testArray[index].description + ": PASSED";
 			}
+			console.log("(pre) ", results[index]);
 			index++;
 			if(index < tests.length) {
 				run();
