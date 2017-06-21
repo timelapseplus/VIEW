@@ -78,6 +78,12 @@ function runCallback(cbData) {
     }
 }
 
+function cancelCallbacks() {
+    for(var i in cbStore) {
+        delete cbStore[i];
+    }
+}
+
 function errorCallbacks(err, port) {
     console.log("running remaining callbacks:", JSON.stringify(cbStore));
     for (var i in cbStore) {
@@ -87,6 +93,11 @@ function errorCallbacks(err, port) {
             data: null
         });
     }
+}
+
+camera.cancelCallbacks = function(cb) {
+    cancelCallbacks();
+    cb && cb();
 }
 
 camera.disabled = false;
@@ -203,6 +214,7 @@ var startWorker = function(port) {
                         camera.connected = true;
                         camera.model = msg.value;
                         camera.supports = worker.supports;
+                        setTimeout(camera.getSettings, 3000);
                     }
                 }
                 if (msg.event == 'exiting') {

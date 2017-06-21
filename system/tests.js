@@ -78,13 +78,13 @@ function runTests(testArray, callback) {
 			exec("echo 1 > /sys/class/leds/view-button-2/brightness");
 			exec("echo 1 > /sys/class/leds/view-button-3/brightness");
 		} else {
-			if(results[0].indexOf(": PASSED")) {
+			if(results[0].indexOf(": PASSED") > 0) {
 				exec("echo 1 > /sys/class/leds/view-button-1/brightness");
 			}
-			if(results[1].indexOf(": PASSED")) {
+			if(results[1].indexOf(": PASSED") > 0) {
 				exec("echo 1 > /sys/class/leds/view-button-2/brightness");
 			}
-			if(results[2].indexOf(": PASSED")) {
+			if(results[2].indexOf(": PASSED") > 0) {
 				exec("echo 1 > /sys/class/leds/view-button-3/brightness");
 			}
 		}

@@ -240,11 +240,6 @@ if (VIEW_HARDWARE) {
             value: "Auto Ramping",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'auto')
-        }, {
-            name: "Timelapse Mode",
-            value: "LRTimelapse",
-            help: help.rampingAlgorithmLRTimelapse,
-            action: ui.set(core.currentProgram, 'rampMode', 'lrt')
         }]
     }
 
@@ -261,11 +256,12 @@ if (VIEW_HARDWARE) {
             value: "LRTimelapse",
             help: help.rampingAlgorithmLRTimelapse,
             action: ui.set(core.currentProgram, 'rampAlgorithm', 'lrt')
-        }, {
+        /*}, {
             name: "Ramping Algorithm",
             value: "GPS Ramping",
             help: help.rampingAlgorithmGPS,
             action: ui.set(core.currentProgram, 'rampAlgorithm', 'gps')
+            */
         }]
     }
 
@@ -731,6 +727,13 @@ if (VIEW_HARDWARE) {
             action: rampingNightCompensation,
             help: help.rampingNightCompensation
         }, {
+            name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
+            help: help.rampingAlgorithm,
+            action: rampingAlgorithm,
+            condition: function() {
+                return core.currentProgram.rampMode == 'auto';
+            }
+        }, {
             name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
             action: isoMax,
             help: help.isoMax
@@ -991,13 +994,6 @@ if (VIEW_HARDWARE) {
             action: intervalOptions,
             condition: function() {
                 return core.currentProgram.rampMode != 'fixed';
-            }
-        }, {
-            name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
-            help: help.rampingAlgorithm,
-            action: rampingAlgorithm,
-            condition: function() {
-                return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Interval", core.currentProgram, 'interval'),

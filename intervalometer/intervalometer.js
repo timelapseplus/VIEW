@@ -545,6 +545,7 @@ intervalometer.cancel = function(reason) {
 }
 
 intervalometer.resume = function() {
+    camera.ptp.cancelCallbacks();
     busyPhoto = false;
     busyExposure = false;
     clearTimeout(timerHandle);
