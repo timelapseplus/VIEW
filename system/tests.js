@@ -106,9 +106,9 @@ function runTests(testArray, callback) {
 		runTest(testArray[index], function(err, stdout, stderr) {
 			if(err) {
 				pass = false;
-				results[index] = testArray[index].description + ": FAILED (err " + err + ", [" + stdout + "], [" + stderr + "])";
+				results.push(testArray[index].description + ": FAILED (err " + err + ", [" + stdout + "], [" + stderr + "])");
 			} else {
-				results[index] = testArray[index].description + ": PASSED";
+				results.push(testArray[index].description + ": PASSED");
 			}
 			console.log("(pre) ", results[index]);
 			index++;
