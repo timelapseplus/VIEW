@@ -90,14 +90,14 @@ function runTests(testArray, callback) {
 		var text = "";
 		text += "Test results: " + (pass ? "PASSED" : "FAILED") + "\n\n";
 		for(var i = 0; i < results.length; i++) {
-			results += text[i] + "\n";
+			text += results[i] + "\n";
 		}
-		results += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
+		text += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
 		console.log("done!");
 		if(callback) {
-			callback(results);
+			callback(text);
 		} else {
-			console.log(results);
+			console.log(text);
 		}
 	}
 
