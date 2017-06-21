@@ -87,11 +87,10 @@ function runTests(testArray, callback) {
 				exec("echo 1 > /sys/class/leds/view-button-3/brightness");
 			}
 		}
-		results = "";
-		results += "Test results: " + (pass ? "PASSED" : "FAILED") + "\n\n";
-		console.log("results.length", results.length);
+		var text = "";
+		text += "Test results: " + (pass ? "PASSED" : "FAILED") + "\n\n";
 		for(var i = 0; i < results.length; i++) {
-			results += results[i] + "\n";
+			results += text[i] + "\n";
 		}
 		results += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
 		console.log("done!");
