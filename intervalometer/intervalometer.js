@@ -405,7 +405,7 @@ function runPhoto() {
 
             intervalometer.emit("status", status);
             var shutterEv;
-            if(camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
+            if(camera.ptp.settings.details && camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
             var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
             setTimeout(motionSyncPulse, msDelayPulse);
             status.lastPhotoTime = new Date() / 1000 - status.startTime;

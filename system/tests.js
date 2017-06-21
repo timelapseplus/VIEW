@@ -95,6 +95,7 @@ function runTests(testArray, callback) {
 			}
 		});
 	}
+	run();
 }
 
 runTests(tests, function(results) {
