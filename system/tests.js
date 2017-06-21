@@ -126,7 +126,7 @@ function runTests(testArray, callback) {
 runTests(tests, function(results) {
 	console.log(results)
 	console.log("\n\nCtrl-C to exit, or press power button to shutdown...");
-	var powerButton = new Button(buttonConfig.platformEvent);
+	var powerButton = new Button("1c2ac00.i2c-platform-axp20x-pek");
 	powerButton.on('press', function(code) {
 		console.log("power button pressed!");
 	});
