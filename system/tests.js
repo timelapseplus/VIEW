@@ -19,7 +19,9 @@ var tests = [
 				passed = false;
 				messages.push("IMU");
 			}
-			return {pass: passed, message: messages.join(",")};
+			var res = {pass: passed, message: messages.join(",")};
+			console.log(res);
+			return res;
 		}
 	},
 	{
@@ -81,8 +83,8 @@ function runTests(testArray, callback) {
 			if(results[1].indexOf(": PASSED")) {
 				exec("echo 1 > /sys/class/leds/view-button-2/brightness");
 			}
-			if(results[1].indexOf(": PASSED")) {
-				exec("echo 1 > /sys/class/leds/view-button-2/brightness");
+			if(results[2].indexOf(": PASSED")) {
+				exec("echo 1 > /sys/class/leds/view-button-3/brightness");
 			}
 		}
 		results = "";
@@ -91,6 +93,7 @@ function runTests(testArray, callback) {
 			results += results[i] + "\n";
 		}
 		results += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
+		console.log("done!");
 		if(callback) {
 			callback(results);
 		} else {
