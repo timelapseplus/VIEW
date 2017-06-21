@@ -88,7 +88,7 @@ function runTests(testArray, callback) {
 				results[index] = testArray[index].description + ": PASSED";
 			}
 			index++;
-			if(index < test.length) {
+			if(index < tests.length) {
 				run();
 			} else {
 				done();
