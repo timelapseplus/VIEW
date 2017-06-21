@@ -1,5 +1,5 @@
 var exec = require("child_process").exec
-var Button = require('/root/VIEW/node_modules/gpio-button');
+var Button = require('gpio-button');
 
 var tests = [
 	{
