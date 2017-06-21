@@ -46,7 +46,7 @@ function runTests(testArray, callback) {
 	exec("echo 0 > /sys/class/leds/view-button-2/brightness");
 	exec("echo 0 > /sys/class/leds/view-button-3/brightness");
 	powerLight = true;
-	setInterval(function(){
+	var powerButtonInterval = setInterval(function(){
 		if(powerLight) {
 			powerLight = false;
 			exec("echo 0 > /sys/class/leds/view-button-power/brightness");
