@@ -87,13 +87,16 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
     if(local.targetLum === null) {
         exp.status.rampEv = currentEv;
         local.targetLum = averageLum;
+        local.countSinceChange = 0;
     }
 
-    if(averageLum >= local.targetLum + local.targetLum * 0.1) {
-        exp.status.rampEv = currentEv - 1/3;
-    }
-    if(averageLum <= local.targetLum - local.targetLum * 0.1) {
+    if(averageLum >= local.targetLum + local.targetLum * 0.1 && local.countSinceChange >= local.lumArray.length) {
         exp.status.rampEv = currentEv + 1/3;
+        local.countSinceChange = 0;
+    }
+    if(averageLum <= local.targetLum - local.targetLum * 0.1 && local.countSinceChange >= local.lumArray.length) {
+        exp.status.rampEv = currentEv -  1/3;
+        local.countSinceChange = 0;
     }
 
     return exp.status.rampEv;
