@@ -1,4 +1,5 @@
 var exec = require("child_process").exec
+var Button = require('/root/VIEW/node_modules/gpio-button');
 
 var tests = [
 	{
@@ -20,7 +21,7 @@ var tests = [
 				messages.push("IMU");
 			}
 			var res = {err: !passed, message: messages.join(",")};
-			console.log(res);
+			//console.log(res);
 			return res;
 		}
 	},
@@ -93,7 +94,7 @@ function runTests(testArray, callback) {
 			text += results[i] + "\n";
 		}
 		text += "\nTo run tests again manually, run: \"node /root/VIEW/system/tests.js\"\n";
-		console.log("done!");
+		//console.log("done!");
 		if(callback) {
 			callback(text);
 		} else {
@@ -109,10 +110,10 @@ function runTests(testArray, callback) {
 			} else {
 				results.push(testArray[index].description + ": PASSED");
 			}
-			console.log("(pre) ", results[index]);
+			//console.log("(pre) ", results[index]);
 			index++;
 			if(index < testArray.length) {
-				console.log("running next index:", index);
+				//console.log("running next index:", index);
 				run();
 			} else {
 				done();
@@ -124,5 +125,9 @@ function runTests(testArray, callback) {
 
 runTests(tests, function(results) {
 	console.log(results)
-	process.exit()
+	console.log("\n\nCtrl-C to exit, or press power button to shutdown...");
+	var powerButton = new Button(buttonConfig.platformEvent);
+	powerButton.on('press', function(code) {
+		console.log("power button pressed!");
+	});
 });
