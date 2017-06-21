@@ -5,7 +5,7 @@ var tests = [
 		description: "i2c-2 bus",
 		command: "i2cdetect -y 2",
 		output: function(stdout) {
-			vaer messages = [];
+			var messages = [];
 			var passed = true;
 			if(stdout && stdout.indexOf("29") === -1) {
 				passed = false;
