@@ -20,11 +20,6 @@ var tests = [
 		output: "Bus 003 Device 002: ID 0bda:b720 Realtek Semiconductor Corp."
 	},
 	{
-		description: "usb1",
-		command: "lsusb | grep 1d6b:0002",
-		output: "Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub"
-	},
-	{
 		description: "ddr3",
 		command: "cat /proc/meminfo | grep MemTotal",
 		output: "MemTotal:         512032 kB"
@@ -47,6 +42,9 @@ function runTests(testArray, callback) {
 	var index = 0;
 	var pass = true;
 
+	exec("echo 0 > /sys/class/leds/view-button-1/brightness");
+	exec("echo 0 > /sys/class/leds/view-button-2/brightness");
+	exec("echo 0 > /sys/class/leds/view-button-3/brightness");
 	powerLight = true;
 	setInterval(function(){
 		if(powerLight) {
@@ -59,12 +57,22 @@ function runTests(testArray, callback) {
 	}, 1000);
 
 	function done() {
+		clearInterval(powerButtonInterval);
+		exec("echo 0 > /sys/class/leds/view-button-power/brightness");
 		if(pass) {
 			exec("echo 1 > /sys/class/leds/view-button-1/brightness");
 			exec("echo 1 > /sys/class/leds/view-button-2/brightness");
 			exec("echo 1 > /sys/class/leds/view-button-3/brightness");
-			clearInterval(powerButtonInterval);
-			exec("echo 0 > /sys/class/leds/view-button-power/brightness");
+		} else {
+			if(results[0].indexOf(": PASSED")) {
+				exec("echo 1 > /sys/class/leds/view-button-1/brightness");
+			}
+			if(results[1].indexOf(": PASSED")) {
+				exec("echo 1 > /sys/class/leds/view-button-2/brightness");
+			}
+			if(results[1].indexOf(": PASSED")) {
+				exec("echo 1 > /sys/class/leds/view-button-2/brightness");
+			}
 		}
 		results = "";
 		results += "Test results: " + (pass ? "PASSED" : "FAILED") + "\n\n";
@@ -83,13 +91,13 @@ function runTests(testArray, callback) {
 		runTest(testArray[index], function(err, stdout, stderr) {
 			if(err) {
 				pass = false;
-				results[index] = testArray[index].description + ": FAILED (err " + err + ", " + stdout + " " + stderr + ")";
+				results[index] = testArray[index].description + ": FAILED (err " + err + ", [" + stdout + "], [" + stderr + "])";
 			} else {
 				results[index] = testArray[index].description + ": PASSED";
 			}
 			console.log("(pre) ", results[index]);
 			index++;
-			if(index < tests.length) {
+			if(index < testArray.length) {
 				run();
 			} else {
 				done();
