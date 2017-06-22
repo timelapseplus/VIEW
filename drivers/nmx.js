@@ -165,7 +165,7 @@ function move(motorId, steps, callback) {
                             motorRunning[motorId] = false;
                             checkMotorPosition(motorId, function(position) {
                                 motorPos[motorId] = position;
-                                keepAlive(true);
+                                //keepAlive(true);
                                 if (callback) callback(null, position);
                             })
                         }
@@ -173,7 +173,7 @@ function move(motorId, steps, callback) {
                 }, 200);
             })(motorId);
         } else {
-            keepAlive(true);
+            //keepAlive(true);
             if (callback) callback(err);
             motorRunning[motorId] = false;
         }
