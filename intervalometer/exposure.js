@@ -78,7 +78,7 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
     }
     local.lumArray.push(lum);
     if(local.lumArray.length > 3) {
-        local.lumArray.slice(0, 3);
+        local.lumArray = local.lumArray.slice(0, 3);
     }
     var averageLum = local.lumArray.reduce(function(sum, val){
         return sum + val;
@@ -89,6 +89,7 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         local.targetLum = averageLum;
         local.countSinceChange = 0;
     }
+    local.countSinceChange++;
 
     if(averageLum >= local.targetLum + local.targetLum * 0.1 && local.countSinceChange >= local.lumArray.length) {
         exp.status.rampEv = currentEv + 1/3;
