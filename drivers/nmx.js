@@ -218,7 +218,7 @@ function constantMove(motorId, speed, callback) {
     speed = Math.floor((speed / 100) * maxSpeed);
     if(speed > maxSpeed) speed = maxSpeed;
     if(speed < -maxSpeed) speed = -maxSpeed;
-    m.writeInt32BE(speed, 0, 4);
+    m.writeFloatBE(speed, 0, 4);
     motorRunning[motorId] = true;
 
     var cmd = {

@@ -116,13 +116,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }*/
 
     var controls = {};
+    var joystickEnabled = true;
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
         localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
-        } /*else if(toState.name == "app.capture") {
+        } else if(joystickEnabled && toState.name == "app.capture") {
             if(controls.joystick) {
                 controls.joystick.delete();
                 delete controls.joystick;
@@ -176,7 +177,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     });
                 });
             });
-        }*/
+        }
     });
 
     function updateCache() {
