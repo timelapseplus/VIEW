@@ -116,7 +116,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }*/
 
     var controls = {};
-    var joystickEnabled = true;
+    var joystickEnabled = false;
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
@@ -524,6 +524,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         }
                     }
                     callback(null, $scope.axis);
+                    break;
                 case 'move':
                     var index = $scope.getAxisIndex(msg.driver + '-' + msg.motor);
                     if (msg.complete && msg.driver && $scope.axis[index]) {
@@ -547,12 +548,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         }
                     }
                     callback(null, msg.complete);
+                    break;
                 case 'focus':
                     console.log("focus callback", msg);
                     if (msg.complete) {
                         $scope.focusMoving = false;
                     }
                     callback(null, msg.complete);
+                    break;
                 case 'settings':
                     if (!$scope.camera.connected) break;
                     $scope.camera.config = msg.settings;
@@ -715,6 +718,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         angular.extend($scope.timelapse, msg.program);
                         retrievedTimelapseProgram = true;
                     }
+                    break;
                 default:
                     {
                         if (msg.error) {

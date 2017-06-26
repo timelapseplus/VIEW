@@ -78,8 +78,9 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
     }
     local.lumArray.push(lum);
     if(local.lumArray.length > 3) {
-        local.lumArray = local.lumArray.slice(0, 3);
+        local.lumArray = local.lumArray.slice(local.lumArray.length - 3);
     }
+
     var averageLum = local.lumArray.reduce(function(sum, val){
         return sum + val;
     }, 0) / local.lumArray.length;
