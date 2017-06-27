@@ -3295,6 +3295,7 @@ core.on('camera.photo', function() {
                 q: 80
             }
             if (VIEW_HARDWARE && (core.photo.type != 'preview' || liveviewOn)) {
+                console.log("displaying image...", core.photo.type);
                 image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                     if (!err && jpgBuf) {
                         image.saveTemp("oledthm", jpgBuf, function(err, path) {

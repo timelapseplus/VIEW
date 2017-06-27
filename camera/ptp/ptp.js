@@ -120,7 +120,7 @@ camera.disableWorker = function(cb) {
 camera.enableWorker = function(cb) {
     camera.disabled = false;
     disabledCallback = null;
-    if(!worker) {
+    if(workers.length == 0) {
         process.nextTick(startWorker);
         camera.connecting = true;
         cb && cb();
