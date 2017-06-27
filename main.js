@@ -3315,10 +3315,10 @@ core.on('camera.photo', function() {
         };
 
         if(core.intervalometerStatus.running) liveviewOn = false;
-        if (previewImage.type == "photo" || !liveviewOn) {
+        if (previewImage.imageType == "photo" || !liveviewOn) {
             app.send('photo');
             app.send('thumbnail', previewImage);
-        } else if (previewImage.type == "preview" && !core.intervalometerStatus.running) {
+        } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             liveviewOn = true;
             console.log("LV: requesting next frame");
             core.preview();
