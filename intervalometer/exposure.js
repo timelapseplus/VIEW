@@ -85,19 +85,24 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         return sum + val;
     }, 0) / local.lumArray.length;
 
-    if(local.targetLum === null) {
+    if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
         local.targetLum = averageLum;
         local.countSinceChange = 0;
+        local.direction = 0;
     }
     local.countSinceChange++;
 
-    if(averageLum >= local.targetLum + local.targetLum * 0.1 && local.countSinceChange >= local.lumArray.length) {
+    var directionFactor = local.direction >= 0 || local.countSinceChange > 120 ? 1 : 2;
+    if(averageLum >= local.targetLum + local.targetLum * 0.1 * directionFactor && local.countSinceChange >= local.lumArray.length) {
         exp.status.rampEv = currentEv + 1/3;
+        local.direction = 1;
         local.countSinceChange = 0;
     }
-    if(averageLum <= local.targetLum - local.targetLum * 0.1 && local.countSinceChange >= local.lumArray.length) {
+    directionFactor = local.direction <= 0 || local.countSinceChange > 120 ? 1 : 5;
+    if(averageLum <= local.targetLum - local.targetLum * 0.1 * directionFactor && local.countSinceChange >= local.lumArray.length) {
         exp.status.rampEv = currentEv -  1/3;
+        local.direction = -1;
         local.countSinceChange = 0;
     }
 

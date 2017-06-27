@@ -245,6 +245,7 @@ core.resetBt = function(callback) {
 defaultProgram = {
     rampMode: "fixed",
     intervalMode: "fixed",
+    rampAlgorithm: "lum",
     interval: 5,
     dayInterval: 5,
     nightInterval: 35,
