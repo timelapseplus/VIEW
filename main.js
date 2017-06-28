@@ -809,7 +809,7 @@ if (VIEW_HARDWARE) {
                     if (d == 'U') {
                         if (stats.ev < stats.maxEv) {
                             ev += 1 / 3;
-                            console.log("setting ev to ", ev);
+                            console.log("(exposure) setting ev to ", ev);
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
                             });
@@ -817,7 +817,7 @@ if (VIEW_HARDWARE) {
                     } else if (d == 'D') {
                         if (stats.ev > stats.minEv) {
                             ev -= 1 / 3;
-                            console.log("setting ev to ", ev);
+                            console.log("(exposure) setting ev to ", ev);
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
                             });
@@ -1341,7 +1341,7 @@ if (VIEW_HARDWARE) {
                 if (d == 'U') {
                     if (stats.ev < stats.maxEv) {
                         ev += 1 / 3;
-                        console.log("setting ev to ", ev);
+                        console.log("(capture) setting ev to ", ev);
                         core.setEv(ev, {
                             cameraSettings: core.cameraSettings
                         });
@@ -1349,7 +1349,7 @@ if (VIEW_HARDWARE) {
                 } else if (d == 'D') {
                     if (stats.ev > stats.minEv) {
                         ev -= 1 / 3;
-                        console.log("setting ev to ", ev);
+                        console.log("(capture) setting ev to ", ev);
                         core.setEv(ev, {
                             cameraSettings: core.cameraSettings
                         });
@@ -1360,9 +1360,9 @@ if (VIEW_HARDWARE) {
             oled.block();
             liveviewOn = true;
             inputs.on('B', captureButtonHandler);
-            console.log("started liveview, getting settings...");
+            console.log("(capture) started liveview, getting settings...");
             core.getSettings(function() {
-                console.log("done getting settings, enabling knob");
+                console.log("(capture) done getting settings, enabling knob");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
                 inputs.on('D', captureDialHandler);
