@@ -590,6 +590,9 @@ function preview(callback) {
                 y: 400,
                 q: 70
             }
+            if(settings && settings.lvexposure === 'off') {
+                set('lvexposure', 'on');
+            }
             image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
                 if(typeof tmp == 'string') fs.unlink(tmp);
                 if (centerFaces && !previewCrop) {

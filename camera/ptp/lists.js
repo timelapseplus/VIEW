@@ -22,6 +22,12 @@ lists.paramMap = [{
         item: "viewfinder"
     }]
 }, {
+    name: "lvexposure",
+    maps: [{
+        section: "other",
+        item: "d1a5"
+    }]
+}, {
     name: "focusdrive",
     type: "toggle",
     maps: [{
@@ -311,6 +317,14 @@ lists.target = [{
 }, {
     name: "CARD",
     values: ['Memory card']
+}];
+
+lists.lvexposure = [{
+    name: "off",
+    values: ['0']
+}, {
+    name: "on",
+    values: ['1']
 }];
 
 lists.autofocus = [{
