@@ -771,12 +771,13 @@ if (VIEW_HARDWARE) {
         type: "function",
         fn: function(args, cb) {
             blockInputs = true;
-            var stats, ev;
+            var stats, ev, exiting = false;
 
             function captureButtonHandler(b) {
                 oled.activity();
                 power.activity();
                 if (b == 1 || b == 4) {
+                    exiting = true;
                     liveviewOn = false;
                     blockInputs = false;
                     core.lvOff();
@@ -835,6 +836,7 @@ if (VIEW_HARDWARE) {
                 console.log("(exposure) done getting settings, enabling knob handler");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
+                if(exiting) return;
                 inputs.on('D', captureDialHandler);
             });
         }
@@ -1299,12 +1301,13 @@ if (VIEW_HARDWARE) {
         },
         fn: function(args, cb) {
             blockInputs = true;
-            var stats, ev;
+            var stats, ev, exiting = false;
 
             function captureButtonHandler(b) {
                 oled.activity();
                 power.activity();
                 if (b == 1) {
+                    exiting = true;
                     oled.unblock();
                     liveviewOn = false;
                     core.lvOff();
@@ -1317,6 +1320,7 @@ if (VIEW_HARDWARE) {
                     liveviewOn = false;
                     core.capture(null, function(err) {
                         if(err) {
+                            exiting = true;
                             oled.unblock();
                             liveviewOn = false;
                             blockInputs = false;
@@ -1368,6 +1372,7 @@ if (VIEW_HARDWARE) {
                 console.log("(capture) done getting settings, enabling knob");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
+                if(exiting) return;
                 inputs.on('D', captureDialHandler);
             });
             core.preview();
