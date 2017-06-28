@@ -188,6 +188,16 @@ function parseData(data, client) {
 
 
 function runCommand(type, args, callback, client) {
+  var cameraCallback = function(err, res) {
+    if(!intervalometer.status.running && !camera.ptp.lvOn && camera.ptp.model && camera.ptp.model.match(/nikon/i)) {
+      console.log("exiting pc mode...");
+      camera.ptp.set("controlmode", 0, function(){
+        callback && callback(err, res);
+      });
+    } else {
+      callback && callback(err, res);
+    }
+  }
   switch(type) {
     /*case 'load':
       intervalometer.load(args, callback);
@@ -231,7 +241,7 @@ function runCommand(type, args, callback, client) {
       camera.ptp.connectSonyWifi(callback);
       break;
     case 'camera.ptp.lvOff':
-      camera.ptp.lvOff(callback);
+      camera.ptp.lvOff(cameraCallback);
       break;
     case 'camera.ptp.zoom':
       camera.ptp.zoom(args.x, args.y, callback);
@@ -240,15 +250,15 @@ function runCommand(type, args, callback, client) {
       camera.ptp.focus(args.step, args.repeat, callback);
       break;
     case 'camera.setEv':
-      camera.setEv(args.ev, args.options, callback);
+      camera.setEv(args.ev, args.options, cameraCallback);
       break;
     case 'camera.ptp.preview':
-      camera.ptp.preview(callback);
+      camera.ptp.preview(cameraCallback);
       break;
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
         sendEvent('camera.settings', camera.ptp.settings);
-        callback(err, camera.ptp.settings);
+        cameraCallback(err, camera.ptp.settings);
       });
       break;
     case 'camera.ptp.cameraList':
@@ -258,16 +268,16 @@ function runCommand(type, args, callback, client) {
       camera.ptp.switchPrimary(args.cameraObject, callback);
       break;
     case 'camera.ptp.capture':
-      camera.ptp.capture(args.options, callback);
+      camera.ptp.capture(args.options, cameraCallback);
       break;
     case 'camera.ptp.capture-test':
-      camera.ptp.capture({mode:'test'}, callback);
+      camera.ptp.capture({mode:'test'}, cameraCallback);
       break;
     case 'camera.ptp.runSupportTest':
       camera.ptp.runSupportTest(callback);
       break;
     case 'camera.ptp.set':
-      camera.ptp.set(args.key, args.val, callback);
+      camera.ptp.set(args.key, args.val, cameraCallback);
       break;
     case 'camera.ptp.mountSd':
       camera.ptp.mountSd(callback);

@@ -23,6 +23,7 @@ camera.ev = 0;
 camera.model = false;
 camera.photo = null;
 camera.settings = false;
+camera.lvOn = false;
 camera.supports = {};
 
 // multi-cam properties
@@ -607,6 +608,7 @@ camera.captureTethered = function(callback) {
     }
 }
 camera.preview = function(callback) {
+    camera.lvOn = true;
     var worker = getPrimaryWorker();
     if(!camera.supports.liveview) {
         return callback && callback("not supported");
@@ -627,6 +629,7 @@ camera.lvTimerReset = function(callback) {
 }
 camera.lvOff = function(callback) {
     var worker = getPrimaryWorker();
+    camera.lvOn = false;
     if (worker && camera.connected) worker.send({
         type: 'camera',
         id: getCallbackId(worker.port, 'lvOff', callback),
