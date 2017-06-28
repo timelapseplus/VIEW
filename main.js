@@ -780,6 +780,7 @@ if (VIEW_HARDWARE) {
                     liveviewOn = false;
                     blockInputs = false;
                     core.lvOff();
+                    console.log("(exposure) disabling handlers...");
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
@@ -828,10 +829,10 @@ if (VIEW_HARDWARE) {
 
             liveviewOn = true;
             core.preview();
-            console.log("started liveview, getting settings...");
+            console.log("(exposure) started liveview, getting settings...");
             inputs.on('B', captureButtonHandler);
             core.getSettings(function() {
-                console.log("done getting settings, enabling knob handler");
+                console.log("(exposure) done getting settings, enabling knob handler");
                 stats = lists.evStats(core.cameraSettings);
                 ev = stats.ev;
                 inputs.on('D', captureDialHandler);
@@ -1308,6 +1309,7 @@ if (VIEW_HARDWARE) {
                     liveviewOn = false;
                     core.lvOff();
                     blockInputs = false;
+                    console.log("(capture) disabling handlers...");
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
@@ -1318,6 +1320,7 @@ if (VIEW_HARDWARE) {
                             oled.unblock();
                             liveviewOn = false;
                             blockInputs = false;
+                            console.log("(capture) error, disabling handlers...");
                             inputs.removeListener('B', captureButtonHandler);
                             inputs.removeListener('D', captureDialHandler);
                             setTimeout(function(){
