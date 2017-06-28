@@ -679,24 +679,28 @@ function focusCanon(step, repeat, callback) {
 
     var doFocus = function() {
         camera.lvTimerReset();
-        worker.send({
-            type: 'camera',
-            setDirect: 'manualfocusdrive',
-            value: param,
-            id: getCallbackId(worker.port, 'focusCanon', function(err) {
-                if(err) {
-                    errCount++;
-                    if(errCount > errorLimit) return callback && callback(err);
-                } else {
-                    repeat--;
-                }
-                if (repeat > 0) {
-                    setTimeout(doFocus, 10);
-                } else {
-                    if (callback) callback();
-                }
-            })
-        });
+        if(worker.connected) {
+                worker.send({
+                type: 'camera',
+                setDirect: 'manualfocusdrive',
+                value: param,
+                id: getCallbackId(worker.port, 'focusCanon', function(err) {
+                    if(err) {
+                        errCount++;
+                        if(errCount > errorLimit) return callback && callback(err);
+                    } else {
+                        repeat--;
+                    }
+                    if (repeat > 0) {
+                        setTimeout(doFocus, 10);
+                    } else {
+                        if (callback) callback();
+                    }
+                })
+            });
+        } else {
+            if (callback) callback("not connected");
+        }
     }
     doFocus();
 }
@@ -722,25 +726,29 @@ function focusNikon(step, repeat, callback) {
     var errorLimit = 10;
 
     var doFocus = function() {
-        camera.lvTimerReset();
-        worker.send({
-            type: 'camera',
-            setDirect: 'manualfocusdrive',
-            value: param,
-            id: getCallbackId(worker.port, 'focusNikon', function(err) {
-                if(err) {
-                    errCount++;
-                    if(errCount > errorLimit) return callback && callback(err);
-                } else {
-                    repeat--;
-                }
-                if (repeat > 0) {
-                    setTimeout(doFocus, delay);
-                } else {
-                    if (callback) callback();
-                }
-            })
-        });
+        camera.lvTimerReset();        
+        if(worker.connected) {
+            worker.send({
+                type: 'camera',
+                setDirect: 'manualfocusdrive',
+                value: param,
+                id: getCallbackId(worker.port, 'focusNikon', function(err) {
+                    if(err) {
+                        errCount++;
+                        if(errCount > errorLimit) return callback && callback(err);
+                    } else {
+                        repeat--;
+                    }
+                    if (repeat > 0) {
+                        setTimeout(doFocus, delay);
+                    } else {
+                        if (callback) callback();
+                    }
+                })
+            });
+        } else {
+            if (callback) callback("not connected");
+        }
     }
     doFocus();
 }
