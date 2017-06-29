@@ -3374,10 +3374,10 @@ core.on('camera.connected', function() {
     }, 1000);
 });
 
-var s = "VIEW " + updates.getCurrentVersion();
-ui.defaultStatus(s);
-ui.status(s);
-console.log("Setting default status to '" + s + "'")
+var defaultStatus = "VIEW " + updates.getCurrentVersion();
+ui.defaultStatus(defaultStatus);
+ui.status(defaultStatus);
+console.log("Setting default status to '" + defaultStatus + "'")
 
 core.on('camera.exiting', function() {    
     if(btBlockedForSony) {
@@ -3388,9 +3388,8 @@ core.on('camera.exiting', function() {
         connected: false,
         model: ''
     });
-    if(btBlockedForSony)
     if (VIEW_HARDWARE) {
-        ui.defaultStatus("VIEW " + updates.version);
+        ui.defaultStatus(defaultStatus);
         ui.status("camera disconnected");
         ui.reload();
     }
@@ -3411,7 +3410,7 @@ core.on('camera.status', function(msg) {
         if (core.cameraConnected) {
             ui.defaultStatus(core.cameraModel);
         } else {
-            ui.defaultStatus("VIEW " + updates.version);
+            ui.defaultStatus(defaultStatus);
         }
     }
 });
