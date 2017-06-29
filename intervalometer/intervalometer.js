@@ -238,15 +238,11 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        if(camera.ptp.model.match(/nikon/i)) {
-                            checkDone();
-                        } else {
-                            setTimeout(function(){
-                                camera.ptp.lvOff(function(){
-                                    setTimeout(checkDone, 500);                                
-                                });
-                            }, 500);
-                        }
+                        setTimeout(function(){
+                            camera.ptp.lvOff(function(){
+                                setTimeout(checkDone, 500);                                
+                            });
+                        }, 500);
                     });
                 }, 1000);
             });
@@ -335,6 +331,7 @@ function runPhoto() {
     if(!status.running) return;
     busyPhoto = true;
     if (camera.ptp.connected) {
+        if(status.useLiveview) camera.ptp.preview();
         status.captureStartTime = new Date() / 1000;
         intervalometer.emit("status", status);
         var captureOptions = {
@@ -626,6 +623,7 @@ intervalometer.run = function(program) {
                 //}
 
                 function start() {
+                    status.useLiveview = false;
                     var focusPosTest = null;
                     var focusChange = false;
                     if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {
@@ -636,7 +634,7 @@ intervalometer.run = function(program) {
                             }
                             focusPosTest = intervalometer.currentProgram.keyframes[i].focus;
                         }
-                        if(focusChange) camera.ptp.preview();
+                        if(focusChange) status.useLiveview = true;
                     }
 
                     var cameras = 1, primary = 1;
