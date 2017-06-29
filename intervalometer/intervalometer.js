@@ -566,6 +566,10 @@ intervalometer.run = function(program) {
 
     if (camera.ptp.connected) {
         camera.ptp.getSettings(function(){
+            if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {
+                console.log("Intervalometer: disabling autofocus");
+                camera.ptp.set("autofocus", "off");
+            }
             var validationResults = intervalometer.validate(program);
             if (validationResults.errors.length == 0) {
                 var tlIndex = fs.readFileSync(TLROOT + '/index.txt');
