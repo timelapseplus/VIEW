@@ -54,7 +54,9 @@ function installLibGPhoto(callback) {
 	exports.updatingLibGphoto = true;
 	exec(installLibGPhoto2, function(err) {
 		exports.updatingLibGphoto = false;
-		callback(err);
+		checkLibGPhotoUpdate(function(err2, update) {
+			callback(err);
+		});
 	});
 }
 
