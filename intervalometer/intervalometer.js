@@ -238,11 +238,15 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        setTimeout(function(){
-                            camera.ptp.lvOff(function(){
-                                setTimeout(checkDone, 500);                                
-                            });
-                        }, 500);
+                        if(camera.ptp.model.match(/nikon/i)) {
+                            checkDone();
+                        } else {
+                            setTimeout(function(){
+                                camera.ptp.lvOff(function(){
+                                    setTimeout(checkDone, 500);                                
+                                });
+                            }, 500);
+                        }
                     });
                 }, 1000);
             });
@@ -603,25 +607,38 @@ intervalometer.run = function(program) {
                 intervalometer.emit("status", status);
                 console.log("program:", "starting", program);
 
+                //function start() {
+                //    if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {
+                //        console.log("Intervalometer: disabling autofocus");
+                //        camera.ptp.set("autofocus", "off", checkFocus2);
+                //    } else {
+                //        checkFocus2();
+                //    }
+                //}
+
+                //function checkFocus2() {
+                //    if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
+                //        console.log("Intervalometer: setting focus mode to manual");
+                //        camera.ptp.set("afmode", "manual", start2);
+                //    } else {
+                //        start2();
+                //    }
+                //}
+
                 function start() {
-                    if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {
-                        console.log("Intervalometer: disabling autofocus");
-                        camera.ptp.set("autofocus", "off", checkFocus2);
-                    } else {
-                        checkFocus2();
+                    var focusPosTest = null;
+                    var focusChange = false;
+                    if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {
+                        for(var i = 0; i < intervalometer.currentProgram.keyframes.length; i++) {
+                            if(focusPosTest != null && focusPosTest != intervalometer.currentProgram.keyframes[i].focus) {
+                                focusChange = true;
+                                break;
+                            }
+                            focusPosTest = intervalometer.currentProgram.keyframes[i].focus;
+                        }
+                        if(focusChange) camera.ptp.preview();
                     }
-                }
 
-                function checkFocus2() {
-                    if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
-                        console.log("Intervalometer: setting focus mode to manual");
-                        camera.ptp.set("d161", "4", start2);
-                    } else {
-                        start2();
-                    }
-                }
-
-                function start2() {
                     var cameras = 1, primary = 1;
                     if(camera.ptp.synchronized) {
                         cameras = camera.ptp.count;
