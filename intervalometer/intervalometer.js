@@ -615,7 +615,7 @@ intervalometer.run = function(program) {
                 function checkFocus2() {
                     if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
                         console.log("Intervalometer: setting focus mode to manual");
-                        camera.ptp.set("afmode", "manual", start2);
+                        camera.ptp.set("afmode", "4", start2);
                     } else {
                         start2();
                     }
