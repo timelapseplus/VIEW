@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo Y > /sys/module/usbcore/parameters/old_scheme_first
+echo -1 >/sys/module/usbcore/parameters/autosuspend
+
 ACTION=""
 MD51=`md5sum /root/startup.sh`
 MD52=`md5sum /root/sd_card_update.js`
