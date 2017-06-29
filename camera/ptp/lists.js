@@ -28,6 +28,12 @@ lists.paramMap = [{
         item: "d1a5"
     }]
 }, {
+    name: "afmode",
+    maps: [{
+        section: "other",
+        item: "d161"
+    }]
+}, {
     name: "focusdrive",
     type: "toggle",
     maps: [{
@@ -325,6 +331,20 @@ lists.lvexposure = [{
 }, {
     name: "on",
     values: ['1']
+}];
+
+lists.afmode = [{
+    name: "manual",
+    values: ['4']
+}, {
+    name: "af1",
+    values: ['1']
+}, {
+    name: "af2",
+    values: ['2']
+}, {
+    name: "af3",
+    values: ['3']
 }];
 
 lists.autofocus = [{
