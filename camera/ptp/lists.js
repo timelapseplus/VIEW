@@ -337,6 +337,9 @@ lists.afmode = [{
     name: "manual",
     values: ['4']
 }, {
+    name: "af0",
+    values: ['0']
+}, {
     name: "af1",
     values: ['1']
 }, {
