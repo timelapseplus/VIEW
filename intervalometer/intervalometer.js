@@ -438,9 +438,12 @@ function runPhoto() {
                     writeFile();
                     intervalometer.emit("status", status);
                     console.log("TL: program status:", status);
+                    if(status.frames == 1 && photoRes.ev > 2.5) {
+                        error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then restart it.");
+                    }
                 } else {
                     if(!err) err = "unknown";
-                    intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: " + err);
+                    error("An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: " + err);
                     console.log("TL: error:", err);
                 }
                 if ((intervalometer.currentProgram.intervalMode == "fixed" && status.framesRemaining < 1) || status.running == false || status.stopping == true) {

@@ -76,39 +76,27 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
     for(var i = 0; i < 256; i++) {
         lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
     }
-    console.log("LRT Lum:", lum);
-    //local.lumArray.push(lum);
-    //if(local.lumArray.length > 3) {
-    //    local.lumArray = local.lumArray.slice(local.lumArray.length - 3);
-    //}
 
-    //var averageLum = local.lumArray.reduce(function(sum, val){
-    //    return sum + val;
-    //}, 0) / local.lumArray.length;
+    lum -= (lum * getEvOffsetScale(ev)) / 2; // apply night compensation
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
         local.targetLum = lum; //averageLum;
-        //local.countSinceChange = 0;
         local.direction = 0;
     }
-    //local.countSinceChange++;
 
-    //var directionFactor = (local.direction >= 0 || local.countSinceChange > 120 ? 1 : 5 );
-    directionFactor = (local.direction >= 0) ? 1 : 4;
-    //if(averageLum >= local.targetLum + local.targetLum * 0.1 * directionFactor && local.countSinceChange >= local.lumArray.length) {
+    directionFactor = (local.direction >= 0) ? 1 : 5;
     if(lum > local.targetLum + local.targetLum * 0.1 * directionFactor) {
         exp.status.rampEv = currentEv + 1/3;
         local.direction = 1;
-        //local.countSinceChange = 0;
     }
-    directionFactor = (local.direction <= 0) ? 1 : 4;
-    //if(averageLum <= local.targetLum - local.targetLum * 0.1 * directionFactor && local.countSinceChange >= local.lumArray.length) {
+    directionFactor = (local.direction <= 0) ? 1 : 5;
     if(lum < local.targetLum - local.targetLum * 0.1 * directionFactor) {
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;
-        //local.countSinceChange = 0;
     }
+
+    console.log("LRT Lum:", lum, local.direction);
 
     return exp.status.rampEv;
 }
