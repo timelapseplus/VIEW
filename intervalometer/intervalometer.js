@@ -439,7 +439,7 @@ function runPhoto() {
                     intervalometer.emit("status", status);
                     console.log("TL: program status:", status);
                     if(status.frames == 1 && photoRes.ev > 2.5) {
-                        error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then restart it.");
+                        error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then start again.");
                     }
                 } else {
                     if(!err) err = "unknown";
