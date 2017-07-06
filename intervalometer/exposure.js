@@ -77,7 +77,7 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
     }
 
-    lum -= (lum * getEvOffsetScale(ev)) / 2; // apply night compensation
+    lum -= (lum * getEvOffsetScale(currentEv)) / 2; // apply night compensation
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
