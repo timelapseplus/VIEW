@@ -74,7 +74,7 @@ exp.calculate = function(algorithm, currentEv, lastPhotoLum, lastPhotoHistogram,
 exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     var lum = 0;
     for(var i = 0; i < 256; i++) {
-        lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
+        lum += Math.pow(i, i / 256) / (256 * lastPhotoHistogram[i]);
     }
     console.log("LRT Lum:", lum);
     //local.lumArray.push(lum);
