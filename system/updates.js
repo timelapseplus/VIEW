@@ -236,10 +236,14 @@ var versionParse = function(item) {
 			n3 = parseInt(bMatches[2]);
 			if(numbers[3]) {
 				bMatches = numbers[3].match(/(beta)?([0-9]+)/);
-				if(bMatches[1]) {
+				if(bMatches && bMatches[1]) {
 					if(bMatches[2]) {
 						n4 = parseInt(bMatches[2]);
+					} else {
+						n4 = 0;
 					}
+				} else {
+					n4 = 0;
 				}
 			} else {
 				n4 = 0;
