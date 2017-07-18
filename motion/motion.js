@@ -6,7 +6,7 @@ var GenieMini = require('drivers/genie_mini.js');
 var motion = new EventEmitter();
 
 motion.status = {
-	motors[],
+	motors: [],
 	available: false
 }
 
