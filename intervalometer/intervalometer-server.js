@@ -39,7 +39,6 @@ event                  payload
 require('rootpath')();
 var camera = require('camera/camera.js');
 var motion = require('motion/motion.js');
-var nmx = motion.nmx;
 var gm = motion.gm;
 var noble = require('noble');
 var intervalometer = require('intervalometer/intervalometer.js');
@@ -395,11 +394,11 @@ camera.ptp.on('connectionError', function(data) {
 camera.ptp.on('nmxSerial', function(status) {
     if (status == "connected") {
         console.log("NMX attached");
-        nmx.connect(camera.ptp.nmxDevice);
+        motion.nmx.connect(camera.ptp.nmxDevice);
     } else {
         console.log("NMX detached");
-        var status = nmx.getStatus();
-        if(status.connected && status.type == "serial") nmx.disconnect();
+        var status = motion.nmx.getStatus();
+        if(status.connected && status.type == "serial") motion.nmx.disconnect();
     }
 });
 
@@ -431,7 +430,7 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                noble.startScanning(nmx.btServiceIds.concat(gm.btServiceIds), false, function(err){
+                noble.startScanning(motion.nmx.btServiceIds.concat(motion.gm.btServiceIds), false, function(err){
                     console.log("BLE scan started: ", err);
                 });
             }
@@ -439,11 +438,11 @@ function startScan() {
         }, 8000);
     } else {
         btleScanStarting = false;
-        var status = nmx.getStatus();
+        var status = motion.nmx.getStatus();
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
-          nmx.disconnect();
-          //status = nmx.getStatus();
+          motion.nmx.disconnect();
+          //status = motion.nmx.getStatus();
           sendEvent('motion.status', motion.status);
         }
         //if(wifi.btEnabled) {
@@ -464,11 +463,11 @@ function btStateChange(state) {
             startScan()
         });
     } else if(state == "poweredOff") {
-        var status = nmx.getStatus();
+        var status = motion.nmx.getStatus();
         console.log("CORE: NMX status:", status);
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
-          nmx.disconnect();
+          motion.nmx.disconnect();
           sendEvent('motion.status', motion.status);
         }
     }
@@ -476,9 +475,9 @@ function btStateChange(state) {
 function btDiscover(peripheral) {
     //console.log('ble', peripheral);
     stopScan();
-    nmx.connect(peripheral, function(connected) {
+    motion.nmx.connect(peripheral, function(connected) {
       if(!connected) {
-        gm.connect(peripheral);
+        motion.gm.connect(peripheral);
       }
     });
 }
@@ -501,7 +500,7 @@ function setUpBt() {
 }
 setUpBt();
 
-nmx.connect();
+motion.nmx.connect();
 
 motion.on('status', function(status) {
     sendEvent('motion.status', status);
