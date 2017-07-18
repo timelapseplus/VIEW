@@ -46,9 +46,9 @@ function updateStatus() {
     motion.emit('status', motion.status);
 }
 
-nmx.on('status', function(status) {
+motion.nmx.on('status', function(status) {
     updateStatus()
 });
-gm.on('status', function(status) {
+motion.gm.on('status', function(status) {
 	updateStatus()
 });
