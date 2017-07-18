@@ -474,10 +474,16 @@ function btStateChange(state) {
 }
 function btDiscover(peripheral) {
     //console.log('ble', peripheral);
-    stopScan();
     motion.nmx.connect(peripheral, function(connected) {
-      if(!connected) {
-        motion.gm.connect(peripheral);
+      if(connected) {
+        stopScan();
+      } else {
+        console.log("trying to connect to GenieMini...");
+        motion.gm.connect(peripheral, function(connected) {
+          if(connected) {
+            stopScan();
+          }
+        });
       }
     });
 }
