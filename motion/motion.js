@@ -30,8 +30,8 @@ motion.zero = function(driver, motor, callback) {
 }
 
 function updateStatus() {
-	var nmxStatus = nmx.getStatus();
-	var gmStatus = gm.getStatus();
+	var nmxStatus = motion.nmx.getStatus();
+	var gmStatus = motion.gm.getStatus();
 
     var available = (nmxStatus.connected || gmStatus.connected) && (status.motor1 || status.motor2 || status.motor2 || gmStatus.motor1);
     var motors = [];
