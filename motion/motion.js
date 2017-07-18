@@ -1,7 +1,7 @@
 var EventEmitter = require("events").EventEmitter;
 require('rootpath')();
-var nmx = require('drivers/nmx.js');
-var GenieMini = require('drivers/genie_mini.js');
+var nmx = require('motion/drivers/nmx.js');
+var GenieMini = require('motion/drivers/genie_mini.js');
 
 var motion = new EventEmitter();
 
