@@ -38,7 +38,9 @@ event                  payload
 
 require('rootpath')();
 var camera = require('camera/camera.js');
-var nmx = require('drivers/nmx.js');
+var motion = require('motion/motion.js');
+var nmx = motion.nmx;
+var gm = motion.gm;
 var noble = require('noble');
 var intervalometer = require('intervalometer/intervalometer.js');
 var fs = require('fs');
@@ -66,8 +68,7 @@ var server = net.createServer(function(c) {
     if(camera.ptp.sdPresent) {
       sendEvent('media.present', camera.ptp.sdMounted);
     }
-    var status = nmx.getStatus();
-    sendEvent('nmx.status', status);
+    sendEvent('motion.status', motion.status);
     while(ev = eventQueue.shift()) c.write(ev);
   } catch (e) {
     console.log("error during event queue write:", e);
@@ -290,14 +291,14 @@ function runCommand(type, args, callback, client) {
       callback(null, intervalometer.db.currentTimelapseFrames(args.cameraIndex));
       break;
 
-    case 'nmx.move':
-      nmx.move(args.motor, args.steps, callback);
+    case 'motion.move':
+      motion.move(args.driver, args.motor, args.steps, callback);
       break;
-    case 'nmx.zero':
-      nmx.resetMotorPosition(args.motor, callback);
+    case 'motion.zero':
+      motion.resetMotorPosition(args.driver, args.motor, callback);
       break;
-    case 'nmx.joystick':
-      nmx.constantMove(args.motor, args.speed, callback);
+    case 'motion.joystick':
+      motion.constantMove(args.driver, args.motor, args.speed, callback);
       break;
 
     case 'watchdog.set':
@@ -430,7 +431,7 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                noble.startScanning(nmx.btServiceIds, false, function(err){
+                noble.startScanning(nmx.btServiceIds.concat(gm.btServiceIds), false, function(err){
                     console.log("BLE scan started: ", err);
                 });
             }
@@ -442,8 +443,8 @@ function startScan() {
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
-          status = nmx.getStatus();
-          sendEvent('nmx.status', status);
+          //status = nmx.getStatus();
+          sendEvent('motion.status', motion.status);
         }
         //if(wifi.btEnabled) {
         //    wifi.resetBt();
@@ -468,15 +469,18 @@ function btStateChange(state) {
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected NMX, bluetooth powered off");
           nmx.disconnect();
-          status = nmx.getStatus();
-          sendEvent('nmx.status', status);
+          sendEvent('motion.status', motion.status);
         }
     }
 }
 function btDiscover(peripheral) {
     //console.log('ble', peripheral);
     stopScan();
-    nmx.connect(peripheral);
+    nmx.connect(peripheral, function(connected) {
+      if(!connected) {
+        gm.connect(peripheral);
+      }
+    });
 }
 
 function cleanUpBt() {
@@ -499,8 +503,8 @@ setUpBt();
 
 nmx.connect();
 
-nmx.on('status', function(status) {
-    sendEvent('nmx.status', status);
+motion.on('status', function(status) {
+    sendEvent('motion.status', status);
     if (status.connected) {
         stopScan();
     } else {
@@ -509,6 +513,7 @@ nmx.on('status', function(status) {
         //});
     }
 });
+
 
 /**
  * Removes a module from the cache

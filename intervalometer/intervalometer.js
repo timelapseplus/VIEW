@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
-var nmx = require('drivers/nmx.js');
+var motion = require('motion/motion.js');
 var image = require('camera/image/image.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
@@ -258,16 +258,12 @@ function processKeyframes(setupFirst, callback) {
                 var driver = parts[0];
                 var motor = parts[1];
                 console.log("KF: Moving " + motorId + " by " + move + " steps");
-                if(driver == 'NMX') {
-                    if (nmx && nmx.getStatus().connected) {
-                        nmx.move(motor, 0 - move, function() {
-                            checkDone();
-                        });
-                    } else {
-                        console.log("KF: error moving -- nmx not connected");
+                if (motion.connected) {
+                    motion.move(driver, motor, 0 - move, function() {
                         checkDone();
-                    }
+                    });
                 } else {
+                    console.log("KF: error moving -- motion not connected");
                     checkDone();
                 }
             } else {

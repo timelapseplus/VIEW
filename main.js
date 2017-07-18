@@ -21,7 +21,6 @@ var lists = require('./camera/ptp/lists.js');
 var updates = require('./system/updates.js');
 var clips = require('./intervalometer/clips.js');
 var core = require('./intervalometer/intervalometer-client.js');
-//var nmx = require('./drivers/nmx.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
@@ -2739,7 +2738,6 @@ function closeSystem(callback) {
     systemClosed = true;
     console.log("Shutting down!");
     app.close();
-    //nmx.disconnect();
     if (VIEW_HARDWARE) {
         console.log("closing inputs...");
         inputs.stop();
@@ -2960,7 +2958,7 @@ app.on('message', function(msg) {
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, steps, reply) {
-                        if(driver == 'NMX') core.moveNMX(motor, steps, function(err, position) {
+                        core.moveMotion(driver, motor, steps, function(err, position) {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
@@ -2972,7 +2970,7 @@ app.on('message', function(msg) {
                 } else if (msg.key == "joystick" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, speed, reply) {
-                        if(driver == 'NMX') core.moveNMXjoystick(motor, speed, function(err, position) {
+                        core.moveMotionJoystick(driver, motor, speed, function(err, position) {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
@@ -2984,7 +2982,7 @@ app.on('message', function(msg) {
                 } else if (msg.key == "zero" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, reply) {
-                        if(driver == 'NMX') core.zeroNMX(motor, function(err) {
+                        core.zeroMotion(driver, motor, function(err) {
                             reply('move', {
                                 complete: true,
                                 motor: motor,
@@ -3477,26 +3475,8 @@ core.on('intervalometer.error', function(msg) {
     console.log("Intervalometer ERROR: ", msg);
 });
 
-var nmxStatus = {connected:false};
-function getMotionStatus(status) {
-    if(!status) {
-        status = core.nmxStatus || nmxStatus;
-    }
-    nmxStatus = status;
-    var available = status.connected && (status.motor1 || status.motor2 || status.motor2);
-    var motors = [];
-    motors.push({driver:'NMX', motor:1, connected:status.motor1, position:status.motor1pos});
-    motors.push({driver:'NMX', motor:2, connected:status.motor2, position:status.motor2pos});
-    motors.push({driver:'NMX', motor:3, connected:status.motor3, position:status.motor3pos});
-    return {
-        available: available,
-        motors: motors
-    };
-}
-
-core.on('nmx.status', function(status) {
-    var motion = getMotionStatus(status);
-    app.send('motion', motion);
+core.on('motion.status', function(status) {
+    app.send('motion', status);
     if (status.connected) {
         oled.setIcon('bt', true);
         //stopScan();

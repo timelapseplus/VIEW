@@ -100,8 +100,8 @@ function connect() {
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
                     core.cameraSupports = data.data.supports;
-                } else if(data.type == 'nmx.status') {
-                    core.nmxStatus = data.data;
+                } else if(data.type == 'motion.status') {
+                    core.motionStatus = data.data;
                 } else if(data.type == 'media.present') {
                     core.sdMounted = data.data;
                     core.sdPresent = true;
@@ -204,16 +204,16 @@ core.unmountSd = function(callback) {
     call('camera.ptp.unmountSd', {}, callback);
 };
 
-core.moveNMX = function(motor, steps, callback) {
-    call('nmx.move', {motor:motor, steps:steps}, callback);
+core.moveMotion = function(driver, motor, steps, callback) {
+    call('motion.move', {motor:motor, steps:steps}, callback);
 };
 
-core.zeroNMX = function(motor, callback) {
-    call('nmx.zero', {motor:motor}, callback);
+core.zeroMotion = function(driver, motor, callback) {
+    call('motion.zero', {motor:motor}, callback);
 };
 
-core.moveNMXjoystick = function(motor, speed, callback) {
-    call('nmx.joystick', {motor:motor, speed:speed}, callback);
+core.moveMotionJoystick = function(driver, motor, speed, callback) {
+    call('motion.joystick', {motor:motor, speed:speed}, callback);
 };
 
 core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
