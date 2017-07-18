@@ -52,3 +52,5 @@ motion.nmx.on('status', function(status) {
 motion.gm.on('status', function(status) {
 	updateStatus()
 });
+
+module.exports = motion;
