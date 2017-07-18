@@ -13,7 +13,7 @@ function GenieMini() {
     this._stepsPerDegree = 186.56716418;
 }
 
-util.inherits(SonyCamera, EventEmitter);
+util.inherits(GenieMini, EventEmitter);
 
 GenieMini.prototype._connectBt = function(btPeripheral, callback) {
     var self = this;
