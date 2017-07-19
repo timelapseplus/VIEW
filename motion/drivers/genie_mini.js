@@ -68,7 +68,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
             console.log("GenieMini: disconnected");
             self._dev = null;
             self.connected = false;
-            self.emit("status", getStatus());
+            self.emit("status", self.getStatus());
         });
 
     });
