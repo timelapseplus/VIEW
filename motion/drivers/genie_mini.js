@@ -193,6 +193,8 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
     } else {
         cmd = template;
     }
+
+    this._gmCh.write(cmd, callback);
 }
 
 GenieMini.prototype.constantMove = function(motor, speed, callback) {
