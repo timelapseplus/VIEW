@@ -3234,7 +3234,7 @@ app.on('message', function(msg) {
                         light: light.ev()
                     });
                 } else if (msg.key == "motion") {
-                    var motion = motion.status;
+                    var motion = core.motionStatus;
                     msg.reply('motion', motion);
                 } else if (msg.key == "program") {
                     if(!core.currentProgram.keyframes) {
