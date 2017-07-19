@@ -470,6 +470,13 @@ function btStateChange(state) {
           motion.nmx.disconnect();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.gm.getStatus();
+        console.log("CORE: GenieMini status:", status);
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected GenieMini, bluetooth powered off");
+          motion.gm.disconnect();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 function btDiscover(peripheral) {

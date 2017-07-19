@@ -3476,6 +3476,7 @@ core.on('intervalometer.error', function(msg) {
 });
 
 core.on('motion.status', function(status) {
+    console.log("motion.status", status)
     app.send('motion', status);
     if (status.connected) {
         oled.setIcon('bt', true);
