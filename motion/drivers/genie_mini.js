@@ -113,7 +113,9 @@ GenieMini.prototype.connect = function(device, callback) {
 }
 
 GenieMini.prototype.disconnect = function() {
+    console.log("GenieMini: disconnecting...");
     if (this._dev && this._dev.connected) {
+        this.connected = false;
         this._dev.connected = false;
         this._dev.disconnect();
     } else {
@@ -127,7 +129,7 @@ GenieMini.prototype.getStatus = function() {
     return {
         connected: this._dev && this._dev.connected,
         connectionType: type,
-        motor1: true,
+        motor1: this._dev && this._dev.connected,
         motor1pos: this._position / this._stepsPerDegree,
     }   
 }
