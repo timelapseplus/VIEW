@@ -79,12 +79,13 @@ GenieMini.prototype._init = function() {
 
 GenieMini.prototype._parseIncoming = function(data) {
     var id = data.readUInt16LE(1);
-    console.log("GenieMini: data", data, id);
-    if(id == 0x000B) { // current state
-        var state = data.readUInt8(5);
-        var angle = data.readInt16LE(12);
+    //console.log("GenieMini: data", data, id);
+    if(id == 0x0060) { // current state
+        var state = data.readUInt8(7);
+        var angle = data.readInt16LE(3);
         this._angle = angle;
         this._moving = (state == 0x01);
+        console.log("GenieMini: moving: ", this._moving, ", angle:", this._angle);
         if(this._currentMove != null && this._lastAngle != null) {
             if(Math.abs(angle - this._lastAngle) < 180) {
                 this._currentMove += angle - this._lastAngle;
