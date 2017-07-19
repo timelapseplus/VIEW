@@ -160,7 +160,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         if (!err) {
             var check = function() {
                 setTimeout(function() {
-                    if(self._moving === undefined) return;
+                    if(self._moving === undefined) return check();;
                     if(self._moving) {
                         check(); // keep checking until stop
                     } else {
@@ -193,7 +193,9 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
 
     console.log("GenieMini: sending data", cmd);
 
-    this._gmCh.write(cmd, callback);
+    this._gmCh.write(cmd);
+
+    callback && callback();
 }
 
 GenieMini.prototype.constantMove = function(motor, speed, callback) {
