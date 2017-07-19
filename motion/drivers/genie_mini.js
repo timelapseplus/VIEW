@@ -58,14 +58,15 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                     }
                 });
             } else {
+                btPeripheral.disconnect();
                 if (callback) callback(false);
             }
 
         });
 
-        btPeripheral.on('disconnect', function() {
+        btPeripheral.once('disconnect', function() {
             console.log("GenieMini: disconnected");
-            _dev = null;
+            self._dev = null;
             self.connected = false;
             self.emit("status", getStatus());
         });
@@ -102,8 +103,10 @@ GenieMini.prototype._parseIncoming = function(data) {
 
 GenieMini.prototype.connect = function(device, callback) {
     if (device && device.connect) {
+        console.log("GenieMini: connecting...");
         this._connectBt(device, callback);
     } else {
+        console.log("GenieMini: invalid device, cannot connect");
         if (callback) callback("invalid device");
     }
 }

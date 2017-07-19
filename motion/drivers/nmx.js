@@ -645,12 +645,13 @@ function _connectBt(btPeripheral, callback) {
                     }
                 });
             } else {
+                btPeripheral.disconnect();
                 if (callback) callback(false);
             }
 
         });
 
-        btPeripheral.on('disconnect', function() {
+        btPeripheral.once('disconnect', function() {
             console.log("NMX: disconnected");
             _dev = null;
             nmx.emit("status", getStatus());
