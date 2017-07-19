@@ -77,7 +77,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
 }
 
 GenieMini.prototype._init = function() {
-
+    self.emit("status", self.getStatus());
 }
 
 GenieMini.prototype._parseIncoming = function(data) {
