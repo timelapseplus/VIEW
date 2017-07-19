@@ -43,7 +43,6 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                             self._dev.connected = true;
                             self.connected = true;
                             self._dev.type = "bt";
-                            self._gmCh.subscribe();
                             self._gmCh.on('data', function(data, isNotification) {
                                 self._parseIncoming(data);
                             });
