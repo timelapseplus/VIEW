@@ -181,11 +181,11 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
 }
 
 GenieMini.prototype._write = function(command, dataBuf, callback) {
-    var template = new Buffer("000000", 'hex');
+    var template = new Buffer("010000", 'hex');
     var len = dataBuf ? dataBuf.length : 0;
     var COMMAND = 0;
 
-    template.writeUInt16LE(parseInt(command), 0);
+    template.writeUInt16LE(parseInt(command), 1);
 
     var cmd;
     if (dataBuf) {
@@ -193,6 +193,8 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
     } else {
         cmd = template;
     }
+
+    console.log("GenieMini: sending data", cmd);
 
     this._gmCh.write(cmd, callback);
 }
