@@ -205,15 +205,15 @@ core.unmountSd = function(callback) {
 };
 
 core.moveMotion = function(driver, motor, steps, callback) {
-    call('motion.move', {motor:motor, steps:steps}, callback);
+    call('motion.move', {driver:driver, motor:motor, steps:steps}, callback);
 };
 
 core.zeroMotion = function(driver, motor, callback) {
-    call('motion.zero', {motor:motor}, callback);
+    call('motion.zero', {driver:driver, motor:motor}, callback);
 };
 
 core.moveMotionJoystick = function(driver, motor, speed, callback) {
-    call('motion.joystick', {motor:motor, speed:speed}, callback);
+    call('motion.joystick', {driver:driver, motor:motor, speed:speed}, callback);
 };
 
 core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
