@@ -82,7 +82,7 @@ GenieMini.prototype._init = function() {
 
 GenieMini.prototype._parseIncoming = function(data) {
     var id = data.readUInt16LE(1);
-    connected.log("GenieMini: data", data, id);
+    console.log("GenieMini: data", data, id);
     if(id == 0x000B) { // current state
         var state = data.readUInt8(5);
         var angle = data.readInt16LE(12);
