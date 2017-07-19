@@ -157,7 +157,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         dataBuf[4] = 1;
         steps = 0 - steps;
     }
-    dataBuf.writeUInt32BE(steps, 0, 4);
+    dataBuf.writeUInt32BE(parseInt(steps), 0);
     this._moving = true;
 
     var self = this;
@@ -187,7 +187,7 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
     var len = dataBuf ? dataBuf.length : 0;
     var COMMAND = 0;
 
-    template.writeUInt16LE(parseInt(command));
+    template.writeUInt16LE(parseInt(command), 0);
 
     var cmd;
     if (dataBuf) {
@@ -204,8 +204,8 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
 
     var dataBuf = new Buffer(3);
     dataBuf.fill(0);
-    dataBuf.writeInt8(speed, 0, 1);
-    dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 2, 2);
+    dataBuf.writeInt8(speed, 0);
+    dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 2);
     this._moving = true;
 
     var self = this;
