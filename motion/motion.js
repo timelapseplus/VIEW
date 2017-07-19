@@ -42,12 +42,12 @@ function updateStatus() {
 	var nmxStatus = motion.nmx.getStatus();
 	var gmStatus = motion.gm.getStatus();
 
-    var available = (nmxStatus.connected || gmStatus.connected) && (status.motor1 || status.motor2 || status.motor2 || gmStatus.motor1);
+    var available = (nmxStatus.connected || gmStatus.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gmStatus.motor1);
     var motors = [];
-    motors.push({driver:'NMX', motor:1, connected:status.motor1, position:status.motor1pos, unit: 'steps'});
-    motors.push({driver:'NMX', motor:2, connected:status.motor2, position:status.motor2pos, unit: 'steps'});
-    motors.push({driver:'NMX', motor:3, connected:status.motor3, position:status.motor3pos, unit: 'steps'});
-    motors.push({driver:'GM', motor:1, connected:status.motor1, position:status.motor1pos, unit: '°'});
+    motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1, position:nmxStatus.motor1pos, unit: 'steps'});
+    motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2, position:nmxStatus.motor2pos, unit: 'steps'});
+    motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3, position:nmxStatus.motor3pos, unit: 'steps'});
+    motors.push({driver:'GM', motor:1, connected:gmStatus.motor1, position:gmStatus.motor1pos, unit: '°'});
     motion.status = {
         available: available,
         motors: motors
