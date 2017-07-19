@@ -9,6 +9,7 @@ motion.status = {
 	motors: [],
 	available: false
 }
+var lastStatus = motion.status;
 
 motion.nmx = nmx;
 motion.gm = new GenieMini();
@@ -43,7 +44,10 @@ function updateStatus() {
         available: available,
         motors: motors
     };
-    motion.emit('status', motion.status);
+    if(available || lastStatus.available) {
+	    motion.emit('status', motion.status);
+    }
+    lastStatus = motion.status;
 }
 
 motion.nmx.on('status', function(status) {
