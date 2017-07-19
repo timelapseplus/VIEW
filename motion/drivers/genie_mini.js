@@ -151,7 +151,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
 
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    dataBuf.writeInt32BE(parseInt(steps), 0);
+    dataBuf.writeInt32LE(parseInt(steps), 0);
     this._moving = true;
 
     var self = this;
