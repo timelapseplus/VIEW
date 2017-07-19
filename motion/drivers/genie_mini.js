@@ -31,6 +31,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                     self._dev = null;
                     for (var i = 0; i < characteristics.length; i++) {
                         ch = characteristics[i];
+                        console.log("ch.uuid", ch.uuid);
                         if (ch.uuid == "0000000200001000800000805f9b34fb") {
                             self._gmCh = ch;
                         }
