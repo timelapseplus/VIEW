@@ -42,7 +42,7 @@ function updateStatus() {
 	var nmxStatus = motion.nmx.getStatus();
 	var gmStatus = motion.gm.getStatus();
 
-	connected.log("motion.status: NMX: ", nmxStatus.connected, ", GM:", gmStatus.connected);
+	console.log("motion.status: NMX: ", nmxStatus.connected, ", GM:", gmStatus.connected);
 
     var available = (nmxStatus.connected || gmStatus.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gmStatus.motor1);
     var motors = [];
