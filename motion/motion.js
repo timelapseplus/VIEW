@@ -16,25 +16,25 @@ motion.gm = new GenieMini();
 
 motion.move = function(driver, motorId, steps, callback) {
 	if(driver == "NMX") {
-		nmx.move(motorId, steps, callback);
+		motion.nmx.move(motorId, steps, callback);
 	} else if(driver == "GM") {
-		gm.move(motorId, steps, callback);
+		motion.gm.move(motorId, steps, callback);
 	}
 }
 
 motion.joystick = function(driver, motorId, speed, callback) {
 	if(driver == "NMX") {
-		nmx.constantMove(motorId, steps, callback);
+		motion.nmx.constantMove(motorId, steps, callback);
 	} else if(driver == "GM") {
-		gm.constantMove(motorId, steps, callback);
+		motion.gm.constantMove(motorId, steps, callback);
 	}
 }
 
 motion.zero = function(driver, motor, callback) {
 	if(driver == "NMX") {
-		nmx.resetMotorPosition(motorId, callback);
+		motion.nmx.resetMotorPosition(motorId, callback);
 	} else if(driver == "GM") {
-		gm.resetMotorPosition(motorId, callback);
+		motion.gm.resetMotorPosition(motorId, callback);
 	}
 }
 
