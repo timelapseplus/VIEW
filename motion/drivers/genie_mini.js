@@ -149,13 +149,9 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
     console.log("GenieMini: moving motor", steps, "steps");
     if(!this._enabled) this.enable();
 
-    var dataBuf = new Buffer(5);
+    var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    if (steps < 0) {
-        dataBuf[4] = 1;
-        steps = 0 - steps;
-    }
-    dataBuf.writeUInt32BE(parseInt(steps), 0);
+    dataBuf.writeInt32BE(parseInt(steps), 0);
     this._moving = true;
 
     var self = this;
@@ -179,7 +175,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         }
     });
 }
-
+//<Buffer 01 5e 00 00 00 03 a4 00>
 GenieMini.prototype._write = function(command, dataBuf, callback) {
     var template = new Buffer("010000", 'hex');
     var len = dataBuf ? dataBuf.length : 0;
