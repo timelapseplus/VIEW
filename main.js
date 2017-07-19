@@ -3485,9 +3485,12 @@ core.on('motion.status', function(status) {
     } else {
         oled.setIcon('bt', false);
         ui.reload();
-        wifi.resetBt(function(){
-            //startScan();
-        });
+        if(status.reload) {
+            connected.log("motion disconnected, reloading BT")
+            wifi.resetBt(function(){
+                //startScan();
+            });
+        }
     }
 });
 

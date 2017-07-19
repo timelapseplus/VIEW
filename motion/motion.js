@@ -42,15 +42,17 @@ function updateStatus() {
 	var nmxStatus = motion.nmx.getStatus();
 	var gmStatus = motion.gm.getStatus();
 
-	console.log("motion.status: NMX: ", nmxStatus.connected, ", GM:", gmStatus.connected);
-
     var available = (nmxStatus.connected || gmStatus.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gmStatus.motor1);
     var motors = [];
+
+	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM:", gmStatus.connected);
+
     motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1, position:nmxStatus.motor1pos, unit: 'steps'});
     motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2, position:nmxStatus.motor2pos, unit: 'steps'});
     motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3, position:nmxStatus.motor3pos, unit: 'steps'});
     motors.push({driver:'GM', motor:1, connected:gmStatus.motor1, position:gmStatus.motor1pos, unit: '°'});
     motion.status = {
+    	reload: lastStatus.bluetooth,
         available: available,
         motors: motors
     };
@@ -58,6 +60,7 @@ function updateStatus() {
 	    motion.emit('status', motion.status);
     }
     lastStatus = motion.status;
+    lastStatus.bluetooth = nmxStatus.connectionType == 'bt' || gmStatus.connectionType == 'bt';
 }
 
 motion.nmx.on('status', function(status) {
