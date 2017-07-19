@@ -14,12 +14,20 @@ var lastStatus = motion.status;
 motion.nmx = nmx;
 motion.gm = new GenieMini();
 
-motion.move = function() {
-
+motion.move = function(driver, motorId, steps, callback) {
+	if(driver == "NMX") {
+		nmx.move(motorId, steps, callback);
+	} else if(driver == "GM") {
+		gm.move(motorId, steps, callback);
+	}
 }
 
-motion.joystick = function() {
-
+motion.joystick = function(driver, motorId, speed, callback) {
+	if(driver == "NMX") {
+		nmx.constantMove(motorId, steps, callback);
+	} else if(driver == "GM") {
+		gm.constantMove(motorId, steps, callback);
+	}
 }
 
 motion.zero = function(driver, motor, callback) {
