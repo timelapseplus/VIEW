@@ -1392,6 +1392,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 var id = $scope.axis[i].id;
                 if(!keyframe.motor[id]) keyframe.motor[id] = 0;
                 var diff = keyframe.motor[id] - $scope.axis[i].pos;
+                console.log("moving to keyframe", keyframe.motor[id], ", from", $scope.axis[i].pos);
                 $scope.move(id, 0 - diff, true);
             }
         }
