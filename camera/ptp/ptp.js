@@ -687,13 +687,17 @@ function focusCanon(step, repeat, callback) {
                 id: getCallbackId(worker.port, 'focusCanon', function(err) {
                     if(err) {
                         errCount++;
-                        if(errCount > errorLimit) return callback && callback(err);
+                        if(errCount > errorLimit) {
+                            console.log("focus move error", err);
+                            return callback && callback(err);
+                        }
                     } else {
                         errCount = 0;
                         repeat--;
                     }
                     if (repeat > 0) {
                         var pause = repeat % 5 == 0 ? 500 : 15;
+                        console.log(pause);
                         setTimeout(doFocus, pause);
                     } else {
                         if (callback) callback();
