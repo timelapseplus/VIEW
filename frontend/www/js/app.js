@@ -1122,7 +1122,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.axis[index].moving = true;
             $scope.motionMoving = true;
             //if($scope.currentKf || $scope.axis[index].pos != 0) 
-            $scope.axis[index].pos -= steps; // will be overwritten by motor driver response
+            $scope.axis[index].pos += steps; // will be overwritten by motor driver response
             sendMessage('motion', {
                 key: 'move',
                 val: steps,
@@ -1392,8 +1392,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 var id = $scope.axis[i].id;
                 if(!keyframe.motor[id]) keyframe.motor[id] = 0;
                 var diff = keyframe.motor[id] - $scope.axis[i].pos;
-                console.log("moving to keyframe", keyframe.motor[id], ", from", $scope.axis[i].pos);
-                $scope.move(id, 0 - diff, true);
+                console.log("moving to keyframe", keyframe.motor[id], ", from", $scope.axis[i].pos, ", move:", diff);
+                $scope.move(id, diff, true);
             }
         }
     }
