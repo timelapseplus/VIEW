@@ -1146,11 +1146,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.zeroAxis = function(axisId) {
-        console.log("zeroing ", axisId);
         var index = $scope.getAxisIndex(axisId);
         if(index === null) return false;
         var parts = axisId.split('-');
-        if (parts.length == 2) {
+        if (parts.length == 2 && $scope.axis[index].connected) {
+            console.log("zeroing ", axisId);
             var driver = parts[0];
             var motor = parts[1];
             $scope.axis[index].pos = 0; // will be overwritten by motor driver response

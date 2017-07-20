@@ -310,6 +310,7 @@ function firmwareVersion(callback) {
 }
 
 function resetMotorPosition(motorId, callback) {
+    if(!_dev || !_dev.connected) callback && callback("not connected");
     var cmd = {
         motor: motorId,
         command: CMD_MOTOR_RESET,
@@ -552,7 +553,7 @@ function _connectSerial(path, callback) {
 
         _nmxCommandCh = {
             write: function(dataBuf, notused, cb) {
-                if(!_dev.port) return cb("not connected");
+                if(!_dev || !_dev.port) return cb("not connected");
                 _dev.port.write(dataBuf, function(err) {
                     _dev.port.drain(function() {
                         //console.log("    NMX sent: ", dataBuf);
@@ -713,7 +714,9 @@ function _runQueue(queueItem, rec) {
         _queueRunning = false;
         _nmxQueue = [];
         console.log("NMX: error not connected");
-        if (nextItem && nextItem.callback) nextItem.callback("not connected");
+        if (nextItem && nextItem.callback) {
+            return nextItem.callback("not connected");
+        }
     }
 
 
