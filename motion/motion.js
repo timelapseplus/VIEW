@@ -30,7 +30,7 @@ motion.joystick = function(driver, motorId, speed, callback) {
 	}
 }
 
-motion.zero = function(driver, motor, callback) {
+motion.zero = function(driver, motorId, callback) {
 	if(driver == "NMX") {
 		motion.nmx.resetMotorPosition(motorId, callback);
 	} else if(driver == "GM") {
