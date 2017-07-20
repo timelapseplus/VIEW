@@ -258,7 +258,7 @@ function processKeyframes(setupFirst, callback) {
                 var driver = parts[0];
                 var motor = parts[1];
                 console.log("KF: Moving " + motorId + " by " + move + " steps");
-                if (motion.connected) {
+                if (motion.available) {
                     motion.move(driver, motor, 0 - move, function() {
                         checkDone();
                     });
