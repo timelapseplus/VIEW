@@ -294,10 +294,10 @@ function runCommand(type, args, callback, client) {
       motion.move(args.driver, args.motor, args.steps, callback);
       break;
     case 'motion.zero':
-      motion.resetMotorPosition(args.driver, args.motor, callback);
+      motion.zero(args.driver, args.motor, callback);
       break;
     case 'motion.joystick':
-      motion.constantMove(args.driver, args.motor, args.speed, callback);
+      motion.joystick(args.driver, args.motor, args.speed, callback);
       break;
 
     case 'watchdog.set':
