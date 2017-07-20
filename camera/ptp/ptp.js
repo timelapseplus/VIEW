@@ -693,7 +693,8 @@ function focusCanon(step, repeat, callback) {
                         repeat--;
                     }
                     if (repeat > 0) {
-                        setTimeout(doFocus, 20);
+                        var pause = repeat % 5 == 0 ? 500 : 10;
+                        setTimeout(doFocus, 10);
                     } else {
                         if (callback) callback();
                     }
