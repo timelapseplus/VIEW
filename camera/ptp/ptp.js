@@ -689,10 +689,11 @@ function focusCanon(step, repeat, callback) {
                         errCount++;
                         if(errCount > errorLimit) return callback && callback(err);
                     } else {
+                        errCount = 0;
                         repeat--;
                     }
                     if (repeat > 0) {
-                        setTimeout(doFocus, 10);
+                        setTimeout(doFocus, 20);
                     } else {
                         if (callback) callback();
                     }
@@ -737,6 +738,7 @@ function focusNikon(step, repeat, callback) {
                         errCount++;
                         if(errCount > errorLimit) return callback && callback(err);
                     } else {
+                        errCount = 0;
                         repeat--;
                     }
                     if (repeat > 0) {
