@@ -262,8 +262,8 @@ function processKeyframes(setupFirst, callback) {
                 if (motion.status.available) {
                     var connected = false;
                     for(var index = 0; index < motion.status.motors.length; index++) {
-                        var motor = motion.status.motors[index];
-                        if(motor.driver == driver && motor.motor == motor) {
+                        var m = motion.status.motors[index];
+                        if(m.driver == driver && m.motor == motor) {
                             connected = motor.connected;
                             break;
                         }
