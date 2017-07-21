@@ -139,8 +139,9 @@ function move(motorId, steps, callback) {
     });
     var m = new Buffer(5);
     m.fill(0);
+    m[0] = 1;
     if (steps < 0) {
-        m[0] = 1;
+        m[0] = 0;
         steps = 0 - steps;
     }
     m.writeUInt32BE(steps, 1, 4);
