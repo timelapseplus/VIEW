@@ -268,7 +268,7 @@ function processKeyframes(setupFirst, callback) {
                             break;
                         }
                     }
-                    if(motor.connected) {
+                    if(connected) {
                         motion.move(driver, motor, move, function() {
                             checkDone();
                         });
