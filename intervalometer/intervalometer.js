@@ -257,14 +257,14 @@ function processKeyframes(setupFirst, callback) {
             var parts = motorId.split('-');
             if (move && parts.length == 2) {
                 var driver = parts[0];
-                var motor = parts[1];
+                var motor = parseInt(parts[1]);
                 console.log("KF: Moving " + motorId + " by " + move + " steps");
                 if (motion.status.available) {
                     var connected = false;
                     for(var index = 0; index < motion.status.motors.length; index++) {
                         var m = motion.status.motors[index];
                         if(m.driver == driver && m.motor == motor) {
-                            connected = motor.connected;
+                            connected = m.connected;
                             break;
                         }
                     }
