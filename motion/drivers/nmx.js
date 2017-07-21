@@ -137,6 +137,10 @@ function move(motorId, steps, callback) {
     if(inJoystickMode) return joystickMode(false, function() {
         move(motorId, steps, callback);
     });
+    steps = Math.round(steps);
+    if(steps == 0) { // a move of zero steps triggers a bug in the NMX causing it to move extreme distances
+        return callback && callback(null, motorPos[motorId]);
+    }
     var m = new Buffer(5);
     m.fill(0);
     m[0] = 1;
