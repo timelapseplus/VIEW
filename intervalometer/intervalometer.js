@@ -260,11 +260,24 @@ function processKeyframes(setupFirst, callback) {
                 var motor = parts[1];
                 console.log("KF: Moving " + motorId + " by " + move + " steps");
                 if (motion.status.available) {
-                    motion.move(driver, motor, move, function() {
+                    var connected = false;
+                    for(var index = 0; index < motion.status.motors.length; index++) {
+                        var motor = motion.status.motors[index];
+                        if(motor.driver == driver && motor.motor == motor) {
+                            connected = motor.connected;
+                            break;
+                        }
+                    }
+                    if(motor.connected) {
+                        motion.move(driver, motor, move, function() {
+                            checkDone();
+                        });
+                    } else {
+                        console.log("KF: error moving", motorId, "-- motor not connected");
                         checkDone();
-                    });
+                    }
                 } else {
-                    console.log("KF: error moving -- motion not connected");
+                    console.log("KF: error moving -- no motion system connected");
                     checkDone();
                 }
             } else {
