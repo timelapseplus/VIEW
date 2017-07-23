@@ -85,12 +85,12 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         local.direction = 0;
     }
     var directionFactor;
-    directionFactor = (local.direction >= 0) ? 1 : 5;
+    directionFactor = (local.direction >= 0) ? 1 : 8;
     if(lum > local.targetLum * (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv + 1/3;
         local.direction = 1;
     }
-    directionFactor = (local.direction <= 0) ? 1 : 5;
+    directionFactor = (local.direction <= 0) ? 1 : 8;
     if(lum < local.targetLum / (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;
