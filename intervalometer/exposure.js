@@ -214,7 +214,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evMean = filteredMean(local.lumArray, trim);
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
-    return lastPhotoLum - exp.status.offsetEv - getEvOffsetScale(currentEv, lastPhotoLum;
+    return lastPhotoLum - exp.status.offsetEv - getEvOffsetScale(currentEv, lastPhotoLum);
 }
 
 
