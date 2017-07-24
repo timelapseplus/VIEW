@@ -682,6 +682,11 @@ if (VIEW_HARDWARE) {
         type: "options",
         items: [{
             name: "Night Exposure Compensation",
+            value: "Automatic",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'nightCompensation', 'auto')
+        }, {
+            name: "Night Exposure Compensation",
             value: "0 stops",
             help: help.rampingNightCompensation,
             action: ui.set(core.currentProgram, 'nightCompensation', 0)

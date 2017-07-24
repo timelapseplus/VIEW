@@ -8,9 +8,11 @@ exp.config = {};
 
 
 exp.init = function(minEv, maxEv, nightCompensation) {
-    if (nightCompensation === null) nightCompensation = -1;
+    if (nightCompensation === null) nightCompensation = 'auto';
 
-    nightCompensation = parseFloat(nightCompensation);
+    if(nightCompensation != 'auto') {
+        nightCompensation = parseFloat(nightCompensation);
+    }
 
     local = {
         lumArray: [],
@@ -48,13 +50,9 @@ exp.init = function(minEv, maxEv, nightCompensation) {
         minEv: minEv,
         maxRate: 30,
         hysteresis: 0.4,
-        evScale: [{
-            ev: -2,
-            offset: nightCompensation
-        }, {
-            ev: 10,
-            offset: 0
-        }]
+        nightCompensationDayEv: 10,
+        nightCompensationNightEv: -2,
+        nightCompensation: nightCompensation
     };
 
     return exp.config;
@@ -77,7 +75,7 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
     }
 
-    lum -= (lum * getEvOffsetScale(currentEv)) / 2; // apply night compensation
+    lum -= (lum * getEvOffsetScale(currentEv, lastPhotoLum)) / 2; // apply night compensation
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
@@ -201,7 +199,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     });
 
     if (local.first) {
-        exp.status.offsetEv = lastPhotoLum - getEvOffsetScale(currentEv);
+        exp.status.offsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
         local.first = false;
     }
 
@@ -216,12 +214,31 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evMean = filteredMean(local.lumArray, trim);
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
-    return lastPhotoLum - exp.status.offsetEv - getEvOffsetScale(currentEv);
+    return lastPhotoLum - exp.status.offsetEv - getEvOffsetScale(currentEv, lastPhotoLum;
 }
 
 
-function getEvOffsetScale(ev) {
-    var values = exp.config.evScale.map(function(item) {
+function getEvOffsetScale(ev, lastPhotoLum) {
+    var evScale
+    if(exp.config.nightCompensation == 'auto') {
+        evScale = [{
+            ev: exp.config.nightCompensationNightEv,
+            offset: -(lastPhotoLum - -1.3)
+        }, {
+            ev: exp.config.nightCompensationDayEv,
+            offset: -(lastPhotoLum - 0.0)
+        }]
+    } else {
+        evScale = [{
+            ev: exp.config.nightCompensationNightEv,
+            offset: nightCompensation
+        }, {
+            ev: exp.config.nightCompensationDayEv,
+            offset: 0
+        }]
+    }
+
+    var values = evScale.map(function(item) {
         return {
             x: item.ev,
             y: item.offset
