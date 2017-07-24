@@ -169,7 +169,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
                     if(self._moving) {
                         check(); // keep checking until stop
                     } else {
-                        self._position += steps;
+                        self._position -= steps;
                         if (callback) callback(null, self._position / self._stepsPerDegree);
                     }
                 }, 200);
