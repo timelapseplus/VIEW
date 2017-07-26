@@ -143,3 +143,6 @@ exports.rampingAlgorithmLuminance = "This the default auto-ramping method, devel
 exports.rampingAlgorithmGps = "This an experimental auto ramping algorithm based strictly on the sun position as calculated by GPS data and not on luminance or histogram"
 
 exports.rampingAlgorithm = "Determines the method used for auto ramping"
+
+exports.trackingOptions = "With an NMX connected, this can be set to follow the sun or the moon relative to the starting position";
+

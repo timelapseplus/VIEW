@@ -151,13 +151,13 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         if (callback) callback("GenieMini: motor already running");
         return console.log("GenieMini: motor already running");
     }
-    var steps = degrees * this._stepsPerDegree;
+    var steps = Math.round(degrees * this._stepsPerDegree);
     console.log("GenieMini: moving motor", steps, "steps");
     if(!this._enabled) this.enable();
 
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    dataBuf.writeInt32LE(parseInt(steps), 0);
+    dataBuf.writeInt32LE(steps, 0);
     this._moving = true;
 
     var self = this;
@@ -169,7 +169,8 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
                     if(self._moving) {
                         check(); // keep checking until stop
                     } else {
-                        self._position -= steps;
+                        self._position += steps;
+                        console.log("GenieMini: position:", self._position);
                         if (callback) callback(null, self._position / self._stepsPerDegree);
                     }
                 }, 200);

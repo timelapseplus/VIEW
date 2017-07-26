@@ -356,6 +356,27 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var trackingOptions = {
+        name: "Tracking",
+        type: "options",
+        items: [{
+            name: "Motion Tracking",
+            value: "disabled",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'none')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Sun",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'sun')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Moon",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'moon')
+        }]
+    }
+
     var destinationOptions = {
         name: "destination",
         type: "options",
@@ -1029,6 +1050,13 @@ if (VIEW_HARDWARE) {
             help: help.framesOptions,
             condition: function() {
                 return core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed';
+            }
+        }, {
+            name: valueDisplay("Tracking", core.currentProgram, 'tracking'),
+            action: trackingOptions,
+            help: help.trackingOptions,
+            condition: function() {
+                return core.motionStatus.available;
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),

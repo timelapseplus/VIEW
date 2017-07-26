@@ -208,10 +208,50 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
     }
 }
 
+function calculateCelestialDistance(startPos, currentPos) {
+    var panDiff = (currentPos.azimuth - startPos.azimuth) * 180 / Math.PI;
+    var tiltDiff = (currentPos.altitude - startPos.altitude) * 180 / Math.PI;
+    return {
+        pan: panDiff,
+        tilt: tiltDiff
+    }
+}
+
 function processKeyframes(setupFirst, callback) {
 
     var numAxes = 2;
     var axesDone = 0;
+
+    if(intervalometer.currentProgram.keyframes == null && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
+        var trackingTarget = null;
+        if(intervalometer.currentProgram.tracking == 'sun') {
+            var sunPos = suncalc.getPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+            trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
+        } else if(intervalometer.currentProgram.tracking == 'moon') {
+            var moonPos = suncalc.getMoonPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+            trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
+        }
+        if(trackingTarget) {
+            var panDegrees = trackingTarget.pan - status.trackingPan;
+            if(panDegrees > 0) {
+                numAxes++;
+                var steps = Math.round(panDegrees * 560);
+                motion.move('NMX', 2, steps, function() {
+                    status.trackingPan += steps / 560;
+                    checkDone();
+                });
+            }
+            var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
+            if(tiltDegrees > 0) {
+                numAxes++;
+                var steps = Math.round(tiltDegrees * 560);
+                motion.move('NMX', 3, steps, function() {
+                    status.trackingTilt += steps / 560;
+                    checkDone();
+                });
+            }
+        }
+    }
 
     if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) {
         for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
@@ -611,6 +651,11 @@ intervalometer.run = function(program) {
                 if(intervalometer.gpsData) {
                     status.latitude = intervalometer.gpsData.lat;
                     status.longitude = intervalometer.gpsData.lon;
+                    
+                    status.sunPos = suncalc.getPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+                    status.moonPos = suncalc.getMoonPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+                    status.trackingTilt = 0;
+                    status.trackingPan = 0;
                 }
                 exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
                 status.running = true;
