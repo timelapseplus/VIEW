@@ -47,10 +47,10 @@ function updateStatus() {
 
 	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM:", gmStatus.connected);
 
-    motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1, position:nmxStatus.motor1pos, unit: 'steps'});
-    motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2, position:nmxStatus.motor2pos, unit: 'steps'});
-    motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3, position:nmxStatus.motor3pos, unit: 'steps'});
-    motors.push({driver:'GM', motor:1, connected:gmStatus.motor1, position:gmStatus.motor1pos, unit: '°'});
+    motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1 && nmxStatus.connected, position:nmxStatus.motor1pos, unit: 'steps'});
+    motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2 && nmxStatus.connected, position:nmxStatus.motor2pos, unit: 'steps'});
+    motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3 && nmxStatus.connected, position:nmxStatus.motor3pos, unit: 'steps'});
+    motors.push({driver:'GM', motor:1, connected:gmStatus.motor1 && gmStatus.connected, position:gmStatus.motor1pos, unit: '°'});
     motion.status = {
     	reload: lastStatus.bluetooth,
         available: available,

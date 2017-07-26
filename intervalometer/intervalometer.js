@@ -234,7 +234,7 @@ function processKeyframes(setupFirst, callback) {
         if(trackingTarget) {
             var panDegrees = trackingTarget.pan - status.trackingPan;
             if(panDegrees != 0) {
-                console.log("Intervalometer: tracking pan", panDegrees);
+                console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan);
                 numAxes++;
                 var steps = Math.round(panDegrees * 560);
                 motion.move('NMX', 2, steps, function() {
@@ -244,7 +244,7 @@ function processKeyframes(setupFirst, callback) {
             }
             var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
             if(tiltDegrees != 0) {
-                console.log("Intervalometer: tracking tilt", tiltDegrees);
+                console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt);
                 numAxes++;
                 var steps = Math.round(tiltDegrees * 560);
                 motion.move('NMX', 3, steps, function() {
