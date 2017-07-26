@@ -236,9 +236,9 @@ function processKeyframes(setupFirst, callback) {
             if(panDegrees != 0) {
                 console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan);
                 numAxes++;
-                var steps = Math.round(panDegrees * 560);
-                motion.move('NMX', 2, steps, function() {
-                    status.trackingPan += steps / 560;
+                var panSteps = Math.round(panDegrees * 560);
+                motion.move('NMX', 2, panSteps, function() {
+                    status.trackingPan += panSteps / 560;
                     checkDone();
                 });
             }
@@ -246,9 +246,9 @@ function processKeyframes(setupFirst, callback) {
             if(tiltDegrees != 0) {
                 console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt);
                 numAxes++;
-                var steps = Math.round(tiltDegrees * 560);
-                motion.move('NMX', 3, steps, function() {
-                    status.trackingTilt += steps / 560;
+                var tiltSteps = Math.round(tiltDegrees * 560);
+                motion.move('NMX', 3, tiltSteps, function() {
+                    status.trackingTilt += tiltSteps / 560;
                     checkDone();
                 });
             }
