@@ -146,3 +146,7 @@ exports.rampingAlgorithm = "Determines the method used for auto ramping"
 
 exports.trackingOptions = "With an NMX connected, this can be set to follow the sun or the moon relative to the starting position";
 
+exports.trackingPanMotor = "Select the motor for panning (left and right) when tracking. To disable panning when tracking, select 'none'.";
+
+exports.trackingTiltMotor = "Select the motor for tilting (up and down) when tracking. To disable tilting when tracking, select 'none'.";
+

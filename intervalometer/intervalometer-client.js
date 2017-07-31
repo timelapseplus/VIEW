@@ -299,7 +299,7 @@ core.addGpsData = function(gpsData, callback) {
 
 mcu.on('gps', function(status){
     if(status == 2) {
-        core.addGpsData(mcu.lastGpsFix);
+        core.addGpsData(mcu.gps);
     }
 });
 

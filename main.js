@@ -377,6 +377,58 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var trackingPanMotorMenu = function(cb) {
+        var m = {
+            name: "Tracking Pan",
+            type: "menu"
+        }
+        m.items = [];
+        m.items.push({
+            name: "Disabled",
+            value: "none",
+            help: help.trackingPanMotor,
+            action: ui.set(core.currentProgram, 'trackingPanMotor', 'none')
+        });
+        for(var i = 0; i < core.motionStatus.motors.length; i++) {
+            var motor = core.motionStatus.motors[i];
+            if(motor.connected) {
+                m.items.push({
+                    name: motor.driver + " Motor " + motor.motor,
+                    value: motor.driver + motor.motor,
+                    help: help.trackingPanMotor,
+                    action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor)
+                });
+            }
+        }
+        cb(null, m);
+    };
+
+    var trackingTiltMotorMenu = function(cb) {
+        var m = {
+            name: "Tracking Tilt",
+            type: "menu"
+        }
+        m.items = [];
+        m.items.push({
+            name: "Disabled",
+            value: "none",
+            help: help.trackingTiltMotor,
+            action: ui.set(core.currentProgram, 'trackingTiltMotor', 'none')
+        });
+        for(var i = 0; i < core.motionStatus.motors.length; i++) {
+            var motor = core.motionStatus.motors[i];
+            if(motor.connected) {
+                m.items.push({
+                    name: motor.driver + " Motor " + motor.motor,
+                    value: motor.driver + motor.motor,
+                    help: help.trackingTiltMotor,
+                    action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor)
+                });
+            }
+        }
+        cb(null, m);
+    };
+
     var destinationOptions = {
         name: "destination",
         type: "options",
@@ -1056,7 +1108,23 @@ if (VIEW_HARDWARE) {
             action: trackingOptions,
             help: help.trackingOptions,
             condition: function() {
-                return core.motionStatus.available;
+                var enabled = core.motionStatus.available && mcu.gps.fix;
+                if(!enabled) core.currentProgram.tracking = 'none';
+                return enabled;
+            }
+        }, {
+            name: valueDisplay("Tracking Pan", core.currentProgram, 'trackingPanMotor'),
+            action: trackingPanMotorMenu,
+            help: help.trackingPanMotor,
+            condition: function() {
+                return core.motionStatus.available && mcu.gps.fix && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+            }
+        }, {
+            name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
+            action: trackingTiltMotorMenu,
+            help: help.trackingTiltMotor,
+            condition: function() {
+                return core.motionStatus.available && mcu.gps.fix && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),
