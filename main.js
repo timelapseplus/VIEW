@@ -1108,7 +1108,7 @@ if (VIEW_HARDWARE) {
             action: trackingOptions,
             help: help.trackingOptions,
             condition: function() {
-                var enabled = core.motionStatus.available && mcu.gps.fix;
+                var enabled = core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb;
                 if(!enabled) core.currentProgram.tracking = 'none';
                 return enabled;
             }
@@ -1117,14 +1117,14 @@ if (VIEW_HARDWARE) {
             action: trackingPanMotorMenu,
             help: help.trackingPanMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.gps.fix && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
             action: trackingTiltMotorMenu,
             help: help.trackingTiltMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.gps.fix && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),
