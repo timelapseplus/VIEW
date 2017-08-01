@@ -789,8 +789,7 @@ oled.getTextValue = function() {
 }
 
 oled.getNumberValue = function() {
-    var n = parseFloat(textValue.trim().replace(/ /g, ''));
-    if(!n) n = 0;
+    return parseFloat(textValue.trim().replace(/ /g, '')) || 0;
 }
 
 oled.select = function(index) {

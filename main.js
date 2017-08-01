@@ -2409,6 +2409,7 @@ if (VIEW_HARDWARE) {
                 value: mcu.customLatitude,
                 onSave: function(result) {
                     db.set('custom-latitude', result);
+                    console.log("MAIN: setting custom latitude to", result);
                     mcu.customLatitude = result;
                 }
             });
@@ -2425,6 +2426,7 @@ if (VIEW_HARDWARE) {
                 value: mcu.customLongitude,
                 onSave: function(result) {
                     db.set('custom-longitude', result);
+                    console.log("MAIN: setting custom longitude to", result);
                     mcu.customLongitude = result;
                 }
             });
