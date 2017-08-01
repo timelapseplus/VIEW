@@ -99,7 +99,7 @@ function load(program, selected) {
         oled.update();
     }
     if (currentProgram.type == "numberInput") {
-        oled.text(currentProgram.name, currentProgram.value);
+        oled.number(currentProgram.name, currentProgram.value);
         oled.update();
     }
     if (currentProgram.type == "textDisplay") {
