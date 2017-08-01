@@ -2453,7 +2453,7 @@ if (VIEW_HARDWARE) {
         type: 'function',
         fn: function(res, cb){
             cb(null, {
-                name: "Current UTC date (day month year)",
+                name: "Current UTC date",
                 help: help.setDate,
                 type: "dateInput",
                 value: new Date(),
