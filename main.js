@@ -2460,14 +2460,14 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Set GPS latitude",
             help: help.setCoordinates,
-            action: setLatitudeAction
+            action: setLatitudeAction,
             condition: function() {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
         }, {
             name: "Set GPS longitude",
             help: help.setCoordinates,
-            action: setLongitudeAction
+            action: setLongitudeAction,
             condition: function() {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
