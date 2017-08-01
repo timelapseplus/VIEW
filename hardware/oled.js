@@ -455,7 +455,7 @@ oled.writeMenu = function() {
 
     if (oled.mode == 'timelapse') {
         if(oled.timelapseStatus) oled.updateTimelapseStatus(oled.timelapseStatus);
-    } else if (oled.setting) { // setting mode
+    } else if (oled.mode == 'list') { // setting mode
         if (oled.selected >= oled.setting.length) oled.selected = oled.setting.length - 1;
         var name = oled.setting[oled.selected].name || '';
         var value = oled.setting[oled.selected].value || '';
