@@ -560,7 +560,7 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
-    } else if (oled.mode = 'time') { // date/time input mode
+    } else if (oled.mode == 'time') { // date/time input mode
         var name = oled.name || '';
 
         fb.font(10, false, FONT_DEFAULT);
