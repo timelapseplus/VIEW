@@ -190,8 +190,8 @@ oled.textMoveForward = function() {
             oled.selected -= textLength - textValue.length;
         }
         textInitPos(true);
-    } else if(oled.mode == "time") {
-        if(oled.selected < 2) oled.selected++;    
+    } else if(oled.mode == 'time' || oled.mode == "date") {
+        if(oled.selected < 2) oled.selected++; else oled.selected = 0;  
     }
     oled.writeMenu();
     oled.update();
@@ -616,6 +616,51 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
+    } else if (oled.mode == 'date') { // date/time input mode
+        var name = oled.name || '';
+
+        fb.font(10, false, FONT_DEFAULT);
+        color("secondary");
+        fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 12, name);
+
+        fb.font(MENU_SELECT_FONT_SIZE, false, FONT_MONO); // monospace font
+        color("primary");
+        var xAdvance = 15;
+        var xStart;
+
+        var d = oled.timeObject.moment.format("D");
+        if(d.length < 2) d = ' ' + d;
+        var m = oled.timeObject.moment.format("MMM");
+        var y = oled.timeObject.moment.format("YYYY");
+
+        var dateString = d + ' ' + m + ' ' + y;
+
+        for(var i = 0; i < 3; i++) {
+            xStart = MENU_XOFFSET + (i * xAdvance * 3);
+            if(oled.selected == i) {
+                color("secondary");
+                var x = xStart - 2 + xAdvance / 2;
+                var y = 128 / 2 - 10;
+                var w = xAdvance - 1;
+                var h = 25;
+                fb.line(x, y, x + w / 2, y - 5, 2, 0.1, 0.1, 0.5);
+                fb.line(x + w / 2, y - 5, x + w, y, 2, 0.1, 0.1, 0.5);
+
+                fb.line(x, y + h, x + w / 2, y + h + 5, 2, 0.1, 0.1, 0.5);
+                fb.line(x + w / 2, y + h + 5, x + w, y + h, 2, 0.1, 0.1, 0.5);
+
+            }
+            color("primary");
+        }
+        fb.text(MENU_XOFFSET, 128 / 2 + 9, dateString);
+
+        color("help");
+        fb.font(10, false, FONT_DEFAULT);
+        fb.text(0, 128 - 20, "press knob to advance");
+        fb.text(0, 128 - 10, "cursor, press and");
+        fb.text(0, 128 - 0, "hold to scroll cursor");
+
+
     } else if(oled.mode == 'imageMenu') { // menu image list mode
         //console.log("MENU-IMAGE mode");
         itemArray = oled.imageMenu;
@@ -855,6 +900,10 @@ oled.getTimeValue = function() {
     return oled.timeObject.moment;
 }
 
+oled.getDateValue = function() {
+    return oled.timeObject.moment;
+}
+
 oled.select = function(index) {
     oled.selected = index;
 }
@@ -880,6 +929,14 @@ oled.up = function() {
         } else if(oled.selected == 2) {
             if(oled.timeObject.seconds > 0) oled.timeObject.seconds--; else oled.timeObject.seconds = 59;
         }
+    } else if (oled.mode == 'date') {
+        if(oled.selected == 0) {
+            oled.timeObject.moment.subtract(1, 'days');
+        } else if(oled.selected == 1) {
+            oled.timeObject.moment.subtract(1, 'months');
+        } else if(oled.selected == 2) {
+            oled.timeObject.moment.subtract(1, 'years');
+        }
     } else if (oled.selected > 0) {
         oled.selected--;
         oled.select(oled.selected);
@@ -904,6 +961,14 @@ oled.down = function() {
             if(oled.timeObject.minutes < 59) oled.timeObject.minutes++; else oled.timeObject.minutes = 0;
         } else if(oled.selected == 2) {
             if(oled.timeObject.seconds < 59) oled.timeObject.seconds++; else oled.timeObject.seconds = 0;
+        }
+    } else if (oled.mode == 'date') {
+        if(oled.selected == 0) {
+            oled.timeObject.moment.add(1, 'days');
+        } else if(oled.selected == 1) {
+            oled.timeObject.moment.add(1, 'months');
+        } else if(oled.selected == 2) {
+            oled.timeObject.moment.add(1, 'years');
         }
     } else if (oled.mode == 'list' || oled.selected < oled.items.length - 1) {
         oled.selected++;

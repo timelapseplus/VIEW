@@ -2437,12 +2437,29 @@ if (VIEW_HARDWARE) {
         type: 'function',
         fn: function(res, cb){
             cb(null, {
-                name: "Current UTC time",
+                name: "Current UTC time (hh:mm:ss)",
                 help: help.setTime,
                 type: "timeInput",
                 value: new Date(),
                 onSave: function(result) {
                     console.log("MAIN: setting time to", result.toString());
+                    exec('date +%T -u -s "' + result.format("HH:mm:ss") + '"');
+                }
+            });
+        }
+    }
+
+    var setDateAction = {
+        type: 'function',
+        fn: function(res, cb){
+            cb(null, {
+                name: "Current UTC date (day month year)",
+                help: help.setDate,
+                type: "dateInput",
+                value: new Date(),
+                onSave: function(result) {
+                    console.log("MAIN: setting date to", result.toString());
+                    exec('date +%Y%m%d -u -s "' + result.format("YYYYMMDD") + '"');
                 }
             });
         }
