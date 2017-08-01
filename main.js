@@ -377,7 +377,7 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var trackingPanMotorMenu = function(cb) {
+    var trackingPanMotorMenu = function() {
         var m = {
             name: "Tracking Pan",
             type: "menu"
@@ -400,10 +400,10 @@ if (VIEW_HARDWARE) {
                 });
             }
         }
-        cb(null, m);
+        return m;
     };
 
-    var trackingTiltMotorMenu = function(cb) {
+    var trackingTiltMotorMenu = function() {
         var m = {
             name: "Tracking Tilt",
             type: "menu"
@@ -426,7 +426,7 @@ if (VIEW_HARDWARE) {
                 });
             }
         }
-        cb(null, m);
+        return m;
     };
 
     var destinationOptions = {
@@ -1114,14 +1114,14 @@ if (VIEW_HARDWARE) {
             }
         }, {
             name: valueDisplay("Tracking Pan", core.currentProgram, 'trackingPanMotor'),
-            action: trackingPanMotorMenu,
+            action: trackingPanMotorMenu(),
             help: help.trackingPanMotor,
             condition: function() {
                 return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
-            action: trackingTiltMotorMenu,
+            action: trackingTiltMotorMenu(),
             help: help.trackingTiltMotor,
             condition: function() {
                 return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
