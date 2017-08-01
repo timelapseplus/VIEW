@@ -778,9 +778,9 @@ oled.time = function(name, value) {
     oled.selected = 0;
     value = moment(value).utc();
     oled.timeObject = {
-        hours: value.hours,
-        minutes: value.minutes,
-        seconds: value.seconds,
+        hours: value.hours(),
+        minutes: value.minutes(),
+        seconds: value.seconds(),
         moment: value
     }
     oled.writeMenu();
