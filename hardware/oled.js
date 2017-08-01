@@ -591,7 +591,7 @@ oled.writeMenu = function() {
         var timeString = h + ':' + m + ':' + s;
 
         for(var i = 0; i < 3; i++) {
-            xStart = MENU_XOFFSET + (i * xAdvance * 3);
+            xStart = MENU_XOFFSET + (i * xAdvance * 2);
             if(oled.selected == i) {
                 color("secondary");
                 var x = xStart - 2 + xAdvance / 2;
@@ -872,8 +872,6 @@ oled.update = function(override) {
 oled.up = function() {
     if (oled.mode == 'text') {
         textScrollDown();
-        oled.writeMenu();
-        oled.update();
     } else if (oled.mode == 'time') {
         if(oled.selected == 0) {
             if(oled.timeObject.hours > 0) oled.timeObject.hours--; else oled.timeObject.hours = 23;
@@ -885,16 +883,14 @@ oled.up = function() {
     } else if (oled.selected > 0) {
         oled.selected--;
         oled.select(oled.selected);
-        oled.writeMenu();
-        oled.update();
     }
+    oled.writeMenu();
+    oled.update();
 }
 
 oled.down = function() {
     if (oled.mode == 'text') {
         textScrollUp();
-        oled.writeMenu();
-        oled.update();
     } else if (oled.mode == 'read') {
         if(oled.selected < oled.textLines.length - 3) {
             oled.selected++;
@@ -912,9 +908,9 @@ oled.down = function() {
     } else if (oled.mode == 'list' || oled.selected < oled.items.length - 1) {
         oled.selected++;
         oled.select(oled.selected);
-        oled.writeMenu();
-        oled.update();
     }
+    oled.writeMenu();
+    oled.update();
 }
 
 oled.hide = function() {
