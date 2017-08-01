@@ -1108,7 +1108,7 @@ if (VIEW_HARDWARE) {
             action: trackingOptions,
             help: help.trackingOptions,
             condition: function() {
-                var enabled = core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb;
+                var enabled = core.motionStatus.available && mcu.validCoordinates();
                 if(!enabled) core.currentProgram.tracking = 'none';
                 return enabled;
             }
@@ -1117,14 +1117,14 @@ if (VIEW_HARDWARE) {
             action: trackingPanMotorMenu,
             help: help.trackingPanMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
             action: trackingTiltMotorMenu,
             help: help.trackingTiltMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),
@@ -2443,7 +2443,7 @@ if (VIEW_HARDWARE) {
                 value: new Date(),
                 onSave: function(result) {
                     console.log("MAIN: setting time to", result.toString());
-                    exec('date +%T -u -s "' + result.format("HH:mm:ss") + '"');
+                    mcu.setTime(result);
                 }
             });
         }
@@ -2459,7 +2459,7 @@ if (VIEW_HARDWARE) {
                 value: new Date(),
                 onSave: function(result) {
                     console.log("MAIN: setting date to", result.toString());
-                    exec('date +%Y%m%d -u -s "' + result.format("YYYYMMDD") + '"');
+                    mcu.setDate(result);
                 }
             });
         }
@@ -2509,6 +2509,10 @@ if (VIEW_HARDWARE) {
             name: "Set UTC Time",
             help: help.setTime,
             action: setTimeAction
+        }, {
+            name: "Set UTC Date",
+            help: help.setDate,
+            action: setDateAction
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
@@ -2580,7 +2584,7 @@ if (VIEW_HARDWARE) {
                 ui.alert('Sun and Moon', astroInfo);
             },
             condition: function() {
-                return mcu.gpsAvailable;
+                return mcu.validCoordinates();
             },
             help: help.sunAndMoon
         }]

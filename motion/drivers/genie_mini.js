@@ -255,7 +255,7 @@ GenieMini.prototype.resetMotorPosition = function(motor, callback) {
             setTimeout(check, 200); // keep checking until stop
         } else {
             self._position = 0;
-            if (callback) callback(null, self._position / self._stepsPerDegree);
+            if (callback) callback();
         }
     }
     check();

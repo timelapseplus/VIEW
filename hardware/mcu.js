@@ -16,6 +16,8 @@ mcu.gps = gps.state;
 mcu.lastGpsFix = null;
 mcu.knob = 0;
 mcu.tzAutoSet = false;
+mcu.customLatitude = null;
+mcu.customLongitude = null;
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -32,6 +34,39 @@ mcu.init = function(callback) {
 mcu.setTz = function(tz) {
 	if(!mcu.tzAutoSet) {
 		process.env.TZ = tz;
+	}
+}
+
+mcu.setDate = function(date) {
+	var date = moment(date);
+    exec('date +%Y%m%d -u -s "' + result.format("YYYYMMDD") + '"');
+}
+
+mcu.setTime = function(date) {
+	var date = moment(date);
+    exec('date +%T -u -s "' + result.format("HH:mm:ss") + '"');
+}
+
+mcu.validCoordinates = function() {
+	var lat = null;
+	var lon = null;
+	if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
+		lat = gps.state.lat;
+		lon = gps.state.lon;
+	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
+		lat = mcu.lastGpsFix.lat;
+		lon = mcu.lastGpsFix.lon;
+	} else if(!mcu.gpsAvailable && mcu.customLatitude !== null && mcu.customLongitude != null) {
+		lat = mcu.customLatitude;
+		lon = mcu.customLongitude;
+	}
+	if(lat !== null && lon != null) {
+		return {
+			lat: lat,
+			lon: lon
+		}
+	} else {
+		return null;
 	}
 }
 
@@ -74,6 +109,8 @@ function _parseData(data) {
 			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 				mcu.lastGpsFix = _.clone(gps.state);
 				if(!gpsFix) {
+					mcu.setTime(mcu.lastGpsFix.time);
+					mcu.setDate(mcu.lastGpsFix.time);
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz && process.env.TZ != tz) {
 						process.env.TZ = tz;

@@ -122,9 +122,9 @@ function getDetails(file) {
     if(intervalometer.gpsData) {
         d.latitude = intervalometer.gpsData.lat;
         d.longitude = intervalometer.gpsData.lon;
-        d.sunPos = suncalc.getPosition(gpsTime(), d.latitude, d.longitude);
-        d.moonPos = suncalc.getMoonPosition(gpsTime(), d.latitude, d.longitude);
-        d.moonIllumination = suncalc.getMoonIllumination(gpsTime());
+        d.sunPos = suncalc.getPosition(new Date(), d.latitude, d.longitude);
+        d.moonPos = suncalc.getMoonPosition(new Date(), d.latitude, d.longitude);
+        d.moonIllumination = suncalc.getMoonIllumination(new Date());
     }
     return d;
 }
@@ -244,10 +244,10 @@ function processKeyframes(setupFirst, callback) {
     if(intervalometer.currentProgram.keyframes == null && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
         var trackingTarget = null;
         if(intervalometer.currentProgram.tracking == 'sun') {
-            var sunPos = suncalc.getPosition(gpsTime(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+            var sunPos = suncalc.getPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
             trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
         } else if(intervalometer.currentProgram.tracking == 'moon') {
-            var moonPos = suncalc.getMoonPosition(gpsTime(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+            var moonPos = suncalc.getMoonPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
             trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
         }
         if(trackingTarget) {
@@ -685,8 +685,8 @@ intervalometer.run = function(program) {
                     status.latitude = intervalometer.gpsData.lat;
                     status.longitude = intervalometer.gpsData.lon;
                     
-                    status.sunPos = suncalc.getPosition(gpsTime(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
-                    status.moonPos = suncalc.getMoonPosition(gpsTime(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+                    status.sunPos = suncalc.getPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
+                    status.moonPos = suncalc.getMoonPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);
                     status.trackingTilt = 0;
                     status.trackingPan = 0;
                 }
@@ -798,18 +798,8 @@ intervalometer.run = function(program) {
 
 }
 
-var gpsTimeAdded = null;
-function gpsTime() {
-    if(gpsTimeAdded == null) return new Date(); 
-    var timeDiff = new Date() - gpsTimeAdded;
-    return new Date(intervalometer.gpsData.time + timeDiff);
-}
-
 intervalometer.addGpsData = function(gpsData, callback) {
     intervalometer.gpsData = gpsData;
-    if(!gpsData.fromDb) {
-        gpsTimeAdded = new Date();
-    }
     callback && callback();
 }
 

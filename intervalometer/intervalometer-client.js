@@ -290,7 +290,7 @@ core.stopIntervalometer = function(callback) {
 }
 core.startIntervalometer = function(program, callback) {
     power.performance('high');
-    core.addGpsData(mcu.lastGpsFix);
+    core.addGpsData(mcu.validCoordinates());
     call('intervalometer.run', {program:program}, callback);
 }
 core.addGpsData = function(gpsData, callback) {
