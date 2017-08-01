@@ -2433,6 +2433,21 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var setTimeAction = {
+        type: 'function',
+        fn: function(res, cb){
+            cb(null, {
+                name: "Current UTC time",
+                help: help.setTime,
+                type: "timeInput",
+                value: new Date(),
+                onSave: function(result) {
+                    console.log("MAIN: setting time to", result.toString());
+                }
+            });
+        }
+    }
+
     var settingsMenu = {
         name: "settings",
         type: "menu",
@@ -2473,6 +2488,10 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
+        }, {
+            name: "Set UTC Time",
+            help: help.setTime,
+            action: setTimeAction
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
@@ -2999,6 +3018,15 @@ db.get('gpsEnabled', function(err, en) {
 db.get('gpsExists', function(err, e) {
     if(!err) gpsExists = (e == 'yes');
 });
+
+db.get('custom-latitude', function(err, lat) {
+    mcu.customLatitude = lat;
+});
+
+db.get('custom-longitude', function(err, lon) {
+    mcu.customLongitude = lon;
+});
+
 
 db.get('buttonMode', function(err, mode) {
     power.setButtons(mode);

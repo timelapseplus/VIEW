@@ -2,6 +2,7 @@ var exec = require('child_process').exec;
 var pitft = require("pitft");
 var fb = pitft("/dev/fb0", true);
 var fs = require('fs');
+var moment = require('moment');
 
 var oled = {};
 
@@ -342,7 +343,7 @@ oled.updateTimelapseStatus = function(status) {
     if(status) {
         oled.timelapseStatus = status;
         if(status.running) {
-            if(oled.timelapseMode) statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
+            if(oled.mode == 'timelapse') statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
         } else {
             statusDetails = {};
         }
@@ -360,10 +361,11 @@ oled.updateHistogram = function(histogram) {
 }
 
 oled.setTimelapseMode = function(set) {
-    oled.timelapseMode = set;
     if(set) {
+        oled.mode = 'timelapse';
         oled.writeMenu();
     } else {
+        oled.mode = 'menu';
         oled.updateTimelapseStatus();
     }
 }
@@ -443,9 +445,9 @@ oled.writeMenu = function() {
     var selected;
     if (oled.selected < 0) oled.selected = 0;
 
-    if (!oled.timelapseMode) fb.clear();
+    if (oled.mode != 'timelapse') fb.clear();
 
-    if (oled.timelapseMode) {
+    if (oled.mode == 'timelapse') {
         if(oled.timelapseStatus) oled.updateTimelapseStatus(oled.timelapseStatus);
     } else if (oled.setting) { // setting mode
         if (oled.selected >= oled.setting.length) oled.selected = oled.setting.length - 1;
@@ -460,7 +462,7 @@ oled.writeMenu = function() {
         color("primary");
         fb.text(MENU_XOFFSET, 128 / 2 + 5, value);
 
-    } else if (oled.textLines) { // text display mode
+    } else if (oled.mode == 'read') { // text display mode
         fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
         color("secondary");
         fb.text(MENU_STATUS_XOFFSET, MENU_STATUS_YOFFSET, oled.textTitle);
@@ -474,8 +476,8 @@ oled.writeMenu = function() {
             if(i + oled.selected >= oled.textLines.length) break;
             fb.text(0, 26 + i * 16, oled.textLines[i + oled.selected]);
         }
-    } else if (oled.textInput) { // text input mode
-        var name = oled.textInput || '';
+    } else if (oled.mode == 'text') { // text input mode
+        var name = oled.name || '';
 
         fb.font(10, false, FONT_DEFAULT);
         color("secondary");
@@ -540,16 +542,16 @@ oled.writeMenu = function() {
                 }           
                 fb.text(160 - 48 + i * xAdvance, 125, modes[i]);
             }
+
+            color("primary");
+            var w = 5;
+            var h = 8;
+            var x = 160 - w;
+            var y = 128 - h - 1;
+
+            fb.line(x, y, x + w, y + h / 2, 1, 1, 1, 1);
+            fb.line(x + w, y + h / 2, x, y + h, 1, 1, 1, 1);
         }
-
-        color("primary");
-        var w = 5;
-        var h = 8;
-        var x = 160 - w;
-        var y = 128 - h - 1;
-
-        fb.line(x, y, x + w, y + h / 2, 1, 1, 1, 1);
-        fb.line(x + w, y + h / 2, x, y + h, 1, 1, 1, 1);
 
         color("help");
         fb.font(10, false, FONT_DEFAULT);
@@ -558,7 +560,57 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
-    } else if(oled.imageMenu) { // menu image list mode
+    } else if (oled.mode = 'time') { // date/time input mode
+        var name = oled.name || '';
+
+        fb.font(10, false, FONT_DEFAULT);
+        color("secondary");
+        fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 12, name);
+
+        fb.font(MENU_SELECT_FONT_SIZE, false, FONT_MONO); // monospace font
+        color("primary");
+        var xAdvance = 15;
+        var xStart;
+
+        var h = oled.timeObject.hours.toString();
+        if(h.length < 2) h = '0' + h;
+        if(h.length < 2) h = '0' + h;
+        var m = oled.timeObject.minutes.toString();
+        if(m.length < 2) m = '0' + m;
+        if(m.length < 2) m = '0' + m;
+        var s = oled.timeObject.seconds.toString();
+        if(s.length < 2) s = '0' + s;
+        if(s.length < 2) s = '0' + s;
+
+        var timeString = h + ':' + m + ':' + s;
+
+        for(var i = 0; i < 3; i++) {
+            xStart = MENU_XOFFSET + (i * xAdvance * 3);
+            if(oled.selected == i) {
+                color("secondary");
+                var x = xStart - 2 + xAdvance / 2;
+                var y = 128 / 2 - 10;
+                var w = xAdvance - 1;
+                var h = 25;
+                fb.line(x, y, x + w / 2, y - 5, 2, 0.1, 0.1, 0.5);
+                fb.line(x + w / 2, y - 5, x + w, y, 2, 0.1, 0.1, 0.5);
+
+                fb.line(x, y + h, x + w / 2, y + h + 5, 2, 0.1, 0.1, 0.5);
+                fb.line(x + w / 2, y + h + 5, x + w, y + h, 2, 0.1, 0.1, 0.5);
+
+            }
+            color("primary");
+        }
+        fb.text(MENU_XOFFSET, 128 / 2 + 9, timeString);
+
+        color("help");
+        fb.font(10, false, FONT_DEFAULT);
+        fb.text(0, 128 - 20, "press knob to advance");
+        fb.text(0, 128 - 10, "cursor, press and");
+        fb.text(0, 128 - 0, "hold to scroll cursor");
+
+
+    } else if(oled.mode == 'imageMenu') { // menu image list mode
         //console.log("MENU-IMAGE mode");
         itemArray = oled.imageMenu;
 
@@ -678,19 +730,14 @@ oled.showBusy = function() {
 
 var screenTimeout = null;
 oled.create = function(itemArray, selected) {
-    oled.textInput = null;
-    oled.textLines = null;
-    oled.setting = null;
-    oled.imageMenu = null;
+    oled.mode = 'menu';
     oled.items = itemArray;
     oled.selected = selected || 0;
     oled.writeMenu();
 }
 
 oled.createMenuImage = function(itemArray, selected) {
-    oled.textInput = null;
-    oled.textLines = null;
-    oled.setting = null;
+    oled.mode = 'imageMenu';
     oled.imageMenu = itemArray;
     oled.items = itemArray;
     oled.selected = selected || 0;
@@ -698,20 +745,15 @@ oled.createMenuImage = function(itemArray, selected) {
 }
 
 oled.value = function(pairs, selected) {
-    oled.textInput = null;
-    oled.imageMenu = null;
-    oled.textLines = null;
+    oled.mode = 'list';
     oled.setting = pairs;
     oled.selected = selected || 0;
     oled.writeMenu();
 }
 
 oled.text = function(name, value) {
-    //console.log("setting up text input: ", name, value);
-    oled.setting = null;
-    oled.textLines = null;
-    oled.imageMenu = null;
-    oled.textInput = name;
+    oled.mode = 'text';
+    oled.name = name;
     oled.selected = 0;
     textValue = value || "";
     textMode = 'ucase';
@@ -720,16 +762,27 @@ oled.text = function(name, value) {
 }
 
 oled.number = function(name, value) {
-    //console.log("setting up text input: ", name, value);
-    oled.setting = null;
-    oled.textLines = null;
-    oled.imageMenu = null;
-    oled.textInput = name;
+    oled.mode = 'number';
+    oled.name = name;
     oled.selected = 0;
     if(typeof value == "number") value = value.toString();
     textValue = value || "0";
     textMode = 'number';
     textInitPos(true);
+    oled.writeMenu();
+}
+
+oled.time = function(name, value) {
+    oled.mode = 'time';
+    oled.name = name;
+    oled.selected = 0;
+    value = moment(value).utc();
+    oled.timeObject = {
+        hours: value.hours,
+        minutes: value.minutes,
+        second: value.seconds,
+        moment: value
+    }
     oled.writeMenu();
 }
 
@@ -768,10 +821,7 @@ function parseTextIntoLines(text) {
 }
 
 oled.displayText = function(title, text) {
-    oled.textInput = null;
-    oled.textLines = null;
-    oled.imageMenu = null;
-    oled.setting = null;
+    oled.mode = 'read';
     oled.textTitle = title;
     oled.textLines = parseTextIntoLines(text);
     oled.selected = 0;
@@ -792,6 +842,13 @@ oled.getNumberValue = function() {
     return parseFloat(textValue.trim().replace(/ /g, '')) || 0;
 }
 
+oled.getTimeValue = function() {
+    oled.timeObject.moment.hours(oled.timeObject.hours);
+    oled.timeObject.moment.minutes(oled.timeObject.minutes);
+    oled.timeObject.moment.seconds(oled.timeObject.seconds);
+    return oled.timeObject.moment;
+}
+
 oled.select = function(index) {
     oled.selected = index;
 }
@@ -807,10 +864,18 @@ oled.update = function(override) {
 }
 
 oled.up = function() {
-    if (oled.textInput) {
+    if (oled.mode == 'text') {
         textScrollDown();
         oled.writeMenu();
         oled.update();
+    } else if (oled.mode == 'time') {
+        if(oled.selected == 0) {
+            if(oled.timeObject.hours > 0) oled.timeObject.hours--; else oled.timeObject.hours = 23;
+        } else if(oled.selected == 1) {
+            if(oled.timeObject.minutes > 0) oled.timeObject.minutes--; else oled.timeObject.minutes = 59;
+        } else if(oled.selected == 2) {
+            if(oled.timeObject.seconds > 0) oled.timeObject.seconds--; else oled.timeObject.seconds = 59;
+        }
     } else if (oled.selected > 0) {
         oled.selected--;
         oled.select(oled.selected);
@@ -820,17 +885,25 @@ oled.up = function() {
 }
 
 oled.down = function() {
-    if (oled.textInput) {
+    if (oled.mode == 'text') {
         textScrollUp();
         oled.writeMenu();
         oled.update();
-    } else if (oled.textLines) {
+    } else if (oled.mode == 'read') {
         if(oled.selected < oled.textLines.length - 3) {
             oled.selected++;
             oled.writeMenu();
             oled.update();
         }
-    } else if (oled.setting || oled.selected < oled.items.length - 1) {
+    } else if (oled.mode == 'time') {
+        if(oled.selected == 0) {
+            if(oled.timeObject.hours < 23) oled.timeObject.hours++; else oled.timeObject.hours = 0;
+        } else if(oled.selected == 1) {
+            if(oled.timeObject.minutes < 59) oled.timeObject.minutes++; else oled.timeObject.minutes = 0;
+        } else if(oled.selected == 2) {
+            if(oled.timeObject.seconds < 59) oled.timeObject.seconds++; else oled.timeObject.seconds = 0;
+        }
+    } else if (oled.mode == 'list' || oled.selected < oled.items.length - 1) {
         oled.selected++;
         oled.select(oled.selected);
         oled.writeMenu();

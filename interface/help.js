@@ -152,3 +152,4 @@ exports.trackingTiltMotor = "Select the motor for tilting (up and down) when tra
 
 exports.setCoordinates = "Set custom coordinates for use without GPS or for testing for other locations";
 
+exports.setTime = "Set the current time in UTC (0000)";

@@ -102,6 +102,10 @@ function load(program, selected) {
         oled.number(currentProgram.name, currentProgram.value);
         oled.update();
     }
+    if (currentProgram.type == "timeInput") {
+        oled.time(currentProgram.name, currentProgram.value);
+        oled.update();
+    }
     if (currentProgram.type == "textDisplay") {
         oled.displayText(currentProgram.name, currentProgram.value);
         oled.update();
