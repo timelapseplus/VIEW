@@ -2399,6 +2399,38 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
+    var setLatitudeAction = {
+        type: 'function',
+        fn: function(res, cb){
+            cb(null, {
+                name: "Custom Latitude",
+                help: help.setCoordinates,
+                type: "numberInput",
+                value: mcu.customLatitude,
+                onSave: function(result) {
+                    db.set('custom-latitude', result);
+                    mcu.customLatitude = result;
+                }
+            });
+        }
+    }
+
+    var setLongitudeAction = {
+        type: 'function',
+        fn: function(res, cb){
+            cb(null, {
+                name: "Custom Longitude",
+                help: help.setCoordinates,
+                type: "numberInput",
+                value: mcu.customLatitude,
+                onSave: function(result) {
+                    db.set('custom-longitude', result);
+                    mcu.customLongitude = result;
+                }
+            });
+        }
+    }
+
     var settingsMenu = {
         name: "settings",
         type: "menu",
@@ -2424,6 +2456,20 @@ if (VIEW_HARDWARE) {
             help: help.gpsEnableMenu,
             condition: function() {
                 return gpsExists;
+            },
+        }, {
+            name: "Set GPS latitude",
+            help: help.setCoordinates,
+            action: setLatitudeAction
+            condition: function() {
+                return !gpsExists || power.gpsEnabled != 'enabled';
+            },
+        }, {
+            name: "Set GPS longitude",
+            help: help.setCoordinates,
+            action: setLongitudeAction
+            condition: function() {
+                return !gpsExists || power.gpsEnabled != 'enabled';
             },
         }, {
             name: "Factory Reset",

@@ -98,6 +98,10 @@ function load(program, selected) {
         oled.text(currentProgram.name, currentProgram.value);
         oled.update();
     }
+    if (currentProgram.type == "numberInput") {
+        oled.text(currentProgram.name, currentProgram.value);
+        oled.update();
+    }
     if (currentProgram.type == "textDisplay") {
         oled.displayText(currentProgram.name, currentProgram.value);
         oled.update();
@@ -163,7 +167,7 @@ exports.up = function(alt) {
         oled.up();
     } else if(currentProgram.type == "textDisplay") {
         oled.up();
-    } else if(currentProgram.type == "textInput") {
+    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput") {
         if(alt) {
             oled.textMoveBackward();
         } else {
@@ -178,7 +182,7 @@ exports.down = function(alt) {
         oled.down();
     } else if(currentProgram.type == "textDisplay") {
         oled.down();
-    } else if(currentProgram.type == "textInput") {
+    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
@@ -197,6 +201,14 @@ exports.enter = function(alt) {
         } else {
             //console.log("resulting string", oled.getTextValue());
             if(currentProgram.onSave) currentProgram.onSave(oled.getTextValue());
+            back();
+        }
+    } else if (currentProgram.type == "numberInput") {
+        if(alt) {
+            oled.textMoveForward();
+        } else {
+            //console.log("resulting string", oled.getTextValue());
+            if(currentProgram.onSave) currentProgram.onSave(oled.getNumberValue());
             back();
         }
     } else if (currentProgram.type == "png") {

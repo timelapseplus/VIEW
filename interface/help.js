@@ -150,3 +150,5 @@ exports.trackingPanMotor = "Select the motor for panning (left and right) when t
 
 exports.trackingTiltMotor = "Select the motor for tilting (up and down) when tracking. To disable tilting when tracking, select 'none'.";
 
+exports.setCoordinates = "Set custom coordinates for use without GPS or for testing for other locations";
+

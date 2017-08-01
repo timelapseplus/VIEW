@@ -153,7 +153,7 @@ function color(name) {
 function textInitPos(setMode) {
     var mode = textGetMode();
 
-    if(setMode && oled.selected < textValue.length) {
+    if(textMode != 'number' && setMode && oled.selected < textValue.length) {
         for(var i = 0; i < TEXT_MODES.length; i++) {
             mode = textGetMode(TEXT_MODES[i]);
             var list = TEXT_LIST[mode];
@@ -181,6 +181,9 @@ function textUpdateCurrent() {
 
 oled.textMoveForward = function() {
     if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
+    if(textMode == 'number') {
+        textValue = textValue.replace(/ /g, '');
+    }
     textInitPos(true);
     oled.writeMenu();
     oled.update();
@@ -189,6 +192,9 @@ oled.textMoveForward = function() {
 oled.textMoveBackward = function() {
     if(oled.selected > 0) oled.selected--;
     textValue = textValue.trim();
+    if(textMode == 'number') {
+        textValue = textValue.replace(/ /g, '');
+    }
     textInitPos(true);
     oled.writeMenu();
     oled.update();
@@ -197,7 +203,7 @@ oled.textMoveBackward = function() {
 function textGetMode(currentMode) {
     if(!currentMode) currentMode = textMode;
     var mode;
-    if(currentMode == 'ucase' || currentMode == 'lcase') mode = 'alpha'; else mode = currentMode;    
+    if(currentMode == 'ucase' || currentMode == 'lcase') mode = 'alpha'; else mode = currentMode == 'number' ? 'num' : currentMode;    
     return mode;
 }
 
@@ -205,13 +211,30 @@ function textGetCurrent() {
     var mode = textGetMode();
     var char = TEXT_LIST[mode].charAt(TEXT_INDEX[mode]);
     if(textMode == 'lcase') char = char.toLowerCase();
-    if(!char) char = " ";
+    if(!char) {
+        char = textMode == 'number' ? "0" : " ";
+    }
     return char;
+}
+
+function getTextList() {
+    if(textMode == 'number') {
+        if(oled.selected == 0) {
+            return TEXT_LIST['num'].concat(['-']);
+        } else if(textValue.indexOf('.') === -1) {
+            return TEXT_LIST['num'].concat(['.']);
+        } else {
+            return TEXT_LIST['num'];
+        }        
+    } else {
+        return TEXT_LIST[textGetMode()];
+    }
 }
 
 function textScrollUp() {
     var mode = textGetMode();
     TEXT_INDEX[mode]++;
+    var list = getTextList();
     if(TEXT_INDEX[mode] >= TEXT_LIST[mode].length) TEXT_INDEX[mode] = 0;
     textUpdateCurrent();
 }
@@ -494,23 +517,26 @@ oled.writeMenu = function() {
             fb.line(160, y, 160 - w, y + h / 2, 2);
         }
 
-        color("primary");
-        fb.font(MENU_FONT_SIZE, false, FONT_MONO); // monospace font
-        var modes = ['A', 'a', '1', '$'];
-        var cMode = 0;
-        if(textMode == 'ucase') cMode = 0;
-        if(textMode == 'lcase') cMode = 1;
-        if(textMode == 'num') cMode = 2;
-        if(textMode == 'sym') cMode = 3;
-        var xAdvance = 10;
-        for(var i = 0; i < modes.length; i++) {
-            if(cMode == i) {
-                color("primary");
-            } else {
-                color("secondary");
-            }           
-            fb.text(160 - 48 + i * xAdvance, 125, modes[i]);
+        if(textMode != 'number') {
+            color("primary");
+            fb.font(MENU_FONT_SIZE, false, FONT_MONO); // monospace font
+            var modes = ['A', 'a', '1', '$'];
+            var cMode = 0;
+            if(textMode == 'ucase') cMode = 0;
+            if(textMode == 'lcase') cMode = 1;
+            if(textMode == 'num') cMode = 2;
+            if(textMode == 'sym') cMode = 3;
+            var xAdvance = 10;
+            for(var i = 0; i < modes.length; i++) {
+                if(cMode == i) {
+                    color("primary");
+                } else {
+                    color("secondary");
+                }           
+                fb.text(160 - 48 + i * xAdvance, 125, modes[i]);
+            }
         }
+
         color("primary");
         var w = 5;
         var h = 8;
@@ -688,6 +714,20 @@ oled.text = function(name, value) {
     oled.writeMenu();
 }
 
+oled.number = function(name, value) {
+    //console.log("setting up text input: ", name, value);
+    oled.setting = null;
+    oled.textLines = null;
+    oled.imageMenu = null;
+    oled.textInput = name;
+    oled.selected = 0;
+    if(typeof value == "number") value = value.toString();
+    textValue = value || "";
+    textMode = 'number';
+    textInitPos(true);
+    oled.writeMenu();
+}
+
 function parseTextIntoLines(text) {
     var lines = [];
     var maxWidth = 158;
@@ -741,6 +781,10 @@ oled.updateDisplayText = function(text) {
 
 oled.getTextValue = function() {
     return textValue.trim();
+}
+
+oled.getNumberValue = function() {
+    return parseFloat(textValue.trim().replace(/ /g, ''));
 }
 
 oled.select = function(index) {
