@@ -182,24 +182,30 @@ function textUpdateCurrent() {
 }
 
 oled.textMoveForward = function() {
-    if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
-    if(textMode == 'number') {
-        var textLength = textValue.length;
-        textValue = textValue.replace(/ /g, '');
-        oled.selected -= textLength - textValue.length;
+    if(oled.mode == 'text' || oled.mode == 'number') {
+        if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
+        if(textMode == 'number') {
+            var textLength = textValue.length;
+            textValue = textValue.replace(/ /g, '');
+            oled.selected -= textLength - textValue.length;
+        }
+        textInitPos(true);
+    } else if(oled.mode == "time") {
+        if(oled.selected < 2) oled.selected++;    
     }
-    textInitPos(true);
     oled.writeMenu();
     oled.update();
 }
 
 oled.textMoveBackward = function() {
     if(oled.selected > 0) oled.selected--;
-    textValue = textValue.trim();
-    if(textMode == 'number') {
-        textValue = textValue.replace(/ /g, '');
+    if(oled.mode == 'text' || oled.mode == 'number') {
+        textValue = textValue.trim();
+        if(textMode == 'number') {
+            textValue = textValue.replace(/ /g, '');
+        }
+        textInitPos(true);
     }
-    textInitPos(true);
     oled.writeMenu();
     oled.update();
 }

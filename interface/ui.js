@@ -171,7 +171,7 @@ exports.up = function(alt) {
         oled.up();
     } else if(currentProgram.type == "textDisplay") {
         oled.up();
-    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput") {
+    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput" || currentProgram.type == "timeInput") {
         if(alt) {
             oled.textMoveBackward();
         } else {
@@ -186,7 +186,7 @@ exports.down = function(alt) {
         oled.down();
     } else if(currentProgram.type == "textDisplay") {
         oled.down();
-    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput") {
+    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput" || currentProgram.type == "timeInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
@@ -213,6 +213,14 @@ exports.enter = function(alt) {
         } else {
             //console.log("resulting string", oled.getTextValue());
             if(currentProgram.onSave) currentProgram.onSave(oled.getNumberValue());
+            back();
+        }
+    } else if (currentProgram.type == "timeInput") {
+        if(alt) {
+            oled.textMoveForward();
+        } else {
+            //console.log("resulting string", oled.getTextValue());
+            if(currentProgram.onSave) currentProgram.onSave(oled.getTimeValue());
             back();
         }
     } else if (currentProgram.type == "png") {
