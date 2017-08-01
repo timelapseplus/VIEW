@@ -2422,7 +2422,7 @@ if (VIEW_HARDWARE) {
                 name: "Custom Longitude",
                 help: help.setCoordinates,
                 type: "numberInput",
-                value: mcu.customLatitude,
+                value: mcu.customLongitude,
                 onSave: function(result) {
                     db.set('custom-longitude', result);
                     mcu.customLongitude = result;

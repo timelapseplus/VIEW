@@ -165,9 +165,10 @@ function textInitPos(setMode) {
             }
         }
 
-        if(oled.selected < textValue.length && TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected)) !== -1 && textValue.charAt(oled.selected) != ' ') {
-            TEXT_INDEX[mode] = TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected));
-        }
+    }
+    var list = getTextList();
+    if(oled.selected < textValue.length && list.indexOf(textValue.toUpperCase().charAt(oled.selected)) !== -1 && textValue.charAt(oled.selected) != ' ') {
+        TEXT_INDEX[mode] = list.indexOf(textValue.toUpperCase().charAt(oled.selected));
     }
 }
 
@@ -726,7 +727,7 @@ oled.number = function(name, value) {
     oled.textInput = name;
     oled.selected = 0;
     if(typeof value == "number") value = value.toString();
-    textValue = value || "";
+    textValue = value || "0";
     textMode = 'number';
     textInitPos(true);
     oled.writeMenu();
@@ -788,7 +789,8 @@ oled.getTextValue = function() {
 }
 
 oled.getNumberValue = function() {
-    return parseFloat(textValue.trim().replace(/ /g, ''));
+    var n = parseFloat(textValue.trim().replace(/ /g, ''));
+    if(!n) n = 0;
 }
 
 oled.select = function(index) {
