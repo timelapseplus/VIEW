@@ -40,12 +40,12 @@ mcu.setTz = function(tz) {
 
 mcu.setDate = function(date) {
 	var date = moment(date);
-    exec('date +%Y%m%d -u -s "' + result.format("YYYYMMDD") + '"');
+    exec('date +%Y%m%d -u -s "' + date.format("YYYYMMDD") + '"');
 }
 
 mcu.setTime = function(date) {
 	var date = moment(date);
-    exec('date +%T -u -s "' + result.format("HH:mm:ss") + '"');
+    exec('date +%T -u -s "' + date.format("HH:mm:ss") + '"');
 }
 
 mcu.validCoordinates = function() {
