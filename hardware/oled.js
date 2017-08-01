@@ -780,7 +780,7 @@ oled.time = function(name, value) {
     oled.timeObject = {
         hours: value.hours,
         minutes: value.minutes,
-        second: value.seconds,
+        seconds: value.seconds,
         moment: value
     }
     oled.writeMenu();
