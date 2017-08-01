@@ -802,7 +802,7 @@ var gpsTimeAdded = null;
 function gpsTime() {
     if(gpsTimeAdded == null) return new Date(); 
     var timeDiff = new Date() - gpsTimeAdded;
-    return new Date(gpsData.time + timeDiff);
+    return new Date(intervalometer.gpsData.time + timeDiff);
 }
 
 intervalometer.addGpsData = function(gpsData, callback) {
