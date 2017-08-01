@@ -4,6 +4,7 @@ var SerialPort = require('serialport');
 var _ = require('underscore');
 var geoTz = require('geo-tz');
 var GPS = require('gps');
+var moment = require('moment');
 var gps = new GPS;
 var MCU_VERSION = 2;
 
