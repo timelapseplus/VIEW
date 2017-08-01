@@ -837,6 +837,20 @@ oled.time = function(name, value) {
     oled.writeMenu();
 }
 
+oled.date = function(name, value) {
+    oled.mode = 'date';
+    oled.name = name;
+    oled.selected = 0;
+    value = moment(value).utc();
+    oled.timeObject = {
+        hours: value.hours(),
+        minutes: value.minutes(),
+        seconds: value.seconds(),
+        moment: value
+    }
+    oled.writeMenu();
+}
+
 function parseTextIntoLines(text) {
     var lines = [];
     var maxWidth = 158;
