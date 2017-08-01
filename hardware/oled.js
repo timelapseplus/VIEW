@@ -164,10 +164,10 @@ function textInitPos(setMode) {
                 break;
             }
         }
-    }
 
-    if(oled.selected < textValue.length && TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected)) !== -1 && textValue.charAt(oled.selected) != ' ') {
-        TEXT_INDEX[mode] = TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected));
+        if(oled.selected < textValue.length && TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected)) !== -1 && textValue.charAt(oled.selected) != ' ') {
+            TEXT_INDEX[mode] = TEXT_LIST[mode].indexOf(textValue.toUpperCase().charAt(oled.selected));
+        }
     }
 }
 
@@ -182,7 +182,9 @@ function textUpdateCurrent() {
 oled.textMoveForward = function() {
     if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
     if(textMode == 'number') {
+        var textLength = textValue.length;
         textValue = textValue.replace(/ /g, '');
+        oled.selected -= textLength - textValue.length;
     }
     textInitPos(true);
     oled.writeMenu();
@@ -209,7 +211,8 @@ function textGetMode(currentMode) {
 
 function textGetCurrent() {
     var mode = textGetMode();
-    var char = TEXT_LIST[mode].charAt(TEXT_INDEX[mode]);
+    var list = getTextList();
+    var char = list.charAt(TEXT_INDEX[mode]);
     if(textMode == 'lcase') char = char.toLowerCase();
     if(!char) {
         char = textMode == 'number' ? "0" : " ";
@@ -221,7 +224,7 @@ function getTextList() {
     if(textMode == 'number') {
         if(oled.selected == 0) {
             return TEXT_LIST['num'].concat(['-']);
-        } else if(textValue.indexOf('.') === -1) {
+        } else if(textValue.indexOf('.') === -1 || textValue.indexOf('.') === oled.selected) {
             return TEXT_LIST['num'].concat(['.']);
         } else {
             return TEXT_LIST['num'];
@@ -235,14 +238,15 @@ function textScrollUp() {
     var mode = textGetMode();
     TEXT_INDEX[mode]++;
     var list = getTextList();
-    if(TEXT_INDEX[mode] >= TEXT_LIST[mode].length) TEXT_INDEX[mode] = 0;
+    if(TEXT_INDEX[mode] >= list.length) TEXT_INDEX[mode] = 0;
     textUpdateCurrent();
 }
 
 function textScrollDown() {
     var mode = textGetMode();
     TEXT_INDEX[mode]--;
-    if(TEXT_INDEX[mode] < 0) TEXT_INDEX[mode] = TEXT_LIST[mode].length - 1;
+    var list = getTextList();
+    if(TEXT_INDEX[mode] < 0) TEXT_INDEX[mode] = list.length - 1;
     textUpdateCurrent();
 }
 
