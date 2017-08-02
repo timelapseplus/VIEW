@@ -2372,15 +2372,16 @@ if (VIEW_HARDWARE) {
 
     var astroInfo = function() {
         var info = "";
-        if(mcu.lastGpsFix) {
-            var suntimes = suncalc.getTimes(mcu.gps.time || mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
-            var moontimes = suncalc.getMoonTimes(mcu.gps.time || mcu.lastGpsFix.time, mcu.lastGpsFix.lat, mcu.lastGpsFix.lon, true);
-            var mooninfo = suncalc.getMoonIllumination(mcu.gps.time || mcu.lastGpsFix.time, true);
-            var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
-            var sunrise = moment(new Date(suntimes.sunrise));
-            var sunset = moment(new Date(suntimes.sunset));
-            var moonrise = moment(new Date(moontimes.rise));
-            var moonset = moment(new Date(moontimes.set));
+        var coords = mcu.validCoordinates();
+        if(coords) {
+            var suntimes = suncalc.getTimes(new Date(), coords.lat, coords.lon, true);
+            var moontimes = suncalc.getMoonTimes(new Date(), coords.lat, coords.lon, true);
+            var mooninfo = suncalc.getMoonIllumination(new Date(), true);
+            var now = moment();
+            var sunrise = moment(suntimes.sunrise);
+            var sunset = moment(suntimes.sunset);
+            var moonrise = moment(moontimes.rise);
+            var moonset = moment(moontimes.set);
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
             info += "Sun sets at " + sunset.format("h:mm:ss A") + "\t   (" + sunset.fromNow() + ")\t";
             info += "Sun rises at " + sunrise.format("h:mm:ss A") + "\t   (" + sunrise.fromNow() + ")\t";
