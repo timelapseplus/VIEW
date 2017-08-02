@@ -10,23 +10,37 @@
     <ion-content class="bg-dark">
 
         <ion-list>
+            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'">
+                <div class="input-label">
+                    Motion Hardware
+                </div>
+                <select ng-model="setupAxis.hardware" ng-change="changeAxisHardware(setupAxis.hardware)">
+                    <option value="sapphire">Sapphire</option>
+                    <option value="stager">Stage-R</option>
+                    <option value="other">Other</option>
+                </select>
+            </label>
             <label class="item item-input item-select item-dark">
                 <div class="input-label">
                     Axis Function
                 </div>
-                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='NMX'">
+                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware=='other'">
                     <option value="Pan">Pan</option>
                     <option value="Tilt">Tilt</option>
                     <option value="Slide">Slide</option>
                     <option value="Focus">Focus</option>
                     <option value="#{{setupAxis.motor}}">#{{setupAxis.motor}}</option>
                 </select>
+                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware!='other'">
+                    <option value="Pan">Pan</option>
+                    <option value="Tilt">Tilt</option>
+                </select>
                 <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='GM'">
                     <option value="Pan">Pan</option>
                     <option value="Tilt">Tilt</option>
                 </select>
             </label>
-            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'">
+            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware=='other'">
                 <div class="input-label">
                     Axis Unit
                 </div>
@@ -36,16 +50,6 @@
                     <option value="in">Inches</option>
                     <option value="cm">Centimeters</option>
                     <option value="m">Meters</option>
-                </select>
-            </label>
-            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'">
-                <div class="input-label">
-                    Motion Hardware
-                </div>
-                <select ng-model="setupAxis.hardware" ng-change="changeAxisHardware(setupAxis.hardware)">
-                    <option value="sapphire">Sapphire</option>
-                    <option value="stager">Stage-R</option>
-                    <option value="other">Other</option>
                 </select>
             </label>
             <label class="item item-input item-dark" ng-hide="setupAxis.unit=='s'||setupAxis.driver=='GM'||setupAxis.hardware!='other'">
