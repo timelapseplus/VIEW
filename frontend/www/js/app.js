@@ -1304,8 +1304,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
         if(program.tracking != 'none') {
             if($scope.panTiltAvailable) {
-                program.trackingPanMotor = $scope.panTiltAvailable.pan.driver + $scope.panTiltAvailable.pan.motor;
-                program.trackingTiltMotor = $scope.panTiltAvailable.tilt.driver + $scope.panTiltAvailable.tilt.motor;
+                program.trackingPanMotor = $scope.panTiltAvailable.pan.driver + $scope.panTiltAvailable.pan.motor + ($scope.panTiltAvailable.pan.reverse ? 'r' : '');
+                program.trackingTiltMotor = $scope.panTiltAvailable.tilt.driver + $scope.panTiltAvailable.tilt.motor + ($scope.panTiltAvailable.tilt.reverse ? 'r' : '');
                 program.keyframes = [program.keyframes[0]];
             } else {
                 program.tracking = 'none';
