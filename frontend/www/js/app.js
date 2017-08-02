@@ -1300,6 +1300,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.axis[i].connected) program['motor-' + $scope.axis[i].id + 'Pos'] = $scope.axis[i].pos;
         }
 
+        if(!program.tracking) program.tracking = 'none';
+
+        if(program.tracking != 'none') {
+            if($scope.panTiltAvailable) {
+                program.trackingPanMotor = $scope.panTiltAvailable.pan.driver + $scope.panTiltAvailable.pan.motor;
+                program.trackingTiltMotor = $scope.panTiltAvailable.tilt.driver + $scope.panTiltAvailable.tilt.motor;
+                program.keyframes = null;
+            } else {
+                program.tracking = 'none';
+            }
+        }
+
         //program.rampMode = 'auto';
         //program.intervalMode = 'fixed';
 
