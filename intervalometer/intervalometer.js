@@ -250,7 +250,7 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    if(intervalometer.currentProgram.keyframes == null && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
+    if((intervalometer.currentProgram.keyframes == null || intervalometer.currentProgram.keyframes.length == 1) && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
         var trackingTarget = null;
         if(intervalometer.currentProgram.tracking == 'sun') {
             var sunPos = suncalc.getPosition(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon);

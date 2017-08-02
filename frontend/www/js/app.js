@@ -1306,7 +1306,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.panTiltAvailable) {
                 program.trackingPanMotor = $scope.panTiltAvailable.pan.driver + $scope.panTiltAvailable.pan.motor;
                 program.trackingTiltMotor = $scope.panTiltAvailable.tilt.driver + $scope.panTiltAvailable.tilt.motor;
-                program.keyframes = null;
+                program.keyframes = [program.keyframes[0]];
             } else {
                 program.tracking = 'none';
             }
