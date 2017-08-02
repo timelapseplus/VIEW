@@ -3535,6 +3535,7 @@ exports.calculate = function(inputsObject, callback) {
   } else {
     calculate();
   }
+  outputs.eclipseType = eclipseEvent.type;
   exports.data = outputs;
   exports.error = error;
   callback && callback(error, outputs);

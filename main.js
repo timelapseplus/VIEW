@@ -2424,8 +2424,10 @@ if (VIEW_HARDWARE) {
                 info += "(" + c1.fromNow() + ")\n";
                 if(c2 && c3) {
                     info += "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
-                } else if(data.type == "Total") {
-                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observed at the current location.";
+                } else if(data.eclipseType == "T") {
+                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observable at the current location.";
+                } else if(data.eclipseType == "A") {
+                    info += "This is a annular eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
                 } else {
                     info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
                 }
