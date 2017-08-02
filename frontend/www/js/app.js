@@ -1523,7 +1523,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
         if(pan && tilt) {
             $scope.panTiltAvailable = {pan: pan, tilt: tilt};
-        else {
+        } else {
             $scope.panTiltAvailable = false;
         }
     }
