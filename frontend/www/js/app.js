@@ -1497,6 +1497,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var axisIndex = $scope.getAxisIndex(axisId);
         if(axisIndex === null) return;
         $scope.setupAxis = $scope.axis[axisIndex];
+        if($scope.setupAxis.driver == 'GM') {
+            $scope.setupAxis.unit = '°';
+            $scope.setupAxis.unitSteps = 1;
+        }
         $scope.modalMotionSetup.show();
     };
     $scope.closeMotionSetup = function() {
@@ -1513,8 +1517,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.setupAxis.name = type;
         if(type == 'Pan' || type == 'Tilt') {
             $scope.setupAxis.unit = '°';
-            $scope.setupAxis.unitSteps = 560;
             $scope.setupAxis.unitMove = 5;
+            if($scope.setupAxis.driver == 'NMX') {
+                $scope.setupAxis.unitSteps = 560;
+            } else if($scope.setupAxis.driver == 'GM') {
+                $scope.setupAxis.unitSteps = 1;
+            }
         } else {
             $scope.setupAxis.unit = 's';
             $scope.setupAxis.unitSteps = 1;
@@ -1523,6 +1531,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
     $scope.changeAxisUnit = function(unit) {
         $scope.setupAxis.unit = unit;
+    }
+    $scope.changeAxisHardware = function(hardware) {
+        $scope.setupAxis.hardware = hardware;
+        if(hardware == 'sapphire') {
+            $scope.setupAxis.unitSteps = 560;
+        } else if(hardware == 'stager') {
+            $scope.setupAxis.unitSteps = 560;
+        }
     }
     $scope.changeAxisUnitSteps = function(unitSteps) {
         $scope.setupAxis.unitSteps = unitSteps;

@@ -241,6 +241,15 @@ function processKeyframes(setupFirst, callback) {
     var numAxes = 2;
     var axesDone = 0;
 
+    var checkDone = function() {
+        axesDone++;
+        console.log("KF: " + axesDone + " keyframe items complete");
+        if (axesDone >= numAxes && callback) {
+            console.log("KF: keyframes complete, running callback");
+            callback();
+        }
+    }
+
     if(intervalometer.currentProgram.keyframes == null && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
         var trackingTarget = null;
         if(intervalometer.currentProgram.tracking == 'sun') {
@@ -255,15 +264,15 @@ function processKeyframes(setupFirst, callback) {
             if(panDegrees != 0) {
                 var panMotor = getTrackingMotor(intervalometer.currentProgram.trackingPanMotor);
                 if(panMotor) {
-                    console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan);
                     numAxes++;
                     var panSteps = panDegrees * panMotor.stepsPerDegree;
                     if(panMotor.stepsPerDegree > 100) {
                         panSteps = Math.round(panSteps);
                     }
                     var direction = 1; // this needs to be configurable
+                    console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
                     motion.move(panMotor.driver, panMotor.motor, panSteps * direction, function() {
-                        status.trackingPan += panSteps / panMotor.stepsPerDegree;;
+                        status.trackingPan += panSteps / panMotor.stepsPerDegree;
                         checkDone();
                     });
                 }
@@ -272,13 +281,13 @@ function processKeyframes(setupFirst, callback) {
             if(tiltDegrees != 0) {
                 var tiltMotor = getTrackingMotor(intervalometer.currentProgram.trackingTiltMotor);
                 if(tiltMotor) {
-                    console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt);
                     numAxes++;
                     var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
                     if(tiltMotor.stepsPerDegree > 100) {
                         tiltSteps = Math.round(tiltSteps);
                     }
                     var direction = -1;
+                    console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
                     motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps * direction, function() {
                         status.trackingTilt += tiltSteps / tiltMotor.stepsPerDegree;
                         checkDone();
@@ -290,15 +299,6 @@ function processKeyframes(setupFirst, callback) {
 
     if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) {
         for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
-    }
-
-    var checkDone = function() {
-        axesDone++;
-        console.log("KF: " + axesDone + " keyframe items complete");
-        if (axesDone >= numAxes && callback) {
-            console.log("KF: keyframes complete, running callback");
-            callback();
-        }
     }
 
     doKeyframeAxis('ev', null, setupFirst, 'linear', function(ev) {
