@@ -394,10 +394,18 @@ if (VIEW_HARDWARE) {
             var motor = core.motionStatus.motors[i];
             if(motor.connected) {
                 m.items.push({
-                    name: motor.driver + " Motor " + motor.motor,
+                    name: motor.driver + " Axis" + motor.motor + "",
                     value: motor.driver + motor.motor,
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor, function(){
+                        ui.back();
+                    })
+                });
+                m.items.push({
+                    name: motor.driver + " Axis" + motor.motor + " (reverse)",
+                    value: motor.driver + motor.motor,
+                    help: help.trackingPanMotor,
+                    action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor + 'r', function(){
                         ui.back();
                     })
                 });
@@ -422,10 +430,18 @@ if (VIEW_HARDWARE) {
             var motor = core.motionStatus.motors[i];
             if(motor.connected) {
                 m.items.push({
-                    name: motor.driver + " Motor " + motor.motor,
+                    name: motor.driver + " Axis" + motor.motor + "",
                     value: motor.driver + motor.motor,
                     help: help.trackingTiltMotor,
                     action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor, function() {
+                        ui.back();
+                    })
+                });
+                m.items.push({
+                    name: motor.driver + " Axis" + motor.motor + " (reverse)",
+                    value: motor.driver + motor.motor,
+                    help: help.trackingTiltMotor,
+                    action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor + 'r', function() {
                         ui.back();
                     })
                 });

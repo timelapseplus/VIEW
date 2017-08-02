@@ -219,13 +219,14 @@ function calculateCelestialDistance(startPos, currentPos) {
 
 function getTrackingMotor(trackingMotor) {
     if(trackingMotor && trackingMotor != 'none') {
-        var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)$/);
+        var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
         if(parts && parts.length > 2) {
             var stepsPerDegree = 1;
             if(parts[1] == 'NMX') stepsPerDegree = 560;
             return {
                 driver: parts[1],
                 motor: parts[2],
+                direction: parts[3] == 'r' ? -1 : 1,
                 stepsPerDegree: stepsPerDegree
             }
         } else {
@@ -269,9 +270,8 @@ function processKeyframes(setupFirst, callback) {
                     if(panMotor.stepsPerDegree > 100) {
                         panSteps = Math.round(panSteps);
                     }
-                    var direction = 1; // this needs to be configurable
                     console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
-                    motion.move(panMotor.driver, panMotor.motor, panSteps * direction, function() {
+                    motion.move(panMotor.driver, panMotor.motor, panSteps * panMotor.direction, function() {
                         status.trackingPan += panSteps / panMotor.stepsPerDegree;
                         checkDone();
                     });
@@ -288,7 +288,7 @@ function processKeyframes(setupFirst, callback) {
                     }
                     var direction = -1;
                     console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
-                    motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps * direction, function() {
+                    motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps * tiltMotor.direction, function() {
                         status.trackingTilt += tiltSteps / tiltMotor.stepsPerDegree;
                         checkDone();
                     });
