@@ -541,8 +541,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             $scope.axis[index].pos = msg.position;
                             $scope.axis[index].callback(msg.position);
                             $scope.axis[index].callback = null;
-                        } else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
-                            $scope.zeroAxis($scope.axis[index].id);
+                        //} else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
+                        //    $scope.zeroAxis($scope.axis[index].id);
                         } else {
                             $scope.axis[index].pos = msg.position;
                         }
