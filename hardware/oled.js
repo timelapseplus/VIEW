@@ -933,7 +933,7 @@ oled.update = function(override) {
 }
 
 oled.up = function() {
-    if (oled.mode == 'text') {
+    if (oled.mode == 'text' || oled.mode == 'number') {
         textScrollDown();
     } else if (oled.mode == 'time') {
         if(oled.selected == 0) {
@@ -960,7 +960,7 @@ oled.up = function() {
 }
 
 oled.down = function() {
-    if (oled.mode == 'text') {
+    if (oled.mode == 'text' || oled.mode == 'number') {
         textScrollUp();
     } else if (oled.mode == 'read') {
         if(oled.selected < oled.textLines.length - 3) {
