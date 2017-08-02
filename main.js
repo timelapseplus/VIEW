@@ -2412,8 +2412,8 @@ if (VIEW_HARDWARE) {
             var data = eclipse.data;
             if(!data || data.lat != coords.lat || data.lon != coords.lon) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
+                console.log("Eclipse data:", data);
             }
-            console.log("Eclipse data:", data);
             if(data) {
                 var now = moment();
                 var c1 = data.c1_timestamp ? moment(data.c1_timestamp) : null;
