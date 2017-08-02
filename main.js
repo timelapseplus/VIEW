@@ -20,6 +20,7 @@ require('rootpath')();
 var lists = require('./camera/ptp/lists.js');
 var updates = require('./system/updates.js');
 var clips = require('./intervalometer/clips.js');
+var eclipse = require('./intervalometer/eclipse.js');
 var core = require('./intervalometer/intervalometer-client.js');
 var image = require('./camera/image/image.js');
 if (VIEW_HARDWARE) {
@@ -2404,6 +2405,39 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
+    var eclipseInfo = function() {
+        var info = "";
+        var coords = mcu.validCoordinates();
+        if(coords) {
+            var data = eclipse.data;
+            if(!data || data.lat != coords.lat || data.lon != coords.lon) {
+                data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
+            }
+            console.log("Eclipse data:", data);
+            if(data) {
+                var now = moment();
+                var c1 = data.c1_timestamp ? moment(data.c1_timestamp) : null;
+                var c2 = data.c2_timestamp ? moment(data.c2_timestamp) : null;
+                var c3 = data.c3_timestamp ? moment(data.c3_timestamp) : null;
+                var c4 = data.c4_timestamp ? moment(data.c4_timestamp) : null;
+                info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "\t";
+                info += "(" + c1.fromNow() + ")\n";
+                if(c2 && c3) {
+                    "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
+                } else if(data.type == "Total") {
+                    "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observed at the current location.";
+                } else {
+                    "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
+                }
+            } else {
+                info += "No upcoming eclipses were found for the current location";                
+            }
+        } else {
+           info = "GPS position info unavailable\t";
+        }
+        return info;
+    }
+
     var setLatitudeAction = {
         type: 'function',
         fn: function(res, cb){
@@ -2592,6 +2626,16 @@ if (VIEW_HARDWARE) {
                 return mcu.validCoordinates();
             },
             help: help.sunAndMoon
+        }, {
+            name: "Eclipse Info",
+            action: function(){
+                ui.back();
+                ui.alert('Eclipse Info', eclipseInfo);
+            },
+            condition: function() {
+                return mcu.validCoordinates();
+            },
+            help: help.eclipseInfo
         }]
     }
 
