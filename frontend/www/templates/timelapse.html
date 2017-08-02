@@ -7,7 +7,7 @@
         <div ng-hide="!camera.connected || intervalometerStatus.running">
             <div class="item item-dark item-divider"><b>Exposure & Keyframes</b></div>
             <div class="row" ng-repeat="keyframe in timelapse.keyframes">
-                <div class="col">
+                <div class="col" ng-show="$index==0||timelapse.tracking=='none'">
                     <div class="row" ng-show="$index > 0">
                         <div class="col center stable">
                             <i class="icon ion-arrow-down-c"></i>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
             </div>
-            <div class="padding">
+            <div class="padding" ng-show="timelapse.tracking=='none'">
                 <a ng-click="addKeyframe()" class="stable"><i class="icon ion-plus-circled"></i> Add Keyframe</a>
             </div>
             <br>
@@ -77,6 +77,21 @@
                         </button>
                         <button class="button button-light button-small button-{{timelapse.intervalMode == 'aux' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'aux')">
                             AUX2
+                        </button>
+                    </div>
+                </div>
+
+                <div class="item item-dark" ng-show="panTiltAvailable()">
+                    Motion Tracking
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'none' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'none')">
+                            Disabled
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'sun' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'sun')">
+                            Sun
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'moon' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'moon')">
+                            Moon
                         </button>
                     </div>
                 </div>

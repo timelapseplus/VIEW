@@ -1513,6 +1513,16 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
     };
+    $scope.panTiltAvailable = function(){
+        var tilt = false;
+        var pan = false;
+        for(var i = 0; i < $scope.axis.length; i++) {
+            if($scope.axis[i].name == 'Pan' && $scope.axis[i].connected) pan = $scope.axis[i];
+            if($scope.axis[i].name == 'Tilt' && $scope.axis[i].connected) tilt = $scope.axis[i];
+        }
+        if(pan && tilt) return {pan: pan, tilt: tilt};
+        return false;
+    }
     $scope.changeAxisType = function(type) {
         $scope.setupAxis.name = type;
         if(type == 'Pan' || type == 'Tilt') {
