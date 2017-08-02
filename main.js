@@ -2423,11 +2423,11 @@ if (VIEW_HARDWARE) {
                 info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "\t";
                 info += "(" + c1.fromNow() + ")\n";
                 if(c2 && c3) {
-                    "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
+                    info += "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
                 } else if(data.type == "Total") {
-                    "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observed at the current location.";
+                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observed at the current location.";
                 } else {
-                    "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
+                    info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
                 }
             } else {
                 info += "No upcoming eclipses were found for the current location";                
@@ -2630,7 +2630,7 @@ if (VIEW_HARDWARE) {
             name: "Eclipse Info",
             action: function(){
                 ui.back();
-                ui.alert('Eclipse Info', eclipseInfo);
+                ui.alert('Solar Eclipse Info', eclipseInfo);
             },
             condition: function() {
                 return mcu.validCoordinates();
