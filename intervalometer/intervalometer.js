@@ -261,7 +261,8 @@ function processKeyframes(setupFirst, callback) {
                     if(panMotor.stepsPerDegree > 100) {
                         panSteps = Math.round(panSteps);
                     }
-                    motion.move(panMotor.driver, panMotor.motor, panSteps, function() {
+                    var direction = 1; // this needs to be configurable
+                    motion.move(panMotor.driver, panMotor.motor, panSteps * direction, function() {
                         status.trackingPan += panSteps / panMotor.stepsPerDegree;;
                         checkDone();
                     });
@@ -277,7 +278,8 @@ function processKeyframes(setupFirst, callback) {
                     if(tiltMotor.stepsPerDegree > 100) {
                         tiltSteps = Math.round(tiltSteps);
                     }
-                    motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps, function() {
+                    var direction = -1;
+                    motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps * direction, function() {
                         status.trackingTilt += tiltSteps / tiltMotor.stepsPerDegree;
                         checkDone();
                     });

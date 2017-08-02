@@ -2,6 +2,7 @@
 // Javascript Solar Eclipse Calculator (Xavier Jubier: http://xjubier.free.fr/)
 // Copyright (C) 2004-2017 Xavier M. Jubier
 //
+// Used by Elijah Parker with permission 
 
 /*
 Modifications:
