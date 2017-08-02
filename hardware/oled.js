@@ -482,7 +482,7 @@ oled.writeMenu = function() {
             if(i + oled.selected >= oled.textLines.length) break;
             fb.text(0, 26 + i * 16, oled.textLines[i + oled.selected]);
         }
-    } else if (oled.mode == 'text') { // text input mode
+    } else if (oled.mode == 'text' || oled.mode == 'number') { // text/number input mode
         var name = oled.name || '';
 
         fb.font(10, false, FONT_DEFAULT);

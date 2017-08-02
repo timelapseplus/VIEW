@@ -377,7 +377,7 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var trackingPanMotorMenu = function() {
+    var trackingPanMotorMenu = function(cb) {
         var m = {
             name: "Tracking Pan",
             type: "menu"
@@ -396,14 +396,16 @@ if (VIEW_HARDWARE) {
                     name: motor.driver + " Motor " + motor.motor,
                     value: motor.driver + motor.motor,
                     help: help.trackingPanMotor,
-                    action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor)
+                    action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor, function(){
+                        ui.back();
+                    })
                 });
             }
         }
-        return m;
+        return cb(null, m);
     };
 
-    var trackingTiltMotorMenu = function() {
+    var trackingTiltMotorMenu = function(cb) {
         var m = {
             name: "Tracking Tilt",
             type: "menu"
@@ -422,11 +424,13 @@ if (VIEW_HARDWARE) {
                     name: motor.driver + " Motor " + motor.motor,
                     value: motor.driver + motor.motor,
                     help: help.trackingTiltMotor,
-                    action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor)
+                    action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor, function() {
+                        ui.back();
+                    })
                 });
             }
         }
-        return m;
+        return cb(null, m);
     };
 
     var destinationOptions = {
@@ -1114,14 +1118,14 @@ if (VIEW_HARDWARE) {
             }
         }, {
             name: valueDisplay("Tracking Pan", core.currentProgram, 'trackingPanMotor'),
-            action: trackingPanMotorMenu(),
+            action: trackingPanMotorMenu,
             help: help.trackingPanMotor,
             condition: function() {
                 return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
-            action: trackingTiltMotorMenu(),
+            action: trackingTiltMotorMenu,
             help: help.trackingTiltMotor,
             condition: function() {
                 return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
