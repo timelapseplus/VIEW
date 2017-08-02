@@ -222,7 +222,7 @@ function getTrackingMotor(trackingMotor) {
         var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)$/);
         if(parts && parts.length > 2) {
             var stepsPerDegree = 1;
-            if(driver == 'NMX') stepsPerDegree = 560;
+            if(parts[1] == 'NMX') stepsPerDegree = 560;
             return {
                 driver: parts[1],
                 motor: parts[2],
