@@ -29,12 +29,12 @@ motion.move = function(driver, motorId, steps, callback) {
 
 motion.joystick = function(driver, motorId, speed, callback) {
 	if(driver == "NMX") {
-		motion.nmx.constantMove(motorId, steps, callback);
+		motion.nmx.constantMove(motorId, speed, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
-			motion.gm2.constantMove(motorId, steps, callback);
+			motion.gm2.constantMove(motorId, speed, callback);
 		} else {
-			motion.gm1.constantMove(motorId, steps, callback);
+			motion.gm1.constantMove(motorId, speed, callback);
 		}
 	}
 }
