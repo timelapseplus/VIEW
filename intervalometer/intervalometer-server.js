@@ -39,7 +39,6 @@ event                  payload
 require('rootpath')();
 var camera = require('camera/camera.js');
 var motion = require('motion/motion.js');
-var gm = motion.gm;
 var noble = require('noble');
 var intervalometer = require('intervalometer/intervalometer.js');
 var fs = require('fs');
@@ -433,7 +432,7 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                noble.startScanning(motion.nmx.btServiceIds.concat(motion.gm.btServiceIds), false, function(err){
+                noble.startScanning(motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds), false, function(err){
                     console.log("BLE scan started: ", err);
                 });
             }
