@@ -603,6 +603,10 @@ function init() {
 function _connectBt(btPeripheral, callback) {
     btPeripheral.connect(function(err1) {
         if (err1) {
+            if(_dev) {
+                _dev = null;
+                nmx.emit("status", getStatus());
+            }
             if (callback) callback(false);
             return;
         }
