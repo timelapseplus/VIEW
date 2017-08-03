@@ -1177,7 +1177,6 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(speed && joystickTimers[axisName]) return false; // rate limit per axis
 
         var sendJoystickCommand = (function(a, s) { return function() {
-            if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
             joystickTimers[axisName] = null;
             console.log("moving ", axisId);
             var parts = a.split('-');
@@ -1195,6 +1194,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }; })(axisId, speed);
 
         if(speed == 0) {
+            if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]);
             sendJoystickCommand();
         } else {
             joystickTimers[axisName] = $timeout(sendJoystickCommand, 100);
