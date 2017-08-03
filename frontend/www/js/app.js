@@ -1175,21 +1175,28 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
         if(index === null) return false;
         if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
-        joystickTimers[axisName] = $timeout(function(){
+
+        var sendJoystickCommand = (function(a, s) { return function() {
             console.log("moving ", axisId);
-            var parts = axisId.split('-');
+            var parts = a.split('-');
             if (parts.length == 2) {
                 var driver = parts[0];
                 var motor = parts[1];
-                console.log("joystick motor" + axisId, speed);
+                console.log("joystick motor" + a, s);
                 sendMessage('motion', {
                     key: 'joystick',
-                    val: speed * 100,
+                    val: s * 100,
                     driver: driver,
                     motor: motor
                 });
             }
-        }, 200);
+        }; })(axisId, speed);
+
+        if(speed == 0) {
+            sendJoystickCommand();
+        } else {
+            joystickTimers[axisName] = $timeout(sendJoystickCommand, 200);
+        }
     }
 
     $scope.focusPos = 0;
