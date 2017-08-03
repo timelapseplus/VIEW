@@ -116,7 +116,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }*/
 
     var controls = {};
-    var joystickEnabled = false;
+    var joystickEnabled = true;
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         console.log("new state:", toState);
