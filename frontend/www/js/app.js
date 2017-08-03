@@ -1174,9 +1174,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
         if(index === null) return false;
-        if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
+        if(speed && joystickTimers[axisName]) return false; // rate limit per axis
 
         var sendJoystickCommand = (function(a, s) { return function() {
+            if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]); // rate limit per axis
             console.log("moving ", axisId);
             var parts = a.split('-');
             if (parts.length == 2) {
@@ -1195,7 +1196,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(speed == 0) {
             sendJoystickCommand();
         } else {
-            joystickTimers[axisName] = $timeout(sendJoystickCommand, 200);
+            joystickTimers[axisName] = $timeout(sendJoystickCommand, 100);
         }
     }
 
