@@ -143,7 +143,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.$apply(function(){
                         console.log("disabing scroll");
                         $ionicSideMenuDelegate.canDragContent(false);
-                        $ionicScrollDelegate.freezeAllScrolls(false);
+                        $ionicScrollDelegate.freezeAllScrolls(true);
+                        //$ionicScrollDelegate.getScrollView().__enableScrollY = false
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = false;
                     });
                 });
@@ -151,7 +152,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.$apply(function(){
                         console.log("enabling scroll");
                         $ionicSideMenuDelegate.canDragContent(true);
-                        $ionicScrollDelegate.freezeAllScrolls(true);
+                        $ionicScrollDelegate.freezeAllScrolls(false);
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });
                 });
@@ -164,7 +165,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.$apply(function(){
                         console.log("disabing scroll");
                         $ionicSideMenuDelegate.canDragContent(false);
-                        $ionicScrollDelegate.freezeAllScrolls(false);
+                        $ionicScrollDelegate.freezeAllScrolls(true);
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = false;
                     });
                 });
@@ -172,7 +173,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.$apply(function(){
                         console.log("enabling scroll");
                         $ionicSideMenuDelegate.canDragContent(true);
-                        $ionicScrollDelegate.freezeAllScrolls(true);
+                        $ionicScrollDelegate.freezeAllScrolls(false);
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });
                 });
