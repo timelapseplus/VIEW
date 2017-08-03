@@ -646,13 +646,13 @@ function _connectBt(btPeripheral, callback) {
                             if (callback) callback(true);
                         });
                     } else {
-                        _dev.connected = false;
+                        if(_dev) _dev.connected = false;
                         btPeripheral.disconnect();
                         if (callback) callback(false);
                     }
                 });
             } else {
-                _dev.connected = false;
+                if(_dev) _dev.connected = false;
                 btPeripheral.disconnect();
                 if (callback) callback(false);
             }
@@ -663,7 +663,7 @@ function _connectBt(btPeripheral, callback) {
             console.log("NMX: disconnected");
             if(_dev && _dev.connected) {
                 console.log("NMX: trying to reconnect");
-                _dev.connected = false;
+                if(_dev) _dev.connected = false;
                 setTimeout(function(){
                     _connectBt(btPeripheral);        
                 });
