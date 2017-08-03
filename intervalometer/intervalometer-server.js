@@ -488,7 +488,15 @@ function btStateChange(state) {
         }
     }
 }
+var btConnecting = false;
+var btConnectingTries = 0;
 function btDiscover(peripheral) {
+    if(btConnecting && btConnectingTries < 10) return setTimeout(function(){
+      btConnectingTries++;
+      btDiscover(peripheral);
+    }, 1000);
+    btConnecting = false;
+    btConnectingTries = 0;
     //console.log('ble', peripheral);
     var connectGM = function(cb) {
       var status = motion.gm1.getStatus();
@@ -497,11 +505,15 @@ function btDiscover(peripheral) {
         if(status.connected && status.connectionType == "bt") {
           stopScan();
         } else {
+          btConnecting = true;
           motion.gm2.connect(peripheral, function(connected) {
+            btConnecting = false;
           });
         }
       } else {
+        btConnecting = true;
         motion.gm1.connect(peripheral, function(connected) {
+          btConnecting = false;
         });
       }
     }
@@ -509,7 +521,9 @@ function btDiscover(peripheral) {
     if(status.connected && status.connectionType == "bt") {
       connectGM();
     } else {
+      btConnecting = true;
       motion.nmx.connect(peripheral, function(connected) {
+        btConnecting = false;
         if(connected) {
           stopScan();
         } else {
