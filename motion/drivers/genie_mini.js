@@ -205,13 +205,12 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
 }
 
 GenieMini.prototype.constantMove = function(motor, speed, callback) {
-    if (this._moving) return console.log("GenieMini: motor already running");
     console.log("GenieMini: moving motor at speed ", speed, "%");
     if(!this._enabled) this.enable();
 
     var dataBuf = new Buffer(3);
     dataBuf.fill(0);
-    dataBuf.writeInt8(speed, 0);
+    dataBuf.writeInt8(Math.round(speed), 0);
     dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
     this._moving = true;
 
