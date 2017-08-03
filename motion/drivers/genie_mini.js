@@ -212,7 +212,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     var dataBuf = new Buffer(3);
     dataBuf.fill(0);
     dataBuf.writeInt8(speed, 0);
-    dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 2);
+    dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
     this._moving = true;
 
     var self = this;
