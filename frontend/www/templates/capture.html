@@ -5,17 +5,6 @@
         </div>
         <div ng-include="'templates/_connect.html'"></div>
 
-        <content scroll="false">
-            <div class="list">
-                <div class="row">
-                    <center style="width:100%">
-                        <canvas id="joystick" width="200px" height="200px"></canvas>
-                        <canvas id="slider" width="250px" height="60px"></canvas>
-                    </center>
-                </div>
-            </div>
-        </content>
-                
         <div ng-show="camera.connected" class="list">
             <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
 
@@ -36,6 +25,17 @@
                 <button class="button button-dark button-block" ng-click="focus(1, 1, true)" ng-disabled="focusMoving"><i class="icon ion-arrow-right-b"></i></button>
                 <button class="button button-dark button-block" ng-click="focus(2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-forward"></i></button>
             </div>
+
+            <content scroll="false" ng-hide="focusMode||intervalometerStatus.running">
+                <div class="list">
+                    <div class="row">
+                        <center style="width:100%">
+                            <canvas id="joystick" width="200px" height="200px" ng-show="panAvailable||tiltAvailable"></canvas>
+                            <canvas id="slider" width="250px" height="60px" ng-show="slideAvailable"></canvas>
+                        </center>
+                    </div>
+                </div>
+            </content>
 
             <div class="row" ng-hide="focusMode||intervalometerStatus.running" ng-repeat="a in axis | filter:{'connected':true}">
                 <div class="button-bar" ng-hide="a.setup">

@@ -1532,14 +1532,25 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         var axisIndex = $scope.getAxisIndex($scope.setupAxis.id);
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
-        checkPanTiltAvailable();
+        checkAxisFunctionsAvailable();
     };
-    function checkPanTiltAvailable() {
+    function checkAxisFunctionsAvailable() {
         var tilt = false;
         var pan = false;
+        var slide = false;
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].name == 'Pan' && $scope.axis[i].connected) pan = $scope.axis[i];
             if($scope.axis[i].name == 'Tilt' && $scope.axis[i].connected) tilt = $scope.axis[i];
+            if($scope.axis[i].name == 'Slide' && $scope.axis[i].connected) slide = $scope.axis[i];
+        }
+        if(slide) {
+            $scope.slideAvailable = slide;
+        }
+        if(pan) {
+            $scope.panAvailable = pan;
+        }
+        if(tilt) {
+            $scope.tiltAvailable = tilt;
         }
         if(pan && tilt) {
             $scope.panTiltAvailable = {pan: pan, tilt: tilt};
@@ -1627,7 +1638,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 }
             }
             $scope.motionMoving = moving;
-            checkPanTiltAvailable();
+            checkAxisFunctionsAvailable();
 
             console.log("$scope.axis", $scope.axis);
         });

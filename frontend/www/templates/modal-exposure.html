@@ -160,6 +160,16 @@
                     <button class="button button-dark button-block" ng-click="motionMoveToKeyframe(currentKf)" ng-disabled="motionMoving">Move to KF</button>
                     <button class="button button-dark button-block" ng-click="motionResetKeyframe(currentKf)">Reset KF to current</button>
                 </div>
+                <content scroll="false" ng-show="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <div class="list">
+                        <div class="row">
+                            <center style="width:100%">
+                                <canvas id="joystick" width="200px" height="200px" ng-show="panAvailable||tiltAvailable"></canvas>
+                                <canvas id="slider" width="250px" height="60px" ng-show="slideAvailable"></canvas>
+                            </center>
+                        </div>
+                    </div>
+                </content>
                 <div class="row" ng-repeat="a in axis | filter:{'connected':true}" ng-show="currentKf.motionEdited||motionAtKeyframe(currentKf)">
                     <div class="button-bar" ng-hide="a.setup">
                         <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>
