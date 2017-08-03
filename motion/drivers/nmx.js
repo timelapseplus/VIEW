@@ -207,7 +207,6 @@ function setAccel(motorId, rate, callback) {
 var inJoystickMode = false;
 var enabled = {};
 function constantMove(motorId, speed, callback) {
-    //if (motorRunning[motorId]) return console.log("NMX: motor already running");
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
     if(!enabled[motorId]) enable(motorId);
     if(!inJoystickMode) return joystickMode(true, function(){
@@ -729,9 +728,13 @@ function _runQueue(queueItem, rec) {
         _queueRunning = false;
         _nmxQueue = [];
         console.log("NMX: error not connected");
-        if (nextItem && nextItem.callback) {
-            return nextItem.callback("not connected");
+        while(nextItem) {
+            if (nextItem && nextItem.callback) {
+                nextItem.callback && nextItem.callback("not connected");
+            }
+            nextItem = _nmxQueue.shift();
         }
+        return;
     }
 
 
