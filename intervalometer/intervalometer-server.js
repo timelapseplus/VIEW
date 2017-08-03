@@ -473,29 +473,51 @@ function btStateChange(state) {
           motion.nmx.disconnect();
           sendEvent('motion.status', motion.status);
         }
-        var status = motion.gm.getStatus();
+        var status = motion.gm1.getStatus();
         console.log("CORE: GenieMini status:", status);
         if(status.connected && status.connectionType == "bt") {
           console.log("CORE: disconnected GenieMini, bluetooth powered off");
-          motion.gm.disconnect();
+          motion.gm1.disconnect();
+          sendEvent('motion.status', motion.status);
+        }
+        var status = motion.gm2.getStatus();
+        console.log("CORE: GenieMini status:", status);
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected GenieMini, bluetooth powered off");
+          motion.gm2.disconnect();
           sendEvent('motion.status', motion.status);
         }
     }
 }
 function btDiscover(peripheral) {
     //console.log('ble', peripheral);
-    motion.nmx.connect(peripheral, function(connected) {
-      if(connected) {
-        stopScan();
+    var connectGM = function(cb) {
+      var status = motion.gm1.getStatus();
+      if(status.connected && status.connectionType == "bt") {
+        var status = motion.gm2.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          stopScan();
+        } else {
+          motion.gm2.connect(peripheral, function(connected) {
+          });
+        }
       } else {
-        console.log("trying to connect to GenieMini...");
-        motion.gm.connect(peripheral, function(connected) {
-          if(connected) {
-            stopScan();
-          }
+        motion.gm1.connect(peripheral, function(connected) {
         });
       }
-    });
+    }
+    var status = motion.nmx.getStatus();
+    if(status.connected && status.connectionType == "bt") {
+      connectGM();
+    } else {
+      motion.nmx.connect(peripheral, function(connected) {
+        if(connected) {
+          stopScan();
+        } else {
+          connectGM();
+        }
+      });
+    }
 }
 
 function cleanUpBt() {

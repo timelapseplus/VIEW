@@ -646,11 +646,13 @@ function _connectBt(btPeripheral, callback) {
                             if (callback) callback(true);
                         });
                     } else {
+                        _dev.connected = false;
                         btPeripheral.disconnect();
                         if (callback) callback(false);
                     }
                 });
             } else {
+                _dev.connected = false;
                 btPeripheral.disconnect();
                 if (callback) callback(false);
             }
@@ -659,8 +661,16 @@ function _connectBt(btPeripheral, callback) {
 
         btPeripheral.once('disconnect', function() {
             console.log("NMX: disconnected");
-            _dev = null;
-            nmx.emit("status", getStatus());
+            if(_dev && _dev.connected) {
+                console.log("NMX: trying to reconnect");
+                _dev.connected = false;
+                setTimeout(function(){
+                    _connectBt(btPeripheral);        
+                });
+            } else {
+                _dev = null;
+                nmx.emit("status", getStatus());
+            }
         });
 
     });
