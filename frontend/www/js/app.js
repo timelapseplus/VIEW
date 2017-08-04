@@ -187,15 +187,15 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (toState.name == "app.view") {
             $scope.getClips();
         } else if(toState.name == "app.capture") {
-            $timeout(function(){
-                setupJoystickControls();
-            });
+            setupJoystickControls();
         }
     });
 
-    if($state.current.name == 'app.capture') {
-        setupJoystickControls();
-    }
+    $timeout(function(){
+        if($state.current.name == 'app.capture') {
+            setupJoystickControls();
+        }
+    }, 2000);
 
     function updateCache() {
         console.log("updating cache");
