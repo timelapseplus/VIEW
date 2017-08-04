@@ -129,6 +129,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             delete controls.slider;
         }
         $timeout(function(){
+            $('#motionControls').html('<canvas id="joystick" width="200px" height="200px"></canvas><canvas id="slider" width="250px" height="60px"></canvas>');                                
+                                
             if($scope.panAvailable || $scope.tiltAvailable) {
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
