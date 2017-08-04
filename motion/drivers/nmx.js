@@ -218,7 +218,7 @@ function constantMove(motorId, speed, callback) {
     });
     var m = new Buffer(4);
     m.fill(0);
-    var maxSpeed =  4250 + 750;
+    var maxSpeed = 3000;
     speed = Math.floor((speed / 100) * maxSpeed);
     if(speed > maxSpeed) speed = maxSpeed;
     if(speed < -maxSpeed) speed = -maxSpeed;
@@ -233,8 +233,9 @@ function constantMove(motorId, speed, callback) {
 
     _queueCommand(cmd, function(err) {
         if (!err) {
-            motorRunning[motorId] = false;
-                if(speed != 0) return callback && callback(null); // only check position when stopped
+            if(speed != 0) {
+                return callback && callback(null); // only check position when stopped
+            } else {
                 setTimeout(function() {
                     motorRunning[motorId] = false;
                     checkMotorPosition(motorId, function(position) {
@@ -242,6 +243,7 @@ function constantMove(motorId, speed, callback) {
                         if (callback) callback(null, position);
                     });
                 }, 200);
+            }
         } else {
             if (callback) callback(err);
             motorRunning[motorId] = false;
@@ -594,9 +596,9 @@ function init() {
         //resetMotorPosition(1);
         //resetMotorPosition(2);
         //resetMotorPosition(3);
-        setAccel(1, 25000);
-        setAccel(2, 25000);
-        setAccel(3, 25000);
+        setAccel(1, 12675);
+        setAccel(2, 12675);
+        setAccel(3, 12675);
     });
 }
 

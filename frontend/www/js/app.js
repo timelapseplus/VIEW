@@ -1196,7 +1196,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(joystickTimers[axisName]) $timeout.cancel(joystickTimers[axisName]);
         joystickTimers[axisName] = $timeout(function(){
             joystickTimers[axisName] = null;
-        }, 100);
+        }, 200);
         sendJoystickCommand();
     }
 
