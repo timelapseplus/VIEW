@@ -187,7 +187,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if (toState.name == "app.view") {
             $scope.getClips();
         } else if(toState.name == "app.capture") {
-            setupJoystickControls();
+            $timeout(function(){
+                setupJoystickControls();
+            });
         }
     });
 
