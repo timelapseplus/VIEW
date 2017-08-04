@@ -191,7 +191,7 @@ function setAccel(motorId, rate, callback) {
 
     var m = new Buffer(4);
     m.fill(0);
-    m.writeUInt32BE(rate, 0, 4);
+    m.writeFloatBE(rate, 0, 4);
 
     var cmd = {
         motor: motorId,
