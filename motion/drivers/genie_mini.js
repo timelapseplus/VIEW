@@ -89,7 +89,6 @@ GenieMini.prototype._parseIncoming = function(data) {
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
         this._angle = angle;
-        if(this._lastAngle == null) this._lastAngle = angle;
         this._moving = (state == 0x01);
         console.log("GenieMini: moving: ", this._moving, ", angle:", angle);
         if(this._currentMove != null && this._lastAngle != null) {
@@ -216,39 +215,51 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
     this._moving = true;
 
+    var sendMove = function() {
+        self._write(0x003F, dataBuf, function(err) {
+            if (!err) {
+                var check = function() {
+                    if(this._endTimer) clearTimeout(this._endTimer);
+                    if(!speed) {
+                        self._endTimer = setTimeout(function() {
+                            if(self._moving === undefined) return;
+                            if(self._moving) {
+                                check(); // keep checking until stop
+                            } else {
+                                console.log("GenieMini: adding", self._currentMove, "° to position");
+                                self._position += self._currentMove * self._stepsPerDegree;
+                                self._currentMove = null;
+                                if (callback) callback(null, self._position / self._stepsPerDegree);
+                            }
+                        }, 200);
+                    } else {
+                        if (callback) callback(null, null);
+                    }
+                }
+                check();
+            } else {
+                if (callback) callback(err);
+                self._moving = false;
+            }
+        });
+    }
+
     var self = this;
     if(this._endTimer) clearTimeout(this._endTimer);
     if(self._currentMove == null) {
         self._lastAngle = null;
         self._currentMove = 0;
         console.log("GenieMini: starting move at speed, saving position");
+        var d = new Buffer(2);
+        d.fill(0);
+        d.writeUInt16LE(0x000B, 0);
+        this._moving = true;
+        self._write(0x001E, d, function(err) {
+            sendMove();
+        });
+    } else {
+        sendMove();
     }
-    self._write(0x003F, dataBuf, function(err) {
-        if (!err) {
-            var check = function() {
-                if(this._endTimer) clearTimeout(this._endTimer);
-                if(!speed) {
-                    self._endTimer = setTimeout(function() {
-                        if(self._moving === undefined) return;
-                        if(self._moving) {
-                            check(); // keep checking until stop
-                        } else {
-                            console.log("GenieMini: adding", self._currentMove, "° to position");
-                            self._position += self._currentMove * self._stepsPerDegree;
-                            self._currentMove = null;
-                            if (callback) callback(null, self._position / self._stepsPerDegree);
-                        }
-                    }, 200);
-                } else {
-                    if (callback) callback(null, null);
-                }
-            }
-            check();
-        } else {
-            if (callback) callback(err);
-            self._moving = false;
-        }
-    });
 }
 
 GenieMini.prototype.resetMotorPosition = function(motor, callback) {
