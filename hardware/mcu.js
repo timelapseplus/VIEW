@@ -5,6 +5,7 @@ var _ = require('underscore');
 var geoTz = require('geo-tz');
 var GPS = require('gps');
 var moment = require('moment');
+require('rootpath')();
 var power = require('./hardware/power.js');
 var gps = new GPS;
 var MCU_VERSION = 2;
