@@ -4,6 +4,12 @@ var CMD_MOTOR_MOVE = {
     hasAck: true,
     delay: 0
 }
+var CMD_MOTOR_STOP = {
+    cmd: 0x04,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
 var CMD_MOTOR_MOVE_CONSTANT = {
     cmd: 0x0D,
     hasReponse: false,
@@ -396,7 +402,12 @@ function joystickMode(en, callback) {
             command: CMD_JOYSTICK_WATCHDOG,
             dataBuf: new Buffer("00", 'hex')
         }
-        _queueCommand(cmd2, function(err) {
+        _queueCommand(cmd2, function(err) {});
+        cmd3 = {
+            motor: 0,
+            command: CMD_MOTOR_STOP
+        }
+        _queueCommand(cmd3, function(err) {
             checkMode();
         });
     } else {
