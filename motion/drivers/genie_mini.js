@@ -230,7 +230,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
                         if(self._moving) {
                             check(); // keep checking until stop
                         } else {
-                            self._position += self._currentMove * self._stepsPerDegree;
+                            self._position -= self._currentMove * self._stepsPerDegree;
                             self._currentMove = null;
                             if (callback) callback(null, self._position / self._stepsPerDegree);
                         }
