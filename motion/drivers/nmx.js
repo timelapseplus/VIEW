@@ -159,17 +159,17 @@ function move(motorId, steps, callback) {
 
     _queueCommand(cmd, function(err) {
         if (!err) {
-            (function check(motorId) {
+            (function check(mId) {
                 setTimeout(function() {
-                    checkMotorRunning(motorId, function(moving) {
+                    checkMotorRunning(mId, function(moving) {
                         if(moving === undefined) return;
                         if (moving) {
-                            motorRunning[motorId] = true;
-                            check(motorId); // keep checking until stop
+                            motorRunning[mId] = true;
+                            check(mId); // keep checking until stop
                         } else {
-                            motorRunning[motorId] = false;
-                            checkMotorPosition(motorId, function(position) {
-                                motorPos[motorId] = position;
+                            motorRunning[mId] = false;
+                            checkMotorPosition(mId, function(position) {
+                                motorPos[mId] = position;
                                 //keepAlive(true);
                                 if (callback) callback(null, position);
                             })
@@ -233,16 +233,27 @@ function constantMove(motorId, speed, callback) {
 
     _queueCommand(cmd, function(err) {
         if (!err) {
-            if(speed != 0) {
-                return callback && callback(null); // only check position when stopped
+            if(speed == 0) {
+                (function checkC(mId) {
+                    setTimeout(function() {
+                        checkMotorRunning(mId, function(moving) {
+                            if(moving === undefined) return;
+                            if (moving) {
+                                motorRunning[mId] = true;
+                                checkC(mId); // keep checking until stop
+                            } else {
+                                motorRunning[mId] = false;
+                                checkMotorPosition(mId, function(position) {
+                                    motorPos[mId] = position;
+                                    //keepAlive(true);
+                                    if (callback) callback(null, position);
+                                })
+                            }
+                        });
+                    }, 200);
+                })(motorId);
             } else {
-                setTimeout(function() {
-                    motorRunning[motorId] = false;
-                    checkMotorPosition(motorId, function(position) {
-                        motorPos[motorId] = position;
-                        if (callback) callback(null, position);
-                    });
-                }, 200);
+                return callback && callback(null); // only check position when stopped
             }
         } else {
             if (callback) callback(err);

@@ -118,21 +118,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     var controls = {};
     var joystickEnabled = true;
 
-    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
-        console.log("new state:", toState);
-        localStorageService.set('state', toState.name);
-        if (toState.name == "app.view") {
-            $scope.getClips();
-        } else if(joystickEnabled && toState.name == "app.capture") {
-            if(controls.joystick) {
-                controls.joystick.delete();
-                delete controls.joystick;
-            }
-            if(controls.slider) {
-                controls.slider.delete();
-                delete controls.slider;
-            }
-            $timeout(function(){
+    function setupJoystickControls() {
+        if (!joystickEnabled) return;
+        if(controls.joystick) {
+            controls.joystick.delete();
+            delete controls.joystick;
+        }
+        if(controls.slider) {
+            controls.slider.delete();
+            delete controls.slider;
+        }
+        $timeout(function(){
+            if($scope.panAvailable || $scope.tiltAvailable) {
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
                     $scope.joystick('pan', x);
@@ -156,6 +153,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });
                 });
+            }
+            if($scope.slideAvailable) {
                 controls.slider = new window.TouchControl('slider');
                 controls.slider.on('pos', function(x) {
                     $scope.joystick('slide', x);
@@ -177,7 +176,17 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
                     });
                 });
-            });
+            }
+        });
+    }
+
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        console.log("new state:", toState);
+        localStorageService.set('state', toState.name);
+        if (toState.name == "app.view") {
+            $scope.getClips();
+        } else if(toState.name == "app.capture") {
+            setupJoystickControls();
         }
     });
 
@@ -1167,10 +1176,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.joystick = function(axisName, speed) {
         var index = null;
         var axisId = null;
+        var reverse = null;
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected && $scope.axis[i].name.toLowerCase() == axisName.toLowerCase()) {
                 index = i;
                 axisId = $scope.axis[index].id;
+                reverse = $scope.axis[index].reverse;
                 break;
             }
         }
@@ -1186,7 +1197,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 console.log("joystick motor" + a, s);
                 sendMessage('motion', {
                     key: 'joystick',
-                    val: s * 100,
+                    val: s * 100 * (reverse ? -1 : 1),
                     driver: driver,
                     motor: motor
                 });
@@ -1295,6 +1306,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.zoom();
         }
         $scope.mode = mode;
+        if(mode == 'motion') setupJoystickControls();
     }
 
     $scope.runProgram = function(program) {
