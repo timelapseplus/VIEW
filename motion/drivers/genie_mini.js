@@ -89,6 +89,7 @@ GenieMini.prototype._parseIncoming = function(data) {
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
         this._angle = angle;
+        if(this._lastAngle == null) this._lastAngle = angle;
         this._moving = (state == 0x01);
         console.log("GenieMini: moving: ", this._moving, ", angle:", angle);
         if(this._currentMove != null && this._lastAngle != null) {
@@ -218,7 +219,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     var self = this;
     if(this._endTimer) clearTimeout(this._endTimer);
     if(self._currentMove == null) {
-        self._lastAngle = self._angle;
+        self._lastAngle = null;
         self._currentMove = 0;
         console.log("GenieMini: starting move at speed, saving position");
     }
