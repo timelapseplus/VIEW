@@ -61,7 +61,7 @@ mcu.validCoordinates = function() {
 	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
 		lat = mcu.lastGpsFix.lat;
 		lon = mcu.lastGpsFix.lon;
-	} else if(!power.gpsEnabled == 'disabled' && mcu.customLatitude !== null && mcu.customLongitude != null) {
+	} else if((power.gpsEnabled == 'disabled' || !mcu.gpsAvailable) && mcu.customLatitude !== null && mcu.customLongitude != null) {
 		lat = mcu.customLatitude;
 		lon = mcu.customLongitude;
 	}

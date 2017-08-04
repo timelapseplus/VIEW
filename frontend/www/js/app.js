@@ -1201,6 +1201,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(index === null) return false;
         if(speed && joystickTimers[axisName]) return false; // rate limit per axis
 
+        if($scope.currentKf) $scope.currentKf.motionEdited = true;
+        if($scope.currentKf) $scope.currentKf.imageCurrent = false;
+
         var sendJoystickCommand = (function(a, s) { return function() {
             console.log("moving ", axisId);
             var parts = a.split('-');
