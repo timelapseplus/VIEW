@@ -132,6 +132,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             if($scope.panAvailable || $scope.tiltAvailable) {
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
+                    y = 0 - y;
                     $scope.joystick('pan', x);
                     $scope.joystick('tilt', y);
                     console.log("joystick pos", x, y);
@@ -1545,7 +1546,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
         checkAxisFunctionsAvailable();
-        setupJoystickControls();
+        $timeout(function(){
+            setupJoystickControls();
+        });
     };
     function checkAxisFunctionsAvailable() {
         var tilt = false;
