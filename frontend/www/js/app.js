@@ -191,6 +191,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     });
 
+    if($state.current.name == 'app.capture') {
+        setupJoystickControls();
+    }
+
     function updateCache() {
         console.log("updating cache");
         window.applicationCache.swapCache();
