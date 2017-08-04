@@ -5,6 +5,7 @@ var _ = require('underscore');
 var geoTz = require('geo-tz');
 var GPS = require('gps');
 var moment = require('moment');
+var power = require('./hardware/power.js');
 var gps = new GPS;
 var MCU_VERSION = 2;
 
@@ -59,7 +60,7 @@ mcu.validCoordinates = function() {
 	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
 		lat = mcu.lastGpsFix.lat;
 		lon = mcu.lastGpsFix.lon;
-	} else if(!mcu.gpsAvailable && mcu.customLatitude !== null && mcu.customLongitude != null) {
+	} else if(!power.gpsEnabled == 'disabled' && mcu.customLatitude !== null && mcu.customLongitude != null) {
 		lat = mcu.customLatitude;
 		lon = mcu.customLongitude;
 	}
