@@ -1552,8 +1552,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
         checkAxisFunctionsAvailable();
+        var mode = $scope.mode;
+        $scope.mode = "";
         $timeout(function(){
-            setupJoystickControls();
+            $scope.mode = mode;
+            $timeout(function(){
+                setupJoystickControls();
+            });
         });
     };
     function checkAxisFunctionsAvailable() {
