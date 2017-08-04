@@ -1545,6 +1545,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.axis[axisIndex] = $scope.setupAxis;
         $scope.modalMotionSetup.hide();
         checkAxisFunctionsAvailable();
+        setupJoystickControls();
     };
     function checkAxisFunctionsAvailable() {
         var tilt = false;
