@@ -129,9 +129,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             delete controls.slider;
         }
         $timeout(function(){
-            angular.element('#motionControls').html('<canvas id="joystick" width="200px" height="200px"></canvas><canvas id="slider" width="250px" height="60px"></canvas>');                                
+            var elm = document.getElementById('motionControls');
+            var motionControls = angular.element(elm);
+            motionControls.empty();
                                 
             if($scope.panAvailable || $scope.tiltAvailable) {
+                motionControls.append('<canvas id="joystick" width="200px" height="200px"></canvas>');
                 controls.joystick = new window.TouchControl('joystick');
                 controls.joystick.on('pos', function(x, y) {
                     y = 0 - y;
@@ -158,6 +161,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
             }
             if($scope.slideAvailable) {
+                motionControls.append('<canvas id="slider" width="250px" height="60px"></canvas>');
                 controls.slider = new window.TouchControl('slider');
                 controls.slider.on('pos', function(x) {
                     $scope.joystick('slide', x);
