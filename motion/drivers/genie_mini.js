@@ -96,9 +96,9 @@ GenieMini.prototype._parseIncoming = function(data) {
                 this._currentMove += angle - this._lastAngle;
             } else {
                 if(this._lastAngle < angle) {
-                    this._currentMove += 360 - (angle - this._lastAngle);
+                    this._currentMove += 359 - (angle - this._lastAngle);
                 } else {
-                    this._currentMove -= 360 - (this._lastAngle - angle);
+                    this._currentMove -= 359 - (this._lastAngle - angle);
                 }
             }
             console.log("GenieMini: _currentMove", this._currentMove);
@@ -232,6 +232,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
                         if(self._moving) {
                             check(); // keep checking until stop
                         } else {
+                            console.log("GenieMini: adding", self._currentMove, "° to position");
                             self._position += self._currentMove * self._stepsPerDegree;
                             self._currentMove = null;
                             if (callback) callback(null, self._position / self._stepsPerDegree);
