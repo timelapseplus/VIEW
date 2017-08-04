@@ -1379,6 +1379,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         $scope.currentKf.focusEdited = false; 
         $scope.currentKf.motionEdited = false; 
         $scope.currentKf.exposureEdited = false;
+        if($scope.mode == 'motion') {
+            $timeout(function(){
+                setupJoystickControls();
+            });
+        }
         if (kf) {
             $scope.secondsRange.val = TIMING_SLIDER_RANGE * Math.pow((kf.seconds / MAX_KF_SECONDS), TIMING_CURVE);
             $scope.ev3 = kf.ev * 3;

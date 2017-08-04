@@ -26,7 +26,7 @@
                 <button class="button button-dark button-block" ng-click="focus(2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-forward"></i></button>
             </div>
 
-            <content scroll="false" ng-hide="focusMode||intervalometerStatus.running">
+            <content scroll="false" ng-hide="focusMode||intervalometerStatus.running||!motionAvailable">
                 <div class="list">
                     <div class="row">
                         <center style="width:100%" id="motionControls"></center>

@@ -10,6 +10,24 @@ var CMD_MOTOR_STOP = {
     hasAck: true,
     delay: 0
 }
+var CMD_MOTOR_SEND = {
+    cmd: 0x1F,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
+var CMD_MOTOR_SET_POS = {
+    cmd: 0x20,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
+var CMD_MOTOR_STOP = {
+    cmd: 0x04,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
 var CMD_MOTOR_MOVE_CONSTANT = {
     cmd: 0x0D,
     hasReponse: false,
@@ -147,23 +165,38 @@ function move(motorId, steps, callback) {
     if(steps == 0) { // a move of zero steps triggers a bug in the NMX causing it to move extreme distances
         return callback && callback(null, motorPos[motorId]);
     }
-    var m = new Buffer(5);
-    m.fill(0);
-    m[0] = 1;
-    if (steps < 0) {
-        m[0] = 0;
-        steps = 0 - steps;
-    }
-    m.writeUInt32BE(steps, 1, 4);
+    //var m = new Buffer(5);
+    //m.fill(0);
+    //m[0] = 1;
+    //if (steps < 0) {
+    //    m[0] = 0;
+    //    steps = 0 - steps;
+    //}
+    //m.writeUInt32BE(steps, 1, 4);
+
+    var pos1 = new Buffer(4);
+    pos1.fill(0);
+    pos1.writeInt32BE(motorPos[motorId], 0, 4);
+
+    var pos2 = new Buffer(4);
+    pos2.fill(0);
+    pos2.writeInt32BE(motorPos[motorId] + steps, 0, 4);
+
     motorRunning[motorId] = true;
 
-    var cmd = {
+    var cmd1 = {
         motor: motorId,
-        command: CMD_MOTOR_MOVE,
-        dataBuf: m
+        command: CMD_MOTOR_SET_POS,
+        dataBuf: pos1
+    }
+    var cmd2 = {
+        motor: motorId,
+        command: CMD_MOTOR_SEND,
+        dataBuf: pos2
     }
 
-    _queueCommand(cmd, function(err) {
+    _queueCommand(cmd1, function(err) {});
+    _queueCommand(cmd2, function(err) {
         if (!err) {
             (function check(mId) {
                 setTimeout(function() {
