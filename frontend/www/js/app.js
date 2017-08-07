@@ -1605,7 +1605,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             $scope.setupAxis.unit = '°';
             $scope.setupAxis.unitMove = 5;
             if($scope.setupAxis.driver == 'NMX') {
-                $scope.setupAxis.unitSteps = 560;
+                if($scope.setupAxis.hardware == 'stager') {
+                    $scope.setupAxis.unitSteps = 558.63333334;
+                } else if($scope.setupAxis.hardware == 'sapphire') {
+                    $scope.setupAxis.unitSteps = 550.81967213;
+                }
             } else if($scope.setupAxis.driver == 'GM') {
                 $scope.setupAxis.unitSteps = 1;
             }
@@ -1620,10 +1624,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
     $scope.changeAxisHardware = function(hardware) {
         $scope.setupAxis.hardware = hardware;
-        if(hardware == 'sapphire') {
-            $scope.setupAxis.unitSteps = 560;
-        } else if(hardware == 'stager') {
-            $scope.setupAxis.unitSteps = 560;
+        if($scope.setupAxis.hardware == 'stager') {
+            $scope.setupAxis.unitSteps = 558.63333334;
+        } else if($scope.setupAxis.hardware == 'sapphire') {
+            $scope.setupAxis.unitSteps = 550.81967213;
         }
     }
     $scope.changeAxisUnitSteps = function(unitSteps) {
