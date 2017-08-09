@@ -1211,8 +1211,8 @@ if (VIEW_HARDWARE) {
                     action: rampingOptionsPlan(groupIndex),
                 }, {
                     name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
-                    help: help.intervalOptionsPlan(groupIndex),
-                    action: intervalOptions(groupIndex),
+                    help: help.intervalOptions,
+                    action: intervalOptionsPlan(groupIndex),
                 }, {
                     name: valueDisplay("Interval", core.currentProgram, 'interval'),
                     action: intervalPlan(groupIndex),
