@@ -1039,6 +1039,7 @@ if (VIEW_HARDWARE) {
     }
 
     var planGroupMenu = function(groupIndex) {
+        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
         return {
             name: "planGroup" + groupIndex,
             type: 'menu',
