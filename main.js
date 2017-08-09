@@ -683,7 +683,7 @@ if (VIEW_HARDWARE) {
         action: ui.set(core.currentProgram, 'interval', i * 60)
     });
 
-    var dayIntervalPlan = function(planIndex) {
+    var intervalPlan = function(planIndex) {
         if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
         if(!core.currentProgram.exposurePlans[planIndex].interval) core.currentProgram.exposurePlans[planIndex].interval = 6;
     
