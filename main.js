@@ -1207,7 +1207,9 @@ if (VIEW_HARDWARE) {
             }
         })(groupIndex);
         var fixedIntervalCheck = (function(index){
+            condition.log("setting index for closure to", index);
             return function() {
+                condition.log("using closure index", index);
                 return !(core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto');
             }
         })(groupIndex);
