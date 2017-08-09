@@ -240,6 +240,11 @@ if (VIEW_HARDWARE) {
             value: "Auto Ramping",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'auto')
+        }, {
+            name: "Timelapse Mode",
+            value: "Eclipse Mode",
+            help: help.rampingOptions,
+            action: ui.set(core.currentProgram, 'rampMode', 'eclipse')
         }]
     }
 
@@ -1033,6 +1038,45 @@ if (VIEW_HARDWARE) {
         help: help.timelapseStatus
     }
 
+    var planGroupMenu = function(groupIndex) {
+        return {
+            name: "planGroup" + groupIndex,
+            type: 'menu',
+            items: [
+                {
+                    name: valueDisplay("Exposure Mode", core.currentProgram.exposurePlans[groupIndex], 'mode'),
+                    help: help.rampingOptions,
+                    action: rampingOptions,
+                }, {
+                    name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
+                    help: help.intervalOptions,
+                    action: intervalOptions,
+                }, {
+                    name: valueDisplay("Interval", core.currentProgram, 'interval'),
+                    action: interval,
+                    help: help.interval,
+                    condition: function() {
+                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'fixed' || (core.currentProgram.exposurePlans[groupIndex].intervalMode != 'aux' && core.currentProgram.exposurePlans[groupIndex].mode == 'fixed');
+                    }
+                }, {
+                    name: valueDisplay("Day Interval", core.currentProgram, 'dayInterval'),
+                    action: dayInterval,
+                    help: help.dayInterval,
+                    condition: function() {
+                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
+                    }
+                }, {
+                    name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
+                    action: nightInterval,
+                    help: help.nightInterval,
+                    condition: function() {
+                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
+                    }
+                }
+            ]
+        }
+    }
+
     var timelapseMenu = {
         name: "time-lapse",
         type: "menu",
@@ -1094,7 +1138,7 @@ if (VIEW_HARDWARE) {
             help: help.intervalOptions,
             action: intervalOptions,
             condition: function() {
-                return core.currentProgram.rampMode != 'fixed';
+                return core.currentProgram.rampMode != 'fixed' && core.currentProgram.rampMode != 'eclipse';;
             }
         }, {
             name: valueDisplay("Interval", core.currentProgram, 'interval'),
@@ -1122,7 +1166,7 @@ if (VIEW_HARDWARE) {
             action: framesOptions,
             help: help.framesOptions,
             condition: function() {
-                return core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed';
+                return (core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed') && core.currentProgram.rampMode != 'eclipse';
             }
         }, {
             name: valueDisplay("Tracking", core.currentProgram, 'tracking'),
@@ -1153,6 +1197,41 @@ if (VIEW_HARDWARE) {
             help: help.destinationOptions,
             condition: function() {
                 return core.sdPresent;
+            }
+        }, {
+            name: "Pre-eclipse Setup",
+            action: planGroupMenu(0),
+            help: help.rampingOptionsMenu,
+            condition: function() {
+                return core.currentProgram.rampMode == 'eclipse';
+            }
+        }, {
+            name: "Partial (C1-C2) Setup",
+            action: planGroupMenu(1),
+            help: help.rampingOptionsMenu,
+            condition: function() {
+                return core.currentProgram.rampMode == 'eclipse';
+            }
+        }, {
+            name: "Totality (C2-C3) Setup",
+            action: planGroupMenu(2),
+            help: help.rampingOptionsMenu,
+            condition: function() {
+                return core.currentProgram.rampMode == 'eclipse';
+            }
+        }, {
+            name: "Partial (C3-C4) Setup",
+            action: planGroupMenu(3),
+            help: help.rampingOptionsMenu,
+            condition: function() {
+                return core.currentProgram.rampMode == 'eclipse';
+            }
+        }, {
+            name: "Post-eclipse Setup",
+            action: planGroupMenu(4),
+            help: help.rampingOptionsMenu,
+            condition: function() {
+                return core.currentProgram.rampMode == 'eclipse';
             }
         }, {
             name: "Ramping Options",

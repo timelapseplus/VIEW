@@ -14,6 +14,7 @@ var Button = require('gpio-button');
 var gpio = require('linux-gpio');
 var _ = require('underscore');
 var suncalc = require('suncalc');
+var eclipse = require('eclipse');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
@@ -387,7 +388,15 @@ function setupExposure(cb) {
     busyExposure = true;
     camera.ptp.getSettings(function() {
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-        camera.setEv(status.rampEv, getEvOptions(), function(err, res) {
+        var diff = 0;
+        if(status.hdrSet && status.hdrSet.length > 0) {
+            if(!status.hdrIndex) status.hdrIndex = 0;
+            if(status.hdrIndex > 0 && status.hdrIndex <= status.hdrSet.length) {
+                diff = status.hdrSet[status.hdrIndex - 1];
+            }
+            status.hdrIndex++;
+        }
+        camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
             if(res.ev != null) {
                 status.cameraEv = res.ev;
             } 
@@ -400,8 +409,81 @@ function setupExposure(cb) {
     });
 }
 
+function planHdr(hdrCount, hdrStops) {
+    var totalHdr = Math.floor(hdrCount) - 1;
+    var overHdr = Math.floor(totalHdr / 2);
+    var underHdr = totalHdr - overHdr;
+
+    var overSet = [];
+    var underSet = [];
+
+    for(var i = 0; i < overHdr; i++) {
+        overSet = hdrStops * (i + 1);                        
+    }
+    for(var i = 0; i < underHdr; i++) {
+        underSet = hdrStops * -(i + 1);                        
+    }
+
+    status.hdrSet = [];
+    
+    while(overSet.length || underSet.length) {
+        if(overSet.length) status.hdrSet.push(overSet.shift());
+        if(underSet.length) status.hdrSet.push(underSet.shift());
+    }
+}
+
+function checkCurrentPlan() {
+    if(intervalometer.currentProgram.exposurePlans && intervalometer.currentProgram.exposurePlans.length > 0) {
+        var planIndex = null;                        
+        var now = new Date();
+        for(var i = 0; i < intervalometer.currentProgram.exposurePlans; i++) {
+            if(intervalometer.currentProgram.exposurePlans[i].start >= now) planIndex = i;
+        }
+        if(status.currentPlanIndex !== planIndex) {
+            status.currentPlanIndex = planIndex;
+            var plan = intervalometer.currentProgram.exposurePlans[planIndex];
+            /*
+                each plan has the following:
+                .mode = 'preset', 'lock', 'auto'
+                .ev = EV (if .mode == 'fixed')
+                .hdrCount  = 0, 1 = none, 2+ = hdr
+                .hdrStops = stops between each hdr photo
+                .intervalMode = 'fixed', 'auto'
+                .interval
+                .dayInterval
+                .nightIntervl
+            */
+            if(plan.mode == 'auto') {
+                status.rampMode = 'fixed';
+                if(status.rampEv == null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+            }
+            if(plan.mode == 'lock') {
+                if(status.rampEv == null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                status.rampMode = 'fixed';
+            }
+            if(plan.mode == 'preset') {
+                status.rampMode = 'fixed';
+                status.rampEv = plan.ev;
+            }
+            if(intervalometer.currentProgram.intervalMode != 'aux') {
+                intervalometer.currentProgram.intervalMode = plan.intervalMode;
+                if(plan.intervalMode == 'fixed') {
+                    intervalometer.currentProgram.interval = plan.interval;
+                }
+                else if(plan.intervalMode == 'fixed') {
+                    intervalometer.currentProgram.dayInterval = plan.dayInterval;
+                    intervalometer.currentProgram.nightInterval = plan.nightInterval;
+                }
+            }
+            planHdr(plan.hdrCount, plan.hdrStops);
+        }
+
+    }
+}
+
 var busyPhoto = false;
 var retryHandle = null;
+var referencePhotoRes = null;
 
 function runPhoto() {
     if(!status.running) {
@@ -409,7 +491,7 @@ function runPhoto() {
         status.stopping = false;
         return;
     }
-    if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode == "auto") {
+    if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode != "fixed") {
         if (status.running) retryHandle = setTimeout(runPhoto, 100);
         return;
     }
@@ -480,6 +562,12 @@ function runPhoto() {
             captureOptions.exposureCompensation = status.evDiff || 0;
             captureOptions.calculateEv = true;
 
+            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
+                captureOptions.calculateEv = false;
+            } else {
+                captureOptions.calculateEv = true;
+            }
+
             if(intervalometer.currentProgram.intervalMode == 'aux') {
                 if(status.intervalStartTime) status.intervalMs = ((new Date() / 1000) - status.intervalStartTime) * 1000;
                 status.intervalStartTime = new Date() / 1000;
@@ -495,37 +583,55 @@ function runPhoto() {
             var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
             setTimeout(motionSyncPulse, msDelayPulse);
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
+
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
+                    if(!status.hdrIndex) referencePhotoRes = photoRes;
+                    if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex < status.hdrSet.length) {
+                        return setupExposure(runPhoto);
+                    } else {
+                        status.hdrIndex = 0;
+                    }
+
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
                     if(!status.bufferSeconds) {
                         status.bufferSeconds = bufferTime;
                     } else if(bufferTime != status.bufferSeconds) {
                         status.bufferSeconds = (status.bufferSeconds + bufferTime) / 2;
                     }
-                    status.path = photoRes.file;
-                    if(photoRes.cameraCount > 1) {
-                        for(var i = 0; i < photoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
+                    status.path = referencePhotoRes.file;
+                    if(referencePhotoRes.cameraCount > 1) {
+                        for(var i = 0; i < referencePhotoRes.cameraResults.length; i++) {
+                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(referencePhotoRes.cameraResults[i].file), referencePhotoRes.cameraResults[i].cameraIndex, referencePhotoRes.cameraResults[i].thumbnailPath);
                         }
                     } else {
-                        db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, photoRes.thumbnailPath);
+                        db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, referencePhotoRes.thumbnailPath);
                     }
                     intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
-                    status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, status.rampEv, photoRes.ev, photoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
-                    status.rampRate = exp.status.rate;
-                    status.path = photoRes.file;
-                    status.message = "running";
-                    if(intervalometer.currentProgram.intervalMode == 'aux') status.message = "waiting for AUX2...";
+
+                    if(status.rampMode == "auto") {
+                        status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
+                        status.rampRate = exp.status.rate;
+                    } else if(status.rampMode == "fixed") {
+                        status.rampRate = 0;
+                    }
+
+                    checkCurrentPlan();
+
+                    status.path = referencePhotoRes.file;
+                    status.message = "running";                    
                     setupExposure();
+
                     if (status.framesRemaining > 0) status.framesRemaining--;
                     status.frames++;
                     writeFile();
+                    if(intervalometer.currentProgram.intervalMode == 'aux') status.message = "waiting for AUX2...";
                     intervalometer.emit("status", status);
                     console.log("TL: program status:", status);
                     if(status.frames == 1 && photoRes.ev > 2.5) {
                         error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then start again.");
                     }
+
                 } else {
                     if(!err) err = "unknown";
                     error("An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: " + err);
@@ -678,10 +784,22 @@ intervalometer.run = function(program) {
                 status.message = "starting";
                 status.frames = 0;
                 status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? Infinity : program.frames;
+                status.rampMode = program.rampMode; 
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
                 status.cameraSettings = camera.ptp.settings;
+                status.hdrSet = [];
+                status.hdrIndex = 0;
+                status.currentPlanIndex = null;
+
+                if(program.rampMode == 'auto') {
+                    checkCurrentPlan();
+                }
+
+                if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
+                    intervalometer.planHdr(program.hdrCount, program.hdrStops);
+                }
 
                 if(intervalometer.gpsData) {
                     status.latitude = intervalometer.gpsData.lat;
