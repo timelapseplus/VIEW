@@ -1204,15 +1204,15 @@ if (VIEW_HARDWARE) {
         var autoIntervalCheck = (function(index){
             return function() {
                 if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                return core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto';
+                return core.currentProgram.exposurePlans[index].intervalMode == 'auto';
             }
         })(groupIndex);
         var fixedIntervalCheck = (function(index){
             console.log("setting index for closure to", index);
             return function() {
-                console.log("using closure index", index);
+                console.log("using closure index", index, core.currentProgram.exposurePlans[index].intervalMode);
                 if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                return !(core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto');
+                return core.currentProgram.exposurePlans[index].intervalMode != 'auto';
             }
         })(groupIndex);
         return {
@@ -1248,7 +1248,7 @@ if (VIEW_HARDWARE) {
                     condition: function() {
                         return autoIntervalCheck();
                     }
-                }, {
+                //}, {
                     //name: valueDisplay("HDR Sets", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
                     //action: intervalPlan(groupIndex),
                     //help: help.interval,
