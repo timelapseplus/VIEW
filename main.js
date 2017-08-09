@@ -1203,6 +1203,7 @@ if (VIEW_HARDWARE) {
         if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
         var autoIntervalCheck = (function(index){
             return function() {
+                if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
                 return core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto';
             }
         })(groupIndex);
@@ -1210,6 +1211,7 @@ if (VIEW_HARDWARE) {
             console.log("setting index for closure to", index);
             return function() {
                 console.log("using closure index", index);
+                if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
                 return !(core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto');
             }
         })(groupIndex);
