@@ -1057,6 +1057,7 @@ if (VIEW_HARDWARE) {
                     action: interval,
                     help: help.interval,
                     condition: function() {
+                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
                         return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'fixed' || (core.currentProgram.exposurePlans[groupIndex].intervalMode != 'aux' && core.currentProgram.exposurePlans[groupIndex].mode == 'fixed');
                     }
                 }, {
@@ -1064,6 +1065,7 @@ if (VIEW_HARDWARE) {
                     action: dayInterval,
                     help: help.dayInterval,
                     condition: function() {
+                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
                         return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
                     }
                 }, {
@@ -1071,6 +1073,7 @@ if (VIEW_HARDWARE) {
                     action: nightInterval,
                     help: help.nightInterval,
                     condition: function() {
+                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
                         return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
                     }
                 }
