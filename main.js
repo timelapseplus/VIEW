@@ -248,6 +248,51 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var rampingOptionsPlan = function(planIndex) {
+        if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
+        if(!core.currentProgram.exposurePlans[planIndex].mode) core.currentProgram.exposurePlans[planIndex].mode = 'auto';
+        return {
+            name: "timelapse mode",
+            type: "options",
+            items: [{
+                name: "Timelapse Mode",
+                value: "Preset Exposure",
+                help: help.rampingOptions,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'mode', 'preset')
+            }, {
+                name: "Timelapse Mode",
+                value: "Auto Ramping",
+                help: help.rampingOptions,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'mode', 'auto')
+            }, {
+                name: "Timelapse Mode",
+                value: "Maintain Exposure",
+                help: help.rampingOptions,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'mode', 'locked')
+            }]
+        }
+    }
+
+    var intervalOptionsPlan = function(planIndex) {
+        if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
+        if(!core.currentProgram.exposurePlans[planIndex].intervalMode) core.currentProgram.exposurePlans[planIndex].intervalMode = 'fixed';
+        return {
+            name: "timelapse mode",
+            type: "options",
+            items: [{
+                name: "Interval Mode",
+                value: "Fixed Interval",
+                help: help.intervalOptions,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'intervalMode', 'fixed')
+            }, {
+                name: "Interval Mode",
+                value: "Auto Variable",
+                help: help.intervalOptions,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'intervalMode', 'auto')
+            }]
+        }
+    }
+
     var rampingAlgorithm = {
         name: "ramping algorithm",
         type: "options",
@@ -495,6 +540,37 @@ if (VIEW_HARDWARE) {
         action: ui.set(core.currentProgram, 'nightInterval', i)
     });
 
+    var nightIntervalPlan = function(planIndex) {
+        if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
+        if(!core.currentProgram.exposurePlans[planIndex].nightInterval) core.currentProgram.exposurePlans[planIndex].nightInterval = 30;
+
+        var res = {
+            name: "night interval",
+            type: "options",
+            items: []
+        }
+        for (var i = 6; i < 12; i++) res.items.push({
+            name: "Night Interval",
+            help: help.nightInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'nightInterval', i)
+        });
+        for (var i = 12; i < 35; i += 2) res.items.push({
+            name: "Night Interval",
+            help: help.nightInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'nightInterval', i)
+        });
+        for (var i = 35; i < 90; i += 5) res.items.push({
+            name: "Night Interval",
+            help: help.nightInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'nightInterval', i)
+        });
+
+        return res;
+    }
+
     var dayInterval = {
         name: "day interval",
         type: "options",
@@ -527,6 +603,46 @@ if (VIEW_HARDWARE) {
         value: i + " seconds",
         action: ui.set(core.currentProgram, 'dayInterval', i)
     });
+
+    var dayIntervalPlan = function(planIndex) {
+        if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
+        if(!core.currentProgram.exposurePlans[planIndex].dayInterval) core.currentProgram.exposurePlans[planIndex].dayInterval = 6;
+        var res = {
+            name: "day interval",
+            type: "options",
+            items: []
+        }
+        for (var i = 2; i < 5; i += 0.2) {
+            i = Math.floor(i * 10) / 10;
+            res.items.push({
+                name: "Day Interval",
+                help: help.dayInterval,
+                value: i + " seconds",
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
+            });
+        }
+        for (var i = 5; i < 12; i++) res.items.push({
+            name: "Day Interval",
+            help: help.dayInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
+        });
+        for (var i = 12; i < 35; i += 2) res.items.push({
+            name: "Day Interval",
+            help: help.dayInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
+        });
+        for (var i = 35; i < 90; i += 5) res.items.push({
+            name: "Day Interval",
+            help: help.dayInterval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
+        });
+
+        return res;
+    }
+
 
     var interval = {
         name: "interval",
@@ -567,6 +683,51 @@ if (VIEW_HARDWARE) {
         action: ui.set(core.currentProgram, 'interval', i * 60)
     });
 
+    var dayIntervalPlan = function(planIndex) {
+        if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
+        if(!core.currentProgram.exposurePlans[planIndex].interval) core.currentProgram.exposurePlans[planIndex].interval = 6;
+    
+        var res = {
+            name: "interval",
+            type: "options",
+            items: []
+        }
+        for (var i = 1.8; i < 5; i += 0.2) {
+            i = Math.floor(i * 10) / 10;
+            res.items.push({
+                name: "Interval",
+                help: help.interval,
+                value: i + " seconds",
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'interval', i)
+            });
+        }
+        for (var i = 5; i < 12; i++) res.items.push({
+            name: "Interval",
+            help: help.interval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'interval', i)
+        });
+        for (var i = 12; i < 35; i += 2) res.items.push({
+            name: "Interval",
+            help: help.interval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'interval', i)
+        });
+        for (var i = 35; i < 90; i += 5) res.items.push({
+            name: "Interval",
+            help: help.interval,
+            value: i + " seconds",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'interval', i)
+        });
+        for (var i = 2; i < 15; i += 1) res.items.push({
+            name: "Interval",
+            help: help.interval,
+            value: i + " minutes",
+            action: ui.set(core.currentProgram.exposurePlans[planIndex], 'interval', i * 60)
+        });
+
+        return res;
+    }
 
     var rampParameters = {
         name: "Ramp Parameters",
@@ -1047,14 +1208,14 @@ if (VIEW_HARDWARE) {
                 {
                     name: valueDisplay("Exposure Mode", core.currentProgram.exposurePlans[groupIndex], 'mode'),
                     help: help.rampingOptions,
-                    action: rampingOptions,
+                    action: rampingOptionsPlan(groupIndex),
                 }, {
                     name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
-                    help: help.intervalOptions,
-                    action: intervalOptions,
+                    help: help.intervalOptionsPlan(groupIndex),
+                    action: intervalOptions(groupIndex),
                 }, {
                     name: valueDisplay("Interval", core.currentProgram, 'interval'),
-                    action: interval,
+                    action: intervalPlan(groupIndex),
                     help: help.interval,
                     condition: function() {
                         if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
@@ -1062,7 +1223,7 @@ if (VIEW_HARDWARE) {
                     }
                 }, {
                     name: valueDisplay("Day Interval", core.currentProgram, 'dayInterval'),
-                    action: dayInterval,
+                    action: dayIntervalPlan(groupIndex),
                     help: help.dayInterval,
                     condition: function() {
                         if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
@@ -1070,7 +1231,7 @@ if (VIEW_HARDWARE) {
                     }
                 }, {
                     name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
-                    action: nightInterval,
+                    action: nightIntervalPlan(groupIndex),
                     help: help.nightInterval,
                     condition: function() {
                         if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
