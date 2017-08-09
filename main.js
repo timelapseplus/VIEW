@@ -1200,63 +1200,65 @@ if (VIEW_HARDWARE) {
     }
 
     var planGroupMenu = function(groupIndex) {
-        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-        var autoIntervalCheck = (function(index){
-            return function() {
-                if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                return core.currentProgram.exposurePlans[index].intervalMode == 'auto';
-            }
-        })(groupIndex);
-        var fixedIntervalCheck = (function(index){
-            console.log("setting index for closure to", index);
-            return function() {
-                console.log("using closure index", index, core.currentProgram.exposurePlans[index].intervalMode);
-                if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                return core.currentProgram.exposurePlans[index].intervalMode != 'auto';
-            }
-        })(groupIndex);
-        return {
-            name: "planGroup" + groupIndex,
-            type: 'menu',
-            items: [
-                {
-                    name: valueDisplay("Exposure Mode", core.currentProgram.exposurePlans[groupIndex], 'mode'),
-                    help: help.rampingOptions,
-                    action: rampingOptionsPlan(groupIndex),
-                }, {
-                    name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
-                    help: help.intervalOptions,
-                    action: intervalOptionsPlan(groupIndex),
-                }, {
-                    name: valueDisplay("Interval", core.currentProgram.exposurePlans[groupIndex], 'interval'),
-                    action: intervalPlan(groupIndex),
-                    help: help.interval,
-                    condition: function() {
-                        return fixedIntervalCheck();
-                    }
-                }, {
-                    name: valueDisplay("Day Interval", core.currentProgram.exposurePlans[groupIndex], 'dayInterval'),
-                    action: dayIntervalPlan(groupIndex),
-                    help: help.dayInterval,
-                    condition: function() {
-                        return autoIntervalCheck();
-                    }
-                }, {
-                    name: valueDisplay("Night Interval", core.currentProgram.exposurePlans[groupIndex], 'nightInterval'),
-                    action: nightIntervalPlan(groupIndex),
-                    help: help.nightInterval,
-                    condition: function() {
-                        return autoIntervalCheck();
-                    }
-                //}, {
-                    //name: valueDisplay("HDR Sets", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
-                    //action: intervalPlan(groupIndex),
-                    //help: help.interval,
-                    //condition: function() {
-                    //    return fixedIntervalCheck();
-                    //}
+        return function() {
+            if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
+            var autoIntervalCheck = (function(index){
+                return function() {
+                    if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
+                    return core.currentProgram.exposurePlans[index].intervalMode == 'auto';
                 }
-            ]
+            })(groupIndex);
+            var fixedIntervalCheck = (function(index){
+                console.log("setting index for closure to", index);
+                return function() {
+                    console.log("using closure index", index, core.currentProgram.exposurePlans[index].intervalMode);
+                    if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
+                    return core.currentProgram.exposurePlans[index].intervalMode != 'auto';
+                }
+            })(groupIndex);
+            return {
+                name: "planGroup" + groupIndex,
+                type: 'menu',
+                items: [
+                    {
+                        name: valueDisplay("Exposure Mode", core.currentProgram.exposurePlans[groupIndex], 'mode'),
+                        help: help.rampingOptions,
+                        action: rampingOptionsPlan(groupIndex),
+                    }, {
+                        name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
+                        help: help.intervalOptions,
+                        action: intervalOptionsPlan(groupIndex),
+                    }, {
+                        name: valueDisplay("Interval", core.currentProgram.exposurePlans[groupIndex], 'interval'),
+                        action: intervalPlan(groupIndex),
+                        help: help.interval,
+                        condition: function() {
+                            return fixedIntervalCheck();
+                        }
+                    }, {
+                        name: valueDisplay("Day Interval", core.currentProgram.exposurePlans[groupIndex], 'dayInterval'),
+                        action: dayIntervalPlan(groupIndex),
+                        help: help.dayInterval,
+                        condition: function() {
+                            return autoIntervalCheck();
+                        }
+                    }, {
+                        name: valueDisplay("Night Interval", core.currentProgram.exposurePlans[groupIndex], 'nightInterval'),
+                        action: nightIntervalPlan(groupIndex),
+                        help: help.nightInterval,
+                        condition: function() {
+                            return autoIntervalCheck();
+                        }
+                    //}, {
+                        //name: valueDisplay("HDR Sets", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
+                        //action: intervalPlan(groupIndex),
+                        //help: help.interval,
+                        //condition: function() {
+                        //    return fixedIntervalCheck();
+                        //}
+                    }
+                ]
+            }
         }
     }
 
