@@ -1201,6 +1201,16 @@ if (VIEW_HARDWARE) {
 
     var planGroupMenu = function(groupIndex) {
         if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
+        var autoIntervalCheck = (function(index){
+            return function() {
+                return core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto';
+            }
+        })(groupIndex);
+        var fixedIntervalCheck = (function(index){
+            return function() {
+                return !(core.currentProgram.exposurePlans[index].intervalMode == 'auto' && core.currentProgram.exposurePlans[index].mode == 'auto');
+            }
+        })(groupIndex);
         return {
             name: "planGroup" + groupIndex,
             type: 'menu',
@@ -1214,29 +1224,33 @@ if (VIEW_HARDWARE) {
                     help: help.intervalOptions,
                     action: intervalOptionsPlan(groupIndex),
                 }, {
-                    name: valueDisplay("Interval", core.currentProgram, 'interval'),
+                    name: valueDisplay("Interval", core.currentProgram.exposurePlans[groupIndex], 'interval'),
                     action: intervalPlan(groupIndex),
                     help: help.interval,
                     condition: function() {
-                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'fixed' || (core.currentProgram.exposurePlans[groupIndex].intervalMode != 'aux' && core.currentProgram.exposurePlans[groupIndex].mode == 'fixed');
+                        return fixedIntervalCheck();
                     }
                 }, {
-                    name: valueDisplay("Day Interval", core.currentProgram, 'dayInterval'),
+                    name: valueDisplay("Day Interval", core.currentProgram.exposurePlans[groupIndex], 'dayInterval'),
                     action: dayIntervalPlan(groupIndex),
                     help: help.dayInterval,
                     condition: function() {
-                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
+                        return autoIntervalCheck();
                     }
                 }, {
-                    name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
+                    name: valueDisplay("Night Interval", core.currentProgram.exposurePlans[groupIndex], 'nightInterval'),
                     action: nightIntervalPlan(groupIndex),
                     help: help.nightInterval,
                     condition: function() {
-                        if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
-                        return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto' && core.currentProgram.exposurePlans[groupIndex].mode == 'auto';
+                        return autoIntervalCheck();
                     }
+                }, {
+                    //name: valueDisplay("HDR Sets", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
+                    //action: intervalPlan(groupIndex),
+                    //help: help.interval,
+                    //condition: function() {
+                    //    return fixedIntervalCheck();
+                    //}
                 }
             ]
         }
