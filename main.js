@@ -234,17 +234,44 @@ if (VIEW_HARDWARE) {
             name: "Timelapse Mode",
             value: "Basic - Fixed",
             help: help.rampingOptions,
-            action: ui.set(core.currentProgram, 'rampMode', 'fixed')
+            action: ui.set(core.currentProgram, 'rampMode', 'fixed', function(){
+                core.currentProgram.exposurePlans = [];
+                ui.back();
+            })
         }, {
             name: "Timelapse Mode",
             value: "Auto Ramping",
             help: help.rampingOptions,
-            action: ui.set(core.currentProgram, 'rampMode', 'auto')
+            action: ui.set(core.currentProgram, 'rampMode', 'auto', function(){
+                core.currentProgram.exposurePlans = [];
+                ui.back();
+            })
         }, {
             name: "Timelapse Mode",
             value: "Eclipse Mode",
             help: help.rampingOptions,
-            action: ui.set(core.currentProgram, 'rampMode', 'eclipse')
+            action: ui.set(core.currentProgram, 'rampMode', 'eclipse', function(){
+                var coords = mcu.validCoordinates();
+                core.currentProgram.exposurePlans = [];
+                if(coords) {
+                    var data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
+                    core.currentProgram.exposurePlans.push({name: 'Pre-eclipse', start: new Date()});
+                    if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp});
+                        core.currentProgram.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp});
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp});
+                    } else {
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp});
+                    }
+                    core.currentProgram.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp});
+                } else {
+                    ui.alert('error', "Unable to calculate eclipse data without valid coordinates");
+                }
+                ui.back();
+            }),
+            condition: function() {
+                return mcu.validCoordinates();
+            }
         }]
     }
 
@@ -983,6 +1010,98 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+
+    var hdrCountPlan = function(planIndex) {
+        return {
+            name: "HDR Exposures",
+            type: "options",
+            items: [{
+                name: "HDR Exposures",
+                value: "Single (no HDR)",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 0)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 2",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 2)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 3",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 3)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 5",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 5)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 7",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 7)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 9",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 9)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 11",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 11)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 13",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 13)
+            }, {
+                name: "HDR Exposures",
+                value: "Sets of 15",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 15)
+            }]
+        }
+    } 
+
+    var hdrStopsPlan = function(planIndex) {
+        return {
+            name: "HDR Bracket Step",
+            type: "options",
+            items: [{
+                name: "HDR Bracket Step",
+                value: "-1/3 stops",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1/3)
+            }, {
+                name: "HDR Bracket Step",
+                value: "-2/3 stops",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -2/3)
+            }, {
+                name: "HDR Bracket Step",
+                value: "-1 stop",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1)
+            }, {
+                name: "HDR Bracket Step",
+                value: "-1 1/3 stops",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1 - 1 / 3)
+            }, {
+                name: "HDR Bracket Step",
+                value: "-1 2/3 stops",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1 - 2 / 3)
+            }, {
+                name: "HDR Bracket Step",
+                value: "-2 stops",
+                help: help.rampingNightCompensation,
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -2)
+            }]
+        }
+    } 
+
     var rampingOptionsMenu = {
         name: "Ramping Options",
         type: "menu",
@@ -1200,7 +1319,7 @@ if (VIEW_HARDWARE) {
     }
 
     var planGroupMenu = function(groupIndex) {
-        return function() {
+        return function(cb) {
             if(!core.currentProgram.exposurePlans[groupIndex]) core.currentProgram.exposurePlans[groupIndex] = {};
             var autoIntervalCheck = (function(index){
                 return function() {
@@ -1216,7 +1335,7 @@ if (VIEW_HARDWARE) {
                     return core.currentProgram.exposurePlans[index].intervalMode != 'auto';
                 }
             })(groupIndex);
-            return {
+            return cb(null, {
                 name: "planGroup" + groupIndex,
                 type: 'menu',
                 items: [
@@ -1233,33 +1352,76 @@ if (VIEW_HARDWARE) {
                         action: intervalPlan(groupIndex),
                         help: help.interval,
                         condition: function() {
-                            return fixedIntervalCheck();
+                            return core.currentProgram.exposurePlans[groupIndex].intervalMode != 'auto';
                         }
                     }, {
                         name: valueDisplay("Day Interval", core.currentProgram.exposurePlans[groupIndex], 'dayInterval'),
                         action: dayIntervalPlan(groupIndex),
                         help: help.dayInterval,
                         condition: function() {
-                            return autoIntervalCheck();
+                            return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto';
                         }
                     }, {
                         name: valueDisplay("Night Interval", core.currentProgram.exposurePlans[groupIndex], 'nightInterval'),
                         action: nightIntervalPlan(groupIndex),
                         help: help.nightInterval,
                         condition: function() {
-                            return autoIntervalCheck();
+                            return core.currentProgram.exposurePlans[groupIndex].intervalMode == 'auto';
                         }
-                    //}, {
-                        //name: valueDisplay("HDR Sets", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
-                        //action: intervalPlan(groupIndex),
-                        //help: help.interval,
-                        //condition: function() {
-                        //    return fixedIntervalCheck();
-                        //}
+                    }, {
+                        name: valueDisplay("HDR Exposures", core.currentProgram.exposurePlans[groupIndex], 'hdrCount'),
+                        action: hdrCountPlan(groupIndex),
+                        help: help.interval,
+                    }, {
+                        name: valueDisplay("HDR Stops", core.currentProgram.exposurePlans[groupIndex], 'hdrStops'),
+                        action: hdrStopsPlan(groupIndex),
+                        help: help.interval,
+                        condition: function() {
+                            return core.currentProgram.exposurePlans[groupIndex].hdrCount > 1;
+                        }
                     }
                 ]
-            }
+            });
         }
+    }
+
+    var exposurePlansMenu = function(cb) {
+        var res = {
+            name: "planList",
+            type: "menu",
+            items: []
+        }
+        for(var i = 0; i < core.currentProgram.exposurePlans.length; i++) {
+            res.items.push({
+                name: core.currentProgram.exposurePlans[i].name,
+                action: planGroupMenu(i),
+                help: "",
+            });
+        }
+        return cb(null, res);
+    }
+
+    var exposurePlansReview = function() {
+        var info = "Planned events:\n";
+        var pad = "- ";
+        for(var i = 0; i < core.currentProgram.exposurePlans.length; i++) {
+            var plan = core.currentProgram.exposurePlans[i];
+            info += plan.name + '\t';
+            if(i > 0) info += pad + moment(plan.start).fromNow() + '\t';
+            info += pad + "exposure: " + plan.mode + "\t";
+            if(plan.intervalMode == 'auto') {
+                info += pad + "night interval: " + plan.nightInterval + "s\t";
+                info += pad + "day interval: " + plan.dayInterval + "s\t";
+            } else {
+                info += pad + "interval: " + plan.interval + "s\t";
+            }
+            if(plan.hdrCount > 1) {
+                info += pad + "HDR exposures: " + plan.hdrCount + "\t";
+                info += pad + "HDR steps: " + plan.hdrStops + " stops\t";
+            }
+            info += "\n";
+        }
+        return info;
     }
 
     var timelapseMenu = {
@@ -1384,37 +1546,9 @@ if (VIEW_HARDWARE) {
                 return core.sdPresent;
             }
         }, {
-            name: "Pre-eclipse Setup",
-            action: planGroupMenu(0),
-            help: help.rampingOptionsMenu,
-            condition: function() {
-                return core.currentProgram.rampMode == 'eclipse';
-            }
-        }, {
-            name: "Partial (C1-C2) Setup",
-            action: planGroupMenu(1),
-            help: help.rampingOptionsMenu,
-            condition: function() {
-                return core.currentProgram.rampMode == 'eclipse';
-            }
-        }, {
-            name: "Totality (C2-C3) Setup",
-            action: planGroupMenu(2),
-            help: help.rampingOptionsMenu,
-            condition: function() {
-                return core.currentProgram.rampMode == 'eclipse';
-            }
-        }, {
-            name: "Partial (C3-C4) Setup",
-            action: planGroupMenu(3),
-            help: help.rampingOptionsMenu,
-            condition: function() {
-                return core.currentProgram.rampMode == 'eclipse';
-            }
-        }, {
-            name: "Post-eclipse Setup",
-            action: planGroupMenu(4),
-            help: help.rampingOptionsMenu,
+            name: "Eclipse Circumstances",
+            action: exposurePlansMenu,
+            help: "",
             condition: function() {
                 return core.currentProgram.rampMode == 'eclipse';
             }
@@ -1433,7 +1567,17 @@ if (VIEW_HARDWARE) {
                 return core.currentProgram.rampMode != 'fixed' && !(core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, {
-            name: "START",
+             name: "Review Program",
+            action: function(){
+                ui.back();
+                ui.alert('Review', exposurePlansReview);
+            },
+            help: "",
+            condition: function() {
+                return core.currentProgram.exposurePlans.length > 0;
+            }
+        }, {
+           name: "START",
             help: help.startTimelapse,
             action: {
                 type: "function",
