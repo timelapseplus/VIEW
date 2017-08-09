@@ -14,7 +14,7 @@ var Button = require('gpio-button');
 var gpio = require('linux-gpio');
 var _ = require('underscore');
 var suncalc = require('suncalc');
-var eclipse = require('eclipse');
+var eclipse = require('intervalometer/eclipse.js');
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
