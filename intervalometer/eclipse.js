@@ -2489,7 +2489,7 @@ function readform()
   gLng = obsvconst[1];
   obsvconst[1] *= D2R;
 
-  console.log("obsvconst 0, 1", obsvconst[0], obsvconst[1]);
+  //console.log("obsvconst 0, 1", obsvconst[0], obsvconst[1]);
 
   // Get the altitude
   obsvconst[2] = parseFloat(inputs.alt);
@@ -3525,6 +3525,7 @@ exports.calculate = function(inputsObject, callback) {
       }
       inputs.eclipse_index = eclipseEvent.index;
       calculate();
+      console.log("searching for eclipse:", inputs.eclipse_index, outputs.c1_timestamp);
       if(outputs.c1_timestamp) {
         found = true;
         break;
@@ -3537,7 +3538,11 @@ exports.calculate = function(inputsObject, callback) {
     calculate();
   }
   outputs.eclipseType = eclipseEvent.type;
-  exports.data = outputs;
+  if(!error) {
+    exports.data = outputs;
+  } else {
+    exports.data = null;
+  }
   exports.error = error;
   callback && callback(error, outputs);
   return error ? null : outputs;
