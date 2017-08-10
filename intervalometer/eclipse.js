@@ -3510,7 +3510,7 @@ exports.calculate = function(inputsObject, callback) {
 
   if(inputs.eclipse_index == null) {
     var eclipseEvent = null;
-    var compareDate = new Date().getTime() + 48 * 3600 * 1000;
+    var compareDate = new Date().getTime() - 48 * 3600 * 1000;
     var found = false;
     for(var tries = 0; tries < 100; tries++) {
       for(var i = 0; i < exports.list.length; i++) { // find the next upcoming eclipse
@@ -3525,7 +3525,7 @@ exports.calculate = function(inputsObject, callback) {
       }
       inputs.eclipse_index = eclipseEvent.index;
       calculate();
-      console.log("searching for eclipse:", inputs.eclipse_index, outputs.c1_timestamp);
+      //console.log("searching for eclipse:", inputs.eclipse_index, outputs.c1_timestamp);
       if(outputs.c1_timestamp) {
         found = true;
         break;
