@@ -591,6 +591,8 @@ function runPhoto() {
                 if (!err && photoRes) {
                     if(!status.hdrIndex) referencePhotoRes = photoRes;
                     if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex < status.hdrSet.length) {
+                        console.log("running next in HDR sequence", status.hdrIndex);
+                        busyPhoto = false;
                         return setupExposure(runPhoto);
                     } else {
                         status.hdrIndex = 0;
