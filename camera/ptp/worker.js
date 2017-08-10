@@ -151,7 +151,7 @@ process.on('message', function(msg) {
         if (msg.setDirect) setDirect(msg.setDirect, msg.value, buildCB(msg.id));
         if (msg.get == 'settings') {
             console.log("WORKER: called getConfig in", new Date() / 1000 - msg.time, "seconds");
-            getConfig(false, false, buildCB(msg.id));
+            getConfig(false, msg.useCache ? true : false, buildCB(msg.id));
         }
     }
     if (msg.type == 'setup') {
@@ -313,7 +313,7 @@ var errCount = 0;
 var captureTimeoutHandle = null;
 
 function capture(options, callback) {
-    if (cameraBusy) {
+    if (cameraBusy && !options.ignoreBusy) {
         clearTimeout(captureTimeoutHandle);
         captureTimeoutHandle = setTimeout(function() {
             capture(options, callback);
@@ -764,7 +764,7 @@ function getConfig(noEvent, cached, cb) {
         clearTimeout(configTimeoutHandle);
         configTimeoutHandle = setTimeout(function() {
             getConfig(noEvent, cached, cb);
-        }, 200);
+        }, 100);
         return;
     }
     cameraBusy = true;

@@ -832,7 +832,7 @@ camera.set = function(item, value, callback, _worker) {
         callback && callback("not connected");
     }
 }
-camera.getSettings = function(callback) {
+camera.getSettings = function(callback, useCache) {
     console.log("retreiving settings from camera");
     //console.trace();
     var worker = getPrimaryWorker();
@@ -840,6 +840,7 @@ camera.getSettings = function(callback) {
         type: 'camera',
         get: 'settings',
         time: new Date() / 1000,
+        useCache: useCache,
         id: getCallbackId(worker.port, 'getSettings', callback)
     }); else callback && callback("not connected");
 }
