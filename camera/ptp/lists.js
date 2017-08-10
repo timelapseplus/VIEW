@@ -152,7 +152,7 @@ lists.getSecondsFromEv = function(ev) { // only accurate to 1/3 stop
             return lists.bulb[i].us / 1000000;
         }
     }
-    return 1;
+    return 0.1;
 }
 
 lists.getEv = function(shutter, aperture, iso) {

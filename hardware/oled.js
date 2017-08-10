@@ -283,7 +283,7 @@ function drawTimeLapseStatus(status) {
     if(status.remaining === null) status.remaining = "Inf";
 
     fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString() + "s (" + status.intervalModeText + ")");
-    fb.text(0, 113, "Frames:   " + status.frames.toString() + "/" + status.remaining.toString());
+    fb.text(0, 113, "Frames:   " + (status.frames || 0).toString() + "/" + status.remaining.toString());
     fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
 
     // ramp chart window
