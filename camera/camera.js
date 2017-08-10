@@ -347,40 +347,55 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         }
     }
     function getItemFromEvList(list, ev) {
+        var minDiff = Infinity;
+        var correction = 0;
+        var item = null;
         for(var i = 0; i < list.length; i++) {
-            if(list[i].ev == ev) {
-                return list[i];
+            var diff = Math.abs(ev - list[i].ev);
+            if(diff < minDiff) {
+                correction = ev - list[i].ev;
+                minDiff = diff;
+                item = list[i];
             }
-        }        
-        return null;
+        }
+        if(item) {
+            return { item: item, correction: correction };
+        } else {
+            return null;
+        }
     }
 
     var setQueue = [];
 
+    var correction = 0;
+
     if (shutterEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.shutter || shutterEv != settings.details.shutter.ev)) {
-        var item = getItemFromEvList(camera.ptp.settings.details.shutter.list, shutterEv);
-        if(item != null) {
+        var res = getItemFromEvList(camera.ptp.settings.details.shutter.list, shutterEv);
+        if(res != null) {
+            correction = res.correction;
             setQueue.push({
                 name: 'shutter',
-                val: item.cameraName || item.name
+                val: res.item.cameraName || res.item.name
             });
         }
     }
     if (apertureEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.aperture || apertureEv != settings.details.aperture.ev)) {
-        var item = getItemFromEvList(camera.ptp.settings.details.aperture.list, apertureEv);
-        if(item != null) {
+        var res = getItemFromEvList(camera.ptp.settings.details.aperture.list, apertureEv + correction);
+        if(res != null) {
+            correction = res.correction;
             setQueue.push({
                 name: 'aperture',
-                val: item.cameraName || item.name
+                val: res.item.cameraName || res.item.name
             });
         }
     }
     if (isoEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.iso || isoEv != settings.details.iso.ev)) {
-        var item = getItemFromEvList(camera.ptp.settings.details.iso.list, isoEv);
-        if(item != null) {
+        var res = getItemFromEvList(camera.ptp.settings.details.iso.list, isoEv + correction);
+        if(res != null) {
+            correction = res.correction;
             setQueue.push({
                 name: 'iso',
-                val: item.cameraName || item.name
+                val: res.item.cameraName || res.item.name
             });
         }
     }
