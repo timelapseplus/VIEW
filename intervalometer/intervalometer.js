@@ -425,12 +425,14 @@ function planHdr(hdrCount, hdrStops) {
         underSet = hdrStops * -(i + 1);                        
     }
 
+    status.hdrIndex = 0;
     status.hdrSet = [];
     
     while(overSet.length || underSet.length) {
         if(overSet.length) status.hdrSet.push(overSet.shift());
         if(underSet.length) status.hdrSet.push(underSet.shift());
     }
+    console.log("planHdr:", status.hdrSet)
 }
 
 function checkCurrentPlan() {

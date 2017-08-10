@@ -258,7 +258,9 @@ defaultProgram = {
     apertureMax: -2,
     apertureMin:  -4,
     manualAperture: -5,
-    exposurePlans: [],
+    hdrCount: 0,
+    hdrStops: 1,
+    exposurePlans: [],    
     keyframes: [{
         focus: 0,
         ev: "not set",
