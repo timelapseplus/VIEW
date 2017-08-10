@@ -419,10 +419,10 @@ function planHdr(hdrCount, hdrStops) {
     var underSet = [];
 
     for(var i = 0; i < overHdr; i++) {
-        overSet = hdrStops * (i + 1);                        
+        overSet.push(hdrStops * (i + 1));                        
     }
     for(var i = 0; i < underHdr; i++) {
-        underSet = hdrStops * -(i + 1);                        
+        underSet.push(hdrStops * -(i + 1));                        
     }
 
     status.hdrIndex = 0;
