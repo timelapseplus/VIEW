@@ -744,7 +744,7 @@ oled.writeMenu = function() {
         fb.font(MENU_FONT_SIZE, false, FONT_DEFAULT);
         color("primary");
         for(var i = 0; i < list.length; i++) {
-            if(list[i] == null) list[i] = "---";
+            if(list[i] == null || typeof list[i] ~= "string") list[i] = "---";
             var parts = list[i].split('~');
 
             var textSize = fb.text(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT, parts[0]);

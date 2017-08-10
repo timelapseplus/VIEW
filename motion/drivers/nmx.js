@@ -295,6 +295,9 @@ function constantMove(motorId, speed, callback) {
                 return callback && callback(null); // only check position when stopped
             }
         } else {
+            if(speed == 0) {
+                _queueCommand(cmd, function(err) {}); // try one more time to stop
+            }
             if (callback) callback(err);
             motorRunning[motorId] = false;
         }

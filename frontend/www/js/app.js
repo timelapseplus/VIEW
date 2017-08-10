@@ -1225,6 +1225,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             joystickTimers[axisName] = null;
         }, 200);
         sendJoystickCommand();
+        if(speed == 0) sendJoystickCommand();
     }
 
     $scope.focusPos = 0;

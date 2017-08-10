@@ -373,6 +373,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         var res = getItemFromEvList(camera.ptp.settings.details.shutter.list, shutterEv);
         if(res != null) {
             correction = res.correction;
+            console.log("CAMERA: setExposure: requested shutter", shutterEv, "resulting shutter", res.item.ev, "correction", correction);
             setQueue.push({
                 name: 'shutter',
                 val: res.item.cameraName || res.item.name
@@ -383,6 +384,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         var res = getItemFromEvList(camera.ptp.settings.details.aperture.list, apertureEv + correction);
         if(res != null) {
             correction = res.correction;
+            console.log("CAMERA: setExposure: requested iso", isoEv, "resulting iso", res.item.ev, "correction", correction);
             setQueue.push({
                 name: 'aperture',
                 val: res.item.cameraName || res.item.name
