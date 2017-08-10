@@ -410,6 +410,7 @@ function setupExposure(cb) {
 }
 
 function planHdr(hdrCount, hdrStops) {
+    if(hdrStops < 1/3) hdrStops = 1/3;
     var totalHdr = Math.floor(hdrCount) - 1;
     var overHdr = Math.floor(totalHdr / 2);
     var underHdr = totalHdr - overHdr;
@@ -784,7 +785,7 @@ intervalometer.run = function(program) {
                 status.message = "starting";
                 status.frames = 0;
                 status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? Infinity : program.frames;
-                status.rampMode = program.rampMode; 
+                status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
                 status.startTime = new Date() / 1000;
                 status.rampEv = null;
                 status.bufferSeconds = 0;
@@ -793,12 +794,12 @@ intervalometer.run = function(program) {
                 status.hdrIndex = 0;
                 status.currentPlanIndex = null;
 
-                if(program.rampMode == 'auto') {
+                if(status.rampMode == 'auto') {
                     checkCurrentPlan();
                 }
 
                 if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
-                    intervalometer.planHdr(program.hdrCount, program.hdrStops);
+                    planHdr(program.hdrCount, program.hdrStops);
                 }
 
                 if(intervalometer.gpsData) {
