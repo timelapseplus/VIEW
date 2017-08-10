@@ -343,6 +343,12 @@ function capture(options, callback) {
             keepOnCamera: false,
             thumbnail: false
         }
+    } else if (options.noDownload) {
+        captureOptions = {
+            download: false,
+            thumbnail: false,
+            keepOnCamera: true
+        }
     } else {
         captureOptions = {
             download: true,
