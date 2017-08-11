@@ -457,10 +457,10 @@ function planHdr(hdrCount, hdrStops) {
 function checkCurrentPlan() {
     if(intervalometer.currentProgram.exposurePlans && intervalometer.currentProgram.exposurePlans.length > 0) {
         var planIndex = null;                        
-        var now = new Date();
+        var now = (new Date()).getTime();
         for(var i = 0; i < intervalometer.currentProgram.exposurePlans.length; i++) {
-            console.log("PLAN: now", now, "plan.start", intervalometer.currentProgram.exposurePlans[i].start);
-            if(intervalometer.currentProgram.exposurePlans[i].start >= now) {
+            console.log("PLAN: now", now, "plan.start", new Date(intervalometer.currentProgram.exposurePlans[i].start));
+            if((new Date(intervalometer.currentProgram.exposurePlans[i].start)).getTime() >= now) {
                 planIndex = i;
                 break;
             }
@@ -501,7 +501,7 @@ function checkCurrentPlan() {
                 if(plan.intervalMode == 'fixed') {
                     intervalometer.currentProgram.interval = plan.interval;
                 }
-                else if(plan.intervalMode == 'fixed') {
+                else if(plan.intervalMode == 'auto') {
                     intervalometer.currentProgram.dayInterval = plan.dayInterval;
                     intervalometer.currentProgram.nightInterval = plan.nightInterval;
                 }
