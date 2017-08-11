@@ -347,6 +347,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         }
     }
     function getItemFromEvList(list, ev) {
+        if(!list) return null;
         var minDiff = Infinity;
         var correction = 0;
         var item = null;
@@ -370,7 +371,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
     var correction = 0;
 
     if (shutterEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.shutter || shutterEv != settings.details.shutter.ev)) {
-        var res = getItemFromEvList(camera.ptp.settings.details.shutter.list, shutterEv);
+        var res = getItemFromEvList(camera.ptp.settings.lists.shutter, shutterEv);
         if(res != null) {
             correction = res.correction;
             console.log("CAMERA: setExposure: requested shutter", shutterEv, "resulting shutter", res.item.ev, "correction", correction);
@@ -381,7 +382,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         }
     }
     if (apertureEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.aperture || apertureEv != settings.details.aperture.ev)) {
-        var res = getItemFromEvList(camera.ptp.settings.details.aperture.list, apertureEv + correction);
+        var res = getItemFromEvList(camera.ptp.settings.lists.aperture, apertureEv + correction);
         if(res != null) {
             correction = res.correction;
             console.log("CAMERA: setExposure: requested iso", isoEv, "resulting iso", res.item.ev, "correction", correction);
@@ -392,7 +393,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, callback) {
         }
     }
     if (isoEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.iso || isoEv != settings.details.iso.ev)) {
-        var res = getItemFromEvList(camera.ptp.settings.details.iso.list, isoEv + correction);
+        var res = getItemFromEvList(camera.ptp.settings.lists.iso, isoEv + correction);
         if(res != null) {
             correction = res.correction;
             setQueue.push({
