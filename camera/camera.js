@@ -331,7 +331,7 @@ camera.setEv = function(ev, options, cb) {
 
 }
 
-camera.setExposure = function(shutterEv, isoEv, apertureEv, cb) {
+camera.setExposure = function(shutterEv, apertureEv, isoEv, cb) {
     function runQueue(queue, callback) {
         set = queue.pop();
         if (set) {
