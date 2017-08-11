@@ -251,26 +251,28 @@ if (VIEW_HARDWARE) {
             value: "Eclipse Mode",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'eclipse', function(){
+                ui.back();
                 var coords = mcu.validCoordinates();
                 core.currentProgram.exposurePlans = [];
-                if(coords) {
-                    var data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
-                    core.currentProgram.exposurePlans.push({name: 'Pre-eclipse', start: new Date()});
-                    if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp});
-                        core.currentProgram.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp});
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp});
-                    } else {
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp});
+                var data = getEclipseData();
+                if(data != null) {
+                    if(data.c1_timestamp > new Date()) {
+                        core.currentProgram.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
                     }
-                    core.currentProgram.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp});
+                    if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: 0});
+                        core.currentProgram.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 12, shutter: -7, iso: -5, aperture: -4});
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: 0});
+                    } else {
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: 0});
+                    }
+                    core.currentProgram.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
                 } else {
-                    ui.alert('error', "Unable to calculate eclipse data without valid coordinates");
+                    ui.alert('error', "Unable to calculate eclipse data");
                 }
-                ui.back();
             }),
             condition: function() {
-                return mcu.validCoordinates();
+                return getEclipseData();
             }
         }]
     }
@@ -293,7 +295,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'mode', 'auto')
             }, {
                 name: "Timelapse Mode",
-                value: "Maintain Exposure",
+                value: "Lock Exposure",
                 help: help.rampingOptions,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'mode', 'locked')
             }]
@@ -911,6 +913,63 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var isoPlan = function(planIndex) {
+        var res = {
+            name: "ISO",
+            type: "options",
+            items: []
+        }
+        for (var i = 0; i < lists.iso.length; i++) {
+            if(lists.iso[i].ev != null) {
+                res.items.push({
+                    name: "ISO",
+                    help: "",
+                    value: lists.iso[i].name,
+                    action: ui.set(core.currentProgram.exposurePlans[planIndex], 'iso', lists.iso[i].ev)
+                });
+            }
+        }
+        return res;
+    }
+
+    var shutterPlan = function(planIndex) {
+        var res = {
+            name: "Shutter",
+            type: "options",
+            items: []
+        }
+        for (var i = 0; i < lists.shutter.length; i++) {
+            if(lists.shutter[i].ev != null) {
+                res.items.push({
+                    name: "Shutter",
+                    help: "",
+                    value: lists.shutter[i].name,
+                    action: ui.set(core.currentProgram.exposurePlans[planIndex], 'shutter', lists.shutter[i].ev)
+                });
+            }
+        }
+        return res;
+    }
+
+    var aperturePlan = function(planIndex) {
+        var res = {
+            name: "Aperture",
+            type: "options",
+            items: []
+        }
+        for (var i = 0; i < lists.aperture.length; i++) {
+            if(lists.aperture[i].ev != null) {
+                res.items.push({
+                    name: "Aperture",
+                    help: "",
+                    value: lists.aperture[i].name,
+                    action: ui.set(core.currentProgram.exposurePlans[planIndex], 'aperture', lists.aperture[i].ev)
+                });
+            }
+        }
+        return res;
+    }
+
     var valueDisplay = function(name, object, key) {
         return function() {
             if (object && object.hasOwnProperty(key)) return name + "~" + object[key];
@@ -1064,43 +1123,131 @@ if (VIEW_HARDWARE) {
         }
     } 
 
+    var hdrCountOptions = {
+        name: "HDR Exposures",
+        type: "options",
+        items: [{
+            name: "HDR Exposures",
+            value: "Single (no HDR)",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 0)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 2",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 2)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 3",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 3)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 5",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 5)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 7",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 7)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 9",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 9)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 11",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 11)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 13",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 13)
+        }, {
+            name: "HDR Exposures",
+            value: "Sets of 15",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrCount', 15)
+        }]
+    }
+
     var hdrStopsPlan = function(planIndex) {
         return {
             name: "HDR Bracket Step",
             type: "options",
             items: [{
                 name: "HDR Bracket Step",
-                value: "-1/3 stops",
+                value: "1/3 stops",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1/3)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1/3)
             }, {
                 name: "HDR Bracket Step",
-                value: "-2/3 stops",
+                value: "2/3 stops",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -2/3)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 2/3)
             }, {
                 name: "HDR Bracket Step",
-                value: "-1 stop",
+                value: "1 stop",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1)
             }, {
                 name: "HDR Bracket Step",
-                value: "-1 1/3 stops",
+                value: "1 1/3 stops",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1 - 1 / 3)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1 - 1 / 3)
             }, {
                 name: "HDR Bracket Step",
-                value: "-1 2/3 stops",
+                value: "1 2/3 stops",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -1 - 2 / 3)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1 - 2 / 3)
             }, {
                 name: "HDR Bracket Step",
-                value: "-2 stops",
+                value: "2 stops",
                 help: help.rampingNightCompensation,
-                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', -2)
+                action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 2)
             }]
         }
     } 
+
+    var hdrStopsOptions = {
+        name: "HDR Bracket Step",
+        type: "options",
+        items: [{
+            name: "HDR Bracket Step",
+            value: "1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 1/3)
+        }, {
+            name: "HDR Bracket Step",
+            value: "2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 2/3)
+        }, {
+            name: "HDR Bracket Step",
+            value: "1 stop",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 1)
+        }, {
+            name: "HDR Bracket Step",
+            value: "1 1/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 1 - 1 / 3)
+        }, {
+            name: "HDR Bracket Step",
+            value: "1 2/3 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 1 - 2 / 3)
+        }, {
+            name: "HDR Bracket Step",
+            value: "2 stops",
+            help: help.rampingNightCompensation,
+            action: ui.set(core.currentProgram, 'hdrStops', 2)
+        }]
+    }
+
 
     var rampingOptionsMenu = {
         name: "Ramping Options",
@@ -1344,6 +1491,27 @@ if (VIEW_HARDWARE) {
                         help: help.rampingOptions,
                         action: rampingOptionsPlan(groupIndex),
                     }, {
+                        name: shutterValueDisplay("Preset Shutter", core.currentProgram.exposurePlans[groupIndex], 'shutter'),
+                        action: shutterPlan(groupIndex),
+                        help: "",
+                        condition: function() {
+                            return core.currentProgram.exposurePlans[groupIndex].mode == 'preset';
+                        }
+                    }, {
+                        name: isoValueDisplay("Preset ISO", core.currentProgram.exposurePlans[groupIndex], 'iso'),
+                        action: isoPlan(groupIndex),
+                        help: "",
+                        condition: function() {
+                            return core.currentProgram.exposurePlans[groupIndex].mode == 'preset';
+                        }
+                    }, {
+                        name: apertureValueDisplay("Preset Aperture", core.currentProgram.exposurePlans[groupIndex], 'aperture'),
+                        action: aperturePlan(groupIndex),
+                        help: "",
+                        condition: function() {
+                            return core.currentProgram.exposurePlans[groupIndex].mode == 'preset';
+                        }
+                    }, {
                         name: valueDisplay("Interval Mode", core.currentProgram.exposurePlans[groupIndex], 'intervalMode'),
                         help: help.intervalOptions,
                         action: intervalOptionsPlan(groupIndex),
@@ -1373,7 +1541,7 @@ if (VIEW_HARDWARE) {
                         action: hdrCountPlan(groupIndex),
                         help: help.interval,
                     }, {
-                        name: valueDisplay("HDR Stops", core.currentProgram.exposurePlans[groupIndex], 'hdrStops'),
+                        name: valueDisplay("HDR Bracket Step", core.currentProgram.exposurePlans[groupIndex], 'hdrStops'),
                         action: hdrStopsPlan(groupIndex),
                         help: help.interval,
                         condition: function() {
@@ -1402,13 +1570,26 @@ if (VIEW_HARDWARE) {
     }
 
     var exposurePlansReview = function() {
-        var info = "Planned events:\n";
+        var info = "";
         var pad = "- ";
+        var now = new Date();
         for(var i = 0; i < core.currentProgram.exposurePlans.length; i++) {
             var plan = core.currentProgram.exposurePlans[i];
             info += plan.name + '\t';
+            if(i < core.currentProgram.exposurePlans.length - 1 && core.currentProgram.exposurePlans[i + 1].start < now) {
+                info += pad + "(skipping)\n"; 
+                continue;
+            }
             if(i > 0) info += pad + moment(plan.start).fromNow() + '\t';
-            info += pad + "exposure: " + plan.mode + "\t";
+            info += pad; 
+            if(plan.mode == 'preset') {
+                info += lists.getNameFromEv(lists.shutter, plan.shutter) + ', ';
+                info += 'f/' + lists.getNameFromEv(lists.aperture, plan.aperture) + ', ';
+                info += lists.getNameFromEv(lists.iso, plan.iso) + 'ISO';
+            } else {
+                info +=  "exposure: " + plan.mode;
+            }
+            info += "\t";
             if(plan.intervalMode == 'auto') {
                 info += pad + "night interval: " + plan.nightInterval + "s\t";
                 info += pad + "day interval: " + plan.dayInterval + "s\t";
@@ -1419,6 +1600,20 @@ if (VIEW_HARDWARE) {
                 info += pad + "HDR exposures: " + plan.hdrCount + "\t";
                 info += pad + "HDR steps: " + plan.hdrStops + " stops\t";
             }
+            info += pad + "total frames: ";
+            var startTime = plan.start <  now ? now : plan.start;
+            if(i == core.currentProgram.exposurePlans.length - 1) {
+                info += "indefinite";
+            } else if(plan.intervalMode == 'fixed') {
+                info += Math.floor(((core.currentProgram.exposurePlans[i + 1].start - startTime) / 1000) / plan.interval).toString();
+            } else if(plan.intervalMode == 'fixed') {
+                info += Math.floor(((core.currentProgram.exposurePlans[i + 1].start - startTime) / 1000) / plan.nightInterval).toString();
+                info += '-';
+                info += Math.floor(((core.currentProgram.exposurePlans[i + 1].start - startTime) / 1000) / plan.dayInterval).toString();
+            } else {
+                info += "unknown";
+            }
+
             info += "\n";
         }
         return info;
@@ -1485,14 +1680,14 @@ if (VIEW_HARDWARE) {
             help: help.intervalOptions,
             action: intervalOptions,
             condition: function() {
-                return core.currentProgram.rampMode != 'fixed' && core.currentProgram.rampMode != 'eclipse';;
+                return core.currentProgram.rampMode != 'fixed' && core.currentProgram.rampMode != 'eclipse';
             }
         }, {
             name: valueDisplay("Interval", core.currentProgram, 'interval'),
             action: interval,
             help: help.interval,
             condition: function() {
-                return core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed';
+                return (core.currentProgram.intervalMode == 'fixed' || core.currentProgram.rampMode == 'fixed') && core.currentProgram.rampMode != 'eclipse';
             }
         }, {
             name: valueDisplay("Day Interval", core.currentProgram, 'dayInterval'),
@@ -1567,10 +1762,24 @@ if (VIEW_HARDWARE) {
                 return core.currentProgram.rampMode != 'fixed' && !(core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, {
+            name: valueDisplay("HDR Exposures", core.currentProgram, 'hdrCount'),
+            action: hdrCountOptions,
+            help: help.interval,
+            condition: function() {
+                return core.currentProgram.rampMode == 'auto';
+            }
+        }, {
+            name: valueDisplay("HDR Bracket Step", core.currentProgram, 'hdrStops'),
+            action: hdrStopsOptions,
+            help: help.interval,
+            condition: function() {
+                return core.currentProgram.rampMode == 'auto' && core.currentProgram.hdrCount > 1;
+            }
+        }, {
              name: "Review Program",
             action: function(){
                 ui.back();
-                ui.alert('Review', exposurePlansReview);
+                ui.alert('Review Planned Events', exposurePlansReview);
             },
             help: "",
             condition: function() {
@@ -2829,8 +3038,7 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
-    var eclipseInfo = function() {
-        var info = "";
+    var getEclipseData = function() {
         var coords = mcu.validCoordinates();
         if(coords) {
             var data = eclipse.data;
@@ -2838,7 +3046,18 @@ if (VIEW_HARDWARE) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
                 console.log("Eclipse data:", data);
             }
-            if(data) {
+            return data;
+        }
+        return null;
+    }
+
+    var eclipseInfo = function() {
+        var info = "";
+        var coords = mcu.validCoordinates();
+        if(coords) {
+            var data = getEclipseData();
+            if(data != null) {
+                console.log("eclipse data:", data);
                 var now = moment();
                 var c1 = data.c1_timestamp ? moment(data.c1_timestamp) : null;
                 var c2 = data.c2_timestamp ? moment(data.c2_timestamp) : null;

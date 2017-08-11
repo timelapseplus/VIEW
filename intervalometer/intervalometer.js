@@ -389,23 +389,42 @@ function setupExposure(cb) {
     camera.ptp.getSettings(function() {
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         var diff = 0;
+        if(!status.rampEv) {
+            status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+        }
         if(status.hdrSet && status.hdrSet.length > 0) {
             if(!status.hdrIndex) status.hdrIndex = 0;
-            if(status.hdrIndex > 0 && status.hdrIndex <= status.hdrSet.length) {
-                diff = status.hdrSet[status.hdrIndex - 1];
+            if(status.hdrIndex < status.hdrSet.length) {
+                diff = status.hdrSet[status.hdrIndex];
+                status.hdrIndex++;
+            } else {
+                status.hdrIndex = 0;
             }
-            status.hdrIndex++;
+            console.log("HDR adjustment:", diff, status.hdrIndex);
         }
-        camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
-            if(res.ev != null) {
-                status.cameraEv = res.ev;
-            } 
-            status.cameraSettings = camera.ptp.settings;
-            status.evDiff = status.cameraEv - status.rampEv;
-            console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-            busyExposure = false;
-            cb && cb(err);
-        });
+        if(status.rampMode == 'preset') {
+            camera.setExposure(status.shutterPreset + diff, status.aperturePreset, status.isoPreset, function(err, ev) {
+                if(ev != null) {
+                    status.cameraEv = ev;
+                } 
+                status.cameraSettings = camera.ptp.settings;
+                status.evDiff = status.cameraEv - status.rampEv;
+                console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                busyExposure = false;
+                cb && cb(err);
+            });
+        } else {
+            camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
+                if(res.ev != null) {
+                    status.cameraEv = res.ev;
+                } 
+                status.cameraSettings = camera.ptp.settings;
+                status.evDiff = status.cameraEv - status.rampEv;
+                console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                busyExposure = false;
+                cb && cb(err);
+            });
+        }
     });
 }
 
@@ -439,12 +458,18 @@ function checkCurrentPlan() {
     if(intervalometer.currentProgram.exposurePlans && intervalometer.currentProgram.exposurePlans.length > 0) {
         var planIndex = null;                        
         var now = new Date();
-        for(var i = 0; i < intervalometer.currentProgram.exposurePlans; i++) {
-            if(intervalometer.currentProgram.exposurePlans[i].start >= now) planIndex = i;
+        for(var i = 0; i < intervalometer.currentProgram.exposurePlans.length; i++) {
+            console.log("PLAN: now", now, "plan.start", intervalometer.currentProgram.exposurePlans[i].start);
+            if(intervalometer.currentProgram.exposurePlans[i].start >= now) {
+                planIndex = i;
+                break;
+            }
         }
+        console.log("PLAN: checking plans...", planIndex);
         if(status.currentPlanIndex !== planIndex) {
             status.currentPlanIndex = planIndex;
             var plan = intervalometer.currentProgram.exposurePlans[planIndex];
+            console.log("PLAN: switching to ", plan.name);
             /*
                 each plan has the following:
                 .mode = 'preset', 'lock', 'auto'
@@ -465,8 +490,11 @@ function checkCurrentPlan() {
                 status.rampMode = 'fixed';
             }
             if(plan.mode == 'preset') {
-                status.rampMode = 'fixed';
-                status.rampEv = plan.ev;
+                status.rampMode = 'preset';
+                status.shutterPreset = plan.shutter;
+                status.aperturePreset = plan.aperture;
+                status.isoPreset = plan.iso;
+                status.rampEv = camera.lists.getEv(status.shutterPreset, status.aperturePreset, status.isoPreset);
             }
             if(intervalometer.currentProgram.intervalMode != 'aux') {
                 intervalometer.currentProgram.intervalMode = plan.intervalMode;
@@ -499,14 +527,23 @@ function runPhoto() {
         return;
     }
     if(!status.running) return;
+    if(status.first) {
+        status.first = false;
+        return setTimeout(function() {
+            setupExposure(runPhoto);
+        });
+    }
     busyPhoto = true;
     if (camera.ptp.connected) {
         if(status.useLiveview) camera.ptp.preview();
-        status.captureStartTime = new Date() / 1000;
+        if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
+            status.captureStartTime = new Date() / 1000;
+        }
         intervalometer.emit("status", status);
         var captureOptions = {
             thumbnail: true,
-            index: status.frames
+            index: status.frames,
+            noDownload: (status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) // only fetch thumbnail for the reference photo in the HDR set
                 //saveTiff: "/mnt/sd/test" + status.frames + ".tiff",
                 //saveRaw: "/mnt/sd/test" + status.frames + ".cr2",
         }
@@ -565,38 +602,46 @@ function runPhoto() {
             captureOptions.exposureCompensation = status.evDiff || 0;
             captureOptions.calculateEv = true;
 
-            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
-                captureOptions.calculateEv = false;
-            } else {
+            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex == 0) {
                 captureOptions.calculateEv = true;
+            } else {
+                captureOptions.calculateEv = false;
             }
 
             if(intervalometer.currentProgram.intervalMode == 'aux') {
                 if(status.intervalStartTime) status.intervalMs = ((new Date() / 1000) - status.intervalStartTime) * 1000;
                 status.intervalStartTime = new Date() / 1000;
-            } else {
-                status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);
-                console.log("TL: Setting timer for fixed interval at ", status.intervalMs);
+            } else if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) { // only start interval timer at first HDR exposure
+                status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);                
+                console.log("TL: Setting timer for interval at ", status.intervalMs);
+                if (timerHandle) clearTimeout(timerHandle);
                 if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
             } 
 
             intervalometer.emit("status", status);
             var shutterEv;
             if(camera.ptp.settings.details && camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
-            var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
-            setTimeout(motionSyncPulse, msDelayPulse);
-            status.lastPhotoTime = new Date() / 1000 - status.startTime;
 
+            //if(status.hdrSet && status.hdrSet.length > 0) captureOptions.ignoreBusy = true;
+            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
+                var nextHDRms = 100 + camera.lists.getSecondsFromEv(shutterEv) * 1000;
+                console.log("running next in HDR sequence", status.hdrIndex, nextHDRms);
+                camera.ptp.capture(captureOptions);
+                setTimeout(function(){
+                    setupExposure(function(){
+                        busyPhoto = false;
+                        runPhoto()
+                    });
+                }, nextHDRms);
+                return;
+            } else {
+                var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
+                setTimeout(motionSyncPulse, msDelayPulse);
+                status.lastPhotoTime = new Date() / 1000 - status.startTime;
+            }
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     if(!status.hdrIndex) referencePhotoRes = photoRes;
-                    if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex < status.hdrSet.length) {
-                        console.log("running next in HDR sequence", status.hdrIndex);
-                        busyPhoto = false;
-                        return setupExposure(runPhoto);
-                    } else {
-                        status.hdrIndex = 0;
-                    }
 
                     var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
                     if(!status.bufferSeconds) {
@@ -788,6 +833,7 @@ intervalometer.run = function(program) {
                 status.intervalMs = program.interval * 1000;
                 status.message = "starting";
                 status.frames = 0;
+                status.first = program.rampMode == 'fixed' ? false : true; // triggers setup exposure before first capture unless fixed mode
                 status.framesRemaining = (program.intervalMode == "auto" && program.rampMode == "auto") ? Infinity : program.frames;
                 status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
                 status.startTime = new Date() / 1000;
@@ -798,7 +844,7 @@ intervalometer.run = function(program) {
                 status.hdrIndex = 0;
                 status.currentPlanIndex = null;
 
-                if(status.rampMode == 'auto') {
+                if(status.rampMode != 'fixed') {
                     checkCurrentPlan();
                 }
 
