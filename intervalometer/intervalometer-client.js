@@ -283,6 +283,25 @@ core.intervalometerStatus = {
 
 core.loadProgram = function(program, callback) {
     if(!program.frames) program.frames = Infinity; // Infinity comes back as null from the DB
+    if(program.keyframes) { // arrays come back as object in the VIEW db
+        var kfs = [];
+        for(var key in program.keyframes) {
+            if(program.keyframes.hasOwnProperty(key)) {
+                kfs.push(program.keyframes[key]);
+            }
+        }
+        if(kfs.length > 0) program.keyframes = kfs;
+    }
+    if(program.exposurePlans) { // arrays come back as object in the VIEW db
+        var plans = [];
+        for(var key in program.exposurePlans) {
+            if(program.exposurePlans.hasOwnProperty(key)) {
+                plans.push(program.exposurePlans[key]);
+            }
+        }
+        if(plans.length > 0) program.exposurePlans = plans;
+    }
+
     core.currentProgram = _.extendOwn(defaultProgram, core.currentProgram, program);
     callback && callback();
 }

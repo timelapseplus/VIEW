@@ -729,15 +729,6 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     break;
                 case 'timelapseProgram':
                     if(!retrievedTimelapseProgram && msg.program) {
-                        if(msg.program.keyframes) { // arrays come back as object in the VIEW db
-                            var kfs = [];
-                            for(var key in msg.program.keyframes) {
-                                if(msg.program.keyframes.hasOwnProperty(key)) {
-                                    kfs.push(msg.program.keyframes[key]);
-                                }
-                            }
-                            if(kfs.length > 0) msg.program.keyframes = kfs;
-                        }
                         angular.extend($scope.timelapse, msg.program);
                         retrievedTimelapseProgram = true;
                     }
