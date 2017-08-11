@@ -348,6 +348,7 @@ camera.setExposure = function(shutterEv, isoEv, apertureEv, cb) {
     }
     function getItemFromEvList(list, ev) {
         if(!list) return null;
+        list = lists.cleanEvCopy(list);
         var minDiff = Infinity;
         var correction = 0;
         var item = null;
