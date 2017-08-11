@@ -459,13 +459,14 @@ function checkCurrentPlan() {
         var planIndex = null;                        
         var now = (new Date()).getTime();
         for(var i = 0; i < intervalometer.currentProgram.exposurePlans.length; i++) {
-            console.log("PLAN: now", now, "plan.start", new Date(intervalometer.currentProgram.exposurePlans[i].start));
-            if((new Date(intervalometer.currentProgram.exposurePlans[i].start)).getTime() >= now) {
+            //console.log("PLAN: now", now, "plan.start", new Date(intervalometer.currentProgram.exposurePlans[i].start).getTime());
+            if((new Date(intervalometer.currentProgram.exposurePlans[i].start)).getTime() < now) {
                 planIndex = i;
+            } else {
                 break;
             }
         }
-        console.log("PLAN: checking plans...", planIndex);
+        //console.log("PLAN: checking plans...", planIndex);
         if(status.currentPlanIndex !== planIndex) {
             status.currentPlanIndex = planIndex;
             var plan = intervalometer.currentProgram.exposurePlans[planIndex];
