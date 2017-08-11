@@ -261,10 +261,10 @@ if (VIEW_HARDWARE) {
                     }
                     if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
                         core.currentProgram.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
-                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 10000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 20000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
                         core.currentProgram.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 10, shutter: -3, iso: -1, aperture: -4});
-                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 10000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp - 12000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 8000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
                     } else {
                         core.currentProgram.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
                     }
