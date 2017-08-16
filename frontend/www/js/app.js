@@ -1130,6 +1130,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.paramListClick = function(object, param, direction) {
         var newObject = paramClick(param, object[param], direction);
+        object[param] = newObject.ev;
     }
 
     $scope.paramListName = function(object, param) {
