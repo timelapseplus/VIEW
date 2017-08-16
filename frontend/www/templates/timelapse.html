@@ -131,10 +131,10 @@
                                     Auto Ramping
                                 </button>
                                 <button class="button button-light button-small button-{{plan.mode == 'preset' ? 'outline':'clear'}}" ng-click="plan.mode='preset'">
-                                    Eclipse
+                                    Preset
                                 </button>
                                 <button class="button button-light button-small button-{{plan.mode == 'locked' ? 'outline':'clear'}}" ng-click="plan.mode='locked'">
-                                    Fixed
+                                    Locked
                                 </button>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                                 <small>ISO</small>
                             </div>
                         </div>
-                        <div class="item item-dark">
+                        <div class="item item-dark" ng-show="plan.mode=='preset'">
                             <div class="row">
                                 <div class="col">
                                     <div class="center">
