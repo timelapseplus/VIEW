@@ -284,6 +284,9 @@ if (VIEW_HARDWARE) {
                 program.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
             } else {
                 ui.alert('error', "Unable to calculate eclipse data");
+                app.send('error', {
+                    error: "Unable to calculate eclipse data"
+                });
             }
         } else {
             program.exposurePlans = [];
