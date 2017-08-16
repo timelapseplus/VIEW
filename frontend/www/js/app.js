@@ -1083,6 +1083,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             for(var i = 0; i < list.length; i++) {
                 if(current === list[i].name || current === list[i].ev) {
                     return {
+                        list: list,
                         index: i,
                         max: list.length - 1,
                         min: 0,
@@ -1092,6 +1093,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 }
             }
             return {
+                list: list,
                 index: null,
                 max: list.length - 1,
                 min: 0,
