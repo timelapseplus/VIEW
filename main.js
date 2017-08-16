@@ -3947,7 +3947,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'reconfigureProgram':
-                msg.reply('timelapseProgram', {program:reconfigureProgram(msg.program)};
+                msg.reply('timelapseProgram', {program:reconfigureProgram(msg.program)});
                 break
 
             case 'timelapse-clips':
