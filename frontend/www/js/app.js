@@ -1086,6 +1086,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                         index: i,
                         max: list.length - 1,
                         min: 0,
+                        name: list[i].name,
                         item: list[i]
                     };
                 }
