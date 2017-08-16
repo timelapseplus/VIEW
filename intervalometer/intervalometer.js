@@ -602,7 +602,7 @@ function runPhoto() {
             }
             captureOptions.exposureCompensation = status.evDiff || 0;
 
-            if(status.hdrSet && status.hdrSet.length > 0)
+            if(status.hdrSet && status.hdrSet.length > 0) {
                 if(status.hdrIndex == 0) {
                     captureOptions.calculateEv = true;
                 } else {
