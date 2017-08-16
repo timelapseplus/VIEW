@@ -60,7 +60,7 @@
                         <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'auto')">
                             Auto Ramping
                         </button>
-                        <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'eclipse')">
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'eclipse' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'eclipse')">
                             Eclipse
                         </button>
                         <button class="button button-light button-small button-{{timelapse.rampMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'fixed')">
@@ -109,10 +109,84 @@
                     </label>
                 </div-->
 
+                <div class="item item-dark">
+                    Save Photos to
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera');">
+                            Camera
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd');alert(2)">
+                            SD Card
+                        </button>
+                    </div>
+                </div>
+                
                 <div ng-repeat="plan in timelapse.exposurePlans">
                     <div class="item item-dark item-divider"><b>{{plan.name}}</b></div>
                     <div class="list">
                         <div class="item item-dark">
+                            Exposure Mode
+                            <div style="float:right;">
+                                <button class="button button-light button-small button-{{plan.mode == 'auto' ? 'outline':'clear'}}" ng-click="plan.mode='auto'">
+                                    Auto Ramping
+                                </button>
+                                <button class="button button-light button-small button-{{plan.mode == 'preset' ? 'outline':'clear'}}" ng-click="plan.mode='preset'">
+                                    Eclipse
+                                </button>
+                                <button class="button button-light button-small button-{{plan.mode == 'locked' ? 'outline':'clear'}}" ng-click="plan.mode='locked'">
+                                    Fixed
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="plan.mode=='preset'">
+                            <div class="col center">
+                                <small>Shutter</small>
+                            </div>
+                            <div class="col center">
+                                <small>Aperture</small>
+                            </div>
+                            <div class="col center">
+                                <small>ISO</small>
+                            </div>
+                        </div>
+                        <div class="item item-dark">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramListClick(plan, 'shutter', 'up')"></button>
+                                    </div>
+                                    <div class="big center {{camera.shutterChanged ? 'assertive':''}}">
+                                        {{camera.shutterNew||'loading...'}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramListClick((plan, 'shutter', 'down')"></button>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramListClick((plan, 'aperture', 'up')"></button>
+                                    </div>
+                                    <div class="big center {{camera.apertureChanged ? 'assertive':''}}">
+                                        {{camera.apertureNew||'loading...'}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramListClick((plan, 'aperture', 'down')"></button>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramListClick((plan, 'iso', 'up')"></button>
+                                    </div>
+                                    <div class="big center {{camera.isoChanged ? 'assertive':''}}">
+                                        {{camera.isoNew||'loading...'}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramListClick((plan, 'iso', 'down')"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item item-dark" ng-show="plan.mode=='auto'">
                             Interval Mode
                             <div style="float:right;">
                                 <button class="button button-light button-small button-{{plan.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="plan.intervalMode='fixed'">
@@ -123,21 +197,21 @@
                                 </button>
                             </div>
                         </div>
-                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'">
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'&&plan.mode=='auto'">
                             Day Interval
                             <div style="float:right;">
                                 <input size="5" type="tel" ng-model="plan.dayInterval" class="item-dark input-border">
                             </div>
                         </label>
 
-                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'">
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'&&plan.mode=='auto'">
                             Night Interval
                             <div style="float:right;">
                                 <input size="5" type="tel" ng-model="plan.nightInterval" class="item-dark input-border">
                             </div>
                         </label>
 
-                        <label class="item item-dark" ng-show="plan.intervalMode=='fixed'">
+                        <label class="item item-dark" ng-show="plan.intervalMode=='fixed'||plan.mode!='auto'">
                             Interval
                             <div style="float:right;">
                                 <input size="5" type="tel" ng-model="plan.interval" class="item-dark input-border">
@@ -190,18 +264,6 @@
                     </select>
                 </label-->
 
-
-                <div class="item item-dark">
-                    Save Photos to
-                    <div style="float:right;">
-                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera');">
-                            Camera
-                        </button>
-                        <button class="button button-light button-small button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd');alert(2)">
-                            SD Card
-                        </button>
-                    </div>
-                </div>
             </div>
 
         </div>
