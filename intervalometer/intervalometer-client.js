@@ -50,7 +50,7 @@ core.cameraCount = 0;
 core.cameraSupports = {};
 core.intervalometerStatus = {};
 core.histogram = [];
-core.core.motionStatus = {};
+core.motionStatus = {};
 
 var dataBuf = new Buffer(0);
 var client;
