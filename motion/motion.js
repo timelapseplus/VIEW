@@ -51,7 +51,7 @@ motion.zero = function(driver, motorId, callback) {
 	}
 }
 
-motion.status = function(callback) {
+motion.refresh = function(callback) {
 	var nmxStatus = motion.nmx.getStatus();
 	if(nmxStatus.connected) {
 		motion.nmx.checkMotorAttachment();

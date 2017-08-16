@@ -296,7 +296,7 @@ function runCommand(type, args, callback, client) {
       motion.zero(args.driver, args.motor, callback);
       break;
     case 'motion.status':
-      motion.status(callback);
+      motion.refresh(callback);
       break;
     case 'motion.joystick':
       motion.joystick(args.driver, args.motor, args.speed, callback);
