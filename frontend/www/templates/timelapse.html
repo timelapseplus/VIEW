@@ -122,13 +122,13 @@
                 </div>
 
                 <div ng-repeat="plan in timelapse.exposurePlans">
-                    <div class="item item-dark item-divider">{{plan.name}}<small style="float:right" ng-show="$index>0">begins {{plan.start|date:'medium'}}</small><small style="float:right" ng-show="$index==0">(upon start)</small></div>
+                    <div class="item item-dark item-divider">{{plan.name}}<small style="float:right" ng-show="$index>0">{{plan.start|date:'d MMM H:mm:ss':'+0000'}} UTC</small><small style="float:right" ng-show="$index==0">(upon start)</small></div>
                     <div class="list">
                         <div class="item item-dark">
                             Exposure Mode
                             <div style="float:right;">
                                 <button class="button button-light button-small button-{{plan.mode == 'auto' ? 'outline':'clear'}}" ng-click="plan.mode='auto'">
-                                    Auto Ramping
+                                    Auto
                                 </button>
                                 <button class="button button-light button-small button-{{plan.mode == 'preset' ? 'outline':'clear'}}" ng-click="plan.mode='preset'">
                                     Preset
