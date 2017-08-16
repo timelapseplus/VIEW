@@ -122,7 +122,7 @@
                 </div>
 
                 <div ng-repeat="plan in timelapse.exposurePlans">
-                    <div class="item item-dark item-divider">{{plan.name}}<span style="float:right" ng-show="$index>0">begins {{plan.start|date:'medium'}}</span><span style="float:right" ng-show="$index==0">(upon start)</span></div>
+                    <div class="item item-dark item-divider">{{plan.name}}<small style="float:right" ng-show="$index>0">begins {{plan.start|date:'medium'}}</small><small style="float:right" ng-show="$index==0">(upon start)</small></div>
                     <div class="list">
                         <div class="item item-dark">
                             Exposure Mode
