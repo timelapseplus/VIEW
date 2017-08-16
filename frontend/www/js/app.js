@@ -1075,28 +1075,100 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }, 500);
     }
 
-    var paramTimer = {};
-    $scope.paramClick = function(param, direction) {
+    function paramInfo(param, current) {
         if($scope.camera.lists && $scope.camera.lists[param]) {
             var list = $scope.camera.lists[param].filter(function(item){
                 return item.ev != null;
             });
-            var newItem = list[0].name;
             for(var i = 0; i < list.length; i++) {
-                if($scope.camera[param + 'New'] == list[i].name) {
-                    newItem = list[i].name;
+                if(current === list[i].name || current === list[i].ev) {
+                    return {
+                        index: i,
+                        max: list.length - 1,
+                        min: 0,
+                        item: list[i]
+                    };
+                }
+            }
+            return {
+                index: null,
+                max: list.length - 1,
+                min: 0,
+            }
+        }
+        return null;
+    }
+
+    function paramClick(param, current, direction) {
+        var newItem = null;
+        if($scope.camera.lists && $scope.camera.lists[param]) {
+            var list = $scope.camera.lists[param].filter(function(item){
+                return item.ev != null;
+            });
+            var newItem = list[0];
+            for(var i = 0; i < list.length; i++) {
+                if(current === list[i].name || current === list[i].ev) {
+                    newItem = list[i];
                     if(direction == 'up') {
                         if(i < list.length - 1) {
-                            newItem = list[i + 1].name;
+                            newItem = list[i + 1];
                         }
                     } else {
                         if(i > 0) {
-                            newItem = list[i - 1].name;
+                            newItem = list[i - 1];
                         }
                     }
                     break;
                 }
             }
+        }
+        return newItem;
+    }
+
+    $scope.paramListClick = function(object, param, direction) {
+        var newObject = paramClick(param, object[param], direction);
+    }
+
+    $scope.paramListName = function(object, param) {
+        var item = paramInfo(param, object[param]);
+        if(item) {
+            return item.name;
+        } else {
+            return '--';
+        }
+    }
+
+    $scope.paramListTop = function(object, param) {
+        var item = paramInfo(param, object[param]);
+        if(item) {
+            if(item.index != null) {
+                return (item.index == item.max);
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    $scope.paramListBottom = function(object, param) {
+        var item = paramInfo(param, object[param]);
+        if(item) {
+            if(item.index != null) {
+                return (item.index == item.min);
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    var paramTimer = {};
+    $scope.paramClick = function(param, direction) {
+        if($scope.camera.lists && $scope.camera.lists[param]) {
+            var newObject = paramClick(param, $scope.camera[param + 'New'], direction);
+            var newItem = newObject.name;
             $scope.camera[param + 'New'] = newItem;
             $scope.camera[param + 'Changed'] = true;
             checkUpDown(param);
