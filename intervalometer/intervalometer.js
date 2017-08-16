@@ -601,12 +601,15 @@ function runPhoto() {
                 status.rampEv = status.cameraEv;
             }
             captureOptions.exposureCompensation = status.evDiff || 0;
-            captureOptions.calculateEv = true;
 
-            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex == 0) {
-                captureOptions.calculateEv = true;
+            if(status.hdrSet && status.hdrSet.length > 0)
+                if(status.hdrIndex == 0) {
+                    captureOptions.calculateEv = true;
+                } else {
+                    captureOptions.calculateEv = false;
+                }
             } else {
-                captureOptions.calculateEv = false;
+                captureOptions.calculateEv = true;
             }
 
             if(intervalometer.currentProgram.intervalMode == 'aux') {

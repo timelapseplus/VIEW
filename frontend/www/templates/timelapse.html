@@ -60,6 +60,9 @@
                         <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'auto')">
                             Auto Ramping
                         </button>
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'eclipse')">
+                            Auto Ramping
+                        </button>
                         <button class="button button-light button-small button-{{timelapse.rampMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'fixed')">
                             Fixed
                         </button>
@@ -106,33 +109,43 @@
                     </label>
                 </div-->
 
-                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    Day Interval
-                    <div style="float:right;">
-                        <input size="5" type="tel" ng-model="timelapse.dayInterval" class="item-dark input-border">
-                    </div>
-                </label>
+                <div ng-repeat="timelapse.exposurePlans as plan">
+                    <div class="item item-dark item-divider"><b>{{plan.name}}</b></div>
+                    <div class="list">
+                        <div class="item item-dark">
+                            Interval Mode
+                            <div style="float:right;">
+                                <button class="button button-light button-small button-{{plan.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="plan.intervalMode='fixed'">
+                                    Fixed
+                                </button>
+                                <button class="button button-light button-small button-{{plan.intervalMode == 'auto' ? 'outline':'clear'}}" ng-click="plan.intervalMode='auto'">
+                                    Variable
+                                </button>
+                            </div>
+                        </div>
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'">
+                            Day Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.dayInterval" class="item-dark input-border">
+                            </div>
+                        </label>
 
-                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
-                    Night Interval
-                    <div style="float:right;">
-                        <input size="5" type="tel" ng-model="timelapse.nightInterval" class="item-dark input-border">
-                    </div>
-                </label>
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'">
+                            Night Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.nightInterval" class="item-dark input-border">
+                            </div>
+                        </label>
 
-                <label class="item item-dark" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
-                    Interval
-                    <div style="float:right;">
-                        <input size="5" type="tel" ng-model="timelapse.interval" class="item-dark input-border">
-                    </div>
-                </label>
+                        <label class="item item-dark" ng-show="plan.intervalMode=='fixed'">
+                            Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.interval" class="item-dark input-border">
+                            </div>
+                        </label>
 
-                <label class="item item-dark" ng-show="timelapse.intervalMode=='fixed'||timelapse.rampMode=='fixed'">
-                    Frames
-                    <div style="float:right;">
-                        <input size="5" type="tel" ng-model="timelapse.frames" class="item-dark input-border">
                     </div>
-                </label>
+                </div>
 
                 <!--label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
                     <div class="input-label">

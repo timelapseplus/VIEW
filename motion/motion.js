@@ -51,6 +51,15 @@ motion.zero = function(driver, motorId, callback) {
 	}
 }
 
+motion.status = function(callback) {
+	var nmxStatus = motion.nmx.getStatus();
+	if(nmxStatus.connected) {
+		motion.nmx.checkMotorAttachment();
+	}
+    updateStatus()
+    callback && callback(motion.status);
+}
+
 function updateStatus() {
 	var nmxStatus = motion.nmx.getStatus();
 	var gm1Status = motion.gm1.getStatus();

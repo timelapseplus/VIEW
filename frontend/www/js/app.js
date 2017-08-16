@@ -329,6 +329,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         });
     };
 
+    $scope.reconfigureProgram = function(program) {
+        retrievedTimelapseProgram = false;
+        sendMessage('reconfigureProgram', {program:program});
+    }
+
     window.applicationCache.addEventListener('updateready', confirmReload, false);
 
     $scope.loginState = "";
@@ -1177,6 +1182,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     var joystickTimers = {};
+    var joystickRepeatTimers = {};
     $scope.joystick = function(axisName, speed) {
         var index = null;
         var axisId = null;
@@ -1190,6 +1196,13 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
         if(index === null) return false;
+
+
+        if(joystickRepeatTimers[axisName]) $timeout.cancel(joystickRepeatTimers[axisName]);
+        joystickRepeatTimers[axisName] = $timeout(function(){
+            $scope.joystick(axisName, speed);
+        }, 1000);
+
         if(speed && joystickTimers[axisName]) return false; // rate limit per axis
 
         if($scope.currentKf) $scope.currentKf.motionEdited = true;
@@ -1840,6 +1853,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     $scope.setTimelapse = function(param, val) {
         $scope.timelapse[param] = val;
         console.log("Setting timelapse." + param + " = " + val);
+        if(param == 'rampMode') {
+            console.log("Sending to reconfigure");
+            $scope.reconfigureProgram($scope.timelapse);
+        }
     }
 
     $scope.toggleIntervalMode = function() {

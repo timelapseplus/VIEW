@@ -436,14 +436,14 @@ function joystickMode(en, callback) {
         cmd2 = {
             motor: 0,
             command: CMD_JOYSTICK_WATCHDOG,
-            dataBuf: new Buffer("00", 'hex')
+            dataBuf: new Buffer("01", 'hex')
         }
-        _queueCommand(cmd2, function(err) {});
-        cmd3 = {
-            motor: 0,
-            command: CMD_MOTOR_STOP
-        }
-        _queueCommand(cmd3, function(err) {
+        //_queueCommand(cmd2, function(err) {});
+        //cmd3 = {
+        //    motor: 0,
+        //    command: CMD_MOTOR_STOP
+        //}
+        _queueCommand(cmd2, function(err) {
             checkMode();
         });
     } else {
@@ -516,6 +516,7 @@ nmx.move = move;
 nmx.constantMove = constantMove;
 nmx.getStatus = getStatus;
 nmx.resetMotorPosition = resetMotorPosition;
+nmx.checkMotorAttachment = checkMotorAttachment;
 
 module.exports = nmx;
 

@@ -235,7 +235,7 @@ if (VIEW_HARDWARE) {
             value: "Basic - Fixed",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'fixed', function(){
-                core.currentProgram.exposurePlans = [];
+                core.currentProgram = reconfigureProgram(core.currentProgram);
                 ui.back();
             })
         }, {
@@ -243,7 +243,7 @@ if (VIEW_HARDWARE) {
             value: "Auto Ramping",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'auto', function(){
-                core.currentProgram.exposurePlans = [];
+                core.currentProgram = reconfigureProgram(core.currentProgram);
                 ui.back();
             })
         }, {
@@ -251,32 +251,44 @@ if (VIEW_HARDWARE) {
             value: "Eclipse Mode",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'eclipse', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
                 ui.back();
-                var coords = mcu.validCoordinates();
-                core.currentProgram.exposurePlans = [];
-                var data = getEclipseData();
-                if(data != null) {
-                    if(data.c1_timestamp > new Date()) {
-                        core.currentProgram.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
-                    }
-                    if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
-                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 20000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
-                        core.currentProgram.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 10, shutter: -3, iso: -1, aperture: -4});
-                        core.currentProgram.exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp - 12000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 8000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
-                    } else {
-                        core.currentProgram.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
-                    }
-                    core.currentProgram.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
-                } else {
-                    ui.alert('error', "Unable to calculate eclipse data");
-                }
             }),
             condition: function() {
                 return getEclipseData();
             }
         }]
+    }
+
+    var reconfigureProgram = function(program) {
+        if(!program.exposurePlans[planIndex]) program.exposurePlans[planIndex] = {};
+        if(program.rampMode == 'auto') {
+            program.exposurePlans = [];
+        } else if(program.rampMode == 'eclipse') {
+            var coords = mcu.validCoordinates();
+            program.exposurePlans = [];
+            var data = getEclipseData();
+            if(data != null) {
+                if(data.c1_timestamp > new Date()) {
+                    program.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
+                }
+                if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
+                    program.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                    program.exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 20000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                    program.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 10, shutter: -3, iso: -1, aperture: -4});
+                    program.exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp - 12000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                    program.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 8000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                } else {
+                    program.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                }
+                program.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
+            } else {
+                ui.alert('error', "Unable to calculate eclipse data");
+            }
+        } else {
+            program.exposurePlans = [];
+        }
+        return program;
     }
 
     var rampingOptionsPlan = function(planIndex) {
@@ -3934,6 +3946,10 @@ app.on('message', function(msg) {
                 core.stopIntervalometer();
                 break;
 
+            case 'reconfigureProgram':
+                msg.reply('timelapseProgram', {program:reconfigureProgram(msg.program)};
+                break
+
             case 'timelapse-clips':
                 clips.getRecentTimelapseClips(30, function(err, clips) {
                     if (clips) {
@@ -4128,8 +4144,9 @@ app.on('message', function(msg) {
                         light: light.ev()
                     });
                 } else if (msg.key == "motion") {
-                    var motion = core.motionStatus;
-                    msg.reply('motion', motion);
+                    core.motionStatusUpdate(function(motion){
+                        msg.reply('motion', motion);
+                    });
                 } else if (msg.key == "program") {
                     if(!core.currentProgram.keyframes) {
                         core.currentProgram.keyframes = [{
