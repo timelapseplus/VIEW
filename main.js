@@ -261,7 +261,7 @@ if (VIEW_HARDWARE) {
     }
 
     var reconfigureProgram = function(program) {
-        if(!program.exposurePlans[planIndex]) program.exposurePlans[planIndex] = {};
+        if(!program.exposurePlans) program.exposurePlans[] = [];
         if(program.rampMode == 'auto') {
             program.exposurePlans = [];
         } else if(program.rampMode == 'eclipse') {
