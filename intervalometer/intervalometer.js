@@ -627,9 +627,10 @@ function runPhoto() {
                 console.log("TL: Setting timer for interval at ", status.intervalMs);
                 if (timerHandle) clearTimeout(timerHandle);
                 var runIntervalHdrCheck = function() {
-                    if(status.hdrIndex == 0) {
+                    if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
                         runPhoto();
                     } else {
+                        console.log("HDR: delaying interval for HDR set");
                         if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, 100);
                     }
                 }
