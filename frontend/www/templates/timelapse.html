@@ -349,10 +349,10 @@
 
         </div>
         <div class="padding" ng-hide="!camera.connected || intervalometerStatus.running">
-            <p ng-show="timelapse.intervalMode!='auto'||timelapse.rampMode=='fixed'">
+            <p ng-show="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
                 Duration: {{timelapse.frames * timelapse.interval / 60|number:0}} minutes<br>
             </p>
-            <p ng-hide="timelapse.intervalMode!='auto'||timelapse.rampMode=='fixed'">
+            <p ng-hide="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
                 Time-lapse will continue until stopped<br>
             </p>
             <div class="button-bar">
