@@ -264,9 +264,9 @@ function processKeyframes(setupFirst, callback) {
         if(trackingTarget) {
             var panDegrees = trackingTarget.pan - status.trackingPan;
             if(status.panDiff != status.panDiffNew) {
-                panDegrees += status.panDiffNew - status.panDiff;
                 status.panDiff = status.panDiffNew;
             }
+            panDegrees += status.panDiff;
             if(panDegrees != 0) {
                 var panMotor = getTrackingMotor(intervalometer.currentProgram.trackingPanMotor);
                 if(panMotor) {
@@ -285,9 +285,9 @@ function processKeyframes(setupFirst, callback) {
             }
             var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
             if(status.tiltDiff != status.tiltDiffNew) {
-                tiltDegrees += status.tiltDiffNew - status.tiltDiff;
                 status.tiltDiff = status.tiltDiffNew;
             }
+            tiltDegrees += status.tiltDiff;
             if(tiltDegrees != 0) {
                 var tiltMotor = getTrackingMotor(intervalometer.currentProgram.trackingTiltMotor);
                 if(tiltMotor) {
