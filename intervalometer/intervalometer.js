@@ -469,6 +469,7 @@ function checkCurrentPlan() {
         //console.log("PLAN: checking plans...", planIndex);
         if(status.currentPlanIndex !== planIndex) {
             status.currentPlanIndex = planIndex;
+            status.framesRemaining = Infinity;
             var plan = intervalometer.currentProgram.exposurePlans[planIndex];
             console.log("PLAN: switching to ", plan.name);
             /*
