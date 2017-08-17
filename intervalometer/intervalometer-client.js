@@ -286,7 +286,7 @@ core.intervalometerStatus = {
     }
 }
 
-core.moveTracking = function(axis, degrees) {
+core.moveTracking = function(axis, degrees, callback) {
     call('intervalometer.moveTracking', {axis:axis, degrees:degrees}, callback);
 }
 
