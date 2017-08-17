@@ -84,7 +84,7 @@
                     </div>
                 </div>
 
-                <div class="item item-dark" ng-show="timelapse.mode=='auto'">
+                <div class="item item-dark" ng-show="timelapse.rampMode=='auto'">
                     Bracketing
                     <div style="float:right;">
                         <button class="button button-light button-small button-{{(!timelapse.hdrCount || timelapse.hdrCount < 2) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=0">
@@ -96,14 +96,14 @@
                     </div>
                 </div>
 
-                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.mode=='auto'">
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.rampMode=='auto'">
                     Bracket Frames
                     <div style="float:right;">
                         <input size="3" type="tel" ng-model="plan.hdrCount" class="item-dark input-border">
                     </div>
                 </label>
 
-                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.mode=='auto'">
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.rampMode=='auto'">
                     Bracket Stops/Frame
                     <div style="float:right;">
                         <input size="3" type="tel" ng-model="timelapse.hdrStops" class="item-dark input-border">
