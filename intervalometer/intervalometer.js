@@ -454,7 +454,7 @@ function planHdr(hdrCount, hdrStops) {
     console.log("planHdr:", status.hdrSet)
 }
 
-function checkCurrentPlan() {
+function checkCurrentPlan(restart) {
     if(intervalometer.currentProgram.exposurePlans && intervalometer.currentProgram.exposurePlans.length > 0) {
         var planIndex = null;                        
         var now = (new Date()).getTime();
@@ -509,9 +509,15 @@ function checkCurrentPlan() {
                 }
             }
             planHdr(plan.hdrCount, plan.hdrStops);
-        }
 
+            if(restart) {
+                if (timerHandle) clearTimeout(timerHandle);
+                setupExposure(runPhoto);
+            }
+            return true;
+        }
     }
+    return false;
 }
 
 var busyPhoto = false;
@@ -629,6 +635,7 @@ function runPhoto() {
 
             //if(status.hdrSet && status.hdrSet.length > 0) captureOptions.ignoreBusy = true;
             if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
+                if(checkCurrentPlan(true)) return;
                 var nextHDRms = 100 + camera.lists.getSecondsFromEv(shutterEv) * 1000;
                 console.log("running next in HDR sequence", status.hdrIndex, nextHDRms);
                 camera.ptp.capture(captureOptions);
@@ -671,7 +678,7 @@ function runPhoto() {
                         status.rampRate = 0;
                     }
 
-                    checkCurrentPlan();
+                    checkCurrentPlan(true);
 
                     status.path = referencePhotoRes.file;
                     status.message = "running";                    
