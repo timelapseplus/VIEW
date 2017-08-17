@@ -52,6 +52,12 @@ var CMD_MOTOR_STATUS = {
     hasAck: true,
     delay: 10
 }
+var CMD_MOTOR_CHECK_SPEED = {
+    cmd: 0x6C,
+    hasReponse: true,
+    hasAck: true,
+    delay: 10
+}
 var CMD_MOTOR_POSITION = {
     cmd: 0x6A,
     hasReponse: true,
@@ -275,9 +281,9 @@ function constantMove(motorId, speed, callback) {
             if(speed == 0) {
                 (function checkC(mId) {
                     setTimeout(function() {
-                        checkMotorRunning(mId, function(moving) {
-                            if(moving === undefined) return;
-                            if (moving) {
+                        checkMotorSpeed(mId, function(speed) {
+                            if(speed === undefined) return;
+                            if (speed > 0) {
                                 motorRunning[mId] = true;
                                 checkC(mId); // keep checking until stop
                             } else {
@@ -324,6 +330,17 @@ function checkMotorRunning(motorId, callback) {
     _queueCommand(cmd, function(err, moving) {
         console.log("NMX: motor " + motorId + " moving: ", moving);
         if (callback) callback(moving);
+    });
+}
+
+function checkMotorSpeed(motorId, callback) {
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_CHECK_SPEED
+    }
+    _queueCommand(cmd, function(err, speed) {
+        console.log("NMX: motor " + motorId + " moving at speed: ", speed);
+        if (callback) callback(speed);
     });
 }
 
