@@ -84,25 +84,31 @@
                     </div>
                 </div>
 
-                <div class="item item-dark" ng-show="timelapse.rampMode == 'auto'">
-                    HDR Frames
+                <div class="item item-dark" ng-show="timelapse.mode=='auto'">
+                    Bracketing
                     <div style="float:right;">
                         <button class="button button-light button-small button-{{(!timelapse.hdrCount || timelapse.hdrCount < 2) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=0">
                             Single
                         </button>
-                        <button class="button button-light button-small button-{{(timelapse.hdrCount > 1) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=3">
+                        <button class="button button-light button-small button-{{(timelapse.hdrCount > 1) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=(timelapse.hdrCount > 1)?timelapse.hdrCount:3">
                             Multi
                         </button>
                     </div>
-                    <div style="float:right;">
-                        Count:
-                        <input size="3" type="tel" ng-model="timelapse.hdrCount" ng-disabled="timelapse.hdrCount>1?0:2" class="item-dark input-border">
-                    </div>
-                    <div style="float:right;">
-                        Stops:
-                        <input size="3" type="tel" ng-model="timelapse.hdrCount" ng-disabled="timelapse.hdrCount>1?0:2" class="item-dark input-border">
-                    </div>
                 </div>
+
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.mode=='auto'">
+                    Bracket Frames
+                    <div style="float:right;">
+                        <input size="3" type="tel" ng-model="plan.hdrCount" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.mode=='auto'">
+                    Bracket Stops/Frame
+                    <div style="float:right;">
+                        <input size="3" type="tel" ng-model="timelapse.hdrStops" class="item-dark input-border">
+                    </div>
+                </label>
 
                 <div class="item item-dark" ng-show="panTiltAvailable">
                     Motion Tracking
@@ -238,25 +244,31 @@
                             </div>
                         </label>
 
-                        <div class="item item-dark" ng-show="plan.mode=='auto'">
-                            HDR Frames
+                        <div class="item item-dark">
+                            Bracketing
                             <div style="float:right;">
                                 <button class="button button-light button-small button-{{(!plan.hdrCount || plan.hdrCount < 2) ? 'outline':'clear'}}" ng-click="plan.hdrCount=0">
                                     Single
                                 </button>
-                                <button class="button button-light button-small button-{{(plan.hdrCount > 1) ? 'outline':'clear'}}" ng-click="plan.hdrCount=3">
+                                <button class="button button-light button-small button-{{(plan.hdrCount > 1) ? 'outline':'clear'}}" ng-click="plan.hdrCount=(plan.hdrCount > 1)?plan.hdrCount:3">
                                     Multi
                                 </button>
                             </div>
-                            <div style="float:right;">
-                                Count:
-                                <input size="3" type="tel" ng-model="plan.hdrCount" ng-disabled="plan.hdrCount>1?0:2" class="item-dark input-border">
-                            </div>
-                            <div style="float:right;">
-                                Stops:
-                                <input size="3" type="tel" ng-model="plan.hdrCount" ng-disabled="plan.hdrCount>1?0:2" class="item-dark input-border">
-                            </div>
                         </div>
+
+                        <label class="item item-dark" ng-show="plan.hdrCount>1">
+                            Bracket Frames
+                            <div style="float:right;">
+                                <input size="3" type="tel" ng-model="plan.hdrCount" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                        <label class="item item-dark" ng-show="plan.hdrCount>1">
+                            Bracket Stops/Frame
+                            <div style="float:right;">
+                                <input size="3" type="tel" ng-model="plan.hdrStops" class="item-dark input-border">
+                            </div>
+                        </label>
 
                     </div>
                 </div>
