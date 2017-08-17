@@ -626,7 +626,14 @@ function runPhoto() {
                 status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);                
                 console.log("TL: Setting timer for interval at ", status.intervalMs);
                 if (timerHandle) clearTimeout(timerHandle);
-                if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
+                var runIntervalHdrCheck = function() {
+                    if(status.hdrIndex == 0) {
+                        runPhoto();
+                    } else {
+                        if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, 100);
+                    }
+                }
+                if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, status.intervalMs);
             } 
 
             intervalometer.emit("status", status);
