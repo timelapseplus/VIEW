@@ -848,12 +848,12 @@ intervalometer.run = function(program) {
                 status.hdrIndex = 0;
                 status.currentPlanIndex = null;
 
-                if(status.rampMode != 'fixed') {
-                    checkCurrentPlan();
-                }
-
                 if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                     planHdr(program.hdrCount, program.hdrStops);
+                }
+
+                if(status.rampMode != 'fixed') {
+                    checkCurrentPlan();
                 }
 
                 if(intervalometer.gpsData) {
