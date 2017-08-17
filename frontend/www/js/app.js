@@ -154,6 +154,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 controls.joystick.on('stop', function(x, y) {
                     $scope.$apply(function(){
                         console.log("enabling scroll");
+                        for(var k in joystickRepeatTimers) {
+                            if(joystickRepeatTimers[k]) $timeout.cancel(joystickRepeatTimers[k]);
+                        }
                         $ionicSideMenuDelegate.canDragContent(true);
                         $ionicScrollDelegate.freezeAllScrolls(false);
                         //$ionicScrollDelegate.getScrollView().options.scrollingY = true;
@@ -177,6 +180,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 });
                 controls.slider.on('stop', function(x, y) {
                     $scope.$apply(function(){
+                        for(var k in joystickRepeatTimers) {
+                            if(joystickRepeatTimers[k]) $timeout.cancel(joystickRepeatTimers[k]);
+                        }
                         console.log("enabling scroll");
                         $ionicSideMenuDelegate.canDragContent(true);
                         $ionicScrollDelegate.freezeAllScrolls(false);
@@ -328,6 +334,18 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         });
     };
+
+    $scope.moveTracking = function(axis, degrees) {
+        sendMessage('moveTracking', {axis:axis, degrees:degrees});
+        if(!$scope.intervalometerStatus.panDiffNew) $scope.intervalometerStatus.panDiffNew = 0;
+        if(!$scope.intervalometerStatus.tiltDiffNew) $scope.intervalometerStatus.tiltDiffNew = 0;
+        if(axis == 'Tilt') {
+            $scope.intervalometerStatus.tiltDiffNew += degrees;
+        }
+        if(axis == 'Pan') {
+            $scope.intervalometerStatus.panDiffNew += degrees;
+        }
+    }
 
     $scope.reconfigureProgram = function(program) {
         retrievedTimelapseProgram = false;
@@ -1204,6 +1222,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.move = function(axisId, steps, noReverse) {
+        for(var k in joystickRepeatTimers) {
+            if(joystickRepeatTimers[k]) $timeout.cancel(joystickRepeatTimers[k]);
+        }
         console.log("moving ", axisId);
         if($scope.currentKf) $scope.currentKf.motionEdited = true;
         if($scope.currentKf) $scope.currentKf.imageCurrent = false;
@@ -1236,6 +1257,9 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.setHomePosition = function() {
+        for(var k in joystickRepeatTimers) {
+            if(joystickRepeatTimers[k]) $timeout.cancel(joystickRepeatTimers[k]);
+        }
         for(var i = 0; i < $scope.axis.length; i++) {
             if($scope.axis[i].connected && $scope.axis[i].pos != 0) $scope.zeroAxis($scope.axis[i].id); 
         }

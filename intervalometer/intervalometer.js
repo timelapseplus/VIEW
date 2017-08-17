@@ -263,9 +263,14 @@ function processKeyframes(setupFirst, callback) {
         }
         if(trackingTarget) {
             var panDegrees = trackingTarget.pan - status.trackingPan;
+            if(status.panDiff != status.panDiffNew) {
+                panDegrees += status.panDiffNew - status.panDiff;
+                status.panDiff = status.panDiffNew;
+            }
             if(panDegrees != 0) {
                 var panMotor = getTrackingMotor(intervalometer.currentProgram.trackingPanMotor);
                 if(panMotor) {
+                    status.trackingPanEnabled = true;
                     numAxes++;
                     var panSteps = panDegrees * panMotor.stepsPerDegree;
                     if(panMotor.stepsPerDegree > 100) {
@@ -279,9 +284,14 @@ function processKeyframes(setupFirst, callback) {
                 }
             }
             var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
+            if(status.tiltDiff != status.tiltDiffNew) {
+                tiltDegrees += status.tiltDiffNew - status.tiltDiff;
+                status.tiltDiff = status.tiltDiffNew;
+            }
             if(tiltDegrees != 0) {
                 var tiltMotor = getTrackingMotor(intervalometer.currentProgram.trackingTiltMotor);
                 if(tiltMotor) {
+                    status.trackingTiltEnabled = true;
                     numAxes++;
                     var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
                     if(tiltMotor.stepsPerDegree > 100) {
@@ -865,6 +875,12 @@ intervalometer.run = function(program) {
                 status.hdrSet = [];
                 status.hdrIndex = 0;
                 status.currentPlanIndex = null;
+                status.panDiffNew = 0;
+                status.tiltDiffNew = 0;
+                status.panDiff = 0;
+                status.tiltDiff = 0;
+                status.trackingPanEnabled = false;
+                status.trackingTiltEnabled = false;
 
                 if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                     planHdr(program.hdrCount, program.hdrStops);
@@ -989,6 +1005,15 @@ intervalometer.run = function(program) {
         return;
     }
 
+}
+
+intervalometer.moveTracking = function(axis, degrees) {
+    if(axis == 'Pan') {
+        intervalometer.status.panDiffNew += degrees;
+    }
+    if(axis == 'Tilt') {
+        intervalometer.status.tiltDiffNew += degrees;
+    }
 }
 
 intervalometer.addGpsData = function(gpsData, callback) {

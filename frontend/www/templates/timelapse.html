@@ -389,6 +389,17 @@
                 </div>
             </div>
             <br>
+            <div class="button-bar" ng-show="intervalometerStatus.trackingPanEnabled">
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.panDiff!=intervalometerStatus.panDiffNew" ng-click="moveTracking('Pan', -0.5)"><i class="icon ion-arrow-left-c"></i></button>
+                <button class="button button-light button-block button-clear">Pan 0.5°</button>
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.panDiff!=intervalometerStatus.panDiffNew" ng-click="moveTracking('Pan', 0.5)"><i class="icon ion-arrow-right-c"></i></button>
+            </div>
+            <div class="button-bar" ng-show="intervalometerStatus.trackingTiltEnabled">
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.tiltDiff!=intervalometerStatus.tiltDiffNew" ng-click="moveTracking('Tilt', -0.5)"><i class="icon ion-arrow-down-c"></i></button>
+                <button class="button button-light button-block button-clear">Tilt 0.5°</button>
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.tiltDiff!=intervalometerStatus.tiltDiffNew" ng-click="moveTracking('Tilt', 0.5)"><i class="icon ion-arrow-up-c"></i></button>
+            </div>
+            </div>
             <div class="row">
                 <div class="col">
                     <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/4}}px; margin-top:{{64-col/4}}px; background-color: #ddd; float: left;"></div>

@@ -3949,6 +3949,10 @@ app.on('message', function(msg) {
                 core.stopIntervalometer();
                 break;
 
+            case 'moveTracking':
+                core.moveTracking(msg.axis, msg.degrees);
+                break;
+
             case 'reconfigureProgram':
                 msg.reply('timelapseProgram', {program:reconfigureProgram(msg.program)});
                 break

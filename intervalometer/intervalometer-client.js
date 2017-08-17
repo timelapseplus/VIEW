@@ -286,6 +286,10 @@ core.intervalometerStatus = {
     }
 }
 
+core.moveTracking = function(axis, degrees) {
+    call('intervalometer.moveTracking', {axis:axis, degrees:degrees}, callback);
+}
+
 core.loadProgram = function(program, callback) {
     if(!program.frames) program.frames = Infinity; // Infinity comes back as null from the DB
     if(program.keyframes) { // arrays come back as object in the VIEW db
@@ -311,6 +315,7 @@ core.loadProgram = function(program, callback) {
     callback && callback();
 }
 core.loadProgram(defaultProgram);
+
 
 core.stopIntervalometer = function(callback) {
     call('intervalometer.cancel', {}, callback);
