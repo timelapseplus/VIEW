@@ -3033,6 +3033,27 @@ if (VIEW_HARDWARE) {
             var sunset = moment(suntimes.sunset);
             var moonrise = moment(moontimes.rise);
             var moonset = moment(moontimes.set);
+
+            if(moonset.diff(now) > 0 && moonrise.diff(now) > 0) {
+                moontimes = suncalc.getMoonTimes(new Date() + 24*3600*1000, coords.lat, coords.lon, true);
+                moonrise = moment(moontimes.rise);
+                moonset = moment(moontimes.set);
+            } else if(moonset.diff(now) < 0 && moonrise.diff(now) < 0) {
+                moontimes = suncalc.getMoonTimes(new Date() - 24*3600*1000, coords.lat, coords.lon, true);
+                moonrise = moment(moontimes.rise);
+                moonset = moment(moontimes.set);
+            }
+
+            if(sunset.diff(now) > 0 && sunrise.diff(now) > 0) {
+                suntimes = suncalc.getTimes(new Date() + 24*3600*1000, coords.lat, coords.lon, true);
+                sunrise = moment(suntimes.rise);
+                sunset = moment(suntimes.set);
+            } else if(sunset.diff(now) < 0 && sunrise.diff(now) < 0) {
+                suntimes = suncalc.getTimes(new Date() - 24*3600*1000, coords.lat, coords.lon, true);
+                sunrise = moment(suntimes.rise);
+                sunset = moment(suntimes.set);
+            }
+
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
             info += "Sun sets at " + sunset.format("h:mm:ss A") + "\t   (" + sunset.fromNow() + ")\t";
             info += "Sun rises at " + sunrise.format("h:mm:ss A") + "\t   (" + sunrise.fromNow() + ")\t";

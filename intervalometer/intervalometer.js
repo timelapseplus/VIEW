@@ -494,7 +494,7 @@ function checkCurrentPlan(restart) {
                 .nightIntervl
             */
             if(plan.mode == 'auto') {
-                status.rampMode = 'fixed';
+                status.rampMode = 'auto';
                 if(status.rampEv == null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
             }
             if(plan.mode == 'lock') {

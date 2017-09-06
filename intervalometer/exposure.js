@@ -79,9 +79,17 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
-        local.targetLum = lum; //averageLum;
+        local.lrtLumArray = [];
+        local.targetLum = lum;
         local.direction = 0;
     }
+
+    local.lrtLumArray.push(lum);
+    if(local.lrtLumArray.length > 3) {
+        local.lrtLumArray.shift();
+    }
+    lum = (local.lrtLumArray.reduce(function(sum, l) { return sum + l; }, 0)) / local.lrtLumArray.length;
+
     var directionFactor;
     directionFactor = (local.direction >= 0) ? 1 : 8;
     if(lum > local.targetLum * (1 + 0.2 * directionFactor)) {
@@ -94,7 +102,7 @@ exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogra
         local.direction = -1;
     }
 
-    console.log("LRT Lum:", lum, local.direction);
+    console.log("LRT Lum:", lum, local.direction, local.targetLum);
 
     return exp.status.rampEv;
 }
@@ -218,16 +226,26 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
 }
 
 
-function getEvOffsetScale(ev, lastPhotoLum) {
+function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
     var evScale
     if(exp.config.nightCompensation == 'auto') {
-        evScale = [{
-            ev: exp.config.nightCompensationNightEv,
-            offset: -(lastPhotoLum - -1.5)
-        }, {
-            ev: exp.config.nightCompensationDayEv,
-            offset: -(lastPhotoLum - 0.0)
-        }]
+        if(noAuto) { // for LRT algorithm
+            evScale = [{
+                ev: exp.config.nightCompensationNightEv,
+                offset: -1.333333;
+            }, {
+                ev: exp.config.nightCompensationDayEv,
+                offset: 0
+            }]
+        } else { // auto calculate night exposure
+            evScale = [{
+                ev: exp.config.nightCompensationNightEv,
+                offset: -(lastPhotoLum - -1.5)
+            }, {
+                ev: exp.config.nightCompensationDayEv,
+                offset: -(lastPhotoLum - 0.0)
+            }]
+        }
     } else {
         evScale = [{
             ev: exp.config.nightCompensationNightEv,
