@@ -232,7 +232,7 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         if(noAuto) { // for LRT algorithm
             evScale = [{
                 ev: exp.config.nightCompensationNightEv,
-                offset: -1.333333;
+                offset: -1.333333
             }, {
                 ev: exp.config.nightCompensationDayEv,
                 offset: 0
