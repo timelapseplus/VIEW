@@ -41,14 +41,23 @@ mcu.setTz = function(tz) {
 }
 
 mcu.setDate = function(date) {
-	var date = moment(date);
+	var date = moment(date).utc();
 	var time = moment().utc();
+	console.log("MCU: setting date to ", date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss"), " UTC");
     exec('date -u -s "' + date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss") + '"');
 }
 
 mcu.setTime = function(time) {
-	var time = moment(time);
+	var time = moment(time).utc();
 	var date = moment().utc();
+	console.log("MCU: setting time to ", date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss"), " UTC");
+    exec('date -u -s "' + date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss") + '"');
+}
+
+mcu.setDateTime = function(time) {
+	var time = moment(time).utc();
+	var date = moment(time).utc();
+	console.log("MCU: setting date & time to ", date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss"), " UTC");
     exec('date -u -s "' + date.format("YYYY-MM-DD") + ' ' + time.format("HH:mm:ss") + '"');
 }
 
@@ -119,8 +128,7 @@ function _parseData(data) {
 			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 				mcu.lastGpsFix = _.clone(gps.state);
 				if(!gpsFix) {
-					mcu.setTime(mcu.lastGpsFix.time);
-					mcu.setDate(mcu.lastGpsFix.time);
+					mcu.setDateTime(mcu.lastGpsFix.time);
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz && process.env.TZ != tz) {
 						process.env.TZ = tz;
