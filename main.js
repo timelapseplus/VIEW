@@ -38,7 +38,8 @@ if(power) wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
 var db = require("./system/db.js");
 
-var suncalc = require('suncalc');
+//var suncalc = require('suncalc');
+var meeus = require('meeusjs');
 
 var previewImage = null;
 var liveviewOn = false;
@@ -3025,34 +3026,12 @@ if (VIEW_HARDWARE) {
         var info = "";
         var coords = mcu.validCoordinates();
         if(coords) {
-            var suntimes = suncalc.getTimes(new Date(), coords.lat, coords.lon, true);
-            var moontimes = suncalc.getMoonTimes(new Date(), coords.lat, coords.lon, true);
-            var mooninfo = suncalc.getMoonIllumination(new Date(), true);
+            var sunmoon = meeus.sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
             var now = moment();
-            var sunrise = moment(suntimes.sunrise);
-            var sunset = moment(suntimes.sunset);
-            var moonrise = moment(moontimes.rise);
-            var moonset = moment(moontimes.set);
-
-            if(moonset.diff(now) > 0 && moonrise.diff(now) > 0) {
-                moontimes = suncalc.getMoonTimes(new Date() + 24*3600*1000, coords.lat, coords.lon, true);
-                moonrise = moment(moontimes.rise);
-                moonset = moment(moontimes.set);
-            } else if(moonset.diff(now) < 0 && moonrise.diff(now) < 0) {
-                moontimes = suncalc.getMoonTimes(new Date() - 24*3600*1000, coords.lat, coords.lon, true);
-                moonrise = moment(moontimes.rise);
-                moonset = moment(moontimes.set);
-            }
-
-            if(sunset.diff(now) > 0 && sunrise.diff(now) > 0) {
-                suntimes = suncalc.getTimes(new Date() + 24*3600*1000, coords.lat, coords.lon, true);
-                sunrise = moment(suntimes.rise);
-                sunset = moment(suntimes.set);
-            } else if(sunset.diff(now) < 0 && sunrise.diff(now) < 0) {
-                suntimes = suncalc.getTimes(new Date() - 24*3600*1000, coords.lat, coords.lon, true);
-                sunrise = moment(suntimes.rise);
-                sunset = moment(suntimes.set);
-            }
+            var sunrise = moment(sunmoon.suntimes.rise);
+            var sunset = moment(sunmoon.suntimes.set);
+            var moonrise = moment(sunmoon.moontimes.rise);
+            var moonset = moment(sunmoon.moontimes.set);
 
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
             info += "Sun sets at " + sunset.format("h:mm:ss A") + "\t   (" + sunset.fromNow() + ")\t";
@@ -3060,16 +3039,17 @@ if (VIEW_HARDWARE) {
             info += "Moon rises at " + moonrise.format("h:mm:ss A") + "\t   (" + moonrise.fromNow() + ")\t";
             info += "Moon sets at " + moonset.format("h:mm:ss A") + "\t   (" + moonset.fromNow() + ")\t";
             var phase = "unknown";
-            if(mooninfo.phase == 0 || mooninfo.phase == 1) phase = "New Moon"; 
-            else if(mooninfo.phase < 0.25) phase = "Waxing Crescent"; 
-            else if(mooninfo.phase == 0.25) phase = "First Quarter";
-            else if(mooninfo.phase > 0.25 && mooninfo.phase < 0.5) phase = "Waxing Gibbous";
-            else if(mooninfo.phase == 0.5) phase = "Full Moon";
-            else if(mooninfo.phase > 0.5 && mooninfo.phase < 0.75) phase = "Waning Gibbous";
-            else if(mooninfo.phase == 0.75) phase = "Last Quarter";
-            else if(mooninfo.phase > 0.75) phase = "Waning Crescent";
+            var phaseNumber = (sunmoon.mooninfo.phase * 180 / Math.PI) / 180 + 0.5
+            if(phaseNumber == 0 || phaseNumber == 1) phase = "New Moon"; 
+            else if(phaseNumber < 0.25) phase = "Waxing Crescent"; 
+            else if(phaseNumber == 0.25) phase = "First Quarter";
+            else if(phaseNumber > 0.25 && phaseNumber < 0.5) phase = "Waxing Gibbous";
+            else if(phaseNumber == 0.5) phase = "Full Moon";
+            else if(phaseNumber > 0.5 && phaseNumber < 0.75) phase = "Waning Gibbous";
+            else if(phaseNumber == 0.75) phase = "Last Quarter";
+            else if(phaseNumber > 0.75) phase = "Waning Crescent";
             info += "Phase: " + phase + "\t";
-            info += "Moon illumination: " + Math.round(mooninfo.fraction * 100) + "%\t";
+            info += "Moon illumination: " + Math.round(sunmoon.mooninfo.illumination * 100) + "%\t";
         } else {
            info = "GPS position info unavailable\t";
         }

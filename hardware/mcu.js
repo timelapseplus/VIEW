@@ -55,20 +55,25 @@ mcu.setTime = function(time) {
 mcu.validCoordinates = function() {
 	var lat = null;
 	var lon = null;
+	var alt = null;
 	if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 		lat = gps.state.lat;
 		lon = gps.state.lon;
+		alt = gps.state.alt || 0;
 	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
 		lat = mcu.lastGpsFix.lat;
 		lon = mcu.lastGpsFix.lon;
+		alt = mcu.lastGpsFix.alt || 0;
 	} else if((power.gpsEnabled == 'disabled' || !mcu.gpsAvailable) && mcu.customLatitude !== null && mcu.customLongitude != null) {
 		lat = mcu.customLatitude;
 		lon = mcu.customLongitude;
+		alt = 0;
 	}
 	if(lat !== null && lon != null) {
 		return {
 			lat: lat,
-			lon: lon
+			lon: lon,
+			alt: alt
 		}
 	} else {
 		return null;
