@@ -1,5 +1,5 @@
 var eclipse = require('./eclipse.js');
-var suncalc = require('suncalc');
+//var suncalc = require('suncalc');
 
 var inputs = {};
 
@@ -21,7 +21,7 @@ inputs.alt = 600; // altitude in meters
 
 eclipse.calculate(inputs, function(err, result) {
 	console.log(err, result);
-	var sunPos = suncalc.getPosition(new Date(result.c1_timestamp), result.lat, result.lon);
+	//var sunPos = suncalc.getPosition(new Date(result.c1_timestamp), result.lat, result.lon);
 
-	console.log(sunPos.altitude * (180 / Math.PI), sunPos.azimuth * (180 / Math.PI) + 180);
+	//console.log(sunPos.altitude * (180 / Math.PI), sunPos.azimuth * (180 / Math.PI) + 180);
 });
