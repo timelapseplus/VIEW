@@ -19,6 +19,7 @@
     "jpeg-lum": "latest",
     "jpeg-size": "0.0.1",
     "linux-gpio": "timelapseplus/node-linux-gpio",
+    "meeusjs": "git://github.com/timelapseplus/MeeusJs",
     "moment": "^2.17.1",
     "mysql": "latest",
     "noble": "^1.3.0",
