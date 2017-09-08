@@ -925,7 +925,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 frame++;
                 if (tl.playing && frame < timelapseImages[index].length) {
                     tl.image = timelapseImages[index][frame];
-                    $scope.scrubber.pos = frame;
+                    if(index == 'current') {
+                        $scope.scrubber.pos = frame;
+                    } else {
+                        tl.pos = frame;
+                    }
                 } else {
                     $interval.cancel(intervalHandle);
                     tl.playing = false;
