@@ -705,6 +705,12 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     break;
                 case 'timelapse-clips':
                     $scope.clips = msg.clips ? msg.clips : [];
+                    for(var i = 0; i < $scope.clips.length; i++) {
+                        $scope.clips[i].pos = 0;
+                        $scope.clips[i].playing = false;
+                        $scope.clips[i].max = -1;
+                        if(timelapseImages[$scope.clips[i].index]) $scope.clips[i].max = timelapseImages[$scope.clips[i].index].length;
+                    }
                     callback(null, $scope.clips);
                     break;
                 case 'timelapse-images':
@@ -909,6 +915,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
         if (tl) {
+            tl.max = timelapseImages[index].length;
             tl.playing = true;
             tl.loading = false;
             var frame = 0;
