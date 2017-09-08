@@ -29,7 +29,7 @@
                             <span style="margin-left:-40%; padding: 10%; border:1px solid #fff;">loading preview...</span>
                         </div>        
                         <img ng-src="data:image/jpeg;base64,{{tl.image}}" width="100%" style="{{tl.loading ? 'opacity: 0.5;' : ''}}"><br>
-                        <div class="item item-dark range">
+                        <div class="item item-dark range" ng-show="tl.max>0">
                           <input class="dark" type="range" name="scrubber" ng-model="tl.pos" ng-change="updateScrubber(tl.pos, tl)" min="0" max="{{tl.max}}" ng-disabled="tl.max>0?0:2">
                         </div>
                     </div>
