@@ -21,9 +21,10 @@
                 <div ng-hide="tl.playing" style="position: absolute;padding-left: 50%;padding-top: 25%;top: -1rem;left: -0rem;"><br><h1 ng-click="playTimelapse(tl.index)" ng-hide="tl.loading"><i class="icon ion-play"></i></h1><span ng-show="tl.loading">loading...</span><br></div>
                 <img ng-src="data:image/jpeg;base64,{{tl.image}}" width="100%">
             </div-->
-            <div style="background-color: #202020">
+            <div class="item item-body item-dark">
                 <div class="row">
                     <div class="col">
+                        <div ng-hide="tl.max||tl.loading" style="position: absolute;padding-left: 50%;padding-top: 25%;top: -1rem;left: -0rem;"><br><h1 ng-click="playTimelapse(tl.index)" ng-hide="tl.loading"><i class="icon ion-play"></i></h1><br></div>
                         <div ng-show="tl.loading" style="position: absolute; padding-left: 50%; padding-top: 45%; top: -1rem; left: -0rem; width:100%; z-index:1;">
                             <span style="margin-left:-40%; padding: 10%; border:1px solid #fff;">loading preview...</span>
                         </div>        
@@ -33,7 +34,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" ng-show="tl.max">
                     <div class="col">
                         <div class="button-bar">
                             <button class="button button-light button-clear icon ion-skip-backward" ng-disabled="(tl.max>0&&tl.pos>0)?0:2" ng-click="updateScrubber(0, tl)"></button>
