@@ -915,7 +915,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
         if (tl) {
-            tl.max = timelapseImages[index].length;
+            tl.max = timelapseImages[index].length - 1;
             tl.playing = true;
             tl.loading = false;
             var frame = 0;
