@@ -174,14 +174,14 @@ function waitComplete(callback) {
     checkComplete();
 }
 
-function thumbnailFileFromIndex(index, cameraIndex) {
+function thumbnailFileFromIndex(index, cameraIndex, hqVersion) {
     if(!thumbnailPath) return "";
     var indexStr = (index + 1).toString();
     while (indexStr.length < 5) {
         indexStr = '0' + indexStr;
     }
     if(!cameraIndex) cameraIndex = 1;
-    return thumbnailPath + "/cam-" + cameraIndex + "-" + indexStr + ".jpg"
+    return thumbnailPath + "/cam-" + cameraIndex + "-" + indexStr + (hqVersion ? "q" : "") + ".jpg"
 }
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
@@ -189,13 +189,18 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
         var thumbnailStartTime = new Date() / 1000;
         var indexStr = (index + 1).toString();
         fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
-            var size = {
-                x: 160,
-                q: 80
-            }
-            image.downsizeJpegSharp(new Buffer(jpgBuffer), size, null, exposureCompensation, function(err, jpgBuf) {
+
+            image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
                 if (!err && jpgBuf) {
-                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex), jpgBuf, function() {
+                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function() {
+                        console.log("WORKER: completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
+                    });
+                }
+            });
+
+            image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 320, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
+                if (!err && jpgBuf) {
+                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, true), jpgBuf, function() {
                         console.log("WORKER: completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
                     });
                 }
@@ -442,7 +447,7 @@ function capture(options, callback) {
     });
 }
 
-function captureTethered(timeoutSeconds, callback) {
+/*function captureTethered(timeoutSeconds, callback) {
     var thumbnail = true;
     if (!timeoutSeconds) timeoutSeconds = 5;
     timeoutSeconds = Math.ceil(timeoutSeconds);
@@ -546,7 +551,7 @@ function captureTethered(timeoutSeconds, callback) {
         });
     }
     waitEvent();
-}
+}*/
 
 liveViewTimerHandle = null;
 

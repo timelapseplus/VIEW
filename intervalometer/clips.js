@@ -145,13 +145,42 @@ clips.getRecentTimelapseClips = function(count, callback) {
     });
 }
 
-clips.getTimelapseImagesFromPaths = function(framesPaths, callback) {
-    async.map(framesPaths, fs.readFile, function(err, images) {
-        callback(err, images);
+clips.getTimelapseImagesFromPaths = function(framesPaths, hq, callback) {
+    if(!framesPaths || framesPaths.length == 0) return callback && callback();
+    fs.readFile(framesPaths[0].replace(/\.jpg$/, "q.jpg"), function(err, jpegData) {
+        if(!err && jpegData) {
+            for(var i = 0; i < framesPaths.length; i++) {
+                framesPaths[i] = framesPaths[i].replace(/\.jpg$/, "q.jpg");
+            }
+        }
+        async.map(framesPaths, fs.readFile, function(err, images) {
+            callback(err, images);
+        });
+    });
+}
+
+clips.getTimelapseImagesHq = function(clipNumber, startFrame, limitFrames, callback) {
+    db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
+        if(!err && dbClip && dbClip.thumbnail) {
+            var thumbnail = dbClip.thumbnail.replace(/\.jpg$/, "q.jpg"); // test if hq version is available
+            fs.readFile(thumbnail, function(err, jpegData) {
+                if(!err && jpegData) {
+                    getTimelapseImages(clipNumber, startFrame, limitFrames, true, callback);
+                } else {
+                    getTimelapseImages(clipNumber, startFrame, limitFrames, false, callback);
+                }
+            });
+        } else {
+            getTimelapseImages(clipNumber, startFrame, limitFrames, false, callback);
+        }
     });
 }
 
 clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callback) {
+    getTimelapseImages(clipNumber, startFrame, limitFrames, false, callback);
+}
+
+var getTimelapseImages = function(clipNumber, startFrame, limitFrames, hq, callback) {
     try {
         //console.log("fetching timelapse clip " + clipNumber);
         var clip = {};
@@ -162,6 +191,9 @@ clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callbac
                     if(!err && clipFrames) {
                         clipFrames = clipFrames.slice(startFrame, startFrame + limitFrames);
                         var framesPaths = clipFrames.map(function(frame){
+                            if(hq) {
+                                frame.thumbnail = frame.thumbnail.replace(/\.jpg$/, "q.jpg"); // hq version
+                            }
                             return frame.thumbnail;
                         });
                         async.map(framesPaths, fs.readFile, function(err, images) {

@@ -939,26 +939,47 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }, 10000);
     }
 
-    $scope.updateScrubber = function(frame) {
-        if(frame < timelapseImages['current'].length) {
-            if($scope.scrubber.pos != frame) $scope.scrubber.pos = frame;
-            if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
-            $scope.currentTimelapse.image = timelapseImages['current'][frame];
-            resetCurrentImage();
+    $scope.updateScrubber = function(frame, tl) {
+        if(tl) {
+            if(frame < timelapseImages[tl.index].length) {
+                if(tl.pos != frame) tl.pos = frame;
+                if(tl.playing) tl.playing = false;
+                tl.image = timelapseImages[tl.index][frame];
+            }
+        } else {
+            if(frame < timelapseImages['current'].length) {
+                if($scope.scrubber.pos != frame) $scope.scrubber.pos = frame;
+                if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
+                $scope.currentTimelapse.image = timelapseImages['current'][frame];
+                resetCurrentImage();
+            }
         }
     }
 
-    $scope.decScrubber = function(frame) {
+    $scope.decScrubber = function(frame, tl) {
         if(frame > 0) {
             frame--;
-            $scope.updateScrubber(frame);
+            $scope.updateScrubber(frame, tl);
         }
     }
 
-    $scope.incScrubber = function(frame) {
-        if(frame < timelapseImages['current'].length) {
+    $scope.incScrubber = function(frame, tl) {
+        if(frame < timelapseImages[tl ? tl.index : 'current'].length) {
             frame++;
-            $scope.updateScrubber(frame);
+            $scope.updateScrubber(frame, tl);
+        }
+    }
+
+    $scope.pauseTimelapse = function(index) {
+        var tl;
+        for (i = 0; i < $scope.clips.length; i++) {
+            if ($scope.clips[i].index == index) {
+                tl = $scope.clips[i];
+                break;
+            }
+        }
+        if(tl) {
+            tl.playing = false;
         }
     }
 

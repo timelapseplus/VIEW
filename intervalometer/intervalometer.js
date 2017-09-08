@@ -125,7 +125,7 @@ function getDetails(file) {
         d.latitude = intervalometer.gpsData.lat;
         d.longitude = intervalometer.gpsData.lon;
 
-        var sunmoon = meeus(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+        var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
         var sunpos = {
             azimuth: sunmoon.sunpos.az,
             altitude: sunmoon.sunpos.alt,
@@ -224,9 +224,18 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
 function calculateCelestialDistance(startPos, currentPos) {
     var panDiff = (currentPos.azimuth - startPos.azimuth) * 180 / Math.PI;
     var tiltDiff = (currentPos.altitude - startPos.altitude) * 180 / Math.PI;
+    var altDeg = currentPos.altitude * 180 / Math.PI;
+    var ease = 1;
+    if(altDeg < 5) {
+        if(altDeg < -10) {
+            ease = 0;
+        } else {
+            ease = (altDeg - -10) / 15;
+        }
+    }
     return {
-        pan: panDiff,
-        tilt: tiltDiff
+        pan: panDiff * ease,
+        tilt: tiltDiff * ease
     }
 }
 
@@ -267,14 +276,14 @@ function processKeyframes(setupFirst, callback) {
     if((intervalometer.currentProgram.keyframes == null || intervalometer.currentProgram.keyframes.length == 1) && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
         var trackingTarget = null;
         if(intervalometer.currentProgram.tracking == 'sun') {
-            var sunmoon = meeus(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+            var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
             var sunPos = {
                 azimuth: sunmoon.sunpos.az,
                 altitude: sunmoon.sunpos.alt,
             }
             trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
         } else if(intervalometer.currentProgram.tracking == 'moon') {
-            var sunmoon = meeus(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+            var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
             var moonPos = {
                 azimuth: sunmoon.moonpos.az,
                 altitude: sunmoon.moonpos.alt,
@@ -914,7 +923,7 @@ intervalometer.run = function(program) {
                     status.latitude = intervalometer.gpsData.lat;
                     status.longitude = intervalometer.gpsData.lon;
         
-                    var sunmoon = meeus(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+                    var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
                     status.sunPos = {
                         azimuth: sunmoon.sunpos.az,
                         altitude: sunmoon.sunpos.alt,

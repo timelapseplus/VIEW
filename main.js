@@ -4034,7 +4034,7 @@ app.on('message', function(msg) {
 
                         var sendFragment = function(){
                             console.log("sending time-lapse fragment " + fragment + " of " + fragments);
-                            clips.getTimelapseImages(msg.index, fragment * 100, 100, function(err, images) {
+                            clips.getTimelapseImagesHq(msg.index, fragment * 100, 100, function(err, images) {
                                 if(!err && images) {
                                     msg.reply('timelapse-images', {
                                         index: msg.index,
