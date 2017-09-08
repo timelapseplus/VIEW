@@ -951,19 +951,16 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
     }
 
     $scope.updateScrubber = function(frame, tl) {
+        if(frame >= timelapseImages['current'].length) frame = timelapseImages['current'].length - 1;
         if(tl) {
-            if(frame < timelapseImages[tl.index].length) {
-                if(tl.pos != frame) tl.pos = frame;
-                if(tl.playing) tl.playing = false;
-                tl.image = timelapseImages[tl.index][frame];
-            }
+            if(tl.pos != frame) tl.pos = frame;
+            if(tl.playing) tl.playing = false;
+            tl.image = timelapseImages[tl.index][frame];
         } else {
-            if(frame < timelapseImages['current'].length) {
-                if($scope.scrubber.pos != frame) $scope.scrubber.pos = frame;
-                if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
-                $scope.currentTimelapse.image = timelapseImages['current'][frame];
-                resetCurrentImage();
-            }
+            if($scope.scrubber.pos != frame) $scope.scrubber.pos = frame;
+            if($scope.currentTimelapse.playing) $scope.currentTimelapse.playing = false;
+            $scope.currentTimelapse.image = timelapseImages['current'][frame];
+            resetCurrentImage();
         }
     }
 
