@@ -154,7 +154,7 @@ clips.getTimelapseImagesFromPaths = function(framesPaths, hq, callback) {
             }
         }
         async.map(framesPaths, fs.readFile, function(err, images) {
-            callback(err, images);
+            callback && callback(err, images);
         });
     });
 }

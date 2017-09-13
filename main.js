@@ -3990,7 +3990,7 @@ app.on('message', function(msg) {
                             var fragment = 0;
                             var sendFragment = function(start){
                                 console.log("sending time-lapse fragment " + fragment + " of " + fragments);
-                                clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * 100, fragment * 100 + 100), function(err, images) {
+                                clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * 100, fragment * 100 + 100), true, function(err, images) {
                                     if(!err && images) {
                                         msg.reply('timelapse-images', {
                                             index: 'current',
