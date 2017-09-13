@@ -207,8 +207,9 @@ var startWorker = function(port) {
                     } else if(worker.model.match(/fuji/i)) {
                         worker.supports.liveview = true;
                         worker.supports.destination = true;
-                        camera.set('d207', '2', null, worker);
-                        camera.set('expprogram', 'M', null, worker);
+                        camera.set('d38c', '1', null, worker); // PC mode
+                        camera.set('d207', '2', null, worker); // USB shutter control
+                        camera.set('expprogram', 'M', null, worker); // Manual mode
                     } else {
                         worker.supports.liveview = true;
                         worker.supports.destination = true;
