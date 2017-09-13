@@ -358,7 +358,7 @@ function capture(options, callback) {
         captureOptions = {
             download: true,
             thumbnail: (options.thumbnail && supports.thumbnail) ? true : false,
-            keepOnCamera: true
+            keepOnCamera: (options.removeFromCamera) ? false : true
         }
     }
     //console.log("cameraOptions:", captureOptions);
