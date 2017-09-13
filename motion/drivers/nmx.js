@@ -605,7 +605,7 @@ function _connectSerial(path, callback) {
         _dev.state = "connected";
 
         _dev.port.once('disconnect', function(err) {
-            if (err && _dev.connected) {
+            if (err && _dev && _dev.connected) {
                 _dev = null;
                 nmx.emit("status", getStatus());
                 console.log("NMX: ERROR: NMX Disconnected: ", err);
