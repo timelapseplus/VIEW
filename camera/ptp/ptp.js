@@ -204,6 +204,11 @@ var startWorker = function(port) {
                     } else if(worker.model.match(/panasonic/i)) {
                         worker.supports.liveview = false;
                         worker.supports.destination = true;
+                    } else if(worker.model.match(/fuji/i)) {
+                        worker.supports.liveview = true;
+                        worker.supports.destination = true;
+                        camera.set('d207', '2', null, worker);
+                        camera.set('expprogram', 'M', null, worker);
                     } else {
                         worker.supports.liveview = true;
                         worker.supports.destination = true;
