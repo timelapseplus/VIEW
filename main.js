@@ -93,8 +93,10 @@ if (VIEW_HARDWARE) {
                             db.get('bt-status', function(err, status) {
                                 if(status && status.enabled) {
                                     wifi.enableBt();
+                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
                                 } else {
                                     wifi.disableBt();
+                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                 }
                             });
                             setTimeout(function(){
@@ -118,8 +120,10 @@ if (VIEW_HARDWARE) {
                             db.get('bt-status', function(err, status) {
                                 if(status && status.enabled) {
                                     wifi.enableBt();
+                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
                                 } else {
                                     wifi.disableBt();
+                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                 }
                             });
 
