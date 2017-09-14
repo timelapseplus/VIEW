@@ -560,10 +560,18 @@ function liveViewOff(callback) {
     previewCrop = null;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
-    set('liveview', 0, function() {
-        getConfig();
-        callback && callback();
-    });
+
+    if(camera.model.match(/fuji/i)) {
+        set('movie', '0', function() {
+            getConfig();
+            callback && callback();
+        });
+    } else {
+        set('liveview', 0, function() {
+            getConfig();
+            callback && callback();
+        });
+    }
 }
 
 function liveViewOffTimerReset(ms) {

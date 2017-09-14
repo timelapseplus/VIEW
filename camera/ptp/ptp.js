@@ -639,15 +639,11 @@ camera.lvTimerReset = function(callback) {
 camera.lvOff = function(callback) {
     var worker = getPrimaryWorker();
     camera.lvOn = false;
-    if(worker.model.match(/fuji/i)) {
-        camera.set('movie', '0', null, worker); // exit lv
-    } else {
-        if (worker && camera.connected) worker.send({
-            type: 'camera',
-            id: getCallbackId(worker.port, 'lvOff', callback),
-            do: 'lvOff'
-        }); else callback && callback("not connected");
-    }
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        id: getCallbackId(worker.port, 'lvOff', callback),
+        do: 'lvOff'
+    }); else callback && callback("not connected");
 }
 camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
     var cb = function(err, data){
