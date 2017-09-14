@@ -640,7 +640,7 @@ camera.lvOff = function(callback) {
     var worker = getPrimaryWorker();
     camera.lvOn = false;
     if(worker.model.match(/fuji/i)) {
-        camera.set('d347', '1', null, worker); // exit lv
+        camera.set('movie', '0', null, worker); // exit lv
     } else {
         if (worker && camera.connected) worker.send({
             type: 'camera',
