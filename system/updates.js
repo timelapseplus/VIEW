@@ -12,7 +12,7 @@ var baseInstallPath = "/home/view/";
 var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
-var libgphoto2Version = "2.5.14.1";
+var libgphoto2Version = "2.5.14.3";
 
 var getLibGPhoto2Version = "/usr/local/bin/gphoto2 --version | grep \"libgphoto2 \"";
 var installLibGPhoto2 = "/usr/bin/test -e /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb && dpkg -i /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb";
