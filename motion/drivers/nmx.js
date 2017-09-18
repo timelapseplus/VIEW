@@ -672,9 +672,9 @@ function init() {
         //resetMotorPosition(1);
         //resetMotorPosition(2);
         //resetMotorPosition(3);
-        setAccel(1, 12675);
-        setAccel(2, 12675);
-        setAccel(3, 12675);
+        setAccel(1, 7500); // 2436.75 to 12675
+        setAccel(2, 7500);
+        setAccel(3, 7500);
     });
 }
 

@@ -1585,6 +1585,22 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
     }
+    var validateMotorKeyframes = function() {
+        for(var k = 0; k < $scope.timelapse.keyframes.length; k++) { // ensure motor positions are set for all keyframes, even if not edited
+            var positions = {};
+            for(var i = 0; i < $scope.axis.length; i++) {
+                if($scope.axis[i].connected) {
+                    var id = $scope.axis[i].id;
+                    if(!positions[id]) positions[id] = 0;
+                    if(!$scope.timelapse.keyframes[k].motor[id]) {
+                        $scope.timelapse.keyframes[k].motor[id] = positions[id];
+                    } else {
+                        positions[id] = $scope.timelapse.keyframes[k].motor[id];
+                    }
+                }
+            }
+        }
+    }
     $scope.closeExposure = function() {
         var delay = 0;
         if ($scope.focusMode) {
@@ -1650,6 +1666,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     $scope.currentKf.motor[id] = $scope.axis[i].pos;
                 }
             }
+            validateMotorKeyframes();
         }
         $scope.currentKf.ev = $scope.camera.ev;
         $scope.modalExposure.hide();
@@ -1669,6 +1686,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
             }
         }
         $scope.timelapse.keyframes.push(kf);
+        validateMotorKeyframes();
     }
     $scope.removeKeyframe = function(index) {
         $scope.timelapse.keyframes.splice(index, 1);

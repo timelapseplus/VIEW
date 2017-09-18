@@ -798,6 +798,10 @@ lists.apertureAll = [{
     ev: 2,
     values: ['32', 'f/32', 'f32']
 }, {
+    name: "35",
+    ev: 2.5,
+    values: ['35', 'f/35', 'f35']
+}, {
     name: "36",
     ev: 2 + 1 / 3,
     values: ['36', 'f/36', 'f36']

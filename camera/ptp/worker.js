@@ -562,7 +562,7 @@ function liveViewOff(callback) {
     liveViewTimerHandle = null;
 
     if(camera.model.match(/fuji/i)) {
-        set('movie', '0', function() {
+        set('movie', 0, function() {
             getConfig();
             callback && callback();
         });

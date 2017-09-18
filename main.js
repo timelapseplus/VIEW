@@ -90,24 +90,24 @@ if (VIEW_HARDWARE) {
                     if(wifiStatus.enabled) {
                         wifi.btEnabled = true;
                         wifi.enable(function(){
-                            db.get('bt-status', function(err, status) {
-                                if(status && status.enabled) {
-                                    wifi.enableBt();
-                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                } else {
-                                    wifi.disableBt();
-                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
-                                }
-                            });
                             setTimeout(function(){
-                                if(!wifi.connected) {
-                                    if(wifiStatus.apMode) {
-                                        wifi.enableAP();
+                                db.get('bt-status', function(err, status) {
+                                    if(status && status.enabled) {
+                                        wifi.enableBt();
+                                        console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                    } else {
+                                        wifi.disableBt();
+                                        console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                     }
-                                    if(wifiStatus.connect) {
-                                        wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                    if(!wifi.connected) {
+                                        if(wifiStatus.apMode) {
+                                            wifi.enableAP();
+                                        }
+                                        if(wifiStatus.connect) {
+                                            wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                        }
                                     }
-                                }
+                                });
                             },5000);
                         });
                     } else {
@@ -253,6 +253,28 @@ if (VIEW_HARDWARE) {
             })
         }, {
             name: "Timelapse Mode",
+            value: "Auto Sunset",
+            help: help.rampingOptions,
+            action: ui.set(core.currentProgram, 'rampMode', 'sunset', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            }),
+            condition: function() {
+                return core.currentProgram.rampAlgorithm == 'lrt';
+            }
+        }, {
+            name: "Timelapse Mode",
+            value: "Auto Sunrise",
+            help: help.rampingOptions,
+            action: ui.set(core.currentProgram, 'rampMode', 'sunrise', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            }),
+            condition: function() {
+                return core.currentProgram.rampAlgorithm == 'lrt';
+            }
+        }, {
+            name: "Timelapse Mode",
             value: "Eclipse Mode",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'eclipse', function(){
@@ -269,6 +291,8 @@ if (VIEW_HARDWARE) {
         if(!program.exposurePlans) program.exposurePlans = [];
         if(program.rampMode == 'auto') {
             program.exposurePlans = [];
+        } else if(program.rampAlgorithm != 'lrt' && (program.rampMode == 'sunset' || program.rampMode == 'sunrise')) {
+            program.rampMode = 'auto';
         } else if(program.rampMode == 'eclipse') {
             var coords = mcu.validCoordinates();
             program.exposurePlans = [];
@@ -351,7 +375,10 @@ if (VIEW_HARDWARE) {
             name: "Ramping Algorithm",
             value: "PID Luminance",
             help: help.rampingAlgorithmLuminance,
-            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lum')
+            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lum', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            }),
         }, {
             name: "Ramping Algorithm",
             value: "LRTimelapse",
@@ -466,6 +493,58 @@ if (VIEW_HARDWARE) {
             value: "disabled",
             help: help.trackingOptions,
             action: ui.set(core.currentProgram, 'tracking', 'none')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Sun",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'sun')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Moon",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'moon')
+        }]
+    }
+
+    var trackingOptions = {
+        name: "Tracking",
+        type: "options",
+        items: [{
+            name: "Motion Tracking",
+            value: "disabled",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'none')
+        }, {
+            name: "Motion Tracking",
+            value: "15°/hour pan",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', '15deg')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Sun",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'sun')
+        }, {
+            name: "Motion Tracking",
+            value: "Follow Moon",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'moon')
+        }]
+    }
+
+    var trackingOptions = {
+        name: "Tracking",
+        type: "options",
+        items: [{
+            name: "Motion Tracking",
+            value: "disabled",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', 'none')
+        }, {
+            name: "Motion Tracking",
+            value: "15°/hour pan",
+            help: help.trackingOptions,
+            action: ui.set(core.currentProgram, 'tracking', '15deg')
         }, {
             name: "Motion Tracking",
             value: "Follow Sun",
@@ -1270,7 +1349,6 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-
     var rampingOptionsMenu = {
         name: "Ramping Options",
         type: "menu",
@@ -1753,7 +1831,7 @@ if (VIEW_HARDWARE) {
             action: trackingTiltMotorMenu,
             help: help.trackingTiltMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none' && core.currentProgram.tracking != '15deg';
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),
