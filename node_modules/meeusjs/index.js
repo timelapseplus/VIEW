@@ -57,19 +57,19 @@ exports.sunmoon = function(date, lat, lon, alt) {
 
 	var suntimes = sunT(date);
 	if(!suntimes.rised && suntimes.rise < date) {
-		console.log("add day for sunrise");
+		//console.log("add day for sunrise");
 		suntimes.rise = sunT(date, 1).rise;
 	} else if(!suntimes.setd && suntimes.set < date) {
-		console.log("add day for sunset");
+		//console.log("add day for sunset");
 		suntimes.set = sunT(date, 1).set;
 	}
 
 	var moontimes = moonT(date);
 	if(!moontimes.rised && moontimes.rise < date) {
-		console.log("add day for moonrise");
+		//console.log("add day for moonrise");
 		moontimes.rise = moonT(date, 1).rise;
 	} else if(!moontimes.setd && moontimes.set < date) {
-		console.log("add day for moonset");
+		//console.log("add day for moonset");
 		moontimes.set = moonT(date, 1).set;
 	}
 
