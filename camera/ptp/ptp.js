@@ -189,7 +189,7 @@ var startWorker = function(port) {
                 worker.send({type:'port', port:port});
             }
             if (msg.type == 'event') {
-                console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
+                if(msg.event != "callback") console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
                 if (msg.event == 'connected') {
                     console.log("worker connected on port", worker.port);
                     worker.connected = true;

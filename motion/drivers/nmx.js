@@ -168,7 +168,6 @@ function getStatus() {
 
 function move(motorId, steps, callback) {
     if (motorRunning[motorId]) return console.log("NMX: motor already running");
-    console.log("NMX: moving motor " + motorId);
     if(!enabled[motorId]) enable(motorId);
     if(inJoystickMode) return joystickMode(false, function() {
         move(motorId, steps, callback);
@@ -177,6 +176,8 @@ function move(motorId, steps, callback) {
     if(steps == 0) { // a move of zero steps triggers a bug in the NMX causing it to move extreme distances
         return callback && callback(null, motorPos[motorId]);
     }
+    console.log("NMX: moving motor " + motorId + " by " + steps + " steps");
+
     //var m = new Buffer(5);
     //m.fill(0);
     //m[0] = 1;
@@ -226,7 +227,7 @@ function move(motorId, steps, callback) {
                             })
                         }
                     });
-                }, 200);
+                }, 300);
             })(motorId);
         } else {
             //keepAlive(true);
@@ -602,8 +603,8 @@ function readData(cb) {
         if(!_dev) return cb && cb("not connected");
         if (receiveBuf.length > 0) {
             //console.log("receiveBuf:", receiveBuf);
-            var readData = receiveBuf.shift();
-            if (cb) cb(null, readData);
+            var data = receiveBuf.shift();
+            if (cb) cb(null, data);
         } else {
             if (tries > 0) {
                 tries--;
@@ -868,7 +869,7 @@ function _runQueue(queueItem, rec) {
                     }, item.readbackDelayMs);
                 } else if(item.ack) {
                     readData(function(err, data) {
-                        //console.log("read data (discarded):", data);
+                        console.log("read data (discarded):", data);
                         item.callback && item.callback(null);
                         setTimeout(function() {
                             _runQueue(null, true);
