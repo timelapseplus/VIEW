@@ -448,14 +448,14 @@ function setAppMode(callback) {
     });
 }
 
-var enteringJoystickMode = null;
+var enteringJoystickMode = false;
 function joystickMode(en, callback) {
     console.log("NMX: setting joystick mode to ", en);
     var checkMode = function(tries){
         if(!tries) tries = 0;
         checkJoystickMode(function(jsMode){
             if(jsMode == en) {
-                enteringJoystickMode = null;
+                enteringJoystickMode = false;
                 callback && callback(null);
             } else {
                 tries++;
@@ -472,7 +472,7 @@ function joystickMode(en, callback) {
     }
 
     if(enteringJoystickMode === null) {
-        enteringJoystickMode = en ? true : false;
+        enteringJoystickMode = true;
         var cmd = {
             motor: 0,
             command: CMD_JOYSTICK_MODE,
