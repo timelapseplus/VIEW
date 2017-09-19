@@ -422,6 +422,7 @@ function resetMotorPosition(motorId, callback) {
         readback: false
     }
     _queueCommand(cmd, function(err) {
+        motorPos[motorId] = 0;
         if (callback) callback(err);
     });
 }
