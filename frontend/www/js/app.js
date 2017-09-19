@@ -583,14 +583,14 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             }
                         }
                         $scope.motionMoving = moving;
-                        if($scope.axis[index].callback) {
-                            $scope.axis[index].pos = msg.position;
-                            $scope.axis[index].callback(msg.position);
-                            $scope.axis[index].callback = null;
+                        $scope.axis[index].pos = msg.position;
+                        if($scope.axis[index].callbacks && $scope.axis[index].callbacks.length > 0) {
+                            for(var i = 0; i < $scope.axis[index].callbacks.length; i++) {
+                                $scope.axis[index].callbacks[i](msg.position);
+                            }
+                            $scope.axis[index].callbacks = null;
                         //} else if(!$scope.currentKf && $scope.axis[index].pos == 0) {
                         //    $scope.zeroAxis($scope.axis[index].id);
-                        } else {
-                            $scope.axis[index].pos = msg.position;
                         }
                     }
                     callback(null, msg.complete);
@@ -1629,9 +1629,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                             var id = $scope.axis[j].id;
                             if($scope.axis[j].moving) {
                                 (function(kfIndex, axisIndex){
-                                    $scope.axis[j].callback = function() {
+                                    if(!$scope.axis[j].callbacks) $scope.axis[j].callbacks = [];
+                                    $scope.axis[j].callbacks.push(function() {
                                         $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[axisIndex].pos;
-                                    }
+                                    });
                                 })(i, j);
                             } else {
                                 $scope.timelapse.keyframes[i].motor[id] -= $scope.axis[j].pos;
@@ -1646,9 +1647,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                 for(var i = 0; i < $scope.axis.length; i++) {
                     if($scope.axis[i].moving) {
                         (function(id, i){
-                            $scope.axis[i].callback = function(position) {
+                            if(!$scope.axis[i].callbacks) $scope.axis[i].callbacks = [];
+                            $scope.axis[i].callbacks.push(function(position) {
                                 $scope.zeroAxis(id);
-                            };
+                            });
                         })($scope.axis[i].id, i);
                     } else {
                         $scope.zeroAxis($scope.axis[i].id);
