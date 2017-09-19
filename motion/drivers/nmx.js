@@ -413,6 +413,9 @@ function firmwareVersion(callback) {
 
 function resetMotorPosition(motorId, callback) {
     if(!_dev || !_dev.connected) callback && callback("not connected");
+    if(inJoystickMode) return joystickMode(false, function() {
+        resetMotorPosition(motorId, callback);
+    });
     var cmd = {
         motor: motorId,
         command: CMD_MOTOR_RESET,
