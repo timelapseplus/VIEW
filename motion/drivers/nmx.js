@@ -869,13 +869,14 @@ function _runQueue(queueItem, rec) {
                     }, item.readbackDelayMs);
                 } else if(item.ack) {
                     readData(function(err, data) {
-                        console.log("read data (discarded):", data);
+                        console.log("NMX: read data (discarded):", data);
                         item.callback && item.callback(null);
                         setTimeout(function() {
                             _runQueue(null, true);
                         }, COMMAND_SPACING_MS);
                     });
                 } else {
+                        console.log("NMX: continuing (no read):");
                     item.callback && item.callback(null);
                     setTimeout(function() {
                         _runQueue(null, true);
@@ -884,8 +885,8 @@ function _runQueue(queueItem, rec) {
             });
         })(nextItem);
     } else {
-        //console.log("NMX: queue complete");
-        _queueRunning = false;
+        console.log("NMX: queue complete:", !!rec);
+        if(rec) _queueRunning = false;
     }
 }
 
