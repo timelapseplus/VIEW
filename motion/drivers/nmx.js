@@ -266,7 +266,7 @@ function setMaxSpeed(motorId, speed, callback) {
 
     var cmd = {
         motor: motorId,
-        command: CMD_MOTOR_MOVE_CONSTANT,
+        command: CMD_MOTOR_MAX_SPEED,
         dataBuf: m
     }
 
