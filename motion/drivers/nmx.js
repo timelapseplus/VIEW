@@ -471,7 +471,7 @@ function joystickMode(en, callback) {
         });
     }
 
-    if(enteringJoystickMode === null) {
+    if(!enteringJoystickMode) {
         enteringJoystickMode = true;
         var cmd = {
             motor: 0,
