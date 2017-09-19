@@ -70,6 +70,12 @@ var CMD_MOTOR_RESET = {
     hasAck: true,
     delay: 0
 }
+var CMD_MOTOR_MAX_SPEED = {
+    cmd: 0x07,
+    hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
 var CMD_FIRMWARE_VERSION = {
     cmd: 0x64,
     hasReponse: true,
@@ -241,6 +247,25 @@ function setAccel(motorId, rate, callback) {
     var cmd = {
         motor: motorId,
         command: CMD_MOTOR_SET_ACCEL,
+        dataBuf: m
+    }
+
+    _queueCommand(cmd, function(err) {
+        if (callback) callback(err);
+    });
+}
+
+function setMaxSpeed(motorId, speed, callback) {
+    if (motorRunning[motorId]) return console.log("NMX: motor running");
+    console.log("NMX: setting max speed for " + motorId);
+
+    var m = new Buffer(2);
+    m.fill(0);
+    m.writeUInt16BE(speed, 0, 2);
+
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_MOVE_CONSTANT,
         dataBuf: m
     }
 
@@ -675,6 +700,9 @@ function init() {
         setAccel(1, 7500); // 2436.75 to 12675
         setAccel(2, 7500);
         setAccel(3, 7500);
+        setMaxSpeed(1, 3000);
+        setMaxSpeed(2, 3000);
+        setMaxSpeed(3, 3000);
     });
 }
 
