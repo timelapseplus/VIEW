@@ -1361,7 +1361,7 @@ if (VIEW_HARDWARE) {
             help: help.rampingAlgorithm,
             action: rampingAlgorithm,
             condition: function() {
-                return core.currentProgram.rampMode == 'auto';
+                return core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset';
             }
         }, {
             name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
@@ -1794,14 +1794,14 @@ if (VIEW_HARDWARE) {
             action: dayInterval,
             help: help.dayInterval,
             condition: function() {
-                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
+                return core.currentProgram.intervalMode == 'auto' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
             }
         }, {
             name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
             action: nightInterval,
             help: help.nightInterval,
             condition: function() {
-                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
+                return core.currentProgram.intervalMode == 'auto' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
             }
         }, {
             name: valueDisplay("Frames", core.currentProgram, 'frames'),
@@ -1866,14 +1866,14 @@ if (VIEW_HARDWARE) {
             action: hdrCountOptions,
             help: help.interval,
             condition: function() {
-                return core.currentProgram.rampMode == 'auto';
+                return (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
             }
         }, {
             name: valueDisplay("HDR Bracket Step", core.currentProgram, 'hdrStops'),
             action: hdrStopsOptions,
             help: help.interval,
             condition: function() {
-                return core.currentProgram.rampMode == 'auto' && core.currentProgram.hdrCount > 1;
+                return (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset') && core.currentProgram.hdrCount > 1;
             }
         }, {
              name: "Review Program",
@@ -4438,7 +4438,7 @@ core.on('intervalometer.status', function(msg) {
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
         rampModeText: core.currentProgram.rampMode,
-        intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
+        intervalModeText: (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset') ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
         shutterSeconds: msg.cameraSettings.details.shutter ? lists.getSecondsFromEv(msg.cameraSettings.details.shutter.ev) : 0,

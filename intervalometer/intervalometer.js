@@ -728,7 +728,7 @@ function runPhoto() {
                     intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
 
                     if(status.rampMode == "auto") {
-                        status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.rampMode, status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
+                        status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.rampMode, status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
                         status.rampRate = exp.status.rate;
                     } else if(status.rampMode == "fixed") {
                         status.rampRate = 0;

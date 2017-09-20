@@ -62,6 +62,7 @@ exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhot
     if(minEv != null) exp.config.minEv = minEv;
     if(maxEv != null) exp.config.maxEv = maxEv;
 
+    console.log("LRT: direction = ", direction);
     if(['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
 
     if(algorithm == "lrt") {
@@ -83,7 +84,14 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
         exp.status.rampEv = currentEv;
         local.lrtLumArray = [];
         local.targetLum = lum;
-        local.direction = 0;
+    
+        if(direction == 'sunrise') {
+            local.direction = 1;
+        } else if(direction == 'sunset') {
+            local.direction = -1;
+        } else {
+            local.direction = 0;
+        }
     }
 
     local.lrtLumArray.push(lum);
@@ -93,12 +101,13 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
     lum = (local.lrtLumArray.reduce(function(sum, l) { return sum + l; }, 0)) / local.lrtLumArray.length;
 
     var directionFactor;
-    directionFactor = (local.direction >= 0 || direction == 'auto') ? 1 : 8;
+
+    directionFactor = local.direction >= 0 ? 1 : 8;
     if((direction == 'auto' || direction == 'sunrise') && lum > local.targetLum * (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv + 1/3;
         local.direction = 1;
     }
-    directionFactor = (local.direction <= 0 || direction == 'auto') ? 1 : 8;
+    directionFactor = local.direction <= 0 ? 1 : 8;
     if((direction == 'auto' || direction == 'sunset') && lum < local.targetLum / (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;
