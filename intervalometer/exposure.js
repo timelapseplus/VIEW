@@ -62,7 +62,6 @@ exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhot
     if(minEv != null) exp.config.minEv = minEv;
     if(maxEv != null) exp.config.maxEv = maxEv;
 
-    console.log("LRT: direction = ", direction);
     if(['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
 
     if(algorithm == "lrt") {
@@ -78,7 +77,11 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
         lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
     }
 
+    var lum1 = lum;
+
     lum -= (lum * getEvOffsetScale(currentEv, lastPhotoLum)) / 2; // apply night compensation
+
+    var lum2 = lum;
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
@@ -100,6 +103,8 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
     }
     lum = (local.lrtLumArray.reduce(function(sum, l) { return sum + l; }, 0)) / local.lrtLumArray.length;
 
+    var lum3 = lum;
+
     var directionFactor;
 
     directionFactor = local.direction >= 0 ? 1 : 8;
@@ -112,6 +117,8 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;
     }
+
+    console.log("LRT LumX:", lum1, lum2, lum3);
 
     console.log("LRT Lum:", lum, local.direction, local.targetLum, " currentEv:", currentEv, ", newEv:", exp.status.rampEv, ", Dir:", direction);
 
