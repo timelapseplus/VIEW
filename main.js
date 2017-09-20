@@ -4487,7 +4487,7 @@ core.on('motion.status', function(status) {
         oled.setIcon('bt', false);
         ui.reload();
         if(status.reload) {
-            connected.log("motion disconnected, reloading BT")
+            console.log("motion disconnected, reloading BT")
             wifi.resetBt(function(){
                 //startScan();
             });

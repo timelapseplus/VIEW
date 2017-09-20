@@ -334,7 +334,9 @@ intervalometer.on('status', function(data) {
   if(!data.running && camera.ptp.model.match(/nikon/i)) camera.ptp.set("controlmode", 0, function(){});
   sendEvent('intervalometer.status', data);
   if(!data.running) {
-    sendEvent('motion.status', motion.status);
+    motion.refresh(function(){
+      sendEvent('motion.status', motion.status);
+    });
   }
 });
 intervalometer.on('error', function(data) {

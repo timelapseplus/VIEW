@@ -289,6 +289,11 @@ function processKeyframes(setupFirst, callback) {
                 altitude: sunmoon.moonpos.alt,
             }
             trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
+        } else if(intervalometer.currentProgram.tracking == '15deg') {
+            trackingTarget = {
+                pan: 0 - (((new Date() / 1000) - status.startTime) / 60) * 15,
+                tilt: 0
+            }
         }
         if(trackingTarget) {
             var panDegrees = trackingTarget.pan - status.trackingPan;
