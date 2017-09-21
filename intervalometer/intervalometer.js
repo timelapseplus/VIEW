@@ -196,7 +196,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
                 }
             });
             kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
-            console.log("KF: " + axisName + " target: " + kfSet);
+            console.log("KF: " + axisName + (axisSubIndex != null ? axisSubIndex : '') + " target: " + kfSet);
         }
         var axisNameExtension = '';
         if(axisSubIndex != null) axisNameExtension = '-' + axisSubIndex;
