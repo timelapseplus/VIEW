@@ -291,7 +291,7 @@ function processKeyframes(setupFirst, callback) {
             trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
         } else if(intervalometer.currentProgram.tracking == '15deg') {
             trackingTarget = {
-                pan: 0 - (((new Date() / 1000) - status.startTime) / 60) * 15,
+                pan: 0 - (((new Date() / 1000) - status.startTime) / 3600) * 15,
                 tilt: 0
             }
         }
