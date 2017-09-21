@@ -579,6 +579,7 @@ if (VIEW_HARDWARE) {
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor, function(){
                         ui.back();
+                        ui.back();
                     })
                 });
                 m.items.push({
@@ -586,6 +587,7 @@ if (VIEW_HARDWARE) {
                     value: motor.driver + motor.motor,
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor + 'r', function(){
+                        ui.back();
                         ui.back();
                     })
                 });
@@ -615,6 +617,7 @@ if (VIEW_HARDWARE) {
                     help: help.trackingTiltMotor,
                     action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor, function() {
                         ui.back();
+                        ui.back();
                     })
                 });
                 m.items.push({
@@ -622,6 +625,7 @@ if (VIEW_HARDWARE) {
                     value: motor.driver + motor.motor,
                     help: help.trackingTiltMotor,
                     action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor + 'r', function() {
+                        ui.back();
                         ui.back();
                     })
                 });

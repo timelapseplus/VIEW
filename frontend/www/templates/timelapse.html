@@ -139,11 +139,14 @@
                     </div>
                 </label>
 
-                <div class="item item-dark" ng-show="panTiltAvailable">
-                    Motion Tracking
+                <div class="item item-dark" ng-show="panAvailable||tiltAvailable">
+                    Motion Tracking <span ng-hide="panAvailable">(tilt-only)</span><span ng-hide="tiltAvailable">(pan-only)</span>
                     <div style="float:right;">
                         <button class="button button-light button-small button-{{timelapse.tracking == 'none' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'none')">
                             Disabled
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'sun' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', '15deg')">
+                            15°/hour
                         </button>
                         <button class="button button-light button-small button-{{timelapse.tracking == 'sun' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'sun')">
                             Sun
