@@ -122,7 +122,7 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
         local.direction = -1;
     }
 
-    console.log("LRT LumX:", lum1, lum2, lum3);
+    //console.log("LRT LumX:", lum1, lum2, lum3);
 
     console.log("LRT Lum:", lum, local.direction, local.targetLum, " currentEv:", currentEv, ", newEv:", exp.status.rampEv, ", Dir:", direction);
 
