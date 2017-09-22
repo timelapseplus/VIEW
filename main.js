@@ -565,8 +565,8 @@ if (VIEW_HARDWARE) {
         }
         m.items = [];
         m.items.push({
-            name: "Disabled",
-            value: "none",
+            name: "Tracking Pan Motor",
+            value: "Disabled",
             help: help.trackingPanMotor,
             action: ui.set(core.currentProgram, 'trackingPanMotor', 'none', function() {
                     ui.back();
@@ -577,8 +577,9 @@ if (VIEW_HARDWARE) {
             var motor = core.motionStatus.motors[i];
             if(motor.connected) {
                 m.items.push({
-                    name: motor.driver + " Axis" + motor.motor + "",
-                    value: motor.driver + motor.motor,
+                    name: "Tracking Pan Motor",
+                    //name: motor.driver + " Axis" + motor.motor + "",
+                    value: motor.driver + " Axis" + motor.motor + "", //motor.driver + motor.motor,
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor, function(){
                         ui.back();
@@ -586,8 +587,9 @@ if (VIEW_HARDWARE) {
                     })
                 });
                 m.items.push({
-                    name: motor.driver + " Axis" + motor.motor + " (reverse)",
-                    value: motor.driver + motor.motor,
+                    name: "Tracking Pan Motor",
+                    //name: motor.driver + " Axis" + motor.motor + " (reverse)",
+                    value: motor.driver + " Axis" + motor.motor + " (reverse)",//motor.driver + motor.motor,
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor + 'r', function(){
                         ui.back();
