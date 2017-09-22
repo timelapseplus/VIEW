@@ -561,14 +561,17 @@ if (VIEW_HARDWARE) {
     var trackingPanMotorMenu = function(cb) {
         var m = {
             name: "Tracking Pan",
-            type: "menu"
+            type: "settings"
         }
         m.items = [];
         m.items.push({
             name: "Disabled",
             value: "none",
             help: help.trackingPanMotor,
-            action: ui.set(core.currentProgram, 'trackingPanMotor', 'none')
+            action: ui.set(core.currentProgram, 'trackingPanMotor', 'none', function() {
+                    ui.back();
+                    ui.back();
+            })
         });
         for(var i = 0; i < core.motionStatus.motors.length; i++) {
             var motor = core.motionStatus.motors[i];
@@ -599,14 +602,17 @@ if (VIEW_HARDWARE) {
     var trackingTiltMotorMenu = function(cb) {
         var m = {
             name: "Tracking Tilt",
-            type: "menu"
+            type: "settings"
         }
         m.items = [];
         m.items.push({
             name: "Disabled",
             value: "none",
             help: help.trackingTiltMotor,
-            action: ui.set(core.currentProgram, 'trackingTiltMotor', 'none')
+            action: ui.set(core.currentProgram, 'trackingTiltMotor', 'none', function() {
+                ui.back();
+                ui.back();
+            })
         });
         for(var i = 0; i < core.motionStatus.motors.length; i++) {
             var motor = core.motionStatus.motors[i];
