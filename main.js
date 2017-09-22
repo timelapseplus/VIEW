@@ -561,7 +561,7 @@ if (VIEW_HARDWARE) {
     var trackingPanMotorMenu = function(cb) {
         var m = {
             name: "Tracking Pan",
-            type: "settings"
+            type: "options"
         }
         m.items = [];
         m.items.push({
@@ -602,7 +602,7 @@ if (VIEW_HARDWARE) {
     var trackingTiltMotorMenu = function(cb) {
         var m = {
             name: "Tracking Tilt",
-            type: "settings"
+            type: "options"
         }
         m.items = [];
         m.items.push({
