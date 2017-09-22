@@ -589,7 +589,7 @@ if (VIEW_HARDWARE) {
                 m.items.push({
                     name: "Tracking Pan Motor",
                     //name: motor.driver + " Axis" + motor.motor + " (reverse)",
-                    value: motor.driver + " Axis" + motor.motor + " (reverse)",//motor.driver + motor.motor,
+                    value: motor.driver + " Axis" + motor.motor + " (rev)",//motor.driver + motor.motor,
                     help: help.trackingPanMotor,
                     action: ui.set(core.currentProgram, 'trackingPanMotor', motor.driver + motor.motor + 'r', function(){
                         ui.back();
@@ -608,8 +608,8 @@ if (VIEW_HARDWARE) {
         }
         m.items = [];
         m.items.push({
-            name: "Disabled",
-            value: "none",
+            name: "Tracking Tilt Motor",
+            value: "Disabled",
             help: help.trackingTiltMotor,
             action: ui.set(core.currentProgram, 'trackingTiltMotor', 'none', function() {
                 ui.back();
@@ -620,8 +620,8 @@ if (VIEW_HARDWARE) {
             var motor = core.motionStatus.motors[i];
             if(motor.connected) {
                 m.items.push({
-                    name: motor.driver + " Axis" + motor.motor + "",
-                    value: motor.driver + motor.motor,
+                    name: "Tracking Tilt Motor",
+                    value: motor.driver + " Axis" + motor.motor + "",
                     help: help.trackingTiltMotor,
                     action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor, function() {
                         ui.back();
@@ -629,8 +629,8 @@ if (VIEW_HARDWARE) {
                     })
                 });
                 m.items.push({
-                    name: motor.driver + " Axis" + motor.motor + " (reverse)",
-                    value: motor.driver + motor.motor,
+                    name: "Tracking Tilt Motor",
+                    value: motor.driver + " Axis" + motor.motor + " (rev)",
                     help: help.trackingTiltMotor,
                     action: ui.set(core.currentProgram, 'trackingTiltMotor', motor.driver + motor.motor + 'r', function() {
                         ui.back();
