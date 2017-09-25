@@ -1009,7 +1009,7 @@ oled.close = function() {
 }
 
 oled.liveview = function(jpegFile, text) {
-    oled.jpeg(path, 0, 14, true);
+    oled.jpeg(jpegFile, 0, 14, true);
     fb.color(0, 0, 0);
     fb.rect(0, 119, 159, 127, true);
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
