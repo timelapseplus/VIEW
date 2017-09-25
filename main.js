@@ -1455,26 +1455,28 @@ if (VIEW_HARDWARE) {
                         if (stats.ev < stats.maxEv) {
                             ev += 1 / 3;
                             console.log("(exposure) setting ev to ", ev);
+                            if(getSettingsTimer) {
+                                clearTimeout(getSettingsTimer);
+                                getSettingsTimer = null;
+                            }
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
-                                if(getSettingsTimer) {
-                                    clearTimeout(getSettingsTimer);
-                                    getSettingsTimer = null;
-                                }
-                                getSettingsTimer = setTimeout(core.getSettings, 2000);
+                            }, function() {
+                                getSettingsTimer = setTimeout(core.getSettings, 1000);
                             });
                         }
                     } else if (d == 'D') {
                         if (stats.ev > stats.minEv) {
                             ev -= 1 / 3;
                             console.log("(exposure) setting ev to ", ev);
+                            if(getSettingsTimer) {
+                                clearTimeout(getSettingsTimer);
+                                getSettingsTimer = null;
+                            }
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
-                                if(getSettingsTimer) {
-                                    clearTimeout(getSettingsTimer);
-                                    getSettingsTimer = null;
-                                }
-                                getSettingsTimer = setTimeout(core.getSettings, 2000);
+                            }, function() {
+                                getSettingsTimer = setTimeout(core.getSettings, 1000);
                             });
                         }
                     }
