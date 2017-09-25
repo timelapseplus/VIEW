@@ -1008,6 +1008,16 @@ oled.show = function() {
 oled.close = function() {
 }
 
+oled.liveview = function(jpegFile, text) {
+    oled.jpeg(path, 0, 14, true);
+    fb.color(0, 0, 0);
+    fb.rect(0, 119, 159, 127, true);
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
+    color("primary");
+    fb.text(3, 120, text);
+    oled.update(true);
+}
+
 oled.jpeg = function(jpegFile, x, y, overlay) {
     if(!overlay) fb.clear();
     fb.jpeg(x||0, y||0, jpegFile);
