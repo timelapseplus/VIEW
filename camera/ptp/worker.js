@@ -873,7 +873,7 @@ function getConfig(noEvent, cached, cb) {
                 }
                 if(camera.model.match(/fuji/i) && list && handle == 'iso') { // ISO less than 200 on Fuji forces the camera into JPEG mode
                     list = list.filter(function(item) {
-                        if(item && item.ev != null && item.ev >= -1) {
+                        if(item && item.ev != null && item.ev <= -1) {
                             return true;
                         }
                         return false;

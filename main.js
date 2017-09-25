@@ -1414,6 +1414,7 @@ if (VIEW_HARDWARE) {
         fn: function(args, cb) {
             blockInputs = true;
             var stats, ev, exiting = false;
+            var getSettingsTimer = null;
 
             function captureButtonHandler(b) {
                 oled.activity();
@@ -1456,6 +1457,11 @@ if (VIEW_HARDWARE) {
                             console.log("(exposure) setting ev to ", ev);
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
+                                if(getSettingsTimer) {
+                                    clearTimeout(getSettingsTimer);
+                                    getSettingsTimer = null;
+                                }
+                                getSettingsTimer = setTimeout(core.getSettings, 2000);
                             });
                         }
                     } else if (d == 'D') {
@@ -1464,6 +1470,11 @@ if (VIEW_HARDWARE) {
                             console.log("(exposure) setting ev to ", ev);
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
+                                if(getSettingsTimer) {
+                                    clearTimeout(getSettingsTimer);
+                                    getSettingsTimer = null;
+                                }
+                                getSettingsTimer = setTimeout(core.getSettings, 2000);
                             });
                         }
                     }
