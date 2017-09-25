@@ -871,6 +871,14 @@ function getConfig(noEvent, cached, cb) {
                     mapped.details[handle] = detail;
                      mapped[handle] = detail.name;
                 }
+                if(camera.model.match(/fuji/i) && list && handle == 'iso') { // ISO less than 200 on Fuji forces the camera into JPEG mode
+                    list = list.filter(function(item) {
+                        if(item && item.ev != null && item.ev >= -1) {
+                            return true;
+                        }
+                        return false;
+                    });
+                }
                 mapped.lists[handle] = list;
                 mapped.names[handle] = name;
             }
