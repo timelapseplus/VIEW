@@ -827,17 +827,17 @@ function getSendMulti() {
 
 var restartPreview = null;
 camera.set = function(item, value, callback, _worker) {
-    if(camera.lvOn && camera.model.match(/fuji/i)) {
+    if(camera.lvOn === true && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);
             restartPreview = null;
         }
-        camera.lvOff(function(){
+        return camera.lvOff(function(){
             camera.set(item, value, function(err){
                 restartPreview = setTimeout(camera.preview, 1000);
                 callback && callback(err);
             }, _worker);
-        }); 
+        });
     }
     var cmd = {
         type: 'camera',
