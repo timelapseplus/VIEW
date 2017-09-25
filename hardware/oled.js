@@ -1014,7 +1014,7 @@ oled.liveview = function(jpegFile, text) {
     fb.rect(0, 119, 159, 127, true);
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
-    fb.text(3, 120, text);
+    fb.text(3, 127, text);
     oled.update(true);
 }
 
