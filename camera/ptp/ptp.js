@@ -827,7 +827,7 @@ function getSendMulti() {
 
 var restartPreview = null;
 camera.set = function(item, value, callback, _worker) {
-    if(camera.lvOn && camera.model.match(/fuji/i) {
+    if(camera.lvOn && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);
             restartPreview = null;
