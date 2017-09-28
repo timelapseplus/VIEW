@@ -59,7 +59,7 @@ var remotePingHandle = null;
 function connectRemote() {
     if (app.remote || !app.remoteEnabled) return;
     console.log("connecting to view.tl");
-    wsRemote = new WebSocket('ws://incoming.view.tl/socket/device', {
+    wsRemote = new WebSocket('wss://incoming.view.tl/socket/device', {
         headers: {
             'x-view-id': viewId
         }

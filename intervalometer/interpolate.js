@@ -171,3 +171,94 @@ exports.catmullRomSpline = function(xyPoints, xVal) {
   return null;//"err1";
 };
 
+function smoothStep(x) {
+  //return x*x*x*(x*(x*6 - 15) + 10);
+  return x*x*(3 - 2*x);
+  //return (x/2 + x*x*(3 - 2*x)) / 1.5;
+}
+
+function smootherStep(x) {
+  return x*x*x*(x*(x*6 - 15) + 10);
+}
+
+function pointSlope(index, dataPoints) {
+  var slope = 0;
+  if(index > 0 && index < dataPoints.length - 1) {
+    if((dataPoints[index - 1].y < dataPoints[index].y && dataPoints[index].y < dataPoints[index + 1].y) || (dataPoints[index - 1].y > dataPoints[index].y && dataPoints[index].y > dataPoints[index + 1].y)) {
+      var xSpan = dataPoints[index].x - dataPoints[index - 1].x;
+      var ySpan = dataPoints[index].y - dataPoints[index - 1].y;
+      var slope1 = ySpan / xSpan;
+      var xSpan = dataPoints[index + 1].x - dataPoints[index].x;
+      var ySpan = dataPoints[index + 1].y - dataPoints[index].y;
+      var slope2 = ySpan / xSpan;
+      var t = (dataPoints[index].x - dataPoints[index - 1].x) / (dataPoints[index + 1].x - dataPoints[index - 1].x);
+      slope = (slope1 * (1-t)) + (slope2 * t);
+    }
+  }
+  return slope;
+}
+
+exports.smooth = function(xyPoints, xVal) {
+  var lastIndex = null;
+  var nextIndex = null;
+  for(var i = 0; i < xyPoints.length; i++) {
+    if(lastIndex == null || xyPoints[i].x <= xVal) lastIndex = i;
+    if(xyPoints[i].x > xVal) {
+      nextIndex = i;
+      break;
+    }
+  }
+  if(nextIndex == null) nextIndex = xyPoints.length - 1;
+  
+  var tSpan = (xyPoints[nextIndex].x - xyPoints[lastIndex].x);
+  if(tSpan == 0) return xyPoints[lastIndex].y;
+  var t = (xVal - xyPoints[lastIndex].x) / tSpan;
+  var tS = smoothStep(t);
+  
+  var lastSlope = pointSlope(lastIndex, xyPoints);
+  var nextSlope = pointSlope(nextIndex, xyPoints);
+
+  var lastVal = xyPoints[lastIndex].y;
+  var nextVal = xyPoints[nextIndex].y;
+  var d1 = 1;
+  var d2 = 1;
+  if(Math.abs(nextVal - lastVal) > 0 && lastSlope > 0) d1 = (lastSlope * tSpan) / Math.abs(nextVal - lastVal);
+  if(Math.abs(nextVal - lastVal) > 0 && nextSlope > 0) d2 = (nextSlope * tSpan) / Math.abs(nextVal - lastVal);
+  var y1 = lastVal + (lastSlope * t*tSpan) / (1+d1*t);
+  var y2 = nextVal - (nextSlope * (1-t) * tSpan) / (1+d2*(1-t));
+  
+  if(y1 > Math.max(lastVal, nextVal)) y1 = Math.max(lastVal, nextVal);
+  if(y2 > Math.max(lastVal, nextVal)) y2 = Math.max(lastVal, nextVal);
+  if(y1 < Math.min(lastVal, nextVal)) y1 = Math.min(lastVal, nextVal);
+  if(y2 < Math.min(lastVal, nextVal)) y2 = Math.min(lastVal, nextVal);
+  
+  var y = (y1 * (1-tS)) + (y2 * tS);
+  
+  return y;
+}
+
+exports.smoothStep = function(xyPoints, xVal) {
+  var lastIndex = null;
+  var nextIndex = null;
+  for(var i = 0; i < xyPoints.length; i++) {
+    if(lastIndex == null || xyPoints[i].x <= xVal) lastIndex = i;
+    if(xyPoints[i].x > xVal) {
+      nextIndex = i;
+      break;
+    }
+  }
+  if(nextIndex == null) nextIndex = xyPoints.length - 1;
+  
+  var tSpan = (xyPoints[nextIndex].x - xyPoints[lastIndex].x);
+  if(tSpan == 0) return xyPoints[lastIndex].y;
+  var t = (xVal - xyPoints[lastIndex].x) / tSpan;
+  var tS = smootherStep(t);
+
+  var lastVal = xyPoints[lastIndex].y;
+  var nextVal = xyPoints[nextIndex].y;
+    
+  var y = (lastVal * (1-tS)) + (nextVal * tS);
+  
+  return y;
+}
+

@@ -320,7 +320,7 @@ app.get('/socket/address', function(req, res) {
     validateSession(req, res, function(session) {
         console.log("session validated for " + session.subdomain);
         res.send({
-            address: 'ws://' + session.subdomain + '.view.tl/socket/app/',
+            address: 'wss://app.view.tl/socket/app/',
             server: 'view.tl'
         });
     });

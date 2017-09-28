@@ -162,7 +162,7 @@ function calculateIntervalMs(interval, currentEv) {
 }
 
 function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod, motionFunction) {
-    if(interpolationMethod != 'catmullRomSpline') interpolationMethod = 'linear';
+    if(interpolationMethod != 'smooth') interpolationMethod = 'linear';
     var keyframes = intervalometer.currentProgram.keyframes;
     if (status.running && keyframes && keyframes.length > 0 && keyframes[0][axisName] != null) {
         var kfSet = null;
@@ -373,7 +373,7 @@ function processKeyframes(setupFirst, callback) {
     });
 
     if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
-        doKeyframeAxis('motor', motorId, setupFirst, 'catmullRomSpline', function(move) {
+        doKeyframeAxis('motor', motorId, setupFirst, 'smooth', function(move) {
             var parts = motorId.split('-');
             if (move && parts.length == 2) {
                 var driver = parts[0];
