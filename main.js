@@ -82,12 +82,40 @@ if (VIEW_HARDWARE) {
     });
 
     var configureWifi = function() {
-        db.get('wifi-ap-name', function(err, wifiApName) {
-            console.log("wifi-ap-name:", wifiApName);
-            wifi.setApName(wifiApName);
-            db.get('wifi-status', function(err, wifiStatus) {
-                if(wifiStatus) {
-                    if(wifiStatus.enabled) {
+        db.get('wifi-ap-pass', function(err, wifiApPass) {
+            wifi.setApPass(wifiApPass);
+            db.get('wifi-ap-name', function(err, wifiApName) {
+                console.log("wifi-ap-name:", wifiApName);
+                wifi.setApName(wifiApName);
+                db.get('wifi-status', function(err, wifiStatus) {
+                    if(wifiStatus) {
+                        if(wifiStatus.enabled) {
+                            wifi.btEnabled = true;
+                            wifi.enable(function(){
+                                setTimeout(function(){
+                                    db.get('bt-status', function(err, status) {
+                                        if(status && status.enabled) {
+                                            wifi.enableBt();
+                                            console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                        } else {
+                                            wifi.disableBt();
+                                            console.log("MAIN: disabling bluetooth", wifi.btEnabled);
+                                        }
+                                        if(!wifi.connected) {
+                                            if(wifiStatus.apMode) {
+                                                wifi.enableAP();
+                                            }
+                                            if(wifiStatus.connect) {
+                                                wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                            }
+                                        }
+                                    });
+                                },5000);
+                            });
+                        } else {
+                            wifi.disable();
+                        }
+                    } else {
                         wifi.btEnabled = true;
                         wifi.enable(function(){
                             setTimeout(function(){
@@ -99,40 +127,15 @@ if (VIEW_HARDWARE) {
                                         wifi.disableBt();
                                         console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                     }
-                                    if(!wifi.connected) {
-                                        if(wifiStatus.apMode) {
-                                            wifi.enableAP();
-                                        }
-                                        if(wifiStatus.connect) {
-                                            wifi.connect(wifiStatus.connect, wifiStatus.password);
-                                        }
-                                    }
                                 });
+
+                                if(!wifi.connected) {
+                                    wifi.enableAP();
+                                }
                             },5000);
                         });
-                    } else {
-                        wifi.disable();
                     }
-                } else {
-                    wifi.btEnabled = true;
-                    wifi.enable(function(){
-                        setTimeout(function(){
-                            db.get('bt-status', function(err, status) {
-                                if(status && status.enabled) {
-                                    wifi.enableBt();
-                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                } else {
-                                    wifi.disableBt();
-                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
-                                }
-                            });
-
-                            if(!wifi.connected) {
-                                wifi.enableAP();
-                            }
-                        },5000);
-                    });
-                }
+                });
             });
         });
     }
@@ -2584,6 +2587,22 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var setAccessPointPassAction = {
+        type: 'function',
+        fn: function(res, cb){
+            cb(null, {
+                name: "WiFi Built-in AP password",
+                help: help.wifiAccessPointPassword,
+                type: "textInput",
+                value: wifi.apPass,
+                onSave: function(result) {
+                    db.set('wifi-ap-pass', result);
+                    wifi.setApPass(result);
+                }
+            });
+        }
+    }
+
 
     var wifiMenu = {
         name: "wifi",
@@ -2670,6 +2689,10 @@ if (VIEW_HARDWARE) {
             name: "Set built-in AP Name",
             help: help.setAccessPointName,
             action: setAccessPointNameAction
+        }, {
+            name: "Set built-in AP Password",
+            help: help.setAccessPointPassword,
+            action: setAccessPointPassAction
         }, {
             name: "Disable Wireless",
             help: help.wifiDisableMenu,

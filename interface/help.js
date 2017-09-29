@@ -132,7 +132,11 @@ exports.writeSpreadsheet = "Writes a spreadsheet file to the SD card with techni
 
 exports.wifiAccessPointName = "This sets the name (SSID) of the built-in access point.\n  Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turning to move the cursor.\nWhen complete, press the middle right button to save, or use the top right to cancel.";
 
+exports.wifiAccessPointPassword = "This sets the password for the built-in access point.\n  Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turning to move the cursor.\nWhen complete, press the middle right button to save, or use the top right to cancel.";
+
 exports.setAccessPointName = "This sets the name (SSID) of the built-in access point.";
+
+exports.setAccessPointPassword = "This sets the password for the built-in access point.";
 
 exports.installFromSdCard = "To install firmware from an SD card instead of over wifi, download the latest firmware zip file from the github releases page (github.com/timelapseplus/VIEW/releases), save it to the root folder of an SD card and insert it in the VIEW, then run 'Install from SD card' from the Software Version section.";
 
