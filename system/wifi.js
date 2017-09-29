@@ -318,6 +318,16 @@ wifi.setApName = function(apName) {
 	}
 }
 
+wifi.setApPass = function(apPass) {
+	if(!apPass) return;
+	wifi.apPass = apPass;
+	if(wifi.apMode) {
+		wifi.disableAP(function(){
+			setTimeout(wifi.enableAP, 2000);
+		});
+	}
+}
+
 wifi.disableAP = function(callback) {
 	wifi.apMode = false;
 	//wifi.connected = false;
