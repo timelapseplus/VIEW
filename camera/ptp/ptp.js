@@ -775,31 +775,24 @@ function focusFuji(step, repeat, callback) {
     worker.send({
         type: 'camera',
         setDirect: '500a',
-        value: param,
+        value: '0',
         id: getCallbackId(worker.port, 'setFocusMode', function(err) {
-            worker.send({
-                type: 'camera',
-                setDirect: '500a',
-                value: '0',
-                id: getCallbackId(worker.port, 'setFocusMode', function(err) {
-                    camera.getSettings(function(){
-                        var currentPos = camera.settings.fujifocuspos;
-                        var targetPos = currentPos + steps * repeat;
-                        if(targetPos == 0) targetPos = 2;
-                        if(worker.connected) {
-                            worker.send({
-                                type: 'camera',
-                                setDirect: 'fujifocuspos',
-                                value: targetPos,
-                                id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
-                                    if (callback) callback();
-                                })
-                            });
-                        } else {
-                            if (callback) callback("not connected");
-                        }
+            camera.getSettings(function(){
+                var currentPos = camera.settings.fujifocuspos;
+                var targetPos = currentPos + steps * repeat;
+                if(targetPos == 0) targetPos = 2;
+                if(worker.connected) {
+                    worker.send({
+                        type: 'camera',
+                        setDirect: 'fujifocuspos',
+                        value: targetPos,
+                        id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
+                            if (callback) callback();
+                        })
                     });
-                })
+                } else {
+                    if (callback) callback("not connected");
+                }
             });
         })
     });
