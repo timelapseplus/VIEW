@@ -34,6 +34,12 @@ lists.paramMap = [{
         item: "d161"
     }]
 }, {
+    name: "fujifocuspos",
+    maps: [{
+        section: "other",
+        item: "d171"
+    }]
+}, {
     name: "focusdrive",
     type: "toggle",
     maps: [{

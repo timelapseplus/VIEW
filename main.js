@@ -188,8 +188,10 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', false);
         if(wifiWasDisabled) {
             wifiWasDisabled = false;
-            core.resetBt();
-            wifi.resetBt();
+            if(wifi.btEnabled) {
+                core.resetBt();
+                wifi.resetBt();
+            }
         }
         if(reload) ui.reload();
     });
@@ -4537,7 +4539,7 @@ core.on('motion.status', function(status) {
     } else {
         oled.setIcon('bt', false);
         ui.reload();
-        if(status.reload) {
+        if(status.reload && wifi.btEnabled) {
             console.log("motion disconnected, reloading BT")
             wifi.resetBt(function(){
                 //startScan();

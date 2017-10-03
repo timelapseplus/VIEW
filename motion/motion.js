@@ -54,10 +54,14 @@ motion.zero = function(driver, motorId, callback) {
 motion.refresh = function(callback) {
 	var nmxStatus = motion.nmx.getStatus();
 	if(nmxStatus.connected) {
-		motion.nmx.checkMotorAttachment();
+		motion.nmx.checkMotorAttachment(function(){
+		    updateStatus()
+		    callback && callback(motion.status);
+		});
+	} else {
+	    updateStatus()
+	    callback && callback(motion.status);
 	}
-    updateStatus()
-    callback && callback(motion.status);
 }
 
 function updateStatus() {
@@ -78,7 +82,7 @@ function updateStatus() {
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),
-    	reload: lastStatus.bluetooth,
+    	reload: lastStatus.reloadBt ? true : false,
         available: available,
         motors: motors
     };
@@ -86,7 +90,7 @@ function updateStatus() {
 	    motion.emit('status', motion.status);
     }
     lastStatus = motion.status;
-    lastStatus.bluetooth = nmxStatus.connectionType == 'bt' || gm1Status.connectionType == 'bt' || gm2Status.connectionType == 'bt';
+    lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected);
 }
 
 motion.nmx.on('status', function(status) {

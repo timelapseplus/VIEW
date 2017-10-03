@@ -180,9 +180,11 @@ wifi.disableBt = function(cb) {
 }
 
 wifi.resetBt = function(cb) {
-	exec(BT_RESET, function(err) {
-		if(cb) cb(err);
-	});
+	if(wifi.btEnabled) {
+		exec(BT_RESET, function(err) {
+			if(cb) cb(err);
+		});
+	}
 }
 
 wifi.blockBt = function(cb) {

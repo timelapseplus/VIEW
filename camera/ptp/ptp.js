@@ -768,6 +768,42 @@ function focusNikon(step, repeat, callback) {
     }
     doFocus();
 }
+function focusFuji(step, repeat, callback) {
+    var worker = getPrimaryWorker();
+    if (!repeat) repeat = 1;
+
+    worker.send({
+        type: 'camera',
+        setDirect: '500a',
+        value: param,
+        id: getCallbackId(worker.port, 'setFocusMode', function(err) {
+            worker.send({
+                type: 'camera',
+                setDirect: '500a',
+                value: '0',
+                id: getCallbackId(worker.port, 'setFocusMode', function(err) {
+                    camera.getSettings(function(){
+                        var currentPos = camera.settings.fujifocuspos;
+                        var targetPos = currentPos + steps * repeat;
+                        if(targetPos == 0) targetPos = 2;
+                        if(worker.connected) {
+                            worker.send({
+                                type: 'camera',
+                                setDirect: 'fujifocuspos',
+                                value: targetPos,
+                                id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
+                                    if (callback) callback();
+                                })
+                            });
+                        } else {
+                            if (callback) callback("not connected");
+                        }
+                    });
+                })
+            });
+        })
+    });
+}
 camera.focus = function(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (worker && camera.connected) {
@@ -777,6 +813,9 @@ camera.focus = function(step, repeat, callback) {
         } else if(camera.settings.focusdrive == 'nikon') {
             console.log("focus: nikon");
             focusNikon(step, repeat, callback);
+        } else if(worker.model.match(/fuji/i)) {
+            console.log("focus: fuji");
+            focusFuji(step, repeat, callback);
         } else {
             console.log("focus: not supported");
             callback && callback("not supported");   
