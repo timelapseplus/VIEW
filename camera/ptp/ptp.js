@@ -617,6 +617,7 @@ camera.captureTethered = function(callback) {
     }
 }
 camera.preview = function(callback) {
+    if(restartPreview) return callback && callback("blocked");
     camera.lvOn = true;
     var worker = getPrimaryWorker();
     if(!camera.supports.liveview) {
@@ -780,7 +781,7 @@ function focusFuji(step, repeat, callback) {
                 if (callback) callback();
             } else {
                 console.log("PTP: focusFuji: currentPos", currentPos);
-                var targetPos = target || parseInt(currentPos) + parseInt(step) * 5 * parseInt(repeat);
+                var targetPos = target || parseInt(currentPos) - parseInt(step) * 5 * parseInt(repeat);
                 if(targetPos == 0) targetPos = 2;
                 if(worker.connected) {
                     worker.send({
@@ -807,8 +808,8 @@ function focusFuji(step, repeat, callback) {
     } else {
         worker.send({
             type: 'camera',
-            set: 'fujifocus',
-            value: 'enabled',
+            setDirect: '500a',
+            value: '1',
             id: getCallbackId(worker.port, 'setFocusMode', function(err) {
                 doFocus();
             })
@@ -882,9 +883,13 @@ camera.set = function(item, value, callback, _worker) {
             clearTimeout(restartPreview);
             restartPreview = null;
         }
+        console.log("PTP: turning off LV for setting " + item);
         return camera.lvOff(function(){
             camera.set(item, value, function(err){
-                restartPreview = setTimeout(camera.preview, 1000);
+                restartPreview = setTimeout(function(){
+                    console.log("PTP: resuming LV");
+                    camera.preview();
+                }, 1000);
                 callback && callback(err);
             }, _worker);
         });
