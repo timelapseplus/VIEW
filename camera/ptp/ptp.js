@@ -776,7 +776,7 @@ function focusFuji(step, repeat, callback) {
     var doFocus = function(target) {
         camera.getSettings(function(){
             var currentPos = camera.settings.fujifocuspos;
-            if(target && parseInt(currentPos) == parseInt(target)) {
+            if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 if (callback) callback();
             } else {
                 console.log("PTP: focusFuji: currentPos", currentPos);
