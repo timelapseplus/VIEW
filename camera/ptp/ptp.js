@@ -771,16 +771,16 @@ function focusNikon(step, repeat, callback) {
 function focusFuji(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
+    var attempts = 0;
 
-    worker.send({
-        type: 'camera',
-        setDirect: '500a',
-        value: '1',
-        id: getCallbackId(worker.port, 'setFocusMode', function(err) {
-            camera.getSettings(function(){
-                var currentPos = camera.settings.fujifocuspos;
+    var doFocus = function(target) {
+        camera.getSettings(function(){
+            var currentPos = camera.settings.fujifocuspos;
+            if(target && parseInt(currentPos) == parseInt(target)) {
+                if (callback) callback();
+            } else {
                 console.log("PTP: focusFuji: currentPos", currentPos);
-                var targetPos = parseInt(currentPos) + parseInt(step) * 5 * parseInt(repeat);
+                var targetPos = target || parseInt(currentPos) + parseInt(step) * 5 * parseInt(repeat);
                 if(targetPos == 0) targetPos = 2;
                 if(worker.connected) {
                     worker.send({
@@ -788,15 +788,32 @@ function focusFuji(step, repeat, callback) {
                         setDirect: 'd171',
                         value: targetPos.toString(),
                         id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
-                            if (callback) callback();
+                            attempts++;
+                            if(attempts < 5) {
+                                doFocus(targetPos);
+                            } else {
+                                if (callback) callback("failed to reach focus target");
+                            }
                         })
                     });
                 } else {
                     if (callback) callback("not connected");
                 }
-            });
-        })
-    });
+            }
+        });
+    }
+    if(camera.settings.fujifocus == 'enabled') {
+        doFocus();
+    } else {
+        worker.send({
+            type: 'camera',
+            set: 'fujifocus',
+            value: 'enabled',
+            id: getCallbackId(worker.port, 'setFocusMode', function(err) {
+                doFocus();
+            })
+        });
+    }
 }
 camera.focus = function(step, repeat, callback) {
     var worker = getPrimaryWorker();

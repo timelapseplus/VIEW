@@ -352,21 +352,30 @@ function processKeyframes(setupFirst, callback) {
     });
 
     doKeyframeAxis('focus', null, setupFirst, 'linear', function(focus) {
-        if (focus) {
-            camera.ptp.preview(function() {
-                setTimeout(function() {
-                    console.log("KF: Moving focus by " + focus + " steps");
-                    var dir = focus > 0 ? 1 : -1;
-                    var steps = Math.abs(focus);
-                    camera.ptp.focus(dir, steps, function() {
-                        setTimeout(function(){
-                            camera.ptp.lvOff(function(){
-                                setTimeout(checkDone, 500);                                
-                            });
-                        }, 500);
-                    });
-                }, 1000);
+        var doFocus = function() {
+            console.log("KF: Moving focus by " + focus + " steps");
+            var dir = focus > 0 ? 1 : -1;
+            var steps = Math.abs(focus);
+            camera.ptp.focus(dir, steps, function() {
+                if(camera.ptp.model.match(/fuji/i)) {
+                    checkDone();
+                } else {
+                    setTimeout(function(){
+                        camera.ptp.lvOff(function(){
+                            setTimeout(checkDone, 500);                                
+                        });
+                    }, 500);
+                }
             });
+        }
+        if(focus) {
+            if(camera.ptp.model.match(/fuji/i) {
+                doFocus();
+            } else {
+                camera.ptp.preview(function() {
+                    setTimeout(doFocus, 1000);
+                });
+            }
         } else {
             checkDone();
         }
@@ -458,16 +467,33 @@ function setupExposure(cb) {
                 cb && cb(err);
             });
         } else {
-            camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
-                if(res.ev != null) {
-                    status.cameraEv = res.ev;
-                } 
-                status.cameraSettings = camera.ptp.settings;
-                status.evDiff = status.cameraEv - status.rampEv;
-                console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-                busyExposure = false;
-                cb && cb(err);
-            });
+            if(status.hdrSet && status.hdrSet.length > 0) {
+                var options = getEvOptions();
+                options.doNotSet = true;
+                camera.setEv(status.rampEv + status.hdrMax, options, function(err, res) {
+                    camera.setExposure(res.shutter.ev + diff - status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
+                        if(ev != null) {
+                            status.cameraEv = ev;
+                        } 
+                        status.cameraSettings = camera.ptp.settings;
+                        status.evDiff = status.cameraEv - status.rampEv;
+                        console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                        busyExposure = false;
+                        cb && cb(err);
+                    });
+                });
+            } else {
+                camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
+                    if(res.ev != null) {
+                        status.cameraEv = res.ev;
+                    } 
+                    status.cameraSettings = camera.ptp.settings;
+                    status.evDiff = status.cameraEv - status.rampEv;
+                    console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                    busyExposure = false;
+                    cb && cb(err);
+                });
+            }
         }
     });
 }
@@ -490,6 +516,7 @@ function planHdr(hdrCount, hdrStops) {
 
     status.hdrIndex = 0;
     status.hdrSet = [];
+    status.hdrMax = overHdr;
     
     while(overSet.length || underSet.length) {
         if(overSet.length) status.hdrSet.push(overSet.shift());
@@ -686,7 +713,9 @@ function runPhoto() {
             var shutterEv;
             if(camera.ptp.settings.details && camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
 
-            //if(status.hdrSet && status.hdrSet.length > 0) captureOptions.ignoreBusy = true;
+            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0 && status.rampEv + status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions()) {
+                status.hdrIndex = 0; // disable HDR is the exposure is at the maximum
+            }
             if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
                 if(checkCurrentPlan(true)) {
                     busyPhoto = false;

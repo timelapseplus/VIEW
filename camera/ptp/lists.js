@@ -34,6 +34,12 @@ lists.paramMap = [{
         item: "d161"
     }]
 }, {
+    name: "fujifocus",
+    maps: [{
+        section: "other",
+        item: "500a"
+    }]
+}, {
     name: "fujifocuspos",
     maps: [{
         section: "other",
@@ -346,6 +352,17 @@ lists.lvexposure = [{
 }, {
     name: "on",
     values: ['1']
+}];
+
+lists.fujifocus = [{
+    name: "enabled",
+    values: ['1']
+}, {
+    name: "afonly1",
+    values: ['32769']
+}, {
+    name: "afonly2",
+    values: ['32770']
 }];
 
 lists.afmode = [{

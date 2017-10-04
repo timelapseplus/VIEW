@@ -292,6 +292,15 @@ camera.setEv = function(ev, options, cb) {
             }
         }
 
+        if(options.doNotSet) {
+            if (cb) return cb(null, {
+                ev: currentEv,
+                shutter: shutter,
+                aperture: aperture,
+                iso: iso
+            }); else return;
+        }
+
         var setQueue = [];
 
         if (shutter.ev != settings.details.shutter.ev) setQueue.push({
