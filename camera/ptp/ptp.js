@@ -782,6 +782,7 @@ function focusFuji(step, repeat, callback) {
                 currentPos = settings.fujifocuspos;;
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
+                console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", targetPos);
                 if (callback) callback();
             } else {
                 var targetPos = target || parseInt(currentPos) - (parseInt(step) * 5 * parseInt(repeat));
@@ -797,6 +798,7 @@ function focusFuji(step, repeat, callback) {
                             if(attempts < 5) {
                                 doFocus(targetPos, cb);
                             } else {
+                                console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
                                 if (cb) cb("failed to reach focus target");
                             }
                         })
@@ -816,7 +818,20 @@ function focusFuji(step, repeat, callback) {
                 set: 'fujifocus',
                 value: 'enabled',
                 id: getCallbackId(worker.port, 'setFocusMode', function(err) {
-                    doFocus(null, cb);
+                    camera.getSettings(function(err, settings){
+                        if(settings.fujifocus == 'enabled') {
+                            attempts = 0;
+                            doFocus(null, cb);
+                        } else {
+                            attempts++;
+                            if(attempts < 5) {
+                                startFocus();
+                            } else {
+                                console.log("PTP: focusFuji: error: failed to switch focus control");
+                                if (cb) cb("failed to switch focus control");
+                            }
+                        }
+                    });
                 })
             });
         }
