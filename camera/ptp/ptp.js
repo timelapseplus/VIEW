@@ -774,7 +774,7 @@ function focusFuji(step, repeat, callback) {
 
     worker.send({
         type: 'camera',
-        setDirect: '500a',
+        set: '500a',
         value: '0',
         id: getCallbackId(worker.port, 'setFocusMode', function(err) {
             camera.getSettings(function(){
