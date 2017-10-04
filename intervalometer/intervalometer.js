@@ -713,7 +713,7 @@ function runPhoto() {
             var shutterEv;
             if(camera.ptp.settings.details && camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
 
-            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0 && status.rampEv + status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions()) {
+            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0 && status.rampEv + status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions())) {
                 status.hdrIndex = 0; // disable HDR is the exposure is at the maximum
             }
             if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
