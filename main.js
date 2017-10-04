@@ -4075,6 +4075,7 @@ app.on('message', function(msg) {
                 break;
     
             case 'run':
+                core.loadProgram(msg.program);
                 core.startIntervalometer(msg.program);
                 break;
 
