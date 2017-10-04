@@ -775,7 +775,7 @@ function focusFuji(step, repeat, callback) {
     worker.send({
         type: 'camera',
         setDirect: '500a',
-        value: '0',
+        value: '1',
         id: getCallbackId(worker.port, 'setFocusMode', function(err) {
             camera.getSettings(function(){
                 var currentPos = camera.settings.fujifocuspos;
