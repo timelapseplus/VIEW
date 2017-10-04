@@ -616,6 +616,7 @@ camera.captureTethered = function(callback) {
         callback && callback("not connected");
     }
 }
+var restartPreview = null; // used for temporarily disabling liveview when changing settings
 camera.preview = function(callback) {
     if(restartPreview) return callback && callback("blocked");
     camera.lvOn = true;
@@ -846,6 +847,7 @@ function focusFuji(step, repeat, callback) {
             setTimeout(function(){
                 startFocus(function(err){
                     restartPreview = setTimeout(function(){
+                        restartPreview = null;
                         console.log("PTP: resuming LV after focus move");
                         camera.preview();
                     }, 100);
@@ -917,7 +919,6 @@ function getSendMulti() {
     }
 }
 
-var restartPreview = null;
 camera.set = function(item, value, callback, _worker) {
     if(camera.lvOn === true && camera.model.match(/fuji/i)) {
         if(restartPreview) {
@@ -928,6 +929,7 @@ camera.set = function(item, value, callback, _worker) {
         return camera.lvOff(function(){
             camera.set(item, value, function(err){
                 restartPreview = setTimeout(function(){
+                    restartPreview = null;
                     console.log("PTP: resuming LV");
                     camera.preview();
                 }, 1000);
