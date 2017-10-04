@@ -774,7 +774,7 @@ function focusFuji(step, repeat, callback) {
     if (!repeat) repeat = 1;
     var attempts = 0;
 
-    var doFocus = function(target) {
+    var doFocus = function(target, cb) {
         camera.getSettings(function(){
             var currentPos = camera.settings.fujifocuspos;
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
@@ -791,29 +791,49 @@ function focusFuji(step, repeat, callback) {
                         id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
                             attempts++;
                             if(attempts < 5) {
-                                doFocus(targetPos);
+                                doFocus(targetPos, cb);
                             } else {
-                                if (callback) callback("failed to reach focus target");
+                                if (cb) cb("failed to reach focus target");
                             }
                         })
                     });
                 } else {
-                    if (callback) callback("not connected");
+                    if (cb) cb("not connected");
                 }
             }
         });
     }
-    if(camera.settings.fujifocus == 'enabled') {
-        doFocus();
-    } else {
-        worker.send({
-            type: 'camera',
-            setDirect: '500a',
-            value: '1',
-            id: getCallbackId(worker.port, 'setFocusMode', function(err) {
-                doFocus();
-            })
+    var startFocus = function(cb) {
+        if(camera.settings.fujifocus == 'enabled') {
+            doFocus(null, cb);
+        } else {
+            worker.send({
+                type: 'camera',
+                set: 'fujifocus',
+                value: 'enabled',
+                id: getCallbackId(worker.port, 'setFocusMode', function(err) {
+                    doFocus(null, cb);
+                })
+            });
+        }
+    }
+    if(camera.lvOn) {
+        if(restartPreview) {
+            clearTimeout(restartPreview);
+            restartPreview = null;
+        }
+        console.log("PTP: turning off LV for setting " + item);
+        return camera.lvOff(function(){
+            startFocus(function(err){
+                restartPreview = setTimeout(function(){
+                    console.log("PTP: resuming LV");
+                    camera.preview();
+                }, 100);
+                callback && callback(err);
+            });
         });
+    } else {
+        startFocus(callback);
     }
 }
 camera.focus = function(step, repeat, callback) {
