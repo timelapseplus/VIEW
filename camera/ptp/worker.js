@@ -137,7 +137,7 @@ process.on('message', function(msg) {
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(buildCB(msg.id));
         if (msg.do == 'lvTimerReset') liveViewOffTimerReset();
-        if (msg.do == 'lvOff') liveViewOff(buildCB(msg.id));
+        if (msg.do == 'lvOff') liveViewOff(buildCB(msg.id), msg.keepCrop);
         if (msg.do == 'zoom') {
             if (msg.reset) {
                 previewCrop = null;
@@ -555,9 +555,9 @@ function capture(options, callback) {
 
 liveViewTimerHandle = null;
 
-function liveViewOff(callback) {
+function liveViewOff(callback, keepCrop) {
     console.log("WORKER: setting liveview off");
-    previewCrop = null;
+    if(!keepCrop) previewCrop = null;
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
 

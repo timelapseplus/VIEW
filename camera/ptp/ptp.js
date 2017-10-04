@@ -637,13 +637,14 @@ camera.lvTimerReset = function(callback) {
         do: 'lvTimerReset'
     }); else callback && callback("not connected");
 }
-camera.lvOff = function(callback) {
+camera.lvOff = function(callback, keepCrop) {
     var worker = getPrimaryWorker();
     camera.lvOn = false;
     if (worker && camera.connected) worker.send({
         type: 'camera',
         id: getCallbackId(worker.port, 'lvOff', callback),
-        do: 'lvOff'
+        do: 'lvOff',
+        keepCrop: keepCrop
     }); else callback && callback("not connected");
 }
 camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
@@ -775,8 +776,11 @@ function focusFuji(step, repeat, callback) {
     var attempts = 0;
 
     var doFocus = function(target, cb) {
-        camera.getSettings(function(){
+        camera.getSettings(function(err, settings){
             var currentPos = camera.settings.fujifocuspos;
+            if(settings) {
+                currentPos = settings.fujifocuspos;;
+            }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 if (callback) callback();
             } else {
@@ -831,7 +835,7 @@ function focusFuji(step, repeat, callback) {
                 }, 100);
                 callback && callback(err);
             });
-        });
+        }, true);
     } else {
         startFocus(callback);
     }
@@ -912,7 +916,7 @@ camera.set = function(item, value, callback, _worker) {
                 }, 1000);
                 callback && callback(err);
             }, _worker);
-        });
+        }, true);
     }
     var cmd = {
         type: 'camera',
