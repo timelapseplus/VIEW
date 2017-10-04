@@ -822,11 +822,11 @@ function focusFuji(step, repeat, callback) {
             clearTimeout(restartPreview);
             restartPreview = null;
         }
-        console.log("PTP: turning off LV for setting " + item);
+        console.log("PTP: turning off LV for focus mode");
         return camera.lvOff(function(){
             startFocus(function(err){
                 restartPreview = setTimeout(function(){
-                    console.log("PTP: resuming LV");
+                    console.log("PTP: resuming LV after focus move");
                     camera.preview();
                 }, 100);
                 callback && callback(err);
