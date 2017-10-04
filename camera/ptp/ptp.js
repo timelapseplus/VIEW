@@ -780,9 +780,9 @@ function focusFuji(step, repeat, callback) {
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 if (callback) callback();
             } else {
-                console.log("PTP: focusFuji: currentPos", currentPos);
-                var targetPos = target || parseInt(currentPos) - parseInt(step) * 5 * parseInt(repeat);
+                var targetPos = target || parseInt(currentPos) - (Math.pow(5, parseInt(step)) * 5 * parseInt(repeat));
                 if(targetPos == 0) targetPos = 2;
+                console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
                 if(worker.connected) {
                     worker.send({
                         type: 'camera',
