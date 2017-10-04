@@ -780,12 +780,12 @@ function focusFuji(step, repeat, callback) {
             camera.getSettings(function(){
                 var currentPos = camera.settings.fujifocuspos;
                 console.log("PTP: focusFuji: currentPos", currentPos);
-                var targetPos = currentPos + step * repeat;
+                var targetPos = currentPos + step * 5 * repeat;
                 if(targetPos == 0) targetPos = 2;
                 if(worker.connected) {
                     worker.send({
                         type: 'camera',
-                        setDirect: 'fujifocuspos',
+                        set: 'fujifocuspos',
                         value: targetPos,
                         id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
                             if (callback) callback();
