@@ -369,7 +369,7 @@ function processKeyframes(setupFirst, callback) {
             });
         }
         if(focus) {
-            if(camera.ptp.model.match(/fuji/i) {
+            if(camera.ptp.model.match(/fuji/i)) {
                 doFocus();
             } else {
                 camera.ptp.preview(function() {
