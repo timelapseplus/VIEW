@@ -707,6 +707,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
 
 function setDirect(item, value, callback) {
     if(port == "SonyWifi") return callback && callback("not supported");
+    console.log("WORKER:  (set direct " + item + " = " + value + ")");
     camera.setConfigValue(item, value, function(err) {
         if (callback) callback(err);
     });

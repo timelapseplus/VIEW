@@ -774,7 +774,7 @@ function focusFuji(step, repeat, callback) {
 
     worker.send({
         type: 'camera',
-        set: '500a',
+        setDirect: '500a',
         value: '0',
         id: getCallbackId(worker.port, 'setFocusMode', function(err) {
             camera.getSettings(function(){
@@ -785,7 +785,7 @@ function focusFuji(step, repeat, callback) {
                 if(worker.connected) {
                     worker.send({
                         type: 'camera',
-                        set: 'fujifocuspos',
+                        setDirect: 'd171',
                         value: targetPos.toString(),
                         id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
                             if (callback) callback();
