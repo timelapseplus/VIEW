@@ -825,7 +825,7 @@ function focusFuji(step, repeat, callback) {
                         } else {
                             attempts++;
                             if(attempts < 5) {
-                                startFocus();
+                                startFocus(cb);
                             } else {
                                 console.log("PTP: focusFuji: error: failed to switch focus control");
                                 if (cb) cb("failed to switch focus control");
@@ -843,13 +843,15 @@ function focusFuji(step, repeat, callback) {
         }
         console.log("PTP: turning off LV for focus mode");
         return camera.lvOff(function(){
-            startFocus(function(err){
-                restartPreview = setTimeout(function(){
-                    console.log("PTP: resuming LV after focus move");
-                    camera.preview();
-                }, 100);
-                callback && callback(err);
-            });
+            setTimeout(function(){
+                startFocus(function(err){
+                    restartPreview = setTimeout(function(){
+                        console.log("PTP: resuming LV after focus move");
+                        camera.preview();
+                    }, 100);
+                    callback && callback(err);
+                });
+            }, 500);
         }, true);
     } else {
         startFocus(callback);
