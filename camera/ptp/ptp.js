@@ -771,10 +771,12 @@ function focusNikon(step, repeat, callback) {
     }
     doFocus();
 }
+var fujiFocusPosCache = null;
 function focusFuji(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var attempts = 0;
+    var relativeMove = (parseInt(step) * 5 * parseInt(repeat));
 
     var doFocus = function(target, cb) {
         camera.getSettings(function(err, settings){
@@ -783,27 +785,32 @@ function focusFuji(step, repeat, callback) {
                 currentPos = settings.fujifocuspos;
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
+                fujiFocusPosCache = parseInt(target);
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
                 if (callback) callback();
             } else {
-                var targetPos = target || parseInt(currentPos) - (parseInt(step) * 5 * parseInt(repeat));
+                var targetPos = target || parseInt(currentPos) - relativeMove;
                 if(targetPos == 0) targetPos = 2;
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
                 if(worker.connected) {
-                    worker.send({
-                        type: 'camera',
-                        setDirect: 'd171',
-                        value: targetPos.toString(),
-                        id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
-                            attempts++;
-                            if(attempts < 5) {
-                                doFocus(targetPos, cb);
-                            } else {
-                                console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
-                                if (cb) cb("failed to reach focus target");
-                            }
-                        })
-                    });
+                    try {
+                        worker.send({
+                            type: 'camera',
+                            setDirect: 'd171',
+                            value: targetPos.toString(),
+                            id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
+                                attempts++;
+                                if(attempts < 5) {
+                                    doFocus(targetPos, cb);
+                                } else {
+                                    console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
+                                    if (cb) cb("failed to reach focus target");
+                                }
+                            })
+                        });
+                    } catch(e) {
+                        if (cb) cb("unknown error");
+                    }
                 } else {
                     if (cb) cb("not connected");
                 }
@@ -812,8 +819,13 @@ function focusFuji(step, repeat, callback) {
     }
     var startFocus = function(cb) {
         if(camera.settings.fujifocus == 'enabled') {
-            doFocus(null, cb);
+            if(fujiFocusPosCache != null) {
+                doFocus(parseInt(currentPos) - relativeMove, cb);
+            } else {
+                doFocus(null, cb);
+            }
         } else {
+            fujiFocusPosCache = null;
             worker.send({
                 type: 'camera',
                 set: 'fujifocus',
