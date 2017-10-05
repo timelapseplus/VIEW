@@ -820,7 +820,7 @@ function focusFuji(step, repeat, callback) {
     var startFocus = function(cb) {
         if(camera.settings.fujifocus == 'enabled') {
             if(fujiFocusPosCache != null) {
-                doFocus(parseInt(currentPos) - relativeMove, cb);
+                doFocus(parseInt(fujiFocusPosCache) - relativeMove, cb);
             } else {
                 doFocus(null, cb);
             }
@@ -868,10 +868,7 @@ function focusFuji(step, repeat, callback) {
             }, 500);
         }, true);
     } else {
-        camera.getSettings(function(err, settings){
-            console.log("PTP: focusFuji: init focusPos", camera.settings.fujifocuspos);
-            startFocus(callback);
-        });
+        startFocus(callback);
     }
 }
 camera.focus = function(step, repeat, callback) {
