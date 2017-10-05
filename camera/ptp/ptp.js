@@ -781,7 +781,6 @@ function focusFuji(step, repeat, callback) {
             var currentPos = camera.settings.fujifocuspos;
             if(settings) {
                 currentPos = settings.fujifocuspos;
-                console.log("PTP: focusFuji: pos:", currentPos, "cached:", camera.settings.fujifocuspos);
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
@@ -857,7 +856,10 @@ function focusFuji(step, repeat, callback) {
             }, 500);
         }, true);
     } else {
-        startFocus(callback);
+        camera.getSettings(function(err, settings){
+            console.log("PTP: focusFuji: init focusPos", camera.settings.fujifocuspos);
+            startFocus(callback);
+        });
     }
 }
 camera.focus = function(step, repeat, callback) {
