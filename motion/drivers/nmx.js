@@ -275,7 +275,7 @@ function setMaxSpeed(motorId, speed, callback) {
     });
 }
 
-var inJoystickMode = false;
+var inJoystickMode = null;
 var enabled = {};
 function constantMove(motorId, speed, callback) {
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
@@ -473,26 +473,30 @@ function joystickMode(en, callback) {
     }
 
     if(!enteringJoystickMode) {
-        enteringJoystickMode = true;
-        var cmd = {
-            motor: 0,
-            command: CMD_JOYSTICK_MODE,
-            dataBuf: new Buffer(en ? "01" : "00", 'hex')
+        if(inJoystickMode == null || inJoystickMode != en) {
+            enteringJoystickMode = true;
+            var cmd = {
+                motor: 0,
+                command: CMD_JOYSTICK_MODE,
+                dataBuf: new Buffer(en ? "01" : "00", 'hex')
+            }
+            _queueCommand(cmd, function(err) {});
+            cmd2 = {
+                motor: 0,
+                command: CMD_JOYSTICK_WATCHDOG,
+                dataBuf: new Buffer("01", 'hex')
+            }
+            //_queueCommand(cmd2, function(err) {});
+            //cmd3 = {
+            //    motor: 0,
+            //    command: CMD_MOTOR_STOP
+            //}
+            _queueCommand(cmd2, function(err) {
+                checkMode();
+            });
+        } else {
+            callback && callback(null);
         }
-        _queueCommand(cmd, function(err) {});
-        cmd2 = {
-            motor: 0,
-            command: CMD_JOYSTICK_WATCHDOG,
-            dataBuf: new Buffer("01", 'hex')
-        }
-        //_queueCommand(cmd2, function(err) {});
-        //cmd3 = {
-        //    motor: 0,
-        //    command: CMD_MOTOR_STOP
-        //}
-        _queueCommand(cmd2, function(err) {
-            checkMode();
-        });
     } else {
         checkMode();
     }

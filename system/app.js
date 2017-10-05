@@ -19,6 +19,8 @@ var EventEmitter = require("events").EventEmitter;
 var app = new EventEmitter();
 app.remoteEnabled = false;
 
+fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "1"); // favor low latency over high throughput
+
 express.use(Express.static('/home/view/current/frontend/www'));
 
 express.get('/socket/address', function(req, res) {
