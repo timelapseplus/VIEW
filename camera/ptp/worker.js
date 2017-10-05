@@ -862,7 +862,8 @@ function getConfig(noEvent, cached, cb) {
                             value = data[section].children[item].value;
                             detail = mapParam(handle, value, halfs);
                             name = item;
-                            if(detail) console.log("WORKER: ", name + " = " + value + " (" + detail.name + ")");
+                            //if(detail) 
+                            console.log("WORKER: ", name + " = " + value + " (" + detail.name + ")");
                             break;
                         }
                     }
