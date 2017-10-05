@@ -205,7 +205,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
         if (kfCurrent == null) {
             motionFunction(kfSet); // absolute setting (like ev)
         } else {
-            var precision = 10000; // limit precision to ensure we hit even values
+            var precision = axisName == 'focus' ? 1 : 10000; // limit precision to ensure we hit even values
             var kfTarget = Math.round(kfSet * precision) / precision;
             if (kfTarget != Math.round(intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] * precision) / precision) {
                 var relativeMove = kfTarget - intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
