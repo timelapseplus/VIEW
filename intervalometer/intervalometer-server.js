@@ -302,7 +302,10 @@ function runCommand(type, args, callback, client) {
       motion.joystick(args.driver, args.motor, args.speed, callback);
       break;
     case 'intervalometer.moveTracking':
-      intervalometer.moveTracking(args.axis, args.degrees);
+      intervalometer.moveTracking(args.axis, args.degrees, callback);
+      break;
+    case 'intervalometer.dynamicChange':
+      intervalometer.dynamicChange(args.parameter, args.newValue, args.frames, callback);
       break;
     case 'watchdog.set':
       if(args.pid) {

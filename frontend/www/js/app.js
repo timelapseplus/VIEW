@@ -347,6 +347,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     }
 
+    $scope.dynamicChange = function(parameter, newValue, frames) {
+        sendMessage('dynamicChange', {parameter:parameter, newValue:newValue, frames:frames});
+    }
+
     $scope.reconfigureProgram = function(program) {
         retrievedTimelapseProgram = false;
         sendMessage('reconfigureProgram', {program:program});

@@ -200,7 +200,7 @@ function doKeyframeAxis(axisName, axisSubIndex, setupFirst, interpolationMethod,
         }
         var axisNameExtension = '';
         if(axisSubIndex != null) axisNameExtension = '-' + axisSubIndex;
-        kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
+        kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] || 0;
 
         if (kfCurrent == null) {
             motionFunction(kfSet); // absolute setting (like ev)
@@ -445,6 +445,7 @@ function setupExposure(cb) {
         if(!status.rampEv) {
             status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
         }
+        dynamicChangeUpdate();
         if(status.hdrSet && status.hdrSet.length > 0) {
             if(!status.hdrIndex) status.hdrIndex = 0;
             if(status.hdrIndex < status.hdrSet.length) {
@@ -499,7 +500,8 @@ function setupExposure(cb) {
 }
 
 function planHdr(hdrCount, hdrStops) {
-    if(hdrStops < 1/3) hdrStops = 1/3;
+    if(!hdrStops || hdrStops < 1/3) hdrStops = 1/3;
+    if(!hdrCount || hdrCount < 1) hdrCount = 1;
     var totalHdr = Math.floor(hdrCount) - 1;
     var overHdr = Math.floor(totalHdr / 2);
     var underHdr = totalHdr - overHdr;
@@ -670,6 +672,7 @@ function runPhoto() {
                     status.framesRemaining = 0;
                     intervalometer.cancel('done');
                 }
+                dynamicChangeUpdate();
                 processKeyframes(false, function() {
                     busyPhoto = false;
                 });
@@ -852,8 +855,13 @@ intervalometer.validate = function(program) {
     }
 
     if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd' && camera.ptp.sdPresent) {
-        console.log("VAL: Error: camera not set to save in RAW");
-        results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+        if(camera.ptp.model == 'SonyWifi') {
+            console.log("VAL: Error: SonyWifi doesn't support Destination='SD'");
+            results.errors.push({param:false, reason: "Destination must be set to 'Camera' when connected to Sony cameras via Wifi"});
+        } else {
+            console.log("VAL: Error: camera not set to save in RAW");
+            results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+        }
     }
 
     console.log("VAL: validating program:", results);
@@ -944,6 +952,7 @@ intervalometer.run = function(program) {
                 status.tiltDiff = 0;
                 status.trackingPanEnabled = false;
                 status.trackingTiltEnabled = false;
+                status.dynamicChange = {};
 
                 if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                     planHdr(program.hdrCount, program.hdrStops);
@@ -1077,18 +1086,79 @@ intervalometer.run = function(program) {
 
 }
 
-intervalometer.moveTracking = function(axis, degrees) {
+intervalometer.moveTracking = function(axis, degrees, callback) {
     if(axis == 'Pan') {
         intervalometer.status.panDiffNew += degrees;
     }
     if(axis == 'Tilt') {
         intervalometer.status.tiltDiffNew += degrees;
     }
+    callback && callback();
 }
 
 intervalometer.addGpsData = function(gpsData, callback) {
     intervalometer.gpsData = gpsData;
     callback && callback();
+}
+
+function dynamicChangeUpdate() {
+    if(intervalometer.status.dynamicChange) {
+        for(param in intervalometer.status.dynamicChange) {
+            if(intervalometer.status.dynamicChange.hasOwnProperty(param) && intervalometer.status.dynamicChange[param]) {
+                var item = intervalometer.status.dynamicChange[param];
+                intervalometer.currentProgram[param] = interpolate.linear([{
+                    x: item.startVal,
+                    y: item.startFrame
+                }, {
+                    x: item.endVal,
+                    y: item.endFrame
+                }], intervalometer.status.frames);
+                if(item.endFrame < intervalometer.status.frames) {
+                    delete intervalometer.status.dynamicChange[param];
+                }
+            }
+        }
+    }
+}
+
+// changes 'parameter' to 'newValue' across 'frames'
+// parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
+intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
+    var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops'];
+
+    if(rampableChange.indexOf(parameter) !== -1) {
+        if(!frames || frames < 1) frames = 1;
+        intervalometer.status.dynamicChange[parameter] = {
+            startVal: intervalometer.currentProgram[parameter],
+            endVal: newValue,
+            startFrame: intervalometer.status.frames,
+            endFrame: intervalometer.status.frames + frames
+        };
+        callback && callback();
+    } else if(specialChange.indexOf(parameter) !== -1) {
+        switch(parameter) {
+            case 'rampMode':
+                if(newValue == 'auto') {
+                    status.rampMode = 'auto';
+                    if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                }
+                if(newValue == 'lock') {
+                    if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                    status.rampMode = 'fixed';
+                }
+                break;
+
+            case 'hdrCount':
+            case 'hdrStops':
+                intervalometer.currentProgram[parameter] = newValue;
+                planHdr(intervalometer.currentProgram.hdrCount, intervalometer.currentProgram.hdrStops);
+                break;
+        }
+        callback && callback();
+    } else {
+        callback && callback("invalid parameter");
+    }
 }
 
 module.exports = intervalometer;

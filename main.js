@@ -4082,9 +4082,12 @@ app.on('message', function(msg) {
             case 'stop':
                 core.stopIntervalometer();
                 break;
-
             case 'moveTracking':
                 core.moveTracking(msg.axis, msg.degrees);
+                break;
+
+            case 'dynamicChange':
+                core.dynamicChange(msg.parameter, msg.newValue, msg.frames);
                 break;
 
             case 'reconfigureProgram':

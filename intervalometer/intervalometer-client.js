@@ -285,9 +285,13 @@ core.intervalometerStatus = {
         paddingTimeMs: 5000
     }
 }
-
+(args.parameter, args.newValue, args.frames, callback);
 core.moveTracking = function(axis, degrees, callback) {
     call('intervalometer.moveTracking', {axis:axis, degrees:degrees}, callback);
+}
+
+core.dynamicChange = function(parameter, newValue, frames, callback) {
+    call('intervalometer.dynamicChange', {parameter:parameter, newValue:newValue, frames:frames}, callback);
 }
 
 core.loadProgram = function(program, callback) {
