@@ -211,9 +211,8 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
 
 
 function processRawPath(path, options, info, callback) {
-    image.getJpegFromRawFile(path, null, function(err, jpg) {
-        //if (!options.index) options.index = 0;
-        if(options.index || options.index===0) {
+    var finalize = function(jpg) {
+        if((options.index || options.index===0) && jpg) {
             saveThumbnail(jpg, options.index, options.cameraIndex, options.exposureCompensation);
         }
         var dest;
@@ -244,74 +243,84 @@ function processRawPath(path, options, info, callback) {
             fs.unlink(path);
         }
 
-        if(options.index || options.index===0) {
-            sendEvent('status', "analyzing photo");
-            var size = {
-                x: 160,
-                q: 80
-            }
-            image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
-                var img;
-                if (!err && lowResJpg) {
-                    img = lowResJpg;
-                } else {
-                    img = jpg;
+        if(jpg) {
+            if(options.index || options.index===0) {
+                sendEvent('status', "analyzing photo");
+                var size = {
+                    x: 160,
+                    q: 80
                 }
-                image.exposureValue(img, function(err, ev, histogram) {
-                    ev = ev + options.exposureCompensation;
-                    console.log("WORKER: ev:", ev, " (compensation: " + options.exposureCompensation + ")");
-                    sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
-                    sendEvent('histogram', histogram);
-                    sendEvent('ev', ev);
-                    if (callback) {
-                        callback(err, {
-                            ev: ev,
-                            histogram: histogram,
-                            file: info,
-                            thumbnailPath: thumbnailFileFromIndex(options.index)
-                        });
+                image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
+                    var img;
+                    if (!err && lowResJpg) {
+                        img = lowResJpg;
+                    } else {
+                        img = jpg;
                     }
-                });
-            });
-        } else if(options.saveRaw) {
-            sendEvent('status', "photo saved to " + dest.replace('/media', 'SD card: '));
-            if (callback) {
-                callback(err, {
-                    file: dest
-                });
-            }
-        }
-
-        if(options.mode == 'test') {
-            var size = {
-                x: 160,
-                q: 80
-            }
-            image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
-                var img;
-                if (!err && lowResJpg) {
-                    img = lowResJpg;
-                } else {
-                    img = jpg;
-                }
-                image.exposureValue(img, function(err, ev, histogram) {
-                    sendEvent('photo', {
-                        jpeg: jpg,
-                        ev: ev,
-                        histogram: histogram,
-                        zoomed: false,
-                        type: 'test'
+                    image.exposureValue(img, function(err, ev, histogram) {
+                        ev = ev + options.exposureCompensation;
+                        console.log("WORKER: ev:", ev, " (compensation: " + options.exposureCompensation + ")");
+                        sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
+                        sendEvent('histogram', histogram);
+                        sendEvent('ev', ev);
+                        if (callback) {
+                            callback(err, {
+                                ev: ev,
+                                histogram: histogram,
+                                file: info,
+                                thumbnailPath: thumbnailFileFromIndex(options.index)
+                            });
+                        }
                     });
                 });
-            });
-        } else {
-            sendEvent('photo', {
-                jpeg: jpg,
-                zoomed: false,
-                type: 'image'
-            });
+            } else if(options.saveRaw) {
+                sendEvent('status', "photo saved to " + dest.replace('/media', 'SD card: '));
+                if (callback) {
+                    callback(err, {
+                        file: dest
+                    });
+                }
+            }
+
+            if(options.mode == 'test') {
+                var size = {
+                    x: 160,
+                    q: 80
+                }
+                image.downsizeJpeg(jpg, size, null, function(err, lowResJpg) {
+                    var img;
+                    if (!err && lowResJpg) {
+                        img = lowResJpg;
+                    } else {
+                        img = jpg;
+                    }
+                    image.exposureValue(img, function(err, ev, histogram) {
+                        sendEvent('photo', {
+                            jpeg: jpg,
+                            ev: ev,
+                            histogram: histogram,
+                            zoomed: false,
+                            type: 'test'
+                        });
+                    });
+                });
+            } else {
+                sendEvent('photo', {
+                    jpeg: jpg,
+                    zoomed: false,
+                    type: 'image'
+                });
+            }
         }
-    });
+    }
+
+    if(options.noDownload) {
+        finalize();
+    } else {
+        image.getJpegFromRawFile(path, null, function(err, jpg) {
+            finalize(jpg);
+        });
+    }
 }
 
 var errCount = 0;
