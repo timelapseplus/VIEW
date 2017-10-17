@@ -187,13 +187,15 @@ function move(motorId, steps, callback) {
     //}
     //m.writeUInt32BE(steps, 1, 4);
 
+    var targetPosition = motorPos[motorId] + steps;
+
     var pos1 = new Buffer(4);
     pos1.fill(0);
     pos1.writeInt32BE(motorPos[motorId], 0, 4);
 
     var pos2 = new Buffer(4);
     pos2.fill(0);
-    pos2.writeInt32BE(motorPos[motorId] + steps, 0, 4);
+    pos2.writeInt32BE(targetPosition, 0, 4);
 
     motorRunning[motorId] = true;
 
@@ -208,33 +210,44 @@ function move(motorId, steps, callback) {
         dataBuf: pos2
     }
 
+    var tries = 0;
+
     _queueCommand(cmd1, function(err) {});
-    _queueCommand(cmd2, function(err) {
-        if (!err) {
-            (function check(mId) {
-                setTimeout(function() {
-                    checkMotorRunning(mId, function(moving) {
-                        if(moving === undefined) return;
-                        if (moving) {
-                            motorRunning[mId] = true;
-                            check(mId); // keep checking until stop
-                        } else {
-                            motorRunning[mId] = false;
-                            checkMotorPosition(mId, function(position) {
-                                motorPos[mId] = position;
-                                //keepAlive(true);
-                                if (callback) callback(null, position);
-                            })
-                        }
-                    });
-                }, 300);
-            })(motorId);
-        } else {
-            //keepAlive(true);
-            if (callback) callback(err);
-            motorRunning[motorId] = false;
-        }
-    });
+
+    var moveToAbsolutePos = function() {
+        _queueCommand(cmd2, function(err) {
+            if (!err) {
+                (function check(mId) {
+                    setTimeout(function() {
+                        checkMotorRunning(mId, function(moving) {
+                            if(moving === undefined) return;
+                            if (moving) {
+                                motorRunning[mId] = true;
+                                check(mId); // keep checking until stop
+                            } else {
+                                motorRunning[mId] = false;
+                                checkMotorPosition(mId, function(position) {
+                                    if(position == targetPosition || tries > 5) {
+                                        motorPos[mId] = position;
+                                        //keepAlive(true);
+                                        if (callback) callback(tries > 5 ? "position not reached" : null, position);
+                                    } else {
+                                        tries++;
+                                        console.log("NMX: position not reached, trying again", tries);
+                                        setTimeout(moveToAbsolutePos, 50);
+                                    }
+                                })
+                            }
+                        });
+                    }, 300);
+                })(motorId);
+            } else {
+                //keepAlive(true);
+                if (callback) callback(err);
+                motorRunning[motorId] = false;
+            }
+        });
+    }
 }
 
 function setAccel(motorId, rate, callback) {
