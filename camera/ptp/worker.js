@@ -136,6 +136,8 @@ process.on('message', function(msg) {
         if (msg.do == 'capture') capture(msg.options, buildCB(msg.id));
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(buildCB(msg.id));
+        if (msg.do == 'getFilesList') getFilesList(buildCB(msg.id));
+        if (msg.do == 'downloadFile') downloadFile(msg.filePath, msg.thumbnail, buildCB(msg.id));
         if (msg.do == 'lvTimerReset') liveViewOffTimerReset();
         if (msg.do == 'lvOff') liveViewOff(buildCB(msg.id), msg.keepCrop);
         if (msg.do == 'zoom') {
@@ -562,6 +564,33 @@ function capture(options, callback) {
     waitEvent();
 }*/
 
+
+function downloadFile(filePath, thumbnail, callback) {
+    camera.downloadPicture({
+        keepOnCamera: true,
+        thumbnail: thumbnail,
+        cameraPath: filePath,
+        targetPath: '/tmp/tmpXXXXXX'
+    }, function(err2, tmp) {
+        if (!err2 && tmp) {
+            image.getJpegBuffer(tmp, function(err3, jpg) {
+                if (!err3 && jpg) {
+                    callback && callback(null, jpg);
+                    console.log("WORKER: read to buffer");
+                } else {
+                    console.log("WORKER: error reading jpeg to buffer", err3);
+                    if (callback) callback(err3, null);
+                }
+                fs.unlink(tmp);
+            });
+        } else {
+            if (callback) callback(err, null);
+            console.log("WORKER: downloadFailed:", err);
+        }
+    });
+}
+
+
 liveViewTimerHandle = null;
 
 function liveViewOff(callback, keepCrop) {
@@ -720,6 +749,44 @@ function setDirect(item, value, callback) {
     camera.setConfigValue(item, value, function(err) {
         if (callback) callback(err);
     });
+}
+
+function getFilesList(callback) {
+    console.log("calling camera.listFolders...");
+    var depth1 = 0, depth2 = 0;
+    files = [];
+    var checkDone = function() {
+        if(depth1 == 0 && depth2 == 0) {
+            console.log("final result: ", files);
+            callback && callback(null, files);
+        }
+    }
+    var recursiveList = function(folder) {
+        depth1++;
+        camera.listFolders(folder, function(err, res) {
+            depth1--;
+            if(res && res.length > 0) {
+                for(var i = 0; i < res.length; i++) {
+                    depth2++;
+                    (function(index){camera.listFiles(res[index], function(err, filesres){
+                        depth2--;
+                        for(var j = 0; j < filesres.length; j++) {
+                            files.push(filesres[j]);
+                        }
+                        recursiveList(res[index]);
+                        checkDone();
+                    });})(i)
+                }
+            } else {
+                checkDone();
+            }
+        });
+    }
+    if(camera.listFolders) {
+        recursiveList("/");
+    } else {
+        checkDone();
+    }
 }
 
 function mapParam(type, value, halfs) {

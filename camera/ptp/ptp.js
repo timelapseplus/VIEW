@@ -616,6 +616,38 @@ camera.captureTethered = function(callback) {
         callback && callback("not connected");
     }
 }
+
+camera.getFilesList = function(callback) {
+    var worker = getPrimaryWorker();
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'getFilesList',
+        id: getCallbackId(worker.port, 'getFilesList', callback)
+    }); else callback && callback("not connected");
+}
+
+camera.downloadFile = function(filePath, callback) {
+    var worker = getPrimaryWorker();
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'downloadFile',
+        filePath: filePath,
+        thumbnail: false,
+        id: getCallbackId(worker.port, 'getFilesList', callback)
+    }); else callback && callback("not connected");
+}
+
+camera.downloadThumbnail = function(filePath, callback) {
+    var worker = getPrimaryWorker();
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'downloadFile',
+        filePath: filePath,
+        thumbnail: true,
+        id: getCallbackId(worker.port, 'getFilesList', callback)
+    }); else callback && callback("not connected");
+}
+
 var restartPreview = null; // used for temporarily disabling liveview when changing settings
 camera.preview = function(callback) {
     if(restartPreview) return callback && callback("blocked");

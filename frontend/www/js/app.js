@@ -66,6 +66,16 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         }
     })
 
+    .state('app.images', {
+        cache: false,
+        url: "/images",
+        views: {
+            'menuContent': {
+                templateUrl: "templates/images.html"
+            }
+        }
+    })
+
     // if none of the above states are matched, use this as the fallback
 
     $urlRouterProvider.otherwise('/app/capture');
@@ -198,6 +208,8 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         localStorageService.set('state', toState.name);
         if (toState.name == "app.view") {
             $scope.getClips();
+        } else if (toState.name == "app.images") {
+            $scope.getImages();
         } else if(toState.name == "app.capture") {
             setupJoystickControls();
         }
@@ -707,6 +719,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     });
                     callback(null, $scope.intervalometerErrorMessage);
                     break;
+                case 'camera-images':
+                    $scope.images = msg.images ? msg.images : [];
+                    callback(null, $scope.images);
+                    break;
                 case 'timelapse-clips':
                     $scope.clips = msg.clips ? msg.clips : [];
                     for(var i = 0; i < $scope.clips.length; i++) {
@@ -803,6 +819,11 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
                     if ($state.current.name == "app.view") {
                         $timeout(function() {
                             $scope.getClips();
+                        });
+                    }
+                    if ($state.current.name == "app.images") {
+                        $timeout(function() {
+                            $scope.getImages();
                         });
                     }
                 }, 1000);
@@ -902,6 +923,10 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
 
     $scope.getClips = function() {
         sendMessage('timelapse-clips');
+    }
+
+    $scope.getImages = function() {
+        sendMessage('camera-images');
     }
 
     function playTimelapse(index) {

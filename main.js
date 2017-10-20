@@ -3996,6 +3996,18 @@ app.on('message', function(msg) {
                 }
                 break;
 
+            case 'camera-images':
+                response = {};
+                camera.ptp.getFilesList(function(err, files){
+                    async.map(files, camera.downloadThumbnail, function(err, results) {
+                        response.images = results;
+                        response.fileName = files;
+                        response.error = err;
+                        msg.reply('camera-images', response);
+                    });
+                });
+                break;
+
             case 'motion':            
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
