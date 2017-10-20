@@ -3999,7 +3999,7 @@ app.on('message', function(msg) {
             case 'camera-images':
                 var response = {};
                 camera.ptp.getFilesList(function(err, files){
-                    async.map(files, camera.downloadThumbnail, function(err, results) {
+                    async.map(files, camera.ptp.downloadThumbnail, function(err, results) {
                         response.images = results;
                         response.fileName = files;
                         response.error = err;
