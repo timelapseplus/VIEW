@@ -3997,7 +3997,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'camera-images':
-                response = {};
+                var response = {};
                 camera.ptp.getFilesList(function(err, files){
                     async.map(files, camera.downloadThumbnail, function(err, results) {
                         response.images = results;
