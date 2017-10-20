@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# Offline cache Wed Jun 14 13:44:59-b8.14 CDT 2017
+# Offline cache Wed Jun 14 13:44:59-b8.15 CDT 2017
 
 index.html
  
@@ -22,6 +22,7 @@ templates/capture.html
 templates/timelapse.html
 templates/menu.html
 templates/view.html
+templates/images.html
 templates/modal-exposure.html
 templates/modal-motion-setup.html
 templates/modal-login.html
