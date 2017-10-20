@@ -284,6 +284,15 @@ function runCommand(type, args, callback, client) {
     case 'camera.ptp.unmountSd':
       camera.ptp.unmountSd(callback);
       break;
+    case 'camera.ptp.getFilesList':
+      camera.ptp.getFilesList(callback);
+      break;
+    case 'camera.ptp.downloadThumbnail':
+      camera.ptp.downloadThumbnail(args.filePath, callback);
+      break;
+    case 'camera.ptp.downloadFile':
+      camera.ptp.downloadFile(args.filePath, callback);
+      break;
 
     case 'db.currentTimelapseFrames':
       callback(null, intervalometer.db.currentTimelapseFrames(args.cameraIndex));

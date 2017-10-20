@@ -333,6 +333,18 @@ core.addGpsData = function(gpsData, callback) {
     call('gps', {gpsData:gpsData}, callback);
 }
 
+core.getFilesList = function(callback) {
+    call('camera.ptp.getFilesList', {}, callback);
+}
+
+core.downloadThumbnail = function(filePath, callback) {
+    call('camera.ptp.downloadThumbnail', {filePath: filePath}, callback);
+}
+
+core.downloadFile = function(filePath, callback) {
+    call('camera.ptp.downloadFile', {filePath: filePath}, callback);
+}
+
 mcu.on('gps', function(status){
     if(status == 2) {
         core.addGpsData(mcu.gps);
