@@ -288,7 +288,10 @@ function runCommand(type, args, callback, client) {
       camera.ptp.getFilesList(callback);
       break;
     case 'camera.ptp.downloadThumbnail':
-      camera.ptp.downloadThumbnail(args.filePath, callback);
+      camera.ptp.downloadThumbnail(args.filePath, function(err, jpeg) {
+        if(!err && jpeg) jpeg = new Buffer(jpeg).toString('base64');
+        callback && callback(err, jpeg);
+      });
       break;
     case 'camera.ptp.downloadFile':
       camera.ptp.downloadFile(args.filePath, callback);

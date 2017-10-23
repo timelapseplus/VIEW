@@ -3999,12 +3999,23 @@ app.on('message', function(msg) {
             case 'camera-images':
                 var response = {};
                 core.getFilesList(function(err, files){
-                    async.mapSeries(files, core.downloadThumbnail, function(err, results) {
-                        response.images = results;
-                        response.fileName = files;
-                        response.error = err;
+                    if(msg.start && msg.start > 0) {
+                        response.startIndex = msg.start;
+                    } else {
+                        response.startIndex = 0;
+                    }
+                    response.totalImages = files ? files.length : 0;
+                    response.count = response.totalImages - response.startIndex > 25 ? 25 : response.totalImages - response.startIndex;
+                    if(files && response.count > 0) {
+                        response.fileNames = files.slice(response.startIndex, response.startIndex + response.count);
+                        async.mapSeries(response.fileNames, core.downloadThumbnail, function(err, results) {
+                            response.images = results;
+                            response.error = err;
+                            msg.reply('camera-images', response);
+                        });
+                    } else {
                         msg.reply('camera-images', response);
-                    });
+                    }
                 });
                 break;
 
