@@ -2785,6 +2785,30 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var fujiOptionMenu = {
+        name: "Fuji Storage Mode",
+        type: "options",
+        items: [{
+            name: "Remove from RAM",
+            value: "remove",
+            help: help.fujiOptionMenu,
+            action: ui.set(inputs, 'fujiStorage', 'remove', function(cb){
+                db.set('fujiStorage', "remove");
+                core.setFujiStorage('remove');
+                cb && cb();
+            })
+        }, {
+            name: "Keep (experimental)",
+            value: "keep",
+            help: help.fujiOptionMenu,
+            action: ui.set(core, 'fujiStorage', 'keep', function(cb){
+                db.set('fujiStorage', "keep");
+                core.setFujiStorage('keep');
+                cb && cb();
+            })
+        }]
+    }
+
     var developerModeMenu = {
         name: "Developer Mode",
         type: "options",
@@ -3352,6 +3376,10 @@ if (VIEW_HARDWARE) {
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
         }, {
+            name: "Fuji Storage",
+            action: fujiOptionMenu,
+            help: help.fujiOptionMenu
+        }, {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
@@ -3850,6 +3878,13 @@ db.get('intervalometer.currentProgram', function(err, data) {
     if(!err && data) {
         console.log("Loading saved intervalometer settings...", data);
         core.loadProgram(data);
+    }
+});
+
+db.get('fujiStorage', function(err, data) {
+    if(!err) {
+        if(data != 'keep') data = 'remove';
+        core.setFujiStorage(data);
     }
 });
 

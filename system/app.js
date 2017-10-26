@@ -32,6 +32,8 @@ express.get('/socket/address', function(req, res) {
     });
 });
 
+//express.get('//')
+
 var viewId = null;
 
 wss.broadcast = function broadcast(data) {

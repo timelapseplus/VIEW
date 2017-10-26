@@ -161,3 +161,6 @@ exports.setTime = "Set the current time in 24-hour UTC (GMT+0000).  Note that th
 exports.setDate = "Set the current date in UTC (GMT+0000).  Note that this is also automatically set when connected to the internet as well as by the GPS when enabled.";
 
 exports.eclipseInfo = "Info about the next upcoming solar eclipse.";
+
+exports.fujiOptionMenu = "An experimental setting for the Fuji X-T2.  If the camera isn't saving images to the camera card when the time-lapse destination is set to camera, change this setting to 'keep'.  Otherwise, if the time-lapse stops after several frames, this setting should be set to 'remove'.";
+
