@@ -3380,7 +3380,7 @@ if (VIEW_HARDWARE) {
             action: fujiOptionMenu,
             help: help.fujiOptionMenu,
             condition: function() {
-                return core.cameraModel.match(/fuji/i);
+                return core.cameraModel && core.cameraModel.match(/fuji/i);
             }
         }, {
             name: "Developer Mode",
