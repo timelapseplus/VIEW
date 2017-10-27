@@ -211,6 +211,10 @@ var startWorker = function(port) {
                         camera.set('d38c', '1', null, worker); // PC mode
                         camera.set('d207', '2', null, worker); // USB shutter control
                         camera.set('expprogram', 'M', null, worker); // Manual mode
+                    } else if(worker.model.match(/eos m5/i)) {
+                        camera.set('output', 'Unknown value 0008', null, worker); // PC control mode
+                        worker.supports.liveview = false;
+                        worker.supports.destination = true;
                     } else {
                         worker.supports.liveview = true;
                         worker.supports.destination = true;
