@@ -72,31 +72,60 @@ exp.calculate = function(algorithm, currentEv, lastPhotoLum, lastPhotoHistogram,
 }
 
 exp.calculate_LRTtimelapse = function(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
-    var lum = 0;
+    var direction = 'auto';
+    var lum = 0, sum = 0;
     for(var i = 0; i < 256; i++) {
-        lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
+        sum += lastPhotoHistogram[i];
+    }
+    sum /= 256;
+    for(var i = 0; i < 256; i++) {
+        lum += Math.pow(i, i / 256) / 256 * (lastPhotoHistogram[i] / sum);
     }
 
-    lum -= (lum * getEvOffsetScale(currentEv)) / 2; // apply night compensation
+    var lum1 = lum;
+
+    lum -= (lum * getEvOffsetScale(currentEv, lastPhotoLum)) / 2; // apply night compensation
+
+    var lum2 = lum;
 
     if(local.targetLum === null) {  // first time
         exp.status.rampEv = currentEv;
-        local.targetLum = lum; //averageLum;
-        local.direction = 0;
+        local.lrtLumArray = [];
+        local.targetLum = lum;
+    
+        if(direction == 'sunrise') {
+            local.direction = 1;
+        } else if(direction == 'sunset') {
+            local.direction = -1;
+        } else {
+            local.direction = 0;
+        }
     }
 
-    directionFactor = (local.direction >= 0) ? 1 : 5;
-    if(lum > local.targetLum * (1 + 0.2 * directionFactor)) {
+    local.lrtLumArray.push(lum);
+    if(local.lrtLumArray.length > 5) {
+        local.lrtLumArray.shift();
+    }
+    lum = (local.lrtLumArray.reduce(function(sum, l) { return sum + l; }, 0)) / local.lrtLumArray.length;
+
+    var lum3 = lum;
+
+    var directionFactor;
+
+    directionFactor = local.direction >= 0 ? 1 : 8;
+    if((direction == 'auto' || direction == 'sunrise') && lum > local.targetLum * (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv + 1/3;
         local.direction = 1;
     }
-    directionFactor = (local.direction <= 0) ? 1 : 5;
-    if(lum < local.targetLum / (1 + 0.2 * directionFactor)) {
+    directionFactor = local.direction <= 0 ? 1 : 8;
+    if((direction == 'auto' || direction == 'sunset') && lum < local.targetLum / (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;
     }
 
-    console.log("LRT Lum:", lum, local.direction);
+    //console.log("LRT LumX:", lum1, lum2, lum3);
+
+    console.log("LRT Lum:", lum, local.direction, local.targetLum, " currentEv:", currentEv, ", newEv:", exp.status.rampEv, ", Dir:", direction);
 
     return exp.status.rampEv;
 }
