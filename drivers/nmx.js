@@ -143,6 +143,12 @@ function move(motorId, steps, callback) {
         m[0] = 1;
         steps = 0 - steps;
     }
+    steps = parseInt(steps); // avoid zero-step NMX bug
+    if(!steps) {
+        if (callback) callback(null, motorPos[motorId]);
+        return;
+    }
+
     m.writeUInt32BE(steps, 1, 4);
     motorRunning[motorId] = true;
 
