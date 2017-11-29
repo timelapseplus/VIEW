@@ -18,15 +18,19 @@ exp.init = function(minEv, maxEv, nightCompensation) {
         lumArray: [],
         evArray: [],
         historyArray: [],
+        highlightArray: [],
         rateHistoryArray: [],
+        targetHighlights: null,
         targetLum: null,
         first: true
     };
 
     exp.status = {
         rampEv: null,
+        highlights: null,
         rate: null,
-        direction: null
+        direction: null,
+        highlightProtection: 0
     };
 
     exp.config = {
@@ -37,6 +41,7 @@ exp.init = function(minEv, maxEv, nightCompensation) {
             targetTimeSeconds: 300,
             evIntegrationSeconds: 300,
             historyIntegrationSeconds: 480,
+            highlightIntegrationSeconds: 30,
         },
         sunset: {
             p: 1.1,
@@ -45,6 +50,7 @@ exp.init = function(minEv, maxEv, nightCompensation) {
             targetTimeSeconds: 480,
             evIntegrationSeconds: 480,
             historyIntegrationSeconds: 480,
+            highlightIntegrationSeconds: 60,
         },
         maxEv: maxEv,
         minEv: minEv,
@@ -61,6 +67,7 @@ exp.init = function(minEv, maxEv, nightCompensation) {
 exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     if(minEv != null) exp.config.minEv = minEv;
     if(maxEv != null) exp.config.maxEv = maxEv;
+    lastPhotoHistogram = normalizeHistogram(lastPhotoHistogram);
 
     if(['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
 
@@ -72,13 +79,9 @@ exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhot
 }
 
 exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
-    var lum = 0, sum = 0;
+    var lum = 0;
     for(var i = 0; i < 256; i++) {
-        sum += lastPhotoHistogram[i];
-    }
-    sum /= 256;
-    for(var i = 0; i < 256; i++) {
-        lum += Math.pow(i, i / 256) / 256 * (lastPhotoHistogram[i] / sum);
+        lum += Math.pow(i, i / 256) / 256 * lastPhotoHistogram[i];
     }
 
     var lum1 = lum;
@@ -161,6 +164,25 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
 
     // adjust exposure according to rate in stops/hour
     exp.status.rampEv += (exp.status.rate / 3600) * exp.status.intervalSeconds;
+
+    // highlight protection
+    local.highlightArray.push({
+        val: lastPhotoHistogram[255],
+        time: new Date()
+    });
+    local.highlightArray = tv.purgeArray(local.highlightArray, config.highlightIntegrationSeconds);
+    exp.status.highlights = tv.mean(local.highlightArray);
+    if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights;
+
+    if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
+        exp.status.highlightProtection += 0.333;
+        exp.status.offsetEv += 0.333;
+        exp.status.rampEv -= 0.333;
+    } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
+        exp.status.highlightProtection -= 0.333;
+        exp.status.offsetEv -= 0.333;
+        exp.status.rampEv += 0.333;
+    }
 
     console.log("status: ", exp.status);
     //console.log("local: ", local);
@@ -285,6 +307,18 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         }
     });
     return interpolate.linear(values, ev);
+}
+
+function normalizeHistogram(histogramArray) {
+    var lum = 0, sum = 0;
+    for(var i = 0; i < 256; i++) {
+        sum += histogramArray[i];
+    }
+    sum /= 256;
+    for(var i = 0; i < 256; i++) {
+        histogramArray = histogramArray[i] / sum;
+    }
+    return histogramArray;
 }
 
 module.exports = exp;
