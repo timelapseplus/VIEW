@@ -7,6 +7,9 @@ lists.paramMap = [{
     maps: [{
         section: "settings",
         item: "capturetarget"
+    },{
+        section: "other", // fuji
+        item: "d20c"
     }]
 }, {
     name: "autofocus",
@@ -340,10 +343,10 @@ lists.format = [{
 
 lists.target = [{
     name: "RAM",
-    values: ['Internal RAM']
+    values: ['Internal RAM', '4']
 }, {
     name: "CARD",
-    values: ['Memory card']
+    values: ['Memory card', '2']
 }];
 
 lists.lvexposure = [{
