@@ -25,7 +25,6 @@ camera.photo = null;
 camera.settings = false;
 camera.lvOn = false;
 camera.supports = {};
-camera.fujiStorage = 'remove';
 
 // multi-cam properties
 camera.primaryPort = null;
@@ -496,7 +495,7 @@ camera.capture = function(options, callback) {
         options = {mode:'test'};
         var err = doEachCamera(function(port, isPrimary, worker) {
             if(!isPrimary) return;
-            if(worker.model.match(/fuji/i) && camera.fujiStorage == 'remove') options.removeFromCamera = true;
+            if(worker.model.match(/fuji/i)) options.removeFromCamera = true;
             var capture = {
                 type: 'camera',
                 do: 'capture',
@@ -522,7 +521,7 @@ camera.capture = function(options, callback) {
                 options.saveRaw = imagePath + '-cam' + cameraIndex;
             }
             options.cameraIndex = cameraIndex;
-            if(worker.model.match(/fuji/i) && camera.fujiStorage == 'remove') options.removeFromCamera = true;
+            if(worker.model.match(/fuji/i)) options.removeFromCamera = true;
             functionList.push(
                 (function(obj, isP, i){
                     return function(cb) {
@@ -583,7 +582,7 @@ camera.capture = function(options, callback) {
                                 var saveRaw = folder + '/' + name + padNumber(captureIndex, width) + 'c' + index;
                                 if(!options) options = {};
                                 options.saveRaw = saveRaw;
-                                if(worker.model.match(/fuji/i) && camera.fujiStorage == 'remove') options.removeFromCamera = true;
+                                if(worker.model.match(/fuji/i)) options.removeFromCamera = true;
                                 console.log("Saving RAW capture to", options.saveRaw);
                                 var capture = {
                                     type: 'camera',
@@ -710,10 +709,6 @@ camera.zoom = function(xTargetPercent, yTargetPercent, callback) {
         id: getCallbackId(worker.port, 'zoom', cb),
         data: data
     }); else callback && callback("not connected");
-}
-camera.setFujiStorage = function(mode) {
-    if(mode != 'keep') mode = 'remove';
-    camera.fujiStorage = mode;
 }
 
 

@@ -251,6 +251,7 @@ defaultProgram = {
     rampMode: "fixed",
     intervalMode: "fixed",
     rampAlgorithm: "lum",
+    highlightProtection: true,
     interval: 5,
     dayInterval: 5,
     nightInterval: 35,
@@ -345,11 +346,6 @@ core.downloadFile = function(filePath, callback) {
     call('camera.ptp.downloadFile', {filePath: filePath}, callback);
 }
 
-core.setFujiStorage = function(mode, callback) {
-    if(mode != 'keep') mode = 'remove';
-    core.fujiStorage = mode;
-    call('camera.ptp.setFujiStorage', {mode: mode}, callback);
-}
 
 mcu.on('gps', function(status){
     if(status == 2) {

@@ -162,5 +162,5 @@ exports.setDate = "Set the current date in UTC (GMT+0000).  Note that this is al
 
 exports.eclipseInfo = "Info about the next upcoming solar eclipse.";
 
-exports.fujiOptionMenu = "An experimental setting for the Fuji X-T2.  If the camera isn't saving images to the camera card when the time-lapse destination is set to camera, change this setting to 'keep'.  Otherwise, if the time-lapse stops after several frames, this setting should be set to 'remove'.";
+exports.highlightProtection = "A feature added in v1.8 to quickly decrease exposure if clipping is detected during ramping in order to preserve highlights.  Applicable only to the PID Luminance ramping method.";
 

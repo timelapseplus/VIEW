@@ -7,7 +7,7 @@ exp.status = {};
 exp.config = {};
 
 
-exp.init = function(minEv, maxEv, nightCompensation) {
+exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
     if (nightCompensation === null) nightCompensation = 'auto';
 
     if(nightCompensation != 'auto') {
@@ -58,7 +58,8 @@ exp.init = function(minEv, maxEv, nightCompensation) {
         hysteresis: 0.4,
         nightCompensationDayEv: 10,
         nightCompensationNightEv: -2,
-        nightCompensation: nightCompensation
+        nightCompensation: nightCompensation,
+        highlightProtection: highlightProtection
     };
 
     return exp.config;
@@ -165,23 +166,25 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
     // adjust exposure according to rate in stops/hour
     exp.status.rampEv += (exp.status.rate / 3600) * exp.status.intervalSeconds;
 
-    // highlight protection
-    local.highlightArray.push({
-        val: lastPhotoHistogram[255],
-        time: new Date()
-    });
-    local.highlightArray = tv.purgeArray(local.highlightArray, config.highlightIntegrationSeconds);
-    exp.status.highlights = tv.mean(local.highlightArray);
-    if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights;
+    if(exp.config.highlightProtection) {
+        // highlight protection
+        local.highlightArray.push({
+            val: lastPhotoHistogram[255],
+            time: new Date()
+        });
+        local.highlightArray = tv.purgeArray(local.highlightArray, config.highlightIntegrationSeconds);
+        exp.status.highlights = tv.mean(local.highlightArray);
+        if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights;
 
-    if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
-        exp.status.highlightProtection += 0.333;
-        exp.status.offsetEv += 0.333;
-        exp.status.rampEv -= 0.333;
-    } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
-        exp.status.highlightProtection -= 0.333;
-        exp.status.offsetEv -= 0.333;
-        exp.status.rampEv += 0.333;
+        if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
+            exp.status.highlightProtection += 0.333;
+            exp.status.offsetEv += 0.333;
+            exp.status.rampEv -= 0.333;
+        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
+            exp.status.highlightProtection -= 0.333;
+            exp.status.offsetEv -= 0.333;
+            exp.status.rampEv += 0.333;
+        }
     }
 
     console.log("status: ", exp.status);

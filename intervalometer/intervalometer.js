@@ -978,7 +978,7 @@ intervalometer.run = function(program) {
                     status.trackingTilt = 0;
                     status.trackingPan = 0;
                 }
-                exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation);
+                exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
                 status.running = true;
                 intervalometer.emit("status", status);
                 console.log("program:", "starting", program);

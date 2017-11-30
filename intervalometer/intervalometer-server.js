@@ -342,10 +342,6 @@ function runCommand(type, args, callback, client) {
       callback();
       break;
 
-    case 'camera.ptp.setFujiStorage':
-      camera.ptp.setFujiStorage(args.mode);
-      callback();
-      break;
   }
 }
 

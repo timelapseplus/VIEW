@@ -373,7 +373,7 @@ if (VIEW_HARDWARE) {
         }
     }
 
-    var rampingAlgorithm = {
+    var rampingAlgorithmOptions = {
         name: "ramping algorithm",
         type: "options",
         items: [{
@@ -388,13 +388,32 @@ if (VIEW_HARDWARE) {
             name: "Ramping Algorithm",
             value: "LRTimelapse",
             help: help.rampingAlgorithmLRTimelapse,
-            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lrt')
+            action: ui.set(core.currentProgram, 'rampAlgorithm', 'lrt', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            })
         /*}, {
             name: "Ramping Algorithm",
             value: "GPS Ramping",
             help: help.rampingAlgorithmGPS,
             action: ui.set(core.currentProgram, 'rampAlgorithm', 'gps')
             */
+        }]
+    }
+
+    var highlightProtectionOptions = {
+        name: "highlight protection",
+        type: "options",
+        items: [{
+            name: "Highlight Protection",
+            value: "Enabled",
+            help: help.highlightProtection,
+            action: ui.set(core.currentProgram, 'highlightProtection', true),
+        }, {
+            name: "Highlight Protection",
+            value: "Disabled",
+            help: help.highlightProtection,
+            action: ui.set(core.currentProgram, 'highlightProtection', false)
         }]
     }
 
@@ -1376,9 +1395,16 @@ if (VIEW_HARDWARE) {
         }, {
             name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
             help: help.rampingAlgorithm,
-            action: rampingAlgorithm,
+            action: rampingAlgorithmOptions,
             condition: function() {
                 return core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset';
+            }
+        }, {
+            name: valueDisplay("Highlight Protection", core.currentProgram, 'rampAlgorithm'),
+            help: help.highlightProtection,
+            action: highlightProtectionOptions,
+            condition: function() {
+                return core.currentProgram.rampAlgorithm == 'lum' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
             }
         }, {
             name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
@@ -2785,30 +2811,6 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var fujiOptionMenu = {
-        name: "Fuji Storage Mode",
-        type: "options",
-        items: [{
-            name: "Remove from RAM",
-            value: "remove",
-            help: help.fujiOptionMenu,
-            action: ui.set(inputs, 'fujiStorage', 'remove', function(cb){
-                db.set('fujiStorage', "remove");
-                core.setFujiStorage('remove');
-                cb && cb();
-            })
-        }, {
-            name: "Keep (experimental)",
-            value: "keep",
-            help: help.fujiOptionMenu,
-            action: ui.set(core, 'fujiStorage', 'keep', function(cb){
-                db.set('fujiStorage', "keep");
-                core.setFujiStorage('keep');
-                cb && cb();
-            })
-        }]
-    }
-
     var developerModeMenu = {
         name: "Developer Mode",
         type: "options",
@@ -3376,13 +3378,6 @@ if (VIEW_HARDWARE) {
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
         }, {
-            name: "Fuji Storage",
-            action: fujiOptionMenu,
-            help: help.fujiOptionMenu,
-            condition: function() {
-                return core.cameraModel && core.cameraModel.match(/fuji/i);
-            }
-        }, {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
@@ -3881,13 +3876,6 @@ db.get('intervalometer.currentProgram', function(err, data) {
     if(!err && data) {
         console.log("Loading saved intervalometer settings...", data);
         core.loadProgram(data);
-    }
-});
-
-db.get('fujiStorage', function(err, data) {
-    if(!err) {
-        if(data != 'keep') data = 'remove';
-        core.setFujiStorage(data);
     }
 });
 
