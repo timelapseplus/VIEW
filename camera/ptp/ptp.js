@@ -260,7 +260,7 @@ var startWorker = function(port) {
                     if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
                     runCallback(msg.value);
-                } else if(worker.port == camera.primaryPort) {
+                } else if(worker.port == camera.primaryPort || msg.event == 'connected' || msg.event == 'disconnected') {
                     camera.emit(msg.event, msg.value);
                 }
             }
