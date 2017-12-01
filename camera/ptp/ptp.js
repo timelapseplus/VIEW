@@ -229,8 +229,10 @@ var startWorker = function(port) {
                     }
                 }
                 if (msg.event == 'exiting') {
-                    if(worker.port == camera.primaryPort) {
+                    if(worker.connected) {
                         worker.connected = false;
+                        updateCameraCounts();
+                        return camera.emit('exiting', false);
                     }
                 }
 
@@ -260,7 +262,7 @@ var startWorker = function(port) {
                     if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
                     runCallback(msg.value);
-                } else if(worker.port == camera.primaryPort || msg.event == 'connected' || msg.event == 'exiting') {
+                } else if(worker.port == camera.primaryPort || msg.event == 'connected') {
                     camera.emit(msg.event, msg.value);
                 }
             }
