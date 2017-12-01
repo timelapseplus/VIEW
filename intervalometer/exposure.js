@@ -115,12 +115,12 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
 
     var directionFactor;
 
-    directionFactor = local.direction >= 0 ? 1 : 8;
+    directionFactor = local.direction >= 0 ? 1 : 4;
     if((direction == 'auto' || direction == 'sunrise') && lum > local.targetLum * (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv + 1/3;
         local.direction = 1;
     }
-    directionFactor = local.direction <= 0 ? 1 : 8;
+    directionFactor = local.direction <= 0 ? 1 : 4;
     if((direction == 'auto' || direction == 'sunset') && lum < local.targetLum / (1 + 0.2 * directionFactor)) {
         exp.status.rampEv = currentEv -  1/3;
         local.direction = -1;

@@ -169,17 +169,17 @@ var startWorker = function(port) {
             if(camera.disabled) {
                 if(worker.port == camera.primaryPort) {
                     disabledCallback && disabledCallback();
-                    camera.connecting = false;
+                    worker.connecting = false;
                 }
-            } else if (camera.connected) {
+            } else if (worker.connected) {
                 port = worker.port;
                 process.nextTick(function(){startWorker(port)});
-                camera.connecting = true;
+                worker.connecting = true;
             } else {
-                camera.connecting = false;
+                worker.connecting = false;
             }
-            if(worker.port == camera.primaryPort) camera.connected = false;
-
+            //if(worker.port == camera.primaryPort) camera.connected = false;
+            worker.connected = false;
             updateCameraCounts();
         });
 

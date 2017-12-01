@@ -1400,7 +1400,7 @@ if (VIEW_HARDWARE) {
                 return core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset';
             }
         }, {
-            name: valueDisplay("Highlight Protection", core.currentProgram, 'rampAlgorithm'),
+            name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
             help: help.highlightProtection,
             action: highlightProtectionOptions,
             condition: function() {
