@@ -94,12 +94,14 @@ function connect() {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
+                    console.log("CORE: camera count: ", core.cameraCount);
                     core.cameraSupports = data.data.supports;
                     core.getSettings();
                 } else if(data.type == 'camera.exiting') {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
+                    console.log("CORE: camera count: ", core.cameraCount);
                     core.cameraSupports = data.data.supports;
                 } else if(data.type == 'motion.status') {
                     core.motionStatus = data.data;
