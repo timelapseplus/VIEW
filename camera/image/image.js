@@ -334,7 +334,7 @@ exports.histogramArray = function(jpegBuffer, callback) {
 }
 
 exports.exposureValue = function(jpegBuffer, callback) {
-    var highlightProtection = 20;
+    var highlightProtection = false;//20;
 
     fs.writeFile(TMP_IMAGE_THUMB, jpegBuffer, function() {
         luminance.read(TMP_IMAGE_THUMB, function(err, res) {
