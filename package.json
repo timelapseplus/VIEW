@@ -12,6 +12,7 @@
     "bodyparser": "latest",
     "epeg": "^0.7.0",
     "express": "~4.0",
+    "fast-boot": "^1.0.7",
     "geo-tz": "^3.2.0",
     "gphoto2": "elijahparker/node-gphoto2",
     "gpio-button": "^0.2.0",
