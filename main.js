@@ -5,12 +5,6 @@ var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
 console.log('Starting up...');
 
-if (VIEW_HARDWARE) {
-    var power = require('./hardware/power.js');
-    power.init(true);
-    power.performance('high'); // speed startup time
-}
-
 var _ = require('underscore');
 var async = require('async');
 var exec = require('child_process').exec;
@@ -33,6 +27,7 @@ var image = require('./camera/image/image.js');
 console.log('Camera modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 if (VIEW_HARDWARE) {
+    var power = require('./hardware/power.js');
     var light = require('./hardware/light.js');
     console.log('Light module loaded in ' + (new Date() - startupTime) + 'ms');
     var oled = require('./hardware/oled.js');
@@ -4619,6 +4614,4 @@ core.on('motion.status', function(status) {
         }
     }
 });
-
-power.performance('low');
 
