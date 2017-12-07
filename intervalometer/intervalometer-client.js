@@ -145,7 +145,14 @@ function connect() {
 setTimeout(connect, 5000);
 
 function call(method, args, callback) {
-    if(!client.ready) return;
+    if(!client || !client.ready) {
+        (function(m, a, c){
+            setTimeout(function(){
+                call(m, a, c);
+            }, 1000);
+        })(method, args, callback);
+        return;
+    }
     var cbId = getCallbackId(method, callback);
     var payload = JSON.stringify({
         type: method,
