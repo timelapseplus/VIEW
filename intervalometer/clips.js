@@ -6,7 +6,9 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 
+var startupTime = new Date();
 var db = require('system/db.js');
+console.log('DB module loaded in ' + (new Date() - startupTime) + 'ms');
 
 var clips = {};
 
