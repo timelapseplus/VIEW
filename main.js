@@ -29,18 +29,28 @@ var clips = require('./intervalometer/clips.js');
 var eclipse = require('./intervalometer/eclipse.js');
 var core = require('./intervalometer/intervalometer-client.js');
 var image = require('./camera/image/image.js');
+
+console.log('Camera modules loaded in ' + (new Date() - startupTime) + 'ms');
+
 if (VIEW_HARDWARE) {
     var light = require('./hardware/light.js');
+    console.log('Light module loaded in ' + (new Date() - startupTime) + 'ms');
     var oled = require('./hardware/oled.js');
+    console.log('Oled module loaded in ' + (new Date() - startupTime) + 'ms');
     var ui = require('./interface/ui.js');
+    console.log('UI module loaded in ' + (new Date() - startupTime) + 'ms');
     var help = require('./interface/help.js');
+    console.log('Help module loaded in ' + (new Date() - startupTime) + 'ms');
     var inputs = require('./hardware/inputs.js');
+    console.log('Inputs module loaded in ' + (new Date() - startupTime) + 'ms');
     var mcu = require('./hardware/mcu.js');
+    console.log('MCU module loaded in ' + (new Date() - startupTime) + 'ms');
 }
 
-console.log('Core IO modules loaded in ' + (new Date() - startupTime) + 'ms');
-
 var wifi = require('./system/wifi.js');
+
+console.log('Wifi module loaded in ' + (new Date() - startupTime) + 'ms');
+
 if(power) wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
 var db = require("./system/db.js");
