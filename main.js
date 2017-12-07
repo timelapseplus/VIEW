@@ -1,6 +1,6 @@
 /*jslint node:true,vars:true,bitwise:true */
 'use strict';
-
+var startupTime = new Date();
 var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
 console.log('Starting up...');
@@ -17,10 +17,10 @@ var exec = require('child_process').exec;
 var crypto = require('crypto');
 var fs = require('fs');
 var moment = require('moment');
-console.log('Server modules loaded');
+console.log('Basic modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 var sys = require('sys')
-console.log('System modules loaded');
+console.log('System modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 require('rootpath')();
 var lists = require('./camera/ptp/lists.js');
@@ -38,6 +38,8 @@ if (VIEW_HARDWARE) {
     var mcu = require('./hardware/mcu.js');
 }
 
+console.log('Core IO modules loaded in ' + (new Date() - startupTime) + 'ms');
+
 var wifi = require('./system/wifi.js');
 if(power) wifi.power = power; // allow wifi module to control power
 var app = require("./system/app.js");
@@ -45,6 +47,8 @@ var db = require("./system/db.js");
 
 //var suncalc = require('suncalc');
 var meeus = require('meeusjs');
+
+console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 
 var previewImage = null;
 var liveviewOn = false;
@@ -64,7 +68,7 @@ var nodeCleanup = require('node-cleanup');
 
 process.stdin.resume();
 
-console.log('Modules loaded.');
+console.log('Modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 updates.cleanup(); // cleanup old version installations
 
