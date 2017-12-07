@@ -18,16 +18,21 @@ console.log('System modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 require('rootpath')();
 var lists = require('./camera/ptp/lists.js');
+console.log('Lists module loaded in ' + (new Date() - startupTime) + 'ms');
 var updates = require('./system/updates.js');
+console.log('Updates module loaded in ' + (new Date() - startupTime) + 'ms');
 var clips = require('./intervalometer/clips.js');
+console.log('Clips module loaded in ' + (new Date() - startupTime) + 'ms');
 var eclipse = require('./intervalometer/eclipse.js');
+console.log('Eclipse module loaded in ' + (new Date() - startupTime) + 'ms');
 var core = require('./intervalometer/intervalometer-client.js');
+console.log('Core client module loaded in ' + (new Date() - startupTime) + 'ms');
 var image = require('./camera/image/image.js');
-
-console.log('Camera modules loaded in ' + (new Date() - startupTime) + 'ms');
+console.log('Image module loaded in ' + (new Date() - startupTime) + 'ms');
 
 if (VIEW_HARDWARE) {
     var power = require('./hardware/power.js');
+    console.log('Power module loaded in ' + (new Date() - startupTime) + 'ms');
     var light = require('./hardware/light.js');
     console.log('Light module loaded in ' + (new Date() - startupTime) + 'ms');
     var oled = require('./hardware/oled.js');
