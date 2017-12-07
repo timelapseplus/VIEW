@@ -142,7 +142,7 @@ function connect() {
         client.end();
     });
 }
-connect();
+setTimeout(connect, 5000);
 
 function call(method, args, callback) {
     if(!client.ready) return;
