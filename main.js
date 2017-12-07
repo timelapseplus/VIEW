@@ -3,6 +3,9 @@
 var startupTime = new Date();
 var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
+var nodeModuleCache = require('fast-boot');
+nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache.json"});
+
 console.log('Starting up...');
 
 var _ = require('underscore');
@@ -4619,4 +4622,7 @@ core.on('motion.status', function(status) {
         }
     }
 });
+
+nodeModuleCache.stop();
+
 
