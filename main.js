@@ -5,6 +5,12 @@ var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
 console.log('Starting up...');
 
+if (VIEW_HARDWARE) {
+    var power = require('./hardware/power.js');
+    power.init(true);
+    power.performance('high'); // speed startup time
+}
+
 var _ = require('underscore');
 var async = require('async');
 var exec = require('child_process').exec;
@@ -29,7 +35,6 @@ if (VIEW_HARDWARE) {
     var ui = require('./interface/ui.js');
     var help = require('./interface/help.js');
     var inputs = require('./hardware/inputs.js');
-    var power = require('./hardware/power.js');
     var mcu = require('./hardware/mcu.js');
 }
 
@@ -4600,4 +4605,6 @@ core.on('motion.status', function(status) {
         }
     }
 });
+
+power.performance('low');
 
