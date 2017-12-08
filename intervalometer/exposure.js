@@ -173,7 +173,8 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
         // highlight protection
         local.highlightArray.push(highlights);
         local.highlightArray = local.highlightArray.slice(0, config.highlightIntegrationFrames);
-        exp.status.highlights = local.highlightArray.sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length).reduce(function(sum, val) { return sum + val}) / local.highlightArray.length;
+        var tempArray = local.highlightArray.slice(0).sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length);
+        exp.status.highlights = tempArray.reduce(function(sum, val) { return sum + val}) / tempArray.length;
         if(local.targetHighlights === null) local.targetHighlights = Math.max(exp.status.highlights, 2);
 
         if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights && exp.status.highlightProtection < exp.config.highlightProtectionLimit) {
