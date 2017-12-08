@@ -167,14 +167,16 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
     exp.status.rampEv += (exp.status.rate / 3600) * exp.status.intervalSeconds;
 
     if(exp.config.highlightProtection) {
+        var highlights = lastPhotoHistogram[255] + lastPhotoHistogram[254] / 2;
+
         // highlight protection
         local.highlightArray.push({
-            val: lastPhotoHistogram[255],
+            val: highlights,
             time: new Date()
         });
         local.highlightArray = tv.purgeArray(local.highlightArray, config.highlightIntegrationSeconds);
         exp.status.highlights = tv.mean(local.highlightArray);
-        if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights;
+        if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights || 1;
 
         if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
             exp.status.highlightProtection += 0.333;
@@ -319,7 +321,7 @@ function normalizeHistogram(histogramArray) {
     }
     sum /= 256;
     for(var i = 0; i < 256; i++) {
-        histogramArray = histogramArray[i] / sum;
+        histogramArray[i] = histogramArray[i] / sum;
     }
     return histogramArray;
 }
