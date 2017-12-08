@@ -41,7 +41,7 @@ exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
             targetTimeSeconds: 300,
             evIntegrationSeconds: 300,
             historyIntegrationSeconds: 480,
-            highlightIntegrationSeconds: 30,
+            highlightIntegrationFrames: 3,
         },
         sunset: {
             p: 1.1,
@@ -50,7 +50,7 @@ exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
             targetTimeSeconds: 480,
             evIntegrationSeconds: 480,
             historyIntegrationSeconds: 480,
-            highlightIntegrationSeconds: 60,
+            highlightIntegrationFrames: 5,
         },
         maxEv: maxEv,
         minEv: minEv,
@@ -59,7 +59,8 @@ exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
         nightCompensationDayEv: 10,
         nightCompensationNightEv: -2,
         nightCompensation: nightCompensation,
-        highlightProtection: highlightProtection
+        highlightProtection: highlightProtection,
+        highlightProtectionLimit: 2
     };
 
     return exp.config;
@@ -170,15 +171,12 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
         var highlights = lastPhotoHistogram[255] + lastPhotoHistogram[254] / 2;
 
         // highlight protection
-        local.highlightArray.push({
-            val: highlights,
-            time: new Date()
-        });
-        local.highlightArray = tv.purgeArray(local.highlightArray, config.highlightIntegrationSeconds);
-        exp.status.highlights = tv.mean(local.highlightArray);
-        if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights || 1;
+        local.highlightArray.push(highlights);
+        local.highlightArray = local.highlightArray.slice(0, config.highlightIntegrationFrames);
+        exp.status.highlights = local.highlightArray.sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length).reduce(function(sum, val) { return sum + val}) / local.highlightArray.length;
+        if(local.targetHighlights === null) local.targetHighlights = Math.max(exp.status.highlights, 2);
 
-        if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
+        if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights && exp.status.highlightProtection < exp.config.highlightProtectionLimit) {
             exp.status.highlightProtection += 0.333;
             exp.status.offsetEv -= 0.333;
             exp.status.rampEv += 0.333;
