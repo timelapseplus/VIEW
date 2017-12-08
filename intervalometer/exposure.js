@@ -179,13 +179,13 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
         if(local.targetHighlights === null) local.targetHighlights = exp.status.highlights || 1;
 
         if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights) {
-            exp.status.highlightProtection += 0.333;
-            exp.status.offsetEv += 0.333;
-            exp.status.rampEv -= 0.333;
-        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
             exp.status.highlightProtection -= 0.333;
             exp.status.offsetEv -= 0.333;
             exp.status.rampEv += 0.333;
+        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
+            exp.status.highlightProtection += 0.333;
+            exp.status.offsetEv += 0.333;
+            exp.status.rampEv -= 0.333;
         }
     }
 
