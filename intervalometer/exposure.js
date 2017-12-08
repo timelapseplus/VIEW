@@ -182,11 +182,12 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
             exp.status.highlightProtection += 0.333;
             exp.status.offsetEv -= 0.333;
             exp.status.rampEv += 0.333;
-        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0) {
+        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0.3) {
             exp.status.highlightProtection -= 0.333;
             exp.status.offsetEv += 0.333;
             exp.status.rampEv -= 0.333;
         }
+        exp.status.highlightProtection = Math.round(exp.status.highlightProtection * 1000) / 1000;
     }
 
     console.log("status: ", exp.status);
