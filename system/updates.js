@@ -85,7 +85,7 @@ function apiRequest(method, callback) {
 }
 
 function download(href, path, callback) {
-	var dl = wget.download(href, path);
+	var dl = wget.download(href, path, {auth: username+':'+accessToken});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);
