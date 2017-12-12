@@ -86,13 +86,14 @@ function apiRequest(method, callback) {
 
 function download(href, path, progressCallback, callback) {
     console.log("UPDATES: downloading " + href);
+    var downloadSize = null;
 	var dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);
 	});
 	dl.on('start', function(fileSize) {
-	    if(fileSize && fileSize > 0) downloadSize = fileSize;
+	    downloadSize = fileSize;
 	    console.log("UPDATES: downloading " + downloadSize + " bytes");
 	});
 	dl.on('end', function(output) {
@@ -100,7 +101,7 @@ function download(href, path, progressCallback, callback) {
 		callback(null, path);
 	});
 	dl.on('progress', function(bytesDownloaded) {
-		progressCallback && progressCallback(bytesDownloaded);
+		progressCallback && progressCallback(bytesDownloaded, downloadSize);
 	});
 	//var options = url.parse(href);
 	//options.headers = {'user-agent': 'VIEW-app'};
@@ -420,7 +421,8 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 		updateStatus('downloading...');
 	    var downloadSize = 80 * 1024 * 1024; // 80MB
 	    var lastPercentage = null;
-		download(versionInfo.url, baseInstallPath + "tmp.zip", function(bytesDownloaded){
+		download(versionInfo.url, baseInstallPath + "tmp.zip", function(bytesDownloaded, totalSize){
+		if(totalSize && totalSize > 0) downloadSize = totalSize;
 		var percentage = Math.round((bytesDownloaded/downloadSize)*100);
 			if(percentage != lastPercentage) {
 				console.log("UPDATES: download progress:", percentage);
