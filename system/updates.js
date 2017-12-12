@@ -86,20 +86,22 @@ function apiRequest(method, callback) {
 
 function download(href, path, callback) {
     console.log("UPDATES: downloading " + href);
+    var downloadSize = 80 * 1024 * 1024; // 80MB
 	var dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);
 	});
 	dl.on('start', function(fileSize) {
-	    console.log("UPDATES: downloading " + fileSize + " bytes");
+	    if(fileSize && fileSize > 0) downloadSize = fileSize;
+	    console.log("UPDATES: downloading " + downloadSize + " bytes");
 	});
 	dl.on('end', function(output) {
 	    console.log("UPDATES: download complete: ", output);
 		callback(null, path);
 	});
-	dl.on('progress', function(progress) {
-		console.log("UPDATES: download progress:", progress);
+	dl.on('progress', function(bytesDownloaded) {
+		console.log("UPDATES: download progress:", Math.round(bytesDownloaded/downloadSize);
 	    // code to show progress bar 
 	});
 	//var options = url.parse(href);
