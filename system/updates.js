@@ -421,7 +421,7 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 	    var downloadSize = 80 * 1024 * 1024; // 80MB
 	    var lastPercentage = null;
 		download(versionInfo.url, baseInstallPath + "tmp.zip", function(bytesDownloaded){
-		var percentage = Math.round(bytesDownloaded/downloadSize);
+		var percentage = Math.round((bytesDownloaded/downloadSize)*100);
 			if(percentage != lastPercentage) {
 				console.log("UPDATES: download progress:", percentage);
 				updateStatus('downloading...' + percentage + '%');
