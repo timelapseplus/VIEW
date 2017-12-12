@@ -87,6 +87,7 @@ function apiRequest(method, callback) {
 function download(href, path, callback) {
     console.log("UPDATES: downloading " + href);
     var downloadSize = 80 * 1024 * 1024; // 80MB
+    var lastPercentage = null;
 	var dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
@@ -101,7 +102,12 @@ function download(href, path, callback) {
 		callback(null, path);
 	});
 	dl.on('progress', function(bytesDownloaded) {
-		console.log("UPDATES: download progress:", Math.round(bytesDownloaded/downloadSize));
+		var percentage = Math.round(bytesDownloaded/downloadSize);
+		if(percentage != lastPercentage) {
+			console.log("UPDATES: download progress:", percentage);
+			updateStatus('downloading...' + percentage + '%');
+			lastPercentage = percentage;
+		}
 	    // code to show progress bar 
 	});
 	//var options = url.parse(href);
