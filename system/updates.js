@@ -86,7 +86,7 @@ function apiRequest(method, callback) {
 
 function download(href, path, callback) {
     console.log("UPDATES: downloading " + href);
-	var dl = wget.download(href, path, {});
+	var dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);
