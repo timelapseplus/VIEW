@@ -42,6 +42,7 @@
     "udev": "^0.1.5",
     "uid": "0.0.2",
     "underscore": "latest",
+    "wget-improved": "^1.5.0",
     "wireless": "elijahparker/node-wireless",
     "ws": "^0.8.1"
   },
