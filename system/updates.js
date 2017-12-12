@@ -1,3 +1,4 @@
+var wget = require('wget-improved');
 var https = require('https');
 var fs = require('fs');
 var url = require('url');
@@ -84,37 +85,53 @@ function apiRequest(method, callback) {
 }
 
 function download(href, path, callback) {
-	var options = url.parse(href);
-	options.headers = {'user-agent': 'VIEW-app'};
-	options.method = "GET";
-	//options.auth = username+':'+accessToken;
-
-	var req = https.get(options, function(res) {
-		//console.log(`STATUS: ${res.statusCode}`);
-		//console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-		if(res.statusCode == 302 && res.headers.location) {
-			download(res.headers.location, path, callback);
-			return;
-		}
-		var fd = fs.openSync(path, 'w');
-		if(!fd) callback("error creating " + path);
-		res.on('data', function(chunk) {
-			var bytes = 0;
-			if(fd) bytes = fs.writeSync(fd, chunk, 0, chunk.length);
-			//console.log("Writing " + bytes + " bytes to file ", fd, chunk.length);
-		});
-		res.on('end', function() {
-			if(fd) {
-				fs.closeSync(fd);
-				callback(null, path);
-			}
-		});
-
-	});
-	req.end();
-	req.on('error', function(err) {
+	var dl = wget.download(href, path);
+	dl.on('error', function(err) {
+	    console.log("UPDATES: download error: ", err);
 		callback(err);
 	});
+	dl.on('start', function(fileSize) {
+	    console.log("UPDATES: downloading " + fileSize + " bytes");
+	});
+	dl.on('end', function(output) {
+	    console.log("UPDATES: download complete: ", output);
+		callback(null, path);
+	});
+	dl.on('progress', function(progress) {
+		console.log("UPDATES: download progress:", progress);
+	    // code to show progress bar 
+	});
+	//var options = url.parse(href);
+	//options.headers = {'user-agent': 'VIEW-app'};
+	//options.method = "GET";
+	////options.auth = username+':'+accessToken;
+
+	//var req = https.get(options, function(res) {
+	//	//console.log(`STATUS: ${res.statusCode}`);
+	//	//console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+	//	if(res.statusCode == 302 && res.headers.location) {
+	//		download(res.headers.location, path, callback);
+	//		return;
+	//	}
+	//	var fd = fs.openSync(path, 'w');
+	//	if(!fd) callback("error creating " + path);
+	//	res.on('data', function(chunk) {
+	//		var bytes = 0;
+	//		if(fd) bytes = fs.writeSync(fd, chunk, 0, chunk.length);
+	//		//console.log("Writing " + bytes + " bytes to file ", fd, chunk.length);
+	//	});
+	//	res.on('end', function() {
+	//		if(fd) {
+	//			fs.closeSync(fd);
+	//			callback(null, path);
+	//		}
+	//	});
+
+	//});
+	//req.end();
+	//req.on('error', function(err) {
+	//	callback(err);
+	//});
 }
 
 function extract(zipPath, destFolder, callback) {
