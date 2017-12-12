@@ -101,7 +101,7 @@ function download(href, path, callback) {
 		callback(null, path);
 	});
 	dl.on('progress', function(bytesDownloaded) {
-		console.log("UPDATES: download progress:", Math.round(bytesDownloaded/downloadSize);
+		console.log("UPDATES: download progress:", Math.round(bytesDownloaded/downloadSize));
 	    // code to show progress bar 
 	});
 	//var options = url.parse(href);
@@ -405,12 +405,18 @@ exports.getInstalledVersions = function(callback){
 
 exports.installing = false;
 exports.installStatus = null;
+var statusTimer = null;
 exports.installVersion = function(versionInfo, callback, statusCallback) {
 	exports.installing = true;
 	var updateStatus = function(status) {
 		console.log("INSTALL:", status);
 		exports.installStatus = status;
 		if(statusCallback) statusCallback(status);
+		if(statusTimer) clearTimeout(statusTimer);
+		statusTimer = setTimeout(function(){
+			statusTimer = null;
+			if(!exports.installing) exports.installStatus = null;
+		}, 5000);
 	}
 	if(versionInfo.version && versionInfo.url) {
 		updateStatus('downloading...');
