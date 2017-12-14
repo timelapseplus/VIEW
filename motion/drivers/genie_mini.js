@@ -81,7 +81,7 @@ GenieMini.prototype._init = function() {
 
 GenieMini.prototype._parseIncoming = function(data) {
     var id = data.readUInt16LE(1);
-    if(id == 0x0060) { // moving steps
+    if(id == 0x0060 || id == 0x0061) { // moving steps
         var state = data.readUInt8(7);
         var steps = data.readInt16LE(3);
         this._moving = (state == 0x01);
