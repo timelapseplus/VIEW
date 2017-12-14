@@ -86,7 +86,7 @@ GenieMini.prototype._parseIncoming = function(data) {
         var steps = data.readInt16LE(3);
         this._moving = (state == 0x01);
         console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps);
-    } else if(id == 0x000B) { // current state
+    } else if(id == 0x000B || id == 0x0052) { // current state
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
         this._angle = angle;
