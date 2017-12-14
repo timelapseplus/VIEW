@@ -105,6 +105,8 @@ GenieMini.prototype._parseIncoming = function(data) {
             console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
         }
         this._lastAngle = angle;
+    } else {
+        console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
 }
 
@@ -199,7 +201,7 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
         cmd = template;
     }
 
-    console.log("GenieMini(" + this._id + "): sending data", cmd);
+    //console.log("GenieMini(" + this._id + "): sending data", cmd);
 
     this._gmCh.write(cmd);
 
