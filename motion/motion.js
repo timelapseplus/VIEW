@@ -12,8 +12,8 @@ motion.status = {
 var lastStatus = motion.status;
 
 motion.nmx = nmx;
-motion.gm1 = new GenieMini();
-motion.gm2 = new GenieMini();
+motion.gm1 = new GenieMini(1);
+motion.gm2 = new GenieMini(2);
 
 motion.move = function(driver, motorId, steps, callback) {
 	if(driver == "NMX") {
