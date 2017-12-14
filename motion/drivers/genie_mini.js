@@ -1,9 +1,10 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
-function GenieMini() {
+function GenieMini(id) {
     this.btServiceIds = ['f000474d04514000b000000000000000'];
 
+    this._id = id;
     this._gmCh = null;
     this._dev = null;
     this._moving = false;
@@ -22,7 +23,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
             if (callback) callback(false);
             return;
         }
-        console.log('GenieMini: connecting via BLE');
+        console.log('GenieMini(' + self._id + '): connecting via BLE');
         btPeripheral.discoverServices(self.btServiceIds, function(err2, services) {
             if (services && services[0]) {
                 services[0].discoverCharacteristics([], function(err, characteristics) {
@@ -46,7 +47,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                             self._gmCh.on('data', function(data, isNotification) {
                                 self._parseIncoming(data);
                             });
-                            console.log("GenieMini: connected!");
+                            console.log("GenieMini(" + self._id + "): connected!");
                             self._init();
                             if (callback) callback(true);
                         });
@@ -63,7 +64,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
         });
 
         btPeripheral.once('disconnect', function() {
-            console.log("GenieMini: disconnected");
+            console.log("GenieMini(" + self._id + "): disconnected");
             self._dev = null;
             self.connected = false;
             self.emit("status", self.getStatus());
@@ -84,13 +85,13 @@ GenieMini.prototype._parseIncoming = function(data) {
         var state = data.readUInt8(7);
         var steps = data.readInt16LE(3);
         this._moving = (state == 0x01);
-        console.log("GenieMini: moving: ", this._moving, ", steps:", steps);
+        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps);
     } else if(id == 0x000B) { // current state
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
         this._angle = angle;
         this._moving = (state == 0x01);
-        console.log("GenieMini: moving: ", this._moving, ", angle:", angle);
+        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", angle:", angle);
         if(this._currentMove != null && this._lastAngle != null) {
             if(Math.abs(angle - this._lastAngle) < 180) {
                 this._currentMove += angle - this._lastAngle;
@@ -101,7 +102,7 @@ GenieMini.prototype._parseIncoming = function(data) {
                     this._currentMove -= 359 - (this._lastAngle - angle);
                 }
             }
-            console.log("GenieMini: _currentMove", this._currentMove);
+            console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
         }
         this._lastAngle = angle;
     }
@@ -109,16 +110,16 @@ GenieMini.prototype._parseIncoming = function(data) {
 
 GenieMini.prototype.connect = function(device, callback) {
     if (device && device.connect) {
-        console.log("GenieMini: connecting...");
+        console.log("GenieMini(" + this._id + "): connecting...");
         this._connectBt(device, callback);
     } else {
-        console.log("GenieMini: invalid device, cannot connect");
+        console.log("GenieMini(" + this._id + "): invalid device, cannot connect");
         if (callback) callback("invalid device");
     }
 }
 
 GenieMini.prototype.disconnect = function() {
-    console.log("GenieMini: disconnecting...");
+    console.log("GenieMini(" + this._id + "): disconnecting...");
     if (this._dev && this._dev.connected) {
         this.connected = false;
         this._dev.connected = false;
@@ -149,11 +150,11 @@ GenieMini.prototype.enable = function(motor) {
 
 GenieMini.prototype.move = function(motor, degrees, callback) {
     if (this._moving) {
-        if (callback) callback("GenieMini: motor already running");
-        return console.log("GenieMini: motor already running");
+        if (callback) callback("GenieMini(" + this._id + "): motor already running");
+        return console.log("GenieMini(" + this._id + "): motor already running");
     }
     var steps = Math.round(degrees * this._stepsPerDegree);
-    console.log("GenieMini: moving motor", steps, "steps");
+    console.log("GenieMini(" + this._id + "): moving motor", steps, "steps");
     if(!this._enabled) this.enable();
 
     var dataBuf = new Buffer(4);
@@ -171,7 +172,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
                         check(); // keep checking until stop
                     } else {
                         self._position += steps;
-                        console.log("GenieMini: position:", self._position);
+                        console.log("GenieMini(" + self._id + "): position:", self._position);
                         if (callback) callback(null, self._position / self._stepsPerDegree);
                     }
                 }, 200);
@@ -198,7 +199,7 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
         cmd = template;
     }
 
-    console.log("GenieMini: sending data", cmd);
+    console.log("GenieMini(" + this._id + "): sending data", cmd);
 
     this._gmCh.write(cmd);
 
@@ -206,7 +207,7 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
 }
 
 GenieMini.prototype.constantMove = function(motor, speed, callback) {
-    console.log("GenieMini: moving motor at speed ", speed, "%");
+    console.log("GenieMini(" + this._id + "): moving motor at speed ", speed, "%");
     if(!this._enabled) this.enable();
 
     var dataBuf = new Buffer(3);
@@ -226,7 +227,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
                             if(self._moving) {
                                 check(); // keep checking until stop
                             } else {
-                                console.log("GenieMini: adding", self._currentMove, "° to position");
+                                console.log("GenieMini(" + self._id + "): adding", self._currentMove, "° to position");
                                 self._position += self._currentMove * self._stepsPerDegree;
                                 self._currentMove = null;
                                 if (callback) callback(null, self._position / self._stepsPerDegree);
@@ -249,7 +250,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     if(self._currentMove == null) {
         self._lastAngle = null;
         self._currentMove = 0;
-        console.log("GenieMini: starting move at speed, saving position");
+        console.log("GenieMini(" + self._id + "): starting move at speed, saving position");
         var d = new Buffer(2);
         d.fill(0);
         d.writeUInt16LE(0x000B, 0);
