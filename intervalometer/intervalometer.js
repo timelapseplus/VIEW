@@ -418,8 +418,9 @@ function processKeyframes(setupFirst, callback) {
 }
 
 function getEvOptions() {
-    var maxShutterLengthMs = status.intervalMs;
-    if (maxShutterLengthMs > intervalometer.autoSettings.paddingTimeMs) maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+    var maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+    if(intervalometer.currentProgram.intervalMode == 'aux') maxShutterLengthMs -= 2000; // add an extra 2 seconds for external motion
+    if(maxShutterLengthMs < 500) maxShutterLengthMs = 500;
     return {
         cameraSettings: camera.ptp.settings,
         maxShutterLengthMs: maxShutterLengthMs,

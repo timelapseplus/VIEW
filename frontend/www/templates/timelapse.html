@@ -414,20 +414,20 @@
             </div>
             <div style="background-color: #202020">
                 <div class="list">
-                    <div class="item">
+                    <div class="item item-dark">
                         Frames: {{intervalometerStatus.frames}} ({{intervalometerStatus.frames * (1/30)|number:0}} seconds @ 30fps)
                     </div>
-                    <div class="item" ng-show="intervalometerStatus.framesRemaining">
+                    <div class="item item-dark" ng-show="intervalometerStatus.framesRemaining">
                         Remaining: {{intervalometerStatus.framesRemaining}}
                     </div>
-                    <div class="item item-icon-right">
+                    <div class="item item-dark item-icon-right">
                         Interval: {{intervalometerStatus.intervalMs/1000|number:0}}
                         <i class="icon ion-edit"></i>
                     </div>
-                    <div class="item">
+                    <div class="item item-dark">
                         Ramp Rate: {{intervalometerStatus.rampRate|number:2}}<br>
                     </div>
-                    <div class="item">
+                    <div class="item item-dark">
                         <span class="positive">{{intervalometerStatus.message}}</span> <span style="float:right;">{{status}}</span><br>
                     </div>
                 </div>
