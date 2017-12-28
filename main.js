@@ -541,27 +541,6 @@ if (VIEW_HARDWARE) {
             action: ui.set(core.currentProgram, 'tracking', 'none')
         }, {
             name: "Motion Tracking",
-            value: "Follow Sun",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'sun')
-        }, {
-            name: "Motion Tracking",
-            value: "Follow Moon",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'moon')
-        }]
-    }
-
-    var trackingOptions = {
-        name: "Tracking",
-        type: "options",
-        items: [{
-            name: "Motion Tracking",
-            value: "disabled",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'none')
-        }, {
-            name: "Motion Tracking",
             value: "15°/hour pan",
             help: help.trackingOptions,
             action: ui.set(core.currentProgram, 'tracking', '15deg')
@@ -569,38 +548,22 @@ if (VIEW_HARDWARE) {
             name: "Motion Tracking",
             value: "Follow Sun",
             help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'sun')
+            action: ui.set(core.currentProgram, 'tracking', 'sun'),
+            condition: function() {
+                var enabled = mcu.validCoordinates();
+                if(!enabled && core.currentProgram.tracking == 'sun') core.currentProgram.tracking = 'none';
+                return enabled;
+            }
         }, {
             name: "Motion Tracking",
             value: "Follow Moon",
             help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'moon')
-        }]
-    }
-
-    var trackingOptions = {
-        name: "Tracking",
-        type: "options",
-        items: [{
-            name: "Motion Tracking",
-            value: "disabled",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'none')
-        }, {
-            name: "Motion Tracking",
-            value: "15°/hour pan",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', '15deg')
-        }, {
-            name: "Motion Tracking",
-            value: "Follow Sun",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'sun')
-        }, {
-            name: "Motion Tracking",
-            value: "Follow Moon",
-            help: help.trackingOptions,
-            action: ui.set(core.currentProgram, 'tracking', 'moon')
+            action: ui.set(core.currentProgram, 'tracking', 'moon'),
+            condition: function() {
+                var enabled = mcu.validCoordinates();
+                if(!enabled && core.currentProgram.tracking == 'moon') core.currentProgram.tracking = 'none';
+                return enabled;
+            }
         }]
     }
 
@@ -1893,7 +1856,7 @@ if (VIEW_HARDWARE) {
             action: trackingOptions,
             help: help.trackingOptions,
             condition: function() {
-                var enabled = core.motionStatus.available && mcu.validCoordinates();
+                var enabled = core.motionStatus.available;
                 if(!enabled) core.currentProgram.tracking = 'none';
                 return enabled;
             }
