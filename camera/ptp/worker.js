@@ -916,7 +916,7 @@ function getConfig(noEvent, cached, cb) {
                                 supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
                                 for (var j = 0; j < l.length; j++) {
-                                    data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
+                                    if(l[j].values.length > 1) data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
                                 }
                             }
                         } catch (e) {

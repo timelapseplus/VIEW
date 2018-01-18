@@ -195,6 +195,15 @@ lists.incEv = function(current, itemList) {
     var i;
     itemList = lists.cleanEvCopy(itemList);
     if (!itemList || itemList.length == 0) return false;
+    itemList.sort(function(a, b) {
+        if(a.ev > b.ev) {
+            return -1;
+        }
+        if(a.ev < b.ev) {
+            return 1;
+        }
+        return 0;
+    });
     if (itemList[0].ev > itemList[itemList.length - 1].ev) { // first is largest
         for (i = itemList.length - 1; i >= 0; i--) {
             if (itemList[i].ev > current.ev) {
@@ -215,6 +224,15 @@ lists.decEv = function(current, itemList) {
     var i;
     itemList = lists.cleanEvCopy(itemList);
     if (!itemList || itemList.length == 0) return false;
+    itemList.sort(function(a, b) {
+        if(a.ev > b.ev) {
+            return -1;
+        }
+        if(a.ev < b.ev) {
+            return 1;
+        }
+        return 0;
+    });
     if (itemList[0].ev > itemList[itemList.length - 1].ev) { // first is largest
         for (i = 0; i < itemList.length; i++) {
             if (itemList[i].ev < current.ev) {
@@ -844,6 +862,34 @@ lists.shutterAll = [{
     ev: null,
     values: ['Bulb', 'bulb', '65535/65535']
 }, {
+    name: "15m",
+    ev: -16,
+    values: ['640000120']
+}, {
+    name: "8m",
+    ev: -15,
+    values: ['64000090']
+}, {
+    name: "4m",
+    ev: -14,
+    values: ['64000060']
+}, {
+    name: "2m",
+    ev: -13,
+    values: ['64000030']
+}, {
+    name: "60s",
+    ev: -12,
+    values: ['64000000']
+}, {
+    name: "50s",
+    ev: -11 - 2 / 3,
+    values: ['50796833']
+}, {
+    name: "40s",
+    ev: -11 - 1 / 3,
+    values: ['40317473']
+}, {
     name: "30s",
     ev: -11,
     values: ['300/10', '30', '30.0000s', '30"', '32000000']
@@ -1122,7 +1168,7 @@ lists.shutterAll = [{
 }, {
     name: "1/5000",
     ev: 6 + 1 / 3,
-    values: ['1/5000']
+    values: ['1/5000', '193']
 }, {
     name: "1/6000",
     ev: 6.5,
@@ -1130,11 +1176,35 @@ lists.shutterAll = [{
 }, {
     name: "1/6400",
     ev: 6 + 2 / 3,
-    values: ['1/6400', '0.0001s']
+    values: ['1/6400', '0.0001s', '153']
 }, {
     name: "1/8000",
     ev: 7,
-    values: ['1/8000']
+    values: ['1/8000', '122']
+}, {
+    name: "1/10000",
+    ev: 7 + 1 / 3,
+    values: ['1/10000', '96']
+}, {
+    name: "1/13000",
+    ev: 7 + 2 / 3,
+    values: ['1/13000', '76']
+}, {
+    name: "1/16000",
+    ev: 8,
+    values: ['1/16000', '61']
+}, {
+    name: "1/20000",
+    ev: 8 + 1 / 3,
+    values: ['1/20000', '48']
+}, {
+    name: "1/25000",
+    ev: 8 + 2 / 3,
+    values: ['1/25000', '38']
+}, {
+    name: "1/32000",
+    ev: 9,
+    values: ['1/32000', '30']
 }];
 
 lists.shutterThirds = filterList(lists.shutterAll, 1/3);
