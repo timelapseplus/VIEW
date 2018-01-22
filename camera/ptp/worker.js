@@ -800,8 +800,12 @@ function mapParam(type, value, halfs, manufacturer) {
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
                     if (list[i].values[j].toLowerCase() == value) {
-                        if(type == "shutter" && manufacturer == "FUJIFILM" && value == '30' && list[i].ev != 9) { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
-                            return list[i];
+                        if(type == "shutter" && value == '30') { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
+                            if(manufacturer == "FUJIFILM") {
+                                if(list[i].ev == 9) return list[i];
+                            } else {
+                                if(list[i].ev != 9) return list[i];
+                            }
                         }
                     }
                 }
