@@ -806,6 +806,8 @@ function mapParam(type, value, halfs, manufacturer) {
                             } else {
                                 if(list[i].ev != 9) return list[i];
                             }
+                        } else {
+                            return list[i];
                         }
                     }
                 }
