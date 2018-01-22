@@ -789,7 +789,7 @@ function getFilesList(callback) {
     }
 }
 
-function mapParam(type, value, halfs) {
+function mapParam(type, value, halfs, manufacturer) {
     if(halfs) type += "Halfs";
     var list = LISTS[type];
     if (list && value != null) {
@@ -800,7 +800,9 @@ function mapParam(type, value, halfs) {
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
                     if (list[i].values[j].toLowerCase() == value) {
-                        return list[i];
+                        if(type == "shutter" && manufacturer == "FUJIFILM" && value == '30' && list[i].ev != 9) { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
+                            return list[i];
+                        }
                     }
                 }
             }
@@ -810,7 +812,7 @@ function mapParam(type, value, halfs) {
     return null;
 }
 
-function mapCameraList(type, cameraList) {
+function mapCameraList(type, cameraList, manufacturer) {
     if (!cameraList) {
         //console.log("no camera list provided:", type);
         return [];
@@ -819,7 +821,7 @@ function mapCameraList(type, cameraList) {
         //console.log("checking list:", LISTS[type]);
         var list = [];
         for (var i = 0; i < cameraList.length; i++) {
-            var item = mapParam(type, cameraList[i]);
+            var item = mapParam(type, cameraList[i], null, manufacturer);
             if (item != null) {
                 if (list.filter(function(item) {
                         return item.cameraName == cameraList[i];
@@ -870,6 +872,7 @@ function getConfig(noEvent, cached, cb) {
         
         if (data && data.main && data.main.children) {
             data = data.main.children;
+            var manufacturer = (data.status && data.status.children && data.status.children.manufacturer && data.status.children.manufacturer.value) ? data.status.children.manufacturer.value : 'unknown';
 
             //console.log(data.capturesettings.children);
             //console.log(data.status.children);
@@ -891,10 +894,10 @@ function getConfig(noEvent, cached, cb) {
                     var section = maps[m].section;
                     var item = maps[m].item;
                     if(section == null && data[item] && data[item].available) {
-                        list = mapCameraList(handle, data[item].available);
+                        list = mapCameraList(handle, data[item].available, manufacturer);
                         var halfs = false;
                         if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
-                            var listHalfs = mapCameraList(handle + 'Halfs', data[item].available);
+                            var listHalfs = mapCameraList(handle + 'Halfs', data[item].available, manufacturer);
                             if(listHalfs && (listHalfs.length > list.length)) {
                                 console.log("WORKER: using half stops for", handle);
                                 halfs = true;
@@ -911,7 +914,7 @@ function getConfig(noEvent, cached, cb) {
                     } else {
                         try {
                             //console.log("processing item", item);
-                            if (item == 'shutterspeed' && data.status && data.status.children.manufacturer.value == 'Sony Corporation') {
+                            if (item == 'shutterspeed' && data.status && manufacturer == 'Sony Corporation') {
                                 console.log("WORKER: manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
                                 supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
@@ -923,10 +926,10 @@ function getConfig(noEvent, cached, cb) {
                             console.log("WORKER: error manually adding shutter speeds:", e);
                         }
                         if (data[section] && data[section].children && data[section].children[item]) {
-                            list = mapCameraList(handle, data[section].children[item].choices);
+                            list = mapCameraList(handle, data[section].children[item].choices, manufacturer);
                             var halfs = false;
                             if(list && (handle == 'shutter' || handle == 'iso' || handle == 'aperture')) {
-                                var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices);
+                                var listHalfs = mapCameraList(handle + 'Halfs', data[section].children[item].choices, manufacturer);
                                 if(listHalfs && (listHalfs.length > list.length)) {
                                     console.log("WORKER: using half stops for", handle);
                                     halfs = true;
