@@ -911,7 +911,7 @@ function getConfig(noEvent, cached, cb) {
                         }
                         //console.log("list:", handle, list);
                         value = data[item].current;
-                        detail = mapParam(handle, value, halfs);
+                        detail = mapParam(handle, value, halfs, manufacturer);
                         name = item;
                         if(detail) console.log(name + " = " + value + " (" + detail.name + ")");
                         break;
@@ -943,7 +943,7 @@ function getConfig(noEvent, cached, cb) {
                             }
                             //console.log("list:", handle, list);
                             value = data[section].children[item].value;
-                            detail = mapParam(handle, value, halfs);
+                            detail = mapParam(handle, value, halfs, manufacturer);
                             name = item;
                             if(detail) {
                                 console.log("WORKER: ", name + " = " + value + " (" + detail.name + ")");
