@@ -23,6 +23,12 @@ fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "1"); // favor low latency ov
 
 express.use(Express.static('/home/view/current/frontend/www'));
 
+express.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 express.get('/socket/address', function(req, res) {
     var host = req.headers.host;
     var domain = host.split(':')[0];
