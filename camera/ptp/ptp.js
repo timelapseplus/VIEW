@@ -196,7 +196,7 @@ var startWorker = function(port) {
                     worker.model = msg.value;
                     console.log("Camera connected: ", worker.model);
                     if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
-                        if(camera.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                        if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
                             worker.supports.liveview = true;
                         }
                         if(worker.model.match(/(A7r III|A9)/i)) {
