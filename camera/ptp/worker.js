@@ -372,7 +372,7 @@ function capture(options, callback) {
             keepOnCamera: (options.removeFromCamera) ? false : true
         }
     }
-    //console.log("cameraOptions:", captureOptions);
+    console.log("cameraOptions:", captureOptions);
     //console.log("options:", options);
     console.log("WORKER: running camera.takePicture()");
     camera.takePicture(captureOptions, function(err, photo, info) {
