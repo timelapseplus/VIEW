@@ -194,16 +194,16 @@ var startWorker = function(port) {
                     console.log("worker connected on port", worker.port);
                     worker.connected = true;
                     worker.model = msg.value;
-                    console.log("Camera connected: ", camera.model);
-                    if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
-                        if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
+                    console.log("Camera connected: ", worker.model);
+                    if(worker.model != 'SonyWifi' && camera.model.match(/sony/i)) {
+                        if(camera.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
                             worker.supports.liveview = true;
                         }
-                        if(worker.model.match(/(A7r III|A9)/i)) {
-                            console.log("matched sony, setting supports.destination = true");
+                        if(camera.model.match(/(A7r III|A9)/i)) {
+                            console.log("PTP: matched sony, setting supports.destination = true");
                             worker.supports.destination = true;
                         } else {
-                            console.log("matched sony, setting supports.destination = false");
+                            console.log("PTP: matched sony, setting supports.destination = false");
                             worker.supports.destination = false;
                         }
                     } else if(worker.model.match(/panasonic/i)) {
