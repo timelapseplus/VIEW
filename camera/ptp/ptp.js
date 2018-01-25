@@ -498,6 +498,7 @@ camera.capture = function(options, callback) {
     if(!camera.connected) {
         return callback && callback("not connected");
     }
+    var primaryWorker = getPrimaryWorker();
     if(options && options.mode == 'test') {
         options = {mode:'test'};
         var err = doEachCamera(function(port, isPrimary, worker) {
@@ -514,7 +515,7 @@ camera.capture = function(options, callback) {
             console.log(capture);
             worker.send(capture);
         });
-    } else if(camera.supports.destination || options) { // time-lapse program or basic capture
+    } else if(primaryWorker.supports.destination || options) { // time-lapse program or basic capture
         var imagePath;
         var cameraIndex = 0;
         if(!options) options = {thumbnail: true};
