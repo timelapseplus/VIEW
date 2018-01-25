@@ -990,6 +990,9 @@ static struct {
 	/* Andre Crone, andre@elysia.nl */
 	{"Sony:Alpha-A7r II (Control)",	0x054c, 0x0a6b, PTP_CAP|PTP_CAP_PREVIEW},
 
+	/* Elijah Parker, mail@timelapseplus.com */
+	{"Sony:Alpha-A7r III (Control)",	0x054c, 0x0c33, PTP_CAP|PTP_CAP_PREVIEW},
+
 	/* Andre Crone <andre@elysia.nl> */
 	{"Sony:DSC-RX100M4",          	0x054c, 0x0a6d, 0},
 

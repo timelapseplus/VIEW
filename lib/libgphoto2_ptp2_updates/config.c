@@ -394,7 +394,7 @@ camera_prepare_canon_eos_capture(Camera *camera, GPContext *context) {
 	GP_LOG_D ("preparing EOS capture...");
 
 	if (is_canon_eos_m (params)) {
-		C_PTP (ptp_canon_eos_setremotemode(params, 1);//0x15));
+		C_PTP (ptp_canon_eos_setremotemode(params, 0x15));
 	} else {
 		C_PTP (ptp_canon_eos_setremotemode(params, 1));
 	}
@@ -1401,11 +1401,11 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 											\
 	GP_LOG_D("setting 0x%04x to 0x%08x", prop, value);				\
 											\
-	C_PTP_REP (ptp_generic_getdevicepropdesc (params, prop, &dpd));			\
+	/*C_PTP_REP (ptp_generic_getdevicepropdesc (params, prop, &dpd));			\
 	if (value == dpd.CurrentValue.bits) {						\
 		GP_LOG_D("value is already 0x%08x", value);				\
 		return GP_OK;								\
-	}										\
+	}*/										\
 	do {										\
 		origval = dpd.CurrentValue.bits;					\
 		/* if it is a ENUM, the camera will walk through the ENUM */		\
