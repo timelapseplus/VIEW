@@ -88,7 +88,7 @@ clips.getTimelapseClip = function(clipNumber, callback) {
 }
 
 clips.getLastTimelapse = function(callback) {
-    fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {
+    db.getTimelapseIndex(function(err, tlIndex) {
         if (!tlIndex) {
             return callback(err);
         } else {
@@ -99,7 +99,7 @@ clips.getLastTimelapse = function(callback) {
 }
 
 clips.getRecentTimelapseClips = function(count, callback) {
-    var tlIndex = fs.readFile(TLROOT + '/index.txt', function(err, tlIndex) {
+    db.getTimelapseIndex(function(err, tlIndex) {
         if (!tlIndex) {
             if (callback) callback(false);
             return;
