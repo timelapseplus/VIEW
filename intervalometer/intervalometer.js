@@ -917,153 +917,155 @@ intervalometer.run = function(program) {
         camera.ptp.getSettings(function(){
             var validationResults = intervalometer.validate(program);
             if (validationResults.errors.length == 0) {
-                var tlIndex = fs.readFileSync(TLROOT + '/index.txt');
-                if (!tlIndex) {
-                    tlIndex = 1;
-                } else {
-                    tlIndex = parseInt(tlIndex) + 1;
-                }
-                fs.writeFileSync(TLROOT + '/index.txt', tlIndex.toString());
-                status.tlName = "tl-" + tlIndex;
-                console.log("==========> TIMELAPSE START", status.tlName);
-                intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
-                fs.mkdirSync(intervalometer.timelapseFolder);
-                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                status.timelapseFolder = intervalometer.timelapseFolder;
-                fileInit();
+                db.getTimelapseIndex(function(tlIndex){
 
-                busyPhoto = false;
-                intervalometer.currentProgram = program;
-                status.intervalMs = program.interval * 1000;
-                status.message = "starting";
-                status.frames = 0;
-                status.first = program.rampMode == 'fixed' ? false : true; // triggers setup exposure before first capture unless fixed mode
-                status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
-                status.framesRemaining = (program.intervalMode == "auto" && status.rampMode == "auto") ? Infinity : program.frames;
-                status.startTime = new Date() / 1000;
-                status.rampEv = null;
-                status.bufferSeconds = 0;
-                status.cameraSettings = camera.ptp.settings;
-                status.hdrSet = [];
-                status.hdrIndex = 0;
-                status.currentPlanIndex = null;
-                status.panDiffNew = 0;
-                status.tiltDiffNew = 0;
-                status.panDiff = 0;
-                status.tiltDiff = 0;
-                status.trackingPanEnabled = false;
-                status.trackingTiltEnabled = false;
-                status.dynamicChange = {};
-
-                if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
-                    planHdr(program.hdrCount, program.hdrStops);
-                }
-
-                if(status.rampMode != 'fixed') {
-                    checkCurrentPlan();
-                }
-
-                if(intervalometer.gpsData) {
-                    status.latitude = intervalometer.gpsData.lat;
-                    status.longitude = intervalometer.gpsData.lon;
-        
-                    var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
-                    status.sunPos = {
-                        azimuth: sunmoon.sunpos.az,
-                        altitude: sunmoon.sunpos.alt,
+                    if (!tlIndex) {
+                        tlIndex = 1;
+                    } else {
+                        tlIndex = parseInt(tlIndex) + 1;
                     }
-                    status.moonPos = {
-                        azimuth: sunmoon.moonpos.az,
-                        altitude: sunmoon.moonpos.alt,
+                    status.tlName = "tl-" + tlIndex;
+                    console.log("==========> TIMELAPSE START", status.tlName);
+                    intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
+                    fs.mkdirSync(intervalometer.timelapseFolder);
+                    camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                    status.timelapseFolder = intervalometer.timelapseFolder;
+                    fileInit();
+
+                    busyPhoto = false;
+                    intervalometer.currentProgram = program;
+                    status.intervalMs = program.interval * 1000;
+                    status.message = "starting";
+                    status.frames = 0;
+                    status.first = program.rampMode == 'fixed' ? false : true; // triggers setup exposure before first capture unless fixed mode
+                    status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
+                    status.framesRemaining = (program.intervalMode == "auto" && status.rampMode == "auto") ? Infinity : program.frames;
+                    status.startTime = new Date() / 1000;
+                    status.rampEv = null;
+                    status.bufferSeconds = 0;
+                    status.cameraSettings = camera.ptp.settings;
+                    status.hdrSet = [];
+                    status.hdrIndex = 0;
+                    status.currentPlanIndex = null;
+                    status.panDiffNew = 0;
+                    status.tiltDiffNew = 0;
+                    status.panDiff = 0;
+                    status.tiltDiff = 0;
+                    status.trackingPanEnabled = false;
+                    status.trackingTiltEnabled = false;
+                    status.dynamicChange = {};
+
+                    if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
+                        planHdr(program.hdrCount, program.hdrStops);
                     }
-                    status.trackingTilt = 0;
-                    status.trackingPan = 0;
-                }
-                exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
-                status.running = true;
-                intervalometer.emit("status", status);
-                console.log("program:", "starting", program);
 
-                //function start() {
-                //    if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {
-                //        console.log("Intervalometer: disabling autofocus");
-                //        camera.ptp.set("autofocus", "off", checkFocus2);
-                //    } else {
-                //        checkFocus2();
-                //    }
-                //}
+                    if(status.rampMode != 'fixed') {
+                        checkCurrentPlan();
+                    }
 
-                //function checkFocus2() {
-                //    if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
-                //        console.log("Intervalometer: setting focus mode to manual");
-                //        camera.ptp.set("afmode", "manual", start2);
-                //    } else {
-                //        start2();
-                //    }
-                //}
+                    if(intervalometer.gpsData) {
+                        status.latitude = intervalometer.gpsData.lat;
+                        status.longitude = intervalometer.gpsData.lon;
+            
+                        var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+                        status.sunPos = {
+                            azimuth: sunmoon.sunpos.az,
+                            altitude: sunmoon.sunpos.alt,
+                        }
+                        status.moonPos = {
+                            azimuth: sunmoon.moonpos.az,
+                            altitude: sunmoon.moonpos.alt,
+                        }
+                        status.trackingTilt = 0;
+                        status.trackingPan = 0;
+                    }
+                    exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
+                    status.running = true;
+                    intervalometer.emit("status", status);
+                    console.log("program:", "starting", program);
 
-                function start() {
-                    status.useLiveview = false;
-                    var focusPosTest = null;
-                    var focusChange = false;
-                    if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {
-                        for(var i = 0; i < intervalometer.currentProgram.keyframes.length; i++) {
-                            if(focusPosTest != null && focusPosTest != intervalometer.currentProgram.keyframes[i].focus) {
-                                focusChange = true;
-                                break;
+                    //function start() {
+                    //    if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {
+                    //        console.log("Intervalometer: disabling autofocus");
+                    //        camera.ptp.set("autofocus", "off", checkFocus2);
+                    //    } else {
+                    //        checkFocus2();
+                    //    }
+                    //}
+
+                    //function checkFocus2() {
+                    //    if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
+                    //        console.log("Intervalometer: setting focus mode to manual");
+                    //        camera.ptp.set("afmode", "manual", start2);
+                    //    } else {
+                    //        start2();
+                    //    }
+                    //}
+
+                    function start() {
+                        status.useLiveview = false;
+                        var focusPosTest = null;
+                        var focusChange = false;
+                        if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {
+                            for(var i = 0; i < intervalometer.currentProgram.keyframes.length; i++) {
+                                if(focusPosTest != null && focusPosTest != intervalometer.currentProgram.keyframes[i].focus) {
+                                    focusChange = true;
+                                    break;
+                                }
+                                focusPosTest = intervalometer.currentProgram.keyframes[i].focus;
                             }
-                            focusPosTest = intervalometer.currentProgram.keyframes[i].focus;
+                            if(focusChange) status.useLiveview = true;
                         }
-                        if(focusChange) status.useLiveview = true;
-                    }
 
-                    var cameras = 1, primary = 1;
-                    if(camera.ptp.synchronized) {
-                        cameras = camera.ptp.count;
-                        primary = camera.ptp.getPrimaryCameraIndex();
-                    }
-                    db.setTimelapse(status.tlName, program, cameras, primary, status, function(err, timelapseId) {
-                        status.id = timelapseId;
-                        processKeyframes(true, function() {
-                            setTimeout(function() {
-                                busyPhoto = false;
-                                if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
-                                    runPhoto();   
-                                }
-                                if(intervalometer.currentProgram.intervalMode == 'aux') {
-                                    status.message = "waiting for AUX2...";
-                                    intervalometer.emit("status", status);
-                                }
-                            }, 3000);
-                        });
-                    });
-                    //delayHandle = setTimeout(function() {
-                    //    runPhoto();
-                    //}, program.delay * 1000);
-                }
-
-                if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {
-                    camera.ptp.mountSd(function(mountErr) {
-                        if(mountErr) {
-                            console.log("Error mounting SD card");
-                            intervalometer.cancel('err');
-                            error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
-                        } else {
-                            status.mediaFolder = "/media/" + status.tlName;
-                            fs.mkdir(status.mediaFolder, function(folderErr) {
-                                if(folderErr) {
-                                    console.log("Error creating folder", status.mediaFolder);
-                                    intervalometer.cancel('err');
-                                    error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
-                                } else {
-                                    start();
-                                }
+                        var cameras = 1, primary = 1;
+                        if(camera.ptp.synchronized) {
+                            cameras = camera.ptp.count;
+                            primary = camera.ptp.getPrimaryCameraIndex();
+                        }
+                        db.setTimelapse(status.tlName, program, cameras, primary, status, function(err, timelapseId) {
+                            status.id = timelapseId;
+                            processKeyframes(true, function() {
+                                setTimeout(function() {
+                                    busyPhoto = false;
+                                    if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
+                                        runPhoto();   
+                                    }
+                                    if(intervalometer.currentProgram.intervalMode == 'aux') {
+                                        status.message = "waiting for AUX2...";
+                                        intervalometer.emit("status", status);
+                                    }
+                                }, 3000);
                             });
-                        }
-                    });
-                } else {
-                    start();
-                }
+                        });
+                        //delayHandle = setTimeout(function() {
+                        //    runPhoto();
+                        //}, program.delay * 1000);
+                    }
+
+                    if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {
+                        camera.ptp.mountSd(function(mountErr) {
+                            if(mountErr) {
+                                console.log("Error mounting SD card");
+                                intervalometer.cancel('err');
+                                error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
+                            } else {
+                                status.mediaFolder = "/media/" + status.tlName;
+                                fs.mkdir(status.mediaFolder, function(folderErr) {
+                                    if(folderErr) {
+                                        console.log("Error creating folder", status.mediaFolder);
+                                        intervalometer.cancel('err');
+                                        error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
+                                    } else {
+                                        start();
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        start();
+                    }
+
+                });
             } else {
                 var errorList = "";
                 var val = "";

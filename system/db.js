@@ -148,6 +148,24 @@ exports.setTimelapse = function(name, program, cameras, primaryCamera, status, c
 	});
 }
 
+exports.getTimelapseIndex = function(callback) {
+	if(closed) return callback && callback(true);
+	dbTl.get("SELECT name FROM clips ORDER BY id DESC LIMIT 1", function(err, data){
+		if(err) {
+			callback(err);
+		} else {
+			var index = 0;
+			if(data && data.name) {
+				var m = data.name.match(/[0-9]+/);
+				if(m && m[0]) {
+					index = parseInt(m[0]);
+				}
+			}
+			callback(err, index);
+		}
+	});
+}
+
 exports.getTimelapse = function(id, callback) {
 	if(closed) return callback && callback(true);
 	dbTl.get("SELECT * FROM clips WHERE id = '" + id + "' LIMIT 1", function(err, data){
