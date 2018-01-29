@@ -4045,6 +4045,9 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 		GP_LOG_E("no object found during event polling. try the 0xffffc001 object id");
 		newobject = 0xffffc001;
 	}
+
+	GP_LOG_D ("DEBUG== fetching object from 0x%08x", newobject);
+
 	/* FIXME: handle multiple images (as in BurstMode) */
 	C_PTP (ptp_getobjectinfo (params, newobject, &oi));
 
@@ -4053,7 +4056,21 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 		sprintf (path->name, "capt%04d.arw", capcnt++);
 	else
 		sprintf (path->name, "capt%04d.jpg", capcnt++);
-	return add_objectid_and_upload (camera, path, context, newobject, &oi);
+
+		if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram"))
+			propval.u16 = xmode = CANON_TRANSFER_MEMORY;
+		else
+			propval.u16 = xmode = CANON_TRANSFER_CARD;
+
+	if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
+		return add_objectid_and_upload (camera, path, context, newobject, &oi);
+	} else {
+		CR (add_object (camera, newobject, context));
+		get_folder_from_handle (camera, oi.StorageID, oi.ParentObject, path->folder);
+		/* delete last / or we get confused later. */
+		path->folder[ strlen(path->folder)-1 ] = '\0';
+		return gp_filesystem_append (camera->fs, path->folder, path->name, context);
+	}
 }
 
 static int
@@ -5289,7 +5306,7 @@ downloadnow:
 			/* Check if there are pending images for download. If yes, synthesize a FILE ADDED event */
 			C_PTP (ptp_sony_getalldevicepropdesc (params)); /* avoid caching */
 			C_PTP (ptp_generic_getdevicepropdesc (params, PTP_DPC_SONY_ObjectInMemory, &dpd));
-			GP_LOG_D ("DEBUG== 0xd215 after capture = %d", dpd.CurrentValue.u16);
+			GP_LOG_D ("DEBUG== (wait_for_event) 0xd215 after capture = %d", dpd.CurrentValue.u16);
 
 			/* if prop 0xd215 > 0x8000, the object in RAM is available at location 0xffffc001 */
 			if (dpd.CurrentValue.u16 > 0x8000) {
