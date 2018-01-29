@@ -3092,13 +3092,15 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 	CameraFileInfo		info;
 	unsigned int 		len;
 
+	GP_LOG_D ("creating file");
 	ret = gp_file_new(&file);
 	if (ret!=GP_OK) return ret;
 	gp_file_set_mtime (file, time(NULL));
 	set_mimetype (file, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
 	//C_PTP_REP (ptp_getthumb(params, newobject, &ximage, &len));
+	GP_LOG_D ("fetching thumbnail");
 	ret = ptp_getthumb(params, newobject, &ximage, &len);
-	GP_LOG_D ("ptp_getthumb ret val %d, len = %d", ret, len);
+	GP_LOG_E ("ptp_getthumb ret val %d, len = %d", ret, len);
 	C_PTP_REP (ret);
 
 	GP_LOG_D ("setting size");
