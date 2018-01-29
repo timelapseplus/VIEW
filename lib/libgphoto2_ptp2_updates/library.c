@@ -4064,7 +4064,7 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 		CR (add_object (camera, newobject, context));
 		get_folder_from_handle (camera, oi.StorageID, oi.ParentObject, path->folder);
 		/* delete last / or we get confused later. */
-		path->folder[ strlen(path->folder)-1 ] = '\0';
+		//path->folder[ strlen(path->folder)-1 ] = '\0';
 		return gp_filesystem_append (camera->fs, path->folder, path->name, context);
 	}
 }
