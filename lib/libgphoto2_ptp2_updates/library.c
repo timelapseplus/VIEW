@@ -3082,6 +3082,64 @@ add_objectid_and_upload (Camera *camera, CameraFilePath *path, GPContext *contex
 	return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
 }
 
+static int
+add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPContext *context,
+	uint32_t newobject, PTPObjectInfo *oi) {
+	int			ret;
+	PTPParams		*params = &camera->pl->params;
+	CameraFile		*file = NULL;
+	unsigned char		*ximage = NULL;
+	CameraFileInfo		info;
+
+	ret = gp_file_new(&file);
+	if (ret!=GP_OK) return ret;
+	gp_file_set_mtime (file, time(NULL));
+	set_mimetype (file, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
+	C_PTP_REP (ptp_getthumb(params, newobject, &ximage));
+
+	GP_LOG_D ("setting size");
+	ret = gp_file_set_data_and_size(file, (char*)ximage, oi->ObjectCompressedSize);
+	if (ret != GP_OK) {
+		gp_file_free (file);
+		return ret;
+	}
+	GP_LOG_D ("append to fs");
+	ret = gp_filesystem_append(camera->fs, path->folder, path->name, context);
+        if (ret != GP_OK) {
+		gp_file_free (file);
+		return ret;
+	}
+	GP_LOG_D ("adding filedata to fs");
+	ret = gp_filesystem_set_file_noop(camera->fs, path->folder, path->name, GP_FILE_TYPE_NORMAL, file, context);
+        if (ret != GP_OK) {
+		gp_file_free (file);
+		return ret;
+	}
+
+	/* We have now handed over the file, disclaim responsibility by unref. */
+	gp_file_unref (file);
+
+	/* we also get the fs info for free, so just set it */
+	info.file.fields = GP_FILE_INFO_TYPE |
+			GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+			GP_FILE_INFO_SIZE | GP_FILE_INFO_MTIME;
+	strcpy_mime (info.file.type, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
+	info.file.width		= oi->ImagePixWidth;
+	info.file.height	= oi->ImagePixHeight;
+	info.file.size		= oi->ObjectCompressedSize;
+	info.file.mtime		= time(NULL);
+
+	info.preview.fields = GP_FILE_INFO_TYPE |
+			GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+			GP_FILE_INFO_SIZE;
+	strcpy_mime (info.preview.type, params->deviceinfo.VendorExtensionID, oi->ThumbFormat);
+	info.preview.width	= oi->ThumbPixWidth;
+	info.preview.height	= oi->ThumbPixHeight;
+	info.preview.size	= oi->ThumbCompressedSize;
+	GP_LOG_D ("setting fileinfo in fs");
+	return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
+}
+
 /**
  * camera_nikon_capture:
  * params:      Camera*			- camera object
@@ -4061,11 +4119,12 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
 		return add_objectid_and_upload (camera, path, context, newobject, &oi);
 	} else {
-		CR (add_object (camera, newobject, context));
-		get_folder_from_handle (camera, oi.StorageID, oi.ParentObject, path->folder);
-		/* delete last / or we get confused later. */
-		//path->folder[ strlen(path->folder)-1 ] = '\0';
-		return gp_filesystem_append (camera->fs, path->folder, path->name, context);
+		return add_objectid_and_upload_thumbnail (camera, path, context, newobject, &oi);
+		//CR (add_object (camera, newobject, context));
+		//get_folder_from_handle (camera, oi.StorageID, oi.ParentObject, path->folder);
+		///* delete last / or we get confused later. */
+		////path->folder[ strlen(path->folder)-1 ] = '\0';
+		//return gp_filesystem_append (camera->fs, path->folder, path->name, context);
 	}
 }
 
