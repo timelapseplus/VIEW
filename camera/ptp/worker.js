@@ -116,6 +116,9 @@ process.on('message', function(msg) {
                 //waitEvent();
 
                 console.log('WORKER: Found', camera.model);
+                GPhoto.onLog(3, function(level, dom, message) {
+                    console.log("GPHOTO:", level, dom, message);
+                });
 
                 getConfig(false, false, function() {
                     sendEvent('connected', camera.model);
