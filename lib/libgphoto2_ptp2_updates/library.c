@@ -4057,11 +4057,6 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	else
 		sprintf (path->name, "capt%04d.jpg", capcnt++);
 
-		if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram"))
-			propval.u16 = xmode = CANON_TRANSFER_MEMORY;
-		else
-			propval.u16 = xmode = CANON_TRANSFER_CARD;
-
 	if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
 		return add_objectid_and_upload (camera, path, context, newobject, &oi);
 	} else {
