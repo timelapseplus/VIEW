@@ -3090,15 +3090,16 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 	CameraFile		*file = NULL;
 	unsigned char		*ximage = NULL;
 	CameraFileInfo		info;
+	unsigned int 		len;
 
 	ret = gp_file_new(&file);
 	if (ret!=GP_OK) return ret;
 	gp_file_set_mtime (file, time(NULL));
 	set_mimetype (file, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
-	C_PTP_REP (ptp_getthumb(params, newobject, &ximage));
+	C_PTP_REP (ptp_getthumb(params, newobject, &ximage, &len));
 
 	GP_LOG_D ("setting size");
-	ret = gp_file_set_data_and_size(file, (char*)ximage, oi->ObjectCompressedSize);
+	ret = gp_file_set_data_and_size(file, (char*)ximage, len);
 	if (ret != GP_OK) {
 		gp_file_free (file);
 		return ret;
