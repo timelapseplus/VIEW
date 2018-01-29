@@ -155,10 +155,10 @@ exports.getTimelapseIndex = function(callback) {
 			callback(err);
 		} else {
 			var index = 0;
-			console.log("db.getTimelapseIndex", data);
+			//console.log("db.getTimelapseIndex", data);
 			if(data && data.name) {
 				var m = data.name.match(/[0-9]+/);
-				console.log("db.getTimelapseIndex", m);
+				//console.log("db.getTimelapseIndex", m);
 				if(m && m[0]) {
 					index = parseInt(m[0]);
 				}

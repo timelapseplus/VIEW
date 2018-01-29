@@ -103,8 +103,6 @@ clips.getRecentTimelapseClips = function(count, callback) {
         if (!tlIndex) {
             if (callback) callback(false);
             return;
-        } else {
-            tlIndex = parseInt(tlIndex);
         }
 
         var clipsResults = [];

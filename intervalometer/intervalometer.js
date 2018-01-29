@@ -917,12 +917,12 @@ intervalometer.run = function(program) {
         camera.ptp.getSettings(function(){
             var validationResults = intervalometer.validate(program);
             if (validationResults.errors.length == 0) {
-                db.getTimelapseIndex(function(tlIndex){
+                db.getTimelapseIndex(function(err, tlIndex){
 
                     if (!tlIndex) {
                         tlIndex = 1;
                     } else {
-                        tlIndex = parseInt(tlIndex) + 1;
+                        tlIndex++;
                     }
                     status.tlName = "tl-" + tlIndex;
                     console.log("==========> TIMELAPSE START", status.tlName);
