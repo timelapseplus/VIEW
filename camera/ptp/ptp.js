@@ -980,7 +980,7 @@ camera.focus = function(step, repeat, callback) {
         } else if(worker.model.match(/fuji/i)) {
             console.log("focus: fuji");
             focusFuji(step, repeat, callback);
-        } else if(camera.settings.manualfocus) {
+        } else if(camera.settings.manualfocus === 0) {
             console.log("focus: sony");
             focusFuji(step, repeat, callback);
         } else {
