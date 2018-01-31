@@ -24,6 +24,7 @@ var TMP_IMAGE_THUMB = TMPFOLDER + "/tmp_image_thm.jpg";
 
 function getJpeg(path, crop, callback) {
     console.log("Processing photo...");
+    if(Buffer.isBuffer(path)) return getJpegFromRawBuffer(path, crop, callback);
     try {
         console.log("Fetching JPEG from RAW photo...", path);
         var dcraw = execFile(DCRAW, ['-e', path], function(err, stdout, stderr) {
