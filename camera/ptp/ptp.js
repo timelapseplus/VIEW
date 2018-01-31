@@ -777,11 +777,11 @@ function focusSony(step, repeat, callback) {
     var param;
     if (!step) return callback && callback();
     if (step < 0) {
-        param = -2;
-        if (step < -1) param = -3;
+        param = '-2';
+        if (step < -1) param = '-5';
     } else {
-        param = 2;
-        if (step > 1) param = 3;
+        param = '2';
+        if (step > 1) param = '5';
     }
     var errCount = 0;
     var errorLimit = 10;
