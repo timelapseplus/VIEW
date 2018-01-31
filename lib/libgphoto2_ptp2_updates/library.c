@@ -4121,17 +4121,17 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	else
 		sprintf (path->name, "capt%04d.jpg", capcnt++);
 
-	char 			buf[1024];
-	if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
+	//char 			buf[1024];
+	//if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
 		return add_objectid_and_upload (camera, path, context, newobject, &oi);
-	} else {
-		return add_objectid_and_upload_thumbnail (camera, path, context, newobject, &oi);
+	//} else {
+	//	return add_objectid_and_upload_thumbnail (camera, path, context, newobject, &oi); // thumbnail doesn't seem to work with Sony -- no data is returned
 		//CR (add_object (camera, newobject, context));
 		//get_folder_from_handle (camera, oi.StorageID, oi.ParentObject, path->folder);
 		///* delete last / or we get confused later. */
 		////path->folder[ strlen(path->folder)-1 ] = '\0';
 		//return gp_filesystem_append (camera->fs, path->folder, path->name, context);
-	}
+	//}
 }
 
 static int

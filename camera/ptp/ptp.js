@@ -195,7 +195,9 @@ var startWorker = function(port) {
                     worker.connected = true;
                     worker.model = msg.value;
                     console.log("Camera connected: ", worker.model);
+                    worker.supports.thumbnail = true;
                     if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
+                        worker.supports.thumbnail = false;
                         if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 II|a77 II|a68)/i)) {
                             worker.supports.liveview = true;
                         }
@@ -530,6 +532,7 @@ camera.capture = function(options, callback) {
             }
             options.cameraIndex = cameraIndex;
             if(worker.model.match(/fuji/i)) options.removeFromCamera = true;
+            if(!worker.supports.thumbnail) options.jpegAsThumbnail = true;
             functionList.push(
                 (function(obj, isP, i){
                     return function(cb) {
