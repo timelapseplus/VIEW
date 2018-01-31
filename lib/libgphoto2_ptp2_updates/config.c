@@ -6287,7 +6287,7 @@ _get_Sony_ManualFocus(CONFIG_GET_ARGS) {
 	gp_widget_new (GP_WIDGET_RANGE, _(menu->label), widget);
 	gp_widget_set_range(*widget, -7.0, 7.0, 1.0);
 	gp_widget_set_name (*widget,menu->name);
-	val = 0; /* always changed */
+	val = 0.0; /* always changed */
 	gp_widget_set_value  (*widget, &val);
 	return (GP_OK);
 }
@@ -6296,7 +6296,7 @@ static int
 _put_Sony_ManualFocus(CONFIG_PUT_ARGS)
 {
 	PTPParams *params = &(camera->pl->params);
-	int val;
+	float val;
 	PTPPropertyValue xpropval;
 
 	CR (gp_widget_get_value(widget, &val));
@@ -6304,7 +6304,7 @@ _put_Sony_ManualFocus(CONFIG_PUT_ARGS)
 	if(val) {
 		xpropval.u16 = 2;
 		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
-		xpropval.u16 = (uint16_t) val;
+		xpropval.u16 = (unsigned short) val;
 		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d1, &xpropval, PTP_DTC_UINT16));
 	} else {
 		xpropval.u16 = 1;
