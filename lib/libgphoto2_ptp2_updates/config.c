@@ -6284,7 +6284,7 @@ static int
 _get_Sony_ManualFocus(CONFIG_GET_ARGS) {
 	int val;
 
-	gp_widget_new (GP_WIDGET_TOGGLE, _(menu->label), widget);
+	gp_widget_new (GP_WIDGET_RANGE, _(menu->label), widget);
 	gp_widget_set_name (*widget,menu->name);
 	val = 0; /* always changed */
 	gp_widget_set_value  (*widget, &val);
@@ -6300,10 +6300,15 @@ _put_Sony_ManualFocus(CONFIG_PUT_ARGS)
 
 	CR (gp_widget_get_value(widget, &val));
 
-	xpropval.u16 = 1;
-	C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
-	xpropval.u16 = val;
-	C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d1, &xpropval, PTP_DTC_UINT16));
+	if(val) {
+		xpropval.u16 = 2;
+		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
+		xpropval.u16 = val;
+		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d1, &xpropval, PTP_DTC_UINT16));
+	} else {
+		xpropval.u16 = 1;
+		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
+	}
 
 	return GP_OK;
 }
@@ -7102,7 +7107,7 @@ static struct submenu camera_actions_menu[] = {
 	{ N_("Synchronize camera date and time with PC"),"syncdatetime", PTP_DPC_CANON_EOS_CameraTime, PTP_VENDOR_CANON, PTP_DTC_UINT32, _get_Canon_SyncTime, _put_Canon_SyncTime },
 
 	{ N_("Auto-Focus"),                     "autofocus",        PTP_DPC_SONY_AutoFocus, PTP_VENDOR_SONY,   PTP_DTC_UINT16,  _get_Sony_Autofocus,            _put_Sony_Autofocus },
-	{ N_("Manual-Focus"),                   "manualfocus",      0xd2d1, PTP_VENDOR_SONY,   PTP_DTC_UINT16,  _get_Sony_ManualFocus,            _put_Sony_ManualFocus },
+	{ N_("Manual-Focus"),                   "manualfocus",      0xd2d2, PTP_VENDOR_SONY,   PTP_DTC_UINT16,  _get_Sony_ManualFocus,            _put_Sony_ManualFocus },
 	{ N_("Capture"),                        "capture",          PTP_DPC_SONY_Capture,   PTP_VENDOR_SONY,   PTP_DTC_UINT16,  _get_Sony_Capture,              _put_Sony_Capture },
 	{ N_("Power Down"),                     "powerdown",        0,  0,                  PTP_OC_PowerDown,                   _get_PowerDown,                 _put_PowerDown },
 	{ N_("Focus Lock"),                     "focuslock",        0,  PTP_VENDOR_CANON,   PTP_OC_CANON_FocusLock,             _get_Canon_FocusLock,           _put_Canon_FocusLock },
