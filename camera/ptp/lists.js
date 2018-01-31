@@ -392,6 +392,11 @@ lists.fujifocus = [{
     values: ['32770']
 }];
 
+lists.sonyfocus = [{
+    name: "enabled",
+    values: ['0']
+}];
+
 lists.afmode = [{
     name: "manual",
     values: ['4']
