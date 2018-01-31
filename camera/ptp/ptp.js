@@ -777,10 +777,10 @@ function focusSony(step, repeat, callback) {
     var param;
     if (!step) return callback && callback();
     if (step < 0) {
-        param = '-2';
+        param = '-1';
         if (step < -1) param = '-5';
     } else {
-        param = '2';
+        param = '1';
         if (step > 1) param = '5';
     }
     var errCount = 0;
@@ -805,7 +805,7 @@ function focusSony(step, repeat, callback) {
                         repeat--;
                     }
                     if (repeat > 0) {
-                        var pause = repeat % 5 == 0 ? 500 : 15;
+                        var pause = repeat % 5 == 0 ? 200 : 100;
                         console.log(pause);
                         setTimeout(doFocus, pause);
                     } else {
