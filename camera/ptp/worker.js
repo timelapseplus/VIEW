@@ -245,7 +245,7 @@ function processRawPath(path, options, info, callback) {
             }
         } else {
             sdWriting = false;
-            fs.unlink(path);
+            if(!Buffer.isBuffer(path)) fs.unlink(path);
         }
 
         if(jpg) {

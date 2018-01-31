@@ -23,10 +23,10 @@ var TMP_IMAGE_OUTPUT = TMPFOLDER + "/tmp_image_in.thumb.jpg";
 var TMP_IMAGE_THUMB = TMPFOLDER + "/tmp_image_thm.jpg";
 
 function getJpeg(path, crop, callback) {
-    console.log("Processing photo...");
     if(Buffer.isBuffer(path)) return exports.getJpegFromRawBuffer(path, crop, callback);
+    console.log("IMAGE: Processing photo...");
     try {
-        console.log("Fetching JPEG from RAW photo...", path);
+        console.log("IMAGE: Fetching JPEG from RAW photo...", path);
         var dcraw = execFile(DCRAW, ['-e', path], function(err, stdout, stderr) {
             if (err) console.log("DCRAW Error:", err);
             if (stderr) console.log("StdErr:", stderr);
@@ -34,17 +34,18 @@ function getJpeg(path, crop, callback) {
                 x: 840,
                 q: 75
             };
-            console.log("Downsizing JPEG...");
+            console.log("IMAGE: Downsizing JPEG at ", path);
             if (path == TMP_IMAGE_INPUT || path.indexOf('.') === -1) path += ".X"; // this gets replaced
             var thmFile = path.replace(/\.([a-z0-9])+$/i, ".thumb.jpg");
             exports.downsizeJpeg(thmFile, size, crop, function(err2, thm) {
                 fs.unlink(thmFile);
                 if (!err && err2) err = err2;
+                console.log("IMAGE: Done.");
                 if (callback) callback(err, thm);
             });
         });
     } catch (e) {
-        console.log("(getJpeg) ERROR: ", e);
+        console.log("IMAGE: (getJpeg) ERROR: ", e);
         if (callback) callback(e);
     }
 }
@@ -113,16 +114,16 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name, l
     xmpData = xmpData.replace("{{DESC}}", description);
     xmpData = xmpData.replace("{{GPS}}", gpsData);
 
-    console.log("writing XMP file");
+    console.log("IMAGE: writing XMP file");
     fs.writeFileSync(fileName.replace(/\.[0-9a-z]+$/i, '.xmp'), xmpData);
 }
 
 
 exports.convertRawToTiff = function(rawImagePath, tiffOutputPath, exposureCompensation, callback) {
-    console.log("Processing RAW photo...");
+    console.log("IMAGE: Processing RAW photo...");
     var ufraw = execFile(UFRAW, ['--out-depth=16', '--out-type=tiff', '--zip', '--exposure=' + exposureCompensation, '--output=' + tiffOutputPath, rawImagePath], function(err, stdout, stderr) {
-        if (err) console.log("(ufraw) error:", err);
-        if (stderr) console.log("(ufraw) stderr:", stderr);
+        if (err) console.log("IMAGE: (ufraw) error:", err);
+        if (stderr) console.log("IMAGE: (ufraw) stderr:", stderr);
         if (callback) callback();
     });
 }
@@ -182,7 +183,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
                 //console.log("cropping to ", crop);
                 thm = img.crop(crop.x, crop.y, size.x, size.y, size.q).process();
             } else {
-                console.log("failed to read image size; not cropping");
+                console.log("IMAGE: failed to read image size; not cropping");
                 thm = img.downsize(size.x, size.y, size.q).process();
             }
         } else {
@@ -190,7 +191,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         }
         //console.log("downsizeJpeg: Done.");
     } catch (e) {
-        console.log("Error resizing photo", e);
+        console.log("IMAGE: Error resizing photo", e);
         err = e;
     }
     delete img;
@@ -202,7 +203,7 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
     
 
 
-    console.log("(sharp) Resizing photo...");
+    console.log("IMAGE: (sharp) Resizing photo...");
     var startTime = new Date() / 1000;
     if (!size) size = {};
     if (!size.x) x = (size.y > 0) ? size.y * 1.5 : 300;
@@ -226,7 +227,7 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
         var thm;
         var cb = function(err) {
             var processingTime = (new Date() / 1000) - startTime;
-            console.log("(sharp) Done resizing photo in ", processingTime, "seconds");
+            console.log("IMAGE: (sharp) Done resizing photo in ", processingTime, "seconds");
             callback && callback(err);
         }
         if (crop && crop.xPercent && crop.yPercent) {
@@ -240,7 +241,7 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                     if (crop.y < 0) crop.y = 0;
                     if (crop.x > metadata.width - size.x) crop.x = metadata.width - size.x;
                     if (crop.y > metadata.height - size.y) crop.y = metadata.height - size.y;
-                    console.log("cropping to ", crop);
+                    console.log("IMAGE: cropping to ", crop);
                     img.extract({
                         left: Math.round(crop.x),
                         top: Math.round(crop.y),
@@ -248,7 +249,7 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                         height: Math.round(size.y)
                     }).sharpen().jpeg().quality(size.q).toBuffer(cb);
                 } else {
-                    console.log("failed to read image size; not cropping");
+                    console.log("IMAGE: failed to read image size; not cropping");
                     img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(cb);
                 }
             });
@@ -256,7 +257,7 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
             if (exposureCompensation) {
                 img.resize(Math.round(size.x), Math.round(size.y)).raw().toBuffer(function(err, buf, info) {
                     if (!err && buf) {
-                        console.log("adding exposure compensation of " + exposureCompensation);
+                        console.log("IMAGE: adding exposure compensation of " + exposureCompensation);
                         for (var i = 0; i < buf.length; i++) {
                             // read 8-bit pixel val from buf
                             var val = buf.readUInt8(i, true);
@@ -273,12 +274,12 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                             }
                             buf.writeUInt8(val, i, true);
                         }
-                        console.log("exposure compensation done");
+                        console.log("IMAGE: exposure compensation done");
                         var out = sharp(buf, {
                             raw: info
                         }).gamma(2.2).sharpen().jpeg().quality(size.q).toBuffer(cb);
                     } else {
-                        console.log("Error creating buffer", err);
+                        console.log("IMAGE: Error creating buffer", err);
                         if (callback) callback(err, null);
                     }
                 });
@@ -286,24 +287,24 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
                 img.resize(Math.round(size.x), Math.round(size.y)).sharpen().jpeg().quality(size.q).toBuffer(cb);
             }
         }
-        console.log("Done.");
+        console.log("IMAGE: Done.");
     } catch (e) {
-        console.log("Error resizing photo", e);
+        console.log("IMAGE: Error resizing photo", e);
         err = e;
         if (callback) callback(err, null);
     }
 }
 
 exports.getJpegBuffer = function(jpegPath, callback) {
-    console.log("Loading JPEG as buffer...");
+    console.log("IMAGE: Loading JPEG as buffer...");
     var err = null;
     try {
         fs.readFile(jpegPath, function(err, jpg) {
             if (callback) callback(err, jpg);
         });
-        console.log("Done.");
+        console.log("IMAGE: Done.");
     } catch (e) {
-        console.log("Error loading photo (" + jpegPath + ")", e);
+        console.log("IMAGE: Error loading photo (" + jpegPath + ")", e);
         err = e;
         if (callback) callback(err, null);
     }
@@ -343,7 +344,7 @@ exports.exposureValue = function(jpegBuffer, callback) {
             if(!err && res && res.luminance) {
                 lum = res.luminance;
                 if(res.clipped && highlightProtection) {
-                    console.log("Compensating for clipped highlights: ", res.clipped * highlightProtection);
+                    console.log("IMAGE: Compensating for clipped highlights: ", res.clipped * highlightProtection);
                     lum += res.clipped * highlightProtection;
                 }
             }
@@ -356,7 +357,7 @@ exports.faceDetection = function(jpegBuffer, callback) {
     cv.readImage(jpegBuffer, function(err, im) {
         im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
             if (!err && faces && faces.length > 0) {
-                console.log("detected " + faces.length + " faces");
+                console.log("IMAGE: detected " + faces.length + " faces");
                 for (var i = 0; i < faces.length; i++) {
                     var f = faces[i]
                     im.ellipse(f.x + f.width / 2, f.y + f.height / 2, f.width / 2, f.height / 2);
