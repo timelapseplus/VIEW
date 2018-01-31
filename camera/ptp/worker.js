@@ -385,7 +385,8 @@ function capture(options, callback) {
         cameraBusy = false;
         if (!err && photo) {
             errCount = 0;
-            if (options.thumbnail && supports.thumbnail || options.jpegAsThumbnail) {
+            var cameraFileIsJpeg = info && info.slice(-4) == '.jpg';
+            if (options.thumbnail && supports.thumbnail || cameraFileIsJpeg) {
                 sdWriting = false;
                 //if (!options.index) options.index = 0;
                 if(options.calculateEv) {

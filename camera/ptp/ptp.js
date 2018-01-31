@@ -532,7 +532,6 @@ camera.capture = function(options, callback) {
             }
             options.cameraIndex = cameraIndex;
             if(worker.model.match(/fuji/i)) options.removeFromCamera = true;
-            if(!worker.supports.thumbnail) options.jpegAsThumbnail = true;
             functionList.push(
                 (function(obj, isP, i){
                     return function(cb) {
