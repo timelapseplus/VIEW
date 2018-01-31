@@ -49,6 +49,12 @@ lists.paramMap = [{
         item: "d171"
     }]
 }, {
+    name: "sonyfocus",
+    maps: [{
+        section: "actions",
+        item: "manualfocus"
+    }]
+}, {
     name: "focusdrive",
     type: "toggle",
     maps: [{

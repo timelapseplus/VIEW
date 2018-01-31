@@ -771,6 +771,54 @@ function focusCanon(step, repeat, callback) {
     }
     doFocus();
 }
+function focusSony(step, repeat, callback) {
+    var worker = getPrimaryWorker();
+    if (!repeat) repeat = 1;
+    var param;
+    if (!step) return callback && callback();
+    if (step < 0) {
+        param = -2;
+        if (step < -1) param = -3;
+    } else {
+        param = 2;
+        if (step > 1) param = 3;
+    }
+    var errCount = 0;
+    var errorLimit = 10;
+
+    var doFocus = function() {
+        camera.lvTimerReset();
+        if(worker.connected) {
+                worker.send({
+                type: 'camera',
+                setDirect: 'manualfocus',
+                value: param,
+                id: getCallbackId(worker.port, 'focusSony', function(err) {
+                    if(err) {
+                        errCount++;
+                        if(errCount > errorLimit) {
+                            console.log("focus move error", err);
+                            return callback && callback(err);
+                        }
+                    } else {
+                        errCount = 0;
+                        repeat--;
+                    }
+                    if (repeat > 0) {
+                        var pause = repeat % 5 == 0 ? 500 : 15;
+                        console.log(pause);
+                        setTimeout(doFocus, pause);
+                    } else {
+                        if (callback) callback();
+                    }
+                })
+            });
+        } else {
+            if (callback) callback("not connected");
+        }
+    }
+    doFocus();
+}
 function focusNikon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
@@ -931,6 +979,9 @@ camera.focus = function(step, repeat, callback) {
             focusNikon(step, repeat, callback);
         } else if(worker.model.match(/fuji/i)) {
             console.log("focus: fuji");
+            focusFuji(step, repeat, callback);
+        } else if(camera.settings.manualfocus) {
+            console.log("focus: sony");
             focusFuji(step, repeat, callback);
         } else {
             console.log("focus: not supported");
