@@ -4141,6 +4141,16 @@ app.on('message', function(msg) {
                 });
                 break;
 
+            case 'timelapse-clip-info':
+                db.getTimelapseByName(msg.name, function(err, dbClip) {
+                    if (dbClip) {
+                        msg.reply('timelapse-clip-info', {
+                            info: dbClip
+                        });
+                    }
+                });
+                break;
+
             case 'current-images':
                 core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
                     if(framesPaths) {
