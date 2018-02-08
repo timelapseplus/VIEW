@@ -4215,7 +4215,7 @@ camera_fuji_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	/* If we got no event seconds duplicate the nikon broken capture, as we do not know how to get events yet */
 #endif
 
-	tries = 5;
+	tries = 35;
 	GP_LOG_D ("XXXX missing fuji objectadded events workaround");
 	while (tries--) {
 		unsigned int i;
@@ -4260,7 +4260,7 @@ camera_fuji_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	}
 	free (beforehandles.Handler);
 	if (!newobject)
-		GP_LOG_D ("fuji object added no new file found after 5 seconds?!?");
+		GP_LOG_D ("fuji object added no new file found after 35 seconds?!?");
 
 #if 0
 downloadfile:

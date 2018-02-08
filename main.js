@@ -4107,7 +4107,11 @@ app.on('message', function(msg) {
                     }
                 });
                 break;
-    
+
+            case 'save-program':
+                core.loadProgram(msg.program);
+                break;
+
             case 'run':
                 core.loadProgram(msg.program);
                 core.startIntervalometer(msg.program);
@@ -4116,6 +4120,7 @@ app.on('message', function(msg) {
             case 'stop':
                 core.stopIntervalometer();
                 break;
+
             case 'moveTracking':
                 core.moveTracking(msg.axis, msg.degrees);
                 break;
@@ -4166,15 +4171,16 @@ app.on('message', function(msg) {
                             });
                         } else {
                             framesPaths = framesPaths.slice(startFrame);
-                            var fragments = Math.ceil(framesPaths.length / 100);
+                            var fragmentSize = 50;
+                            var fragments = Math.ceil(framesPaths.length / fragmentSize);
                             var fragment = 0;
                             var sendFragment = function(start){
                                 console.log("sending time-lapse fragment " + fragment + " of " + fragments);
-                                clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * 100, fragment * 100 + 100), true, function(err, images) {
+                                clips.getTimelapseImagesFromPaths(framesPaths.slice(fragment * fragmentSize, fragment * fragmentSize + fragmentSize), true, function(err, images) {
                                     if(!err && images) {
                                         msg.reply('timelapse-images', {
                                             index: 'current',
-                                            start: fragment * 100 + start,
+                                            start: fragment * fragmentSize + start,
                                             fragment: fragment,
                                             fragments: fragments,
                                             images: images.map(function(image) {
@@ -4188,7 +4194,7 @@ app.on('message', function(msg) {
                                     } else {
                                         msg.reply('timelapse-images', {
                                             index: 'current',
-                                            start: fragment * 100 + start,
+                                            start: fragment * fragmentSize + start,
                                             fragment: fragment,
                                             fragments: fragments,
                                             images: [],
@@ -4209,12 +4215,13 @@ app.on('message', function(msg) {
             case 'timelapse-images':
                 clips.getClipFramesCount(msg.index, function(err, frames) {
                     if(!err && frames) {
-                        var fragments = Math.ceil(frames / 100);
+                        var fragmentSize = 50;
+                        var fragments = Math.ceil(frames / fragmentSize);
                         var fragment = 0;
 
                         var sendFragment = function(){
                             console.log("sending time-lapse fragment " + fragment + " of " + fragments);
-                            clips.getTimelapseImagesHq(msg.index, fragment * 100, 100, function(err, images) {
+                            clips.getTimelapseImagesHq(msg.index, fragment * fragmentSize, fragmentSize, function(err, images) {
                                 if(!err && images) {
                                     msg.reply('timelapse-images', {
                                         index: msg.index,
