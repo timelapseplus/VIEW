@@ -42,7 +42,9 @@ express.get('/socket/address', function(req, res) {
 
 var jpegFrame = null;
 
-express.get('/camera/stream.mjpeg', function(req, res) {
+//express.get('/camera/stream.mjpeg', function(req, res) {
+var streamServer = http.createServer(function(req, res) {
+    console.log("APP: stream request started");
     res.writeHead(200, {
         'Cache-Control': 'no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
         Pragma: 'no-cache',
@@ -59,9 +61,11 @@ express.get('/camera/stream.mjpeg', function(req, res) {
     if(Buffer.isBuffer(jpegFrame)) writeFrame();
     internalEvent.addListener('frame', writeFrame);
     res.addListener('close', function() {
+        console.log("APP: stream request ended");
         internalEvent.removeListener('frame', writeFrame);
     });
 });
+streamServer.listen(9000);
 
 app.addJpegFrame = function(frameBuffer) {
     jpegFrame = frameBuffer;
