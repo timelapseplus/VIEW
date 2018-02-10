@@ -4433,6 +4433,7 @@ core.on('camera.photo', function() {
         if (previewImage.imageType == "photo" || !liveviewOn) {
             app.send('photo');
             app.send('thumbnail', previewImage);
+            app.addJpegFrame(core.photo.jpeg);
         } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             liveviewOn = true;
             console.log("LV: requesting next frame");

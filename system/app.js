@@ -17,6 +17,7 @@ var wss = new WebSocketServer({
 var EventEmitter = require("events").EventEmitter;
 
 var app = new EventEmitter();
+var internalEvent = new EventEmitter();
 app.remoteEnabled = false;
 
 fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "1"); // favor low latency over high throughput
@@ -38,6 +39,34 @@ express.get('/socket/address', function(req, res) {
         server: 'local'
     });
 });
+
+var jpegFrame = null;
+
+express.get('/camera/stream.mjpeg', function(req, res) {
+    res.writeHead(200, {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
+        Pragma: 'no-cache',
+        Connection: 'close',
+        'Content-Type': 'multipart/x-mixed-replace; boundary=--myboundary'
+    });
+
+    var writeFrame = () => {
+        var buffer = jpegFrame;
+        res.write(`--myboundary\nContent-Type: image/jpg\nContent-length: ${buffer.length}\n\n`);
+        res.write(buffer);
+    };
+
+    if(Buffer.isBuffer(jpegFrame)) writeFrame();
+    internalEvent.addListener('frame', writeFrame);
+    res.addListener('close', function() {
+        internalEvent.removeListener('frame', writeFrame);
+    });
+});
+
+app.addJpegFrame = function(frameBuffer) {
+    jpegFrame = frameBuffer;
+    internalEvent.emit('frame');
+}
 
 //express.get('//')
 
