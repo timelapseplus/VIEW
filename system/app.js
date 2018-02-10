@@ -53,6 +53,7 @@ var streamServer = http.createServer(function(req, res) {
     });
 
     var writeFrame = function() {
+        console.log("APP: writing frame to stream");
         var buffer = jpegFrame;
         res.write("--myboundary\nContent-Type: image/jpg\nContent-length: " + jpegFrame.length + "}\n\n");
         res.write(buffer);
