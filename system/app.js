@@ -52,7 +52,7 @@ express.get('/camera/stream.mjpeg', function(req, res) {
 
     var writeFrame = function() {
         var buffer = jpegFrame;
-        res.write(`--myboundary\nContent-Type: image/jpg\nContent-length: ${buffer.length}\n\n`);
+        res.write("--myboundary\nContent-Type: image/jpg\nContent-length: " + jpegFrame.length + "}\n\n");
         res.write(buffer);
     };
 
