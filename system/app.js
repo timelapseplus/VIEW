@@ -42,6 +42,8 @@ express.get('/socket/address', function(req, res) {
 
 var jpegFrame = null;
 
+var connectedStreams = [];
+
 //express.get('/camera/stream.mjpeg', function(req, res) {
 var streamServer = http.createServer(function(req, res) {
     console.log("APP: stream request started");
@@ -60,17 +62,23 @@ var streamServer = http.createServer(function(req, res) {
     };
 
     if(Buffer.isBuffer(jpegFrame)) writeFrame();
-    internalEvent.addListener('frame', writeFrame);
+
+    res.index = connectedStreams.length;
+    connectedStreams.push(res);
+
     res.addListener('close', function() {
         console.log("APP: stream request ended");
-        internalEvent.removeListener('frame', writeFrame);
+        connectedStreams.splice(res.index, 1);
     });
 });
 streamServer.listen(9000);
 
 app.addJpegFrame = function(frameBuffer) {
     jpegFrame = frameBuffer;
-    internalEvent.emit('frame');
+    for(var i = 0; i < connectedStreams.length; i++) {
+        connectedStreams[i].write("--myboundary\nContent-Type: image/jpg\nContent-length: " + frameBuffer.length + "}\n\n");
+        connectedStreams[i].write(frameBuffer);
+    }
 }
 
 //express.get('//')
