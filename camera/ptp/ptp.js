@@ -688,7 +688,7 @@ camera.previewFull = function(callback) {
         do: 'preview',
         options: {
             fullSize: true
-        }
+        },
         id: getCallbackId(worker.port, 'preview', callback)
     }); else callback && callback("not connected");
 }
