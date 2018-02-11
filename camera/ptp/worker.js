@@ -657,11 +657,21 @@ function preview(options, callback) {
                 set('lvexposure', 'on');
             }
             if(options && options.fullSize) {
-                sendEvent('photo', {
-                    jpeg: jpg,
-                    zoomed: false,
-                    type: 'preview-full'
-                });
+                if(typeof tmp == 'string') {
+                    image.getJpegBuffer(tmp, function(err, jpg) {
+                        sendEvent('photo', {
+                            jpeg: jpg,
+                            zoomed: false,
+                            type: 'preview-full'
+                        });
+                    });
+                } else {
+                    sendEvent('photo', {
+                        jpeg: tmp,
+                        zoomed: false,
+                        type: 'preview-full'
+                    });
+                }
             } else {
                 image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
                     if(typeof tmp == 'string') fs.unlink(tmp);
