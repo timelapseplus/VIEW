@@ -55,7 +55,6 @@ var streamServer = http.createServer(function(req, res) {
     });
 
     var writeFrame = function() {
-        console.log("APP: writing frame to stream");
         var buffer = jpegFrame;
         res.write("--myboundary\nContent-Type: image/jpg\nContent-length: " + jpegFrame.length + "}\n\n");
         res.write(buffer);
@@ -75,6 +74,7 @@ streamServer.listen(9000);
 
 app.addJpegFrame = function(frameBuffer) {
     jpegFrame = frameBuffer;
+    console.log("APP: writing frame to " + connectedStreams.length + " streams...");
     for(var i = 0; i < connectedStreams.length; i++) {
         connectedStreams[i].write("--myboundary\nContent-Type: image/jpg\nContent-length: " + frameBuffer.length + "}\n\n");
         connectedStreams[i].write(frameBuffer);

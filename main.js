@@ -4415,8 +4415,8 @@ core.on('camera.photo', function() {
             }
         } else {
             if(core.photo.type == 'preview-full') {
-                app.addJpegFrame(core.photo.jpeg);
                 if(liveviewOnStream) core.previewFull();
+                app.addJpegFrame(core.photo.jpeg);
             } else {
                 app.addJpegFrame(core.photo.jpeg);
                 var size = {
