@@ -183,6 +183,9 @@ core.setEv = function(ev, options, callback) {
 core.preview = function(callback) {
     call('camera.ptp.preview', {}, callback);
 };
+core.previewFull = function(callback) {
+    call('camera.ptp.previewFull', {}, callback);
+};
 core.getSettings = function(callback) {
     call('camera.ptp.getSettings', {}, callback);
 };

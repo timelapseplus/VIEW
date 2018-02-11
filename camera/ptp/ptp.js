@@ -676,6 +676,22 @@ camera.preview = function(callback) {
         id: getCallbackId(worker.port, 'preview', callback)
     }); else callback && callback("not connected");
 }
+camera.previewFull = function(callback) {
+    if(restartPreview) return callback && callback("blocked");
+    camera.lvOn = true;
+    var worker = getPrimaryWorker();
+    if(!camera.supports.liveview) {
+        return callback && callback("not supported");
+    }
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'preview',
+        options: {
+            fullSize: true
+        }
+        id: getCallbackId(worker.port, 'preview', callback)
+    }); else callback && callback("not connected");
+}
 camera.lvTimerReset = function(callback) {
     var worker = getPrimaryWorker();
     if (worker && camera.connected) worker.send({

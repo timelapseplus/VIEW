@@ -65,6 +65,7 @@ console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 
 var previewImage = null;
 var liveviewOn = false;
+var liveviewOnStream = false;
 var gpsExists = null;
 
 var cache = {};
@@ -4285,7 +4286,16 @@ app.on('message', function(msg) {
                 }
                 break;
 
+            case 'previewStream':
+                if (!liveviewOnStream && !core.intervalometerStatus.running) {
+                    liveviewOnStream = true;
+                    core.previewFull();
+                }
+                break;
+
             case 'previewStop':
+                liveviewOn = false;
+                liveviewOnStream = false;
                 core.lvOff();
                 break;
 
@@ -4386,6 +4396,8 @@ core.on('camera.photo', function() {
     if (core.photo && core.photo.jpeg) {
 
         if (core.intervalometerStatus.running) {
+            liveviewOn = false;
+            liveviewOnStream = false;
             var size = {
                 x: 105,
                 y: 65,
@@ -4402,23 +4414,29 @@ core.on('camera.photo', function() {
                 });
             }
         } else {
-            var size = {
-                x: 160,
-                q: 80
-            }
-            if (VIEW_HARDWARE && (core.photo.type != 'preview' || liveviewOn)) {
-                console.log("displaying image...", core.photo.type);
-                image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
-                    if (!err && jpgBuf) {
-                        image.saveTemp("oledthm", jpgBuf, function(err, path) {
-                            var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
-                            var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
-                            var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
+            if(core.photo.type == 'preview-full') {
+                app.addJpegFrame(core.photo.jpeg);
+                if(liveviewOnStream) core.previewFull();
+            } else {
+                app.addJpegFrame(core.photo.jpeg);
+                var size = {
+                    x: 160,
+                    q: 80
+                }
+                if (VIEW_HARDWARE && (core.photo.type != 'preview' || liveviewOn)) {
+                    console.log("displaying image...", core.photo.type);
+                    image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
+                        if (!err && jpgBuf) {
+                            image.saveTemp("oledthm", jpgBuf, function(err, path) {
+                                var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
+                                var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
+                                var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
 
-                            oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
-                        });
-                    }
-                });
+                                oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
+                            });
+                        }
+                    });
+                }
             }
         }
 
@@ -4429,13 +4447,11 @@ core.on('camera.photo', function() {
             histogram: core.photo.histogram
         };
 
-        if(core.intervalometerStatus.running) liveviewOn = false;
-        if (previewImage.imageType == "photo" || !liveviewOn) {
+        if (previewImage.imageType == "photo") { // || !liveviewOn) {
             app.send('photo');
             app.send('thumbnail', previewImage);
         } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             liveviewOn = true;
-            app.addJpegFrame(core.photo.jpeg);
             console.log("LV: requesting next frame");
             core.preview();
         }

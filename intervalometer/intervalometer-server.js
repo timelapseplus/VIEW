@@ -254,6 +254,9 @@ function runCommand(type, args, callback, client) {
     case 'camera.ptp.preview':
       camera.ptp.preview(cameraCallback);
       break;
+    case 'camera.ptp.previewFull':
+      camera.ptp.previewFull(cameraCallback);
+      break;
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
         sendEvent('camera.settings', camera.ptp.settings);

@@ -138,7 +138,7 @@ process.on('message', function(msg) {
         if (msg.do && msg.do != 'preview') console.log("WORKER: ", msg.do, msg.options);
         if (msg.do == 'capture') capture(msg.options, buildCB(msg.id));
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
-        if (msg.do == 'preview') preview(buildCB(msg.id));
+        if (msg.do == 'preview') preview(msg.options, buildCB(msg.id));
         if (msg.do == 'getFilesList') getFilesList(buildCB(msg.id));
         if (msg.do == 'downloadFile') downloadFile(msg.filePath, msg.thumbnail, buildCB(msg.id));
         if (msg.do == 'lvTimerReset') liveViewOffTimerReset();
@@ -626,11 +626,11 @@ function liveViewOffTimerReset(ms) {
 
 var previewTimeoutHandle = null;
 
-function preview(callback) {
+function preview(options, callback) {
     if (cameraBusy) {
         clearTimeout(previewTimeoutHandle);
         previewTimeoutHandle = setTimeout(function() {
-            preview(callback);
+            preview(options, callback);
         }, 1000);
         return;
     }
@@ -656,26 +656,34 @@ function preview(callback) {
             if(settings && settings.lvexposure === 'off') {
                 set('lvexposure', 'on');
             }
-            image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
-                if(typeof tmp == 'string') fs.unlink(tmp);
-                if (centerFaces && !previewCrop) {
-                    image.faceDetection(jpg, function(jpgface) {
-                        console.log("WORKER: photo length: ", jpgface.length);
-                        sendEvent('photo', {
-                            jpeg: jpgface,
-                            zoomed: false,
-                            type: 'preview',
-                            centerFaces: centerFaces
+            if(options && options.fullSize) {
+                sendEvent('photo', {
+                    jpeg: jpg,
+                    zoomed: false,
+                    type: 'preview-full'
+                });
+            } else {
+                image.downsizeJpeg(tmp, size, previewCrop, function(err, jpg) {
+                    if(typeof tmp == 'string') fs.unlink(tmp);
+                    if (centerFaces && !previewCrop) {
+                        image.faceDetection(jpg, function(jpgface) {
+                            console.log("WORKER: photo length: ", jpgface.length);
+                            sendEvent('photo', {
+                                jpeg: jpgface,
+                                zoomed: false,
+                                type: 'preview',
+                                centerFaces: centerFaces
+                            });
                         });
-                    });
-                } else {
-                    sendEvent('photo', {
-                        jpeg: jpg,
-                        zoomed: !!previewCrop,
-                        type: 'preview'
-                    });
-                }
-            });
+                    } else {
+                        sendEvent('photo', {
+                            jpeg: jpg,
+                            zoomed: !!previewCrop,
+                            type: 'preview'
+                        });
+                    }
+                });
+            }
         } else {
             sendEvent('previewFailed', err);
         }
