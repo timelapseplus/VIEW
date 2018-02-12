@@ -401,6 +401,8 @@ function checkMotorAttachment(callback) {
 }
 
 function setMotorAttachment(motor, status, callback) {
+    motor--;
+    if(motor < 0) motor = 0;
     if(status == 'enabled') {
         motorAttachment[motor] = true;
     } else if(status == 'disabled') {
