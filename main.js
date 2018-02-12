@@ -2795,7 +2795,7 @@ if (VIEW_HARDWARE) {
             name: "Motor3 Attachment",
             help: help.nmxMotorAttachment,
             action: buildNmxMotorOptions(3)
-        }
+        }]
     }
 
     var motionSetupMenu = {
