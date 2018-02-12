@@ -2731,7 +2731,7 @@ if (VIEW_HARDWARE) {
     }
     db.get('nmxMotorAttachment', function(err, res) {
         if(!err && res) {
-            for(key in nmxMotorAttachment) {
+            for(var key in nmxMotorAttachment) {
                 if(res.hasOwnProperty(key)) {
                     nmxMotorAttachment[key] = res[key];
                 }

@@ -207,7 +207,9 @@ function move(motorId, steps, callback) {
 
     var tries = 0;
 
-    _queueCommand(cmd1, function(err) {});
+    _queueCommand(cmd1, function(err) {
+        moveToAbsolutePos();
+    });
 
     var moveToAbsolutePos = function() {
         _queueCommand(cmd2, function(err) {
@@ -243,7 +245,6 @@ function move(motorId, steps, callback) {
             }
         });
     }
-    moveToAbsolutePos();
 }
 
 function setAccel(motorId, rate, callback) {
