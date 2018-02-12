@@ -22,12 +22,6 @@ var CMD_MOTOR_SET_POS = {
     hasAck: true,
     delay: 0
 }
-var CMD_MOTOR_STOP = {
-    cmd: 0x04,
-    hasReponse: false,
-    hasAck: true,
-    delay: 0
-}
 var CMD_MOTOR_MOVE_CONSTANT = {
     cmd: 0x0D,
     hasReponse: false,
@@ -249,6 +243,7 @@ function move(motorId, steps, callback) {
             }
         });
     }
+    moveToAbsolutePos();
 }
 
 function setAccel(motorId, rate, callback) {
