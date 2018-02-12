@@ -2750,6 +2750,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'autodetect', function(cb){
                     db.set('nmxMotorAttachment', nmxMotorAttachment);
                     core.setNMXMotor(motorNumber, "autodetect");
+                    core.motionStatusUpdate();
                     cb && cb();
                 })
             }, {
@@ -2759,6 +2760,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'enabled', function(cb){
                     db.set('nmxMotorAttachment', nmxMotorAttachment);
                     core.setNMXMotor(motorNumber, "enabled");
+                    core.motionStatusUpdate();
                     cb && cb();
                 })
             }, {
@@ -2768,6 +2770,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'disabled', function(cb){
                     db.set('nmxMotorAttachment', nmxMotorAttachment);
                     core.setNMXMotor(motorNumber, "disabled");
+                    core.motionStatusUpdate();
                     cb && cb();
                 })
             }]
@@ -4548,7 +4551,8 @@ core.on('camera.photo', function() {
             liveviewRequestStart = false;
             app.send('photo');
             app.send('thumbnail', previewImage);
-        } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
+        }
+        if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             if(liveviewOn) {
                 console.log("LV: requesting next frame");
                 core.preview();
