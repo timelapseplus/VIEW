@@ -4539,9 +4539,10 @@ core.on('camera.photo', function() {
             app.send('photo');
             app.send('thumbnail', previewImage);
         } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
-            liveviewOn = true;
-            console.log("LV: requesting next frame");
-            core.preview();
+            if(liveviewOn) {
+                console.log("LV: requesting next frame");
+                core.preview();
+            }
         }
     }
 });
