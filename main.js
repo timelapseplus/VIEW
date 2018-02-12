@@ -2724,6 +2724,89 @@ if (VIEW_HARDWARE) {
             }
         }, ]
     }
+    var nmxMotorAttachment = {
+        motorEnabled1: 'autodetect',
+        motorEnabled2: 'autodetect',
+        motorEnabled3: 'autodetect',
+    }
+    db.get('nmxMotorAttachment', function(err, res) {
+        if(!err && res) {
+            for(key in nmxMotorAttachment) {
+                if(res.hasOwnProperty(key)) {
+                    nmxMotorAttachment[key] = res[key];
+                }
+            }
+        }
+    });
+    var buildNmxMotorOptions = function(motorNumber) {
+        return {
+            name: "NMX Motor " + motorNumber,
+            type: "options",
+            items: [{
+                name: "NMX Motor " + motorNumber,
+                value: "autodetect",
+                help: help.nmxMotorOptionsAutodetect,
+                action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'autodetect', function(cb){
+                    db.set('nmxMotorAttachment', nmxMotorAttachment);
+                    core.setNMXMotor(motorNumber, "autodetect");
+                    cb && cb();
+                })
+            }, {
+                name: "NMX Motor " + motorNumber,
+                value: "enabled",
+                help: help.nmxMotorOptionsEnable,
+                action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'enabled', function(cb){
+                    db.set('nmxMotorAttachment', nmxMotorAttachment);
+                    core.setNMXMotor(motorNumber, "enabled");
+                    cb && cb();
+                })
+            }, {
+                name: "NMX Motor " + motorNumber,
+                value: "disabled",
+                help: help.nmxMotorOptionsDisable,
+                action: ui.set(nmxMotorAttachment, 'motorEnabled' + motorNumber, 'disabled', function(cb){
+                    db.set('nmxMotorAttachment', nmxMotorAttachment);
+                    core.setNMXMotor(motorNumber, "disabled");
+                    cb && cb();
+                })
+            }]
+        }
+    }
+
+    var motionSetupMenuNMX = {
+        name: "NMX Setup",
+        type: "menu",
+        items: [{
+        //    name: "Connect to NMX",
+        //    action: wifiConnectMenu,
+        //    help: help.wifiConnectMenu,
+        //    condition: function() {
+        //        return wifi.enabled;// && !wifi.connected && !wifi.apMode;
+        //    }
+        //}, {
+            name: "Motor1 Attachment",
+            help: help.nmxMotorAttachment,
+            action: buildNmxMotorOptions(1)
+        }, {
+            name: "Motor2 Attachment",
+            help: help.nmxMotorAttachment,
+            action: buildNmxMotorOptions(2)
+        }, {
+            name: "Motor3 Attachment",
+            help: help.nmxMotorAttachment,
+            action: buildNmxMotorOptions(3)
+        }
+    }
+
+    var motionSetupMenu = {
+        name: "NMX Setup",
+        type: "menu",
+        items: [{
+            name: "Configure NMX",
+            help: help.configureNMX,
+            action: motionSetupMenuNMX
+        }
+    }
 
     var chargeIndicatorMenu = {
         name: "Charge Indicator LED",
@@ -3326,6 +3409,10 @@ if (VIEW_HARDWARE) {
             name: "Software Version",
             action: softwareMenu,
             help: help.softwareMenu
+        }, {
+            name: "Motion Equipment",
+            action: motionSetupMenu,
+            help: help.motionSetupMenu
         }, {
             name: "Auto Power Off",
             action: autoPowerOffMenu,

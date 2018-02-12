@@ -233,6 +233,10 @@ core.moveMotionJoystick = function(driver, motor, speed, callback) {
     call('motion.joystick', {driver:driver, motor:motor, speed:speed}, callback);
 };
 
+core.setNMXMotor = function(motorNumber, status);
+    call('motion.setNMXMotor', {motor:motorNumber, status:status}, callback);
+};
+
 core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
     call('db.currentTimelapseFrames', {cameraIndex:cameraIndex}, callback);
 };

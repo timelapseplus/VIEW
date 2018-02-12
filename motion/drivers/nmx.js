@@ -130,6 +130,7 @@ var nmx = new EventEmitter();
 var motorRunning = {'1': false, '2': false, '3': false};
 var motorPos = {'1': 0, '2': 0, '3': 0};
 var motorConnected = [false, false, false];
+var motorAttachment = [null, null, null];
 
 var _nmxQueue = [];
 var _queueRunning = false;
@@ -390,14 +391,26 @@ function checkMotorAttachment(callback) {
     }
     _queueCommand(cmd, function(err, status) {
         if(!err) {
-            motorConnected[0] = (status & 1<<0) ? true : false;
-            motorConnected[1] = (status & 1<<1) ? true : false;
-            motorConnected[2] = (status & 1<<2) ? true : false;
+            motorConnected[0] = motorAttachment[0] === null ? ((status & 1<<0) ? true : false) : motorAttachment[0];
+            motorConnected[1] = motorAttachment[1] === null ? ((status & 1<<1) ? true : false) : motorAttachment[1];
+            motorConnected[2] = motorAttachment[2] === null ? ((status & 1<<2) ? true : false) : motorAttachment[2];
             console.log("NMX: motors connected", motorConnected);
         }
         if (callback) callback(motorConnected);
     });
 }
+
+function setMotorAttachment(motor, status, callback) {
+    if(status == 'enabled') {
+        motorAttachment[motor] = true;
+    } else if(status == 'disabled') {
+        motorAttachment[motor] = false;
+    } else {
+        motorAttachment[motor] = null;
+    }
+    callback && callback();
+}
+
 
 function checkMotorPosition(motorId, callback) {
     var cmd = {
@@ -581,6 +594,7 @@ nmx.constantMove = constantMove;
 nmx.getStatus = getStatus;
 nmx.resetMotorPosition = resetMotorPosition;
 nmx.checkMotorAttachment = checkMotorAttachment;
+nmx.setMotorAttachment = setMotorAttachment;
 
 module.exports = nmx;
 

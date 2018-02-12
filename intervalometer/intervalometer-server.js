@@ -316,6 +316,11 @@ function runCommand(type, args, callback, client) {
     case 'motion.joystick':
       motion.joystick(args.driver, args.motor, args.speed, callback);
       break;
+
+    case 'motion.setNMXMotor':
+      motion.nmx.setMotorAttachment(args.motor, args.status, callback);
+      break;
+
     case 'intervalometer.moveTracking':
       intervalometer.moveTracking(args.axis, args.degrees, callback);
       break;

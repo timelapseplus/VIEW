@@ -164,3 +164,14 @@ exports.eclipseInfo = "Info about the next upcoming solar eclipse.";
 
 exports.highlightProtection = "A feature added in v1.8 to quickly decrease exposure if clipping is detected during ramping in order to preserve highlights.  Applicable only to the PID Luminance ramping method.";
 
+exports.motionSetupMenu = "Configure and manage 3rd-party motion hardware";
+
+exports.nmxMotorOptionsAutodetect = "Attempt to autodetect motor attachment - doesn't always work, especially if the power supply to the NMX is above 12v.";
+
+exports.nmxMotorOptionsDisable = "Disable motor on the NMX.  This axis will not appear for keyframe programming.";
+
+exports.nmxMotorOptionsEnable = "Enable motor on the NMX.  This axis will appear available for keyframe programming, regardless of whether a motor is attached or not.";
+
+exports.nmxMotorAttachment = "Manually enable/disable motors connected to NMX";
+
+exports.configureNMX = "Configure the NMX motion controller by Dynamic Perception (connects via Bluetooth or USB)";
