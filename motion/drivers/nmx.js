@@ -123,6 +123,7 @@ var nmx = new EventEmitter();
 
 var motorRunning = {'1': false, '2': false, '3': false};
 var motorPos = {'1': 0, '2': 0, '3': 0};
+var motorPosExact = {'1': 0, '2': 0, '3': 0};
 var motorConnected = [false, false, false];
 var motorAttachment = [null, null, null];
 
@@ -182,11 +183,11 @@ function move(motorId, steps, callback) {
     //}
     //m.writeUInt32BE(steps, 1, 4);
 
-    var targetPosition = motorPos[motorId] + steps;
+    var targetPosition = Math.round((motorPos[motorId] + steps) / 4) * 4; // seems like the NMX wants positions to be divisible by 4
 
     var pos1 = new Buffer(4);
     pos1.fill(0);
-    pos1.writeInt32BE(motorPos[motorId], 0, 4);
+    pos1.writeInt32BE(motorPosExact[motorId], 0, 4);
 
     var pos2 = new Buffer(4);
     pos2.fill(0);
@@ -221,7 +222,8 @@ function move(motorId, steps, callback) {
                                 motorRunning[mId] = false;
                                 checkMotorPosition(mId, function(position) {
                                     if(position == targetPosition || tries > 5) {
-                                        motorPos[mId] = position;
+                                        motorPos[mId] = Math.abs(targetPosition - position) < 4 ? targetPosition : position;
+                                        motorPosExact[mId] = position;
                                         //keepAlive(true);
                                         if (callback) callback(tries > 5 ? "position not reached" : null, position);
                                     } else {
@@ -327,6 +329,7 @@ function constantMove(motorId, speed, callback) {
                                 motorRunning[mId] = false;
                                 checkMotorPosition(mId, function(position) {
                                     motorPos[mId] = position;
+                                    motorPosExact[mId] = position;
                                     //keepAlive(true);
                                     if (callback) callback(null, position);
                                 })
@@ -420,7 +423,7 @@ function checkMotorPosition(motorId, callback) {
     }
     _queueCommand(cmd, function(err, position) {
         console.log("NMX: motor " + motorId + " position: ", position);
-        motorPos[motorId] = position;
+        motorPosExact[motorId] = position;
         if (callback) callback(position);
     });
 }
@@ -448,6 +451,7 @@ function resetMotorPosition(motorId, callback) {
     }
     _queueCommand(cmd, function(err) {
         motorPos[motorId] = 0;
+        motorPosExact[motorId] = 0;
         if (callback) callback(err);
     });
 }
@@ -724,6 +728,9 @@ function init() {
         checkMotorPosition(2);
         checkMotorPosition(3, function(){
             nmx.emit("status", getStatus());
+            motorPos[1] = motorPosExact[1];
+            motorPos[2] = motorPosExact[2];
+            motorPos[3] = motorPosExact[3];
         });
     });
     firmwareVersion(function(err, version) {
