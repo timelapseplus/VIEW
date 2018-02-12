@@ -4369,7 +4369,10 @@ app.on('message', function(msg) {
                 if (liveviewOn) {
                     if (previewImage) msg.reply(previewImage);
                 } else {
-                    if(!core.intervalometerStatus.running) core.preview();
+                    if(!core.intervalometerStatus.running) {
+                        liveviewOn = true;
+                        core.preview();
+                    }
                 }
                 break;
 
