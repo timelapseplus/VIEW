@@ -66,6 +66,7 @@ console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 var previewImage = null;
 var liveviewOn = false;
 var liveviewOnStream = false;
+var liveviewRequestStart = false;
 var gpsExists = null;
 
 var cache = {};
@@ -4370,6 +4371,7 @@ app.on('message', function(msg) {
                     if (previewImage) msg.reply(previewImage);
                 } else {
                     if(!core.intervalometerStatus.running) {
+                        liveviewRequestStart = true;
                         liveviewOn = true;
                         core.preview();
                     }
@@ -4379,6 +4381,8 @@ app.on('message', function(msg) {
             case 'previewStream':
                 if (!liveviewOnStream && !core.intervalometerStatus.running) {
                     liveviewOnStream = true;
+                    liveviewOn = false;
+                    liveviewRequestStart = false;
                     core.previewFull();
                 }
                 break;
@@ -4386,6 +4390,7 @@ app.on('message', function(msg) {
             case 'previewStop':
                 liveviewOn = false;
                 liveviewOnStream = false;
+                liveviewRequestStart = false;
                 core.lvOff();
                 break;
 
@@ -4488,6 +4493,7 @@ core.on('camera.photo', function() {
         if (core.intervalometerStatus.running) {
             liveviewOn = false;
             liveviewOnStream = false;
+            liveviewRequestStart = false;
             var size = {
                 x: 105,
                 y: 65,
@@ -4538,7 +4544,8 @@ core.on('camera.photo', function() {
             histogram: core.photo.histogram
         };
 
-        if (previewImage.imageType == "photo") { // || !liveviewOn) {
+        if (previewImage.imageType == "photo" || liveviewRequestStart) {
+            liveviewRequestStart = false;
             app.send('photo');
             app.send('thumbnail', previewImage);
         } else if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
