@@ -2805,7 +2805,7 @@ if (VIEW_HARDWARE) {
             name: "Configure NMX",
             help: help.configureNMX,
             action: motionSetupMenuNMX
-        }
+        }]
     }
 
     var chargeIndicatorMenu = {
