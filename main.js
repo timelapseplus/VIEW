@@ -4548,7 +4548,7 @@ core.on('camera.photo', function() {
         };
 
         if (previewImage.imageType == "photo" || liveviewRequestStart) {
-            liveviewRequestStart = false;
+            //liveviewRequestStart = false;
             app.send('photo');
             app.send('thumbnail', previewImage);
         }
