@@ -3210,17 +3210,86 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode)
 	/* first 16 bit is 0xc8 0x00, then an array of 16 bit PTP ids */
 
 	uint32_t headerLength 		= dtoh32a( (data) + 4 );
-	uint32_t propertyCode 		= dtoh32a( (data) + 10 );
-	uint32_t currentValue 		= dtoh32a( (data) + headerLength + 1 );
-	uint32_t propertyCount 		= dtoh32a( (data) + headerLength + 2 );
+	uint32_t propertyCode 		= dtoh32a( (data) + 4 + 6 * 4 );
+	uint32_t currentValue 		= dtoh32a( (data) + headerLength * 4 + 1 * 4);
+	uint32_t propertyCount 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 );
 
 	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, currentValue, propertyCount);
 
 	free (data);
 	return ret;
 }
-
-
+// 31 00 00 02 
+// 14 00 00 00 - length (20)
+// 14 00 00 00 
+// 01 00 01 00 
+// 00 00 00 00 
+// 01 00 00 00
+// D4 00 00 00 
+// 01 00 00 00 
+// CC 00 00 00 
+// 00 00 00 00
+// 01 00 01 00 
+// 00 00 00 00 
+// 01 00 00 00 
+// 06 00 00 00
+// 02 00 00 00 
+// 48 E8 01 00 - current value
+// 2B 00 00 00 - count 
+// E8 03 00 80
+// 14 05 00 00 
+// 40 06 00 00 
+// D0 07 00 00
+// C4 09 00 00
+// 80 0C 00 00 
+// A0 0F 00 00 
+// 88 13 00 00 
+// 70 17 00 00
+// 40 1F 00 00 
+// 10 27 00 00
+// C8 32 00 00 
+// 98 3A 00 00
+// 20 4E 00 00 
+// A8 61 00 00 
+// 30 75 00 00 
+// 40 9C 00 00
+// 50 C3 00 00 
+// 60 EA 00 00 
+// 80 38 01 00 
+// A0 86 01 00
+// 48 E8 01 00 
+// 00 71 02 00 
+// 40 0D 03 00 
+// 90 D0 03 00
+// 00 E2 04 00 
+// 80 1A 06 00 
+// 20 A1 07 00 
+// 00 C4 09 00
+// 00 35 0C 00 
+// 40 42 0F 00 
+// 20 D6 13 00 
+// 00 6A 18 00
+// 80 84 1E 00 
+// A0 25 26 00 
+// 00 D4 30 00 
+// 00 09 3D 00
+// 40 4B 4C 00
+// 00 A8 61 00 
+// 00 12 7A 00 
+// 80 96 98 00
+// 40 5D C6 00 
+// 00 24 F4 00 
+// 32 00 00 02 
+// 14 00 00 00
+// 14 00 00 00 
+// 01 00 01 00 00 00 00 00 02 00 00 00
+// 50 00 00 00 01 00 00 00 20 00 00 00 00 00 00 00
+// 01 00 01 00 00 00 00 00 01 00 00 00 06 00 00 00
+// 02 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00
+// 20 00 00 00 00 00 00 00 01 00 01 00 00 00 00 00
+// 01 00 00 00 06 00 00 00 02 00 00 00 00 00 00 00
+// 00 00 00 00
+// 
 /**
  * ptp_generic_getdevicepropdesc:
  *
