@@ -6418,6 +6418,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	PTPParams *params = &(camera->pl->params);
 	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
 
+	printf("retrieved %lu property values\n", listCount);
 
 	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
 	gp_widget_set_name (*widget, menu->name);
@@ -6427,6 +6428,8 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		gp_widget_add_choice (*widget, list[i]);
 	}
 	gp_widget_set_value (*widget, &currentVal);
+
+	free(list);
 
 	return GP_OK;
 }
