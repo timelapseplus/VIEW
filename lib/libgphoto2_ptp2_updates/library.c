@@ -349,6 +349,21 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
 		di->VendorExtensionID = PTP_VENDOR_FUJI;
 	}
 
+	/* Panasonic GH5 */
+	if (	(di->VendorExtensionID == PTP_VENDOR_PANASONIC) &&
+		(camera->port->type == GP_PORT_USB) &&
+		(a.usb_product == 0x2382)
+	) {
+		C_MEM (di->OperationsSupported = realloc(di->OperationsSupported,sizeof(di->OperationsSupported[0])*(di->OperationsSupported_len + 6)));
+		di->OperationsSupported[di->OperationsSupported_len+0] = PTP_OC_PANASONIC_GetProperty;
+		di->OperationsSupported[di->OperationsSupported_len+1]  = PTP_OC_PANASONIC_SetProperty;
+		di->OperationsSupported[di->OperationsSupported_len+2]  = PTP_OC_PANASONIC_9401;
+		di->OperationsSupported[di->OperationsSupported_len+3]  = PTP_OC_PANASONIC_9404;
+		di->OperationsSupported[di->OperationsSupported_len+4]  = PTP_OC_PANASONIC_9701;
+		di->OperationsSupported[di->OperationsSupported_len+5]  = PTP_OC_PANASONIC_9708;
+		di->OperationsSupported_len += 6;
+	}
+
 	/* Nikon DSLR hide its newer opcodes behind another vendor specific query,
 	 * do that and merge it into the generic PTP deviceinfo. */
 	if (di->VendorExtensionID == PTP_VENDOR_NIKON) {
