@@ -6395,6 +6395,15 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 	PTPParams *params = &(camera->pl->params);
 	uint32_t val = 0x0000ea60;
 	ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
+
+	//CR (gp_widget_get_value(widget, &val));
+	//for (i=0;i<sizeof(capturetargets)/sizeof(capturetargets[i]);i++) {
+	//	if (!strcmp( val, _(capturetargets[i].label))) {
+	//		gp_setting_set("ptp2","capturetarget",capturetargets[i].name);
+	//		break;
+	//	}
+	//}
+
 	return GP_OK;
 }
 
@@ -6402,15 +6411,24 @@ static int
 _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	int val;
 
-	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000030);
+	uint32_t currentVal;
+	uint32_t listCount;
+	uint32_t *list;
 
-	gp_widget_new (GP_WIDGET_RANGE, _(menu->label), widget);
-	gp_widget_set_range(*widget, -7.0, 7.0, 1.0);
-	gp_widget_set_name (*widget,menu->name);
-	val = 0.0; /* always changed */
-	gp_widget_set_value  (*widget, &val);
-	return (GP_OK);
+	PTPParams *params = &(camera->pl->params);
+	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
+
+
+	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
+	gp_widget_set_name (*widget, menu->name);
+
+	uint32_t i;
+	for (i = 0; i < listCount; i++) {
+		gp_widget_add_choice (*widget, list[i]);
+	}
+	gp_widget_set_value (*widget, &currentVal);
+
+	return GP_OK;
 }
 
 static int

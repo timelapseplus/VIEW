@@ -3197,7 +3197,7 @@ ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 }
 
 uint16_t
-ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode)
+ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
 {
 	PTPContainer	ptp;
 	unsigned char	*data;
@@ -3207,95 +3207,34 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode)
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_ListProperty, propcode, 0, 0);
 	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
 	if (!data) return PTP_RC_GeneralError;
-	/* first 16 bit is 0xc8 0x00, then an array of 16 bit PTP ids */
 
+
+	if (size < 4) return PTP_RC_GeneralError;
 	uint32_t headerLength 		= dtoh32a( (data) + 4 );
+	if (size < 4 + 6 * 4) return PTP_RC_GeneralError;
 	uint32_t propertyCode 		= dtoh32a( (data) + 4 + 6 * 4 );
-	uint32_t currentValue 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 );
-	uint32_t propertyCount 		= dtoh32a( (data) + headerLength * 4 + 3 * 4 );
+	if (size < headerLength * 4 + 2 * 4) return PTP_RC_GeneralError;
+	*currentValue 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 );
+	if (size < headerLength * 4 + 3 * 4) return PTP_RC_GeneralError;
+	*propertyValueListLength 		= dtoh32a( (data) + headerLength * 4 + 3 * 4 );
 
-	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, currentValue, propertyCount);
+	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, *currentValue, *propertyValueListLength);
+
+	if (size < headerLength * 4 + 4 * *propertyValueListLength * 4) return PTP_RC_GeneralError;
+
+	*propertyValueList = calloc(*propertyValueListLength, sizeof(uint32_t));
 
 	uint16_t i;
-	for(i = 0; i < propertyCount; i++) {
-		uint32_t p = dtoh32a( (data) + headerLength * 4 + 4 * 4 + i * 4);
-		printf("Property: %lu\n", p);
+	for(i = 0; i < *propertyValueListLength; i++) {
+		*propertyValueList[i] = dtoh32a( (data) + headerLength * 4 + 4 * 4 + i * 4);
+		printf("Property: %lu\n", *propertyValueList[i]);
 	}
 
 	free (data);
 	return ret;
 }
-// 31 00 00 02 
-// 14 00 00 00 - length (20)
-// 14 00 00 00 
-// 01 00 01 00 
-// 00 00 00 00 
-// 01 00 00 00
-// D4 00 00 00 
-// 01 00 00 00 
-// CC 00 00 00 
-// 00 00 00 00
-// 01 00 01 00 
-// 00 00 00 00 
-// 01 00 00 00 
-// 06 00 00 00
-// 02 00 00 00 
-// 48 E8 01 00 - current value
-// 2B 00 00 00 - count 
-// E8 03 00 80
-// 14 05 00 00 
-// 40 06 00 00 
-// D0 07 00 00
-// C4 09 00 00
-// 80 0C 00 00 
-// A0 0F 00 00 
-// 88 13 00 00 
-// 70 17 00 00
-// 40 1F 00 00 
-// 10 27 00 00
-// C8 32 00 00 
-// 98 3A 00 00
-// 20 4E 00 00 
-// A8 61 00 00 
-// 30 75 00 00 
-// 40 9C 00 00
-// 50 C3 00 00 
-// 60 EA 00 00 
-// 80 38 01 00 
-// A0 86 01 00
-// 48 E8 01 00 
-// 00 71 02 00 
-// 40 0D 03 00 
-// 90 D0 03 00
-// 00 E2 04 00 
-// 80 1A 06 00 
-// 20 A1 07 00 
-// 00 C4 09 00
-// 00 35 0C 00 
-// 40 42 0F 00 
-// 20 D6 13 00 
-// 00 6A 18 00
-// 80 84 1E 00 
-// A0 25 26 00 
-// 00 D4 30 00 
-// 00 09 3D 00
-// 40 4B 4C 00
-// 00 A8 61 00 
-// 00 12 7A 00 
-// 80 96 98 00
-// 40 5D C6 00 
-// 00 24 F4 00 
-// 32 00 00 02 
-// 14 00 00 00
-// 14 00 00 00 
-// 01 00 01 00 00 00 00 00 02 00 00 00
-// 50 00 00 00 01 00 00 00 20 00 00 00 00 00 00 00
-// 01 00 01 00 00 00 00 00 01 00 00 00 06 00 00 00
-// 02 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00
-// 20 00 00 00 00 00 00 00 01 00 01 00 00 00 00 00
-// 01 00 00 00 06 00 00 00 02 00 00 00 00 00 00 00
-// 00 00 00 00
-// 
+
+
 /**
  * ptp_generic_getdevicepropdesc:
  *
