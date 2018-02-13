@@ -6429,7 +6429,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		val = (float)list[i];
 		gp_widget_add_choice (*widget, &val);
 	}
-	val = (float) currentvalue;
+	val = (float) currentValue;
 	gp_widget_set_value (*widget, &val);
 
 	free(list);
