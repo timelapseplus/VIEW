@@ -4172,7 +4172,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	uint16_t	ret;
 
-	ret = ptp_panasonic_capture();
+	ret = ptp_panasonic_capture(params);
 
 	usleep(100);
 

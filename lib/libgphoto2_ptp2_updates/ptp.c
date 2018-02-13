@@ -3177,8 +3177,7 @@ ptp_sony_9281 (PTPParams* params, uint32_t param1) {
 }
 
 uint16_t
-ptp_panasonic_capture (PTPParams* params, uint32_t propcode,
-			PTPPropertyValue *value, uint16_t valuesize)
+ptp_panasonic_capture (PTPParams* params)
 {
 	PTPContainer	ptp;
 	uint16_t	ret;
