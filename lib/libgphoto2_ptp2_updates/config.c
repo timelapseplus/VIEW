@@ -6413,7 +6413,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
+	ptp_panasonic_getdeviceproperty(params, 0x2000030, 4, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -6459,7 +6459,7 @@ _get_Panasonic_ISO(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000020, &currentVal, &list, &listCount);
+	ptp_panasonic_getdeviceproperty(params, 0x2000020, 4, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -6505,7 +6505,7 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000040, &currentVal, &list, &listCount);
+	ptp_panasonic_getdeviceproperty(params, 0x2000040, 2, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -7447,7 +7447,7 @@ static struct submenu capture_settings_menu[] = {
 	{ N_("AF Beep Mode"),                   "afbeep",                   PTP_DPC_NIKON_BeepOff,                  PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OffOn_UINT8,             _put_Nikon_OffOn_UINT8 },
 	{ N_("F-Number"),                       "f-number",                 PTP_DPC_FNumber,                        PTP_VENDOR_SONY,    PTP_DTC_UINT16, _get_FNumber,                       _put_Sony_FNumber },
 	{ N_("F-Number"),                       "f-number",                 PTP_DPC_FNumber,                        0,                  PTP_DTC_UINT16, _get_FNumber,                       _put_FNumber },
-	//{ N_("F-Number"),                  		"f-number",             	0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_INT32, _get_Panasonic_FNumber,          _put_Panasonic_FNumber },
+	{ N_("F-Number"),                  		"f-number",             	0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_INT32, _get_Panasonic_FNumber,          _put_Panasonic_FNumber },
 	{ N_("Movie F-Number"),                 "movief-number",            PTP_DPC_NIKON_MovieFNumber,             PTP_VENDOR_NIKON,   PTP_DTC_UINT16, _get_FNumber,                       _put_FNumber },
 	{ N_("Flexible Program"),               "flexibleprogram",          PTP_DPC_NIKON_FlexibleProgram,          PTP_VENDOR_NIKON,   PTP_DTC_INT8,   _get_Range_INT8,                    _put_Range_INT8 },
 	{ N_("Image Quality"),                  "imagequality",             PTP_DPC_CompressionSetting,             PTP_VENDOR_SONY,    PTP_DTC_UINT8,  _get_CompressionSetting,            _put_Sony_CompressionSetting },
