@@ -4175,7 +4175,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	unsigned char	*buffer = NULL;
 	uint16_t	ret;
 
-	PTP_CNT_INIT(ptp, 0x9404, 0x3000011); // initiate capture
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_InitiateCapture, 0x3000011); // initiate capture
 	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
 
 
@@ -4433,8 +4433,8 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		return camera_fuji_capture (camera, type, path, context);
 	}
 
-	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) &&
-		ptp_operation_issupported(params, 0x9404)
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) //&&
+		//ptp_operation_issupported(params, PTP_OC_PANASONIC_InitiateCapture)
 	) {
 		return camera_panasonic_capture (camera, type, path, context);
 	}
