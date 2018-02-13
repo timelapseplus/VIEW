@@ -730,12 +730,12 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_OC_PARROT_MagnetoCalibStatus	0x9212
 #define PTP_OC_PARROT_SendFirmwareUpdate	0x9213
 
-#define PTP_OC_PANASONIC_GetProperty	0x9402
-#define PTP_OC_PANASONIC_SetProperty	0x9403
-#define PTP_OC_PANASONIC_ListProperty	0x9108
-#define PTP_OC_PANASONIC_9401			0x9401
-#define PTP_OC_PANASONIC_9404			0x9404
-#define PTP_OC_PANASONIC_9101			0x9101
+#define PTP_OC_PANASONIC_GetProperty	 0x9402
+#define PTP_OC_PANASONIC_SetProperty	 0x9403
+#define PTP_OC_PANASONIC_ListProperty	 0x9108
+#define PTP_OC_PANASONIC_9401			 0x9401
+#define PTP_OC_PANASONIC_InitiateCapture 0x9404
+#define PTP_OC_PANASONIC_9101			 0x9101
 
 
 
