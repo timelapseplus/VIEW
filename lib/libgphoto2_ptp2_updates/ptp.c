@@ -3197,7 +3197,7 @@ ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 }
 
 uint16_t
-ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
+ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t valuesize, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
 {
 	PTPContainer	ptp;
 	unsigned char	*data;
@@ -3214,19 +3214,26 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t 
 	if (size < 4 + 6 * 4) return PTP_RC_GeneralError;
 	uint32_t propertyCode 		= dtoh32a( (data) + 4 + 6 * 4 );
 	if (size < headerLength * 4 + 2 * 4) return PTP_RC_GeneralError;
-	*currentValue 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 );
-	if (size < headerLength * 4 + 3 * 4) return PTP_RC_GeneralError;
-	*propertyValueListLength 		= dtoh32a( (data) + headerLength * 4 + 3 * 4 );
+
+	if(valuesize == 2) {
+		*currentValue 		= (uint32_t) dtoh16a( (data) + headerLength * 4 + 2 * 4 );
+	} else if(valuesize == 4) {
+		*currentValue 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 );
+	} else {
+		return PTP_RC_GeneralError;
+	}
+	if (size < headerLength * 4 + 2 * 4 + valuesize) return PTP_RC_GeneralError;
+	*propertyValueListLength 		= dtoh32a( (data) + headerLength * 4 + 2 * 4 + valuesize);
 
 	//printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, *currentValue, *propertyValueListLength);
 
-	if (size < headerLength * 4 + 4 * 4 + (*propertyValueListLength) * 4) return PTP_RC_GeneralError;
+	if (size < headerLength * 4 + 3 * 4 + valuesize + (*propertyValueListLength) * valuesize) return PTP_RC_GeneralError;
 
 	*propertyValueList = calloc(*propertyValueListLength, sizeof(uint32_t));
 
 	uint16_t i;
 	for(i = 0; i < *propertyValueListLength; i++) {
-		(*propertyValueList)[i] = dtoh32a( (data) + headerLength * 4 + 4 * 4 + i * 4);
+		(*propertyValueList)[i] = dtoh32a( (data) + headerLength * 4 + 3 * 4 + valuesize + i * valuesize);
 		//printf("Property: %lu\n", (*propertyValueList)[i]);
 	}
 
