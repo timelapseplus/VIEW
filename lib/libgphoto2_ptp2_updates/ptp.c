@@ -3204,15 +3204,15 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode)
 	unsigned int 	size, len = 0;
 	uint16_t	ret = 0;
 
-	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_ListProperty, propcode);
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_ListProperty, propcode, 0, 0);
 	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
 	if (!data) return PTP_RC_GeneralError;
 	/* first 16 bit is 0xc8 0x00, then an array of 16 bit PTP ids */
 
-	uint32_t headerLength 		= dtoh32a(  data );
-	uint32_t propertyCode 		= 0;//dtoh32a( (data) + 6 );
-	uint32_t currentValue 		= 0;//dtoh32a( (data) + headerLength + 1 );
-	uint32_t propertyCount 		= 0;//dtoh32a( (data) + headerLength + 2 );
+	uint32_t headerLength 		= dtoh32a( (data) + 4 );
+	uint32_t propertyCode 		= dtoh32a( (data) + 10 );
+	uint32_t currentValue 		= dtoh32a( (data) + headerLength + 1 );
+	uint32_t propertyCount 		= dtoh32a( (data) + headerLength + 2 );
 
 	printf("header: %dl, code: %dl, value: %dl, count: %dl\n", headerLength, propertyCode, currentValue, propertyCount);
 
