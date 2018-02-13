@@ -3216,7 +3216,8 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode)
 
 	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, currentValue, propertyCount);
 
-	for(uint16_t i = 0; i < propertyCount; i++) {
+	uint16_t i;
+	for(i = 0; i < propertyCount; i++) {
 		uint32_t p = dtoh32a( (data) + headerLength * 4 + 4 * 4 + i * 4);
 		printf("Property: %lu\n", p);
 	}
