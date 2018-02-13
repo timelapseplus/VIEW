@@ -6402,6 +6402,9 @@ static int
 _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	int val;
 
+	PTPParams *params = &(camera->pl->params);
+	ptp_panasonic_getdeviceproperty(params, 0x2000030);
+
 	gp_widget_new (GP_WIDGET_RANGE, _(menu->label), widget);
 	gp_widget_set_range(*widget, -7.0, 7.0, 1.0);
 	gp_widget_set_name (*widget,menu->name);

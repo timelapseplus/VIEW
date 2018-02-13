@@ -732,10 +732,10 @@ typedef struct _PTPIPHeader PTPIPHeader;
 
 #define PTP_OC_PANASONIC_GetProperty	0x9402
 #define PTP_OC_PANASONIC_SetProperty	0x9403
+#define PTP_OC_PANASONIC_ListProperty	0x9108
 #define PTP_OC_PANASONIC_9401			0x9401
 #define PTP_OC_PANASONIC_9404			0x9404
-#define PTP_OC_PANASONIC_9701			0x9701
-#define PTP_OC_PANASONIC_9708			0x9708
+#define PTP_OC_PANASONIC_9101			0x9101
 
 
 

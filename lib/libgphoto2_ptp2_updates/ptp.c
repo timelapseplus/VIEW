@@ -3178,21 +3178,45 @@ ptp_sony_9281 (PTPParams* params, uint32_t param1) {
 
 uint16_t
 ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
-			PTPPropertyValue *value, uint16_t datatype)
+			PTPPropertyValue *value, uint16_t valuesize)
 {
 	PTPContainer	ptp;
 	uint16_t	ret;
 	unsigned char	*data;
-	uint32_t size = 4 + 4 + 4;
+	uint32_t size = 4 + 4 + valuesize;
 	data = calloc(size, sizeof(unsigned char));
 
 	memcpy(data, &propcode, 4);
-	memcpy(&data[4], &datatype, 2);
-	memcpy(&data[8], value, 4);
+	memcpy(&data[4], &valuesize, 2);
+	memcpy(&data[8], value, valuesize);
 
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_SetProperty, propcode);
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	free(data);
+	return ret;
+}
+
+uint16_t
+ptp_panasonic_getdeviceproperty (PTPParams *params, uint16_t propcode)
+{
+	PTPContainer	ptp;
+	unsigned char	*data;
+	unsigned int 	size, len = 0;
+	uint16_t	ret;
+
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_ListProperty, propcode);
+	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
+	if (!data) return PTP_RC_GeneralError;
+	/* first 16 bit is 0xc8 0x00, then an array of 16 bit PTP ids */
+
+	uint32_t headerLength 		= dtoh32a(  data );
+	uint32_t propertyCode 		= dtoh32a( (data) + 6 );
+	uint32_t currentValue 		= dtoh32a( (data) + headerLength + 1 );
+	uint32_t propertyCount 		= dtoh32a( (data) + headerLength + 2 );
+
+	printf("header: %dl, code: %dl, value: %dl, count: %dl\n", headerLength, propertyCode, currentValue, propertyCount);
+
+	free (data);
 	return ret;
 }
 
