@@ -3220,7 +3220,7 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t 
 
 	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, *currentValue, *propertyValueListLength);
 
-	if (size < headerLength * 4 + 4 * *propertyValueListLength * 4) return PTP_RC_GeneralError;
+	if (size < headerLength * 4 + 4 * 4 + (*propertyValueListLength) * 4) return PTP_RC_GeneralError;
 
 	*propertyValueList = calloc(*propertyValueListLength, sizeof(uint32_t));
 
