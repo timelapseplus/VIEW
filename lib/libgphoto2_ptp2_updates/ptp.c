@@ -3176,6 +3176,23 @@ ptp_sony_9281 (PTPParams* params, uint32_t param1) {
 	return ret;
 }
 
+uint16_t
+ptp_panasonic_setdeviceproperty (PTPParams* params, uint16_t propcode,
+			PTPPropertyValue *value, uint16_t datatype)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned char	*data;
+	uint32_t	size;
+
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_SetProperty, propcode);
+	size = ptp_pack_DPV(params, value, &data , datatype);
+	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
+	free(data);
+	return ret;
+}
+
+
 /**
  * ptp_generic_getdevicepropdesc:
  *

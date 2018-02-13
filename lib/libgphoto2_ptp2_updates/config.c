@@ -6389,6 +6389,26 @@ _put_Sony_Bulb(CONFIG_PUT_ARGS)
 	return GP_OK;
 }
 
+static int
+_put_Panasonic_Shutter(CONFIG_PUT_ARGS)
+{
+	PTPParams *params = &(camera->pl->params);
+	uint16_t val = 0x0000ea60;
+	ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, PTP_DTC_UINT16);
+	return GP_OK;
+}
+
+static int
+_get_Panasonic_Shutter(CONFIG_GET_ARGS) {
+	int val;
+
+	gp_widget_new (GP_WIDGET_RANGE, _(menu->label), widget);
+	gp_widget_set_range(*widget, -7.0, 7.0, 1.0);
+	gp_widget_set_name (*widget,menu->name);
+	val = 0.0; /* always changed */
+	gp_widget_set_value  (*widget, &val);
+	return (GP_OK);
+}
 
 static int
 _get_Canon_EOS_Bulb(CONFIG_GET_ARGS) {
@@ -7351,6 +7371,7 @@ static struct submenu capture_settings_menu[] = {
 	{ N_("Capture Delay"),                  "capturedelay",             PTP_DPC_CaptureDelay,                   0,                  PTP_DTC_UINT32, _get_Milliseconds,                  _put_Milliseconds },
 	{ N_("Shutter Speed"),                  "shutterspeed",             PTP_DPC_ExposureTime,                   0,                  PTP_DTC_UINT32, _get_ExpTime,                       _put_ExpTime },
 	{ N_("Shutter Speed"),                  "shutterspeed",             PTP_DPC_CANON_ShutterSpeed,             PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_ShutterSpeed,            _put_Canon_ShutterSpeed },
+	{ N_("Shutter Speed"),                  "shutterspeed",             0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_UINT16, _get_Panasonic_Shutter,         _put_Panasonic_Shutter },
 	/* these cameras also have PTP_DPC_ExposureTime, avoid overlap */
 	{ N_("Shutter Speed 2"),                "shutterspeed2",            PTP_DPC_NIKON_ExposureTime,             PTP_VENDOR_NIKON,   PTP_DTC_UINT32, _get_Nikon_ShutterSpeed,            _put_Nikon_ShutterSpeed },
 	{ N_("Movie Shutter Speed 2"),          "movieshutterspeed",        PTP_DPC_NIKON_MovieShutterSpeed,        PTP_VENDOR_NIKON,   PTP_DTC_UINT32, _get_Nikon_ShutterSpeed,            _put_Nikon_ShutterSpeed },
