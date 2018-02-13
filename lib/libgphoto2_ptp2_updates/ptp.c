@@ -3218,7 +3218,7 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t 
 	if (size < headerLength * 4 + 3 * 4) return PTP_RC_GeneralError;
 	*propertyValueListLength 		= dtoh32a( (data) + headerLength * 4 + 3 * 4 );
 
-	printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, *currentValue, *propertyValueListLength);
+	//printf("header: %lu, code: %lu, value: %lu, count: %lu\n", headerLength, propertyCode, *currentValue, *propertyValueListLength);
 
 	if (size < headerLength * 4 + 4 * 4 + (*propertyValueListLength) * 4) return PTP_RC_GeneralError;
 
@@ -3227,7 +3227,7 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint32_t 
 	uint16_t i;
 	for(i = 0; i < *propertyValueListLength; i++) {
 		(*propertyValueList)[i] = dtoh32a( (data) + headerLength * 4 + 4 * 4 + i * 4);
-		printf("Property: %lu\n", (*propertyValueList)[i]);
+		//printf("Property: %lu\n", (*propertyValueList)[i]);
 	}
 
 	free (data);

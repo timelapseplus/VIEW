@@ -6399,6 +6399,8 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 	CR (gp_widget_get_value(widget, &strval));
 	sscanf (strval, "%ld", &val);	
 
+	printf("setting shutterspeed to %lu (%s)\n", val, strval);
+
 	return ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
 }
 
@@ -6413,7 +6415,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	PTPParams *params = &(camera->pl->params);
 	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
 
-	printf("retrieved %lu property values\n", listCount);
+	//printf("retrieved %lu property values\n", listCount);
 
 	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
 	gp_widget_set_name (*widget, menu->name);
