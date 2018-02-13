@@ -6436,6 +6436,98 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 }
 
 static int
+_put_Panasonic_ISO(CONFIG_PUT_ARGS)
+{
+	PTPParams *params = &(camera->pl->params);
+	char *xval;
+	uint32_t val;
+
+	CR (gp_widget_get_value(widget, &xval));
+	sscanf (xval, "%ld", &val);	
+
+	printf("setting ISO to %lu (%s)\n", val, xval);
+
+	return ptp_panasonic_setdeviceproperty(params, 0x2000021, &val, 4);
+}
+
+static int
+_get_Panasonic_ISO(CONFIG_GET_ARGS) {
+	int val;
+
+	uint32_t currentVal;
+	uint32_t listCount;
+	uint32_t *list;
+
+	PTPParams *params = &(camera->pl->params);
+	ptp_panasonic_getdeviceproperty(params, 0x2000020, &currentVal, &list, &listCount);
+
+	//printf("retrieved %lu property values\n", listCount);
+
+	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
+	gp_widget_set_name (*widget, menu->name);
+
+	uint32_t i;
+	char buf[16];
+	for (i = 0; i < listCount; i++) {
+		sprintf (buf, "%ld", list[i]);
+		gp_widget_add_choice (*widget, &buf);
+	}
+
+	sprintf (buf, "%ld", currentVal);
+	gp_widget_set_value (*widget, &buf);
+
+	free(list);
+
+	return GP_OK;
+}
+
+static int
+_put_Panasonic_FNumber(CONFIG_PUT_ARGS)
+{
+	PTPParams *params = &(camera->pl->params);
+	char *xval;
+	uint32_t val;
+
+	CR (gp_widget_get_value(widget, &xval));
+	sscanf (xval, "%ld", &val);	
+
+	printf("setting ISO to %lu (%s)\n", val, xval);
+
+	return ptp_panasonic_setdeviceproperty(params, 0x2000041, &val, 2);
+}
+
+static int
+_get_Panasonic_FNumber(CONFIG_GET_ARGS) {
+	int val;
+
+	uint32_t currentVal;
+	uint32_t listCount;
+	uint32_t *list;
+
+	PTPParams *params = &(camera->pl->params);
+	ptp_panasonic_getdeviceproperty(params, 0x2000040, &currentVal, &list, &listCount);
+
+	//printf("retrieved %lu property values\n", listCount);
+
+	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
+	gp_widget_set_name (*widget, menu->name);
+
+	uint32_t i;
+	char buf[16];
+	for (i = 0; i < listCount; i++) {
+		sprintf (buf, "%ld", list[i]);
+		gp_widget_add_choice (*widget, &buf);
+	}
+
+	sprintf (buf, "%ld", currentVal);
+	gp_widget_set_value (*widget, &buf);
+
+	free(list);
+
+	return GP_OK;
+}
+
+static int
 _get_Canon_EOS_Bulb(CONFIG_GET_ARGS) {
 	int val;
 
@@ -7299,6 +7391,7 @@ static struct submenu image_settings_menu[] = {
 	{ N_("ISO Speed"),              "iso",                  PTP_DPC_CANON_EOS_ISOSpeed,             PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_ISO,                 _put_Canon_ISO },
 	{ N_("ISO Speed"),              "iso",                  PTP_DPC_SONY_ISO,                       PTP_VENDOR_SONY,    PTP_DTC_UINT32, _get_Sony_ISO,                  _put_Sony_ISO },
 	{ N_("ISO Speed"),              "iso",                  PTP_DPC_NIKON_1_ISO,                    PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_1_ISO,               _put_Nikon_1_ISO },
+	{ N_("ISO Speed"),              "iso",             		0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_UINT32, _get_Panasonic_ISO,     _put_Panasonic_ISO },
 	{ N_("ISO Auto"),               "isoauto",              PTP_DPC_NIKON_ISO_Auto,                 PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OnOff_UINT8,         _put_Nikon_OnOff_UINT8 },
 	{ N_("WhiteBalance"),           "whitebalance",         PTP_DPC_CANON_WhiteBalance,             PTP_VENDOR_CANON,   PTP_DTC_UINT8,  _get_Canon_WhiteBalance,        _put_Canon_WhiteBalance },
 	{ N_("WhiteBalance"),           "whitebalance",         PTP_DPC_CANON_EOS_WhiteBalance,         PTP_VENDOR_CANON,   PTP_DTC_UINT8,  _get_Canon_EOS_WhiteBalance,    _put_Canon_EOS_WhiteBalance },
@@ -7355,6 +7448,7 @@ static struct submenu capture_settings_menu[] = {
 	//{ N_("F-Number"),                       "f-number",                 PTP_DPC_FNumber,                        PTP_VENDOR_PANASONIC,    PTP_DTC_UINT16, _get_FNumber,                  _put_Panasonic_FNumber },
 	{ N_("F-Number"),                       "f-number",                 PTP_DPC_FNumber,                        PTP_VENDOR_SONY,    PTP_DTC_UINT16, _get_FNumber,                       _put_Sony_FNumber },
 	{ N_("F-Number"),                       "f-number",                 PTP_DPC_FNumber,                        0,                  PTP_DTC_UINT16, _get_FNumber,                       _put_FNumber },
+	{ N_("F-Number"),                  		"f-number",             	0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_INT16, _get_Panasonic_FNumber,          _put_Panasonic_FNumber },
 	{ N_("Movie F-Number"),                 "movief-number",            PTP_DPC_NIKON_MovieFNumber,             PTP_VENDOR_NIKON,   PTP_DTC_UINT16, _get_FNumber,                       _put_FNumber },
 	{ N_("Flexible Program"),               "flexibleprogram",          PTP_DPC_NIKON_FlexibleProgram,          PTP_VENDOR_NIKON,   PTP_DTC_INT8,   _get_Range_INT8,                    _put_Range_INT8 },
 	{ N_("Image Quality"),                  "imagequality",             PTP_DPC_CompressionSetting,             PTP_VENDOR_SONY,    PTP_DTC_UINT8,  _get_CompressionSetting,            _put_Sony_CompressionSetting },
@@ -7396,7 +7490,7 @@ static struct submenu capture_settings_menu[] = {
 	{ N_("Capture Delay"),                  "capturedelay",             PTP_DPC_CaptureDelay,                   0,                  PTP_DTC_UINT32, _get_Milliseconds,                  _put_Milliseconds },
 	{ N_("Shutter Speed"),                  "shutterspeed",             PTP_DPC_ExposureTime,                   0,                  PTP_DTC_UINT32, _get_ExpTime,                       _put_ExpTime },
 	{ N_("Shutter Speed"),                  "shutterspeed",             PTP_DPC_CANON_ShutterSpeed,             PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_ShutterSpeed,            _put_Canon_ShutterSpeed },
-	{ N_("Shutter Speed"),                  "shutterspeed",             0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_UINT16, _get_Panasonic_Shutter,         _put_Panasonic_Shutter },
+	{ N_("Shutter Speed"),                  "shutterspeed",             0,         		    					PTP_VENDOR_PANASONIC,   PTP_DTC_INT32, _get_Panasonic_Shutter,         _put_Panasonic_Shutter },
 	/* these cameras also have PTP_DPC_ExposureTime, avoid overlap */
 	{ N_("Shutter Speed 2"),                "shutterspeed2",            PTP_DPC_NIKON_ExposureTime,             PTP_VENDOR_NIKON,   PTP_DTC_UINT32, _get_Nikon_ShutterSpeed,            _put_Nikon_ShutterSpeed },
 	{ N_("Movie Shutter Speed 2"),          "movieshutterspeed",        PTP_DPC_NIKON_MovieShutterSpeed,        PTP_VENDOR_NIKON,   PTP_DTC_UINT32, _get_Nikon_ShutterSpeed,            _put_Nikon_ShutterSpeed },
