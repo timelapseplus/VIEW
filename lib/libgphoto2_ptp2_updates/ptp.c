@@ -3183,20 +3183,14 @@ ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 	PTPContainer	ptp;
 	uint16_t	ret;
 	unsigned char	*data;
-	uint32_t size = 4 + datatype * 2;
+	uint32_t size = 4 + 4 + 4;
 	data = calloc(size, sizeof(unsigned char));
 
 	memcpy(data, &propcode, 4);
-	if(datatype == 2) {
-		memcpy(data[4], value, 2);
-	} else if(datatype == 4) {
-		memcpy(data[4], value, 4);
-	}
-	memcpy(data[4], &datatype, 1);
+	memcpy(data[4], &datatype, 2);
+	memcpy(data[8], value, 4);
 
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_SetProperty, propcode);
-	size = ptp_pack_DPV(params, value, &data , datatype);
-
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	free(data);
 	return ret;

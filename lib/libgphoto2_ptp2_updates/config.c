@@ -6393,8 +6393,8 @@ static int
 _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 {
 	PTPParams *params = &(camera->pl->params);
-	uint16_t val = 0x0000ea60;
-	ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, PTP_DTC_UINT16);
+	uint32_t val = 0x0000ea60;
+	ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
 	return GP_OK;
 }
 
