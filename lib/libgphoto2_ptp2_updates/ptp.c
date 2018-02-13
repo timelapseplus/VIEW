@@ -3187,8 +3187,8 @@ ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 	data = calloc(size, sizeof(unsigned char));
 
 	memcpy(data, &propcode, 4);
-	memcpy(data[4], &datatype, 2);
-	memcpy(data[8], value, 4);
+	memcpy(&data[4], &datatype, 2);
+	memcpy(&data[8], value, 4);
 
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_SetProperty, propcode);
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
