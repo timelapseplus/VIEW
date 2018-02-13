@@ -6393,18 +6393,13 @@ static int
 _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 {
 	PTPParams *params = &(camera->pl->params);
-	uint32_t val = 0x0000ea60;
-	ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
+	char strval[16];
+	uint32_t val;
 
-	//CR (gp_widget_get_value(widget, &val));
-	//for (i=0;i<sizeof(capturetargets)/sizeof(capturetargets[i]);i++) {
-	//	if (!strcmp( val, _(capturetargets[i].label))) {
-	//		gp_setting_set("ptp2","capturetarget",capturetargets[i].name);
-	//		break;
-	//	}
-	//}
+	CR (gp_widget_get_value(widget, &strval));
+	sscanf (strval, "%ld", &val);	
 
-	return GP_OK;
+	return ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
 }
 
 static int
@@ -6416,7 +6411,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
+	C_PTP (ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount));
 
 	printf("retrieved %lu property values\n", listCount);
 
@@ -6431,8 +6426,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	}
 
 	sprintf (strval, "%ld", currentVal);
-	gp_widget_add_choice (*widget, &strval);
-	gp_widget_set_value (*widget, &val);
+	gp_widget_set_value (*widget, &strval);
 
 	free(list);
 
