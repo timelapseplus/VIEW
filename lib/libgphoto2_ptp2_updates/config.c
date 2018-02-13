@@ -6424,10 +6424,13 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	gp_widget_set_name (*widget, menu->name);
 
 	uint32_t i;
+	float val;
 	for (i = 0; i < listCount; i++) {
-		gp_widget_add_choice (*widget, list[i]);
+		val = (float)list[i];
+		gp_widget_add_choice (*widget, &val);
 	}
-	gp_widget_set_value (*widget, &currentVal);
+	val = (float) currentvalue;
+	gp_widget_set_value (*widget, &val);
 
 	free(list);
 
