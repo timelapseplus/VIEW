@@ -6411,7 +6411,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	C_PTP (ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount));
+	ptp_panasonic_getdeviceproperty(params, 0x2000030, &currentVal, &list, &listCount);
 
 	printf("retrieved %lu property values\n", listCount);
 
