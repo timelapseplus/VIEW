@@ -6430,7 +6430,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		gp_widget_add_choice (*widget, &strval);
 	}
 
-	sprintf (strval, "%ld", currentValue);
+	sprintf (strval, "%ld", currentVal);
 	gp_widget_add_choice (*widget, &strval);
 	gp_widget_set_value (*widget, &val);
 
