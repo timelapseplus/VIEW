@@ -354,11 +354,12 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
 		(camera->port->type == GP_PORT_USB) &&
 		(a.usb_product == 0x2382)
 	) {
-		C_MEM (di->OperationsSupported = realloc(di->OperationsSupported,sizeof(di->OperationsSupported[0])*(di->OperationsSupported_len + 3)));
+		C_MEM (di->OperationsSupported = realloc(di->OperationsSupported,sizeof(di->OperationsSupported[0])*(di->OperationsSupported_len + 4)));
 		di->OperationsSupported[di->OperationsSupported_len+0] = PTP_OC_PANASONIC_GetProperty;
 		di->OperationsSupported[di->OperationsSupported_len+1]  = PTP_OC_PANASONIC_SetProperty;
 		di->OperationsSupported[di->OperationsSupported_len+2]  = PTP_OC_PANASONIC_ListProperty;
-		di->OperationsSupported_len += 3;
+		di->OperationsSupported[di->OperationsSupported_len+3]  = PTP_OC_PANASONIC_InitiateCapture;
+		di->OperationsSupported_len += 4;
 	}
 
 	/* Nikon DSLR hide its newer opcodes behind another vendor specific query,
@@ -4147,6 +4148,54 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 }
 
 static int
+camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path, GPContext *context)
+{
+	PTPParams	*params = &camera->pl->params;
+	PTPPropertyValue propval;
+	PTPContainer	event;
+	PTPObjectInfo	oi;
+	uint32_t	newobject = 0;
+	static int	capcnt = 0;
+	PTPDevicePropDesc	dpd;
+	struct timeval	event_start;
+
+	//C_PTP (ptp_generic_getdevicepropdesc (params, PTP_DPC_CompressionSetting, &dpd));
+
+	//GP_LOG_D ("dpd.CurrentValue.u8 = %x", dpd.CurrentValue.u8);
+	//GP_LOG_D ("dpd.FactoryDefaultValue.u8 = %x", dpd.FactoryDefaultValue.u8);
+
+	//if (dpd.CurrentValue.u8 == 0)
+	//	dpd.CurrentValue.u8 = dpd.FactoryDefaultValue.u8;
+	//if (dpd.CurrentValue.u8 == 0x13) {
+	//	GP_LOG_D ("expecting raw+jpeg capture");
+	//}
+
+	PTPContainer	ptp;
+	unsigned int	size = 0;
+	unsigned char	*buffer = NULL;
+	uint16_t	ret;
+
+	PTP_CNT_INIT(ptp, 0x9404, 0x3000011); // initiate capture
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+
+
+	usleep(100);
+
+	//GP_LOG_D ("DEBUG== fetching object from 0x%08x", newobject);
+
+	/* FIXME: handle multiple images (as in BurstMode) */
+	//C_PTP (ptp_getobjectinfo (params, newobject, &oi));
+
+	//sprintf (path->folder,"/");
+	//if (oi.ObjectFormat == PTP_OFC_SONY_RAW)
+	//	sprintf (path->name, "capt%04d.arw", capcnt++);
+	//else
+	//	sprintf (path->name, "capt%04d.jpg", capcnt++);
+
+	return ret;// add_objectid_and_upload (camera, path, context, newobject, &oi);
+}
+
+static int
 camera_fuji_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path, GPContext *context)
 {
 	PTPParams		*params = &camera->pl->params;
@@ -4384,6 +4433,11 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		return camera_fuji_capture (camera, type, path, context);
 	}
 
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) &&
+		ptp_operation_issupported(params, 0x9404)
+	) {
+		return camera_panasonic_capture (camera, type, path, context);
+	}
 
 	if (!ptp_operation_issupported(params,PTP_OC_InitiateCapture)) {
 		gp_context_error(context,
