@@ -6393,13 +6393,13 @@ static int
 _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 {
 	PTPParams *params = &(camera->pl->params);
-	char strval[16];
+	char *xval;
 	uint32_t val;
 
-	CR (gp_widget_get_value(widget, &strval));
-	sscanf (strval, "%ld", &val);	
+	CR (gp_widget_get_value(widget, &xval));
+	sscanf (xval, "%ld", &val);	
 
-	printf("setting shutterspeed to %lu (%s)\n", val, strval);
+	printf("setting shutterspeed to %lu (%s)\n", val, xval);
 
 	return ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
 }
@@ -6421,14 +6421,14 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	gp_widget_set_name (*widget, menu->name);
 
 	uint32_t i;
-	char strval[16];
+	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		sprintf (strval, "%ld", list[i]);
-		gp_widget_add_choice (*widget, &strval);
+		sprintf (buf, "%ld", list[i]);
+		gp_widget_add_choice (*widget, &buf);
 	}
 
-	sprintf (strval, "%ld", currentVal);
-	gp_widget_set_value (*widget, &strval);
+	sprintf (buf, "%ld", currentVal);
+	gp_widget_set_value (*widget, &buf);
 
 	free(list);
 
