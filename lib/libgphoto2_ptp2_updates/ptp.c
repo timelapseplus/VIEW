@@ -3233,7 +3233,11 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 
 	uint16_t i;
 	for(i = 0; i < *propertyValueListLength; i++) {
-		(*propertyValueList)[i] = dtoh32a( (data) + headerLength * 4 + 3 * 4 + valuesize + i * valuesize);
+		if(valuesize == 2) {
+			(*propertyValueList)[i] = (uint32_t) dtoh16a( (data) + headerLength * 4 + 3 * 4 + valuesize + i * valuesize);
+		} else if(valuesize == 4) {
+			(*propertyValueList)[i] = dtoh32a( (data) + headerLength * 4 + 3 * 4 + valuesize + i * valuesize);
+		}
 		//printf("Property: %lu\n", (*propertyValueList)[i]);
 	}
 
