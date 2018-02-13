@@ -4170,14 +4170,9 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	//	GP_LOG_D ("expecting raw+jpeg capture");
 	//}
 
-	PTPContainer	ptp;
-	unsigned int	size = 0;
-	unsigned char	*buffer = NULL;
 	uint16_t	ret;
 
-	ptp_init_container(ptp, PTP_OC_PANASONIC_InitiateCapture, 0x3000011); // initiate capture
-	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
-
+	ret = ptp_panasonic_capture();
 
 	usleep(100);
 
