@@ -3033,7 +3033,7 @@ enable_liveview:
 			} else if(ret != PTP_RC_OK) {
 				C_PTP_REP(ptp_panasonic_liveview(params, 1)); // enable liveview
 				usleep(100000);
-				continue
+				continue;
 			} else {
 				break;
 			}
