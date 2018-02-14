@@ -3020,6 +3020,12 @@ enable_liveview:
 
 		uint16_t ret;
 
+		if(!params->inliveview) {
+			C_PTP_REP(ptp_panasonic_liveview(params, 1)); // enable liveview
+			params->inliveview = 1;
+			usleep(100000);
+		}
+
 		int		tries = 20;
 		for(;;) {
 			tries--;
@@ -3029,10 +3035,6 @@ enable_liveview:
 			ret = ptp_panasonic_liveview_image (params, &ximage, &size);
 			if(ret == PTP_RC_DeviceBusy) {
 				usleep(10000);
-				continue;
-			} else if(ret != PTP_RC_OK) {
-				C_PTP_REP(ptp_panasonic_liveview(params, 1)); // enable liveview
-				usleep(100000);
 				continue;
 			} else {
 				break;
@@ -3050,7 +3052,7 @@ enable_liveview:
 			}
 		}
 		if(!jpgStartPtr) { /* no SOI -> no JPEG */
-			gp_context_error (context, _("Sorry, your Fuji camera does not seem to return a JPEG image in LiveView mode"));
+			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
 			return GP_ERROR;
 		}
 		/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
@@ -3066,14 +3068,14 @@ enable_liveview:
 			}
 		}
 		if(!jpgEndPtr) { /* no EOI -> no JPEG */
-			gp_context_error (context, _("Sorry, your Fuji camera does not seem to return a JPEG image in LiveView mode"));
+			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
 			return GP_ERROR;
 		}
 		gp_file_append (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr);
 		free (ximage); /* FIXME: perhaps handle the 128 byte header data too. */
 
 		gp_file_set_mime_type (file, GP_MIME_JPEG);
-		gp_file_set_name (file, "sony_preview.jpg");
+		gp_file_set_name (file, "preview.jpg");
 		gp_file_set_mtime (file, time(NULL));
 
 		SET_CONTEXT_P(params, NULL);

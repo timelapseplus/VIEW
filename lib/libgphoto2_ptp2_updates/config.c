@@ -6604,6 +6604,53 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 }
 
 static int
+_put_Panasonic_ImageFormat(CONFIG_PUT_ARGS)
+{
+	PTPParams *params = &(camera->pl->params);
+	char *xval;
+	uint32_t val;
+
+	CR (gp_widget_get_value(widget, &xval));
+
+	sscanf (xval, "%lu", &val);
+	printf("setting ImageFormat to %lu (%s)\n", val, xval);
+
+	return ptp_panasonic_setdeviceproperty(params, 0x20000A2, &val, 2);
+}
+
+static int
+_get_Panasonic_ImageFormat(CONFIG_GET_ARGS) {
+	int val;
+
+	uint32_t currentVal;
+	uint32_t listCount;
+	uint32_t *list;
+
+	PTPParams *params = &(camera->pl->params);
+	ptp_panasonic_getdeviceproperty(params, 0x20000A2, 2, &currentVal, &list, &listCount);
+
+	//printf("retrieved %lu property values\n", listCount);
+
+	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
+	gp_widget_set_name (*widget, menu->name);
+
+	uint32_t i;
+	float f;
+	char buf[16];
+	for (i = 0; i < listCount; i++) {
+		sprintf (buf, "%lu", &list[i]);
+		gp_widget_add_choice (*widget, &buf);
+	}
+
+	sprintf (buf, "%dl", &currentVal);
+	gp_widget_set_value (*widget, &buf);
+
+	free(list);
+
+	return GP_OK;
+}
+
+static int
 _get_Canon_EOS_Bulb(CONFIG_GET_ARGS) {
 	int val;
 
@@ -7457,6 +7504,7 @@ static struct submenu image_settings_menu[] = {
 	{ N_("Image Format SD"),        "imageformatsd",        PTP_DPC_CANON_EOS_ImageFormatSD,        PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_EOS_ImageFormat,     _put_Canon_EOS_ImageFormat },
 	{ N_("Image Format CF"),        "imageformatcf",        PTP_DPC_CANON_EOS_ImageFormatCF,        PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_EOS_ImageFormat,     _put_Canon_EOS_ImageFormat },
 	{ N_("Image Format"),           "imageformat",          PTP_DPC_FUJI_Quality,                   PTP_VENDOR_FUJI,    PTP_DTC_UINT16, _get_Fuji_ImageFormat,          _put_Fuji_ImageFormat },
+	{ N_("Image Format"),           "imageformat",          0,					                    PTP_VENDOR_PANASONIC,PTP_DTC_UINT16, _get_Panasonic_ImageFormat,    _put_Panasonic_ImageFormat },
 	{ N_("Image Format Ext HD"),    "imageformatexthd",     PTP_DPC_CANON_EOS_ImageFormatExtHD,     PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_EOS_ImageFormat,     _put_Canon_EOS_ImageFormat },
 	{ N_("Image Size"),             "imagesize",            PTP_DPC_ImageSize,                      0,                  PTP_DTC_STR,    _get_ImageSize,                 _put_ImageSize },
 	{ N_("Image Size"),             "imagesize",            PTP_DPC_NIKON_1_ImageSize,              PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon1_ImageSize,          _put_Nikon1_ImageSize },

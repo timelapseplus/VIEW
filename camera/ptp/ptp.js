@@ -209,7 +209,11 @@ var startWorker = function(port) {
                             worker.supports.destination = false;
                         }
                     } else if(worker.model.match(/panasonic/i)) {
-                        worker.supports.liveview = false;
+                        if(worker.model.match(/gh5/i)) {
+                            worker.supports.liveview = true;
+                        } else {
+                            worker.supports.liveview = false;
+                        }
                         worker.supports.destination = true;
                     } else if(worker.model.match(/fuji/i)) {
                         worker.supports.liveview = true;
