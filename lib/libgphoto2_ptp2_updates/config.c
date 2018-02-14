@@ -6453,10 +6453,11 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		} else {
 			sprintf (buf, "1/%.1f", f);
 		}
-		sprintf (buf, "%ld", currentVal);
 	} else {
-		gp_widget_set_value (*widget, &buf);
+		sprintf (buf, "%ld", currentVal);
 	}
+
+	gp_widget_set_value (*widget, &buf);
 
 	free(list);
 
