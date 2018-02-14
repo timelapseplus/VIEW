@@ -4194,20 +4194,21 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	}  while (waiting_for_timeout (&back_off_wait, event_start, 1500)); /* wait for 1.5 seconds after busy is no longer signaled */
 
 	downloadfile:
-	printf("new object found:%lu\n", newobject);
+	path->name[0]='\0';
+	path->folder[0]='\0';
 
-	//GP_LOG_D ("DEBUG== fetching object from 0x%08x", newobject);
+	if (newobject != 0) {
+		PTPObject	*ob;
 
-	/* FIXME: handle multiple images (as in BurstMode) */
-	//C_PTP (ptp_getobjectinfo (params, newobject, &oi));
-
-	//sprintf (path->folder,"/");
-	//if (oi.ObjectFormat == PTP_OFC_SONY_RAW)
-	//	sprintf (path->name, "capt%04d.arw", capcnt++);
-	//else
-	//	sprintf (path->name, "capt%04d.jpg", capcnt++);
-
-	return ret;// add_objectid_and_upload (camera, path, context, newobject, &oi);
+		C_PTP_REP (ptp_object_want (params, newobject, PTPOBJECT_OBJECTINFO_LOADED, &ob));
+		strcpy  (path->name,  ob->oi.Filename);
+		sprintf (path->folder,"/"STORAGE_FOLDER_PREFIX"%08lx/",(unsigned long)ob->oi.StorageID);
+		get_folder_from_handle (camera, ob->oi.StorageID, ob->oi.ParentObject, path->folder);
+		/* delete last / or we get confused later. */
+		path->folder[ strlen(path->folder)-1 ] = '\0';
+		return gp_filesystem_append (camera->fs, path->folder, path->name, context);
+	}
+	return GP_ERROR;
 }
 
 static int
