@@ -6519,8 +6519,8 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
 		f = (float) list[i];
-		f /= 10;
-		if(f % 10 == 0) {
+		f /= 10.0;
+		if(list[i] % 10 == 0) {
 			sprintf (buf, "%.0f", f);
 		} else {
 			sprintf (buf, "%.1f", f);
@@ -6529,11 +6529,11 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 	}
 
 	f = (float) currentVal;
-	f /= 10;
-	if(f % 10 == 0) {
-		sprintf (buf, "f%.0f", f);
+	f /= 10.0;
+	if(currentVal % 10 == 0) {
+		sprintf (buf, "%.0f", f);
 	} else {
-		sprintf (buf, "f%.1f", f);
+		sprintf (buf, "%.1f", f);
 	}
 
 	gp_widget_set_value (*widget, &buf);
