@@ -6635,15 +6635,14 @@ _get_Panasonic_ImageFormat(CONFIG_GET_ARGS) {
 	gp_widget_set_name (*widget, menu->name);
 
 	uint32_t i;
-	float f;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		sprintf (buf, "%lu", &list[i]);
+		sprintf (buf, "%lu", list[i]);
 		gp_widget_add_choice (*widget, &buf);
 	}
 
 	sprintf (buf, "%lu", &currentVal);
-	gp_widget_set_value (*widget, &buf);
+	gp_widget_set_value (*widget, buf);
 
 	free(list);
 
