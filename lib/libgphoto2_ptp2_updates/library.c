@@ -4159,6 +4159,9 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	PTPDevicePropDesc	dpd;
 	struct timeval	event_start;
 
+	PTPContainer		event;
+	int			back_off_wait = 0;
+
 	//C_PTP (ptp_generic_getdevicepropdesc (params, PTP_DPC_CompressionSetting, &dpd));
 
 	//GP_LOG_D ("dpd.CurrentValue.u8 = %x", dpd.CurrentValue.u8);
@@ -4175,6 +4178,24 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	ret = ptp_panasonic_capture(params);
 
 	usleep(100);
+
+	do {
+		C_PTP_REP (ptp_check_event (params));
+
+		while (ptp_get_one_event(params, &event)) {
+			switch (event.Code) {
+			case 0xC108:
+				newobject = event.Param1;
+				goto downloadfile;
+			default:
+				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
+				break;
+			}
+		}
+	}  while (waiting_for_timeout (&back_off_wait, event_start, 1500)); /* wait for 1.5 seconds after busy is no longer signaled */
+
+	downloadfile:
+	printf("new object found:%lu\n", newobject);
 
 	//GP_LOG_D ("DEBUG== fetching object from 0x%08x", newobject);
 
