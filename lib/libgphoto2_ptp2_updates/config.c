@@ -6395,9 +6395,16 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 	PTPParams *params = &(camera->pl->params);
 	char *xval;
 	uint32_t val;
+	float f;
 
 	CR (gp_widget_get_value(widget, &xval));
-	sscanf (xval, "%ld", &val);	
+	if(xval[0] == '-') {
+		sscanf (xval, "%ld", &val);	
+	} else {
+		sscanf (xval, "1/%f", &f);
+		f *= 100;
+		val = (uint32_t) f;
+	}
 
 	printf("setting shutterspeed to %lu (%s)\n", val, xval);
 
@@ -6421,14 +6428,35 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	gp_widget_set_name (*widget, menu->name);
 
 	uint32_t i;
+	float f;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		sprintf (buf, "%ld", list[i]);
+		if(list[i] > 0) {
+			f = (float) list[i];
+			f /= 100;
+			if(list[i] % 100 == 0) {
+				sprintf (buf, "1/%.0f", f);
+			} else {
+				sprintf (buf, "1/%.1f", f);
+			}
+		} else {
+			sprintf (buf, "%ld", list[i]);
+		}
 		gp_widget_add_choice (*widget, &buf);
 	}
 
-	sprintf (buf, "%ld", currentVal);
-	gp_widget_set_value (*widget, &buf);
+	if(currentVal > 0) {
+		f = (float) currentVal;
+		f /= 100;
+		if(currentVal % 100 == 0) {
+			sprintf (buf, "1/%.0f", f);
+		} else {
+			sprintf (buf, "1/%.1f", f);
+		}
+		sprintf (buf, "%ld", currentVal);
+	} else {
+		gp_widget_set_value (*widget, &buf);
+	}
 
 	free(list);
 
