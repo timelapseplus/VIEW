@@ -6489,7 +6489,9 @@ _put_Panasonic_FNumber(CONFIG_PUT_ARGS)
 	uint32_t val;
 
 	CR (gp_widget_get_value(widget, &xval));
-	sscanf (xval, "%ld", &val);	
+	float f;
+	sscanf (xval, "f%f", &f);
+	val = (uint32_t) (f*10);
 
 	printf("setting ISO to %lu (%s)\n", val, xval);
 
@@ -6515,7 +6517,9 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 	uint32_t i;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		sprintf (buf, "%ld", list[i]);
+		float f = (float) list[i];
+		f /= 10;
+		sprintf (buf, "f%f", f);
 		gp_widget_add_choice (*widget, &buf);
 	}
 
