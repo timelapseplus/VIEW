@@ -6402,7 +6402,7 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 		sscanf (xval, "%ld", &val);	
 	} else {
 		sscanf (xval, "1/%f", &f);
-		f *= 100;
+		f *= 1000;
 		val = (uint32_t) f;
 	}
 
@@ -6433,8 +6433,8 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	for (i = 0; i < listCount; i++) {
 		if(list[i] > 0) {
 			f = (float) list[i];
-			f /= 100;
-			if(list[i] % 100 == 0) {
+			f /= 1000;
+			if(list[i] % 1000 == 0) {
 				sprintf (buf, "1/%.0f", f);
 			} else {
 				sprintf (buf, "1/%.1f", f);
@@ -6447,8 +6447,8 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 
 	if(currentVal > 0) {
 		f = (float) currentVal;
-		f /= 100;
-		if(currentVal % 100 == 0) {
+		f /= 1000;
+		if(currentVal % 1000 == 0) {
 			sprintf (buf, "1/%.0f", f);
 		} else {
 			sprintf (buf, "1/%.1f", f);
