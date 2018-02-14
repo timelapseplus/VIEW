@@ -354,12 +354,14 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
 		(camera->port->type == GP_PORT_USB) &&
 		(a.usb_product == 0x2382)
 	) {
-		C_MEM (di->OperationsSupported = realloc(di->OperationsSupported,sizeof(di->OperationsSupported[0])*(di->OperationsSupported_len + 4)));
+		C_MEM (di->OperationsSupported = realloc(di->OperationsSupported,sizeof(di->OperationsSupported[0])*(di->OperationsSupported_len + 6)));
 		di->OperationsSupported[di->OperationsSupported_len+0] = PTP_OC_PANASONIC_GetProperty;
 		di->OperationsSupported[di->OperationsSupported_len+1]  = PTP_OC_PANASONIC_SetProperty;
 		di->OperationsSupported[di->OperationsSupported_len+2]  = PTP_OC_PANASONIC_ListProperty;
 		di->OperationsSupported[di->OperationsSupported_len+3]  = PTP_OC_PANASONIC_InitiateCapture;
-		di->OperationsSupported_len += 4;
+		di->OperationsSupported[di->OperationsSupported_len+3]  = PTP_OC_PANASONIC_Liveview;
+		di->OperationsSupported[di->OperationsSupported_len+3]  = PTP_OC_PANASONIC_LiveviewImage;
+		di->OperationsSupported_len += 6;
 	}
 
 	/* Nikon DSLR hide its newer opcodes behind another vendor specific query,
@@ -2972,6 +2974,70 @@ enable_liveview:
 				C_PTP (ret);
 		} while (tries--);
 		C_PTP_REP (ptp_deleteobject(params, preview_object, 0));
+
+		/* look for the JPEG SOI marker (0xFFD8) in data */
+		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, size);
+		while(jpgStartPtr && ((jpgStartPtr+1) < (ximage + size))) {
+			if(*(jpgStartPtr + 1) == 0xd8) { /* SOI found */
+				break;
+			} else { /* go on looking (starting at next byte) */
+				jpgStartPtr++;
+				jpgStartPtr = (unsigned char*)memchr(jpgStartPtr, 0xff, ximage + size - jpgStartPtr);
+			}
+		}
+		if(!jpgStartPtr) { /* no SOI -> no JPEG */
+			gp_context_error (context, _("Sorry, your Fuji camera does not seem to return a JPEG image in LiveView mode"));
+			return GP_ERROR;
+		}
+		/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
+		   (just to be sure we will not go beyond the end of the data array) */
+		jpgEndPtr = (unsigned char*)memchr(jpgStartPtr+1, 0xff, ximage+size-jpgStartPtr-1);
+		while(jpgEndPtr && ((jpgEndPtr+1) < (ximage + size))) {
+			if(*(jpgEndPtr + 1) == 0xd9) { /* EOI found */
+				jpgEndPtr += 2;
+				break;
+			} else { /* go on looking (starting at next byte) */
+				jpgEndPtr++;
+				jpgEndPtr = (unsigned char*)memchr(jpgEndPtr, 0xff, ximage + size - jpgEndPtr);
+			}
+		}
+		if(!jpgEndPtr) { /* no EOI -> no JPEG */
+			gp_context_error (context, _("Sorry, your Fuji camera does not seem to return a JPEG image in LiveView mode"));
+			return GP_ERROR;
+		}
+		gp_file_append (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr);
+		free (ximage); /* FIXME: perhaps handle the 128 byte header data too. */
+
+		gp_file_set_mime_type (file, GP_MIME_JPEG);
+		gp_file_set_name (file, "sony_preview.jpg");
+		gp_file_set_mtime (file, time(NULL));
+
+		SET_CONTEXT_P(params, NULL);
+		return GP_OK;
+	}
+	case PTP_VENDOR_PANASONIC: {
+		unsigned char	*ximage = NULL;
+
+		uint16_t ret;
+
+		int		tries = 20;
+		for(;;) {
+			tries--;
+			if(tries <= 0) {
+				return ret;
+			}
+			ret = ptp_panasonic_liveview_image (params, &ximage, &size);
+			if(ret == PTP_RC_DeviceBusy) {
+				usleep(10000);
+				continue;
+			} else if(ret != PTP_RC_OK) {
+				C_PTP_REP(ptp_panasonic_liveview(params, 1)); // enable liveview
+				usleep(100000);
+				continue
+			} else {
+				break;
+			}
+		}
 
 		/* look for the JPEG SOI marker (0xFFD8) in data */
 		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, size);

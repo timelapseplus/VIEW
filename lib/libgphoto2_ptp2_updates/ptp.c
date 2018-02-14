@@ -3186,6 +3186,33 @@ ptp_panasonic_capture (PTPParams* params)
 	return ret;
 }
 
+uint16_t
+ptp_panasonic_liveview (PTPParams* params, int enable)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	uint32_t param1;
+	if(enable) {
+		param1 = 0xD000010;
+	} else {
+		param1 = 0xD000011;
+	}
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_Liveview, param1);
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+	return ret;
+}
+
+uint16_t
+ptp_panasonic_liveview_image (PTPParams* params, char **data, uint16_t *size)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	uint32_t param1;
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_LiveviewImage);
+	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, data, size);
+	return ret;
+}
+
 
 uint16_t
 ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,

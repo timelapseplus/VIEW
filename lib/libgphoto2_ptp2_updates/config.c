@@ -5963,6 +5963,37 @@ _put_Canon_EOS_ViewFinder(CONFIG_PUT_ARGS) {
 }
 
 static int
+_get_Panasonic_ViewFinder(CONFIG_GET_ARGS) {
+	int val;
+
+	gp_widget_new (GP_WIDGET_TOGGLE, _(menu->label), widget);
+	gp_widget_set_name (*widget, menu->name);
+	val = 2;	/* always changed, unless we can find out the state ... */
+	gp_widget_set_value  (*widget, &val);
+	return (GP_OK);
+}
+
+static int
+_put_Panasonic_ViewFinder(CONFIG_PUT_ARGS) {
+	int			val;
+	uint16_t		res;
+	PTPParams		*params = &(camera->pl->params);
+	PTPPropertyValue	xval;
+
+	CR (gp_widget_get_value(widget, &val));
+	if (val) {
+		res = ptp_panasonic_liveview (params, 1);
+		params->inliveview = 1;
+		return translate_ptp_result (res);
+	} else {
+		res = ptp_panasonic_liveview (params, 0);
+		params->inliveview = 0;
+		return translate_ptp_result (res);
+	}
+	return GP_OK;
+}
+
+static int
 _get_Nikon_ViewFinder(CONFIG_GET_ARGS) {
 	int			val;
 	PTPPropertyValue	value;
@@ -7322,6 +7353,7 @@ static struct submenu camera_actions_menu[] = {
 	{ N_("Canon EOS Zoom"),                 "eoszoom",          0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_Zoom,              _get_Canon_EOS_Zoom,            _put_Canon_EOS_Zoom },
 	{ N_("Canon EOS Zoom Position"),        "eoszoomposition",  0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_ZoomPosition,      _get_Canon_EOS_ZoomPosition,    _put_Canon_EOS_ZoomPosition },
 	{ N_("Canon EOS Viewfinder"),           "viewfinder",       0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_GetViewFinderData, _get_Canon_EOS_ViewFinder,      _put_Canon_EOS_ViewFinder },
+	{ N_("Panasonic Viewfinder"),           "viewfinder",       0,  PTP_VENDOR_PANASONIC, 0, 								_get_Panasonic_ViewFinder,      _put_Panasonic_ViewFinder },
 	{ N_("Nikon Viewfinder"),               "viewfinder",       0,  PTP_VENDOR_NIKON,   PTP_OC_NIKON_StartLiveView,         _get_Nikon_ViewFinder,          _put_Nikon_ViewFinder },
 	{ N_("Canon EOS Remote Release"),       "eosremoterelease", 0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_RemoteReleaseOn,   _get_Canon_EOS_RemoteRelease,   _put_Canon_EOS_RemoteRelease },
 	{ N_("CHDK Script"),                    "chdk_script",      0,  PTP_VENDOR_CANON,   PTP_OC_CHDK,                        _get_Canon_CHDK_Script,         _put_Canon_CHDK_Script },
