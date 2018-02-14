@@ -359,7 +359,7 @@ lists.getEvFromSettings = function(cameraSettings) {
 
 lists.format = [{
     name: "RAW",
-    values: ['RAW', 'raw', 'NEF (Raw)', 'mRAW', 'sRAW']
+    values: ['RAW', 'raw', 'NEF (Raw)', 'mRAW', 'sRAW', '3']
 }, {
     name: "RAW+JPEG",
     values: ['RAW+JPEG', 'raw+jpeg']
