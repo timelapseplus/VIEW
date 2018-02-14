@@ -4159,7 +4159,6 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	PTPDevicePropDesc	dpd;
 	struct timeval	event_start;
 
-	PTPContainer		event;
 	int			back_off_wait = 0;
 
 	//C_PTP (ptp_generic_getdevicepropdesc (params, PTP_DPC_CompressionSetting, &dpd));
