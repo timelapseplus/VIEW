@@ -194,6 +194,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
                 thm = img.downsize(size.x, size.y, size.q).process();
             }
         } else {
+            console.log("IMAGE: downsizeJpeg: ", size);
             thm = img.downsize(size.x, size.y, size.q).process();
         }
         //console.log("downsizeJpeg: Done.");
