@@ -338,7 +338,9 @@ function constantMove(motorId, speed, callback) {
                     }, 200);
                 })(motorId);
             } else {
-                return callback && callback(null); // only check position when stopped
+                joystickWatchdog(function(){ // reset watchdog
+                    return callback && callback(null); // only check position when stopped
+                });
             }
         } else {
             if(speed == 0) {
@@ -478,6 +480,15 @@ function setAppMode(callback) {
     });
 }
 
+function joystickWatchdog(callback) {
+    var cmd = {
+        motor: 0,
+        command: CMD_JOYSTICK_WATCHDOG,
+        dataBuf: new Buffer("01", 'hex')
+    }
+    _queueCommand(cmd, callback);
+}
+
 var enteringJoystickMode = false;
 function joystickMode(en, callback) {
     console.log("NMX: setting joystick mode to ", en);
@@ -510,17 +521,7 @@ function joystickMode(en, callback) {
                 dataBuf: new Buffer(en ? "01" : "00", 'hex')
             }
             _queueCommand(cmd, function(err) {});
-            cmd2 = {
-                motor: 0,
-                command: CMD_JOYSTICK_WATCHDOG,
-                dataBuf: new Buffer("01", 'hex')
-            }
-            //_queueCommand(cmd2, function(err) {});
-            //cmd3 = {
-            //    motor: 0,
-            //    command: CMD_MOTOR_STOP
-            //}
-            _queueCommand(cmd2, function(err) {
+            joystickWatchdog(function(err) {
                 checkMode();
             });
         } else {
