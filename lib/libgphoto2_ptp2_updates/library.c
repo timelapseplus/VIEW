@@ -4258,8 +4258,8 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				break;
 			case 0xC108:
 				newobject = event.Param1;
-				if(newobject & 0x18000000 != 0x18000000) break; // sometimes an object starting with 0x11 is reported, but we need to wait for another
-				goto downloadfile;
+				if((newobject & 0x18000000) == 0x18000000) goto downloadfile;; // sometimes an object starting with 0x11 is reported, but we need to wait for another
+				break;
 			default:
 				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
 				break;
