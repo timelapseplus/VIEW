@@ -154,55 +154,63 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     if (!jpeg) return;
 
-    var jpegPath;
+    //var jpegPath;
+    var jpegBuf;
 
     var jpegConfig = {};
     if (typeof jpeg == "string") {
-        console.log("IMAGE: downsizeJpeg: reading image file", jpeg);
-        //jpegBuf = fs.readFileSync(jpeg);
-        jpegPath = jpeg;
+        //console.log("IMAGE: downsizeJpeg: reading image file", jpeg);
+        jpegBuf = fs.readFileSync(jpeg);
+        //jpegPath = jpeg;
     } else {
-        console.log("IMAGE: downsizeJpeg: assuming image buffer, size=", jpeg.length);
-        jpegPath = "/tmp/thumbnail.jpg";
-        fs.writeFileSync(jpegPath, jpeg);
+        //console.log("IMAGE: downsizeJpeg: assuming image buffer, size=", jpeg.length);
+        //jpegPath = "/tmp/thumbnail.jpg";
+        //fs.writeFileSync(jpegPath, jpeg);
+        jpegBuf = jpeg;
     }
 
     var err = null;
     try {
-        console.log("IMAGE: loading jpeg...");
-        var img = new epeg.Image({
-            path: jpegPath
-        });
-        console.log("IMAGE: loaded jpeg");
+        imgSize = jpegSize(jpegBuf);
+        if(imgSize.width > size.x) {
+            //console.log("IMAGE: loading jpeg...");
+            var img = new epeg.Image({
+                //path: jpegPath
+                data: jpegBuf
+            });
+            //console.log("IMAGE: loaded jpeg");
 
-        var thm;
-        if (crop && crop.xPercent && crop.yPercent) {
-            imgSize = jpegSize(jpegBuf);
-            if (imgSize) {
-                if (crop.xPercent > 1) crop.xPercent /= 100;
-                if (crop.yPercent > 1) crop.yPercent /= 100;
-                crop.x = imgSize.width * crop.xPercent - size.x / 2;
-                crop.y = imgSize.height * crop.yPercent - size.y / 2;
-                if (crop.x < 0) crop.x = 0;
-                if (crop.y < 0) crop.y = 0;
-                if (crop.x > imgSize.width - size.x) crop.x = imgSize.width - size.x;
-                if (crop.y > imgSize.height - size.y) crop.y = imgSize.height - size.y;
-                //console.log("cropping to ", crop);
-                thm = img.crop(crop.x, crop.y, size.x, size.y, size.q).process();
+            var thm;
+            if (crop && crop.xPercent && crop.yPercent) {
+                imgSize = jpegSize(jpegBuf);
+                if (imgSize) {
+                    if (crop.xPercent > 1) crop.xPercent /= 100;
+                    if (crop.yPercent > 1) crop.yPercent /= 100;
+                    crop.x = imgSize.width * crop.xPercent - size.x / 2;
+                    crop.y = imgSize.height * crop.yPercent - size.y / 2;
+                    if (crop.x < 0) crop.x = 0;
+                    if (crop.y < 0) crop.y = 0;
+                    if (crop.x > imgSize.width - size.x) crop.x = imgSize.width - size.x;
+                    if (crop.y > imgSize.height - size.y) crop.y = imgSize.height - size.y;
+                    //console.log("cropping to ", crop);
+                    thm = img.crop(crop.x, crop.y, size.x, size.y, size.q).process();
+                } else {
+                    console.log("IMAGE: failed to read image size; not cropping");
+                    thm = img.downsize(size.x, size.y, size.q).process();
+                }
             } else {
-                console.log("IMAGE: failed to read image size; not cropping");
+                //console.log("IMAGE: downsizeJpeg: ", size);
                 thm = img.downsize(size.x, size.y, size.q).process();
             }
+            delete img;
         } else {
-            console.log("IMAGE: downsizeJpeg: ", size);
-            thm = img.downsize(size.x, size.y, size.q).process();
+            thm = jpegBuf;
         }
         //console.log("downsizeJpeg: Done.");
     } catch (e) {
         console.log("IMAGE: Error resizing photo", e);
         err = e;
     }
-    delete img;
     if (callback) callback(err, thm);
 }
 
