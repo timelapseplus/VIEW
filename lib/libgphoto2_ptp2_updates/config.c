@@ -6429,8 +6429,11 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 	float f;
 
 	CR (gp_widget_get_value(widget, &xval));
-	if(xval[0] == '-') {
-		sscanf (xval, "%ld", &val);	
+	if(xval[1] == '/') {
+		sscanf (xval, "%f", &f);	
+		f *= 1000;
+		val = (uint32_t) f;
+		val |= 0x80000000;
 	} else {
 		sscanf (xval, "1/%f", &f);
 		f *= 1000;
@@ -6462,7 +6465,16 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	float f;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		if(list[i] < 20000000 && list[i] > 1000) { // ~ >0 for int
+		if(list[i] & 0x80000000) { // ~ >0 for int
+			list[i] &= ~0x80000000;
+			f = (float) list[i];
+			f /= 1000;
+			if(list[i] % 1000 == 0) {
+				sprintf (buf, "%.0f", f);
+			} else {
+				sprintf (buf, "%.1f", f);
+			}
+		} else {
 			f = (float) list[i];
 			f /= 1000;
 			if(list[i] % 1000 == 0) {
@@ -6470,13 +6482,12 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 			} else {
 				sprintf (buf, "1/%.1f", f);
 			}
-		} else {
-			sprintf (buf, "%ld", list[i]);
 		}
 		gp_widget_add_choice (*widget, &buf);
 	}
 
-	if(currentVal < 20000000 && currentVal > 1000) { // ~ >0 for int
+	if(currentVal & 0x80000000) { // ~ >0 for int
+		currentVal &= ~0x80000000;
 		f = (float) currentVal;
 		f /= 1000;
 		if(currentVal % 1000 == 0) {
@@ -6485,7 +6496,13 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 			sprintf (buf, "1/%.1f", f);
 		}
 	} else {
-		sprintf (buf, "%ld", currentVal);
+		f = (float) currentVal;
+		f /= 1000;
+		if(currentVal % 1000 == 0) {
+			sprintf (buf, "%.0f", f);
+		} else {
+			sprintf (buf, "%.1f", f);
+		}
 	}
 
 	gp_widget_set_value (*widget, &buf);
