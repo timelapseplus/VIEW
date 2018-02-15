@@ -6429,15 +6429,17 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 	float f;
 
 	CR (gp_widget_get_value(widget, &xval));
-	if(xval[1] == '/') {
+	if(xval[0] == 'b' || xval[0] == 'B') {
+		val = 0xFFFFFFFF;
+	} else if(xval[1] == '/') {
+		sscanf (xval, "1/%f", &f);
+		f *= 1000;
+		val = (uint32_t) f;
+	} else {
 		sscanf (xval, "%f", &f);	
 		f *= 1000;
 		val = (uint32_t) f;
 		val |= 0x80000000;
-	} else {
-		sscanf (xval, "1/%f", &f);
-		f *= 1000;
-		val = (uint32_t) f;
 	}
 
 	printf("setting shutterspeed to %lu (%s)\n", val, xval);
@@ -6454,7 +6456,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000030, 4, &currentVal, &list, &listCount);
+	ptp_panasonic_getdevicepropertydesc(params, 0x2000030, 4, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -6465,7 +6467,9 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	float f;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		if(list[i] & 0x80000000) { // ~ >0 for int
+		if(currentVal == '0xFFFFFFFF') {
+			sprintf (buf, "bulb");
+		} else if(list[i] & 0x80000000) {
 			list[i] &= ~0x80000000;
 			f = (float) list[i];
 			f /= 1000;
@@ -6486,22 +6490,28 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		gp_widget_add_choice (*widget, &buf);
 	}
 
-	if(currentVal & 0x80000000) { // ~ >0 for int
+	if(currentVal == 0) {
+		ptp_panasonic_getdeviceproperty(params, 0x2000030, 4, &currentVal);
+	}
+
+	if(currentVal == '0xFFFFFFFF') {
+		sprintf (buf, "bulb");
+	} else if(currentVal & 0x80000000) {
 		currentVal &= ~0x80000000;
-		f = (float) currentVal;
-		f /= 1000;
-		if(currentVal % 1000 == 0) {
-			sprintf (buf, "1/%.0f", f);
-		} else {
-			sprintf (buf, "1/%.1f", f);
-		}
-	} else {
 		f = (float) currentVal;
 		f /= 1000;
 		if(currentVal % 1000 == 0) {
 			sprintf (buf, "%.0f", f);
 		} else {
 			sprintf (buf, "%.1f", f);
+		}
+	} else {
+		f = (float) currentVal;
+		f /= 1000;
+		if(currentVal % 1000 == 0) {
+			sprintf (buf, "1/%.0f", f);
+		} else {
+			sprintf (buf, "1/%.1f", f);
 		}
 	}
 
@@ -6536,7 +6546,7 @@ _get_Panasonic_ISO(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000020, 4, &currentVal, &list, &listCount);
+	ptp_panasonic_getdevicepropertydesc(params, 0x2000020, 4, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -6584,7 +6594,7 @@ _get_Panasonic_FNumber(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x2000040, 2, &currentVal, &list, &listCount);
+	ptp_panasonic_getdevicepropertydesc(params, 0x2000040, 2, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 
@@ -6644,7 +6654,7 @@ _get_Panasonic_ImageFormat(CONFIG_GET_ARGS) {
 	uint32_t *list;
 
 	PTPParams *params = &(camera->pl->params);
-	ptp_panasonic_getdeviceproperty(params, 0x20000A2, 2, &currentVal, &list, &listCount);
+	ptp_panasonic_getdevicepropertydesc(params, 0x20000A2, 2, &currentVal, &list, &listCount);
 
 	//printf("retrieved %lu property values\n", listCount);
 

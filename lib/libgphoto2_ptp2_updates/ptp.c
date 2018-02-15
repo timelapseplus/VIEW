@@ -3235,7 +3235,7 @@ ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 }
 
 uint16_t
-ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t valuesize, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
+ptp_panasonic_getdevicepropertydesc (PTPParams *params, uint32_t propcode, uint16_t valuesize, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
 {
 	PTPContainer	ptp;
 	unsigned char	*data;
@@ -3283,6 +3283,23 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 	return ret;
 }
 
+
+uint16_t
+ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t valuesize, uint32_t *currentValue)
+{
+	PTPContainer	ptp;
+	unsigned char	*data;
+	unsigned int 	size, len = 0;
+	uint16_t	ret = 0;
+
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_GetProperty, propcode);
+	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
+	if (!data) return PTP_RC_GeneralError;
+
+
+	free (data);
+	return ret;
+}
 
 /**
  * ptp_generic_getdevicepropdesc:
