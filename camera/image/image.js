@@ -156,10 +156,10 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     var jpegConfig = {};
     if (typeof jpeg == "string") {
-        //console.log("downsizeJpeg: reading image file", jpeg);
+        console.log("downsizeJpeg: reading image file", jpeg);
         jpegBuf = fs.readFileSync(jpeg);
     } else {
-        //console.log("downsizeJpeg: assuming image buffer");
+        console.log("downsizeJpeg: assuming image buffer, size=", jpeg.length);
         jpegBuf = jpeg;
     }
 
