@@ -4373,7 +4373,7 @@ app.on('message', function(msg) {
             case 'preview':
                 console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
-                    if (previewImage)
+                    if (previewImage) {
                         if(previewImage.time > previewImageLastTime) {
                             console.log("preview request, using cached frame:", !!previewImage);
                             previewImageLastTime = previewImage.time;
