@@ -169,6 +169,8 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         var img = new epeg.Image({
             data: jpegBuf
         });
+        console.log("IMAGE: loaded jpeg");
+
         var thm;
         if (crop && crop.xPercent && crop.yPercent) {
             imgSize = jpegSize(jpegBuf);
