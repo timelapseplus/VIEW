@@ -4373,11 +4373,15 @@ app.on('message', function(msg) {
             case 'preview':
                 console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
-                    if (previewImage && previewImage.time > previewImageLastTime) {
-                        console.log("preview request, using cached frame:", !!previewImage);
-                        previewImageLastTime = previewImage.time;
-                        app.send('photo');
-                        app.send('thumbnail', previewImage);
+                    if (previewImage)
+                        if(previewImage.time > previewImageLastTime) {
+                            console.log("preview request, using cached frame:", !!previewImage);
+                            previewImageLastTime = previewImage.time;
+                            app.send('photo');
+                            app.send('thumbnail', previewImage);
+                        } else {
+                            liveviewRequestStart = true;
+                        }
                     }
                 } else {
                     if(!core.intervalometerStatus.running) {
@@ -4559,6 +4563,7 @@ core.on('camera.photo', function() {
 
         if (previewImage.imageType == "photo" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
             liveviewRequestStart = false;
+            previewImageLastTime = previewImage.time;
             app.send('photo');
             app.send('thumbnail', previewImage);
         }
