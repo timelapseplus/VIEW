@@ -4371,6 +4371,7 @@ app.on('message', function(msg) {
 
             case 'preview':
                 if (liveviewOn) {
+                    console.log("preview request, using cached frame:", !!previewImage);
                     if (previewImage) msg.reply(previewImage);
                 } else {
                     if(!core.intervalometerStatus.running) {
@@ -4492,7 +4493,7 @@ app.on('message', function(msg) {
 var thmIndex = "1";
 core.on('camera.photo', function() {
     if (core.photo && core.photo.jpeg) {
-
+        console.log("EVENT: camera.photo, type=", core.photo.type);
         if (core.intervalometerStatus.running) {
             liveviewOn = false;
             liveviewOnStream = false;
