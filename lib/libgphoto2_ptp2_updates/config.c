@@ -6462,7 +6462,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	float f;
 	char buf[16];
 	for (i = 0; i < listCount; i++) {
-		if(list[i] < 20000000) { // ~ >0 for int
+		if(list[i] < 20000000 && list[i] > 1000) { // ~ >0 for int
 			f = (float) list[i];
 			f /= 1000;
 			if(list[i] % 1000 == 0) {
@@ -6476,7 +6476,7 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 		gp_widget_add_choice (*widget, &buf);
 	}
 
-	if(currentVal < 20000000) { // ~ >0 for int
+	if(currentVal < 20000000 && currentVal > 1000) { // ~ >0 for int
 		f = (float) currentVal;
 		f /= 1000;
 		if(currentVal % 1000 == 0) {

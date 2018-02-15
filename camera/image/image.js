@@ -160,8 +160,8 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         jpegBuf = fs.readFileSync(jpeg);
     } else {
         console.log("IMAGE: downsizeJpeg: assuming image buffer, size=", jpeg.length, "type=", typeof(jpeg));
-        if(Buffer.isBuffer(jpeg)) console.log("IMAGE: jpeg is buffer");
         jpegBuf = jpeg;
+        if(Buffer.isBuffer(jpegBuf)) console.log("IMAGE: jpegBuf is buffer");
         jpegBuf = fs.writeFileSync("/tmp/thumbnail.jpg", jpegBuf);
     }
 
