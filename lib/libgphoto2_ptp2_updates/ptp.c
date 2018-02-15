@@ -3289,8 +3289,8 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 {
 	PTPContainer	ptp;
 	unsigned char	*data;
-	unsigned int 	size, len = 0;
-	uint16_t	ret = 0;
+	unsigned int 	size;
+	uint16_t	ret = PTP_RC_OK;
 
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_GetProperty, propcode);
 	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
@@ -3299,9 +3299,8 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 	if(size < 8) return PTP_RC_GeneralError;
 	*valuesize = dtoh32a( (data + 4) );
 
-	printf("ptp_panasonic_getdeviceproperty: size: %lu, valuesize: %d\n", size, *valuesize);
 
-	if(size < 8 + *valuesize) return PTP_RC_GeneralError;
+	if(size < 8 + (*valuesize)) return PTP_RC_GeneralError;
 	if(valuesize == 4) {
 		*currentValue = dtoh32a( (data + 8) );
 	} else if(valuesize == 2) {
@@ -3309,6 +3308,7 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 	} else {
 		return PTP_RC_GeneralError;
 	}
+	printf("ptp_panasonic_getdeviceproperty: size: %lu, valuesize: %d, currentValue: %lu\n", size, *valuesize, *currentValue);
 
 	free (data);
 	return ret;
