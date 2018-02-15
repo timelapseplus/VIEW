@@ -3299,6 +3299,8 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 	if(size < 8) return PTP_RC_GeneralError;
 	*valuesize = dtoh32a( (data + 4) );
 
+	printf("ptp_panasonic_getdeviceproperty: size: %lu, valuesize: %d\n", size, *valuesize);
+
 	if(size < 8 + *valuesize) return PTP_RC_GeneralError;
 	if(valuesize == 4) {
 		*currentValue = dtoh32a( (data + 8) );
