@@ -156,10 +156,15 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     var jpegConfig = {};
     if (typeof jpeg == "string") {
-        console.log("downsizeJpeg: reading image file", jpeg);
+        console.log("IMAGE: downsizeJpeg: reading image file", jpeg);
         jpegBuf = fs.readFileSync(jpeg);
     } else {
-        console.log("downsizeJpeg: assuming image buffer, size=", jpeg.length, "type=", typeof(jpeg));
+        console.log("IMAGE: downsizeJpeg: assuming image buffer, size=", jpeg.length, "type=", typeof(jpeg));
+        if(typeof jpeg == 'object') {
+            for(key in jpeg) {
+                console.log("IMAGE: jpeg object key=", key);
+            }
+        }
         jpegBuf = jpeg;
         jpegBuf = fs.writeFileSync("/tmp/thumbnail.jpg", jpegBuf);
     }
