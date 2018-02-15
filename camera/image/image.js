@@ -159,15 +159,15 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
         console.log("downsizeJpeg: reading image file", jpeg);
         jpegBuf = fs.readFileSync(jpeg);
     } else {
-        console.log("downsizeJpeg: assuming image buffer, size=", jpeg.length);
+        console.log("downsizeJpeg: assuming image buffer, size=", jpeg.length, "type=", typeof(jpeg));
         jpegBuf = jpeg;
-        jpegBuf = fs.writeFileSync("/tmp/thumbnail.jpg", jpeg);
+        jpegBuf = fs.writeFileSync("/tmp/thumbnail.jpg", jpegBuf);
     }
 
     var err = null;
     try {
         var img = new epeg.Image({
-            data: jpegBuf
+            data: new Buffer(jpegBuf)
         });
         console.log("IMAGE: loaded jpeg");
 
