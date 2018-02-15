@@ -171,8 +171,9 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     var err = null;
     try {
+        console.log("IMAGE: loading jpeg...");
         var img = new epeg.Image({
-            data: new Buffer(jpegBuf)
+            data: jpegBuf
         });
         console.log("IMAGE: loaded jpeg");
 
