@@ -4380,6 +4380,7 @@ app.on('message', function(msg) {
                             app.send('photo');
                             app.send('thumbnail', previewImage);
                         } else {
+                            power.performance('high');
                             liveviewRequestStart = true;
                         }
                     }
@@ -4388,6 +4389,7 @@ app.on('message', function(msg) {
                         previewImageLastTime = new Date();
                         liveviewRequestStart = true;
                         liveviewOn = true;
+                        power.performance('high');
                         core.preview();
                     }
                 }
@@ -4408,6 +4410,7 @@ app.on('message', function(msg) {
                 liveviewRequestStart = false;
                 core.lvOff();
                 ui.reload();
+                if(!core.intervalometerStatus.running) power.performance('medium');
                 break;
 
             case 'zoom':
