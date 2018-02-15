@@ -3296,14 +3296,14 @@ ptp_panasonic_getdeviceproperty (PTPParams *params, uint32_t propcode, uint16_t 
 	CHECK_PTP_RC(ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size));
 	if (!data) return PTP_RC_GeneralError;
 
-	if(size < 4) return PTP_RC_GeneralError;
-	*valuesize = dtoh32a( (data) );
+	if(size < 8) return PTP_RC_GeneralError;
+	*valuesize = dtoh32a( (data + 4) );
 
-	if(size < 4 + *valuesize) return PTP_RC_GeneralError;
+	if(size < 8 + *valuesize) return PTP_RC_GeneralError;
 	if(valuesize == 4) {
-		*currentValue = dtoh32a( (data + 4) );
+		*currentValue = dtoh32a( (data + 8) );
 	} else if(valuesize == 2) {
-		*currentValue = (uint32_t) dtoh16a( (data + 4) );
+		*currentValue = (uint32_t) dtoh16a( (data + 8) );
 	} else {
 		return PTP_RC_GeneralError;
 	}
