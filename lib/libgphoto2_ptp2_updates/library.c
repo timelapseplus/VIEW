@@ -4246,12 +4246,20 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	usleep(100);
 
+	event_start = time_now();
+
+	int new_object_event_count = 0;
 	do {
 		C_PTP_REP (ptp_check_event (params));
 
 		while (ptp_get_one_event(params, &event)) {
 			switch (event.Code) {
+			case 0xC107:
+				event_start = time_now(); // still working...
+				break;
 			case 0xC108:
+				new_object_event_count++;
+				if(new_object_event_count < 2) break; // seems like two events happen, the first is for the folder or something
 				newobject = event.Param1;
 				goto downloadfile;
 			default:
