@@ -4370,9 +4370,13 @@ app.on('message', function(msg) {
                 break;
 
             case 'preview':
+                console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
                     console.log("preview request, using cached frame:", !!previewImage);
-                    if (previewImage) msg.reply(previewImage);
+                    if (previewImage) {
+                        app.send('photo');
+                        app.send('thumbnail', previewImage);
+                    }
                 } else {
                     if(!core.intervalometerStatus.running) {
                         liveviewRequestStart = true;
@@ -4548,7 +4552,7 @@ core.on('camera.photo', function() {
             histogram: core.photo.histogram
         };
 
-        if (previewImage.imageType == "photo" || liveviewRequestStart) {
+        if (previewImage.imageType == "photo" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
             liveviewRequestStart = false;
             app.send('photo');
             app.send('thumbnail', previewImage);
