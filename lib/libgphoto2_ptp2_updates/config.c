@@ -6491,7 +6491,8 @@ _get_Panasonic_Shutter(CONFIG_GET_ARGS) {
 	}
 
 	if(currentVal == 0) {
-		ptp_panasonic_getdeviceproperty(params, 0x2000030, 4, &currentVal);
+		uint16_t valuesize;
+		ptp_panasonic_getdeviceproperty(params, 0x2000030, &valuesize, &currentVal);
 	}
 
 	if(currentVal == '0xFFFFFFFF') {
