@@ -4530,8 +4530,8 @@ core.on('camera.photo', function() {
                 if(liveviewOnStream) core.previewFull();
                 app.addJpegFrame(core.photo.jpeg);
             } else {
-                app.addJpegFrame(core.photo.jpeg);
-                app.addJpegFrame(core.photo.jpeg);
+                //app.addJpegFrame(core.photo.jpeg);
+                //app.addJpegFrame(core.photo.jpeg);
                 var size = {
                     x: 160,
                     q: 80

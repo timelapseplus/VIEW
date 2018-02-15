@@ -1360,7 +1360,7 @@ angular.module('app', ['ionic', 'ngWebSocket', 'LocalStorageModule'])
         if(joystickRepeatTimers[axisName]) $timeout.cancel(joystickRepeatTimers[axisName]);
         joystickRepeatTimers[axisName] = $timeout(function(){
             $scope.joystick(axisName, speed);
-        }, 1000);
+        }, 600);
 
         if(speed && joystickTimers[axisName]) return false; // rate limit per axis
 

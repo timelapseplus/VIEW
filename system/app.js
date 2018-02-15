@@ -45,7 +45,7 @@ var jpegFrame = null;
 var connectedStreams = [];
 
 //express.get('/camera/stream.mjpeg', function(req, res) {
-var streamServer = http.createServer(function(req, res) {
+/*var streamServer = http.createServer(function(req, res) {
     console.log("APP: stream request started");
     res.writeHead(200, {
         'Cache-Control': 'no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
@@ -70,7 +70,7 @@ var streamServer = http.createServer(function(req, res) {
         connectedStreams.splice(res.index, 1);
     });
 });
-streamServer.listen(9000);
+streamServer.listen(9000);*/
 
 app.addJpegFrame = function(frameBuffer) {
     jpegFrame = frameBuffer;
