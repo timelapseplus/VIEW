@@ -67,6 +67,7 @@ var previewImage = null;
 var liveviewOn = false;
 var liveviewOnStream = false;
 var liveviewRequestStart = false;
+var previewImageLastTime = new Date();
 var gpsExists = null;
 
 var cache = {};
@@ -4372,13 +4373,15 @@ app.on('message', function(msg) {
             case 'preview':
                 console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
-                    console.log("preview request, using cached frame:", !!previewImage);
-                    if (previewImage) {
+                    if (previewImage && previewImage.time > previewImageLastTime) {
+                        console.log("preview request, using cached frame:", !!previewImage);
+                        previewImageLastTime = previewImage.time;
                         app.send('photo');
                         app.send('thumbnail', previewImage);
                     }
                 } else {
                     if(!core.intervalometerStatus.running) {
+                        previewImageLastTime = new Date();
                         liveviewRequestStart = true;
                         liveviewOn = true;
                         core.preview();
@@ -4400,6 +4403,7 @@ app.on('message', function(msg) {
                 liveviewOnStream = false;
                 liveviewRequestStart = false;
                 core.lvOff();
+                ui.reload();
                 break;
 
             case 'zoom':
@@ -4549,7 +4553,8 @@ core.on('camera.photo', function() {
             jpeg: core.photo.base64,
             zoomed: core.photo.zoomed,
             imageType: core.photo.type,
-            histogram: core.photo.histogram
+            histogram: core.photo.histogram,
+            time: new Date()
         };
 
         if (previewImage.imageType == "photo" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
