@@ -161,6 +161,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
     } else {
         console.log("downsizeJpeg: assuming image buffer, size=", jpeg.length);
         jpegBuf = jpeg;
+        jpegBuf = fs.writeFileSync("/tmp/thumbnail.jpg", jpeg);
     }
 
     var err = null;
