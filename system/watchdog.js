@@ -24,7 +24,7 @@ exports.watch = function(pid, timeout) {
 		clearTimeout(processes[pid].timer);
 		processes[pid].timer = timer(pid, timeout || processes[pid].timeout);
 	} else {
-		timeout = timeout || 15000;
+		timeout = timeout || 30000;
 		processes[pid] = {
 			timeout: timeout,
 			timer: timer(pid, timeout)

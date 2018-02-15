@@ -4248,7 +4248,6 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	event_start = time_now();
 
-	int new_object_event_count = 0;
 	do {
 		C_PTP_REP (ptp_check_event (params));
 
@@ -4258,9 +4257,8 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				event_start = time_now(); // still working...
 				break;
 			case 0xC108:
-				new_object_event_count++;
-				if(new_object_event_count < 2) break; // seems like two events happen, the first is for the folder or something
 				newobject = event.Param1;
+				if(newobject & 0x18000000 != 0x18000000) break; // sometimes an object starting with 0x11 is reported, but we need to wait for another
 				goto downloadfile;
 			default:
 				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
