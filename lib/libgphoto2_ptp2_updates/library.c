@@ -119,7 +119,7 @@ struct special_file {
 static unsigned int nrofspecial_files = 0;
 static struct special_file *special_files = NULL;
 
-static uint32_t lastCaptureObjectHandle = 0;
+static uint32_t lastCaptureObjectHandle = 0, lastCaptureObjectParentHandle = 0;;
 
 static int
 add_special_file (char *name, getfunc_t getfunc, putfunc_t putfunc) {
@@ -4280,6 +4280,9 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		lastCaptureObjectHandle = newobject;
 
 		C_PTP_REP (ptp_object_want (params, newobject, PTPOBJECT_OBJECTINFO_LOADED, &ob));
+
+		lastCaptureObjectParentHandle = ob->oi.ParentObject;
+
 		strcpy  (path->name,  ob->oi.Filename);
 		sprintf (path->folder,"/"STORAGE_FOLDER_PREFIX"%08lx/",(unsigned long)ob->oi.StorageID);
 		get_folder_from_handle (camera, ob->oi.StorageID, ob->oi.ParentObject, path->folder);
@@ -6447,6 +6450,10 @@ retry:
 		PTPObject	*ob;
 		uint16_t	ret;
 		uint32_t	handle;
+
+		if(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) { // for now, only apply this limit to Panasonic (needed for speed with the GH5)
+			if(lastCaptureObjectParentHandle && params->objects[i].oid != lastCaptureObjectParentHandle) continue; // only add the last folder for speed
+		}
 
 		C_PTP_REP (ptp_object_want (params, params->objects[i].oid, PTPOBJECT_STORAGEID_LOADED|PTPOBJECT_PARENTOBJECT_LOADED, &ob));
 
