@@ -4280,7 +4280,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		get_folder_from_handle (camera, ob->oi.StorageID, ob->oi.ParentObject, path->folder);
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
-		return gp_filesystem_append (camera->fs, path->folder, path->name, context);
+		return GP_OK;//gp_filesystem_append (camera->fs, path->folder, path->name, context);
 	}
 	return GP_ERROR;
 }
