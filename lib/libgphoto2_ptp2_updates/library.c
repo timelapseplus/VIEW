@@ -8250,6 +8250,10 @@ ptp_list_folder (PTPParams *params, uint32_t storage, uint32_t handle) {
 		PTPObject	*ob;
 		unsigned int	j;
 
+		if(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) { // for now, only apply this limit to Panasonic (needed for speed with the GH5)
+			if(lastCaptureObjectHandle && lastCaptureObjectParentHandle && handles.Handler[i] != lastCaptureObjectHandle && handles.Handler[i] != lastCaptureObjectParentHandle) continue; // only add the last photo for speed
+		}
+
 		ob = NULL;
 		for (j=0;j<params->nrofobjects;j++) {
 			if (params->objects[(last+j)%params->nrofobjects].oid == handles.Handler[i])  {
