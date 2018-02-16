@@ -6451,7 +6451,8 @@ retry:
 		uint16_t	ret;
 		uint32_t	handle;
 
-		if(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) { // for now, only apply this limit to Panasonic (needed for speed with the GH5)
+		if(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC && params->nrofobjects < 10) { // for now, only apply this limit to Panasonic (needed for speed with the GH5)
+			printf("lastCaptureObjectParentHandle=%lu, params->objects[i].oid=%lu", lastCaptureObjectParentHandle, params->objects[i].oid);
 			if(lastCaptureObjectParentHandle && params->objects[i].oid != lastCaptureObjectParentHandle) continue; // only add the last folder for speed
 		}
 
