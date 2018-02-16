@@ -6442,7 +6442,7 @@ _put_Panasonic_Shutter(CONFIG_PUT_ARGS)
 		val |= 0x80000000;
 	}
 
-	printf("setting shutterspeed to %lu (%s)\n", val, xval);
+	//printf("setting shutterspeed to %lu (%s)\n", val, xval);
 
 	return ptp_panasonic_setdeviceproperty(params, 0x2000031, &val, 4);
 }
@@ -6533,7 +6533,7 @@ _put_Panasonic_ISO(CONFIG_PUT_ARGS)
 	CR (gp_widget_get_value(widget, &xval));
 	sscanf (xval, "%ld", &val);	
 
-	printf("setting ISO to %lu (%s)\n", val, xval);
+	//printf("setting ISO to %lu (%s)\n", val, xval);
 
 	return ptp_panasonic_setdeviceproperty(params, 0x2000021, &val, 4);
 }
@@ -6581,7 +6581,7 @@ _put_Panasonic_FNumber(CONFIG_PUT_ARGS)
 	sscanf (xval, "%f", &f);
 	val = (uint32_t) (f*10);
 
-	printf("setting ISO to %lu (%s)\n", val, xval);
+	//printf("setting ISO to %lu (%s)\n", val, xval);
 
 	return ptp_panasonic_setdeviceproperty(params, 0x2000041, &val, 2);
 }
@@ -6641,7 +6641,7 @@ _put_Panasonic_ImageFormat(CONFIG_PUT_ARGS)
 	CR (gp_widget_get_value(widget, &xval));
 
 	sscanf (xval, "%lu", &val);
-	printf("setting ImageFormat to %lu (%s)\n", val, xval);
+	//printf("setting ImageFormat to %lu (%s)\n", val, xval);
 
 	return ptp_panasonic_setdeviceproperty(params, 0x20000A2, &val, 2);
 }

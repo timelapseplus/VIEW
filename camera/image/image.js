@@ -171,8 +171,8 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
     var err = null;
     try {
-        imgSize = jpegSize(jpegBuf);
-        if(imgSize.width > size.x) {
+        var imgSize = jpegSize(jpegBuf);
+        if(!imgSize || imgSize.width > size.x) {
             //console.log("IMAGE: loading jpeg...");
             var img = new epeg.Image({
                 //path: jpegPath
@@ -182,7 +182,6 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
 
             var thm;
             if (crop && crop.xPercent && crop.yPercent) {
-                imgSize = jpegSize(jpegBuf);
                 if (imgSize) {
                     if (crop.xPercent > 1) crop.xPercent /= 100;
                     if (crop.yPercent > 1) crop.yPercent /= 100;
@@ -312,13 +311,13 @@ exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, cal
 }
 
 exports.getJpegBuffer = function(jpegPath, callback) {
-    console.log("IMAGE: Loading JPEG as buffer...");
+    //console.log("IMAGE: Loading JPEG as buffer...");
     var err = null;
     try {
         fs.readFile(jpegPath, function(err, jpg) {
             if (callback) callback(err, jpg);
         });
-        console.log("IMAGE: Done.");
+        //console.log("IMAGE: Done.");
     } catch (e) {
         console.log("IMAGE: Error loading photo (" + jpegPath + ")", e);
         err = e;

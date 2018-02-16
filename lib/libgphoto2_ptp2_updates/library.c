@@ -3026,7 +3026,7 @@ enable_liveview:
 			usleep(100000);
 		}
 
-		int		tries = 20;
+		int		tries = 25;
 		for(;;) {
 			tries--;
 			if(tries <= 0) {
@@ -3034,7 +3034,7 @@ enable_liveview:
 			}
 			ret = ptp_panasonic_liveview_image (params, &ximage, &size);
 			if(ret == PTP_RC_DeviceBusy) {
-				usleep(10000);
+				usleep(40000);
 				continue;
 			} else {
 				break;
