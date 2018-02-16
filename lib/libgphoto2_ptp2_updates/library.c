@@ -119,6 +119,8 @@ struct special_file {
 static unsigned int nrofspecial_files = 0;
 static struct special_file *special_files = NULL;
 
+static uint32_t lastCaptureObjectHandle = 0;
+
 static int
 add_special_file (char *name, getfunc_t getfunc, putfunc_t putfunc) {
 	C_MEM (special_files = realloc (special_files, sizeof(special_files[0])*(nrofspecial_files+1)));
@@ -4268,19 +4270,44 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	}  while (waiting_for_timeout (&back_off_wait, event_start, 1500)); /* wait for 1.5 seconds after busy is no longer signaled */
 
 	downloadfile:
+	
 	path->name[0]='\0';
 	path->folder[0]='\0';
 
 	if (newobject != 0) {
 		PTPObject	*ob;
 
+		lastCaptureObjectHandle = newobject;
+		
 		C_PTP_REP (ptp_object_want (params, newobject, PTPOBJECT_OBJECTINFO_LOADED, &ob));
 		strcpy  (path->name,  ob->oi.Filename);
 		sprintf (path->folder,"/"STORAGE_FOLDER_PREFIX"%08lx/",(unsigned long)ob->oi.StorageID);
 		get_folder_from_handle (camera, ob->oi.StorageID, ob->oi.ParentObject, path->folder);
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
-		return GP_OK;//gp_filesystem_append (camera->fs, path->folder, path->name, context);
+
+		ret = gp_filesystem_append (camera->fs, path->folder, path->name, context);
+
+		/* we also get the fs info for free, so just set it */
+		CameraFileInfo info;
+		info.file.fields = GP_FILE_INFO_TYPE |
+				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+				GP_FILE_INFO_SIZE | GP_FILE_INFO_MTIME;
+		strcpy_mime (info.file.type, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
+		info.file.width		= oi->ImagePixWidth;
+		info.file.height	= oi->ImagePixHeight;
+		info.file.size		= oi->ObjectCompressedSize;
+		info.file.mtime		= time(NULL);
+
+		info.preview.fields = GP_FILE_INFO_TYPE |
+				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+				GP_FILE_INFO_SIZE;
+		strcpy_mime (info.preview.type, params->deviceinfo.VendorExtensionID, oi->ThumbFormat);
+		info.preview.width	= oi->ThumbPixWidth;
+		info.preview.height	= oi->ThumbPixHeight;
+		info.preview.size	= oi->ThumbCompressedSize;
+		GP_LOG_D ("setting fileinfo in fs");
+		return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
 	}
 	return GP_ERROR;
 }
@@ -6287,6 +6314,10 @@ retry:
     for (i = 0; i < params->nrofobjects; i++) {
 	PTPObject	*ob;
 	uint16_t	ret;
+
+	if(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) { // for now, only apply this limit to Panasonic (needed for speed with the GH5)
+		if(lastCaptureObjectHandle && params->objects[i].oid != lastCaptureObjectHandle) continue; // only add the last photo for speed
+	}
 
 	/* not our parent -> next */
 	C_PTP_REP (ptp_object_want (params, params->objects[i].oid, PTPOBJECT_PARENTOBJECT_LOADED|PTPOBJECT_STORAGEID_LOADED, &ob));
