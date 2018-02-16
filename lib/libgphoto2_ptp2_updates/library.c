@@ -4293,19 +4293,19 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		info.file.fields = GP_FILE_INFO_TYPE |
 				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
 				GP_FILE_INFO_SIZE | GP_FILE_INFO_MTIME;
-		strcpy_mime (info.file.type, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
-		info.file.width		= oi->ImagePixWidth;
-		info.file.height	= oi->ImagePixHeight;
-		info.file.size		= oi->ObjectCompressedSize;
+		strcpy_mime (info.file.type, params->deviceinfo.VendorExtensionID, ob->oi->ObjectFormat);
+		info.file.width		= ob->oi->ImagePixWidth;
+		info.file.height	= ob->oi->ImagePixHeight;
+		info.file.size		= ob->oi->ObjectCompressedSize;
 		info.file.mtime		= time(NULL);
 
 		info.preview.fields = GP_FILE_INFO_TYPE |
 				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
 				GP_FILE_INFO_SIZE;
-		strcpy_mime (info.preview.type, params->deviceinfo.VendorExtensionID, oi->ThumbFormat);
-		info.preview.width	= oi->ThumbPixWidth;
-		info.preview.height	= oi->ThumbPixHeight;
-		info.preview.size	= oi->ThumbCompressedSize;
+		strcpy_mime (info.preview.type, params->deviceinfo.VendorExtensionID, ob->oi->ThumbFormat);
+		info.preview.width	= ob->oi->ThumbPixWidth;
+		info.preview.height	= ob->oi->ThumbPixHeight;
+		info.preview.size	= ob->oi->ThumbCompressedSize;
 		GP_LOG_D ("setting fileinfo in fs");
 		return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
 	}
