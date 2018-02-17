@@ -163,6 +163,7 @@ exports.getTimelapseIndex = function(callback) {
 					index = parseInt(m[0]);
 				}
 			}
+
 			callback(err, index);
 		}
 	});

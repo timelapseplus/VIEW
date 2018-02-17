@@ -920,10 +920,18 @@ intervalometer.run = function(program) {
                 db.getTimelapseIndex(function(err, tlIndex){
 
                     if (!tlIndex) {
-                        tlIndex = 1;
-                    } else {
-                        tlIndex++;
+                        tlIndex = 0;
                     }
+                    if(index < 99) index += 99;
+
+                    var list = fs.readdirSync(TLROOT);
+                    console.log("Intervalometer: time-lapse list:", list);
+                    var name;
+                    do {
+                        tlIndex++;
+                        name = "tl-" + tlIndex;
+                    } while(list.indexOf(name) !== -1);
+
                     status.tlName = "tl-" + tlIndex;
                     console.log("==========> TIMELAPSE START", status.tlName);
                     intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
