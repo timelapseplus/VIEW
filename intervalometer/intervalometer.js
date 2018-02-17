@@ -922,7 +922,7 @@ intervalometer.run = function(program) {
                     if (!tlIndex) {
                         tlIndex = 0;
                     }
-                    if(index < 99) index += 99;
+                    if(tlIndex < 99) tlIndex += 99;
 
                     var list = fs.readdirSync(TLROOT);
                     console.log("Intervalometer: time-lapse list:", list);
