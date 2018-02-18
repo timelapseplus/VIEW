@@ -4268,7 +4268,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				break;
 			}
 		}
-	}  while (waiting_for_timeout (&back_off_wait, event_start, 30000)); /* wait for 30 seconds after busy is no longer signaled */
+	}  while (waiting_for_timeout (&back_off_wait, event_start, 60000)); /* wait for 60 seconds after busy is no longer signaled */
 
 	downloadfile:
 	
