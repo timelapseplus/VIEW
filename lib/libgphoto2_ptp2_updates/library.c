@@ -4255,6 +4255,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 		while (ptp_get_one_event(params, &event)) {
 			switch (event.Code) {
+			case 0xC101:
 			case 0xC107:
 				event_start = time_now(); // still working...
 				break;
@@ -4267,7 +4268,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				break;
 			}
 		}
-	}  while (waiting_for_timeout (&back_off_wait, event_start, 1500)); /* wait for 1.5 seconds after busy is no longer signaled */
+	}  while (waiting_for_timeout (&back_off_wait, event_start, 30000)); /* wait for 30 seconds after busy is no longer signaled */
 
 	downloadfile:
 	
