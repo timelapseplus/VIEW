@@ -4244,9 +4244,9 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	uint16_t	ret;
 
-	do { // clear out old events
-		C_PTP_REP (ptp_check_event (params));
-	} while (ptp_get_one_event(params, &event));
+	// clear out old events
+	C_PTP_REP (ptp_check_event (params));
+	while (ptp_get_one_event(params, &event));
 
 	ret = ptp_panasonic_capture(params);
 
