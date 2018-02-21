@@ -3796,7 +3796,7 @@ if (VIEW_HARDWARE) {
         if (gestureModeHandle) clearTimeout(gestureModeHandle);
         if (!gestureMode) {
             gestureMode = true;
-            oled.png('/home/view/current/media/gesture-oled.png');
+            //oled.png('/home/view/current/media/gesture-oled.png');
         }
         gestureModeHandle = setTimeout(function() {
             if (gestureMode) {
