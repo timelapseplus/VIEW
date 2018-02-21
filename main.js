@@ -200,7 +200,7 @@ if (VIEW_HARDWARE) {
 
     var wifiWasDisabled = false;
     var wifiConnectionTime = 0;
-    wifi.on('btReset', function(){
+    wifi.on('resetBt', function(){
         console.log("BT: btReset event");
         if(wifi.btEnabled) {
             console.log("BT: reloading motion system");
