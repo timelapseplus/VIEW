@@ -2685,7 +2685,7 @@ if (VIEW_HARDWARE) {
                 });
             },
             condition: function() {
-                return wifi.btEnabled && wifi.enabled;
+                return wifi.btEnabled && wifi.enabled && (wifi.connected || wifi.apMode);
             }
         }, {
             name: "Enable Bluetooth",
@@ -2699,7 +2699,17 @@ if (VIEW_HARDWARE) {
                 });
             },
             condition: function() {
-                return !wifi.btEnabled && wifi.enabled;
+                return !wifi.btEnabled && wifi.enabled && (wifi.connected || wifi.apMode);
+            }
+        }, {
+            name: "Enable Bluetooth",
+            help: help.btEnableMenu,
+            action: function(){
+                ui.back();
+                ui.alert('Enable Bluetooth', "Before enabling Bluetooth, first connect to a wifi access point (Connect to Network) or enable the built-in access point (Enable built-in AP)");
+            },
+            condition: function() {
+                return wifi.enabled && !(wifi.connected || wifi.apMode);
             }
         }, {
             name: "Set built-in AP Name",

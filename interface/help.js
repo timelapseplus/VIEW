@@ -46,7 +46,7 @@ exports.eraseAllSettingsMenu = "Warning! This will erase all stored settings, in
 
 exports.wifiPassword = "Enter the WiFi password here. Use the lower-right button to select the character mode (uppercase, lowercase, number, etc). Use the knob to scroll through the characters options for the current mode.\nPress the knob to advance the cursor, press and hold the knob while turning to move the cursor.\nWhen complete, press the middle right button to save and connect, or use the top right to cancel.";
 
-exports.btEnableMenu = "This will enable Bluetooth and allow automatically connecting to a nearby NMX motion controller (this functionality is still limited and in development)";
+exports.btEnableMenu = "This will enable Bluetooth and allow automatically connecting to a nearby NMX motion controller (this functionality is still limited and in development).  The VIEW must first either be connected to a wifi access point (Connect to Network) or have the built-in access point enabled (Enable built-in AP).";
 
 exports.btDisableMenu = "This disables Bluetooth.";
 
