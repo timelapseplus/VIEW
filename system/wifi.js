@@ -176,6 +176,7 @@ wifi.enableBt = function(cb) {
 	disableBtReset = false;
 	wifi.btEnabled = true;
 	exec(BT_ENABLE, function(err) {
+		wifi.emit("resetBt");
 		if(cb) cb(err);
 	});
 }
