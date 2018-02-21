@@ -124,8 +124,9 @@ iw.on('join', function(data) {
 		wifi.enableAP(); // resets the AP to use the current channel
 	}
 	if(!disableBtReset && wifi.btEnabled) {
-	    wifi.resetBt();
-		wifi.emit("resetBt");
+	    wifi.resetBt(function(){
+			wifi.emit("resetBt");
+	    });
 	}
 });
 
@@ -141,7 +142,7 @@ iw.on('leave', function() {
 		wifi.emit("disconnect", wifi.connected);
 	}
 	wifi.connected = false;
-	disableBtReset = true;
+	if(!wifi.apMode) disableBtReset = true;
 });
 
 iw.on('stop', function() {
@@ -308,9 +309,11 @@ wifi.enableAP = function(callback) {
 			hostApdConfig(ssid, pass, channel, function(){
 				exec(ENABLE_AP, function(err) {
 					if(callback) callback(err);
+					disableBtReset = false;
 				    if(wifi.btEnabled) {
-					    wifi.resetBt();
-						wifi.emit("resetBt");
+					    wifi.resetBt(function(){
+							wifi.emit("resetBt");
+					    });
 				    }
 				});
 			});
