@@ -200,6 +200,11 @@ if (VIEW_HARDWARE) {
 
     var wifiWasDisabled = false;
     var wifiConnectionTime = 0;
+    wifi.on('btReset', function(){
+        if(wifi.btEnabled) {
+            core.resetBt();
+        }
+    });
     wifi.on('connect', function(ssid) {
         app.enableRemote();
         oled.setIcon('wifi', true);
@@ -213,10 +218,6 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', false);
         if(wifiWasDisabled) {
             wifiWasDisabled = false;
-            if(wifi.btEnabled) {
-                core.resetBt();
-                wifi.resetBt();
-            }
         }
         if(reload) ui.reload();
     });

@@ -13,7 +13,7 @@ var BT_RESET = "sudo rfkill block bluetooth; sleep 1; sudo rfkill unblock blueto
 var BT_BLOCK = "sudo rfkill block bluetooth;";
 var BT_UNBLOCK = "sudo rfkill unblock bluetooth;";
 var BT_DISABLE = BT_BLOCK;//"sudo modprobe -r btusb";
-var BT_ENABLE = BT_UNBLOCK;//"sudo modprobe btusb";
+var BT_ENABLE = BT_RESET;//"sudo modprobe btusb";
 
 var iw = new Wireless({ iface:'wlan0', iface2: false, updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -38,6 +38,8 @@ var HOSTAPD_CONFIG_PATH = "/etc/hostapd/hostapd.conf";
 
 var list = {};
 var listCallback = null;
+
+var disableBtReset = false;
 
 wifi.apMode = false;
 wifi.enabled = false;
@@ -121,6 +123,10 @@ iw.on('join', function(data) {
 	if(dualInterface && wifi.connected.channel && wifi.apMode) {
 		wifi.enableAP(); // resets the AP to use the current channel
 	}
+	if(!disableBtReset && wifi.btEnabled) {
+	    wifi.resetBt();
+		wifi.emit("resetBt");
+	}
 });
 
 iw.on('former', function(data) {
@@ -135,6 +141,7 @@ iw.on('leave', function() {
 		wifi.emit("disconnect", wifi.connected);
 	}
 	wifi.connected = false;
+	disableBtReset = true;
 });
 
 iw.on('stop', function() {
@@ -166,6 +173,7 @@ wifi.stop = function() {
 }
 
 wifi.enableBt = function(cb) {
+	disableBtReset = false;
 	wifi.btEnabled = true;
 	exec(BT_ENABLE, function(err) {
 		if(cb) cb(err);
@@ -173,6 +181,7 @@ wifi.enableBt = function(cb) {
 }
 
 wifi.disableBt = function(cb) {
+	disableBtReset = false;
 	wifi.btEnabled = false;
 	exec(BT_DISABLE, function(err) {
 		if(cb) cb(err);
@@ -180,6 +189,7 @@ wifi.disableBt = function(cb) {
 }
 
 wifi.resetBt = function(cb) {
+	disableBtReset = false;
 	if(wifi.btEnabled) {
 		exec(BT_RESET, function(err) {
 			if(cb) cb(err);
@@ -188,18 +198,21 @@ wifi.resetBt = function(cb) {
 }
 
 wifi.blockBt = function(cb) {
+	disableBtReset = false;
 	exec(BT_BLOCK, function(err) {
 		if(cb) cb(err);
 	});
 }
 
 wifi.unblockBt = function(cb) {
+	disableBtReset = false;
 	exec(BT_UNBLOCK, function(err) {
 		if(cb) cb(err);
 	});
 }
 
 wifi.powerCycle = function(cb) {
+	disableBtReset = false;
 	wifi.disable(function(){
 		setTimeout(function(){
 			wifi.enable(cb);
@@ -208,6 +221,7 @@ wifi.powerCycle = function(cb) {
 }
 
 wifi.enable = function(cb) {
+	disableBtReset = false;
 	powerControl(true, function(err) {
 		iw.enable(function(err) {
 			if(!err) {
@@ -227,6 +241,7 @@ wifi.enable = function(cb) {
 }
 
 wifi.disable = function(cb, disableEvents) {
+	disableBtReset = false;
 	var disable = function() {
 		wifi.disconnect();
 		wifi.stop();
@@ -246,6 +261,7 @@ wifi.disable = function(cb, disableEvents) {
 }
 
 wifi.connect = function(network, password, callback) {
+	disableBtReset = false;
 	var join = function() { 
 		iw.join(network, password, function(){
 			iw.dhcp(function(){
@@ -267,6 +283,7 @@ wifi.connect = function(network, password, callback) {
 }
 
 wifi.disconnect = function(callback) {
+	disableBtReset = false;
 	if(wifi.connected) {
 		wifi.connected = false;
 		wifi.emit("disconnect", false);
@@ -278,6 +295,7 @@ wifi.disconnect = function(callback) {
 }
 
 wifi.enableAP = function(callback) {
+	disableBtReset = false;
 	var enableAP = function() {
 		wifi.disconnect();
 		wifi.stop();
@@ -289,6 +307,10 @@ wifi.enableAP = function(callback) {
 			hostApdConfig(ssid, pass, channel, function(){
 				exec(ENABLE_AP, function(err) {
 					if(callback) callback(err);
+				    if(wifi.btEnabled) {
+					    wifi.resetBt();
+						wifi.emit("resetBt");
+				    }
 				});
 			});
 		});
