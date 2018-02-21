@@ -196,6 +196,8 @@ wifi.resetBt = function(cb) {
 		exec(BT_RESET, function(err) {
 			if(cb) cb(err);
 		});
+	} else {
+		console.log("WIFI: bt disabled, not resetting");
 	}
 }
 
