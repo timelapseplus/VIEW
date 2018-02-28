@@ -645,7 +645,7 @@ function parseIncoming() {
 
 function readData(cb) {
     if(!_dev) return cb && cb("not connected");
-    var tries = 10; // 1 second
+    var tries = 10; // 2 seconds
     var checkForData = function() {
         if(!_dev) return cb && cb("not connected");
         if (receiveBuf.length > 0) {
@@ -655,7 +655,7 @@ function readData(cb) {
         } else {
             if (tries > 0) {
                 tries--;
-                setTimeout(checkForData, 100);
+                setTimeout(checkForData, 200);
             } else {
                 console.log("NMX: timed out waiting for data");
                 if (cb) cb("timed out");
