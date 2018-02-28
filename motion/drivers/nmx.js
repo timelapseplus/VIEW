@@ -344,9 +344,16 @@ function constantMove(motorId, speed, callback) {
                     }, 200);
                 })(motorId);
             } else {
-                joystickWatchdog(function(){ // reset watchdog
+                joystickWatchdog(function(err){ // reset watchdog
                     joystickAxisBusy[motorId] = false;
-                    return callback && callback(null); // only check position when stopped
+                    if(err) {
+                        inJoystickMode = false;
+                        joystickMode(true, function(){ // reset joystick mode if there was an error
+                            return callback && callback(null); // only check position when stopped
+                        });
+                    } else {
+                        return callback && callback(null); // only check position when stopped
+                    }
                 });
             }
         } else {
@@ -655,7 +662,7 @@ function readData(cb) {
         } else {
             if (tries > 0) {
                 tries--;
-                setTimeout(checkForData, 200);
+                setTimeout(checkForData, 100);
             } else {
                 console.log("NMX: timed out waiting for data");
                 if (cb) cb("timed out");
@@ -917,7 +924,7 @@ function _runQueue(queueItem, rec) {
                             console.log("NMX: read data:", data);
                             item.callback && item.callback(null, _parseNMXData(data));
                             setTimeout(function() {
-                                _runQueue(null, true);
+                                _runQueue(err, true);
                             }, COMMAND_SPACING_MS);
                         });
                     }, item.readbackDelayMs);
@@ -926,7 +933,7 @@ function _runQueue(queueItem, rec) {
                         console.log("NMX: read data (discarded):", data);
                         item.callback && item.callback(null);
                         setTimeout(function() {
-                            _runQueue(null, true);
+                            _runQueue(err, true);
                         }, COMMAND_SPACING_MS);
                     });
                 } else {
