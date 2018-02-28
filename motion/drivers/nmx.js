@@ -347,14 +347,9 @@ function constantMove(motorId, speed, callback) {
                 joystickWatchdog(function(err){ // reset watchdog
                     if(err) {
                         inJoystickMode = false;
-                        joystickMode(true, function(){ // reset joystick mode if there was an error
-                            joystickAxisBusy[motorId] = false;
-                            return callback && callback(null); // only check position when stopped
-                        });
-                    } else {
-                        joystickAxisBusy[motorId] = false;
-                        return callback && callback(null); // only check position when stopped
                     }
+                    joystickAxisBusy[motorId] = false;
+                    return callback && callback(null); // only check position when stopped
                 });
             }
         } else {

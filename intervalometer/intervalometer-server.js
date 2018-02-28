@@ -455,7 +455,7 @@ function startScan() {
     if(btleScanStarting) return;
     btleScanStarting = true;
     clearScanTimeouts()
-    scanTimerHandle = setTimeout(startScan, 30000);
+    scanTimerHandle = setTimeout(startScan, 20000);
     if (noble.state == "poweredOn") {
         scanTimerHandle2 = setTimeout(function() {
             noble.stopScanning();
@@ -470,7 +470,7 @@ function startScan() {
               console.log("not scanning, BT state:", noble.state);
             }
             btleScanStarting = false;
-        }, 8000);
+        }, 6000);
     } else {
         btleScanStarting = false;
         var status = motion.nmx.getStatus();
