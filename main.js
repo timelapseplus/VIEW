@@ -4591,13 +4591,15 @@ core.on('camera.photo', function() {
         if (previewImage.imageType == "photo" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
             liveviewRequestStart = false;
             previewImageLastTime = previewImage.time;
-            app.send('photo');
-            app.send('thumbnail', previewImage);
+            setTimeout(function(){
+                app.send('photo');
+                app.send('thumbnail', previewImage);
+            }, liveviewRequestStart ? 50 : 0);
         }
         if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             if(liveviewOn) {
                 console.log("LV: requesting next frame");
-                core.preview();
+                setTimeout(core.preview, liveviewOnApp ? 150 : 0);
             }
         }
     }
