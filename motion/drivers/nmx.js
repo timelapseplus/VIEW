@@ -289,18 +289,23 @@ function setMaxSpeed(motorId, speed, callback) {
 }
 
 var inJoystickMode = null;
+var resetJoystickMode = false;
 var enabled = {};
 var joystickAxisBusy = {1: false, 2: false, 3: false};
 function constantMove(motorId, speed, callback) {
     console.log("NMX: moving motor (constant) " + motorId + " at speed " + speed);
     if(!enabled[motorId]) enable(motorId);
-    if(!inJoystickMode) return joystickMode(true, function(){
-        if(inJoystickMode) {
-            constantMove(motorId, speed, callback);
-        } else {
-            callback && callback("failed to enter joystick mode");
-        }
-    });
+    if(!inJoystickMode || resetJoystickMode) {
+        inJoystickMode = null;
+        return joystickMode(true, function(){
+            resetJoystickMode = false;
+            if(inJoystickMode) {
+                constantMove(motorId, speed, callback);
+            } else {
+                callback && callback("failed to enter joystick mode");
+            }
+        });
+    }
 
     if(joystickAxisBusy[motorId] && speed != 0) return callback(null);
 
@@ -346,7 +351,7 @@ function constantMove(motorId, speed, callback) {
             } else {
                 joystickWatchdog(function(err){ // reset watchdog
                     if(err) {
-                        inJoystickMode = false;
+                        resetJoystickMode = true;
                     }
                     joystickAxisBusy[motorId] = false;
                     return callback && callback(null); // only check position when stopped
