@@ -24,46 +24,48 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
             return;
         }
         console.log('GenieMini(' + self._id + '): connecting via BLE');
-        btPeripheral.discoverServices(self.btServiceIds, function(err2, services) {
-            if (services && services[0]) {
-                services[0].discoverCharacteristics([], function(err, characteristics) {
-                    //console.log("characteristics:", characteristics);
-                    self._gmCh = null;
-                    self._dev = null;
-                    for (var i = 0; i < characteristics.length; i++) {
-                        ch = characteristics[i];
-                        console.log("ch.uuid", ch.uuid);
-                        if (ch.uuid == "2") {
-                            self._gmCh = ch;
+        setTimeout(function(){
+            btPeripheral.discoverServices(self.btServiceIds, function(err2, services) {
+                if (services && services[0]) {
+                    services[0].discoverCharacteristics([], function(err, characteristics) {
+                        //console.log("characteristics:", characteristics);
+                        self._gmCh = null;
+                        self._dev = null;
+                        for (var i = 0; i < characteristics.length; i++) {
+                            ch = characteristics[i];
+                            console.log("ch.uuid", ch.uuid);
+                            if (ch.uuid == "2") {
+                                self._gmCh = ch;
+                            }
                         }
-                    }
-                    if (self._gmCh) {
-                        self._gmCh.write(new Buffer("012600", 'hex'));
-                        self._gmCh.subscribe(function(){
-                            self._dev = btPeripheral;
-                            self._dev.connected = true;
-                            self.connected = true;
-                            self._dev.type = "bt";
-                            self._gmCh.on('data', function(data, isNotification) {
-                                self._parseIncoming(data);
+                        if (self._gmCh) {
+                            self._gmCh.write(new Buffer("012600", 'hex'));
+                            self._gmCh.subscribe(function(){
+                                self._dev = btPeripheral;
+                                self._dev.connected = true;
+                                self.connected = true;
+                                self._dev.type = "bt";
+                                self._gmCh.on('data', function(data, isNotification) {
+                                    self._parseIncoming(data);
+                                });
+                                console.log("GenieMini(" + self._id + "): connected!");
+                                self._init();
+                                if (callback) callback(true);
                             });
-                            console.log("GenieMini(" + self._id + "): connected!");
-                            self._init();
-                            if (callback) callback(true);
-                        });
-                    } else {
-                        console.log("GenieMini(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
-                        btPeripheral.disconnect();
-                        if (callback) callback(false);
-                    }
-                });
-            } else {
-                console.log("GenieMini(" + self._id + "): couldn't locate services, disconnecting... ", err2);
-                btPeripheral.disconnect();
-                if (callback) callback(false);
-            }
+                        } else {
+                            console.log("GenieMini(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
+                            btPeripheral.disconnect();
+                            if (callback) callback(false);
+                        }
+                    });
+                } else {
+                    console.log("GenieMini(" + self._id + "): couldn't locate services, disconnecting... ", err2);
+                    btPeripheral.disconnect();
+                    if (callback) callback(false);
+                }
 
-        });
+            });
+        }, 1000);
 
         btPeripheral.once('disconnect', function() {
             console.log("GenieMini(" + self._id + "): disconnected");
