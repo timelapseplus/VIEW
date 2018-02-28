@@ -52,11 +52,13 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                             if (callback) callback(true);
                         });
                     } else {
+                        console.log("GenieMini(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
                         btPeripheral.disconnect();
                         if (callback) callback(false);
                     }
                 });
             } else {
+                console.log("GenieMini(" + self._id + "): couldn't locate services, disconnecting... ", err2);
                 btPeripheral.disconnect();
                 if (callback) callback(false);
             }

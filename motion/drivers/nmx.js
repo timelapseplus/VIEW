@@ -768,56 +768,60 @@ function _connectBt(btPeripheral, callback) {
             return;
         }
         console.log('NMX: connecting via BLE');
-        btPeripheral.discoverServices(nmx.btServiceIds, function(err2, services) {
-            if (services && services[0]) {
-                services[0].discoverCharacteristics([], function(err, characteristics) {
-                    //console.log("characteristics:", characteristics);
-                    _nmxCommandCh = null;
-                    _nmxReadCh = null;
-                    _dev = null;
-                    for (var i = 0; i < characteristics.length; i++) {
-                        ch = characteristics[i];
-                        if (ch.uuid == "bf45e40ade2a4bc8bba0e5d6065f1b4b") {
-                            _nmxCommandCh = ch;
+        setTimeout(function(){
+            btPeripheral.discoverServices(nmx.btServiceIds, function(err2, services) {
+                if (services && services[0]) {
+                    services[0].discoverCharacteristics([], function(err, characteristics) {
+                        //console.log("characteristics:", characteristics);
+                        _nmxCommandCh = null;
+                        _nmxReadCh = null;
+                        _dev = null;
+                        for (var i = 0; i < characteristics.length; i++) {
+                            ch = characteristics[i];
+                            if (ch.uuid == "bf45e40ade2a4bc8bba0e5d6065f1b4b") {
+                                _nmxCommandCh = ch;
+                            }
+                            if (ch.uuid == "f897177baee847678ecccc694fd5fcee") {
+                                _nmxReadCh = ch;
+                                //console.log("NMX read ch:", ch);
+                            }
                         }
-                        if (ch.uuid == "f897177baee847678ecccc694fd5fcee") {
-                            _nmxReadCh = ch;
-                            //console.log("NMX read ch:", ch);
-                        }
-                    }
-                    if (_nmxReadCh && _nmxCommandCh) {
-                        _nmxReadCh.subscribe(function(){
-                            _dev = btPeripheral;
-                            _dev.connected = true;
-                            _dev.type = "bt";
-                            _nmxReadCh.subscribe();
-                            _nmxReadCh.on('data', function(data, isNotification) {
-                                if(isNotification) {
-                                    if (buf && buf.length > 0) {
-                                        buf = Buffer.concat([buf, data]);
-                                    } else {
-                                        buf = data;
+                        if (_nmxReadCh && _nmxCommandCh) {
+                            _nmxReadCh.subscribe(function(){
+                                _dev = btPeripheral;
+                                _dev.connected = true;
+                                _dev.type = "bt";
+                                _nmxReadCh.subscribe();
+                                _nmxReadCh.on('data', function(data, isNotification) {
+                                    if(isNotification) {
+                                        if (buf && buf.length > 0) {
+                                            buf = Buffer.concat([buf, data]);
+                                        } else {
+                                            buf = data;
+                                        }
+                                        parseIncoming();
                                     }
-                                    parseIncoming();
-                                }
+                                });
+                                console.log("NMX: connected!");
+                                init();
+                                if (callback) callback(true);
                             });
-                            console.log("NMX: connected!");
-                            init();
-                            if (callback) callback(true);
-                        });
-                    } else {
-                        if(_dev) _dev.connected = false;
-                        btPeripheral.disconnect();
-                        if (callback) callback(false);
-                    }
-                });
-            } else {
-                if(_dev) _dev.connected = false;
-                btPeripheral.disconnect();
-                if (callback) callback(false);
-            }
+                        } else {
+                            if(_dev) _dev.connected = false;
+                            console.log("NMX: couldn't locate characteristics, disconnecting... ", err);
+                            btPeripheral.disconnect();
+                            if (callback) callback(false);
+                        }
+                    });
+                } else {
+                    if(_dev) _dev.connected = false;
+                    console.log("NMX: couldn't locate services, disconnecting... ", err2);
+                    btPeripheral.disconnect();
+                    if (callback) callback(false);
+                }
 
-        });
+            });
+        }, 1000);
 
         btPeripheral.once('disconnect', function() {
             console.log("NMX: disconnected");

@@ -466,6 +466,8 @@ function startScan() {
                 noble.startScanning(motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds), false, function(err){
                     console.log("BLE scan started: ", err);
                 });
+            } else {
+              console.log("not scanning, BT state:", noble.state);
             }
             btleScanStarting = false;
         }, 8000);
@@ -478,9 +480,6 @@ function startScan() {
           //status = motion.nmx.getStatus();
           sendEvent('motion.status', motion.status);
         }
-        //if(wifi.btEnabled) {
-        //    wifi.resetBt();
-        //}
     }
 }
 
@@ -496,6 +495,8 @@ function btStateChange(state) {
             startScan()
         });
     } else if(state == "poweredOff") {
+        stopScan();
+        btleScanStarting = false;
         var status = motion.nmx.getStatus();
         console.log("CORE: NMX status:", status);
         if(status.connected && status.connectionType == "bt") {
@@ -566,6 +567,7 @@ function btDiscover(peripheral) {
 
 function cleanUpBt() {
   stopScan();
+  btleScanStarting = false;
   noble.removeListener('stateChange', btStateChange);
   noble.removeListener('discover', btDiscover);
   noble = null;

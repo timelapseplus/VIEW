@@ -65,6 +65,7 @@ console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 
 var previewImage = null;
 var liveviewOn = false;
+var liveviewOnApp = false;
 var liveviewOnStream = false;
 var liveviewRequestStart = false;
 var previewImageLastTime = new Date();
@@ -1506,6 +1507,7 @@ if (VIEW_HARDWARE) {
             }
 
             liveviewOn = true;
+            liveviewOnApp = false;
             core.preview();
             console.log("(exposure) started liveview, getting settings...");
             inputs.on('B', captureButtonHandler);
@@ -2220,6 +2222,7 @@ if (VIEW_HARDWARE) {
                             }, 600);
                         } else {
                             liveviewOn = true;
+                            liveviewOnApp = false;
                             core.preview();
                         }
                     });
@@ -2251,6 +2254,7 @@ if (VIEW_HARDWARE) {
 
             oled.block();
             liveviewOn = true;
+            liveviewOnApp = false;
             inputs.on('B', captureButtonHandler);
             console.log("(capture) started liveview, getting settings...");
             core.getSettings(function() {
@@ -4386,6 +4390,7 @@ app.on('message', function(msg) {
             case 'preview':
                 console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
+                    liveviewOnApp = true;
                     if (previewImage) {
                         if(previewImage.time > previewImageLastTime) {
                             console.log("preview request, using cached frame:", !!previewImage);
@@ -4402,6 +4407,7 @@ app.on('message', function(msg) {
                         previewImageLastTime = new Date();
                         liveviewRequestStart = true;
                         liveviewOn = true;
+                        liveviewOnApp = true;
                         power.performance('high');
                         core.preview();
                     }
@@ -4412,6 +4418,7 @@ app.on('message', function(msg) {
                 if (!liveviewOnStream && !core.intervalometerStatus.running) {
                     liveviewOnStream = true;
                     liveviewOn = false;
+                    liveviewOnApp = true;
                     liveviewRequestStart = false;
                     core.previewFull();
                 }
@@ -4419,6 +4426,7 @@ app.on('message', function(msg) {
 
             case 'previewStop':
                 liveviewOn = false;
+                liveviewOnApp = false;
                 liveviewOnStream = false;
                 liveviewRequestStart = false;
                 core.lvOff();
@@ -4552,7 +4560,7 @@ core.on('camera.photo', function() {
                     x: 160,
                     q: 80
                 }
-                if (VIEW_HARDWARE && (core.photo.type != 'preview' || liveviewOn)) {
+                if (VIEW_HARDWARE && (core.photo.type != 'preview' || (liveviewOn && !liveviewOnApp))) {
                     console.log("displaying image...", core.photo.type);
                     image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                         if (!err && jpgBuf) {
