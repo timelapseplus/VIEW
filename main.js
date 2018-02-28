@@ -4425,13 +4425,16 @@ app.on('message', function(msg) {
                 break;
 
             case 'previewStop':
-                liveviewOn = false;
-                liveviewOnApp = false;
-                liveviewOnStream = false;
-                liveviewRequestStart = false;
-                core.lvOff();
-                ui.reload();
-                if(!core.intervalometerStatus.running) power.performance('medium');
+                setTimeout(function(){
+                    console.log("liveview stop request");
+                    liveviewOn = false;
+                    liveviewOnApp = false;
+                    liveviewOnStream = false;
+                    liveviewRequestStart = false;
+                    core.lvOff();
+                    ui.reload();
+                    if(!core.intervalometerStatus.running) power.performance('medium');
+                }, 200);
                 break;
 
             case 'zoom':
