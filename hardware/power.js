@@ -76,11 +76,11 @@ power.performance = function(mode, callback) {
         },
         medium: {
             voltage: 1.25,
-            frequency: 528
+            frequency: 432
         },
         high: {
             voltage: 1.3,
-            frequency: 624
+            frequency: 576 //624
         }
     }
     if(!voltFreq[mode]) mode = "medium";
