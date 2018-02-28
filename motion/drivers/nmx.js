@@ -896,7 +896,8 @@ function _runQueue(queueItem, rec) {
     }
 
     //console.log("NMX: running queue...");
-    var nextItem = _nmxQueue.shift();
+    var nextItem = nextItem = _nmxQueue.shift();
+
     if (!_dev || !_dev.state || _dev.state != "connected") {
         _queueRunning = false;
         _nmxQueue = [];
@@ -910,7 +911,6 @@ function _runQueue(queueItem, rec) {
         return;
     }
 
-
     if (nextItem) {
         console.log("NMX: writing", nextItem.buffer);
         (function(item) {
@@ -923,18 +923,18 @@ function _runQueue(queueItem, rec) {
                         readData(function(err, data) {
                             if(err) console.log("NMX: error reading:", err);
                             console.log("NMX: read data:", data);
-                            item.callback && item.callback(null, _parseNMXData(data));
+                            item.callback && item.callback(err, _parseNMXData(data));
                             setTimeout(function() {
-                                _runQueue(err, true);
+                                _runQueue(null, true);
                             }, COMMAND_SPACING_MS);
                         });
                     }, item.readbackDelayMs);
                 } else if(item.ack) {
                     readData(function(err, data) {
                         console.log("NMX: read data (discarded):", data);
-                        item.callback && item.callback(null);
+                        item.callback && item.callback(err);
                         setTimeout(function() {
-                            _runQueue(err, true);
+                            _runQueue(null, true);
                         }, COMMAND_SPACING_MS);
                     });
                 } else {
