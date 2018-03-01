@@ -223,6 +223,17 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
     this._moving = true;
 
+    if(this._watchdog) {
+        clearTimeout(this._watchdog);
+        this._watchdog = null;
+    }
+    if(speed) {
+        this._watchdog = setTimeout(function(){
+            console.log("GenieMini(" + self._id + "): stopping via watchdog");
+            this.constantMove(motor, 0);
+        }, 3000);
+    }
+
     var sendMove = function() {
         self._write(0x003F, dataBuf, function(err) {
             if (!err) {
