@@ -1460,7 +1460,7 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 				break;							\
 			}								\
 											\
-			usleep(200*1000);						\
+			usleep(100*1000);						\
 											\
 			time(&end);							\
 		} while (end-start <= 3);						\
