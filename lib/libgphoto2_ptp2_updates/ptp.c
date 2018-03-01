@@ -3187,10 +3187,10 @@ ptp_olympus_omd_init(PTPParams* params)
 	unsigned char* data;
 	data = init_9489;
 	PTP_CNT_INIT(ptp, 0x9489);
-	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x9f, &data, NULL);
+	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(init_9489), &data, NULL);
 	data = init_948b;
 	PTP_CNT_INIT(ptp, 0x948b);
-	return ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x10, &data, NULL);
+	return ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(init_948b), &data, NULL);
 }
 
 uint16_t
