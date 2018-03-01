@@ -8670,6 +8670,9 @@ camera_init (Camera *camera, GPContext *context)
 
 	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
 		GP_LOG_D ("Initializing Olympus ... ");
+		PTPPropertyValue	propval;
+		propval.u16 = 2;
+		LOG_ON_PTP_E (ptp_setdevicepropvalue(params, 0xD078, &propval, PTP_DTC_UINT16));
 		ptp_olympus_omd_init(params);
 	}
 
