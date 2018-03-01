@@ -8630,6 +8630,10 @@ camera_init (Camera *camera, GPContext *context)
 	 * post init timeouts longer */
 	CR (gp_port_set_timeout (camera->port, normal_timeout));
 
+	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+		ptp_olympus_omd_init(params);
+	}
+
 	if (params->device_flags & DEVICE_FLAG_OLYMPUS_XML_WRAPPED) {
 		unsigned char	*data;
 		unsigned int	len;
