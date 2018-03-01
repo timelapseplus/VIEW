@@ -218,6 +218,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     if(!this._enabled) this.enable();
 
     var dataBuf = new Buffer(3);
+    var self = this;
     dataBuf.fill(0);
     dataBuf.writeInt8(Math.round(speed), 0);
     dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
@@ -230,7 +231,7 @@ GenieMini.prototype.constantMove = function(motor, speed, callback) {
     if(speed) {
         this._watchdog = setTimeout(function(){
             console.log("GenieMini(" + self._id + "): stopping via watchdog");
-            this.constantMove(motor, 0);
+            self.constantMove(motor, 0);
         }, 3000);
     }
 
