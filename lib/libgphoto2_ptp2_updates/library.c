@@ -4625,6 +4625,9 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		/* for CARD capture and unsupported combinations, fall through */
 	}
 
+	if (!strcmp(params->deviceinfo.Model,"Olympus:E-M"))
+		return camera_olympus_omd_capture (camera, type, path, context);
+
 	if (params->device_flags & DEVICE_FLAG_OLYMPUS_XML_WRAPPED)
 		return camera_olympus_xml_capture (camera, type, path, context);
 
