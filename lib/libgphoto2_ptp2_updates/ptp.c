@@ -3186,10 +3186,10 @@ ptp_olympus_omd_init(PTPParams* params)
 
 	GP_LOG_D ("Sending Olympus init sequence 1 ... ");
 	PTP_CNT_INIT(ptp, 0x9489);
-	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x9f, init_9489, NULL);
+	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x9f, &init_9489, NULL);
 	GP_LOG_D ("Sending Olympus init sequence 2 ... ");
 	PTP_CNT_INIT(ptp, 0x948b);
-	return ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x10, init_948b, NULL);
+	return ptp_transaction(params, &ptp, PTP_DP_SENDDATA, 0x10, &init_948b, NULL);
 }
 
 uint16_t

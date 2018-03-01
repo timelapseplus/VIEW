@@ -8630,10 +8630,6 @@ camera_init (Camera *camera, GPContext *context)
 	 * post init timeouts longer */
 	CR (gp_port_set_timeout (camera->port, normal_timeout));
 
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
-		ptp_olympus_omd_init(params);
-	}
-
 	if (params->device_flags & DEVICE_FLAG_OLYMPUS_XML_WRAPPED) {
 		unsigned char	*data;
 		unsigned int	len;
@@ -8671,6 +8667,11 @@ camera_init (Camera *camera, GPContext *context)
 	CR (fixup_cached_deviceinfo (camera,&params->deviceinfo));
 
 	print_debug_deviceinfo(params, &params->deviceinfo);
+
+	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+		GP_LOG_D ("Initializing Olympus ... ");
+		ptp_olympus_omd_init(params);
+	}
 
 	switch (params->deviceinfo.VendorExtensionID) {
 	case PTP_VENDOR_CANON:
