@@ -4341,8 +4341,8 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	uint16_t	ret;
 
 	// clear out old events
-	C_PTP_REP (ptp_check_event (params));
-	while (ptp_get_one_event(params, &event));
+	//C_PTP_REP (ptp_check_event (params));
+	//while (ptp_get_one_event(params, &event));
 
 	ret = ptp_olympus_omd_capture(params);
 

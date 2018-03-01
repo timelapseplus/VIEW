@@ -3181,10 +3181,18 @@ ptp_olympus_omd_capture (PTPParams* params)
 {
 	PTPContainer	ptp;
 	uint16_t	ret;
+	unsigned int	size = 0;
+	unsigned char	*buffer = NULL;
 	PTP_CNT_INIT(ptp, PTP_OC_OLYMPUS_OMD_Capture, 0x3); // initiate capture
 	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
 	PTP_CNT_INIT(ptp, PTP_OC_OLYMPUS_OMD_Capture, 0x6); // initiate capture
 	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+
+	usleep(500);
+
+	PTP_CNT_INIT(ptp, 0x9406); // initiate capture
+	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &buffer, &size);
+	free (buffer);
 	return ret;
 }
 
