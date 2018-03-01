@@ -992,6 +992,9 @@ static struct {
 	/* Nick Clarke <nick.clarke@gmail.com> */
 	{"Sony:Alpha-A77 M2 (Control)", 0x054c, 0x0953, PTP_CAP|PTP_CAP_PREVIEW},
 
+	/* Elijah Parker <mail@timelapseplus.com> */
+	{"Sony:Alpha-A99 M2 (Control)", 0x054c, 0x079e, PTP_CAP|PTP_CAP_PREVIEW},
+
 	/* Markus Oertel */
 	{"Sony:Alpha-A5100 (Control)",  0x054c, 0x0957, PTP_CAP|PTP_CAP_PREVIEW},
 
@@ -1480,6 +1483,7 @@ static struct {
 	{"Olympus:E-M5",		  0x07b4, 0x012f, 0},
 	/* Richard Wonka <richard.wonka@gmail.com> */
 	{"Olympus:E-M5 Mark II",	  0x07b4, 0x0130, 0},
+	{"Olympus:E-M1",	  		  0x07b4, 0x0130, 0}, /* same as E-M5 Mark II ?? */
 
 	/* IRC report */
 	{"Casio:EX-Z120",                 0x07cf, 0x1042, 0},
@@ -4249,6 +4253,98 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	while (ptp_get_one_event(params, &event));
 
 	ret = ptp_panasonic_capture(params);
+
+	usleep(100);
+
+	event_start = time_now();
+
+	do {
+		C_PTP_REP (ptp_check_event (params));
+
+		while (ptp_get_one_event(params, &event)) {
+			switch (event.Code) {
+			case 0xC101:
+			case 0xC107:
+				event_start = time_now(); // still working...
+				break;
+			case 0xC108:
+				newobject = event.Param1;
+				if((newobject & 0x18000000) == 0x18000000) goto downloadfile;; // sometimes an object starting with 0x11 is reported, but we need to wait for another
+				break;
+			default:
+				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
+				break;
+			}
+		}
+	}  while (waiting_for_timeout (&back_off_wait, event_start, 65000)); /* wait for 66 seconds after busy is no longer signaled */
+
+	downloadfile:
+	
+	path->name[0]='\0';
+	path->folder[0]='\0';
+
+	if (newobject != 0) {
+		PTPObject	*ob;
+
+		lastCaptureObjectHandle = newobject;
+
+		C_PTP_REP (ptp_object_want (params, newobject, PTPOBJECT_OBJECTINFO_LOADED, &ob));
+
+		lastCaptureObjectParentHandle = ob->oi.ParentObject;
+
+		strcpy  (path->name,  ob->oi.Filename);
+		sprintf (path->folder,"/"STORAGE_FOLDER_PREFIX"%08lx/",(unsigned long)ob->oi.StorageID);
+		get_folder_from_handle (camera, ob->oi.StorageID, ob->oi.ParentObject, path->folder);
+		/* delete last / or we get confused later. */
+		path->folder[ strlen(path->folder)-1 ] = '\0';
+
+		ret = gp_filesystem_append (camera->fs, path->folder, path->name, context);
+
+		/* we also get the fs info for free, so just set it */
+		CameraFileInfo info;
+		info.file.fields = GP_FILE_INFO_TYPE |
+				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+				GP_FILE_INFO_SIZE | GP_FILE_INFO_MTIME;
+		strcpy_mime (info.file.type, params->deviceinfo.VendorExtensionID, ob->oi.ObjectFormat);
+		info.file.width		= ob->oi.ImagePixWidth;
+		info.file.height	= ob->oi.ImagePixHeight;
+		info.file.size		= ob->oi.ObjectCompressedSize;
+		info.file.mtime		= time(NULL);
+
+		info.preview.fields = GP_FILE_INFO_TYPE |
+				GP_FILE_INFO_WIDTH | GP_FILE_INFO_HEIGHT |
+				GP_FILE_INFO_SIZE;
+		strcpy_mime (info.preview.type, params->deviceinfo.VendorExtensionID, ob->oi.ThumbFormat);
+		info.preview.width	= ob->oi.ThumbPixWidth;
+		info.preview.height	= ob->oi.ThumbPixHeight;
+		info.preview.size	= ob->oi.ThumbCompressedSize;
+		GP_LOG_D ("setting fileinfo in fs");
+		return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
+	}
+	return GP_ERROR;
+}
+
+static int
+camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path, GPContext *context)
+{
+	PTPParams	*params = &camera->pl->params;
+	PTPPropertyValue propval;
+	PTPContainer	event;
+	PTPObjectInfo	oi;
+	uint32_t	newobject = 0;
+	static int	capcnt = 0;
+	PTPDevicePropDesc	dpd;
+	struct timeval	event_start;
+
+	int			back_off_wait = 0;
+
+	uint16_t	ret;
+
+	// clear out old events
+	C_PTP_REP (ptp_check_event (params));
+	while (ptp_get_one_event(params, &event));
+
+	ret = ptp_olympus_omd_capture(params);
 
 	usleep(100);
 

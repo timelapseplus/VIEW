@@ -116,6 +116,7 @@ GenieMini.prototype._parseIncoming = function(data) {
 
 GenieMini.prototype.connect = function(device, callback) {
     if (device && device.connect) {
+        this._moving = false;
         console.log("GenieMini(" + this._id + "): connecting...");
         this._connectBt(device, callback);
     } else {

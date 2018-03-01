@@ -1406,6 +1406,8 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 		GP_LOG_D("value is already 0x%08x", value);				\
 		return GP_OK;								\
 	}*/										\
+	C_PTP_REP (ptp_sony_getalldevicepropdesc (params));		\
+	C_PTP_REP (ptp_generic_getdevicepropdesc (params, prop, &dpd));	\
 	do {										\
 		origval = dpd.CurrentValue.bits;					\
 		/* if it is a ENUM, the camera will walk through the ENUM */		\

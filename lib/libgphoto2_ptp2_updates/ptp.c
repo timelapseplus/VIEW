@@ -3177,6 +3177,18 @@ ptp_sony_9281 (PTPParams* params, uint32_t param1) {
 }
 
 uint16_t
+ptp_olympus_omd_capture (PTPParams* params)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	PTP_CNT_INIT(ptp, PTP_OC_OLYMPUS_OMD_Capture, 0x3); // initiate capture
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+	PTP_CNT_INIT(ptp, PTP_OC_OLYMPUS_OMD_Capture, 0x6); // initiate capture
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+	return ret;
+}
+
+uint16_t
 ptp_panasonic_capture (PTPParams* params)
 {
 	PTPContainer	ptp;

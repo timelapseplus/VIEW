@@ -79,6 +79,9 @@ lists.paramMap = [{
         section: "other",
         item: "500f"
     }, {
+        section: "other",
+        item: "d007"
+    }, {
         section: null,
         item: 'isoSpeedRate'
     }]

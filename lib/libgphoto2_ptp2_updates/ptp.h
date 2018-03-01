@@ -673,6 +673,8 @@ typedef struct _PTPIPHeader PTPIPHeader;
 /* WiFi Provisioning MTP Extension Codes (microsoft.com/WPDWCN: 1.0) */
 #define PTP_OC_MTP_WPDWCN_ProcessWFCObject		0x9122
 
+/* Olympus E series commands */
+#define PTP_OC_OLYMPUS_OMD_Capture			0x9481
 
 /* Olympus E series commands */
 #define PTP_OC_OLYMPUS_Capture				0x9101
