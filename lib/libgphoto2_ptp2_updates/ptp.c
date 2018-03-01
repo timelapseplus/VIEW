@@ -3190,7 +3190,7 @@ ptp_olympus_omd_capture (PTPParams* params)
 
 	usleep(500);
 
-	PTP_CNT_INIT(ptp, 0x9406); // initiate capture
+	PTP_CNT_INIT(ptp, 0x9486); // initiate capture
 	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &buffer, &size);
 	free (buffer);
 	return ret;
