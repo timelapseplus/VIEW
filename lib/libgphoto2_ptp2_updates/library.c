@@ -8676,6 +8676,7 @@ camera_init (Camera *camera, GPContext *context)
 		gp_port_get_timeout (camera->port, &timeout);
 		gp_port_set_timeout (camera->port, 5000);
 		ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
+		ptp_check_event(params);
 		gp_port_set_timeout (camera->port, timeout);
 		propval.u16 = 2;
 		LOG_ON_PTP_E (ptp_setdevicepropvalue(params, 0xD078, &propval, PTP_DTC_UINT16));
