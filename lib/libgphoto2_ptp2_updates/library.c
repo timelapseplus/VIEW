@@ -4356,7 +4356,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	do {
 		C_PTP_REP (ptp_olympus_omd_check_new_objects(params, &objects, &length));
 		if(length > 0) {
-			newobject = *objects[0];
+			newobject = (*objects)[0];
 			free(*objects);
 			break;
 		}
