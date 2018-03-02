@@ -4338,6 +4338,9 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 
 	int			back_off_wait = 0;
 
+	uint32_t *objects;
+	int length = 0;
+
 	uint16_t	ret;
 
 	// clear out old events
@@ -4351,22 +4354,11 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	event_start = time_now();
 
 	do {
-		C_PTP_REP (ptp_check_event (params));
-
-		while (ptp_get_one_event(params, &event)) {
-			switch (event.Code) {
-			case 0xC101:
-			case 0xC107:
-				event_start = time_now(); // still working...
-				break;
-			case 0xC108:
-				newobject = event.Param1;
-				if((newobject & 0x18000000) == 0x18000000) goto downloadfile;; // sometimes an object starting with 0x11 is reported, but we need to wait for another
-				break;
-			default:
-				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
-				break;
-			}
+		C_PTP_REP (ptp_olympus_omd_check_new_objects(params, &objects, &length));
+		if(length > 0) {
+			newobject = *objects[0];
+			free(*objects);
+			break;
 		}
 	}  while (waiting_for_timeout (&back_off_wait, event_start, 65000)); /* wait for 66 seconds after busy is no longer signaled */
 

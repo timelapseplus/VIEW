@@ -3201,6 +3201,26 @@ ptp_olympus_omd_init(PTPParams* params)
 }
 
 uint16_t
+ptp_olympus_omd_check_new_objects (PTPParams* params, uint32_t **objects, int *length)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned int	size = 0;
+	unsigned char	*buffer = NULL;
+
+	PTP_CNT_INIT(ptp, 0x948A); // initiate capture
+	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &buffer, &size);
+
+	*length = 0;
+	if(size > 0) {
+		printf("DATA LENGTH:%d\n", size);
+	}
+
+	free (buffer);
+	return ret;
+}
+
+uint16_t
 ptp_olympus_omd_capture (PTPParams* params)
 {
 	PTPContainer	ptp;
