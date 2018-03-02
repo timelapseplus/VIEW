@@ -3195,6 +3195,8 @@ ptp_olympus_omd_init(PTPParams* params)
 	int size;
 	ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size);
 	free(data); // not sure what this data is for -- probably bulk parameter values and descriptions
+	//PTP_CNT_INIT(ptp, 0x9485);
+	//ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
 	return ret;
 }
 
