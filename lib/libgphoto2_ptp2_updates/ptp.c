@@ -3190,7 +3190,7 @@ ptp_olympus_omd_init(PTPParams* params)
 	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(init_9489), &data, NULL);
 	data = init_948b;
 	PTP_CNT_INIT(ptp, 0x948b);
-	return ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(init_948b), &data, NULL);
+	ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(init_948b), &data, NULL);
 	PTP_CNT_INIT(ptp, 0x9486);
 	int size;
 	ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, &size);
