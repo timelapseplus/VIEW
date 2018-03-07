@@ -4338,7 +4338,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 
 	int			back_off_wait = 0;
 
-	uint32_t objects[];
+	uint32_t *objects;
 	int length = 0;
 
 	uint16_t	ret;
