@@ -20,7 +20,7 @@ var app = new EventEmitter();
 var internalEvent = new EventEmitter();
 app.remoteEnabled = false;
 
-fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "1"); // favor low latency over high throughput
+fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "0"); // favor low latency over high throughput (reversed now to support high-throughput for LV)
 
 express.use(Express.static('/home/view/current/frontend/www'));
 
