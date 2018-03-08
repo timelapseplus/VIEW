@@ -60,7 +60,7 @@ exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
         nightCompensationNightEv: -2,
         nightCompensation: nightCompensation,
         highlightProtection: highlightProtection,
-        highlightProtectionLimit: 2
+        highlightProtectionLimit: 1
     };
 
     return exp.config;
