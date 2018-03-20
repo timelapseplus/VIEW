@@ -4388,6 +4388,31 @@ app.on('message', function(msg) {
                 });
                 break;
 
+            case 'previewStream':
+                if (!liveviewOnStream && !core.intervalometerStatus.running) {
+                    liveviewOnStream = true;
+                    liveviewOn = false;
+                    liveviewOnApp = true;
+                    liveviewRequestStart = false;
+                    core.previewFull();
+                }
+                break;
+
+            case 'previewStop':
+                console.log("liveview stop request");
+                clearTimeout(liveviewOnAppTimeout);
+                setTimeout(function(){
+                    console.log("liveview stop request");
+                    liveviewOn = false;
+                    liveviewOnApp = false;
+                    liveviewOnStream = false;
+                    liveviewRequestStart = false;
+                    core.lvOff();
+                    ui.reload();
+                    if(!core.intervalometerStatus.running) power.performance('medium');
+                }, 200);
+                break;
+
             case 'preview':
                 console.log("preview request, liveview active:", liveviewOn);
                 if (liveviewOn) {
@@ -4426,30 +4451,6 @@ app.on('message', function(msg) {
                         if(!core.intervalometerStatus.running) power.performance('medium');
                     }
                 }, 5000);
-                break;
-
-            case 'previewStream':
-                if (!liveviewOnStream && !core.intervalometerStatus.running) {
-                    liveviewOnStream = true;
-                    liveviewOn = false;
-                    liveviewOnApp = true;
-                    liveviewRequestStart = false;
-                    core.previewFull();
-                }
-                break;
-
-            case 'previewStop':
-                clearTimeout(liveviewOnAppTimeout);
-                setTimeout(function(){
-                    console.log("liveview stop request");
-                    liveviewOn = false;
-                    liveviewOnApp = false;
-                    liveviewOnStream = false;
-                    liveviewRequestStart = false;
-                    core.lvOff();
-                    ui.reload();
-                    if(!core.intervalometerStatus.running) power.performance('medium');
-                }, 200);
                 break;
 
             case 'zoom':
