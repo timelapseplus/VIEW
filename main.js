@@ -66,6 +66,7 @@ console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 var previewImage = null;
 var liveviewOn = false;
 var liveviewOnApp = false;
+var liveviewOnAppTimeout = null;
 var liveviewOnStream = false;
 var liveviewRequestStart = false;
 var previewImageLastTime = new Date();
@@ -4412,6 +4413,19 @@ app.on('message', function(msg) {
                         core.preview();
                     }
                 }
+                if(liveviewOnAppTimeout) clearTimeout(liveviewOnAppTimeout);
+                liveviewOnAppTimeout = setTimeout(function(){
+                    if(liveviewOnApp) {
+                        console.log("liveview app timeout");
+                        liveviewOn = false;
+                        liveviewOnApp = false;
+                        liveviewOnStream = false;
+                        liveviewRequestStart = false;
+                        core.lvOff();
+                        ui.reload();
+                        if(!core.intervalometerStatus.running) power.performance('medium');
+                    }
+                }, 5000);
                 break;
 
             case 'previewStream':
@@ -4425,6 +4439,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'previewStop':
+                clearTimeout(liveviewOnAppTimeout);
                 setTimeout(function(){
                     console.log("liveview stop request");
                     liveviewOn = false;
@@ -4667,7 +4682,7 @@ core.on('camera.exiting', function() {
 });
 
 core.on('camera.error', function(err) {
-    app.send('error', {
+    if(!liveviewOn) app.send('error', {
         error: err
     });
 });
