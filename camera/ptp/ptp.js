@@ -1052,7 +1052,7 @@ function getSendMulti() {
 }
 
 camera.set = function(item, value, callback, _worker) {
-    if(camera.lvOn === true && camera.model.match(/fuji/i)) {
+    if(camera.lvOn === true && camera.model && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);
             restartPreview = null;
