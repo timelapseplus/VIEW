@@ -3328,7 +3328,7 @@ camera_nikon_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pa
 		} while (ret == PTP_RC_DeviceBusy);
 	}
 
-	if (ptp_operation_issupported(params, PTP_OC_NIKON_InitiateCaptureRecInMedia)) {
+	if ((params->inliveview || !ptp_operation_issupported(params,PTP_OC_NIKON_Capture) && ptp_operation_issupported(params, PTP_OC_NIKON_InitiateCaptureRecInMedia)) {
 		int loops = 100;
 		do {
 			ret = ptp_nikon_capture2 (params, af, sdram);
