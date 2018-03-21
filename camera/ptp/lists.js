@@ -97,6 +97,9 @@ lists.paramMap = [{
         section: "other",
         item: "5007"
     }, {
+        section: "other",
+        item: "d002"
+    }, {
         section: null,
         item: "fNumber"
     }]
@@ -111,6 +114,9 @@ lists.paramMap = [{
     }, {
         section: "other",
         item: "500d"
+    }, {
+        section: "other",
+        item: "d01c"
     }, {
         section: null,
         item: "shutterSpeed"

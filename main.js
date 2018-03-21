@@ -4424,7 +4424,6 @@ app.on('message', function(msg) {
                             app.send('photo');
                             app.send('thumbnail', previewImage);
                         } else {
-                            power.performance('high');
                             liveviewRequestStart = true;
                         }
                     }
