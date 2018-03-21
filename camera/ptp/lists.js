@@ -12,6 +12,12 @@ lists.paramMap = [{
         item: "d20c"
     }]
 }, {
+    name: "recordingmedia",
+    maps: [{
+        section: "settings",
+        item: "recordingmedia"
+    }]
+}, {
     name: "autofocus",
     maps: [{
         section: "settings",
@@ -380,6 +386,14 @@ lists.target = [{
 }, {
     name: "CARD",
     values: ['Memory card', '2']
+}];
+
+lists.recordingmedia = [{
+    name: "RAM",
+    values: ['SDRAM']
+}, {
+    name: "CARD",
+    values: ['Card']
 }];
 
 lists.lvexposure = [{

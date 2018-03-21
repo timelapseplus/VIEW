@@ -1147,6 +1147,7 @@ camera.saveToCameraCard = function(bool, callback) {
         if (target != camera.target) {
             camera.target = target;
             console.log("camera.ptp: setting camera target to ", target);
+            if(camera.settings.recordingmedia) camera.set('recordingmedia', camera.target);
             camera.set('target', camera.target, callback);
             return camera.target;
         }
