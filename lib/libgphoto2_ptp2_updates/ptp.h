@@ -535,7 +535,7 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_OC_NIKON_GetPartialObjectHiSpeed	0x9400	/* 3 params, data in */
 
 /* From Nikon V1 Trace */
-#define PTP_OC_NIKON_GetDevicePropEx		0x9504	/* gets device prop dataa */
+#define PTP_OC_NIKON_GetDevicePropEx		0x9504	/* gets device prop data */
 
 /* Casio EX-F1 (from http://code.google.com/p/exf1ctrl/ ) */
 #define PTP_OC_CASIO_STILL_START	0x9001
