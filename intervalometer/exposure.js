@@ -289,7 +289,7 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         } else { // auto calculate night exposure
             evScale = [{
                 ev: exp.config.nightCompensationNightEv,
-                offset: -(lastPhotoLum - -1.5)
+                offset: -(lastPhotoLum - -1.5) // -1.5
             }, {
                 ev: exp.config.nightCompensationDayEv,
                 offset: -(lastPhotoLum - 0.0)
