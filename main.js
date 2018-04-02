@@ -3235,7 +3235,7 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
-    var systemInfo = function() {
+    var systemInfo = function(callback) {
         var info = "";
         info += "Timelapse+ VIEW\t";
         info += "UID: " + app.serial + "\t";
@@ -3243,7 +3243,35 @@ if (VIEW_HARDWARE) {
         info += "MCU Firmware: " + mcu.version + "\t";
         info += "LibGPhoto2: " + updates.libgphoto2Version + "\t";
         info += "GPS Module: " + (gpsExists ? 'installed':'not installed') + "\t";
-        return info;
+
+        var ip = "--";
+        var mac = "--";
+
+        exec('ifconfig', function(err, stdout) {
+            var lines = stdout.split('\n');
+            for(var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                if(line.substr(0, 5) == 'wlan0') {
+                    var res = line.match(/HWaddr ([0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f])/);
+                    if(res && res.length > 1) {
+                        mac = res[1];
+                    }
+                    if(i + 1 < lines.length) {
+                        line = lines[i + 1];
+                        res = line.match(/inet addr:([0-9]+.[0-9]+.[0-9]+.[0-9]+)/);
+                        if(res && res.length > 1) {
+                            ip = res[1];
+                        }
+                    }
+                    break;
+                }
+            }
+        });
+
+        info += "Wifi IP: " + ip + "\t";
+        info += "Wifi MAC: " + mac + "\t";
+
+        return callback && callback(null, info);
     }
 
     var registrationEmail = false;
@@ -3513,7 +3541,9 @@ if (VIEW_HARDWARE) {
             name: "System Info",
             action: function(){
                 ui.back();
-                ui.alert('System Info', systemInfo());
+                systemInfo(function(err, info) {
+                    ui.alert('System Info', info);
+                });
             },
             help: help.systemInfo
         }, {
