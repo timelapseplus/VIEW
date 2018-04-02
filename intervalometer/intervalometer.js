@@ -185,9 +185,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
             kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
             console.log("KF: " + axisName + " target: " + kfSet);
         }
-        var axisNameExtension = '';
-        if(axisSubIndex != null) axisNameExtension = '-' + axisSubIndex;
-        kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] || 0;
+        kfCurrent = intervalometer.currentProgram[axisName + 'Pos'] || 0;
 
         if (kfCurrent == null) {
             motionFunction(kfSet); // absolute setting (like ev)
