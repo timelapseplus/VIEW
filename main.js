@@ -3250,7 +3250,7 @@ if (VIEW_HARDWARE) {
         exec('ifconfig', function(err, stdout) {
             var lines = stdout.split('\n');
             for(var i = 0; i < lines.length; i++) {
-                var line = lines[i];
+                var line = lines[i].trim();
                 if(line.substr(0, 5) == 'wlan0') {
                     var res = line.match(/HWaddr ([0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f])/);
                     if(res && res.length > 1) {
@@ -3266,12 +3266,11 @@ if (VIEW_HARDWARE) {
                     break;
                 }
             }
+            info += "Wifi IP: " + ip + "\t";
+            info += "Wifi MAC: " + mac + "\t";
+
+            return callback && callback(null, info);
         });
-
-        info += "Wifi IP: " + ip + "\t";
-        info += "Wifi MAC: " + mac + "\t";
-
-        return callback && callback(null, info);
     }
 
     var registrationEmail = false;

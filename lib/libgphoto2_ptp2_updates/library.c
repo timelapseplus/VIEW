@@ -8686,7 +8686,7 @@ camera_init (Camera *camera, GPContext *context)
 		int 		timeout;
 		gp_port_get_timeout (camera->port, &timeout);
 		gp_port_set_timeout (camera->port, 1000);
-		ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
+		ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16); // switches camera to PC mode
 		gp_port_set_timeout (camera->port, 5000);
 		ptp_check_event(params);
 		gp_port_set_timeout (camera->port, timeout);
