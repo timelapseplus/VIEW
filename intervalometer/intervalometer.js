@@ -188,21 +188,21 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
         kfCurrent = intervalometer.currentProgram[axisName + 'Pos'] || 0;
 
         if (kfCurrent == null) {
-            motionFunction(kfSet); // absolute setting (like ev)
+            motionFunction(kfSet, axisName); // absolute setting (like ev)
         } else {
             var precision = axisName == 'focus' ? 1 : 10000; // limit precision to ensure we hit even values
             var kfTarget = Math.round(kfSet * precision) / precision;
             if (kfTarget != Math.round(intervalometer.currentProgram[axisName + 'Pos'] * precision) / precision) {
                 var relativeMove = kfTarget - intervalometer.currentProgram[axisName + 'Pos'];
-                if (motionFunction) motionFunction(relativeMove);
+                if (motionFunction) motionFunction(relativeMove, axisName);
                 intervalometer.currentProgram[axisName + 'Pos'] = kfTarget;
             } else {
-                if (motionFunction) motionFunction();
+                if (motionFunction) motionFunction(null, axisName);
             }
         }
 
     } else {
-        if (motionFunction) motionFunction();
+        if (motionFunction) motionFunction(null, axisName);
     }
 }
 
@@ -378,8 +378,8 @@ function processKeyframes(setupFirst, callback) {
                     checkDone();
                 });
             } else {
-                doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'smooth', function(move) {
-                    var parts = m.split('-');
+                doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'smooth', function(move, axisName) {
+                    var parts = axisName.split('-');
                     if (move && parts.length == 2) {
                         var driver = parts[0];
                         var motor = parseInt(parts[1]);
