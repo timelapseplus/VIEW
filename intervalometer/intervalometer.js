@@ -171,6 +171,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
             keyframes[0].seconds = 0;
             keyframes[0].position = 0;
             kfSet = 0;
+            if(!intervalometer.currentProgram[axisName + 'Pos']) intervalometer.currentProgram[axisName + 'Pos'] = 0;
         } else {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
 
@@ -183,7 +184,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
                 }
             });
             kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
-            console.log("KF: " + axisName + " target: " + kfSet);
+            console.log("KF: " + axisName + " target: " + kfSet, "points:", kfPoints);
         }
         kfCurrent = intervalometer.currentProgram[axisName + 'Pos'] || 0;
 
@@ -383,12 +384,12 @@ function processKeyframes(setupFirst, callback) {
                     if (move && parts.length == 2) {
                         var driver = parts[0];
                         var motor = parseInt(parts[1]);
-                        console.log("KF: Moving " + motorId + " by " + move + " steps");
+                        console.log("KF: Moving " + axisName + " by " + move + " steps");
                         if (motion.status.available) {
                             var connected = false;
                             for(var index = 0; index < motion.status.motors.length; index++) {
-                                var m = motion.status.motors[index];
-                                if(m.driver == driver && m.motor == motor) {
+                                var mo = motion.status.motors[index];
+                                if(mo.driver == driver && mo.motor == motor) {
                                     connected = m.connected;
                                     break;
                                 }
@@ -398,7 +399,7 @@ function processKeyframes(setupFirst, callback) {
                                     checkDone();
                                 });
                             } else {
-                                console.log("KF: error moving", motorId, "-- motor not connected");
+                                console.log("KF: error moving", axisName, "-- motor not connected");
                                 checkDone();
                             }
                         } else {
