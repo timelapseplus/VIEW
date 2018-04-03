@@ -182,6 +182,10 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
                     x: kf.seconds,
                     y: kf.position || 0
                 }
+            }).sort(function(a, b) {
+                if(a.seconds < b.seconds) return -1;
+                if(a.seconds > b.seconds) return 1;
+                return 0;                
             });
             kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
             console.log("KF: " + axisName + " target: " + kfSet, "points:", kfPoints);
@@ -390,7 +394,7 @@ function processKeyframes(setupFirst, callback) {
                             for(var index = 0; index < motion.status.motors.length; index++) {
                                 var mo = motion.status.motors[index];
                                 if(mo.driver == driver && mo.motor == motor) {
-                                    connected = m.connected;
+                                    connected = mo.connected;
                                     break;
                                 }
                             }
