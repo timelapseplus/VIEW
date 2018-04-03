@@ -183,8 +183,8 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
                     y: kf.position || 0
                 }
             }).sort(function(a, b) {
-                if(a.seconds < b.seconds) return -1;
-                if(a.seconds > b.seconds) return 1;
+                if(a.x < b.x) return -1;
+                if(a.x > b.x) return 1;
                 return 0;                
             });
             kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
