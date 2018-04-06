@@ -3,7 +3,9 @@ exports.linear = function(xyPoints, xVal) {
     var p = xyPoints.filter(function(item) {
         return item.x !== undefined && item.y !== undefined;
     }).sort(function(a, b) {
-        return a.x - b.x;
+        if(a.x < b.x) return -1;
+        if(a.x > b.x) return 1;
+        return 0;      
     });
 
     if(typeof p != 'object' || !p.length) return null;
@@ -121,7 +123,9 @@ exports.catmullRomSpline = function(xyPoints, xVal) {
     var xyPoints = xyPoints.filter(function(item) {
         return item.x !== undefined && item.y !== undefined;
     }).sort(function(a, b) {
-        return a.x - b.x;
+        if(a.x < b.x) return -1;
+        if(a.x > b.x) return 1;
+        return 0;      
     });
 
   if (!xyPoints || xyPoints.length == 0) {
