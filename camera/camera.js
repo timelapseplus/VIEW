@@ -380,29 +380,27 @@ camera.setExposure = function(shutterEv, apertureEv, isoEv, cb) {
 
     var correction = 0;
 
-    if (shutterEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.shutter || shutterEv != settings.details.shutter.ev)) {
+    if (shutterEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.shutter || shutterEv != camera.ptp.settings.details.shutter.ev)) {
         var res = getItemFromEvList(camera.ptp.settings.lists.shutter, shutterEv);
         if(res != null) {
             correction = res.correction;
-            console.log("CAMERA: setExposure: requested shutter", shutterEv, "resulting shutter", res.item.ev, "correction", correction);
             setQueue.push({
                 name: 'shutter',
                 val: res.item.cameraName || res.item.name
             });
         }
     }
-    if (apertureEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.aperture || apertureEv != settings.details.aperture.ev)) {
+    if (apertureEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.aperture || apertureEv != camera.ptp.settings.details.aperture.ev)) {
         var res = getItemFromEvList(camera.ptp.settings.lists.aperture, apertureEv + correction);
         if(res != null) {
             correction = res.correction;
-            console.log("CAMERA: setExposure: requested iso", isoEv, "resulting iso", res.item.ev, "correction", correction);
             setQueue.push({
                 name: 'aperture',
                 val: res.item.cameraName || res.item.name
             });
         }
     }
-    if (isoEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.iso || isoEv != settings.details.iso.ev)) {
+    if (isoEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.iso || isoEv != camera.ptp.settings.details.iso.ev)) {
         var res = getItemFromEvList(camera.ptp.settings.lists.iso, isoEv + correction);
         if(res != null) {
             correction = res.correction;

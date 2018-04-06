@@ -377,7 +377,7 @@ lists.format = [{
     values: ['RAW', 'raw', 'NEF (Raw)', 'mRAW', 'sRAW', '3']
 }, {
     name: "RAW+JPEG",
-    values: ['RAW+JPEG', 'raw+jpeg']
+    values: ['RAW+JPEG', 'raw+jpeg', 'Unknown value 0012']
 }];
 
 lists.target = [{
