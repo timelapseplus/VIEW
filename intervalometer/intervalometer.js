@@ -311,7 +311,8 @@ function getTrackingMotor(trackingMotor) {
 
 function processKeyframes(setupFirst, callback) {
 
-    if(!intervalometer.currentProgram.axes) return processKeyframesOld(setupFirst, callback); // old (v1.7) method for original app
+    //if(!intervalometer.currentProgram.axes) 
+        return processKeyframesOld(setupFirst, callback); // old (v1.7) method for original app
 
     var numAxes = 1;
     var axesDone = 0;
