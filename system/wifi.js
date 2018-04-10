@@ -151,7 +151,7 @@ iw.on('stop', function() {
 });
 
 iw.on('command', function(cmd) {
-	//console.log("[Wifi] Command: ", cmd);
+	console.log("[Wifi] Command: ", cmd);
 });
 
 wifi.listHandler = function(callback) {
