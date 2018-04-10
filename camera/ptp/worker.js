@@ -605,7 +605,10 @@ function liveViewOff(callback, keepCrop) {
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
 
-    if(camera.model.match(/fuji/i)) {
+    if(camera.model.match(/sony/i)) {
+        getConfig();
+        callback && callback();
+    } else if(camera.model.match(/fuji/i)) {
         set('movie', 0, function() {
             getConfig();
             callback && callback();
