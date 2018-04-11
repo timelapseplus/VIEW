@@ -706,7 +706,7 @@ lists.iso = lists.isoThirds;
 lists.apertureAll = [{
     name: "1.0",
     ev: -8,
-    values: ['1.0', 'f/1.0', 'f1.0', 'f/1', '1,0']
+    values: ['1', '1.0', 'f/1.0', 'f1.0', 'f/1', '1,0']
 }, {
     name: "1.1",
     ev: -7 - 2 / 3,
@@ -738,7 +738,7 @@ lists.apertureAll = [{
 }, {
     name: "2.0",
     ev: -6,
-    values: ['2.0', 'f/2.0', 'f2.0', 'f/2', '200']
+    values: ['2', '2.0', 'f/2.0', 'f2.0', 'f/2', '200']
 }, {
     name: "2.2",
     ev: -5 - 2 / 3,
