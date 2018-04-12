@@ -869,7 +869,7 @@ function waitForSchedule() {
 }
 
 function scheduled(noResume) {
-    if(intervalometer.currentProgram.scheduled) {
+    if(intervalometer.currentProgram && intervalometer.currentProgram.scheduled) {
         var m = moment();
         if(checkDay(m)) {
             if(checkTime(m)) {
@@ -1197,7 +1197,7 @@ intervalometer.resume = function() {
     clearTimeout(scheduleHandle);
     var ms = status.intervalMs - ((new Date() / 1000) - (status.startTime + status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
-    if(scheduled()) setTimeout(runPhoto, ms);
+    if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
 }
 
 intervalometer.run = function(program) {
