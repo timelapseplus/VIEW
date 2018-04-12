@@ -16,6 +16,8 @@ var _ = require('underscore');
 //var suncalc = require('suncalc');
 var meeus = require('meeusjs');
 var eclipse = require('intervalometer/eclipse.js');
+var moment = require('moment');
+
 
 var AUXTIP_OUT = 111;
 var AUXRING_OUT = 110;
