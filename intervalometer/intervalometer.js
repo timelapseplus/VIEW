@@ -855,10 +855,11 @@ function checkTime(m) {
     return false;
 }
 
-var scheduleTimer = null;
+var scheduleHandle = null;
 function waitForSchedule() {
     status.message = "waiting for schedule...";
-    scheduleTimer = setTimeout(function(){
+    intervalometer.emit("status", status);
+    scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
             if(status.running) runPhoto();
         } else {
@@ -897,7 +898,8 @@ function runPhoto() {
         return;
     }
     if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode != "fixed") {
-        console.log(".")
+        if(busyPhoto) console.log("P");
+        if(busyExposure) console.log("E");
         if (status.running) retryHandle = setTimeout(runPhoto, 100);
         return;
     }
@@ -1192,9 +1194,10 @@ intervalometer.resume = function() {
     clearTimeout(timerHandle);
     clearTimeout(delayHandle);
     clearTimeout(retryHandle);
+    clearTimeout(scheduleHandle);
     var ms = status.intervalMs - ((new Date() / 1000) - (status.startTime + status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
-    setTimeout(runPhoto, ms);
+    if(scheduled()) setTimeout(runPhoto, ms);
 }
 
 intervalometer.run = function(program) {
