@@ -812,6 +812,78 @@ function checkCurrentPlan(restart) {
     return false;
 }
 
+function checkDay(m) {
+    switch(m.day()) {
+        case 0:
+            return intervalometer.currentProgram.schedSunday;
+        case 1:
+            return intervalometer.currentProgram.schedMonday;
+        case 2:
+            return intervalometer.currentProgram.schedTuesday;
+        case 3:
+            return intervalometer.currentProgram.schedWednesday;
+        case 4:
+            return intervalometer.currentProgram.schedThursday;
+        case 5:
+            return intervalometer.currentProgram.schedFriday;
+        case 6:
+            return intervalometer.currentProgram.schedSaturday;
+    }
+}
+
+function checkTime(m) {
+    if(intervalometer.currentProgram.schedStart == intervalometer.currentProgram.schedStop) return true;
+
+    if(!intervalometer.currentProgram.schedStart || typeof intervalometer.currentProgram.schedStart != "string") return true;
+    var parts = intervalometer.currentProgram.schedStart.split(':');
+    if(parts.length < 2) return true;
+    var startHour = parseInt(parts[0]);
+    var startMinute = parseInt(parts[1]);
+
+    if(m.hour() >= startHour && m.minute() >= startMinute) return true;
+
+    if(!intervalometer.currentProgram.schedStop || typeof intervalometer.currentProgram.schedStop != "string") return true;
+    parts = intervalometer.currentProgram.schedStop.split(':');
+    if(parts.length < 2) return true;
+    var stopHour = parseInt(parts[0]);
+    var stopMinute = parseInt(parts[1]);
+
+    if(m.hour() <= stopHour && m.minute() <= stopMinute) return true;
+
+    return false;
+}
+
+var scheduleTimer = null;
+function waitForSchedule() {
+    status.message = "waiting for schedule...";
+    scheduleTimer = setTimeout(function(){
+        if(scheduled(true)) {
+            if(status.running) runPhoto();
+        } else {
+            waitForSchedule();
+        }
+    }, 60000);
+}
+
+function scheduled(noResume) {
+    if(intervalometer.currentProgram.scheduled) {
+        var m = moment();
+        if(checkDay(m)) {
+            if(checkTime(m)) {
+                return true;
+            } else {
+                if(!noResume) waitForSchedule();
+                return false;
+            }
+        } else {
+            if(!noResume) waitForSchedule();
+            return false;
+        }
+    } else {
+        return true;
+    }
+}
+
 var busyPhoto = false;
 var retryHandle = null;
 var referencePhotoRes = null;
@@ -861,7 +933,7 @@ function runPhoto() {
 
         if (intervalometer.currentProgram.rampMode == "fixed") {
             status.intervalMs = intervalometer.currentProgram.interval * 1000;
-            if (status.running) timerHandle = setTimeout(runPhoto, status.intervalMs);
+            if (status.running && scheduled()) timerHandle = setTimeout(runPhoto, status.intervalMs);
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1500);
             captureOptions.calculateEv = false;
             status.lastPhotoTime = new Date() / 1000 - status.startTime;
@@ -885,7 +957,7 @@ function runPhoto() {
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
-                if (status.framesRemaining < 1 || status.running == false || status.stopping == true) {
+                if ((status.framesRemaining < 1 && !intervalometer.currentProgram.scheduled) || status.running == false || status.stopping == true) {
                     clearTimeout(timerHandle);
                     status.message = "done";
                     status.framesRemaining = 0;
@@ -928,7 +1000,7 @@ function runPhoto() {
                         if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, 100);
                     }
                 }
-                if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, status.intervalMs);
+                if (status.running && scheduled()) timerHandle = setTimeout(runIntervalHdrCheck, status.intervalMs);
             } 
 
             intervalometer.emit("status", status);
@@ -1045,7 +1117,7 @@ intervalometer.validate = function(program) {
     if(program.frames === null) program.frames = Infinity;
     
     if (parseInt(program.delay) < 1) program.delay = 2;
-    if(program.rampMode == 'fixed') {
+    if(program.rampMode == 'fixed' && !program.scheduled) {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
         if(program.intervalMode == 'fixed' || program.rampMode == 'fixed') {
@@ -1254,7 +1326,7 @@ intervalometer.run = function(program) {
                                 setTimeout(function() {
                                     busyPhoto = false;
                                     if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
-                                        runPhoto();   
+                                        if(scheduled()) runPhoto();   
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {
                                         status.message = "waiting for AUX2...";
