@@ -341,10 +341,15 @@ core.loadProgram(defaultProgram);
 core.stopIntervalometer = function(callback) {
     call('intervalometer.cancel', {}, callback);
 }
-core.startIntervalometer = function(program, callback) {
+core.startIntervalometer = function(program, date, utcOffset, callback) {
+    if(typeof date == 'function') {
+        callback = date;
+        date = null;
+        utcOffset = null;
+    }
     power.performance('high');
     core.addGpsData(mcu.validCoordinates());
-    call('intervalometer.run', {program:program}, callback);
+    call('intervalometer.run', {program:program, date:date, utcOffset:utcOffset}, callback);
 }
 core.addGpsData = function(gpsData, callback) {
     call('gps', {gpsData:gpsData}, callback);

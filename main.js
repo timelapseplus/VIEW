@@ -4256,7 +4256,7 @@ app.on('message', function(msg) {
 
             case 'run':
                 core.loadProgram(msg.program);
-                core.startIntervalometer(msg.program);
+                core.startIntervalometer(msg.program, msg.time, msg.utcOffset);
                 break;
 
             case 'stop':
@@ -4545,6 +4545,8 @@ app.on('message', function(msg) {
                         }]
                     }
                     msg.reply('timelapseProgram', {program: core.currentProgram});
+                } else if (msg.key == "status") {
+                    msg.reply('intervalometerStatus', {status: core.intervalometerStatus});
                 } else if (msg.key == "thumbnail") {
                     if (core.photo && core.photo.jpeg) {
                         msg.reply('thumbnail', {

@@ -230,7 +230,7 @@ function runCommand(type, args, callback, client) {
       intervalometer.cancel(callback);
       break;
     case 'intervalometer.run':
-      intervalometer.run(args.program, callback);
+      intervalometer.run(args.program, args.date, args.utcOffset, callback);
       break;
     case 'gps':
       intervalometer.addGpsData(args.gpsData, callback);

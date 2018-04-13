@@ -868,7 +868,7 @@ function waitForSchedule() {
             if(status.running) {
                 intervalometer.cancel("scheduled stop", function(){ // each day a new clip is generated
                     setTimeout(function(){
-                        intervalometer.start(intervalometer.currentProgram);
+                        intervalometer.run(intervalometer.currentProgram);
                     });
                 });
              }
@@ -1211,11 +1211,18 @@ intervalometer.resume = function() {
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
 }
 
-intervalometer.run = function(program) {
+intervalometer.run = function(program, date, utcOffset) {
     if (intervalometer.status.running) return;
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
+
+    if(date && utcOffset) { // sync time with phone app local time
+        var diff = moment(date).diff(moment, 'minutes');
+        console.log("date difference (minutes):", diff);
+        diff += utcOffset;
+        moment().utcOffset(diff);
+    }
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
