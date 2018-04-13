@@ -837,22 +837,26 @@ function checkTime(m) {
     if(intervalometer.currentProgram.schedStart == intervalometer.currentProgram.schedStop) return true;
 
     if(!intervalometer.currentProgram.schedStart || typeof intervalometer.currentProgram.schedStart != "string") return true;
+    if(!intervalometer.currentProgram.schedStop || typeof intervalometer.currentProgram.schedStop != "string") return true;
+
     var parts = intervalometer.currentProgram.schedStart.split(':');
     if(parts.length < 2) return true;
     var startHour = parseInt(parts[0]);
     var startMinute = parseInt(parts[1]);
-
-    if(m.hour() <= startHour && m.minute() < startMinute) return false;
-
-    if(!intervalometer.currentProgram.schedStop || typeof intervalometer.currentProgram.schedStop != "string") return true;
     parts = intervalometer.currentProgram.schedStop.split(':');
     if(parts.length < 2) return true;
     var stopHour = parseInt(parts[0]);
     var stopMinute = parseInt(parts[1]);
 
-    if(m.hour() >= stopHour && m.minute() > stopMinute) return false;
+    var mNow = m.hour() * 60 + m.minute();
+    var mStart = startHour * 60 + startMinute;
+    var mStop = stopHour * 60 + stopMinute;
 
-    return true;
+    if(mStart < mStop) { // day only
+        return (mNow >= mStart && mNow < mStop);
+    } else { // night only
+        return (mNow >= mStart || mNow < mStop);
+    }
 }
 
 var scheduleHandle = null;
@@ -861,7 +865,13 @@ function waitForSchedule() {
     intervalometer.emit("status", status);
     scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
-            if(status.running) runPhoto();
+            if(status.running) {
+                intervalometer.cancel("scheduled stop", function(){ // each day a new clip is generated
+                    setTimeout(function(){
+                        intervalometer.start(intervalometer.currentProgram);
+                    });
+                });
+             }
         } else {
             waitForSchedule();
         }
@@ -1163,7 +1173,7 @@ intervalometer.validate = function(program) {
 
     return results;
 }
-intervalometer.cancel = function(reason) {
+intervalometer.cancel = function(reason, callback) {
     if(!reason) reason = 'stopped';
     if (intervalometer.status.running) {
         clearTimeout(timerHandle);
@@ -1183,6 +1193,7 @@ intervalometer.cancel = function(reason) {
             camera.ptp.unmountSd();
             intervalometer.emit("status", status);
             console.log("==========> END TIMELAPSE", status.tlName);
+            callback && callback();
         });
     }    
 }
