@@ -880,7 +880,7 @@ function waitForSchedule() {
 
 function scheduled(noResume) {
     if(intervalometer.currentProgram && intervalometer.currentProgram.scheduled) {
-        var m = moment();
+        var m = moment().utcOffset(status.utcOffset);
         if(checkDay(m)) {
             if(checkTime(m)) {
                 return true;
@@ -1221,8 +1221,8 @@ intervalometer.run = function(program, date, utcOffset) {
         var diff = moment(date).diff(moment(), 'minutes');
         console.log("date difference (minutes):", diff);
         diff += utcOffset;
-        moment().utcOffset(diff);
-        console.log("current local time:", moment().format());
+        status.utcOffset = diff;
+        console.log("current local time:", moment().utcOffset(status.utcOffset).format());
     }
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
