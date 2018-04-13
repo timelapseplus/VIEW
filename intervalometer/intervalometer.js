@@ -1218,7 +1218,7 @@ intervalometer.run = function(program, date, utcOffset) {
     db.set('intervalometer.currentProgram', program);
 
     if(date && utcOffset) { // sync time with phone app local time
-        var diff = moment(date).diff(moment, 'minutes');
+        var diff = moment(date).diff(moment(), 'minutes');
         console.log("date difference (minutes):", diff);
         diff += utcOffset;
         moment().utcOffset(diff);
