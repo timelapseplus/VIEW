@@ -842,7 +842,7 @@ function checkTime(m) {
     var startHour = parseInt(parts[0]);
     var startMinute = parseInt(parts[1]);
 
-    if(m.hour() >= startHour && m.minute() >= startMinute) return true;
+    if(m.hour() <= startHour && m.minute() < startMinute) return false;
 
     if(!intervalometer.currentProgram.schedStop || typeof intervalometer.currentProgram.schedStop != "string") return true;
     parts = intervalometer.currentProgram.schedStop.split(':');
@@ -850,9 +850,9 @@ function checkTime(m) {
     var stopHour = parseInt(parts[0]);
     var stopMinute = parseInt(parts[1]);
 
-    if(m.hour() <= stopHour && m.minute() <= stopMinute) return true;
+    if(m.hour() >= stopHour && m.minute() > stopMinute) return false;
 
-    return false;
+    return true;
 }
 
 var scheduleHandle = null;
