@@ -1222,6 +1222,7 @@ intervalometer.run = function(program, date, utcOffset) {
         console.log("date difference (minutes):", diff);
         diff += utcOffset;
         moment().utcOffset(diff);
+        console.log("current local time:", moment().format());
     }
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
