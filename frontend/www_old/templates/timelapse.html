@@ -1,0 +1,442 @@
+<ion-view title="intervalometer">
+    <ion-content padding="false" class="has-header bg-dark">
+        <div ng-if="connected==-1" class="bar bar-subheader bar-assertive">
+          <h2 class="title">Reconnecting...</h2>
+        </div>
+        <div ng-include="'templates/_connect.html'"></div>
+        <div ng-hide="!camera.connected || intervalometerStatus.running">
+            <div class="item item-dark item-divider"><b>Exposure & Keyframes</b></div>
+            <div class="row" ng-repeat="keyframe in timelapse.keyframes">
+                <div class="col" ng-show="$index==0||timelapse.tracking=='none'">
+                    <div class="row" ng-show="$index > 0">
+                        <div class="col center stable">
+                            <i class="icon ion-arrow-down-c"></i>
+                            <em ng-show="keyframe.seconds">{{secondsDescription(keyframe.seconds, $index)}}</em>
+                            <em ng-show="keyframe.frames">{{keyframe.frames}} frames</em>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col" ng-show="$index==0">
+                            EV: {{keyframe.ev|number:1}}<br>
+                            Shutter: {{camera.shutter}}<br>
+                            ISO: {{camera.iso}}<br>
+                            Aperture: {{camera.aperture}}
+                        </div>
+                        <div class="col" ng-hide="$index==0">
+                            EV: auto<br>
+                            Focus: {{keyframe.focus}} steps<br>
+                            <span ng-show="nmx.connected">Axis1: {{keyframe.motor1}} steps<br></span>
+                            <br>
+                            <a class="assertive" ng-click="removeKeyframe($index)"><i class="icon ion-minus-circled"></i> remove keyframe</a>
+
+                        </div>
+                        <div class="col">
+                            <button class="button button-dark" ng-hide="keyframe.jpeg" ng-click="openExposure(keyframe, $index)">setup</button>
+                            <img ng-show="keyframe.jpeg" ng-src="data:image/jpeg;base64,{{keyframe.jpeg}}" width="100%" ng-click="openExposure(keyframe, $index)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="padding" ng-show="timelapse.tracking=='none'">
+                <a ng-click="addKeyframe()" class="stable"><i class="icon ion-plus-circled"></i> Add Keyframe</a>
+            </div>
+            <br>
+
+            <div class="item item-dark item-divider"><b>Intervalometer Setup</b></div>
+            <div class="list">
+                <!--div class="item item-toggle item-dark">
+                    Exposure Ramping
+                    <label class="toggle toggle-positive">
+                        <input type="checkbox" ng-model="timelapse.exposureRamping">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                </div-->
+
+                <div class="item item-dark">
+                    Time-lapse Mode
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'auto')">
+                            Auto Ramping
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'eclipse' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'eclipse')">
+                            Eclipse
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.rampMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('rampMode', 'fixed')">
+                            Fixed
+                        </button>
+                    </div>
+                </div>
+
+                <div class="item item-dark" ng-show="timelapse.rampMode == 'auto'">
+                    Interval Mode
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'fixed')">
+                            Fixed
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'auto' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'auto')">
+                            Variable
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.intervalMode == 'aux' ? 'outline':'clear'}}" ng-click="setTimelapse('intervalMode', 'aux')">
+                            AUX2
+                        </button>
+                    </div>
+                </div>
+
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
+                    Day Interval
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.dayInterval" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <label class="item item-dark" ng-show="timelapse.intervalMode=='auto'&&timelapse.rampMode=='auto'">
+                    Night Interval
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.nightInterval" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <label class="item item-dark" ng-show="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
+                    Interval
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.interval" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <label class="item item-dark" ng-show="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
+                    Frames
+                    <div style="float:right;">
+                        <input size="5" type="tel" ng-model="timelapse.frames" class="item-dark input-border">
+                    </div>
+                </label>
+
+
+                <div class="item item-dark" ng-show="timelapse.rampMode=='auto'">
+                    Bracketing
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{(!timelapse.hdrCount || timelapse.hdrCount < 2) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=0">
+                            Single
+                        </button>
+                        <button class="button button-light button-small button-{{(timelapse.hdrCount > 1) ? 'outline':'clear'}}" ng-click="timelapse.hdrCount=(timelapse.hdrCount > 1)?timelapse.hdrCount:3">
+                            Multi
+                        </button>
+                    </div>
+                </div>
+
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.rampMode=='auto'">
+                    Bracket Frames
+                    <div style="float:right;">
+                        <input size="3" type="tel" ng-model="timelapse.hdrCount" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <label class="item item-dark" ng-show="timelapse.hdrCount>1&&timelapse.rampMode=='auto'">
+                    Bracket Stops/Frame
+                    <div style="float:right;">
+                        <input size="3" type="tel" ng-model="timelapse.hdrStops" class="item-dark input-border">
+                    </div>
+                </label>
+
+                <div class="item item-dark" ng-show="panAvailable||tiltAvailable">
+                    Motion Tracking <span ng-hide="panAvailable">(tilt-only)</span><span ng-hide="tiltAvailable">(pan-only)</span>
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'none' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'none')">
+                            Disabled
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == '15deg' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', '15deg')">
+                            15°/hour
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'sun' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'sun')">
+                            Sun
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.tracking == 'moon' ? 'outline':'clear'}}" ng-click="setTimelapse('tracking', 'moon')">
+                            Moon
+                        </button>
+                    </div>
+                </div>
+
+                <!--div class="item item-toggle item-dark" ng-show="timelapse.exposureRamping">
+                    Day/Night Variable Interval
+                    <label class="toggle toggle-positive">
+                        <input type="checkbox" ng-model="timelapse.variableInterval">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                </div-->
+
+                <div class="item item-dark">
+                    Save Photos to
+                    <div style="float:right;">
+                        <button class="button button-light button-small button-{{timelapse.destination == 'camera' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'camera');">
+                            Camera
+                        </button>
+                        <button class="button button-light button-small button-{{timelapse.destination == 'sd' ? 'outline':'clear'}}" ng-click="setTimelapse('destination', 'sd');alert(2)">
+                            SD Card
+                        </button>
+                    </div>
+                </div>
+
+                <div ng-repeat="plan in timelapse.exposurePlans">
+                    <div class="item item-dark item-divider">{{plan.name}}<small style="float:right" ng-show="$index>0">{{plan.start|date:'d MMM H:mm:ss':'+0000'}} UTC</small><small style="float:right" ng-show="$index==0">(upon start)</small></div>
+                    <div class="list">
+                        <div class="item item-dark">
+                            Exposure Mode
+                            <div style="float:right;">
+                                <button class="button button-light button-small button-{{plan.mode == 'auto' ? 'outline':'clear'}}" ng-click="plan.mode='auto'">
+                                    Auto
+                                </button>
+                                <button class="button button-light button-small button-{{plan.mode == 'preset' ? 'outline':'clear'}}" ng-click="plan.mode='preset'">
+                                    Preset
+                                </button>
+                                <button class="button button-light button-small button-{{plan.mode == 'locked' ? 'outline':'clear'}}" ng-click="plan.mode='locked'">
+                                    Locked
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="plan.mode=='preset'">
+                            <div class="col center">
+                                <small>Shutter</small>
+                            </div>
+                            <div class="col center">
+                                <small>Aperture</small>
+                            </div>
+                            <div class="col center">
+                                <small>ISO</small>
+                            </div>
+                        </div>
+                        <div class="item item-dark" ng-show="plan.mode=='preset'">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="paramListTop(plan, 'shutter')?2:0" ng-click="paramListClick(plan, 'shutter', 'up')"></button>
+                                    </div>
+                                    <div class="big center">
+                                        {{paramListName(plan, 'shutter')}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="paramListBottom(plan, 'shutter')?2:0" ng-click="paramListClick(plan, 'shutter', 'down')"></button>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="paramListTop(plan, 'aperture')?2:0" ng-click="paramListClick(plan, 'aperture', 'up')"></button>
+                                    </div>
+                                    <div class="big center">
+                                        {{paramListName(plan, 'aperture')}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="paramListBottom(plan, 'aperture')?2:0" ng-click="paramListClick(plan, 'aperture', 'down')"></button>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="paramListTop(plan, 'iso')?2:0" ng-click="paramListClick(plan, 'iso', 'up')"></button>
+                                    </div>
+                                    <div class="big center">
+                                        {{paramListName(plan, 'iso')}}
+                                    </div>
+                                    <div class="center">
+                                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="paramListBottom(plan, 'iso')?2:0" ng-click="paramListClick(plan, 'iso', 'down')"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item item-dark" ng-show="plan.mode=='auto'">
+                            Interval Mode
+                            <div style="float:right;">
+                                <button class="button button-light button-small button-{{plan.intervalMode == 'fixed' ? 'outline':'clear'}}" ng-click="plan.intervalMode='fixed'">
+                                    Fixed
+                                </button>
+                                <button class="button button-light button-small button-{{plan.intervalMode == 'auto' ? 'outline':'clear'}}" ng-click="plan.intervalMode='auto'">
+                                    Variable
+                                </button>
+                            </div>
+                        </div>
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'&&plan.mode=='auto'">
+                            Day Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.dayInterval" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                        <label class="item item-dark" ng-show="plan.intervalMode=='auto'&&plan.mode=='auto'">
+                            Night Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.nightInterval" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                        <label class="item item-dark" ng-show="plan.intervalMode=='fixed'||plan.mode!='auto'">
+                            Interval
+                            <div style="float:right;">
+                                <input size="5" type="tel" ng-model="plan.interval" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                        <div class="item item-dark">
+                            Bracketing
+                            <div style="float:right;">
+                                <button class="button button-light button-small button-{{(!plan.hdrCount || plan.hdrCount < 2) ? 'outline':'clear'}}" ng-click="plan.hdrCount=0">
+                                    Single
+                                </button>
+                                <button class="button button-light button-small button-{{(plan.hdrCount > 1) ? 'outline':'clear'}}" ng-click="plan.hdrCount=(plan.hdrCount > 1)?plan.hdrCount:3">
+                                    Multi
+                                </button>
+                            </div>
+                        </div>
+
+                        <label class="item item-dark" ng-show="plan.hdrCount>1">
+                            Bracket Frames
+                            <div style="float:right;">
+                                <input size="3" type="tel" ng-model="plan.hdrCount" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                        <label class="item item-dark" ng-show="plan.hdrCount>1">
+                            Bracket Stops/Frame
+                            <div style="float:right;">
+                                <input size="3" type="tel" ng-model="plan.hdrStops" class="item-dark input-border">
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!--label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
+                    <div class="input-label">
+                        Night Compensation
+                    </div>
+                    <select ng-model="timelapse.nightCompensation">
+                        <option selected value="0">0 stops</option>
+                        <option selected value="-0.33">-1/3 stop</option>
+                        <option selected value="-0.66">-2/3 stops</option>
+                        <option selected value="-1">-1 stop</option>
+                        <option selected value="-1.33">-1 1/3 stops</option>
+                        <option selected value="-1.66">-1 2/3 stops</option>
+                        <option selected value="-2">-2 stops</option>
+                    </select>
+                </label>
+                <label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
+                    <div class="input-label">
+                        Sunrise Compensation
+                    </div>
+                    <select ng-model="timelapse.sunriseCompensation">
+                        <option selected value="0">0 stops</option>
+                        <option selected value="-0.33">-1/3 stop</option>
+                        <option selected value="-0.66">-2/3 stops</option>
+                        <option selected value="-1">-1 stop</option>
+                        <option selected value="-1.33">-1 1/3 stops</option>
+                        <option selected value="-1.66">-1 2/3 stops</option>
+                        <option selected value="-2">-2 stops</option>
+                    </select>
+                </label>
+                <label class="item item-dark item-input item-select" ng-show="timelapse.rampMode=='auto'">
+                    <div class="input-label">
+                        Sunset Compensation
+                    </div>
+                    <select ng-model="timelapse.sunsetCompensation">
+                        <option selected value="0">0 stops</option>
+                        <option selected value="-0.33">-1/3 stop</option>
+                        <option selected value="-0.66">-2/3 stops</option>
+                        <option selected value="-1">-1 stop</option>
+                        <option selected value="-1.33">-1 1/3 stops</option>
+                        <option selected value="-1.66">-1 2/3 stops</option>
+                        <option selected value="-2">-2 stops</option>
+                    </select>
+                </label-->
+
+            </div>
+
+        </div>
+        <div class="padding" ng-hide="!camera.connected || intervalometerStatus.running">
+            <p ng-show="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
+                Duration: {{timelapse.frames * timelapse.interval / 60|number:0}} minutes<br>
+            </p>
+            <p ng-hide="(timelapse.intervalMode=='fixed'&&timelapse.rampMode=='auto')||timelapse.rampMode=='fixed'">
+                Time-lapse will continue until stopped<br>
+            </p>
+            <div class="button-bar">
+                <button class="button button-dark button-block icon-right ion-chevron-right" ng-click="runProgram(timelapse)">
+                    Begin Timelapse
+                </button>
+            </div>
+        </div>
+        <div ng-show="intervalometerStatus.running">
+            <div class="item item-dark item-divider"><b>Time-lapse Running</b></div>
+            <div style="background-color: #202020">
+                <div class="row" ng-show="currentTimelapse.image">
+                    <div class="col">
+                        <div ng-show="currentTimelapse.loading" style="position: absolute; padding-left: 50%; padding-top: 45%; top: -1rem; left: -0rem; width:100%; z-index:1;">
+                            <span style="margin-left:-40%; padding: 10%; border:1px solid #fff;">loading preview...</span>
+                        </div>        
+                        <img ng-src="data:image/jpeg;base64,{{currentTimelapse.image}}" width="100%" style="{{currentTimelapse.loading ? 'opacity: 0.5;' : ''}}"><br>
+                        <div class="item item-dark range">
+                          <input class="dark" type="range" name="scrubber" ng-model="scrubber.pos" ng-change="updateScrubber(scrubber.pos)" min="0" max="{{scrubber.max}}" ng-disabled="scrubber.max>0?0:2">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-show="currentTimelapse.image">
+                    <div class="col">
+                        <div class="button-bar">
+                            <button class="button button-light button-clear icon ion-skip-backward" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="updateScrubber(0)"></button>
+                            <button class="button button-light button-clear icon ion-chevron-left" ng-disabled="(scrubber.max>0&&scrubber.pos>0)?0:2" ng-click="decScrubber(scrubber.pos)"></button>
+                            <button class="button button-light button-clear icon ion-play" ng-if="!currentTimelapse.playing" ng-click="playCurrent()" ng-disabled="currentTimelapse.loading?2:0"></button>
+                            <button class="button button-light button-clear icon ion-pause" ng-if="currentTimelapse.playing" ng-click="pauseCurrent()"></button>
+                            <button class="button button-light button-clear icon ion-chevron-right" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="incScrubber(scrubber.pos)"></button>
+                            <button class="button button-light button-clear icon ion-skip-forward" ng-disabled="(scrubber.max>0&&scrubber.pos<scrubber.max)?0:2" ng-click="updateScrubber(scrubber.max)"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="button-bar" ng-show="intervalometerStatus.trackingPanEnabled">
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.panDiff!=intervalometerStatus.panDiffNew" ng-click="moveTracking('Pan', -0.5)"><i class="icon ion-arrow-left-c"></i></button>
+                <button class="button button-light button-block button-clear">Pan 0.5°</button>
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.panDiff!=intervalometerStatus.panDiffNew" ng-click="moveTracking('Pan', 0.5)"><i class="icon ion-arrow-right-c"></i></button>
+            </div>
+            <div class="button-bar" ng-show="intervalometerStatus.trackingTiltEnabled">
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.tiltDiff!=intervalometerStatus.tiltDiffNew" ng-click="moveTracking('Tilt', -0.5)"><i class="icon ion-arrow-down-c"></i></button>
+                <button class="button button-light button-block button-clear">Tilt 0.5°</button>
+                <button class="button button-light button-block button-clear" ng-disabled="intervalometerStatus.tiltDiff!=intervalometerStatus.tiltDiffNew" ng-click="moveTracking('Tilt', 0.5)"><i class="icon ion-arrow-up-c"></i></button>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div ng-repeat="col in histogram track by $index" style="width:0.390625%; height: {{col/4}}px; margin-top:{{64-col/4}}px; background-color: #ddd; float: left;"></div>
+                </div>
+                <div class="col">
+                    Shutter: {{intervalometerStatus.cameraSettings.shutter}}<br>
+                    ISO: {{intervalometerStatus.cameraSettings.iso}}<br>
+                    Aperture: {{intervalometerStatus.cameraSettings.aperture}}
+                </div>
+            </div>
+            <div style="background-color: #202020">
+                <div class="list">
+                    <div class="item item-dark">
+                        Frames: {{intervalometerStatus.frames}} ({{intervalometerStatus.frames * (1/30)|number:0}} seconds @ 30fps)
+                    </div>
+                    <div class="item item-dark" ng-show="intervalometerStatus.framesRemaining">
+                        Remaining: {{intervalometerStatus.framesRemaining}}
+                    </div>
+                    <div class="item item-dark item-icon-right">
+                        Interval: {{intervalometerStatus.intervalMs/1000|number:0}}
+                        <i class="icon ion-edit"></i>
+                    </div>
+                    <div class="item item-dark">
+                        Ramp Rate: {{intervalometerStatus.rampRate|number:2}}<br>
+                    </div>
+                    <div class="item item-dark">
+                        <span class="positive">{{intervalometerStatus.message}}</span> <span style="float:right;">{{status}}</span><br>
+                    </div>
+                </div>
+            </div>
+            <div class="button-bar">
+                <button class="button button-dark button-block icon-right ion-chevron-right" ng-click="confirmStop()">
+                    Stop Timelapse
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

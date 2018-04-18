@@ -1,0 +1,67 @@
+<ion-modal-view class="modal-dark dark">
+    <ion-header-bar class="bar-dark">
+          <div class="buttons">
+            <button class="button button-clear" ng-click="closeMotionSetup()"><i class="icon ion-close"></i></button>
+          </div>
+          <h1 class="title">
+            Motion Setup ({{setupAxis.driver}} motor {{setupAxis.motor}})
+        </h1>
+    </ion-header-bar>
+    <ion-content class="bg-dark">
+
+        <ion-list>
+            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'">
+                <div class="input-label">
+                    Motion Hardware
+                </div>
+                <select ng-model="setupAxis.hardware" ng-change="changeAxisHardware(setupAxis.hardware)">
+                    <option value="sapphire">Sapphire</option>
+                    <option value="stager">Stage-R</option>
+                    <option value="other">Other</option>
+                </select>
+            </label>
+            <label class="item item-input item-select item-dark">
+                <div class="input-label">
+                    Axis Function
+                </div>
+                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware=='other'">
+                    <option value="Pan">Pan</option>
+                    <option value="Tilt">Tilt</option>
+                    <option value="Slide">Slide</option>
+                    <option value="Focus">Focus</option>
+                    <option value="#{{setupAxis.motor}}">#{{setupAxis.motor}}</option>
+                </select>
+                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware!='other'">
+                    <option value="Pan">Pan</option>
+                    <option value="Tilt">Tilt</option>
+                </select>
+                <select ng-model="setupAxis.name" ng-change="changeAxisType(setupAxis.name)" ng-show="setupAxis.driver=='GM'">
+                    <option value="Pan">Pan</option>
+                    <option value="Tilt">Tilt</option>
+                </select>
+            </label>
+            <label class="item item-input item-select item-dark" ng-show="setupAxis.driver=='NMX'&&setupAxis.hardware=='other'">
+                <div class="input-label">
+                    Axis Unit
+                </div>
+                <select ng-model="setupAxis.unit" ng-change="changeAxisUnit(setupAxis.unit)">
+                    <option value="s">Steps</option>
+                    <option value="°">Degrees</option>
+                    <option value="in">Inches</option>
+                    <option value="cm">Centimeters</option>
+                    <option value="m">Meters</option>
+                </select>
+            </label>
+            <label class="item item-input item-dark" ng-hide="setupAxis.unit=='s'||setupAxis.driver=='GM'||setupAxis.hardware!='other'">
+                <span class="input-label">Steps per Unit</span>
+                <input ng-model="setupAxis.unitSteps" type="tel" ng-change="changeAxisUnitSteps(setupAxis.unitSteps)">
+            </label>
+            <label class="item item-input item-dark">
+                <span class="input-label">Move per click ({{setupAxis.unit}})</span>
+                <input ng-model="setupAxis.unitMove" type="tel" ng-change="changeAxisUnitMove(setupAxis.unitMove)">
+            </label>
+            <ion-checkbox class= "item-dark" ng-model="setupAxis.reverse" ng-change="changeAxisReverse(setupAxis.reverse)">Reverse Direction</ion-checkbox>
+        </ion-list>
+
+    </ion-content>
+</ion-modal-view>

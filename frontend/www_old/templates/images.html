@@ -1,0 +1,33 @@
+<ion-view title="camera images">
+    <ion-content padding="false" class="has-header bg-dark">
+        <div ng-if="connected==-1" class="bar bar-subheader bar-assertive">
+          <h2 class="title">Reconnecting...</h2>
+        </div>
+        <div class="padding" ng-hide="view.connected" style="padding-left: 15%; padding-right: 15%; padding-top: 10%; text-align:center;">
+            <img width="100%" src="img/view-power.png"><br>
+            <p class="light padding">
+              {{status}}
+            </p>
+            <p ng-show="nodevice">
+                <button class="button icon-left ion-plus button-dark" ng-click="showAddDevice()">Add Device</button>
+            </p>
+        </div>
+        <div class="list card item-dark" ng-repeat="image in images" ng-show="view.connected">
+            <div class="item item-body item-dark">
+                <div class="row">
+                    <div class="col">
+                        <img ng-src="data:image/jpeg;base64,{{image}}" width="100%"><br>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+    </ion-content>
+</ion-view>

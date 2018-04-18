@@ -1,0 +1,60 @@
+<ion-view title="time-lapse clips">
+    <ion-content padding="false" class="has-header bg-dark">
+        <div ng-if="connected==-1" class="bar bar-subheader bar-assertive">
+          <h2 class="title">Reconnecting...</h2>
+        </div>
+        <div class="padding" ng-hide="view.connected" style="padding-left: 15%; padding-right: 15%; padding-top: 10%; text-align:center;">
+            <img width="100%" src="img/view-power.png"><br>
+            <p class="light padding">
+              {{status}}
+            </p>
+            <p ng-show="nodevice">
+                <button class="button icon-left ion-plus button-dark" ng-click="showAddDevice()">Add Device</button>
+            </p>
+        </div>
+        <div class="list card item-dark" ng-repeat="tl in clips" ng-show="view.connected">
+            <div class="item item-divider item-dark" ng-click="showClipOptions(tl)">
+                {{tl.name}} ({{tl.frames}} frames)
+                <span style="float:right;"><i class="ion-navicon-round"></i></span>
+            </div>
+            <!--div class="item item-body item-dark">
+                <div ng-hide="tl.playing" style="position: absolute;padding-left: 50%;padding-top: 25%;top: -1rem;left: -0rem;"><br><h1 ng-click="playTimelapse(tl.index)" ng-hide="tl.loading"><i class="icon ion-play"></i></h1><span ng-show="tl.loading">loading...</span><br></div>
+                <img ng-src="data:image/jpeg;base64,{{tl.image}}" width="100%">
+            </div-->
+            <div class="item item-body item-dark">
+                <div class="row">
+                    <div class="col">
+                        <div ng-hide="tl.max>0||tl.loading" style="position: absolute;padding-left: 50%;padding-top: 25%;top: -1rem;left: -0rem;"><br><h1 ng-click="playTimelapse(tl.index)" ng-hide="tl.loading"><i class="icon ion-play"></i></h1><br></div>
+                        <div ng-show="tl.loading" style="position: absolute; padding-left: 50%; padding-top: 45%; top: -1rem; left: -0rem; width:100%; z-index:1;">
+                            <span style="margin-left:-40%; padding: 10%; border:1px solid #fff;">loading preview...</span>
+                        </div>        
+                        <img ng-src="data:image/jpeg;base64,{{tl.image}}" width="100%" style="{{tl.loading ? 'opacity: 0.5;' : ''}}"><br>
+                        <div class="item item-dark range" ng-show="tl.max>0">
+                          <input class="dark" type="range" name="scrubber" ng-model="tl.pos" ng-change="updateScrubber(tl.pos, tl)" min="0" max="{{tl.max}}" ng-disabled="tl.max>0?0:2">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-show="tl.max>0">
+                    <div class="col">
+                        <div class="button-bar">
+                            <button class="button button-light button-clear icon ion-skip-backward" ng-disabled="(tl.max>0&&tl.pos>0)?0:2" ng-click="updateScrubber(0, tl)"></button>
+                            <button class="button button-light button-clear icon ion-chevron-left" ng-disabled="(tl.max>0&&tl.pos>0)?0:2" ng-click="decScrubber(tl.pos, tl)"></button>
+                            <button class="button button-light button-clear icon ion-play" ng-if="!tl.playing" ng-click="playTimelapse(tl.index)" ng-disabled="tl.loading?2:0"></button>
+                            <button class="button button-light button-clear icon ion-pause" ng-if="tl.playing" ng-click="pauseTimelapse(tl.index)"></button>
+                            <button class="button button-light button-clear icon ion-chevron-right" ng-disabled="(tl.max>0&&tl.pos<tl.max)?0:2" ng-click="incScrubber(tl.pos, tl)"></button>
+                            <button class="button button-light button-clear icon ion-skip-forward" ng-disabled="(tl.max>0&&tl.pos<tl.max)?0:2" ng-click="updateScrubber(tl.max, tl)"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+    </ion-content>
+</ion-view>

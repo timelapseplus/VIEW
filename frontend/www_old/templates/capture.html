@@ -1,0 +1,97 @@
+<ion-view title="capture">
+    <ion-content class="has-header bg-dark">
+        <div ng-if="connected==-1" class="bar bar-subheader bar-assertive">
+          <h2 class="title">Reconnecting...</h2>
+        </div>
+        <div ng-include="'templates/_connect.html'"></div>
+
+        <div ng-show="camera.connected" class="list">
+            <div class="item item-divider item-dark" ng-click="update()">{{camera.model}}</div>
+
+            <div style="width:100%;height:250px;background-color:#333;padding-top:100px;" class="center" ng-hide="lastImage"><h1><i class="icon ion-image"></i><br></div>
+            <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)">
+
+            <div class="item item-dark">
+                <div class="button-bar">
+                    <button class="button button-light button-clear" ng-click="capture()" ng-disabled="intervalometerStatus.running"><i class="icon ion-camera"></i></button>
+                    <button class="button button-light button-clear" ng-click="captureDelay(2)" ng-disabled="intervalometerStatus.running"><i class="icon ion-clock"></i> 2s</button>
+                    <button class="button button-{{previewActive ? 'positive' : 'light'}} button-clear" ng-click="preview()" ng-disabled="intervalometerStatus.running"><i class="icon ion-play"></i> LV</button>
+                </div>
+            </div>
+
+            <div class="button-bar" ng-show="focusMode && previewActive && !intervalometerStatus.running">
+                <button class="button button-dark button-block" ng-click="focus(-2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-backward"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(-1, 1, true)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(1, 1, true)" ng-disabled="focusMoving"><i class="icon ion-arrow-right-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(2, 1, true)" ng-disabled="focusMoving"><i class="icon ion-skip-forward"></i></button>
+            </div>
+
+            <content scroll="false" ng-hide="focusMode||intervalometerStatus.running||!motionAvailable">
+                <div class="list">
+                    <div class="row">
+                        <center style="width:100%" id="motionControls"></center>
+                    </div>
+                </div>
+            </content>
+
+            <div class="row" ng-hide="focusMode||intervalometerStatus.running" ng-repeat="a in axis | filter:{'connected':true}">
+                <div class="button-bar" ng-hide="a.setup">
+                    <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>
+                </div>
+                <div class="button-bar" ng-show="a.setup&&a.name!='Tilt'">
+                    <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-arrow-left-c"></i></button>
+                    <button class="button button-light button-block button-clear" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                    <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-arrow-right-c"></i></button>
+                </div>
+                <div class="button-bar" ng-show="a.setup&&a.name=='Tilt'">
+                    <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-arrow-down-c"></i></button>
+                    <button class="button button-light button-block button-clear" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                    <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-arrow-up-c"></i></button>
+                </div>
+            </div>
+            <div class="row" ng-hide="focusMode||intervalometerStatus.running||atHomePosition()">
+                <button class="button button-dark button-block button-small" ng-click="setHomePosition()">set as start position</button>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp||intervalometerStatus.running" ng-click="paramClick('shutter', 'up')"></button>
+                    </div>
+                    <div class="big center {{camera.shutterChanged ? 'assertive':''}}">
+                        {{camera.shutterNew||'loading...'}}
+                    </div>
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown||intervalometerStatus.running" ng-click="paramClick('shutter', 'down')"></button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp||intervalometerStatus.running" ng-click="paramClick('aperture', 'up')"></button>
+                    </div>
+                    <div class="big center {{camera.apertureChanged ? 'assertive':''}}">
+                        {{camera.apertureNew||'loading...'}}
+                    </div>
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown||intervalometerStatus.running" ng-click="paramClick('aperture', 'down')"></button>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp||intervalometerStatus.running" ng-click="paramClick('iso', 'up')"></button>
+                    </div>
+                    <div class="big center {{camera.isoChanged ? 'assertive':''}}">
+                        {{camera.isoNew||'loading...'}}
+                    </div>
+                    <div class="center">
+                        <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown||intervalometerStatus.running" ng-click="paramClick('iso', 'down')"></button>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="item item-dark">
+                {{status}}
+            </div>
+        </div>
+        <!--button class="button button-dark button-block" ng-click="testBulb()"><i class="icon ion-camera"></i> Test Bulb</button-->
+    </ion-content>
+</ion-view>

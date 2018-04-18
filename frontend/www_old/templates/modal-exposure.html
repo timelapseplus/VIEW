@@ -1,0 +1,189 @@
+<ion-modal-view class="modal-dark dark">
+    <ion-header-bar class="bar-dark">
+          <div class="buttons">
+            <button class="button button-clear" ng-click="closeExposure()"><i class="icon ion-close"></i></button>
+          </div>
+          <h1 class="title">
+            live view
+            <span ng-show="currentKfIndex > 0">(keyframe #{{currentKfIndex}})</span>
+            <span ng-show="currentKfIndex == 0">(start frame)</span>
+        </h1>
+    </ion-header-bar>
+    <ion-content class="bg-dark">
+        <div ng-hide="(currentKf.imageCurrent&&!lastImage.expired)||previewActive" style="position: absolute; padding-left: 50%; padding-top: 35%; top: -1rem; left: -0rem; width:100%; z-index:1;">
+            <span ng-click="captureTest()" style="margin-left:-70%; padding: 10%; border:1px solid #fff;"><i class="icon ion-alert-circled"></i> scene changed, tap to update</span>
+        </div>
+        
+        <img ng-show="lastImage" ng-src="data:image/jpeg;base64,{{lastImage.jpeg}}" width="100%" ng-click="zoom($event)" style="{{((currentKf.imageCurrent&&!lastImage.expired)||previewActive) ? '' : 'opacity: 0.5;'}}"><br>
+
+        <div class="row">
+            <div class="col center">
+                <div class="button-bar">
+                    <button class="button button-dark button-block button-small {{mode=='exposure'?'active':''}}" ng-click="setMode('exposure')">ev</button>
+                    <button class="button button-dark button-block button-small {{mode=='focus'?'active':''}}" ng-click="setMode('focus')">focus</button>
+                    <button class="button button-dark button-block button-small {{mode=='timing'?'active':''}}" ng-click="setMode('timing')">timing</i></button>
+                    <button class="button button-dark button-block button-small {{mode=='motion'?'active':''}}" ng-click="setMode('motion')">motion</button>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="mode=='exposure'">
+            <div class="row">
+                <div class="col center">
+                    <div class="button-bar">
+                        <div class="button-bar">
+                            <button class="button button-light button-clear" ng-click="captureTest()" ng-disabled="intervalometerStatus.running">
+                                <i class="icon ion-camera"></i>
+                                Test Photo
+                            </button>
+                            <button class="button button-{{previewActive ? 'positive' : 'light'}} button-clear" ng-click="preview()" ng-disabled="intervalometerStatus.running">
+                                <i class="icon ion-play"></i> Liveview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <!--div class="col center">
+                    <small>{{camera.ev|number:1}}EV</small>
+                </div-->
+                <div class="col center">
+                    <small>Shutter</small>
+                </div>
+                <div class="col center">
+                    <small>Aperture</small>
+                </div>
+                <div class="col center">
+                    <small>ISO</small>
+                </div>
+            </div>
+            <div class="item item-dark range">
+                <!--i class="icon ion-arrow-left-b" ng-click="decEv()"></i>
+                <input type="range" name="exposure" ng-model="camera.ev3" max="{{camera.evMax3}}" min="{{camera.evMin3}}" ng-change="setEv(camera.ev3/3)">
+                <i class="icon ion-arrow-right-b" ng-click="incEv()"></i-->
+                <div class="row">
+                    <div class="col">
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.shutterUp" ng-click="paramClick('shutter', 'up')"></button>
+                        </div>
+                        <div class="big center {{camera.shutterChanged ? 'assertive':''}}">
+                            {{camera.shutterNew||'loading...'}}
+                        </div>
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.shutterDown" ng-click="paramClick('shutter', 'down')"></button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.apertureUp" ng-click="paramClick('aperture', 'up')"></button>
+                        </div>
+                        <div class="big center {{camera.apertureChanged ? 'assertive':''}}">
+                            {{camera.apertureNew||'loading...'}}
+                        </div>
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.apertureDown" ng-click="paramClick('aperture', 'down')"></button>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-up" ng-disabled="!camera.isoUp" ng-click="paramClick('iso', 'up')"></button>
+                        </div>
+                        <div class="big center {{camera.isoChanged ? 'assertive':''}}">
+                            {{camera.isoNew||'loading...'}}
+                        </div>
+                        <div class="center">
+                            <button class="button button-block button-light button-clear icon ion-chevron-down" ng-disabled="!camera.isoDown" ng-click="paramClick('iso', 'down')"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" ng-show="lastImage && lastImage.histogram">
+                <div ng-repeat="col in lastImage.histogram track by $index" style="width:0.390625%; height: {{col/2}}px; margin-top:{{128-col/2}}px; background-color: #ddd"></div>
+            </div>
+
+        </div>
+
+        <div ng-show="mode=='focus'">
+            <div class="row">
+                <div class="col center" ng-hide="focusMode">
+                    <small>tap image to zoom</small>
+                </div>
+                <div class="col center" ng-show="focusMode">
+                    <small>tap image to return to 100%</small>
+                </div>
+            </div>
+            <div class="button-bar" ng-show="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
+                <button class="button button-dark button-block" ng-click="focus(-1, 10)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i><i class="icon ion-arrow-left-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(-1)" ng-disabled="focusMoving"><i class="icon ion-arrow-left-b"></i> near</button>
+                <button class="button button-dark button-block disabled">{{focusPos}}</button>
+                <button class="button button-dark button-block" ng-click="focus(1)" ng-disabled="focusMoving">far <i class="icon ion-arrow-right-b"></i></button>
+                <button class="button button-dark button-block" ng-click="focus(1, 10)" ng-disabled="focusMoving"><i class="icon ion-arrow-right-b"></i><i class="icon ion-arrow-right-b"></i></button>
+            </div>
+            <div class="row" ng-hide="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
+                <div class="col center">
+                    <small>focus point for keyframe is {{focusCurrentDistance(currentKf)}} steps from current focus</small>
+                </div>
+            </div>
+            <div class="button-bar" ng-hide="currentKf.focusEdited||focusCurrentDistance(currentKf)==0">
+                <button class="button button-dark button-block" ng-click="focusMoveToKeyframe(currentKf)" ng-disabled="focusMoving">Move to KF</button>
+                <button class="button button-dark button-block" ng-click="focusResetKeyframe(currentKf)">Reset KF to current</button>
+            </div>
+        </div>
+
+        <div ng-show="mode=='timing'">
+            <div class="row" ng-show="currentKfIndex == 0">
+                <div class="col center">
+                    <em>timing position of first frame is always zero.</em>
+                </div>
+            </div>
+            <div class="row" ng-show="currentKfIndex > 0">
+                <div class="col center">
+                   {{secondsDescription(currentKf.seconds, currentKfIndex)}}
+                </div>
+            </div>
+            <div class="item item-dark range" ng-show="currentKfIndex > 0">
+                <i class="icon ion-arrow-left-b" ng-click="decSecondsRange(currentKf)"></i>
+                <input type="range" name="exposure" ng-model="secondsRange.val" max="timingSliderMax" min="0" ng-change="updateSeconds(currentKf, secondsRange.val)">
+                <i class="icon ion-arrow-right-b" ng-click="incSecondsRange(currentKf)"></i>
+            </div>
+        </div>
+
+        <div ng-show="mode=='motion'">
+            <div class="row" ng-hide="motionAvailable">
+                <div class="col center">
+                    <em>connect NMX to enable keyframe motion</em>
+                </div>
+            </div>
+            <div ng-show="motionAvailable">
+                <div class="row" ng-hide="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <button class="button button-dark button-block" ng-click="motionMoveToKeyframe(currentKf)" ng-disabled="motionMoving">Move to KF</button>
+                    <button class="button button-dark button-block" ng-click="motionResetKeyframe(currentKf)">Reset KF to current</button>
+                </div>
+                <content scroll="false" ng-show="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <div class="list">
+                        <div class="row">
+                            <center style="width:100%" id="motionControls"></center>
+                        </div>
+                    </div>
+                </content>
+                <div class="row" ng-repeat="a in axis | filter:{'connected':true}" ng-show="currentKf.motionEdited||motionAtKeyframe(currentKf)">
+                    <div class="button-bar" ng-hide="a.setup">
+                        <button class="button button-dark button-block" ng-click="openMotionSetup(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>
+                    </div>
+                    <div class="button-bar" ng-show="a.setup&&a.name!='Tilt'">
+                        <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-arrow-left-c"></i></button>
+                        <button class="button button-light button-block button-clear" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                        <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-arrow-right-c"></i></button>
+                    </div>
+                    <div class="button-bar" ng-show="a.setup&&a.name=='Tilt'">
+                        <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, -(a.moveSteps))"><i class="icon ion-arrow-down-c"></i></button>
+                        <button class="button button-light button-block button-clear" ng-click="openMotionSetup(a.id)">{{a.name}} {{a.unitMove}}{{a.unit}}</button>
+                        <button class="button button-light button-block button-clear" ng-disabled="a.moving" ng-click="move(a.id, (a.moveSteps))"><i class="icon ion-arrow-up-c"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </ion-content>
+</ion-modal-view>

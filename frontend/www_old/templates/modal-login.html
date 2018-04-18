@@ -1,0 +1,91 @@
+<ion-modal-view class="modal-dark dark">
+    <ion-header-bar class="bar-dark">
+        <h1 class="title">login</h1>
+    </ion-header-bar>
+    <ion-content class="bg-dark">
+        <center>
+            <div style="padding:25px;">
+              <img src="img/view-text.png" height="50px">
+            </div>
+        </center>
+
+        <div ng-show="!loginState || loginState=='noemail' || loginState=='email'">
+        <form>
+            <div class="card">
+              <div class="item item-dark item-text-wrap" ng-show="!loginState || loginState=='email'">
+                Welcome to view.tl! If this is your first time, please enter your email address used with your VIEW order to begin.
+              </div>
+              <div class="item item-dark item-text-wrap" ng-show="loginState=='noemail'">
+                We're sorry, your email address was not found.  Please confirm that it was entered correctly and is the one associated with the VIEW order or Kickstarter survey.
+              </div>
+            </div>
+            <div class="list list-inset">
+              <label class="item item-input item-dark">
+                <i class="icon ion-at placeholder-icon"></i>
+                <input type="email" ng-model="email" placeholder="enter email address" style="color: white; background:none;">
+              </label>
+            </div>
+            <button class="button button-block button-positive" style="margin-top:50px;" ng-click="loginCheckEmail(email)" ng-disabled="(!loginBusy && email.length > 5) ? 0 : 2">Continue</button>
+        </form>
+        </div>
+
+        <div ng-show="loginState=='register-subdomain' || loginState=='register-unavailable'">
+        <form>
+            <div class="card">
+              <div class="item item-dark item-text-wrap" ng-show="loginState=='register-subdomain'">
+                Great, we found your email address.  Now choose a subdomain to use with your account.  This will enable access to your account via <i>subdomain</i>.view.tl
+              </div>
+              <div class="item item-dark item-text-wrap" ng-show="loginState=='register-unavailable'">
+                We're sorry, but that subdomain is already taken. Please try another name.
+              </div>
+            </div>
+            <div class="list list-inset">
+              <label class="item item-input item-dark">
+                <i class="icon ion-link placeholder-icon"></i>
+                <input type="text" ng-model="subdomain" placeholder="select a subdomain" style="color: white; background:none;">
+              </label>
+            </div>
+            <button class="button button-block button-positive" style="margin-top:50px;" ng-click="loginCheckSubdomain(subdomain)"  ng-disabled="(!loginBusy && subdomain.length > 2) ? 0 : 2">Continue</button>
+        </form>
+        </div>
+
+        <div ng-show="loginState=='register-password'">
+        <form>
+            <div class="card">
+              <div class="item item-dark item-text-wrap">
+                Alright, now just create a password to activate your account.  The password must contain at least 6 characters.
+              </div>
+            </div>
+            <div class="list list-inset">
+              <label class="item item-input item-dark">
+                <i class="icon ion-locked placeholder-icon"></i>
+                <input type="password" ng-model="password1" placeholder="create password" style="color: white; background:none;">
+              </label>
+              <label class="item item-input item-dark">
+                <i class="icon ion-locked placeholder-icon"></i>
+                <input type="password" ng-model="password2" placeholder="confirm password" style="color: white; background:none;">
+              </label>
+            </div>
+            <button class="button button-block button-positive" style="margin-top:50px;" ng-click="loginRegister(email, subdomain, password1)" ng-disabled="(!loginBusy && password1 && password1.length > 5 && password1 == password2) ? 0 : 2">Activate</button>
+        </form>
+        </div>
+
+        <div ng-show="loginState=='login-password'">
+        <form>
+            <div class="card">
+              <div class="item item-dark item-text-wrap">
+                Welcome back!  Please enter your password to continue.
+              </div>
+            </div>
+            <div class="list list-inset">
+              <label class="item item-input item-dark">
+                <i class="icon ion-locked placeholder-icon"></i>
+                <input type="password" ng-model="password" placeholder="enter password" style="color: white; background:none;">
+              </label>
+            </div>
+            <button class="button button-block button-positive" style="margin-top:50px;" ng-click="login(email, password)" ng-disabled="!loginBusy && password.length > 5 ? 0 : 2">Login</button>
+        </form>
+        </div>
+
+    </ion-content>
+</ion-modal-view>
