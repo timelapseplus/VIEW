@@ -321,7 +321,7 @@ function processKeyframes(setupFirst, callback) {
 
     var checkDone = function() {
         axesDone++;
-        console.log("KF: " + axesDone + " keyframe items complete");
+        console.log("KF: " + axesDone + " of " + numAxes + " keyframe items complete");
         if (axesDone >= numAxes && callback) {
             console.log("KF: keyframes complete, running callback");
             callback();
