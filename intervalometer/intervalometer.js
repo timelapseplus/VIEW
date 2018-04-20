@@ -1515,6 +1515,7 @@ intervalometer.updateProgram = function(updates, callback) {
     for(key in updates) {
         if(updates.hasOwnProperty(key)) {
             intervalometer.currentProgram[key] = updates[key];
+            program[key] = updates[key];
         }
     }
     callback && callback();

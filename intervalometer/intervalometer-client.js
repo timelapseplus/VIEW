@@ -313,6 +313,11 @@ core.moveFocus = function(steps, callback) {
 
 core.updateProgram = function(updates, callback) {
     call('intervalometer.updateProgram', {updates:updates}, callback);
+    for(key in updates) {
+        if(updates.hasOwnProperty(key)) {
+            core.currentProgram[key] = updates[key];
+        }
+    }
 }
 
 core.dynamicChange = function(parameter, newValue, frames, callback) {
