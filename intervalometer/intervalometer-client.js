@@ -307,6 +307,10 @@ core.moveTracking = function(axis, degrees, callback) {
     call('intervalometer.moveTracking', {axis:axis, degrees:degrees}, callback);
 }
 
+core.moveFocus = function(steps, callback) {
+    call('intervalometer.moveFocus', {steps:steps}, callback);
+}
+
 core.dynamicChange = function(parameter, newValue, frames, callback) {
     call('intervalometer.dynamicChange', {parameter:parameter, newValue:newValue, frames:frames}, callback);
 }

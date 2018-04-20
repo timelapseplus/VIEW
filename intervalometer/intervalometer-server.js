@@ -324,6 +324,9 @@ function runCommand(type, args, callback, client) {
     case 'intervalometer.moveTracking':
       intervalometer.moveTracking(args.axis, args.degrees, callback);
       break;
+    case 'intervalometer.moveFocus':
+      intervalometer.moveFocus(args.steps, callback);
+      break;
     case 'intervalometer.dynamicChange':
       intervalometer.dynamicChange(args.parameter, args.newValue, args.frames, callback);
       break;

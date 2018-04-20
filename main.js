@@ -4267,6 +4267,10 @@ app.on('message', function(msg) {
                 core.moveTracking(msg.axis, msg.degrees);
                 break;
 
+            case 'moveFocus':
+                core.moveFocus(msg.steps);
+                break;
+
             case 'dynamicChange':
                 core.dynamicChange(msg.parameter, msg.newValue, msg.frames);
                 break;

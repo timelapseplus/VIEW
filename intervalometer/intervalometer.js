@@ -363,6 +363,8 @@ function processKeyframes(setupFirst, callback) {
                             }
                         });
                     }
+                    focus += status.focusDiffNew;
+                    status.focusDiffNew = 0;
                     if(focus) {
                         if(camera.ptp.model.match(/fuji/i)) {
                             doFocus();
@@ -1169,6 +1171,9 @@ intervalometer.validate = function(program) {
         }
     }
 
+    if(!program.axes) program.axes = {};
+    if(!program.axes.focus) program.axes.focus = {kf:[{seconds: 0, position: 0}]};
+
     console.log("VAL: validating program:", results);
 
     return results;
@@ -1271,6 +1276,7 @@ intervalometer.run = function(program, date, utcOffset) {
                     status.currentPlanIndex = null;
                     status.panDiffNew = 0;
                     status.tiltDiffNew = 0;
+                    status.focusDiffNew = 0;
                     status.panDiff = 0;
                     status.tiltDiff = 0;
                     status.trackingPanEnabled = false;
@@ -1418,6 +1424,11 @@ intervalometer.moveTracking = function(axis, degrees, callback) {
     if(axis == 'Tilt') {
         intervalometer.status.tiltDiffNew += degrees;
     }
+    callback && callback();
+}
+
+intervalometer.moveFocus = function(steps, callback) {
+    intervalometer.status.focusDiffNew += steps;
     callback && callback();
 }
 
