@@ -1511,4 +1511,13 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     }
 }
 
+intervalometer.updateProgram = function(updates, callback) {
+    for(key in updates) {
+        if(updates.hasOwnProperty(key)) {
+            intervalometer.currentProgram[key] = updates[key];
+        }
+    }
+    callback && callback();
+}
+
 module.exports = intervalometer;

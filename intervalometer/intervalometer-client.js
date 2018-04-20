@@ -311,6 +311,10 @@ core.moveFocus = function(steps, callback) {
     call('intervalometer.moveFocus', {steps:steps}, callback);
 }
 
+core.updateProgram = function(updates, callback) {
+    call('intervalometer.updateProgram', {updates:updates}, callback);
+}
+
 core.dynamicChange = function(parameter, newValue, frames, callback) {
     call('intervalometer.dynamicChange', {parameter:parameter, newValue:newValue, frames:frames}, callback);
 }

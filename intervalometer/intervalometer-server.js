@@ -327,6 +327,9 @@ function runCommand(type, args, callback, client) {
     case 'intervalometer.moveFocus':
       intervalometer.moveFocus(args.steps, callback);
       break;
+    case 'intervalometer.updateProgram':
+      intervalometer.updateProgram(args.updates, callback);
+      break;
     case 'intervalometer.dynamicChange':
       intervalometer.dynamicChange(args.parameter, args.newValue, args.frames, callback);
       break;
