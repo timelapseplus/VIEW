@@ -4271,6 +4271,10 @@ app.on('message', function(msg) {
                 core.moveFocus(msg.steps);
                 break;
 
+            case 'updateProgram':
+                core.updateProgram(msg.updates);
+                break;
+
             case 'dynamicChange':
                 core.dynamicChange(msg.parameter, msg.newValue, msg.frames);
                 break;
