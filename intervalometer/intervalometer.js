@@ -437,44 +437,57 @@ function processKeyframes(setupFirst, callback) {
             if(axis.direction) motor.direction = axis.direction;
 
             if(trackingTarget) {
-                var panDegrees = trackingTarget.pan - status.trackingPan;
-                if(status.panDiff != status.panDiffNew) {
-                    status.panDiff = status.panDiffNew;
-                }
-                panDegrees += status.panDiff;
-                if(panDegrees != 0 && axis.orientation == 'pan') {
-                    status.trackingPanEnabled = true;
-                    numAxes++;
-                    var panSteps = panDegrees * motor.stepsPerDegree;
-                    if(panMotor.stepsPerDegree > 100) {
-                        panSteps = Math.round(panSteps);
+                if(axis.orientation == 'pan') {
+                    var panDegrees = trackingTarget.pan - status.trackingPan;
+                    if(status.panDiff != status.panDiffNew) {
+                        status.panDiff = status.panDiffNew;
                     }
-                    console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
-                    motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
-                        status.trackingPan += panSteps / motor.stepsPerDegree;
+                    panDegrees += status.panDiff;
+                    if(panDegrees != 0) {
+                        status.trackingPanEnabled = true;
+                        numAxes++;
+                        var panSteps = panDegrees * motor.stepsPerDegree;
+                        if(panMotor.stepsPerDegree > 100) {
+                            panSteps = Math.round(panSteps);
+                        }
+                        console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
+                        motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
+                            status.trackingPan += panSteps / motor.stepsPerDegree;
+                            checkDone();
+                        });
+                    } else {
                         checkDone();
-                    });
-                }
-                var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
-                if(status.tiltDiff != status.tiltDiffNew) {
-                    status.tiltDiff = status.tiltDiffNew;
-                }
-                tiltDegrees += status.tiltDiff;
-                if(tiltDegrees != 0 && axis.orientation == 'tilt') {
-                    status.trackingTiltEnabled = true;
-                    numAxes++;
-                    var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
-                    if(tiltMotor.stepsPerDegree > 100) {
-                        tiltSteps = Math.round(tiltSteps);
                     }
-                    var direction = -1;
-                    console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
-                    motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
-                        status.trackingPan += panSteps / motor.stepsPerDegree;
+                } else if(axis.orientation == 'tilt') {
+                    var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
+                    if(status.tiltDiff != status.tiltDiffNew) {
+                        status.tiltDiff = status.tiltDiffNew;
+                    }
+                    tiltDegrees += status.tiltDiff;
+                    if(tiltDegrees != 0 && axis.orientation == 'tilt') {
+                        status.trackingTiltEnabled = true;
+                        numAxes++;
+                        var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
+                        if(tiltMotor.stepsPerDegree > 100) {
+                            tiltSteps = Math.round(tiltSteps);
+                        }
+                        var direction = -1;
+                        console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
+                        motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
+                            status.trackingPan += panSteps / motor.stepsPerDegree;
+                            checkDone();
+                        });
+                    } else {
                         checkDone();
-                    });
+                    }
+                } else {
+                    checkDone();
                 }
+            } else {
+                checkDone();
             }
+        } else {
+            checkDone();
         }
 
     }
