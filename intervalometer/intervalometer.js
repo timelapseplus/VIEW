@@ -343,6 +343,7 @@ function processKeyframes(setupFirst, callback) {
     for(var m in intervalometer.currentProgram.axes) {
         var axis = intervalometer.currentProgram.axes[m];
         numAxes++;
+        console.log("Intervalometer: KF: running axis", m);
 
         if(axis.type == 'keyframe') {
             if(m == 'focus') {
@@ -445,7 +446,6 @@ function processKeyframes(setupFirst, callback) {
                     panDegrees += status.panDiff;
                     if(panDegrees != 0) {
                         status.trackingPanEnabled = true;
-                        numAxes++;
                         var panSteps = panDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             panSteps = Math.round(panSteps);
@@ -466,7 +466,6 @@ function processKeyframes(setupFirst, callback) {
                     tiltDegrees += status.tiltDiff;
                     if(tiltDegrees != 0 && axis.orientation == 'tilt') {
                         status.trackingTiltEnabled = true;
-                        numAxes++;
                         var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
