@@ -447,7 +447,7 @@ function processKeyframes(setupFirst, callback) {
                         status.trackingPanEnabled = true;
                         numAxes++;
                         var panSteps = panDegrees * motor.stepsPerDegree;
-                        if(panMotor.stepsPerDegree > 100) {
+                        if(motor.stepsPerDegree > 100) {
                             panSteps = Math.round(panSteps);
                         }
                         console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
@@ -468,7 +468,7 @@ function processKeyframes(setupFirst, callback) {
                         status.trackingTiltEnabled = true;
                         numAxes++;
                         var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
-                        if(tiltMotor.stepsPerDegree > 100) {
+                        if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
                         }
                         var direction = -1;
