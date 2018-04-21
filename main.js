@@ -1721,6 +1721,22 @@ if (VIEW_HARDWARE) {
         return cb(null, res);
     }
 
+    var getTrackingMotor = function(trackingMotor) {
+        if(trackingMotor && trackingMotor != 'none') {
+            var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
+            if(parts && parts.length > 2) {
+                return {
+                    name: parts[1] + parts[2],
+                    direction: parts[3] == 'r' ? -1 : 1,
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     var exposurePlansReview = function() {
         var info = "";
         var pad = "- ";
@@ -1944,6 +1960,23 @@ if (VIEW_HARDWARE) {
                 type: "function",
                 fn: function(arg, cb) {
                     core.currentProgram.keyframes = null;
+                    core.currentProgram.axes = {};
+                    if(core.currentProgram.tracking != 'none') {
+                        panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
+                        if(panMotor) core.currentProgram.axes[panMotor.name] = {
+                            type: 'tracking',
+                            orientation: 'pan',
+                            target: core.currentProgram.tracking,
+                            direction: panMotor.direction
+                        }
+                        tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
+                        if(tiltMotor) core.currentProgram.axes[tiltMotor.name] = {
+                            type: 'tracking',
+                            orientation: 'tilt',
+                            target: core.currentProgram.tracking,
+                            direction: panMotor.direction
+                        }
+                    }
                     oled.timelapseStatus = null;
                     core.startIntervalometer(core.currentProgram);
                     cb();

@@ -1186,6 +1186,7 @@ intervalometer.validate = function(program) {
 
     if(!program.axes) program.axes = {};
     if(!program.axes.focus) program.axes.focus = {kf:[{seconds: 0, position: 0}]};
+
     program.axes.focus.type = 'keyframe'; // make focus adjustment available
 
     console.log("VAL: validating program:", results);
