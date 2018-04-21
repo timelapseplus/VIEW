@@ -1962,14 +1962,14 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.keyframes = null;
                     core.currentProgram.axes = {};
                     if(core.currentProgram.tracking != 'none') {
-                        panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
+                        var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
                         if(panMotor) core.currentProgram.axes[panMotor.name] = {
                             type: 'tracking',
                             orientation: 'pan',
                             target: core.currentProgram.tracking,
                             direction: panMotor.direction
                         }
-                        tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
+                        var tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
                         if(tiltMotor) core.currentProgram.axes[tiltMotor.name] = {
                             type: 'tracking',
                             orientation: 'tilt',
