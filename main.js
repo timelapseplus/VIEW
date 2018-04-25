@@ -4242,6 +4242,18 @@ app.on('message', function(msg) {
                             });
                         });
                     })(msg.driver, msg.motor, msg.reply);
+                } else if (msg.key == "setPosition" && msg.motor && msg.driver && msg.position != null) {
+                    console.log("setPosition motor" + msg.motor);
+                    (function(driver, motor, position, reply) {
+                        core.setMotionPosition(driver, motor, position, function(err) {
+                            reply('move', {
+                                complete: true,
+                                motor: motor,
+                                driver: driver,
+                                position: position
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.position, msg.reply);
                 }
                 break;
 

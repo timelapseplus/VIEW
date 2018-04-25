@@ -39,19 +39,25 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
                             }
                         }
                         if (self._gmCh) {
-                            self._gmCh.write(new Buffer("012600", 'hex'));
-                            self._gmCh.subscribe(function(){
-                                self._dev = btPeripheral;
-                                self._dev.connected = true;
-                                self.connected = true;
-                                self._dev.type = "bt";
-                                self._gmCh.on('data', function(data, isNotification) {
-                                    self._parseIncoming(data);
+                            try {
+                                self._gmCh.write(new Buffer("012600", 'hex'));
+                                self._gmCh.subscribe(function(){
+                                    self._dev = btPeripheral;
+                                    self._dev.connected = true;
+                                    self.connected = true;
+                                    self._dev.type = "bt";
+                                    self._gmCh.on('data', function(data, isNotification) {
+                                        self._parseIncoming(data);
+                                    });
+                                    console.log("GenieMini(" + self._id + "): connected!");
+                                    self._init();
+                                    if (callback) callback(true);
                                 });
-                                console.log("GenieMini(" + self._id + "): connected!");
-                                self._init();
-                                if (callback) callback(true);
-                            });
+                            } catch(err3) {
+                                btPeripheral.disconnect();
+                                console.log("GenieMini(" + self._id + "): exception while connecting: ", err3);
+                                if (callback) callback(false);
+                            }
                         } else {
                             console.log("GenieMini(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
                             btPeripheral.disconnect();
@@ -208,9 +214,12 @@ GenieMini.prototype._write = function(command, dataBuf, callback) {
 
     //console.log("GenieMini(" + this._id + "): sending data", cmd);
 
-    this._gmCh.write(cmd);
-
-    callback && callback();
+    try {
+        this._gmCh.write(cmd);
+        callback && callback();
+    } catch(err) {
+        callback && callback(err);
+    }
 }
 
 GenieMini.prototype.constantMove = function(motor, speed, callback) {
@@ -289,6 +298,19 @@ GenieMini.prototype.resetMotorPosition = function(motor, callback) {
             setTimeout(check, 200); // keep checking until stop
         } else {
             self._position = 0;
+            if (callback) callback();
+        }
+    }
+    check();
+}
+
+GenieMini.prototype.setMotorPosition = function(motor, position, callback) {
+    var self = this;
+    var check = function() {
+        if(self._moving) {
+            setTimeout(check, 200); // keep checking until stop
+        } else {
+            self._position = position;
             if (callback) callback();
         }
     }

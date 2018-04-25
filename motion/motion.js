@@ -51,6 +51,18 @@ motion.zero = function(driver, motorId, callback) {
 	}
 }
 
+motion.setPosition = function(driver, motorId, position, callback) {
+	if(driver == "NMX") {
+		motion.nmx.setMotorPosition(motorId, position, callback);
+	} else if(driver == "GM") {
+		if(motorId == 2) {
+			motion.gm2.setMotorPosition(motorId, position, callback);
+		} else {
+			motion.gm1.setMotorPosition(motorId, position, callback);
+		}
+	}
+}
+
 motion.refresh = function(callback) {
 	var nmxStatus = motion.nmx.getStatus();
 	if(nmxStatus.connected) {

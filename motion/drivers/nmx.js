@@ -473,6 +473,26 @@ function resetMotorPosition(motorId, callback) {
         if (callback) callback(err);
     });
 }
+function setMotorPosition(motorId, position, callback) {
+    if(!_dev || !_dev.connected) callback && callback("not connected");
+    if(inJoystickMode) return joystickMode(false, function() {
+        setMotorPosition(motorId, position, callback);
+    });
+    var pos = new Buffer(4);
+    pos.fill(0);
+    pos.writeInt32BE(position, 0, 4);
+
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_SET_POS,
+        dataBuf: pos
+    }
+    _queueCommand(cmd, function(err) {
+        motorPos[motorId] = position;
+        motorPosExact[motorId] = position;
+        if (callback) callback(err);
+    });
+}
 function setProgramMode(mode, callback) {
     var cmd = {
         motor: 0,

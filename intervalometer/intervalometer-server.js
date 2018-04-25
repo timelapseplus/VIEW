@@ -310,6 +310,9 @@ function runCommand(type, args, callback, client) {
     case 'motion.zero':
       motion.zero(args.driver, args.motor, callback);
       break;
+    case 'motion.setPosition':
+      motion.setPosition(args.driver, args.motor, args.position, callback);
+      break;
     case 'motion.status':
       motion.refresh(callback);
       break;
