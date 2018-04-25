@@ -2789,6 +2789,11 @@ if (VIEW_HARDWARE) {
             for(var key in nmxMotorAttachment) {
                 if(res.hasOwnProperty(key)) {
                     nmxMotorAttachment[key] = res[key];
+                    var m = key.match(/[0-9]/);
+                    if(m && m.length > 0) {
+                        m = parseInt(m[0]);
+                        if(m > 0) core.setNMXMotor(motorNumber, nmxMotorAttachment[key]);
+                    }
                 }
             }
         }
