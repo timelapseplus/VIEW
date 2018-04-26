@@ -1726,7 +1726,7 @@ if (VIEW_HARDWARE) {
             var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
             if(parts && parts.length > 2) {
                 return {
-                    name: parts[1] + parts[2],
+                    name: parts[1] + '-' + parts[2],
                     direction: parts[3] == 'r' ? -1 : 1,
                 }
             } else {
@@ -2792,7 +2792,7 @@ if (VIEW_HARDWARE) {
                     var m = key.match(/[0-9]/);
                     if(m && m.length > 0) {
                         m = parseInt(m[0]);
-                        if(m > 0) core.setNMXMotor(motorNumber, nmxMotorAttachment[key]);
+                        if(m > 0) core.setNMXMotor(m, nmxMotorAttachment[key]);
                     }
                 }
             }
@@ -4248,7 +4248,7 @@ app.on('message', function(msg) {
                         });
                     })(msg.driver, msg.motor, msg.reply);
                 } else if (msg.key == "setPosition" && msg.motor && msg.driver && msg.position != null) {
-                    console.log("setPosition motor" + msg.motor);
+                    console.log("setPosition motor" + msg.motor, "pos", msg.position);
                     (function(driver, motor, position, reply) {
                         core.setMotionPosition(driver, motor, position, function(err) {
                             reply('move', {

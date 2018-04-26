@@ -213,66 +213,6 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, mo
     }
 }
 
-function doKeyframeAxisOld(axisName, axisSubIndex, setupFirst, interpolationMethod, motionFunction) {
-    if(interpolationMethod != 'smooth') interpolationMethod = 'linear';
-    var keyframes = intervalometer.currentProgram.keyframes;
-    if (status.running && keyframes && keyframes.length > 0 && keyframes[0][axisName] != null) {
-        var kfSet = null;
-        var kfCurrent = null;
-
-        if (setupFirst) {
-            keyframes[0].seconds = 0;
-            if(axisSubIndex != null) {
-                keyframes[0][axisName][axisSubIndex] = 0;
-            } else {
-                keyframes[0][axisName] = 0;
-            }
-            kfSet = 0;
-        } else {
-            var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
-
-            console.log("KF: Seconds since last: " + secondsSinceStart);
-            var totalSeconds = 0;
-            kfPoints = keyframes.map(function(kf) {
-                totalSeconds += kf.seconds;
-                if(axisSubIndex != null) {
-                    return {
-                        x: totalSeconds,
-                        y: kf[axisName][axisSubIndex] || 0
-                    }
-                } else {
-                    return {
-                        x: totalSeconds,
-                        y: kf[axisName] || 0
-                    }
-                }
-            });
-            kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
-            console.log("KF: " + axisName + (axisSubIndex != null ? axisSubIndex : '') + " target: " + kfSet);
-        }
-        var axisNameExtension = '';
-        if(axisSubIndex != null) axisNameExtension = '-' + axisSubIndex;
-        kfCurrent = intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] || 0;
-
-        if (kfCurrent == null) {
-            motionFunction(kfSet); // absolute setting (like ev)
-        } else {
-            var precision = axisName == 'focus' ? 1 : 10000; // limit precision to ensure we hit even values
-            var kfTarget = Math.round(kfSet * precision) / precision;
-            if (kfTarget != Math.round(intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] * precision) / precision) {
-                var relativeMove = kfTarget - intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'];
-                motionFunction(relativeMove);
-                intervalometer.currentProgram[axisName + axisNameExtension + 'Pos'] = kfTarget;
-            } else {
-                if (motionFunction) motionFunction();
-            }
-        }
-
-    } else {
-        if (motionFunction) motionFunction();
-    }
-}
-
 function calculateCelestialDistance(startPos, currentPos) {
     var panDiff = (currentPos.azimuth - startPos.azimuth) * 180 / Math.PI;
     var tiltDiff = (currentPos.altitude - startPos.altitude) * 180 / Math.PI;
@@ -293,7 +233,7 @@ function calculateCelestialDistance(startPos, currentPos) {
 
 function getTrackingMotor(trackingMotor) {
     if(trackingMotor && trackingMotor != 'none') {
-        var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
+        var parts = trackingMotor.match(/^([A-Z]+)-([0-9]+)(r?)$/);
         if(parts && parts.length > 2) {
             var stepsPerDegree = 1;
             if(parts[1] == 'NMX') stepsPerDegree = 550.81967213;
@@ -312,9 +252,6 @@ function getTrackingMotor(trackingMotor) {
 }
 
 function processKeyframes(setupFirst, callback) {
-
-    if(!intervalometer.currentProgram.axes) 
-        return processKeyframesOld(setupFirst, callback); // old (v1.7) method for original app
 
     var numAxes = 1;
     var axesDone = 0;
@@ -493,163 +430,6 @@ function processKeyframes(setupFirst, callback) {
     checkDone();
 }
 
-function processKeyframesOld(setupFirst, callback) {
-
-    var numAxes = 2;
-    var axesDone = 0;
-
-    var checkDone = function() {
-        axesDone++;
-        console.log("KF: " + axesDone + " keyframe items complete");
-        if (axesDone >= numAxes && callback) {
-            console.log("KF: keyframes complete, running callback");
-            callback();
-        }
-    }
-
-    if((intervalometer.currentProgram.keyframes == null || intervalometer.currentProgram.keyframes.length == 1) && intervalometer.currentProgram.tracking != 'none' && intervalometer.gpsData) {
-        var trackingTarget = null;
-        if(intervalometer.currentProgram.tracking == 'sun') {
-            var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
-            var sunPos = {
-                azimuth: sunmoon.sunpos.az,
-                altitude: sunmoon.sunpos.alt,
-            }
-            trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
-        } else if(intervalometer.currentProgram.tracking == 'moon') {
-            var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
-            var moonPos = {
-                azimuth: sunmoon.moonpos.az,
-                altitude: sunmoon.moonpos.alt,
-            }
-            trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
-        } else if(intervalometer.currentProgram.tracking == '15deg') {
-            trackingTarget = {
-                pan: (((new Date() / 1000) - status.startTime) / 3600) * 15,
-                tilt: 0
-            }
-        }
-        if(trackingTarget) {
-            var panDegrees = trackingTarget.pan - status.trackingPan;
-            if(status.panDiff != status.panDiffNew) {
-                status.panDiff = status.panDiffNew;
-            }
-            panDegrees += status.panDiff;
-            if(panDegrees != 0) {
-                var panMotor = getTrackingMotor(intervalometer.currentProgram.trackingPanMotor);
-                if(panMotor) {
-                    status.trackingPanEnabled = true;
-                    numAxes++;
-                    var panSteps = panDegrees * panMotor.stepsPerDegree;
-                    if(panMotor.stepsPerDegree > 100) {
-                        panSteps = Math.round(panSteps);
-                    }
-                    console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
-                    motion.move(panMotor.driver, panMotor.motor, panSteps * panMotor.direction, function() {
-                        status.trackingPan += panSteps / panMotor.stepsPerDegree;
-                        checkDone();
-                    });
-                }
-            }
-            var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
-            if(status.tiltDiff != status.tiltDiffNew) {
-                status.tiltDiff = status.tiltDiffNew;
-            }
-            tiltDegrees += status.tiltDiff;
-            if(tiltDegrees != 0) {
-                var tiltMotor = getTrackingMotor(intervalometer.currentProgram.trackingTiltMotor);
-                if(tiltMotor) {
-                    status.trackingTiltEnabled = true;
-                    numAxes++;
-                    var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
-                    if(tiltMotor.stepsPerDegree > 100) {
-                        tiltSteps = Math.round(tiltSteps);
-                    }
-                    var direction = -1;
-                    console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
-                    motion.move(tiltMotor.driver, tiltMotor.motor, tiltSteps * tiltMotor.direction, function() {
-                        status.trackingTilt += tiltSteps / tiltMotor.stepsPerDegree;
-                        checkDone();
-                    });
-                }
-            }
-        }
-    }
-
-    if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) {
-        for(motorId in intervalometer.currentProgram.keyframes[0].motor) numAxes++;
-    }
-
-    doKeyframeAxisOld('ev', null, setupFirst, 'linear', function(ev) {
-        //if (ev != null && camera.settings.ev != ev) camera.setEv(ev);
-        checkDone();
-    });
-
-    doKeyframeAxisOld('focus', null, setupFirst, 'linear', function(focus) {
-        var doFocus = function() {
-            console.log("KF: Moving focus by " + focus + " steps");
-            var dir = focus > 0 ? 1 : -1;
-            var steps = Math.abs(focus);
-            camera.ptp.focus(dir, steps, function() {
-                if(camera.ptp.model.match(/fuji/i)) {
-                    checkDone();
-                } else {
-                    setTimeout(function(){
-                        camera.ptp.lvOff(function(){
-                            setTimeout(checkDone, 500);                                
-                        });
-                    }, 500);
-                }
-            });
-        }
-        if(focus) {
-            if(camera.ptp.model.match(/fuji/i)) {
-                doFocus();
-            } else {
-                camera.ptp.preview(function() {
-                    setTimeout(doFocus, 1000);
-                });
-            }
-        } else {
-            checkDone();
-        }
-    });
-
-    if(intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0 && intervalometer.currentProgram.keyframes[0].motor) for(motorId in intervalometer.currentProgram.keyframes[0].motor) {
-        doKeyframeAxisOld('motor', motorId, setupFirst, 'smooth', function(move) {
-            var parts = motorId.split('-');
-            if (move && parts.length == 2) {
-                var driver = parts[0];
-                var motor = parseInt(parts[1]);
-                console.log("KF: Moving " + motorId + " by " + move + " steps");
-                if (motion.status.available) {
-                    var connected = false;
-                    for(var index = 0; index < motion.status.motors.length; index++) {
-                        var m = motion.status.motors[index];
-                        if(m.driver == driver && m.motor == motor) {
-                            connected = m.connected;
-                            break;
-                        }
-                    }
-                    if(connected) {
-                        motion.move(driver, motor, move, function() {
-                            checkDone();
-                        });
-                    } else {
-                        console.log("KF: error moving", motorId, "-- motor not connected");
-                        checkDone();
-                    }
-                } else {
-                    console.log("KF: error moving -- no motion system connected");
-                    checkDone();
-                }
-            } else {
-                checkDone();
-            }
-        });
-    }
-
-}
 
 function getEvOptions() {
     var maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);

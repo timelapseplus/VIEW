@@ -310,6 +310,7 @@ GenieMini.prototype.setMotorPosition = function(motor, position, callback) {
         if(self._moving) {
             setTimeout(check, 200); // keep checking until stop
         } else {
+            console.log("GenieMini(" + self._id + "): updating position to", position);
             self._position = position;
             if (callback) callback();
         }
