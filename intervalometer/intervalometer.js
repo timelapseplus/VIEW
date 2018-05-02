@@ -368,13 +368,13 @@ function processKeyframes(setupFirst, callback) {
                 if(axis.rate == null) axis.rate = 15;
                 if(axis.orientation == 'pan') {
                     trackingTarget = {
-                        pan: (((new Date() / 1000) - status.startTime) / 3600) * floatVal(axis.rate),
+                        pan: (((new Date() / 1000) - status.startTime) / 3600) * parseFloat(axis.rate),
                         tilt: 0
                     }
                 }
                 if(axis.orientation == 'tilt') {
                     trackingTarget = {
-                        tilt: (((new Date() / 1000) - status.startTime) / 3600) * floatVal(axis.rate),
+                        tilt: (((new Date() / 1000) - status.startTime) / 3600) * parseFloat(axis.rate),
                         pan: 0
                     }
                 }
