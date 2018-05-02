@@ -1971,7 +1971,7 @@ if (VIEW_HARDWARE) {
                                 target: core.currentProgram.tracking,
                                 direction: panMotor.direction
                             }
-                            core.currentProgram.[panMotor.name + "Pos"] = 0;
+                            core.currentProgram[panMotor.name + "Pos"] = 0;
                         }
                         var tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
                         if(tiltMotor) {
@@ -1981,7 +1981,7 @@ if (VIEW_HARDWARE) {
                                 target: core.currentProgram.tracking,
                                 direction: panMotor.direction
                             }
-                            core.currentProgram.[tiltMotor.name + "Pos"] = 0;
+                            core.currentProgram[tiltMotor.name + "Pos"] = 0;
                         }
                     }
                     oled.timelapseStatus = null;
