@@ -358,21 +358,30 @@ function processKeyframes(setupFirst, callback) {
                     }
                 });
             }
-        } else if(axis.type == 'tracking') {
+        } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
-            if(axis.target == 'sun' && sunPos) {
+            if(axis.type == 'tracking' && axis.target == 'sun' && sunPos) {
                 trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
-            } else if(axis.target == 'moon' && moonPos) {
+            } else if(axis.type == 'tracking' && axis.target == 'moon' && moonPos) {
                 trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
-            } else if(axis.target == '15deg') {
-                trackingTarget = {
-                    pan: (((new Date() / 1000) - status.startTime) / 3600) * 15,
-                    tilt: 0
+            } else if(axis.type == 'constant') {
+                if(axis.rate == null) axis.rate = 15;
+                if(axis.orientation == 'pan') {
+                    trackingTarget = {
+                        pan: (((new Date() / 1000) - status.startTime) / 3600) * floatVal(axis.rate),
+                        tilt: 0
+                    }
+                }
+                if(axis.orientation == 'tilt') {
+                    trackingTarget = {
+                        tilt: (((new Date() / 1000) - status.startTime) / 3600) * floatVal(axis.rate),
+                        pan: 0
+                    }
                 }
             }
             var motor = null;
             motor = getTrackingMotor(m);
-            if(axis.direction) motor.direction = axis.direction;
+            motor.direction = axis.reverse ? -1 : 1;
 
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
@@ -423,6 +432,38 @@ function processKeyframes(setupFirst, callback) {
                 checkDone();
             }
         } else {
+            if(m == 'focus') {
+                var doFocus = function(focus) {
+                    console.log("KF: Moving focus by " + focus + " steps");
+                    var dir = focus > 0 ? 1 : -1;
+                    var steps = Math.abs(focus);
+                    camera.ptp.focus(dir, steps, function() {
+                        if(camera.ptp.model.match(/fuji/i)) {
+                            checkDone();
+                        } else {
+                            setTimeout(function(){
+                                camera.ptp.lvOff(function(){
+                                    setTimeout(checkDone, 500);                                
+                                });
+                            }, 500);
+                        }
+                    });
+                }
+                if(status.focusDiffNew) {
+                    status.focusDiffNew = 0;
+                    if(camera.ptp.model.match(/fuji/i)) {
+                        doFocus(status.focusDiffNew);
+                    } else {
+                        camera.ptp.preview(function() {
+                            setTimeout(function(){
+                                doFocus(status.focusDiffNew);
+                            }, 1000);
+                        });
+                    }
+                } else {
+                    checkDone();
+                }
+            }
             checkDone();
         }
 
