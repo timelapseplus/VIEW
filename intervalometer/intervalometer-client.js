@@ -94,6 +94,7 @@ function connect() {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
+                    core.cameraSupports = data.data.supports;
                     console.log("CORE: camera count: ", core.cameraCount);
                     core.cameraSupports = data.data.supports;
                     core.getSettings();
@@ -101,6 +102,7 @@ function connect() {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
                     core.cameraCount = data.data.count;
+                    core.cameraSupports = data.data.supports;
                     console.log("CORE: camera count: ", core.cameraCount);
                     core.cameraSupports = data.data.supports;
                 } else if(data.type == 'motion.status') {

@@ -4617,6 +4617,7 @@ app.on('message', function(msg) {
                     msg.reply('camera', {
                         connected: core.cameraConnected,
                         model: core.cameraConnected ? core.cameraModel : '',
+                        supports: core.cameraConnected ? core.cameraSupports : {}
                     });
                     if (cache.intervalometerStatus) {
                         msg.reply('intervalometerStatus', {
@@ -4742,7 +4743,8 @@ core.on('camera.connected', function() {
     setTimeout(function() {
         app.send('camera', {
             connected: true,
-            model: core.cameraModel
+            model: core.cameraModel,
+            supports: core.cameraSupports
         });
         if (VIEW_HARDWARE) {
             ui.status(core.cameraModel);
@@ -4763,7 +4765,8 @@ core.on('camera.exiting', function() {
     oled.setIcon('camera', false);
     app.send('camera', {
         connected: false,
-        model: ''
+        model: '',
+        supports: {}
     });
     if (VIEW_HARDWARE) {
         ui.defaultStatus(defaultStatus);
