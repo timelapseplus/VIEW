@@ -39,9 +39,9 @@ lists.paramMap = [{
 }, {
     name: "afmode",
     maps: [{
-        section: "other",
-        item: "d161"
-    }, {
+//        section: "other",
+//        item: "d161"
+//    }, {
         section: "capturesettings",
         item: "focusmode"
     }]
