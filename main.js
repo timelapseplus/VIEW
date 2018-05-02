@@ -1961,20 +1961,27 @@ if (VIEW_HARDWARE) {
                 fn: function(arg, cb) {
                     core.currentProgram.keyframes = null;
                     core.currentProgram.axes = {};
+                    core.currentProgram.focusPos = 0;
                     if(core.currentProgram.tracking != 'none') {
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
-                        if(panMotor) core.currentProgram.axes[panMotor.name] = {
-                            type: 'tracking',
-                            orientation: 'pan',
-                            target: core.currentProgram.tracking,
-                            direction: panMotor.direction
+                        if(panMotor) {
+                            core.currentProgram.axes[panMotor.name] = {
+                                type: 'tracking',
+                                orientation: 'pan',
+                                target: core.currentProgram.tracking,
+                                direction: panMotor.direction
+                            }
+                            core.currentProgram.[panMotor.name + "Pos"] = 0;
                         }
                         var tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
-                        if(tiltMotor) core.currentProgram.axes[tiltMotor.name] = {
-                            type: 'tracking',
-                            orientation: 'tilt',
-                            target: core.currentProgram.tracking,
-                            direction: panMotor.direction
+                        if(tiltMotor) {
+                            core.currentProgram.axes[tiltMotor.name] = {
+                                type: 'tracking',
+                                orientation: 'tilt',
+                                target: core.currentProgram.tracking,
+                                direction: panMotor.direction
+                            }
+                            core.currentProgram.[tiltMotor.name + "Pos"] = 0;
                         }
                     }
                     oled.timelapseStatus = null;

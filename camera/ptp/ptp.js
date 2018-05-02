@@ -212,7 +212,7 @@ var startWorker = function(port) {
                             worker.supports.destination = false;
                         }
                     } else if(worker.model.match(/panasonic/i)) {
-                        if(worker.model.match(/gh5/i)) {
+                        if(worker.model.match(/gh5/i) || worker.model.match(/g9/i)) {
                             worker.supports.liveview = true;
                         } else {
                             worker.supports.liveview = false;
@@ -229,9 +229,9 @@ var startWorker = function(port) {
                         worker.supports.liveview = false;
                     } else if(worker.model.match(/canon/i)) {
                         worker.supports.focus = true;
+                        worker.supports.liveview = true;
                     } else if(worker.model.match(/nikon/i)) {
                         worker.supports.focus = true;
-                    } else {
                         worker.supports.liveview = true;
                     }
                     updateCameraCounts();
