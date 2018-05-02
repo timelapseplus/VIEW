@@ -41,6 +41,9 @@ lists.paramMap = [{
     maps: [{
         section: "other",
         item: "d161"
+    }, {
+        section: "capturesettings",
+        item: "focusmode"
     }]
 }, {
     name: "fujifocus",
@@ -422,13 +425,13 @@ lists.sonyfocus = [{
 
 lists.afmode = [{
     name: "manual",
-    values: ['4']
+    values: ['4', 'Manual']
 }, {
     name: "af0",
-    values: ['0']
+    values: ['0', 'AF-S']
 }, {
     name: "af1",
-    values: ['1']
+    values: ['1', 'AF-C']
 }, {
     name: "af2",
     values: ['2']
