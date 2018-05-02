@@ -197,6 +197,7 @@ var startWorker = function(port) {
                     console.log("Camera connected: ", worker.model);
                     worker.supports.thumbnail = true;
                     worker.supports.focus = false;
+                    worker.supports.destination = true;
                     if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
                         worker.supports.thumbnail = false;
                         if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 M2|a99 II|a77 II|a68|A9)/i)) {
@@ -220,21 +221,18 @@ var startWorker = function(port) {
                     } else if(worker.model.match(/fuji/i)) {
                         worker.supports.focus = true;
                         worker.supports.liveview = true;
-                        worker.supports.destination = true;
                         camera.set('d38c', '1', null, worker); // PC mode
                         camera.set('d207', '2', null, worker); // USB shutter control
                         camera.set('expprogram', 'M', null, worker); // Manual mode
                     } else if(worker.model.match(/eos m5/i)) {
                         camera.set('output', 'Unknown value 0008', null, worker); // PC control mode
                         worker.supports.liveview = false;
-                        worker.supports.destination = true;
                     } else if(worker.model.match(/canon/i)) {
                         worker.supports.focus = true;
                     } else if(worker.model.match(/nikon/i)) {
                         worker.supports.focus = true;
                     } else {
                         worker.supports.liveview = true;
-                        worker.supports.destination = true;
                     }
                     updateCameraCounts();
                     if(worker.port == camera.primaryPort) {
