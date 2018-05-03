@@ -1160,7 +1160,7 @@ intervalometer.run = function(program, date, utcOffset) {
                         status.useLiveview = false;
                         if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
                             console.log("Intervalometer: setting focus mode to manual");
-                            camera.ptp.liveview();
+                            camera.ptp.liveview(start2);
                             status.useLiveview = true;
                             //camera.ptp.set("afmode", "manual", start2); // doesn't work because focusmode is read-only on Nikon
                         } else {
