@@ -139,6 +139,7 @@ process.on('message', function(msg) {
         if (msg.do == 'capture') capture(msg.options, buildCB(msg.id));
         if (msg.do == 'captureTethered') captureTethered(false, buildCB(msg.id));
         if (msg.do == 'preview') preview(msg.options, buildCB(msg.id));
+        if (msg.do == 'liveview') liveview(msg.options, buildCB(msg.id));
         if (msg.do == 'getFilesList') getFilesList(buildCB(msg.id));
         if (msg.do == 'downloadFile') downloadFile(msg.filePath, msg.thumbnail, buildCB(msg.id));
         if (msg.do == 'lvTimerReset') liveViewOffTimerReset();
@@ -629,6 +630,12 @@ function liveViewOffTimerReset(ms) {
 
 var previewTimeoutHandle = null;
 
+function liveview(options, callback) {
+    if(!options) options = {};
+    options.liveviewOnly = true;
+    return preview(options, callback);
+}
+
 function preview(options, callback) {
     if (cameraBusy) {
         clearTimeout(previewTimeoutHandle);
@@ -640,7 +647,12 @@ function preview(options, callback) {
     cameraBusy = true;
     //console.log("WORKER: preview");
 
-    liveViewOffTimerReset(6000);
+    if(options && options.liveviewOnly) {
+        if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
+        liveViewTimerHandle = null;
+    } else {
+        liveViewOffTimerReset(6000);
+    }
 
     camera.takePicture({
         preview: true,
@@ -648,17 +660,20 @@ function preview(options, callback) {
         targetPath: '/tmp/tmpXXXXXX'
     }, function(err, tmp) {
         cameraBusy = false;
-        liveViewOffTimerReset();
-        if (callback) callback();
+        if(!(options && options.liveviewOnly)) liveViewOffTimerReset();
+        if (callback) callback(err);
+        if(options && options.liveviewOnly) return;
         if (!err && tmp) {
             var size = {
                 x: 600,
                 y: 400,
                 q: 70
             }
+
             if(settings && settings.lvexposure === 'off') {
                 set('lvexposure', 'on');
             }
+            
             if(options && options.fullSize) {
                 if(typeof tmp == 'string') {
                     image.getJpegBuffer(tmp, function(err, jpg) {

@@ -290,7 +290,7 @@ function processKeyframes(setupFirst, callback) {
                         var dir = focus > 0 ? 1 : -1;
                         var steps = Math.abs(focus);
                         camera.ptp.focus(dir, steps, function() {
-                            if(camera.ptp.model.match(/fuji/i)) {
+                            if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
                                 checkDone();
                             } else {
                                 setTimeout(function(){
@@ -304,7 +304,7 @@ function processKeyframes(setupFirst, callback) {
                     focus += status.focusDiffNew;
                     status.focusDiffNew = 0;
                     if(focus) {
-                        if(camera.ptp.model.match(/fuji/i)) {
+                        if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
                             doFocus();
                         } else {
                             camera.ptp.preview(function() {
@@ -438,7 +438,7 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        if(camera.ptp.model.match(/fuji/i)) {
+                        if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
                             checkDone();
                         } else {
                             setTimeout(function(){
@@ -451,7 +451,7 @@ function processKeyframes(setupFirst, callback) {
                 }
                 if(status.focusDiffNew) {
                     status.focusDiffNew = 0;
-                    if(camera.ptp.model.match(/fuji/i)) {
+                    if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
                         doFocus(status.focusDiffNew);
                     } else {
                         camera.ptp.preview(function() {
@@ -757,7 +757,7 @@ function runPhoto() {
     }
     busyPhoto = true;
     if (camera.ptp.connected) {
-        if(status.useLiveview) camera.ptp.preview();
+        if(status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
         if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
             status.captureStartTime = new Date() / 1000;
         }
@@ -1157,16 +1157,18 @@ intervalometer.run = function(program, date, utcOffset) {
                     //}
 
                     function start() {
+                        status.useLiveview = false;
                         if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
                             console.log("Intervalometer: setting focus mode to manual");
-                            camera.ptp.set("afmode", "manual", start2);
+                            camera.ptp.liveview();
+                            status.useLiveview = true;
+                            //camera.ptp.set("afmode", "manual", start2); // doesn't work because focusmode is read-only on Nikon
                         } else {
                             start2();
                         }
                     }
 
                     function start2() {
-                        status.useLiveview = false;
                         var focusPosTest = null;
                         var focusChange = false;
                         if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {

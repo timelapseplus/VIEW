@@ -671,6 +671,18 @@ camera.downloadThumbnail = function(filePath, callback) {
     }); else callback && callback("not connected");
 }
 
+camera.liveview = function(callback) {
+    camera.lvOn = true;
+    var worker = getPrimaryWorker();
+    if(!camera.supports.liveview) {
+        return callback && callback("not supported");
+    }
+    if (worker && camera.connected) worker.send({
+        type: 'camera',
+        do: 'liveview',
+        id: getCallbackId(worker.port, 'liveview', callback)
+    }); else callback && callback("not connected");
+}
 var restartPreview = null; // used for temporarily disabling liveview when changing settings
 camera.preview = function(callback) {
     if(restartPreview) return callback && callback("blocked");
