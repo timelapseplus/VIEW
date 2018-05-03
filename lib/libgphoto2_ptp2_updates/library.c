@@ -4288,6 +4288,8 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	downloadfile:
 	
+	usleep(50000); // it seems there can be an error if the object is accessed too soon
+
 	path->name[0]='\0';
 	path->folder[0]='\0';
 

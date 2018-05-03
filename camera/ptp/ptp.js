@@ -499,6 +499,14 @@ camera.getPrimaryCameraIndex = function() {
     return 1;
 }
 
+camera.captureInitiated = function() {
+    if(!camera.connected) {
+        return false;
+    }
+    var primaryWorker = getPrimaryWorker();
+    return primaryWorker.captureInitiated ? true : false;
+}
+
 function padNumber(n, width) {
     var s = n.toString();
     while(s.length < width) s = '0' + s;
@@ -510,6 +518,7 @@ camera.capture = function(options, callback) {
         return callback && callback("not connected");
     }
     var primaryWorker = getPrimaryWorker();
+    primaryWorker.captureInitiated = true;
     if(options && options.mode == 'test') {
         options = {mode:'test'};
         var err = doEachCamera(function(port, isPrimary, worker) {

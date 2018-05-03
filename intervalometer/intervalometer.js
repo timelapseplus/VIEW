@@ -1158,8 +1158,8 @@ intervalometer.run = function(program, date, utcOffset) {
 
                     function start() {
                         status.useLiveview = false;
-                        if(camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
-                            console.log("Intervalometer: setting focus mode to manual");
+                        if(camera.ptp.model.match(/nikon/i) && camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
+                            console.log("Intervalometer: using Nikon liveview for capture");
                             camera.ptp.liveview(start2);
                             status.useLiveview = true;
                             //camera.ptp.set("afmode", "manual", start2); // doesn't work because focusmode is read-only on Nikon
@@ -1169,19 +1169,14 @@ intervalometer.run = function(program, date, utcOffset) {
                     }
 
                     function start2() {
-                        var focusPosTest = null;
-                        var focusChange = false;
-                        if(camera.ptp.model.match(/nikon/i) && intervalometer.currentProgram.keyframes && intervalometer.currentProgram.keyframes.length > 0) {
-                            for(var i = 0; i < intervalometer.currentProgram.keyframes.length; i++) {
-                                if(focusPosTest != null && focusPosTest != intervalometer.currentProgram.keyframes[i].focus) {
-                                    focusChange = true;
-                                    break;
-                                }
-                                focusPosTest = intervalometer.currentProgram.keyframes[i].focus;
-                            }
-                            if(focusChange) status.useLiveview = true;
+                        if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux2') {
+                            camera.ptp.capture({mode:"test"}, start3);
+                        } else {
+                            start3();
                         }
+                    }
 
+                    function start3() {
                         var cameras = 1, primary = 1;
                         if(camera.ptp.synchronized) {
                             cameras = camera.ptp.count;
