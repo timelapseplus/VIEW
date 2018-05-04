@@ -267,7 +267,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 
 	dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
-			callback(err);
+			callback && callback(err);
 		} else {
 			var frames = 0;
 			if(data.frames) frames = parseInt(data.frames);
