@@ -1158,7 +1158,7 @@ intervalometer.run = function(program, date, utcOffset) {
 
                     function start() {
                         status.useLiveview = false;
-                        if(camera.ptp.model.match(/nikon/i) && camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") {
+                        if(camera.ptp.model.match(/nikon/i) && ((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
                             console.log("Intervalometer: using Nikon liveview for capture");
                             camera.ptp.liveview(start2);
                             status.useLiveview = true;
