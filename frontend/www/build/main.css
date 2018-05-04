@@ -25783,3 +25783,12 @@ page-intervalometer .item-ios ion-thumbnail ion-img, page-intervalometer .item-i
 .compressed {
   margin-right: 0px !important;
 }
+
+.button.compressed-button {
+  margin: 0.0rem 0.0rem !important;
+  /*padding: 0.2rem !important;*/
+}
+
+.button {
+  margin: 0.4rem 0.4rem !important;
+}
