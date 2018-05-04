@@ -25,6 +25,7 @@ camera.photo = null;
 camera.settings = false;
 camera.lvOn = false;
 camera.supports = {};
+camera.focusPos = 0;
 
 // multi-cam properties
 camera.primaryPort = null;
@@ -270,12 +271,19 @@ var startWorker = function(port) {
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target, null, worker);
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
+                    if(newSettings.settings.fujifocuspos != null) {
+                        newSettings.settings.focusPos = newSettings.settings.fujifocuspos;
+                    } else {
+                        newSettings.settings.focusPos = camera.focusPos;
+                    }
                     if (worker.port == camera.primaryPort && (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings))) {
                         worker.settings = newSettings;
                         camera.emit(msg.event, msg.value);
                     }
+                    if(worker.port == camera.primaryPort) {
+                        camera.settings = newSettings;
+                    }
                     worker.settings = newSettings;
-                    if(worker.port == camera.primaryPort) camera.settings = newSettings;
                 } else if (msg.event == "callback") {
                     runCallback(msg.value);
                 } else if(worker.port == camera.primaryPort || msg.event == 'connected') {
@@ -773,7 +781,7 @@ function focusCanon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param;
-    if (!step) return callback && callback();
+    if (!step) return callback && callback(null, camera.focusPos);
     if (step < 0) {
         param = "Near 1";
         if (step < -1) param = "Near 2";
@@ -783,6 +791,10 @@ function focusCanon(step, repeat, callback) {
     }
     var errCount = 0;
     var errorLimit = 10;
+
+    if(Math.abs(step) == 1) {
+        camera.focusPos += (step * repeat);
+    }
 
     var doFocus = function() {
         camera.lvTimerReset();
@@ -807,7 +819,7 @@ function focusCanon(step, repeat, callback) {
                         console.log(pause);
                         setTimeout(doFocus, pause);
                     } else {
-                        if (callback) callback();
+                        if (callback) callback(null, camera.focusPos);
                     }
                 })
             });
@@ -821,7 +833,7 @@ function focusSony(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param;
-    if (!step) return callback && callback();
+    if (!step) return callback && callback(null, camera.focusPos);
     if (step < 0) {
         param = '-1';
         if (step < -1) param = '-5';
@@ -829,6 +841,11 @@ function focusSony(step, repeat, callback) {
         param = '1';
         if (step > 1) param = '5';
     }
+
+    if(Math.abs(step) == 1) {
+        camera.focusPos += (step * repeat);
+    }
+
     var errCount = 0;
     var errorLimit = 10;
 
@@ -855,7 +872,7 @@ function focusSony(step, repeat, callback) {
                         console.log(pause);
                         setTimeout(doFocus, pause);
                     } else {
-                        if (callback) callback();
+                        if (callback) callback(null, camera.focusPos);
                     }
                 })
             });
@@ -869,7 +886,7 @@ function focusNikon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var param, delay = 200;
-    if (!step) return callback && callback();
+    if (!step) return callback && callback(null, camera.focusPos);
     if (step < 0) {
         param = -20.5;
         if (step < -1) { 
@@ -883,6 +900,11 @@ function focusNikon(step, repeat, callback) {
             delay = 500;
         }
     }
+
+    if(Math.abs(step) == 1) {
+        camera.focusPos += (step * repeat);
+    }
+
     var errCount = 0;
     var errorLimit = 10;
 
@@ -904,7 +926,7 @@ function focusNikon(step, repeat, callback) {
                     if (repeat > 0) {
                         setTimeout(doFocus, delay);
                     } else {
-                        if (callback) callback();
+                        if (callback) callback(null, camera.focusPos);
                     }
                 })
             });
@@ -926,11 +948,12 @@ function focusFuji(step, repeat, callback) {
             var currentPos = camera.settings.fujifocuspos;
             if(settings) {
                 currentPos = settings.fujifocuspos;
+                camera.focusPos = currentPos;
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 fujiFocusPosCache = parseInt(target);
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
-                if (callback) callback();
+                if (callback) callback(null, camera.focusPos);
             } else {
                 var targetPos = target || parseInt(currentPos) - relativeMove;
                 if(targetPos == 0) targetPos = 2;

@@ -63,6 +63,17 @@ motion.setPosition = function(driver, motorId, position, callback) {
 	}
 }
 
+motion.getPosition = function(driver, motorId) {
+	updateStatus();
+	for(var i = 0; i < motion.status.motors.length; i++) {
+		var m = motion.status.motors[i];
+		if(m.driver == driver && m.motor == motorId) {
+			return m.position;
+		}
+	}
+	return 0;
+}
+
 motion.refresh = function(callback) {
 	var nmxStatus = motion.nmx.getStatus();
 	if(nmxStatus.connected) {
