@@ -1169,7 +1169,7 @@ intervalometer.run = function(program, date, utcOffset) {
                     }
 
                     function start2() {
-                        if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux2') {
+                        if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
                             camera.ptp.capture({mode:"test"}, start3);
                         } else {
                             start3();
