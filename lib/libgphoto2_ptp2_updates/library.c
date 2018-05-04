@@ -4257,9 +4257,12 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	uint16_t	ret;
 
 	// clear out old events
+	GP_LOG_D ("**** GH5: checking old events...");
 	C_PTP_REP (ptp_check_event (params));
+	GP_LOG_D ("**** GH5: draining old events...");
 	while (ptp_get_one_event(params, &event));
 
+	GP_LOG_D ("**** GH5: trigger capture...");
 	ret = ptp_panasonic_capture(params);
 
 	usleep(100);
@@ -4267,6 +4270,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	event_start = time_now();
 
 	do {
+		GP_LOG_D ("**** GH5: checking for new object...");
 		C_PTP_REP (ptp_check_event (params));
 
 		while (ptp_get_one_event(params, &event)) {
