@@ -706,8 +706,9 @@ var IntervalometerPage = (function () {
         }
         if (!this.axes.hasOwnProperty('focus')) {
             this.axes.focus = {
-                kf: [{ seconds: 0, position: 0 }],
+                kf: [{ seconds: 0, position: this.camera.settings.focusPos }],
                 type: 'disabled',
+                pos: this.camera.settings.focusPos
             };
         }
         if (this.camera.supports && this.camera.supports.focus) {
@@ -739,8 +740,14 @@ var IntervalometerPage = (function () {
         for (var key in this.axes) {
             types[this.axes[key].type] = true;
             this.axes[key].id = key;
-            if (!this.axes[key].pos)
-                this.axes[key].pos = 0;
+            if (key == 'focus') {
+                if (!this.axes[key].pos)
+                    this.axes[key].pos = this.camera.settings.focusPos;
+            }
+            else {
+                if (!this.axes[key].pos)
+                    this.axes[key].pos = 0;
+            }
             this.axes[key].colorIndex = colorIndex;
             colorIndex++;
             if (this.axes[key].type == "tracking") {
@@ -1165,20 +1172,18 @@ var KeyframeModalContentPage = (function () {
                 console.log("moving", axisId, "from", currentPos, "to", targetPos);
                 var steps = targetPos - currentPos;
                 if (axisId == 'focus') {
-                    if (!this.program[axisId + 'Pos'])
-                        this.program[axisId + 'Pos'] = 0;
                     if (!this.axes[axisId].pos)
                         this.axes[axisId].pos = 0;
-                    this.camera.focus(Math.sign(steps), Math.abs(steps), true);
-                    this.program[axisId + 'Pos'] += steps;
                     this.axes[axisId].pos += steps;
-                    this.refreshChart();
+                    this.camera.focus(Math.sign(steps), Math.abs(steps), true, function (err, position) {
+                        this.axes[axisId].pos = position;
+                        this.refreshChart();
+                    });
                 }
                 else if (this.axes[axisId].motor) {
                     this.motion.move(axisId, steps, true, function (err, position) {
                         console.log(axisId + " position " + position);
                         console.log("this.motion.axis", _this.motion.axis);
-                        _this.program[axisId + 'Pos'] = position;
                         _this.refreshChart();
                     });
                 }
@@ -1190,14 +1195,13 @@ var KeyframeModalContentPage = (function () {
         var _this = this;
         if (axisId == 'focus') {
             var steps = speed;
-            if (!this.program[axisId + 'Pos'])
-                this.program[axisId + 'Pos'] = 0;
             if (!this.axes[axisId].pos)
                 this.axes[axisId].pos = 0;
-            this.camera.focus(Math.sign(steps), Math.abs(steps), true);
-            this.program[axisId + 'Pos'] += steps;
             this.axes[axisId].pos += steps;
-            this.refreshChart();
+            this.camera.focus(Math.sign(steps), Math.abs(steps), true, function (err, position) {
+                this.axes[axisId].pos = position;
+                this.refreshChart();
+            });
         }
         else if (this.axes[axisId].motor) {
             speed /= 10;
@@ -1209,7 +1213,6 @@ var KeyframeModalContentPage = (function () {
             this.motion.moveConstant(axisId, speed, function (err, position) {
                 console.log(axisId + " position " + position);
                 console.log("this.motion.axis", _this.motion.axis);
-                _this.program[axisId + 'Pos'] = position;
                 _this.refreshChart();
             });
         }
@@ -1217,7 +1220,7 @@ var KeyframeModalContentPage = (function () {
     KeyframeModalContentPage.prototype.setHomePos = function () {
         var moved = false;
         for (var axisId in this.axes) {
-            if (this.axes[axisId].kf && this.axes[axisId].kf.length > 0) {
+            if (this.axes[axisId].kf && this.axes[axisId].kf.length > 0 && this.axes[axisId].type == 'keyframe' && axisId != 'focus') {
                 var homePos = this.axes[axisId].kf[0].position;
                 if (homePos != 0) {
                     for (var i = 0; i < this.axes[axisId].kf.length; i++) {

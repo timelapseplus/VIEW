@@ -271,10 +271,10 @@ var startWorker = function(port) {
                     if (newSettings.target && newSettings.target != camera.target) camera.set('target', camera.target, null, worker);
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
-                    if(newSettings.settings.fujifocuspos != null) {
-                        newSettings.settings.focusPos = newSettings.settings.fujifocuspos;
+                    if(newSettings.fujifocuspos != null) {
+                        newSettings.focusPos = newSettings.fujifocuspos;
                     } else {
-                        newSettings.settings.focusPos = camera.focusPos;
+                        newSettings.focusPos = camera.focusPos;
                     }
                     if (worker.port == camera.primaryPort && (!worker.settings || JSON.stringify(worker.settings) != JSON.stringify(newSettings))) {
                         worker.settings = newSettings;
