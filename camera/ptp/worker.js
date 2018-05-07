@@ -624,8 +624,10 @@ function liveViewOff(callback, keepCrop) {
 
 function liveViewOffTimerReset(ms) {
     if (!ms) ms = 5000;
-    if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
-    liveViewTimerHandle = setTimeout(liveViewOff, ms);
+    if (liveViewTimerHandle != null) {
+        clearTimeout(liveViewTimerHandle);
+        liveViewTimerHandle = setTimeout(liveViewOff, ms);
+    }
 }
 
 var previewTimeoutHandle = null;
