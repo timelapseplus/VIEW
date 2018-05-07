@@ -497,6 +497,12 @@ var busyExposure = false;
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     console.log("\n\nEXP: setupExposure");
+    if(status.useLiveview && !busyExposure) {
+        busyExposure = true;
+        return camera.ptp.liveview(function(){
+            setupExposure(cb);
+        });
+    }
     busyExposure = true;
     camera.ptp.getSettings(function() {
         console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");

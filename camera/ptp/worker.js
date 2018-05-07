@@ -638,7 +638,7 @@ function liveview(options, callback) {
 
 function preview(options, callback) {
     if (cameraBusy) {
-        clearTimeout(previewTimeoutHandle);
+        if (liveViewTimerHandle != null) clearTimeout(previewTimeoutHandle);
         previewTimeoutHandle = setTimeout(function() {
             preview(options, callback);
         }, 1000);
