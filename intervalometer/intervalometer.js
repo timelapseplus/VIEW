@@ -524,7 +524,9 @@ function setupExposure(cb) {
                 status.evDiff = status.cameraEv - status.rampEv;
                 console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                 busyExposure = false;
-                cb && cb(err);
+                setTimeout(function(){
+                    cb && cb(err);
+                }, 100)
             });
         } else {
             if(status.hdrSet && status.hdrSet.length > 0) {
@@ -539,7 +541,9 @@ function setupExposure(cb) {
                         status.evDiff = status.cameraEv - status.rampEv;
                         console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                         busyExposure = false;
-                        cb && cb(err);
+                        setTimeout(function(){
+                            cb && cb(err);
+                        }, 100)
                     });
                 });
             } else {
@@ -551,7 +555,9 @@ function setupExposure(cb) {
                     status.evDiff = status.cameraEv - status.rampEv;
                     console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                     busyExposure = false;
-                    cb && cb(err);
+                    setTimeout(function(){
+                        cb && cb(err);
+                    }, 100)
                 });
             }
         }
@@ -736,19 +742,28 @@ function scheduled(noResume) {
 }
 
 var busyPhoto = false;
+var pendingPhoto = false;
 var retryHandle = null;
 var referencePhotoRes = null;
+var retryCounter = 0;
 
-function runPhoto() {
+function runPhoto(isRetry) {
     if(!status.running) {
         busyPhoto = false;
         status.stopping = false;
         return;
     }
+    
+    if((busyPhoto || busyExposure) && pendingPhoto && !isRetry) return; // drop frame if backed up
+
     if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode != "fixed") {
-        if(busyPhoto) console.log("P");
-        if(busyExposure) console.log("E");
-        if (status.running) retryHandle = setTimeout(runPhoto, 100);
+        if(retryCounter == 0) {
+            if(busyPhoto) console.log("P");
+            if(busyExposure) console.log("E");
+        }
+        retryCounter++;
+        if(retryCounter >= 20) retryCounter = 0;
+        if (status.running) retryHandle = setTimeout(function(){runPhoto(true);}, 100);
         return;
     }
     if(!status.running) return;
@@ -758,6 +773,7 @@ function runPhoto() {
             setupExposure(runPhoto);
         });
     }
+    if(busyPhoto || busyExposure) pendingPhoto = true; else pendingPhoto = false;
     busyPhoto = true;
     if (camera.ptp.connected) {
         if(status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
