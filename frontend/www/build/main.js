@@ -706,9 +706,9 @@ var IntervalometerPage = (function () {
         }
         if (!this.axes.hasOwnProperty('focus')) {
             this.axes.focus = {
-                kf: [{ seconds: 0, position: this.camera.settings.focusPos }],
+                kf: [{ seconds: 0, position: this.camera.settings ? this.camera.settings.focusPos : 0 }],
                 type: 'disabled',
-                pos: this.camera.settings.focusPos
+                pos: this.camera.settings ? this.camera.settings.focusPos : 0
             };
         }
         if (this.camera.supports && this.camera.supports.focus) {
@@ -742,7 +742,7 @@ var IntervalometerPage = (function () {
             this.axes[key].id = key;
             if (key == 'focus') {
                 if (!this.axes[key].pos)
-                    this.axes[key].pos = this.camera.settings.focusPos;
+                    this.axes[key].pos = this.camera.settings ? this.camera.settings.focusPos : 0;
             }
             else {
                 if (!this.axes[key].pos)
@@ -1819,6 +1819,7 @@ var ViewProvider = (function () {
                     _this.camera.lv = true;
                 }
             },
+            settings: {},
             supports: { focus: false, liveview: false },
             histogram: [],
             image: {},
@@ -2567,6 +2568,7 @@ var ViewProvider = (function () {
                                 if (search.length > 0)
                                     _this.camera.iso = Object.assign({}, search[0]);
                             }
+                            _this.camera.settings = message.settings;
                             break;
                         case 'histogram':
                             _this.camera.histogram = message.histogram;
