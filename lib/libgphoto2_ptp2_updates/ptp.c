@@ -165,34 +165,37 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 	if ((params==NULL) || (ptp==NULL)) 
 		return PTP_ERROR_BADPARAM;
 
-	cmd = ptp->Code;
-	ptp->Transaction_ID=params->transaction_id++;
-	ptp->SessionID=params->session_id;
-	/* send request */
-	CHECK_PTP_RC(params->sendreq_func (params, ptp, flags));
-	/* is there a dataphase? */
-	switch (flags&PTP_DP_DATA_MASK) {
-	case PTP_DP_SENDDATA:
-		{
-			uint16_t ret = params->senddata_func(params, ptp, sendlen, handler);
-			if (ret == PTP_ERROR_CANCEL)
-				CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
-			CHECK_PTP_RC(ret);
+	if(flags&PTP_DP_RESPONSE_MASK != PTP_DP_RESPONSEONLY) {
+		cmd = ptp->Code;
+		ptp->Transaction_ID=params->transaction_id++;
+		ptp->SessionID=params->session_id;
+		/* send request */
+		CHECK_PTP_RC(params->sendreq_func (params, ptp, flags));
+		/* is there a dataphase? */
+		switch (flags&PTP_DP_DATA_MASK) {
+		case PTP_DP_SENDDATA:
+			{
+				uint16_t ret = params->senddata_func(params, ptp, sendlen, handler);
+				if (ret == PTP_ERROR_CANCEL)
+					CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
+				CHECK_PTP_RC(ret);
+			}
+			break;
+		case PTP_DP_GETDATA:
+			{
+				uint16_t ret = params->getdata_func(params, ptp, handler);
+				if (ret == PTP_ERROR_CANCEL)
+					CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
+				CHECK_PTP_RC(ret);
+			}
+			break;
+		case PTP_DP_NODATA:
+			break;
+		default:
+			return PTP_ERROR_BADPARAM;
 		}
-		break;
-	case PTP_DP_GETDATA:
-		{
-			uint16_t ret = params->getdata_func(params, ptp, handler);
-			if (ret == PTP_ERROR_CANCEL)
-				CHECK_PTP_RC(params->cancelreq_func(params, params->transaction_id-1));
-			CHECK_PTP_RC(ret);
-		}
-		break;
-	case PTP_DP_NODATA:
-		break;
-	default:
-		return PTP_ERROR_BADPARAM;
 	}
+	if(flags&PTP_DP_RESPONSE_MASK == PTP_DP_NORESPONSE) return PTP_RC_OK;
 	tries = 3;
 	while (tries--) {
 		uint16_t ret;
@@ -1737,6 +1740,31 @@ ptp_setdevicepropvalue (PTPParams* params, uint16_t propcode,
 	size=ptp_pack_DPV(params, value, &data, datatype);
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	free(data);
+	return ret;
+}
+
+uint16_t
+ptp_olympus_init_pc_mode (PTPParams* params)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned char	*data = NULL;
+	uint32_t	size;
+
+	PTPPropertyValue	propval;
+	propval.u16 = 1;
+	//int 		timeout;
+	//gp_port_get_timeout (camera->port, &timeout);
+	//gp_port_set_timeout (camera->port, 1000);
+
+	PTP_CNT_INIT(ptp, PTP_OC_SetDevicePropValue, 0xD052);
+	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
+	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	//gp_port_set_timeout (camera->port, 5000);
+	ptp_check_event(params);
+	//gp_port_set_timeout (camera->port, timeout);
+	ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
+	if(data) free(data);
 	return ret;
 }
 

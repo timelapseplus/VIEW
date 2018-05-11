@@ -2493,7 +2493,12 @@ typedef struct _PTPDeviceProperty PTPDeviceProperty;
 #define PTP_DP_NODATA           0x0000  /* no data phase */
 #define PTP_DP_SENDDATA         0x0001  /* sending data */
 #define PTP_DP_GETDATA          0x0002  /* receiving data */
-#define PTP_DP_DATA_MASK        0x00ff  /* data phase mask */
+
+#define PTP_DP_NORESPONSE       0x0010  /* needed for Olympus OM-D */
+#define PTP_DP_RESPONSEONLY     0x0020  /* needed for Olympus OM-D */
+
+#define PTP_DP_DATA_MASK        0x000f  /* data phase mask */
+#define PTP_DP_RESPONSE_MASK    0x00f0  /* data phase mask */
 
 struct _PTPParams {
 	/* device flags */
