@@ -165,7 +165,7 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 	if ((params==NULL) || (ptp==NULL)) 
 		return PTP_ERROR_BADPARAM;
 
-	if(flags&PTP_DP_RESPONSE_MASK != PTP_DP_RESPONSEONLY) {
+	if(!(flags&PTP_DP_RESPONSEONLY)) {
 		cmd = ptp->Code;
 		ptp->Transaction_ID=params->transaction_id++;
 		ptp->SessionID=params->session_id;
@@ -195,7 +195,7 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 			return PTP_ERROR_BADPARAM;
 		}
 	}
-	if(flags&PTP_DP_RESPONSE_MASK == PTP_DP_NORESPONSE) return PTP_RC_OK;
+	if(flags&PTP_DP_NORESPONSE) return PTP_RC_OK;
 	tries = 3;
 	while (tries--) {
 		uint16_t ret;
