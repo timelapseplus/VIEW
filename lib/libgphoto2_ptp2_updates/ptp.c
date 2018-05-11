@@ -1766,8 +1766,15 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
 	//gp_port_set_timeout (camera->port, 5000);
-	usleep(2000000);
-	ptp_check_event(params);
+	usleep(1000000);
+	PTPContainer	event;
+	int i;
+	for(i = 0; i++; i < 50) {
+		/* Just busy loop until the camera is ready again. */
+		C_PTP_REP (ptp_check_event (params));
+		if (ptp_get_one_event(params, &event)) break;
+		usleep(100000);
+	}
 	//gp_port_set_timeout (camera->port, timeout);
 	ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
 	if(data) free(data);
