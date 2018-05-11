@@ -1773,7 +1773,7 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	for(i = 0; i < 50; i++) {
 		ptp_debug (params,"PTP: (Olympus Init) checking events...");
 		/* Just busy loop until the camera is ready again. */
-		C_PTP_REP (ptp_check_event (params));
+		ptp_check_event (params);
 		if (ptp_get_one_event(params, &event)) break;
 		usleep(100000);
 	}
