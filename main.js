@@ -1960,6 +1960,7 @@ if (VIEW_HARDWARE) {
                 type: "function",
                 fn: function(arg, cb) {
                     core.currentProgram.keyframes = null;
+                    core.currentProgram.scheduled = null;
                     core.currentProgram.axes = {};
                     core.currentProgram.focusPos = 0;
                     if(core.currentProgram.tracking != 'none') {

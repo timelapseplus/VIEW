@@ -197,7 +197,7 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 	} else {
 		ptp_debug (params,"PTP: **only** checking response (Olympus Init)");
 	}
-	if(flags&PTP_DP_NORESPONSE) {
+	if(flags&PTP_DP_NORESPONSE&&!(flags&PTP_DP_RESPONSEONLY)) {
 		ptp_debug (params,"PTP: **not** checking response (Olympus Init)");
 		return PTP_RC_OK;
 	}
@@ -1764,17 +1764,20 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 
 	PTP_CNT_INIT(ptp, PTP_OC_SetDevicePropValue, 0xD052);
 	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
+	ptp_debug (params,"PTP: (Olympus Init) switching to PC mode...");
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
 	//gp_port_set_timeout (camera->port, 5000);
 	usleep(1000000);
 	PTPContainer	event;
 	int i;
 	for(i = 0; i++; i < 50) {
+		ptp_debug (params,"PTP: (Olympus Init) checking events...");
 		/* Just busy loop until the camera is ready again. */
 		C_PTP_REP (ptp_check_event (params));
 		if (ptp_get_one_event(params, &event)) break;
 		usleep(100000);
 	}
+	ptp_debug (params,"PTP: (Olympus Init) getting response...");
 	//gp_port_set_timeout (camera->port, timeout);
 	ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
 	if(data) free(data);
