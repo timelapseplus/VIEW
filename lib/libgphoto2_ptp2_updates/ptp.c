@@ -1773,7 +1773,7 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	for(i = 0; i < 50; i++) {
 		ptp_debug (params,"PTP: (Olympus Init) checking events...");
 		/* Just busy loop until the camera is ready again. */
-		ptp_check_event (params);
+		ptp_check_event_handle (params, 0);
 		if (ptp_get_one_event(params, &event)) break;
 		usleep(100000);
 	}
@@ -2259,6 +2259,12 @@ ptp_check_event_queue (PTPParams *params)
 uint16_t
 ptp_check_event (PTPParams *params)
 {
+	return ptp_check_event_handle(params, 1);
+}
+
+uint16_t
+ptp_check_event_handle (PTPParams *params, int handle_events)
+{
 	PTPContainer	event;
 	uint16_t	ret;
 
@@ -2326,7 +2332,7 @@ store_event:
 		ptp_debug (params, "event: nparams=0x%X, code=0x%X, trans_id=0x%X, p1=0x%X, p2=0x%X, p3=0x%X", event.Nparam,event.Code,event.Transaction_ID, event.Param1, event.Param2, event.Param3);
 		ptp_add_event (params, &event);
 
-		handle_event_internal (params, &event);
+		if(handle_events) handle_event_internal (params, &event);
 
 	
 	}
