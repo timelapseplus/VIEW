@@ -194,8 +194,13 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 		default:
 			return PTP_ERROR_BADPARAM;
 		}
+	} else {
+		ptp_debug (params,"PTP: **only** checking response (Olympus Init)");
 	}
-	if(flags&PTP_DP_NORESPONSE) return PTP_RC_OK;
+	if(flags&PTP_DP_NORESPONSE) {
+		ptp_debug (params,"PTP: **not** checking response (Olympus Init)");
+		return PTP_RC_OK;
+	}
 	tries = 3;
 	while (tries--) {
 		uint16_t ret;
