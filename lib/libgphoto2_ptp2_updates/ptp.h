@@ -2787,6 +2787,7 @@ uint16_t ptp_setdevicepropvalue_raw (PTPParams* params, uint16_t propcode,
 
 
 uint16_t ptp_check_event (PTPParams *params);
+uint16_t ptp_check_event_handle (PTPParams *params, int handle_events);
 uint16_t ptp_check_event_queue (PTPParams *params);
 uint16_t ptp_wait_event (PTPParams *params);
 uint16_t ptp_add_event (PTPParams *params, PTPContainer *evt);
