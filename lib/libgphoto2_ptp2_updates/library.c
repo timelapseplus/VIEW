@@ -3139,7 +3139,7 @@ enable_liveview:
 			}
 		}
 		if(!jpgStartPtr) { /* no SOI -> no JPEG */
-			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
+			gp_context_error (context, _("Sorry, your Olympus camera does not seem to return a JPEG image in LiveView mode"));
 			return GP_ERROR;
 		}
 		/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
@@ -3155,7 +3155,7 @@ enable_liveview:
 			}
 		}
 		if(!jpgEndPtr) { /* no EOI -> no JPEG */
-			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
+			gp_context_error (context, _("Sorry, your Olympus camera does not seem to return a JPEG image in LiveView mode"));
 			return GP_ERROR;
 		}
 		gp_file_append (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr);
