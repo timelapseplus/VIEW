@@ -3096,6 +3096,7 @@ enable_liveview:
 	default: {
 		break;
 	}
+	}
 	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
 		unsigned char	*ximage = NULL;
 		PTPPropertyValue	value;
