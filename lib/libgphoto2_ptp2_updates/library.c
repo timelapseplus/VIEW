@@ -3106,7 +3106,7 @@ enable_liveview:
 		if (ret != PTP_RC_OK)
 			value.u32 = 0;
 
-		if (!value.u32) {
+		if (value.u32 != 67109632) {
 			value.u32 = 67109632;
 			LOG_ON_PTP_E (ptp_setdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewModeOM, &value, PTP_DTC_UINT32));
 
