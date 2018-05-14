@@ -234,6 +234,8 @@ var startWorker = function(port) {
                     } else if(worker.model.match(/nikon/i)) {
                         worker.supports.focus = true;
                         worker.supports.liveview = true;
+                    } else if(worker.model.match(/olympus/i)) {
+                        worker.supports.liveview = true;
                     }
                     updateCameraCounts();
                     if(worker.port == camera.primaryPort) {
