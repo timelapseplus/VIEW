@@ -2150,7 +2150,7 @@ typedef struct _PTPCanonEOSDeviceInfo {
 #define PTP_DPC_OLYMPUS_ISOBracket			0xD15D
 #define PTP_DPC_OLYMPUS_MyModeStatus			0xD15E
 
-#define PTP_DPC_OLYMPUS_LiveViewMode			0xD06D
+#define PTP_DPC_OLYMPUS_LiveViewModeOM			0xD06D
 
 /* Sony A900 */
 #define PTP_DPC_SONY_DPCCompensation			0xD200
