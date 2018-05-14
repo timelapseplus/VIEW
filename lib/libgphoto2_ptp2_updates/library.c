@@ -3045,7 +3045,7 @@ enable_liveview:
 				return ret;
 			}
 			ret = ptp_panasonic_liveview_image (params, &ximage, &size);
-			if(ret == PTP_RC_DeviceBusy) {
+			if(ret == PTP_RC_DeviceBusy || size < 1024) {
 				usleep(40000);
 				continue;
 			} else {
