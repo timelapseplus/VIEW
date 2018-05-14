@@ -29,6 +29,9 @@ lists.paramMap = [{
     maps: [{
         section: "actions",
         item: "viewfinder"
+    }, {
+        section: "other",
+        item: "d06d"
     }]
 }, {
     name: "lvexposure",
@@ -450,7 +453,7 @@ lists.autofocus = [{
 
 lists.liveview = [{
     name: "on",
-    values: ['2']
+    values: ['2', '67109632']
 }, {
     name: "on-dark",
     values: ['1']
