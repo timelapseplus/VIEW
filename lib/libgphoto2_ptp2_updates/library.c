@@ -3045,7 +3045,7 @@ enable_liveview:
 				return ret;
 			}
 			ret = ptp_panasonic_liveview_image (params, &ximage, &size);
-			if(ret == PTP_RC_DeviceBusy || size < 1024) {
+			if(ret == PTP_RC_DeviceBusy) {
 				usleep(40000);
 				continue;
 			} else {
@@ -3106,8 +3106,8 @@ enable_liveview:
 		if (ret != PTP_RC_OK)
 			value.u32 = 0;
 
-		if (!value.u8) {
-			value.u8 = 67109632;
+		if (!value.u32) {
+			value.u32 = 67109632;
 			LOG_ON_PTP_E (ptp_setdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewModeOM, &value, PTP_DTC_UINT32));
 
 			params->inliveview = 1;
@@ -3120,7 +3120,7 @@ enable_liveview:
 				return ret;
 			}
 			ret = ptp_olympus_liveview_image (params, &ximage, &size);
-			if(ret == PTP_RC_DeviceBusy) {
+			if(ret == PTP_RC_DeviceBusy || size < 1024) {
 				usleep(40000);
 				continue;
 			} else {
