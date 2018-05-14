@@ -3027,7 +3027,7 @@ enable_liveview:
 		SET_CONTEXT_P(params, NULL);
 		return GP_OK;
 	}
-	case PTP_VENDOR_GP_OLYMPUS:
+	case PTP_VENDOR_GP_OLYMPUS: {
 		unsigned char	*ximage = NULL;
 		PTPPropertyValue	value;
 		uint16_t ret;
@@ -3097,7 +3097,7 @@ enable_liveview:
 
 		SET_CONTEXT_P(params, NULL);
 		return GP_OK;
-
+	}
 	case PTP_VENDOR_PANASONIC: {
 		unsigned char	*ximage = NULL;
 
