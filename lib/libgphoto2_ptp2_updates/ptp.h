@@ -692,6 +692,8 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_OC_OLYMPUS_SetCameraID			0x9501
 #define PTP_OC_OLYMPUS_GetCameraID			0x9581
 
+#define PTP_OC_OLYMPUS_GetLiveViewImage		0x9484
+
 /* Android Random I/O Extensions Codes */
 #define PTP_OC_ANDROID_GetPartialObject64		0x95C1
 #define PTP_OC_ANDROID_SendPartialObject		0x95C2
