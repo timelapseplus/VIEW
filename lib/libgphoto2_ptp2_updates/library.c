@@ -3094,79 +3094,78 @@ enable_liveview:
 		return GP_OK;
 	}
 	default: {
-		if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
-			unsigned char	*ximage = NULL;
-			PTPPropertyValue	value;
-			uint16_t ret;
+		break;
+	}
+	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+		unsigned char	*ximage = NULL;
+		PTPPropertyValue	value;
+		uint16_t ret;
 
-			ret = ptp_getdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewMode, &value, PTP_DTC_UINT32);
-			if (ret != PTP_RC_OK)
-				value.u32 = 0;
+		ret = ptp_getdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewModeOM, &value, PTP_DTC_UINT32);
+		if (ret != PTP_RC_OK)
+			value.u32 = 0;
 
-			if (!value.u8) {
-				value.u8 = 67109632;
-				LOG_ON_PTP_E (ptp_setdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewMode, &value, PTP_DTC_UINT32));
+		if (!value.u8) {
+			value.u8 = 67109632;
+			LOG_ON_PTP_E (ptp_setdevicepropvalue (params, PTP_DPC_OLYMPUS_LiveViewModeOM, &value, PTP_DTC_UINT32));
 
-				params->inliveview = 1;
-			}
-
-			int	tries = 25;
-			for(;;) {
-				tries--;
-				if(tries <= 0) {
-					return ret;
-				}
-				ret = ptp_olympus_liveview_image (params, &ximage, &size);
-				if(ret == PTP_RC_DeviceBusy) {
-					usleep(40000);
-					continue;
-				} else {
-					break;
-				}
-			}
-
-			/* look for the JPEG SOI marker (0xFFD8) in data */
-			jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, size);
-			while(jpgStartPtr && ((jpgStartPtr+1) < (ximage + size))) {
-				if(*(jpgStartPtr + 1) == 0xd8) { /* SOI found */
-					break;
-				} else { /* go on looking (starting at next byte) */
-					jpgStartPtr++;
-					jpgStartPtr = (unsigned char*)memchr(jpgStartPtr, 0xff, ximage + size - jpgStartPtr);
-				}
-			}
-			if(!jpgStartPtr) { /* no SOI -> no JPEG */
-				gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
-				return GP_ERROR;
-			}
-			/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
-			   (just to be sure we will not go beyond the end of the data array) */
-			jpgEndPtr = (unsigned char*)memchr(jpgStartPtr+1, 0xff, ximage+size-jpgStartPtr-1);
-			while(jpgEndPtr && ((jpgEndPtr+1) < (ximage + size))) {
-				if(*(jpgEndPtr + 1) == 0xd9) { /* EOI found */
-					jpgEndPtr += 2;
-					break;
-				} else { /* go on looking (starting at next byte) */
-					jpgEndPtr++;
-					jpgEndPtr = (unsigned char*)memchr(jpgEndPtr, 0xff, ximage + size - jpgEndPtr);
-				}
-			}
-			if(!jpgEndPtr) { /* no EOI -> no JPEG */
-				gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
-				return GP_ERROR;
-			}
-			gp_file_append (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr);
-			free (ximage); /* FIXME: perhaps handle the 128 byte header data too. */
-
-			gp_file_set_mime_type (file, GP_MIME_JPEG);
-			gp_file_set_name (file, "preview.jpg");
-			gp_file_set_mtime (file, time(NULL));
-
-			SET_CONTEXT_P(params, NULL);
-			return GP_OK;
-		} else {
-			break;
+			params->inliveview = 1;
 		}
+
+		int	tries = 25;
+		for(;;) {
+			tries--;
+			if(tries <= 0) {
+				return ret;
+			}
+			ret = ptp_olympus_liveview_image (params, &ximage, &size);
+			if(ret == PTP_RC_DeviceBusy) {
+				usleep(40000);
+				continue;
+			} else {
+				break;
+			}
+		}
+
+		/* look for the JPEG SOI marker (0xFFD8) in data */
+		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, size);
+		while(jpgStartPtr && ((jpgStartPtr+1) < (ximage + size))) {
+			if(*(jpgStartPtr + 1) == 0xd8) { /* SOI found */
+				break;
+			} else { /* go on looking (starting at next byte) */
+				jpgStartPtr++;
+				jpgStartPtr = (unsigned char*)memchr(jpgStartPtr, 0xff, ximage + size - jpgStartPtr);
+			}
+		}
+		if(!jpgStartPtr) { /* no SOI -> no JPEG */
+			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
+			return GP_ERROR;
+		}
+		/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
+		   (just to be sure we will not go beyond the end of the data array) */
+		jpgEndPtr = (unsigned char*)memchr(jpgStartPtr+1, 0xff, ximage+size-jpgStartPtr-1);
+		while(jpgEndPtr && ((jpgEndPtr+1) < (ximage + size))) {
+			if(*(jpgEndPtr + 1) == 0xd9) { /* EOI found */
+				jpgEndPtr += 2;
+				break;
+			} else { /* go on looking (starting at next byte) */
+				jpgEndPtr++;
+				jpgEndPtr = (unsigned char*)memchr(jpgEndPtr, 0xff, ximage + size - jpgEndPtr);
+			}
+		}
+		if(!jpgEndPtr) { /* no EOI -> no JPEG */
+			gp_context_error (context, _("Sorry, your Panasonic camera does not seem to return a JPEG image in LiveView mode"));
+			return GP_ERROR;
+		}
+		gp_file_append (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr);
+		free (ximage); /* FIXME: perhaps handle the 128 byte header data too. */
+
+		gp_file_set_mime_type (file, GP_MIME_JPEG);
+		gp_file_set_name (file, "preview.jpg");
+		gp_file_set_mtime (file, time(NULL));
+
+		SET_CONTEXT_P(params, NULL);
+		return GP_OK;
 	}
 	return GP_ERROR_NOT_SUPPORTED;
 }
