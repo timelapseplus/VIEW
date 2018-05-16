@@ -258,7 +258,7 @@ function processKeyframes(setupFirst, callback) {
 
     var checkDone = function() {
         axesDone++;
-        console.trace("KF: " + axesDone + " of " + numAxes + " keyframe items complete");
+        console.log("KF: " + axesDone + " of " + numAxes + " keyframe items complete");
         if (axesDone >= numAxes && callback) {
             console.log("KF: keyframes complete, running callback");
             callback();
@@ -467,7 +467,6 @@ function processKeyframes(setupFirst, callback) {
                     checkDone();
                 }
             }
-            checkDone();
         }
 
     }
@@ -782,7 +781,7 @@ function runPhoto(isRetry) {
     if(busyPhoto || busyExposure) pendingPhoto = true; else pendingPhoto = false;
     busyPhoto = true;
     if (camera.ptp.connected) {
-        console.trace("Starting Photo...");
+        //console.trace("Starting Photo...");
         if(status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
         if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
             status.captureStartTime = new Date() / 1000;
