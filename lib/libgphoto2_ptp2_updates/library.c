@@ -8764,7 +8764,8 @@ camera_init (Camera *camera, GPContext *context)
 
 	print_debug_deviceinfo(params, &params->deviceinfo);
 
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+//	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+	if (!strncmp(params->deviceinfo.Model,"E-M5",4) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
 		GP_LOG_D ("Initializing Olympus ... ");
 		PTPPropertyValue	propval;
 		//propval.u16 = 1;
