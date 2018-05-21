@@ -1966,11 +1966,20 @@ if (VIEW_HARDWARE) {
                     if(core.currentProgram.tracking != 'none') {
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
                         if(panMotor) {
-                            core.currentProgram.axes[panMotor.name] = {
-                                type: 'tracking',
-                                orientation: 'pan',
-                                target: core.currentProgram.tracking,
-                                direction: panMotor.direction
+                            if(core.currentProgram.tracking == "15deg") {
+                                core.currentProgram.axes[tiltMotor.name] = {
+                                    type: 'constant',
+                                    orientation: 'tilt',
+                                    rate: 15,
+                                    direction: panMotor.direction
+                                }
+                            } else {
+                                core.currentProgram.axes[panMotor.name] = {
+                                    type: 'tracking',
+                                    orientation: 'pan',
+                                    target: core.currentProgram.tracking,
+                                    direction: panMotor.direction
+                                }
                             }
                             core.currentProgram[panMotor.name + "Pos"] = 0;
                         }

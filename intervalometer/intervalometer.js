@@ -415,7 +415,7 @@ function processKeyframes(setupFirst, callback) {
                     tiltDegrees += status.tiltDiff;
                     if(tiltDegrees != 0 && axis.orientation == 'tilt') {
                         status.trackingTiltEnabled = true;
-                        var tiltSteps = tiltDegrees * tiltMotor.stepsPerDegree;
+                        var tiltSteps = tiltDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
                         }
