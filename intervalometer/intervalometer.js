@@ -421,8 +421,8 @@ function processKeyframes(setupFirst, callback) {
                         }
                         var direction = -1;
                         console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
-                        motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
-                            status.trackingPan += panSteps / motor.stepsPerDegree;
+                        motion.move(motor.driver, motor.motor, tiltSteps * motor.direction, function() {
+                            status.trackingTilt += tiltSteps / motor.stepsPerDegree;
                             checkDone();
                         });
                     } else {
