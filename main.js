@@ -1967,7 +1967,7 @@ if (VIEW_HARDWARE) {
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
                         if(panMotor) {
                             if(core.currentProgram.tracking == "15deg") {
-                                core.currentProgram.axes[tiltMotor.name] = {
+                                core.currentProgram.axes[panMotor.name] = {
                                     type: 'constant',
                                     orientation: 'tilt',
                                     rate: 15,
