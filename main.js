@@ -1727,7 +1727,7 @@ if (VIEW_HARDWARE) {
             if(parts && parts.length > 2) {
                 return {
                     name: parts[1] + '-' + parts[2],
-                    direction: parts[3] == 'r' ? -1 : 1,
+                    reverse: parts[3] == 'r' ? true : false,
                 }
             } else {
                 return false;
@@ -1971,14 +1971,14 @@ if (VIEW_HARDWARE) {
                                     type: 'constant',
                                     orientation: 'tilt',
                                     rate: 15,
-                                    direction: panMotor.direction
+                                    reverse: panMotor.reverse
                                 }
                             } else {
                                 core.currentProgram.axes[panMotor.name] = {
                                     type: 'tracking',
                                     orientation: 'pan',
                                     target: core.currentProgram.tracking,
-                                    direction: panMotor.direction
+                                    reverse: panMotor.reverse
                                 }
                             }
                             core.currentProgram[panMotor.name + "Pos"] = 0;
@@ -1989,7 +1989,7 @@ if (VIEW_HARDWARE) {
                                 type: 'tracking',
                                 orientation: 'tilt',
                                 target: core.currentProgram.tracking,
-                                direction: panMotor.direction
+                                reverse: panMotor.reverse
                             }
                             core.currentProgram[tiltMotor.name + "Pos"] = 0;
                         }
