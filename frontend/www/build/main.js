@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 121:
+/***/ 122:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -13,11 +13,11 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 121;
+webpackEmptyAsyncContext.id = 122;
 
 /***/ }),
 
-/***/ 163:
+/***/ 164:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -30,373 +30,7 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 163;
-
-/***/ }),
-
-/***/ 205:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return ViewApp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginModalContentPage; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return PairModalContentPage; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return MotionModalContentPage; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(206);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(209);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__ = __webpack_require__(210);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__ = __webpack_require__(331);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__ = __webpack_require__(337);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(338);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_view_view__ = __webpack_require__(39);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-
-
-
-
-
-var ViewApp = (function () {
-    function ViewApp(platform, statusBar, splashScreen, events, viewApi, modalCtrl, alertCtrl, toastCtrl) {
-        var _this = this;
-        this.platform = platform;
-        this.statusBar = statusBar;
-        this.splashScreen = splashScreen;
-        this.events = events;
-        this.viewApi = viewApi;
-        this.modalCtrl = modalCtrl;
-        this.alertCtrl = alertCtrl;
-        this.toastCtrl = toastCtrl;
-        this.rootPage = __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__["a" /* CameraPage */];
-        this.initializeApp();
-        // used for an example of ngFor and navigation
-        this.pages = [
-            { title: 'Camera', component: __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__["a" /* CameraPage */], icon: 'camera' },
-            { title: 'Intervalometer', component: __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__["a" /* IntervalometerPage */], icon: 'timer' },
-            { title: 'Time-lapse Clips', component: __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__["b" /* ClipsPage */], icon: 'film' },
-            { title: 'Settings', component: __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */], icon: 'settings' }
-        ];
-        var alert = null;
-        events.subscribe('error', function (err) {
-            var wait = 0;
-            if (alert) {
-                alert.dismiss();
-                wait = 500;
-            }
-            setTimeout(function () {
-                alert = _this.alertCtrl.create({
-                    title: 'ERROR',
-                    subTitle: err.message || err.msg || 'unknown error',
-                    buttons: ['Close']
-                });
-                alert.present();
-            }, wait);
-        });
-        var toast = null;
-        events.subscribe('login_required', function () {
-            console.log('login_required event captured');
-            var modal = _this.modalCtrl.create(LoginModalContentPage, {});
-            if (toast) {
-                toast.dismiss();
-            }
-            modal.present();
-        });
-        events.subscribe('disconnected', function (msg) {
-            var wait = 0;
-            if (toast) {
-                toast.dismiss();
-                wait = 1000;
-            }
-            setTimeout(function () {
-                toast = _this.toastCtrl.create({
-                    message: msg,
-                    position: 'bottom',
-                    cssClass: 'error-toast'
-                });
-                toast.present();
-            }, wait);
-        });
-        events.subscribe('connected', function (msg) {
-            var wait = 0;
-            if (toast) {
-                toast.dismiss();
-                wait = 1000;
-            }
-            setTimeout(function () {
-                toast = _this.toastCtrl.create({
-                    message: msg,
-                    position: 'bottom',
-                    duration: 3000,
-                });
-                toast.present();
-            }, wait);
-        });
-        events.subscribe('nodevice', function (status) {
-            var wait = 0;
-            if (toast) {
-                toast.dismiss();
-                wait = 1000;
-            }
-            if (!status)
-                return; // device added
-            setTimeout(function () {
-                toast = _this.toastCtrl.create({
-                    message: "No VIEW device connected.  Connect a paired device to wifi to access or pair a new device.",
-                    position: 'bottom',
-                    showCloseButton: true,
-                    closeButtonText: 'Add new VIEW'
-                });
-                toast.onDidDismiss(function () {
-                    if (viewApi.noDevice && viewApi.connected && viewApi.loggedIn) {
-                        console.log('Adding VIEW device...');
-                        var modal = _this.modalCtrl.create(PairModalContentPage, {});
-                        modal.present();
-                    }
-                });
-                toast.present();
-            }, wait);
-        });
-    }
-    ViewApp.prototype.initializeApp = function () {
-        var _this = this;
-        this.platform.ready().then(function () {
-            // Okay, so the platform is ready and our plugins are available.
-            // Here you can do any higher level native things you might need.
-            _this.statusBar.styleDefault();
-            _this.splashScreen.hide();
-        });
-    };
-    ViewApp.prototype.openPage = function (page) {
-        // Reset the content nav to have just this page
-        // we wouldn't want the back button to show in this scenario
-        this.nav.setRoot(page.component);
-    };
-    __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */]),
-        __metadata("design:type", typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */]) === "function" && _a || Object)
-    ], ViewApp.prototype, "nav", void 0);
-    ViewApp = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/app.html"*/'<ion-menu [content]="content">\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Timelapse+ VIEW</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content>\n    <ion-list no-lines>\n      <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">\n        <ion-icon name="{{p.icon}}"></ion-icon> {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n\n</ion-menu>\n\n<!-- Disable swipe-to-go-back because it\'s poor UX to combine STGB with side menus -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/app.html"*/
-        }),
-        __metadata("design:paramtypes", [typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* Platform */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* Platform */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _h || Object, typeof (_j = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _j || Object])
-    ], ViewApp);
-    return ViewApp;
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-}());
-
-var LoginModalContentPage = (function () {
-    function LoginModalContentPage(viewCtrl, viewApi, toastCtrl) {
-        this.viewCtrl = viewCtrl;
-        this.viewApi = viewApi;
-        this.toastCtrl = toastCtrl;
-        this.toast = null;
-    }
-    LoginModalContentPage.prototype.login = function (email, password) {
-        var _this = this;
-        this.toast = this.toastCtrl.create({
-            message: "Logging in as " + email + "...",
-            position: 'bottom',
-        });
-        this.toast.present();
-        this.viewApi.login(email, password).then(function (res) {
-            if (_this.toast) {
-                _this.toast.dismiss();
-            }
-            console.log("login res", res);
-            if (res.action == 'login') {
-                _this.viewCtrl.dismiss();
-            }
-            else if (res.action == 'login_failed') {
-                console.log("message:", res.message);
-                _this.toast = _this.toastCtrl.create({
-                    message: res.message,
-                    position: 'bottom',
-                    cssClass: 'error-toast',
-                    duration: 10000,
-                });
-                _this.toast.present();
-            }
-        }, function () {
-            if (_this.toast) {
-                _this.toast.dismiss();
-            }
-            _this.toast = _this.toastCtrl.create({
-                message: "Error contacting server - please try again later",
-                position: 'bottom',
-                cssClass: 'error-toast',
-                showCloseButton: true,
-            });
-            _this.toast.present();
-        });
-    };
-    LoginModalContentPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Login / Register\n    </ion-title>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        Please login with your app.view.tl account email and password.\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item>\n            <ion-label fixed>Email</ion-label>\n            <ion-input type="email" [(ngModel)]="email"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label fixed>Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <button ion-button (click)="login(email, password)">Login</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/
-        }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _c || Object])
-    ], LoginModalContentPage);
-    return LoginModalContentPage;
-    var _a, _b, _c;
-}());
-
-var PairModalContentPage = (function () {
-    function PairModalContentPage(viewCtrl, viewApi, toastCtrl) {
-        this.viewCtrl = viewCtrl;
-        this.viewApi = viewApi;
-        this.toastCtrl = toastCtrl;
-        this.toast = null;
-        console.log("PairModalContentPage initialized");
-    }
-    PairModalContentPage.prototype.dismiss = function () {
-        if (this.toast) {
-            this.toast.dismiss();
-        }
-        this.viewApi.noDevice = false;
-        this.viewCtrl.dismiss();
-    };
-    PairModalContentPage.prototype.pair = function (code) {
-        var _this = this;
-        this.toast = this.toastCtrl.create({
-            message: "Pairing device...",
-            position: 'bottom',
-        });
-        this.toast.present();
-        this.viewApi.addDevice(code).then(function (res) {
-            if (_this.toast) {
-                _this.toast.dismiss();
-            }
-            console.log("login res", res);
-            if (res.action == 'device_added') {
-                _this.viewCtrl.dismiss();
-            }
-            else {
-                console.log("message:", res.message);
-                _this.toast = _this.toastCtrl.create({
-                    message: res.message,
-                    position: 'bottom',
-                    cssClass: 'error-toast',
-                    duration: 10000,
-                });
-                _this.toast.present();
-            }
-        }, function () {
-            if (_this.toast) {
-                _this.toast.dismiss();
-            }
-            _this.toast = _this.toastCtrl.create({
-                message: "Error contacting server - please try again later",
-                position: 'bottom',
-                cssClass: 'error-toast',
-                showCloseButton: true,
-            });
-            _this.toast.present();
-        });
-    };
-    PairModalContentPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Pair VIEW device\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        Connect the VIEW to WiFi Internet, then go to Information->Registration &amp; App on the VIEW.  Once it has an Internet connection, it will display a code for pairing.  Enter that code here to pair the VIEW with your app account.\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item>\n            <ion-label fixed>Device Code</ion-label>\n            <ion-input type="number" [(ngModel)]="code"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <button ion-button (click)="pair(code)" [disabled]="code && code.length == 6 ? 0 : 2">Add VIEW</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/
-        }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _c || Object])
-    ], PairModalContentPage);
-    return PairModalContentPage;
-    var _a, _b, _c;
-}());
-
-var MotionModalContentPage = (function () {
-    function MotionModalContentPage(params, viewCtrl, viewApi, toastCtrl, events) {
-        var _this = this;
-        this.params = params;
-        this.viewCtrl = viewCtrl;
-        this.viewApi = viewApi;
-        this.toastCtrl = toastCtrl;
-        this.events = events;
-        this.axes = [];
-        this.motion = {};
-        this.toast = null;
-        this.axisId = null;
-        this.axisId = params.get('axisId');
-        if (this.axisId) {
-            this.axes = viewApi.motion.axis.filter(function (a) { return a.id == _this.axisId; });
-        }
-        else {
-            this.motion = viewApi.motion;
-            this.motion.get();
-            events.subscribe('motion.updated', function () {
-                _this.axes = viewApi.motion.axis || [];
-                _this.motion = viewApi.motion;
-            });
-        }
-        console.log("MotionModalContentPage initialized", this.axes);
-    }
-    MotionModalContentPage.prototype.dismiss = function () {
-        for (var i = 0; i < this.axes.length; i++) {
-            this.updateHardware(this.axes[i]);
-            this.updateType(this.axes[i]);
-            this.axes[i].setup = true;
-            if (this.axes[i].unit == 's')
-                this.axes[i].unitSteps = 1;
-            this.viewApi.db.set('motion-' + this.axes[i].id, this.axes[i]);
-            console.log("saving motion setup:", this.axes[i]);
-            this.motion.axis = this.axes;
-        }
-        if (this.toast) {
-            this.toast.dismiss();
-        }
-        this.viewApi.noDevice = false;
-        this.viewCtrl.dismiss();
-    };
-    MotionModalContentPage.prototype.updateHardware = function (axis) {
-        console.log("updating hardware", axis);
-        if (axis.driver == 'NMX' && axis.hardware == 'stager') {
-            axis.unitSteps = 558.63333334;
-        }
-        else if (axis.driver == 'NMX' && axis.hardware == 'sapphire') {
-            axis.unitSteps = 550.81967213;
-        }
-    };
-    MotionModalContentPage.prototype.updateType = function (axis) {
-        console.log("updating driver", axis);
-        if (axis.name == 'Pan' || axis.name == 'Tilt') {
-            axis.unit = '°';
-            if (axis.driver == 'NMX') {
-                if (axis.hardware == 'stager') {
-                    axis.unitSteps = 558.63333334;
-                }
-                else if (axis.hardware == 'sapphire') {
-                    axis.unitSteps = 550.81967213;
-                }
-            }
-            else if (axis.driver == 'GM') {
-                axis.unitSteps = 1;
-            }
-        }
-        else {
-            axis.unit = 's';
-            axis.unitSteps = 1;
-        }
-    };
-    MotionModalContentPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Motion Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n\n    <ion-row *ngFor="let a of axes">\n      <ion-col>\n        <ion-list>\n\n          <ion-list-header>{{a.id}}: {{a.name}}</ion-list-header>\n\n          <ion-item *ngIf="a.driver==\'NMX\'">\n            <ion-label>Motion Hardware</ion-label>\n            <ion-select [(ngModel)]="a.hardware" (ion-change)="updateHardware(a)">\n              <ion-option value="sapphire">Sapphire</ion-option>\n              <ion-option value="stager">Stage-R</ion-option>\n              <ion-option value="other">Other</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Slide">Slide</ion-option>\n              <ion-option value="Focus">Focus</ion-option>\n              <ion-option value="#{{a.motor}}">#{{a.motor}}</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware!=\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'GM\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Unit</ion-label>\n            <ion-select [(ngModel)]="a.unit">\n              <ion-option value="s">Steps</ion-option>\n              <ion-option value="°">Degrees</ion-option>\n              <ion-option value="in">Inches</ion-option>\n              <ion-option value="cm">Centimeters</ion-option>\n              <ion-option value="m">Meters</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="!(a.unit==\'s\'||a.driver==\'GM\'||a.hardware!=\'other\')">\n            <ion-label fixed>Steps / Unit</ion-label>\n            <ion-input type="number" [(ngModel)]="a.unitSteps"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Reverse Direction</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.reverse"></ion-toggle>\n          </ion-item>\n\n          <!--ion-item>\n            <ion-label>Enable Axis</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.enabled"></ion-toggle>\n          </ion-item-->\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/
-        }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _e || Object])
-    ], MotionModalContentPage);
-    return MotionModalContentPage;
-    var _a, _b, _c, _d, _e;
-}());
-
-//# sourceMappingURL=app.component.js.mapundefined
+webpackEmptyAsyncContext.id = 164;
 
 /***/ }),
 
@@ -408,7 +42,7 @@ var MotionModalContentPage = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -475,10 +109,9 @@ var CameraPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-camera',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Camera</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <!--video src="http://192.168.7.42:9000" width="100%" ></video-->\n        <img *ngIf="camera.image.jpeg" [src]="camera.image.jpeg" width="100%">\n        <div *ngIf="!camera.image.jpeg" style="width: 100%; height: 200px; background-color: #488aff; opacity: 0.25;"></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="right"><button ion-fab mini color="{{camera.delay ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.captureDelay()">2s</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="center"><button ion-fab color="success" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.capture()"><ion-icon name="camera"></ion-icon></button></div>\n      </ion-col>\n      <ion-col>\n        <div class="left"><button ion-fab mini color="{{camera.lv ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.liveview()">LV</button></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="center">{{camera.status}}</div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-segment [(ngModel)]="viewMode">\n          <ion-segment-button value="camera">\n            Exposure\n          </ion-segment-button>\n          <ion-segment-button value="focus">\n            Focus\n          </ion-segment-button>\n          <ion-segment-button value="motion">\n            Motion\n          </ion-segment-button>\n        </ion-segment>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <hr/>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'camera\'">\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>shutter</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.shutterAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.shutterAvailable, camera.shutter, \'Shutter Speed\', \'shutter\')">{{camera.shutter.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.shutterAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>aperture</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.apertureAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.apertureAvailable, camera.aperture, \'Aperture\', \'aperture\')">{{camera.aperture.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.apertureAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>iso</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.isoAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.isoAvailable, camera.iso, \'ISO\', \'iso\')">{{camera.iso.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.isoAvailable.length"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'focus\'">\n      <ion-col text-center>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 10, true)"><ion-icon name="rewind"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 1, true)"><ion-icon name="skip-backward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 1, true)"><ion-icon name="skip-forward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 10, true)"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <div *ngIf="viewMode==\'motion\'">\n    <ion-row *ngIf="!motion.available">\n      <ion-col text-center>\n        No VIEW-controllable motion hardware is currently connected.\n      </ion-col>\n    </ion-row>\n    <ion-row *ngFor="let a of motion.axis">\n      <ion-col text-center *ngIf="!a.setup&&a.connected&&motion.available">\n          <button ion-button outline block color="light" [disabled]="intervalometer.status.running ? 2 : 0" (click)="setupMotion(a.id)">Setup {{a.driver}} Motor {{a.motor}}</button>\n      </ion-col>\n      <ion-col text-center *ngIf="a.setup&&a.name!=\'Tilt\'&&a.connected&&motion.available">\n          <button ion-button outline color="light" icon-only (touchstart)="motion.moveConstant(a.id, -1)" (touchend)="motion.moveConstant(a.id, 0)"><ion-icon name="radio-button-off"></ion-icon></button>\n          <button ion-button outline color="light" [disabled]="intervalometer.status.running ? 2 : 0" (click)="setupMotion(a.id)">{{a.name}}</button>\n          <button ion-button outline color="light" icon-only (touchstart)="motion.moveConstant(a.id, 1)" (touchend)="motion.moveConstant(a.id, 0)"><ion-icon name="radio-button-off"></ion-icon></button>\n      </ion-col>\n      <ion-col text-center *ngIf="a.setup&&a.name==\'Tilt\'&&a.connected&&motion.available">\n          <button ion-button outline color="light" icon-only (touchstart)="motion.moveConstant(a.id, -1)" (touchend)="motion.moveConstant(a.id, 0)"><ion-icon name="radio-button-off"></ion-icon></button>\n          <button ion-button outline color="light" [disabled]="intervalometer.status.running ? 2 : 0" (click)="setupMotion(a.id)">{{a.name}}</button>\n          <button ion-button outline color="light" icon-only (touchstart)="motion.moveConstant(a.id, 1)" (touchend)="motion.moveConstant(a.id, 0)"><ion-icon name="radio-button-off"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n    </div>\n\n    <ion-row>\n      <ion-col>\n        <hr/>\n      </ion-col>\n    </ion-row>    \n    <ion-row>\n      <ion-col col-12>\n        <ion-list>\n          <button ion-item *ngFor="let image of camera.lastImages" (click)="camera.image.jpeg=image.jpeg">\n            <ion-thumbnail item-start>\n              <img [src]="image.jpeg">\n            </ion-thumbnail>\n            <h2>{{image.shutter.title}} f/{{image.aperture.title}} ISO {{image.iso.title}}</h2>\n            <p>{{image.time|timeAgo}}</p>\n          </button>\n        </ion-list>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n</ion-content>\n\n\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
     ], CameraPage);
     return CameraPage;
-    var _a, _b, _c, _d;
 }());
 
 //# sourceMappingURL=camera.js.map
@@ -494,7 +127,7 @@ var CameraPage = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_chart_js__ = __webpack_require__(432);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_chart_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_chart_js__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -524,6 +157,7 @@ var IntervalometerPage = (function () {
         this.motion = {};
         this.showAxisSetup = false;
         this.axisTypes = {};
+        this.axes = {};
         this.intervalometer = {
             program: {}
         };
@@ -996,10 +630,9 @@ var IntervalometerPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-intervalometer',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/intervalometer.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Intervalometer</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div *ngIf="!intervalometer.status.running">\n\n  <ion-list>\n\n    <ion-list-header>Time-lapse Mode</ion-list-header>\n\n    <ion-item>\n      <ion-segment [(ngModel)]="intervalometer.program.rampMode" color="dark">\n        <ion-segment-button value="auto">\n          Auto Ramping\n        </ion-segment-button>\n        <ion-segment-button value="fixed">\n          Basic Fixed\n        </ion-segment-button>\n      </ion-segment>\n    </ion-item>\n\n    <ion-list-header>Interval Settings</ion-list-header>\n\n    <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n      <ion-segment [(ngModel)]="intervalometer.program.intervalMode" color="dark">\n        <ion-segment-button value="fixed">\n          Fixed\n        </ion-segment-button>\n        <ion-segment-button value="auto">\n          Auto Day/Night\n        </ion-segment-button>\n        <ion-segment-button value="aux2" *ngIf="!intervalometer.program.schedule">\n          External AUX2\n        </ion-segment-button>\n      </ion-segment>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'auto\' && intervalometer.program.intervalMode==\'auto\')">\n      <ion-label>Day Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Day Interval (seconds)\', intervalometer.program, \'dayInterval\')">{{intervalometer.program.dayInterval}} seconds</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'auto\' && intervalometer.program.intervalMode==\'auto\')">\n      <ion-label>Night Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Night Interval (seconds)\', intervalometer.program, \'nightInterval\')">{{intervalometer.program.nightInterval}} seconds</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\')">\n      <ion-label>Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Fixed Interval (seconds)\', intervalometer.program, \'interval\')">{{intervalometer.program.interval}} seconds</button>\n    </ion-item>\n\n    <ion-list-header>Frames &amp; Schedule</ion-list-header>\n\n    <ion-item>\n      <ion-label>Enable Scheduling</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.enableDisable, intervalometer.program, \'scheduled\', \'Enable Scheduling\')">{{intervalometer.program.scheduled?\'enabled\':\'disabled\'}}</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\') && !intervalometer.program.scheduled">\n      <ion-label>Frames</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Frames\', intervalometer.program, \'frames\')">{{intervalometer.program.frames}}</button>\n    </ion-item>\n    <ion-item *ngIf="!(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\') && !intervalometer.program.scheduled">\n      <ion-label>Frames</ion-label>\n      <button ion-button outline item-end button-light disabled="2">until stopped</button>\n    </ion-item>\n    <ion-item>\n      <ion-label>Bracketing</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketing, intervalometer.program, \'hdrCount\', \'Bracketing Mode\')">{{intervalometer.program.hdrCount<2?\'single\':\'multi\'}}</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.hdrCount>1">\n      <ion-label>Bracketing Frames</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketingFrames, intervalometer.program, \'hdrCount\', \'Bracketing Frames/Set\')">{{intervalometer.program.hdrCount}}</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.hdrCount>1">\n      <ion-label>Bracketing Stops/Frame</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketingStops, intervalometer.program, \'hdrStops\', \'Bracketing Stops/Frame\')">{{intervalometer.program.hdrStops|number:\'1.1-1\'}}</button>\n    </ion-item>\n\n    <ion-list-header *ngIf="intervalometer.program.scheduled">Time-lapse Schedule</ion-list-header>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday">Mo</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday">Mo</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday">Tu</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday">Tu</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday">We</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday">We</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday">Th</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday">Th</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday">Fr</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday">Fr</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday">Sa</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday">Sa</button>\n\n      <button ion-button item-end button-light class="" *ngIf="intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday">Su</button>\n      <button ion-button outline item-end button-light class="" *ngIf="!intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday">Su</button>\n    </ion-item>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <ion-label>Daily Start Time</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStart\', \'Daily Start Time\')">{{intervalometer.program.schedStart || \'08:00\'}}</button>\n    </ion-item>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <ion-label>Daily Stop Time</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStop\', \'Daily Start Time\')">{{intervalometer.program.schedStop || \'18:00\'}}</button>\n    </ion-item>\n\n\n    <ion-list-header *ngIf="showAxisSetup && !intervalometer.program.scheduled">Motion &amp; Focus</ion-list-header>\n\n    <ion-item *ngIf="camera.supports.focus && intervalometer.program.axes.focus">\n      <ion-label>Focus</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.focusOptions, intervalometer.program.axes.focus, \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes.focus.type}}</button>\n    </ion-item>\n\n    <div *ngFor="let a of motion.axis">\n      <ion-item>\n        <ion-label>{{a.id}} ({{a.name}})</ion-label>\n        <button *ngIf="a.name==\'Pan\'" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsPan, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n        <button *ngIf="a.name==\'Tilt\'" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsTilt, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n        <button *ngIf="a.name!=\'Pan\'&&a.name!=\'Tilt\'" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsOther, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n      </ion-item>\n\n      <ion-list inset *ngIf="intervalometer.program.axes[a.id].type==\'constant\' && !intervalometer.program.scheduled">\n        <ion-item>\n          <ion-label>Degrees per hour</ion-label>\n          <button ion-button outline item-end button-light (click)="doNumber(\'Degrees per hour\', intervalometer.program.axes[a.id], \'rate\')">{{intervalometer.program.axes[a.id].rate||15}}°/hour</button>\n        </ion-item>\n        <ion-item>\n          <ion-label>Direction</ion-label>\n          <button *ngIf="a.name==\'Pan\'" ion-button outline item-end button-light (click)="doSelect(lists.panDirection, intervalometer.program.axes[a.id], \'reverse\', \'Pan Direction\')">{{intervalometer.program.axes[a.id].reverse?\'left\':\'right\'}}</button>\n          <button *ngIf="a.name==\'Tilt\'" ion-button outline item-end button-light (click)="doSelect(lists.tiltDirection, intervalometer.program.axes[a.id], \'reverse\', \'Tilt Direction\')">{{intervalometer.program.axes[a.id].reverse?\'down\':\'up\'}}</button>\n        </ion-item>\n      </ion-list>\n      <ion-list inset *ngIf="intervalometer.program.axes[a.id].type==\'tracking\' && !intervalometer.program.scheduled">\n        <ion-item>\n          <ion-label>Track when below horizon?</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.yesNoBool, intervalometer.program.axes[a.id], \'trackBelowHorizon\', \'Track below horizon\')">{{intervalometer.program.axes[a.id].trackBelowHorizon?\'yes\':\'no\'}}</button>\n        </ion-item>\n      </ion-list>\n    </div>\n\n\n    <ion-item *ngIf="false && motion.available && !intervalometer.program.scheduled">\n      <ion-segment [(ngModel)]="intervalometer.program.motionMode" color="dark">\n        <ion-segment-button value="keyframe">\n          Keyframe\n        </ion-segment-button>\n        <!--ion-segment-button value="mixed">\n          Mixed\n        </ion-segment-button-->\n        <ion-segment-button value="pan">\n          Quick Pan\n        </ion-segment-button>\n        <ion-segment-button value="tracking">\n          Tracking\n        </ion-segment-button>\n      </ion-segment>\n    </ion-item>\n\n    <div [hidden]="!(axisTypes.keyframe && !intervalometer.program.scheduled)">\n      <ion-item (click)="openKeyframe(0)">\n        <canvas #chart height="75px"></canvas>\n      </ion-item>\n    </div>\n\n    <ion-item *ngIf="axisTypes.tracking && !intervalometer.program.scheduled">\n      <ion-label>Tracking Target</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.trackingTarget, intervalometer.program, \'trackingTarget\', \'Tracking Target\')">follow {{intervalometer.program.trackingTarget}}</button>\n    </ion-item>\n    <!--ion-item *ngIf="axisTypes.tracking && !intervalometer.program.scheduled">\n      <ion-label>Pan Axis</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.trackingAxes, intervalometer.program, \'trackingAxes\', \'Pan Axis\')">{{intervalometer.program.trackingAxes}}</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.motionMode==\'tracking\' && motion.available && !intervalometer.program.scheduled">\n      <ion-label>Tilt Axis</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.trackingAxes, intervalometer.program, \'trackingAxes\', \'Tilt Axes\')">{{intervalometer.program.trackingAxes}}</button>\n    </ion-item-->\n\n  </ion-list>\n\n  <ion-grid>\n    <ion-row align-items-center>\n      <ion-col>\n        <div class="text-center"><button ion-button outline small icon-start color="light" [disabled]="camera.connected ? 0: 2"><ion-icon name="timer"></ion-icon>delay</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="text-center"><button ion-button round color="success" [disabled]="camera.connected ? 0: 2" (click)="start(intervalometer.program)">START</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="text-center"><button ion-button outline small icon-start color="light" (click)="saveProgram(intervalometer.program)"><ion-icon name="checkmark"></ion-icon>save</button></div>\n      </ion-col>\n    </ion-row>\n    <ion-row align-items-center>\n      <ion-col>\n        <div class="text-center"><span *ngIf="!camera.connected">connect camera to enable</span></div>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n\n  </div>\n  <div *ngIf="intervalometer.status.running">\n  \n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <div *ngIf="!intervalometer.preview.image" style="width: 100%; height: 250px; background-color: #488aff; opacity: 0.25;"></div>\n        <img *ngIf="intervalometer.preview.image" [src]="intervalometer.preview.image" width="100%">\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item>\n          <ion-range [(ngModel)]="intervalometer.preview.frameIndex" min="0" max="{{frames.current ? frames.current.length - 1 : 1}}" (ionChange)="updateFrame($event)"></ion-range>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex == 0) ? 2 : 0" (click)="startFrame()"><ion-icon name="skip-backward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex == 0) ? 2 : 0" (click)="previousFrame()"><ion-icon name="rewind"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab color="success" [disabled]="intervalometer.preview.loadingFrames ? 2 : 0" (click)="togglePlay()"><ion-icon name="{{intervalometer.preview.playing ? \'pause\' : \'play\'}}" *ngIf="!intervalometer.preview.loadingFrames"></ion-icon><span *ngIf="intervalometer.preview.loadingFrames">{{intervalometer.preview.loadingFramesPercent}}%</span></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex >= frames.current.length - 1) ? 2 : 0" (click)="nextFrame()"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex >= frames.current.length - 1) ? 2 : 0" (click)="endFrame()"><ion-icon name="skip-forward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <ion-item>\n          <div  *ngFor="let col of camera.histogram" style="width:0.390625%; background-color: #ddd; float: left;" [style.height]="col/6 + \'px\'" [style.margin-top]="48-col/6 + \'px\'"></div>\n        </ion-item>\n      </ion-col>\n    </ion-row>    \n\n    <ion-row>\n      <ion-col>\n        <ion-segment [(ngModel)]="viewMode">\n          <ion-segment-button value="status">\n            Status\n          </ion-segment-button>\n          <ion-segment-button value="motion">\n            Motion/Focus\n          </ion-segment-button>\n          <ion-segment-button value="schedule" *ngIf="intervalometer.program.scheduled">\n            Schedule\n          </ion-segment-button>\n        </ion-segment>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="!viewMode||viewMode==\'status\'">\n      <ion-col>\n        <ion-list no-lines>\n          <ion-list-header>\n            Time-lapse Running\n          </ion-list-header>\n          <ion-item>\n            {{intervalometer.status.message}} <span *ngIf="camera.status">|</span> {{camera.status}}\n          </ion-item>\n          <ion-item>\n            {{intervalometer.status.frames}} frames ({{intervalometer.status.frames/30|number:\'1.0-1\'}}s at 30fps)\n          </ion-item>\n          <ion-item *ngIf="intervalometer.status.cameraSettings">\n            Exposure: {{intervalometer.status.cameraSettings.shutter}} f/{{intervalometer.status.cameraSettings.aperture}} {{intervalometer.status.cameraSettings.iso}} ISO\n          </ion-item>\n          <ion-item>\n            Interval: {{intervalometer.status.intervalMs/1000|number:\'1.0-1\'}}s\n          </ion-item>\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'motion\'">\n      <ion-col>\n        <ion-row>\n          <ion-col text-center>\n            <button ion-button outline color="light" (click)="focusOffset(-1)"><ion-icon name="skip-backward"></ion-icon></button>\n          </ion-col>\n          <ion-col text-center>\n            Adjust Focus<br>\n            NEAR - FAR<br>\n            <span *ngIf="intervalometer.status.focusDiffNew">Pending: {{intervalometer.status.focusDiffNew > 0 ? \'+\':\'\'}}{{intervalometer.status.focusDiffNew}}</span>\n          </ion-col>\n          <ion-col text-center>\n            <button ion-button outline color="light" (click)="focusOffset(1)"><ion-icon name="skip-forward"></ion-icon></button>\n          </ion-col>\n        </ion-row>\n        <ion-row>\n          This allows for focus fine-tuning while the time-lapse is running.  For each time the near or far buttons are pressed, the focus will move by one step after the next frame.\n        </ion-row>\n      </ion-col>\n    </ion-row>\n\n\n    <ion-row *ngIf="viewMode==\'schedule\'">\n      <ion-col text-center>\n        <ion-list no-lines>\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday;sendSchedule()">Mo</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMondaysendSchedule()">Mo</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday;sendSchedule()">Tu</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday;sendSchedule()">Tu</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday;sendSchedule()">We</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday;sendSchedule()">We</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday;sendSchedule()">Th</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday;sendSchedule()">Th</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday;sendSchedule()">Fr</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday;sendSchedule()">Fr</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday;sendSchedule()">Sa</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday;sendSchedule()">Sa</button>\n\n            <button ion-button item-end button-light class="" *ngIf="intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday;sendSchedule()">Su</button>\n            <button ion-button outline item-end button-light class="" *ngIf="!intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday;sendSchedule()">Su</button>\n          </ion-item>\n\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <ion-label>Daily Start Time</ion-label>\n            <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStart\', \'Daily Start Time\');sendSchedule()">{{intervalometer.program.schedStart || \'08:00\'}}</button>\n          </ion-item>\n\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <ion-label>Daily Stop Time</ion-label>\n            <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStop\', \'Daily Start Time\');sendSchedule()">{{intervalometer.program.schedStop || \'18:00\'}}</button>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <div class="text-center"><button ion-button round color="danger" (click)="stop()">STOP</button></div>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n  </div>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/intervalometer.html"*/
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _e || Object])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]])
     ], IntervalometerPage);
     return IntervalometerPage;
-    var _a, _b, _c, _d, _e;
 }());
 
 var KeyframeModalContentPage = (function () {
@@ -1319,10 +952,13 @@ var KeyframeModalContentPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-keyframe',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/keyframe.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Keyframe Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col col-1 class="no-padding">\n        <br>\n        <button ion-button small outline block item-end color="primary" *ngIf="!camera.lv" [disabled]="camera.connected ? 0: 2" (click)="camera.liveview()">LV</button>\n        <button ion-button small block item-end color="primary" *ngIf="camera.lv" [disabled]="camera.connected ? 0: 2" (click)="camera.liveview()">LV</button>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 0: 2">\n          <ion-icon name="camera"></ion-icon>\n        </button>\n        <br>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 2: 2">\n          <ion-icon name="add"></ion-icon>\n        </button>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 2: 2">\n          <ion-icon name="remove"></ion-icon>\n        </button>\n      </ion-col>\n      <ion-col col-11>\n        <!--img [src]="\'data:image/jpeg;base64,\' + keyframe.jpeg" width="100%"-->\n        <img *ngIf="camera.image.jpeg" [src]="camera.image.jpeg" width="100%">\n        <div *ngIf="!camera.image.jpeg" style="width: 100%; height: 150px; background-color: #488aff; opacity: 0.25;"></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col col-8>\n        <canvas #chart height="160px"></canvas>\n      </ion-col>\n      <ion-col col-4 class="center-text">\n          <small>Total Duration\n          <button ion-button outline small color="positive" (click)="doDuration(\'Set the total duration\', program, \'durationSeconds\')">\n            {{lengthString}}\n          </button><br>\n          Current Selection<br>\n          <button ion-button outline small color="positive" (click)="doDuration(\'Set the selected point\', false, \'posSeconds\')">\n            {{selectionString}}\n          </button>\n          </small>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item no-padding>\n          <ion-range [(ngModel)]="xSlide" (ionChange)="updateLengthStrings(xSlide, 0);refreshChart()" min="0" max="100" step="1"></ion-range>\n        </ion-item>\n        <ion-scroll scrollY="true" style="height: 300px">\n\n          <!-- MOTOR KEYFRAMES -->\n          <ion-list *ngFor="let a of axesArray">\n            <ion-list-header *ngIf="a.type==\'keyframe\'">\n              <ion-badge *ngIf="a.motor" [style.background-color]="colors.first[a.colorIndex]">{{a.motor.name}}</ion-badge> <span *ngIf="a.motor&&!a.moving">{{(a.motor.pos / a.motor.unitSteps)|number:\'1.0-0\'}}{{a.motor.unit}}</span>\n              <ion-badge *ngIf="!a.motor" [style.background-color]="colors.first[a.colorIndex]">{{a.id}}</ion-badge> <span *ngIf="!a.motor">{{a.pos}}</span>\n\n              <button ion-button clear color="primary" item-start *ngIf="!a.hidden" (click)="a.hidden=true">\n                <ion-icon name="arrow-down"></ion-icon>\n              </button>\n              <button ion-button clear color="primary" item-start *ngIf="a.hidden" (click)="a.hidden=false">\n                <ion-icon name="arrow-forward"></ion-icon>\n              </button>\n\n              <button *ngIf="a.motor" ion-button outline  color="primary" (click)="setup(a)" item-start>\n                <ion-icon name="settings"></ion-icon>\n              </button>\n\n              <button *ngIf="a.id==\'focus\'&&a.hidden" ion-button small outline color="light" item-end [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -1)">\n                <ion-icon name="skip-backward"></ion-icon>\n              </button>\n              <button *ngIf="a.id==\'focus\'&&a.hidden" ion-button small outline color="light" item-end [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 1)">\n                <ion-icon name="skip-forward"></ion-icon>\n              </button>\n\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, -50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name!=\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-back"></ion-icon>&nbsp;\n              </button>\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, 50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name!=\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-forward"></ion-icon>&nbsp;\n              </button>\n\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, -50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name==\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-down"></ion-icon>&nbsp;\n              </button>\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, 50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name==\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-up"></ion-icon>&nbsp;\n              </button>\n\n              <button ion-button outline  color="primary" item-end [disabled]="a.prevKeyframe===null?2:0" (click)="updateX(a.prevKeyframe)" *ngIf="!a.hidden">\n                <ion-icon name="arrow-back"></ion-icon>\n              </button>\n              <button *ngIf="!a.selected" ion-button outline  color="primary" item-end (click)="addKeyframe(a.id)">\n                <ion-icon name="radio-button-off"></ion-icon>\n              </button>\n              <button *ngIf="a.selected&&a.atPos" ion-button outline  color="primary" item-end (click)="removeKeyframe(a.id)" [disabled]="a.atPos&&!a.atStartOrEnd?0:2">\n                <ion-icon name="radio-button-on"></ion-icon>\n              </button>\n              <button ion-button outline color="danger" item-end (click)="updateKeyframe(a.id)" *ngIf="a.selected&&!a.atPos">\n                <ion-icon name="radio-button-on"></ion-icon>\n              </button>\n\n              <button ion-button outline  color="primary" item-end [disabled]="a.nextKeyframe===null?2:0" (click)="updateX(a.nextKeyframe)" *ngIf="!a.hidden">\n                <ion-icon name="arrow-forward"></ion-icon>\n              </button>\n\n            </ion-list-header>\n            <ion-item no-lines *ngIf="!a.hidden&&a.type==\'keyframe\'">\n              <ion-grid no-padding>\n                <ion-row no-padding>\n                  <ion-col no-padding *ngIf="a.motor">\n                    <ion-item no-padding *ngIf="a.motor.name!=\'Tilt\'">\n                      <ion-range [(ngModel)]="a.move" (ionChange)="moveAxis(a.id, a.move)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                        <ion-icon range-left name="arrow-round-back"></ion-icon>\n                        <ion-icon range-right name="arrow-round-forward"></ion-icon>\n                      </ion-range>\n                    </ion-item>\n                    <ion-item no-padding *ngIf="a.motor.name==\'Tilt\'">\n                      <ion-range [(ngModel)]="a.move" (ionChange)="moveAxis(a.id, a.move)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                        <ion-icon range-left name="arrow-round-down"></ion-icon>\n                        <ion-icon range-right name="arrow-round-up"></ion-icon>\n                      </ion-range>\n                    </ion-item>\n                  </ion-col>\n                  <ion-col no-padding *ngIf="a.id==\'focus\'">\n                    <ion-item no-padding>\n                      <button ion-button small outline color="light" class="compressed-button" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -10)"><ion-icon name="rewind"></ion-icon></button>\n                      <button ion-button small outline color="light" class="compressed-button" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -1)"><ion-icon name="skip-backward"></ion-icon></button>\n                      <button ion-button small outline color="light" class="compressed-button" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 1)"><ion-icon name="skip-forward"> </ion-icon></button>\n                      <button ion-button small outline color="light" class="compressed-button" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 10)"><ion-icon name="fastforward"></ion-icon></button>\n                    </ion-item>\n                  </ion-col>\n                  <ion-col col-4 no-padding>\n                    <button ion-button outline small color="positive" item-end (click)="moveToCurrent(a.id)" [disabled]="a.atPos?2:0">\n                      MOVE\n                    </button>\n                  </ion-col>\n                </ion-row>\n              </ion-grid>\n            </ion-item>\n          </ion-list>\n\n\n        </ion-scroll>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/keyframe.modal.html"*/
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _e || Object])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+            __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
     ], KeyframeModalContentPage);
     return KeyframeModalContentPage;
-    var _a, _b, _c, _d, _e;
 }());
 
 //# sourceMappingURL=intervalometer.js.map
@@ -1502,7 +1138,7 @@ var ClipsModalContentPage = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1538,10 +1174,9 @@ var SettingsPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-settings',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/settings/settings.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Settings</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <ion-list>\n\n    <button ion-item (click)="pairNew()" *ngIf="viewApi.loggedIn">\n      <ion-icon name="add-circle" item-start></ion-icon>\n      Pair new VIEW device\n    </button>\n    \n    <button ion-item (click)="setupMotion()">\n      <ion-icon name="cog" item-start></ion-icon>\n      Configure Motion\n    </button>\n\n    <ion-list-header></ion-list-header>\n    <button ion-item (click)="logout()" *ngIf="viewApi.loggedIn">\n      <ion-icon name="log-out" item-start></ion-icon>\n      Logout {{viewApi.accountEmail}}\n    </button>\n    \n  </ion-list>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/settings/settings.html"*/
         }),
-        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _b || Object])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
     ], SettingsPage);
     return SettingsPage;
-    var _a, _b;
 }());
 
 //# sourceMappingURL=settings.js.map
@@ -1571,9 +1206,9 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(37);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common_http__ = __webpack_require__(203);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(204);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common_http__ = __webpack_require__(204);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(58);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_camera_camera__ = __webpack_require__(210);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_intervalometer_intervalometer__ = __webpack_require__(331);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_clips_clips__ = __webpack_require__(337);
@@ -1697,7 +1332,7 @@ var AppModule = (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ViewProvider; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_common_http__ = __webpack_require__(203);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_common_http__ = __webpack_require__(204);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_queueing_subject__ = __webpack_require__(417);
@@ -1710,7 +1345,7 @@ var AppModule = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_moment__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__ionic_storage__ = __webpack_require__(204);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__ionic_storage__ = __webpack_require__(205);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -2359,7 +1994,6 @@ var ViewProvider = (function () {
     ViewProvider.prototype.getSocketUrl = function () {
         var _this = this;
         var self = this;
-        var url = this.remoteUrl;
         if (this.localNetwork)
             this.url = this.localUrl;
         return new Promise(function (resolve, reject) {
@@ -2381,6 +2015,35 @@ var ViewProvider = (function () {
                 //} else {
                 //    reject("Failed to add VIEW device. Please try again.");
                 //}
+            }, function (err) {
+                reject(err);
+            });
+        });
+    };
+    ViewProvider.prototype.resetPasswordRequest = function (email) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.http.post(_this.url + '/api/password_reset_request', { email: email }, _this.httpOptions())
+                .subscribe(function (res) {
+                resolve(res);
+            }, function (err) {
+                reject(err);
+            });
+        });
+    };
+    ViewProvider.prototype.resetPassword = function (email, code, password) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.http.post(_this.url + '/api/password_reset', { email: email, code: code, password: password }, _this.httpOptions())
+                .subscribe(function (res) {
+                if (res.action == 'login' && res.session) {
+                    _this.sessionKey = res.session;
+                    _this.accountEmail = email;
+                    _this.storage.set('accountEmail', _this.accountEmail);
+                    _this.storage.set('sessionKey', _this.sessionKey);
+                    _this.connect();
+                }
+                resolve(res);
             }, function (err) {
                 reject(err);
             });
@@ -2413,15 +2076,23 @@ var ViewProvider = (function () {
             _this.accountEmail = "";
             _this.storage.set('accountEmail', _this.accountEmail);
             _this.storage.set('sessionKey', _this.sessionKey);
+            _this.socketSubscription.unsubscribe();
             resolve();
             _this.connect();
         });
     };
-    ViewProvider.prototype.register = function (email, subdomain, password) {
+    ViewProvider.prototype.register = function (email, name, password) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.http.post(_this.url + '/api/register', { email: email, subdomain: subdomain, password: password }, _this.httpOptions())
+            _this.http.post(_this.url + '/api/register', { email: email, name: name, password: password }, _this.httpOptions())
                 .subscribe(function (res) {
+                if (res.action == 'login' && res.session) {
+                    _this.sessionKey = res.session;
+                    _this.accountEmail = email;
+                    _this.storage.set('accountEmail', _this.accountEmail);
+                    _this.storage.set('sessionKey', _this.sessionKey);
+                    _this.connect();
+                }
                 resolve(res);
             }, function (err) {
                 reject(err);
@@ -3051,6 +2722,581 @@ webpackContext.keys = function webpackContextKeys() {
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
 webpackContext.id = 431;
+
+/***/ }),
+
+/***/ 58:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return ViewApp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginModalContentPage; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return PairModalContentPage; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return MotionModalContentPage; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(206);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(209);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__ = __webpack_require__(210);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__ = __webpack_require__(331);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__ = __webpack_require__(337);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(338);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_view_view__ = __webpack_require__(39);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+
+
+
+
+var ViewApp = (function () {
+    function ViewApp(platform, statusBar, splashScreen, events, viewApi, modalCtrl, alertCtrl, toastCtrl) {
+        var _this = this;
+        this.platform = platform;
+        this.statusBar = statusBar;
+        this.splashScreen = splashScreen;
+        this.events = events;
+        this.viewApi = viewApi;
+        this.modalCtrl = modalCtrl;
+        this.alertCtrl = alertCtrl;
+        this.toastCtrl = toastCtrl;
+        this.rootPage = __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__["a" /* CameraPage */];
+        this.initializeApp();
+        // used for an example of ngFor and navigation
+        this.pages = [
+            { title: 'Camera', component: __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__["a" /* CameraPage */], icon: 'camera' },
+            { title: 'Intervalometer', component: __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__["a" /* IntervalometerPage */], icon: 'timer' },
+            { title: 'Time-lapse Clips', component: __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__["b" /* ClipsPage */], icon: 'film' },
+            { title: 'Settings', component: __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */], icon: 'settings' }
+        ];
+        var alert = null;
+        events.subscribe('error', function (err) {
+            var wait = 0;
+            if (alert) {
+                alert.dismiss();
+                wait = 500;
+            }
+            setTimeout(function () {
+                alert = _this.alertCtrl.create({
+                    title: 'ERROR',
+                    subTitle: err.message || err.msg || 'unknown error',
+                    buttons: ['Close']
+                });
+                alert.present();
+            }, wait);
+        });
+        var toast = null;
+        events.subscribe('login_required', function () {
+            console.log('login_required event captured');
+            var modal = _this.modalCtrl.create(LoginModalContentPage, {});
+            if (toast) {
+                toast.dismiss();
+            }
+            modal.present();
+        });
+        events.subscribe('disconnected', function (msg) {
+            var wait = 0;
+            if (toast) {
+                toast.dismiss();
+                wait = 1000;
+            }
+            setTimeout(function () {
+                toast = _this.toastCtrl.create({
+                    message: msg,
+                    position: 'bottom',
+                    cssClass: 'error-toast'
+                });
+                toast.present();
+            }, wait);
+        });
+        events.subscribe('connected', function (msg) {
+            var wait = 0;
+            if (toast) {
+                toast.dismiss();
+                wait = 1000;
+            }
+            setTimeout(function () {
+                toast = _this.toastCtrl.create({
+                    message: msg,
+                    position: 'bottom',
+                    duration: 3000,
+                });
+                toast.present();
+            }, wait);
+        });
+        events.subscribe('nodevice', function (status) {
+            var wait = 0;
+            if (toast) {
+                toast.dismiss();
+                wait = 1000;
+            }
+            if (!status)
+                return; // device added
+            setTimeout(function () {
+                toast = _this.toastCtrl.create({
+                    message: "No VIEW device connected.  Connect a paired device to wifi to access or pair a new device.",
+                    position: 'bottom',
+                    showCloseButton: true,
+                    closeButtonText: 'Add new VIEW'
+                });
+                toast.onDidDismiss(function () {
+                    if (viewApi.noDevice && viewApi.connected && viewApi.loggedIn) {
+                        console.log('Adding VIEW device...');
+                        var modal = _this.modalCtrl.create(PairModalContentPage, {});
+                        modal.present();
+                    }
+                });
+                toast.present();
+            }, wait);
+        });
+    }
+    ViewApp.prototype.initializeApp = function () {
+        var _this = this;
+        this.platform.ready().then(function () {
+            // Okay, so the platform is ready and our plugins are available.
+            // Here you can do any higher level native things you might need.
+            _this.statusBar.styleDefault();
+            _this.splashScreen.hide();
+        });
+    };
+    ViewApp.prototype.openPage = function (page) {
+        // Reset the content nav to have just this page
+        // we wouldn't want the back button to show in this scenario
+        this.nav.setRoot(page.component);
+    };
+    __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */]),
+        __metadata("design:type", typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */]) === "function" && _a || Object)
+    ], ViewApp.prototype, "nav", void 0);
+    ViewApp = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/app.html"*/'<ion-menu [content]="content">\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Timelapse+ VIEW</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content>\n    <ion-list no-lines>\n      <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">\n        <ion-icon name="{{p.icon}}"></ion-icon> {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n\n</ion-menu>\n\n<!-- Disable swipe-to-go-back because it\'s poor UX to combine STGB with side menus -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/app.html"*/
+        }),
+        __metadata("design:paramtypes", [typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* Platform */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* Platform */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _e || Object, typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _f || Object, typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]) === "function" && _g || Object, typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _h || Object, typeof (_j = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _j || Object])
+    ], ViewApp);
+    return ViewApp;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+}());
+
+var LoginModalContentPage = (function () {
+    function LoginModalContentPage(viewCtrl, viewApi, toastCtrl, alertCtrl) {
+        this.viewCtrl = viewCtrl;
+        this.viewApi = viewApi;
+        this.toastCtrl = toastCtrl;
+        this.alertCtrl = alertCtrl;
+    }
+    LoginModalContentPage.prototype.submit = function (mode, name, email, password, password1, password2) {
+        if (mode == 'register') {
+            this.register(name, email, password1, password2);
+            return false;
+        }
+        else {
+            this.login(email, password);
+            return false;
+        }
+    };
+    LoginModalContentPage.prototype.register = function (name, email, password1, password2) {
+        var _this = this;
+        var toast = this.toastCtrl.create({
+            message: "Creating account for " + email + "...",
+            position: 'bottom',
+        });
+        if (password1 && password1.length > 5) {
+            if (password1 == password2) {
+                toast.present();
+                this.viewApi.register(email, name, password1).then(function (res) {
+                    if (toast) {
+                        console.log("dismissing toast...");
+                        toast.dismiss();
+                    }
+                    console.log("registration res", res);
+                    if (res.action == 'login') {
+                        _this.viewCtrl.dismiss();
+                    }
+                    else if (res.action == 'login_failed') {
+                        console.log("message:", res.message);
+                        toast = _this.toastCtrl.create({
+                            message: res.message,
+                            position: 'bottom',
+                            cssClass: 'error-toast',
+                            duration: 5000,
+                        });
+                        toast.present();
+                    }
+                }, function () {
+                    if (toast) {
+                        toast.dismiss();
+                    }
+                    toast = _this.toastCtrl.create({
+                        message: "Error contacting server - please try again later",
+                        position: 'bottom',
+                        cssClass: 'error-toast',
+                        showCloseButton: true,
+                    });
+                    toast.present();
+                });
+            }
+            else {
+                toast = this.toastCtrl.create({
+                    message: "Passwords do not match",
+                    position: 'bottom',
+                    cssClass: 'error-toast',
+                    duration: 5000,
+                    showCloseButton: true,
+                });
+                toast.present();
+            }
+        }
+        else {
+            toast = this.toastCtrl.create({
+                message: "Password must be at least 5 characters long",
+                position: 'bottom',
+                cssClass: 'error-toast',
+                duration: 5000,
+                showCloseButton: true,
+            });
+            toast.present();
+        }
+    };
+    LoginModalContentPage.prototype.login = function (email, password) {
+        var _this = this;
+        var toast = this.toastCtrl.create({
+            message: "Logging in as " + email + "...",
+            position: 'bottom',
+        });
+        toast.present();
+        this.viewApi.login(email, password).then(function (res) {
+            if (toast) {
+                console.log("dismissing toast...");
+                toast.dismiss();
+            }
+            console.log("login res", res);
+            if (res.action == 'login') {
+                _this.viewCtrl.dismiss();
+            }
+            else if (res.action == 'login_failed') {
+                console.log("message:", res.message);
+                toast = _this.toastCtrl.create({
+                    message: res.message,
+                    position: 'bottom',
+                    cssClass: 'error-toast',
+                    duration: 5000,
+                });
+                toast.present();
+            }
+        }, function () {
+            if (toast) {
+                toast.dismiss();
+            }
+            toast = _this.toastCtrl.create({
+                message: "Error contacting server - please try again later",
+                position: 'bottom',
+                cssClass: 'error-toast',
+                showCloseButton: true,
+            });
+            toast.present();
+        });
+    };
+    LoginModalContentPage.prototype.resetPasswordPrompt = function (email) {
+        var _this = this;
+        var alert = this.alertCtrl.create();
+        alert.setTitle("Account Email");
+        alert.addInput({
+            placeholder: 'email address',
+            value: email,
+            type: 'email',
+        });
+        alert.addButton('Cancel');
+        alert.addButton({
+            text: 'Ok',
+            handler: function (data) {
+                _this.doPasswordReset(data[0]);
+            }
+        });
+        alert.present();
+    };
+    LoginModalContentPage.prototype.showResetDialog = function (email) {
+        var _this = this;
+        var toast = null;
+        var alert = this.alertCtrl.create();
+        alert.setTitle("Reset password (code sent to email)");
+        alert.addInput({
+            placeholder: 'code (from email)',
+            type: 'number',
+        });
+        alert.addInput({
+            placeholder: 'new password',
+            type: 'password',
+        });
+        alert.addInput({
+            placeholder: 'confirm password',
+            type: 'password',
+        });
+        alert.addButton('Cancel');
+        alert.addButton({
+            text: 'Ok',
+            handler: function (data) {
+                var code = data[0];
+                var password1 = data[1];
+                var password2 = data[2];
+                if (password1 != password2) {
+                    toast = _this.toastCtrl.create({
+                        message: "Error: passwords do not match",
+                        position: 'bottom',
+                        cssClass: 'error-toast',
+                        duration: 5000,
+                    });
+                    toast.present();
+                    _this.showResetDialog(email);
+                }
+                else {
+                    toast = _this.toastCtrl.create({
+                        message: "Resetting password...",
+                        position: 'bottom',
+                    });
+                    _this.viewApi.resetPassword(email, code, password1).then(function (res) {
+                        if (toast) {
+                            toast.dismiss();
+                        }
+                        if (res.action == 'login') {
+                            toast = _this.toastCtrl.create({
+                                message: "Password reset, logged in!",
+                                duration: 5000,
+                                showCloseButton: true,
+                                position: 'bottom',
+                            });
+                            _this.viewCtrl.dismiss();
+                        }
+                        else if (res.action == 'register') {
+                            console.log("message:", res.message);
+                            toast = _this.toastCtrl.create({
+                                message: res.message,
+                                position: 'bottom',
+                                cssClass: 'error-toast',
+                                duration: 5000,
+                            });
+                            toast.present();
+                        }
+                    }, function () {
+                        if (toast) {
+                            toast.dismiss();
+                        }
+                        toast = _this.toastCtrl.create({
+                            message: "Error contacting server - please try again later",
+                            position: 'bottom',
+                            cssClass: 'error-toast',
+                            showCloseButton: true,
+                        });
+                        toast.present();
+                    });
+                }
+            }
+        });
+        alert.present();
+    };
+    LoginModalContentPage.prototype.doPasswordReset = function (email) {
+        var _this = this;
+        var toast = this.toastCtrl.create({
+            message: "Checking account for " + email + "...",
+            position: 'bottom',
+        });
+        toast.present();
+        this.viewApi.resetPasswordRequest(email).then(function (res) {
+            if (toast) {
+                toast.dismiss();
+            }
+            console.log("login res", res);
+            if (res.action == 'reset') {
+                _this.showResetDialog(email);
+            }
+            else if (res.action == 'register') {
+                console.log("message:", res.message);
+                toast = _this.toastCtrl.create({
+                    message: res.message,
+                    position: 'bottom',
+                    cssClass: 'error-toast',
+                    duration: 5000,
+                });
+                toast.present();
+            }
+        }, function () {
+            if (toast) {
+                toast.dismiss();
+            }
+            toast = _this.toastCtrl.create({
+                message: "Error contacting server - please try again later",
+                position: 'bottom',
+                cssClass: 'error-toast',
+                showCloseButton: true,
+            });
+            toast.present();
+        });
+    };
+    LoginModalContentPage = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Login / Register\n    </ion-title>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <form><!-- (submit)="submit(mode, name, email, password, password1, password2)">-->\n  <ion-grid>\n    <ion-row>\n      <ion-col *ngIf="mode!=\'register\'">\n        <p>\n          Please login with your app.view.tl account email and password.\n        </p>\n        <p>\n          If you don\'t yet have an account, <a href="#" (click)="mode=\'register\'">register here</a>\n        </p>\n        <p>\n          Forgot password? <a href="#" (click)="resetPasswordPrompt(email)">click here to reset</a>\n        </p>\n      </ion-col>\n      <ion-col *ngIf="mode==\'register\'">\n        <p>\n          Complete the form below to create your new account.\n        </p>\n        <p>\n          If already have an account, <a href="#" (click)="mode=\'login\'">login here</a>\n        </p>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Full Name</ion-label>\n            <ion-input type="text" [(ngModel)]="name" name="name"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label stacked>Email</ion-label>\n            <ion-input type="email" [(ngModel)]="email" name="email"></ion-input>\n          </ion-item>\n\n          <ion-item *ngIf="mode!=\'register\'">\n            <ion-label stacked>Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password" name="password"></ion-input>\n          </ion-item>\n\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password1" name="password1"></ion-input>\n          </ion-item>\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Confirm Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password2" name="password2"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col *ngIf="mode!=\'register\'">\n        <button ion-button (click)="login(email, password)">Login</button>\n      </ion-col>\n      <ion-col *ngIf="mode==\'register\'">\n        <button ion-button (click)="register(name, email, password1, password2)">Create Account</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n  </form>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/
+        }),
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === "function" && _d || Object])
+    ], LoginModalContentPage);
+    return LoginModalContentPage;
+    var _a, _b, _c, _d;
+}());
+
+var PairModalContentPage = (function () {
+    function PairModalContentPage(viewCtrl, viewApi, toastCtrl) {
+        this.viewCtrl = viewCtrl;
+        this.viewApi = viewApi;
+        this.toastCtrl = toastCtrl;
+        this.toast = null;
+        console.log("PairModalContentPage initialized");
+    }
+    PairModalContentPage.prototype.dismiss = function () {
+        if (this.toast) {
+            this.toast.dismiss();
+        }
+        this.viewApi.noDevice = false;
+        this.viewCtrl.dismiss();
+    };
+    PairModalContentPage.prototype.pair = function (code) {
+        var _this = this;
+        this.toast = this.toastCtrl.create({
+            message: "Pairing device...",
+            position: 'bottom',
+        });
+        this.toast.present();
+        this.viewApi.addDevice(code).then(function (res) {
+            if (_this.toast) {
+                _this.toast.dismiss();
+            }
+            console.log("login res", res);
+            if (res.action == 'device_added') {
+                _this.viewCtrl.dismiss();
+            }
+            else {
+                console.log("message:", res.message);
+                _this.toast = _this.toastCtrl.create({
+                    message: res.message,
+                    position: 'bottom',
+                    cssClass: 'error-toast',
+                    duration: 10000,
+                });
+                _this.toast.present();
+            }
+        }, function () {
+            if (_this.toast) {
+                _this.toast.dismiss();
+            }
+            _this.toast = _this.toastCtrl.create({
+                message: "Error contacting server - please try again later",
+                position: 'bottom',
+                cssClass: 'error-toast',
+                showCloseButton: true,
+            });
+            _this.toast.present();
+        });
+    };
+    PairModalContentPage = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Pair VIEW device\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        Connect the VIEW to WiFi Internet, then go to Information->Registration &amp; App on the VIEW.  Once it has an Internet connection, it will display a code for pairing.  Enter that code here to pair the VIEW with your app account.\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item>\n            <ion-label fixed>Device Code</ion-label>\n            <ion-input type="number" [(ngModel)]="code"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <button ion-button (click)="pair(code)" [disabled]="code && code.length == 6 ? 0 : 2">Add VIEW</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/
+        }),
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _c || Object])
+    ], PairModalContentPage);
+    return PairModalContentPage;
+    var _a, _b, _c;
+}());
+
+var MotionModalContentPage = (function () {
+    function MotionModalContentPage(params, viewCtrl, viewApi, toastCtrl, events) {
+        var _this = this;
+        this.params = params;
+        this.viewCtrl = viewCtrl;
+        this.viewApi = viewApi;
+        this.toastCtrl = toastCtrl;
+        this.events = events;
+        this.axes = [];
+        this.motion = {};
+        this.toast = null;
+        this.axisId = null;
+        this.axisId = params.get('axisId');
+        if (this.axisId) {
+            this.axes = viewApi.motion.axis.filter(function (a) { return a.id == _this.axisId; });
+        }
+        else {
+            this.motion = viewApi.motion;
+            this.motion.get();
+            events.subscribe('motion.updated', function () {
+                _this.axes = viewApi.motion.axis || [];
+                _this.motion = viewApi.motion;
+            });
+        }
+        console.log("MotionModalContentPage initialized", this.axes);
+    }
+    MotionModalContentPage.prototype.dismiss = function () {
+        for (var i = 0; i < this.axes.length; i++) {
+            this.updateHardware(this.axes[i]);
+            this.updateType(this.axes[i]);
+            this.axes[i].setup = true;
+            if (this.axes[i].unit == 's')
+                this.axes[i].unitSteps = 1;
+            this.viewApi.db.set('motion-' + this.axes[i].id, this.axes[i]);
+            console.log("saving motion setup:", this.axes[i]);
+            this.motion.axis = this.axes;
+        }
+        if (this.toast) {
+            this.toast.dismiss();
+        }
+        this.viewApi.noDevice = false;
+        this.viewCtrl.dismiss();
+    };
+    MotionModalContentPage.prototype.updateHardware = function (axis) {
+        console.log("updating hardware", axis);
+        if (axis.driver == 'NMX' && axis.hardware == 'stager') {
+            axis.unitSteps = 558.63333334;
+        }
+        else if (axis.driver == 'NMX' && axis.hardware == 'sapphire') {
+            axis.unitSteps = 550.81967213;
+        }
+    };
+    MotionModalContentPage.prototype.updateType = function (axis) {
+        console.log("updating driver", axis);
+        if (axis.name == 'Pan' || axis.name == 'Tilt') {
+            axis.unit = '°';
+            if (axis.driver == 'NMX') {
+                if (axis.hardware == 'stager') {
+                    axis.unitSteps = 558.63333334;
+                }
+                else if (axis.hardware == 'sapphire') {
+                    axis.unitSteps = 550.81967213;
+                }
+            }
+            else if (axis.driver == 'GM') {
+                axis.unitSteps = 1;
+            }
+        }
+        else {
+            axis.unit = 's';
+            axis.unitSteps = 1;
+        }
+    };
+    MotionModalContentPage = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Motion Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n\n    <ion-row *ngFor="let a of axes">\n      <ion-col>\n        <ion-list>\n\n          <ion-list-header>{{a.id}}: {{a.name}}</ion-list-header>\n\n          <ion-item *ngIf="a.driver==\'NMX\'">\n            <ion-label>Motion Hardware</ion-label>\n            <ion-select [(ngModel)]="a.hardware" (ion-change)="updateHardware(a)">\n              <ion-option value="sapphire">Sapphire</ion-option>\n              <ion-option value="stager">Stage-R</ion-option>\n              <ion-option value="other">Other</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Slide">Slide</ion-option>\n              <ion-option value="Focus">Focus</ion-option>\n              <ion-option value="#{{a.motor}}">#{{a.motor}}</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware!=\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'GM\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (change)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Unit</ion-label>\n            <ion-select [(ngModel)]="a.unit">\n              <ion-option value="s">Steps</ion-option>\n              <ion-option value="°">Degrees</ion-option>\n              <ion-option value="in">Inches</ion-option>\n              <ion-option value="cm">Centimeters</ion-option>\n              <ion-option value="m">Meters</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="!(a.unit==\'s\'||a.driver==\'GM\'||a.hardware!=\'other\')">\n            <ion-label fixed>Steps / Unit</ion-label>\n            <ion-input type="number" [(ngModel)]="a.unitSteps"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Reverse Direction</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.reverse"></ion-toggle>\n          </ion-item>\n\n          <!--ion-item>\n            <ion-label>Enable Axis</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.enabled"></ion-toggle>\n          </ion-item-->\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/
+        }),
+        __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */]) === "function" && _b || Object, typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */]) === "function" && _c || Object, typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]) === "function" && _d || Object, typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === "function" && _e || Object])
+    ], MotionModalContentPage);
+    return MotionModalContentPage;
+    var _a, _b, _c, _d, _e;
+}());
+
+//# sourceMappingURL=app.component.js.mapundefined
 
 /***/ })
 
