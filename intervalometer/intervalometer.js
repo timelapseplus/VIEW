@@ -256,8 +256,9 @@ function processKeyframes(setupFirst, callback) {
     var numAxes = 1;
     var axesDone = 0;
 
-    var checkDone = function() {
+    var checkDone = function(item) {
         axesDone++;
+        console.log("KF: " + item + "completed");
         console.log("KF: " + axesDone + " of " + numAxes + " keyframe items complete");
         if (axesDone >= numAxes && callback) {
             console.log("KF: keyframes complete, running callback");
@@ -291,11 +292,13 @@ function processKeyframes(setupFirst, callback) {
                         var steps = Math.abs(focus);
                         camera.ptp.focus(dir, steps, function() {
                             if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
-                                checkDone();
+                                checkDone('focus');
                             } else {
                                 setTimeout(function(){
                                     camera.ptp.lvOff(function(){
-                                        setTimeout(checkDone, 500);                                
+                                        setTimeout(function(){
+                                            checkDone('focus');
+                                        }, 500);                                
                                     });
                                 }, 500);
                             }
@@ -312,18 +315,18 @@ function processKeyframes(setupFirst, callback) {
                             });
                         }
                     } else {
-                        checkDone();
+                        checkDone('focus');
                     }
                 });
             } else if(m == 'ev') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', null, function(ev) {
                     //if (ev != null && camera.settings.ev != ev) camera.setEv(ev);
-                    checkDone();
+                    checkDone('ev');
                 });
             } else if(m == 'interval') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', null, function(interval) {
                     //status.intervalMs = interval * 1000;
-                    checkDone();
+                    checkDone('interval');
                 });
             } else {
                 var parts = m.split('-');
@@ -346,18 +349,18 @@ function processKeyframes(setupFirst, callback) {
                             }
                             if(connected) {
                                 motion.move(driver, motor, move, function() {
-                                    checkDone();
+                                    checkDone(axisName);
                                 });
                             } else {
                                 console.log("KF: error moving", axisName, "-- motor not connected");
-                                checkDone();
+                                checkDone(axisName);
                             }
                         } else {
                             console.log("KF: error moving -- no motion system connected");
-                            checkDone();
+                            checkDone(axisName);
                         }
                     } else {
-                        checkDone();
+                        checkDone(axisName);
                     }
                 });
             }
@@ -402,10 +405,10 @@ function processKeyframes(setupFirst, callback) {
                         console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
                         motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
                             status.trackingPan += panSteps / motor.stepsPerDegree;
-                            checkDone();
+                            checkDone('tracking');
                         });
                     } else {
-                        checkDone();
+                        checkDone('tracking');
                     }
                 } else if(axis.orientation == 'tilt') {
                     var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
@@ -423,16 +426,16 @@ function processKeyframes(setupFirst, callback) {
                         console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
                         motion.move(motor.driver, motor.motor, tiltSteps * motor.direction, function() {
                             status.trackingTilt += tiltSteps / motor.stepsPerDegree;
-                            checkDone();
+                            checkDone('tracking');
                         });
                     } else {
-                        checkDone();
+                        checkDone('tracking');
                     }
                 } else {
-                    checkDone();
+                    checkDone('tracking');
                 }
             } else {
-                checkDone();
+                checkDone('tracking');
             }
         } else {
             if(m == 'focus') {
@@ -442,11 +445,13 @@ function processKeyframes(setupFirst, callback) {
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
                         if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
-                            checkDone();
+                            checkDone('focus-update');
                         } else {
                             setTimeout(function(){
                                 camera.ptp.lvOff(function(){
-                                    setTimeout(checkDone, 500);                                
+                                    setTimeout(function(){
+                                        checkDone('focus-update');
+                                    }, 500);                                
                                 });
                             }, 500);
                         }
@@ -464,13 +469,15 @@ function processKeyframes(setupFirst, callback) {
                         });
                     }
                 } else {
-                    checkDone();
+                    checkDone('focus-update');
                 }
+            } else {
+                checkDone(m);
             }
         }
 
     }
-    checkDone();
+    checkDone('function');
 }
 
 
