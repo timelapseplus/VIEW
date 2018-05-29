@@ -492,6 +492,7 @@ function setMotorPosition(motorId, position, callback) {
         motorPos[motorId] = position;
         motorPosExact[motorId] = position;
         if (callback) callback(err);
+        console.log("NMX: set motor", motorId, "position to", position);
     });
 }
 function setProgramMode(mode, callback) {
@@ -634,6 +635,7 @@ nmx.move = move;
 nmx.constantMove = constantMove;
 nmx.getStatus = getStatus;
 nmx.resetMotorPosition = resetMotorPosition;
+nmx.setMotorPosition = setMotorPosition;
 nmx.checkMotorAttachment = checkMotorAttachment;
 nmx.setMotorAttachment = setMotorAttachment;
 

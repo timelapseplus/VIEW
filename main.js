@@ -4265,7 +4265,7 @@ app.on('message', function(msg) {
                         });
                     })(msg.driver, msg.motor, msg.reply);
                 } else if (msg.key == "setPosition" && msg.motor && msg.driver && msg.position != null) {
-                    console.log("setPosition motor" + msg.motor, "pos", msg.position);
+                    console.log("setPosition", msg.driver, "motor", msg.motor, "pos", msg.position);
                     (function(driver, motor, position, reply) {
                         core.setMotionPosition(driver, motor, position, function(err) {
                             reply('move', {
