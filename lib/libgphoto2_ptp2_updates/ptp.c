@@ -1771,7 +1771,8 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	gp_port_set_timeout (camera->port, 1000);
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	//gp_port_set_timeout (camera->port, 5000);
-	usleep(1000000);
+	//usleep(1000000);
+	usleep(10000);
 	PTPContainer	event;
 	int i;
 	for(i = 0; i < 50; i++) {
