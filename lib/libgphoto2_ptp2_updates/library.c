@@ -4334,6 +4334,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	uint32_t waitMS = 1000;
 	ptp_panasonic_getdeviceproperty(params, 0x2000030, &valuesize, &currentVal);
 
+	float f;
 	if(currentVal == '0xFFFFFFFF') {
 		waitMS = 1000;
 	} else if(currentVal & 0x80000000) {
