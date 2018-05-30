@@ -246,13 +246,13 @@ retry:
 		*rlen = result;
 		return PTP_RC_OK;
 	}
-	if (result == GP_ERROR_IO_READ) {
-		GP_LOG_D ("Clearing halt on IN EP and retrying once.");
-		gp_port_usb_clear_halt (camera->port, GP_PORT_USB_ENDPOINT_IN);
-		/* retrying only makes sense if we did not read anything yet */
-		if (tries++ < 1)
-			goto retry;
-	}
+	//if (result == GP_ERROR_IO_READ) {
+	//	GP_LOG_D ("Clearing halt on IN EP and retrying once.");
+	//	gp_port_usb_clear_halt (camera->port, GP_PORT_USB_ENDPOINT_IN);
+	//	/* retrying only makes sense if we did not read anything yet */
+	//	if (tries++ < 1)
+	//		goto retry;
+	//}
 	return translate_gp_result_to_ptp(result);
 }
 
