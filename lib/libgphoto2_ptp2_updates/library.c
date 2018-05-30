@@ -8775,7 +8775,16 @@ camera_init (Camera *camera, GPContext *context)
 		if (!strncmp(params->deviceinfo.Model,"E-M1",4)) {
 			propval.u16 = 1;
 			ptp_setdevicepropvalue(params, 0xD0DC, &propval, PTP_DTC_UINT16);
-			ptp_check_event(params);
+			usleep(1000000);
+			PTPContainer	event;
+			int i;
+			for(i = 0; i < 50; i++) {
+				ptp_debug (params,"PTP: (Olympus Init) checking events...");
+				/* Just busy loop until the camera is ready again. */
+				ptp_check_event_handle (params, 0);
+				if (ptp_get_one_event(params, &event)) break;
+				usleep(100000);
+			}
 			propval.u16 = 1;
 			ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
 		}
