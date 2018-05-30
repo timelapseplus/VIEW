@@ -8782,43 +8782,6 @@ camera_init (Camera *camera, GPContext *context)
 
 	print_debug_deviceinfo(params, &params->deviceinfo);
 
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
-		GP_LOG_D ("Initializing Olympus ... ");
-		int i;
-
-		/* refetch storage IDs and also invalidate whole object tree */
-		free (params->storageids.Storage);
-		params->storageids.Storage	= NULL;
-		params->storageids.n 		= 0;
-		ptp_getstorageids (params, &params->storageids);
-
-		/* free object storage as it might be associated with the storage ids */
-		/* FIXME: enhance and just delete the ones from the storage */
-		for (i=0;i<params->nrofobjects;i++)
-			ptp_free_object (&params->objects[i]);
-		free (params->objects);
-		params->objects 		= NULL;
-		params->nrofobjects 		= 0;
-
-		params->storagechanged		= 1;
-
-		PTPPropertyValue	propval;
-		if (!strncmp(params->deviceinfo.Model,"E-M5",4)) {
-			ptp_olympus_init_pc_mode(params);
-		}
-		ptp_olympus_omd_init(params);
-		//propval.u16 = 2; // save to camera's card
-		//ptp_setdevicepropvalue(params, 0xD078, &propval, PTP_DTC_UINT16);
-		if (!strncmp(params->deviceinfo.Model,"E-M1",4)) {
-			propval.u16 = 2;
-			ptp_setdevicepropvalue(params, 0xD0DC, &propval, PTP_DTC_UINT16);
-			//propval.u16 = 1;
-			//ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
-			ptp_check_event_handle (params, 0);
-			ptp_olympus_init_pc_mode(params);
-		}
-	}
-
 	switch (params->deviceinfo.VendorExtensionID) {
 	case PTP_VENDOR_CANON:
 #if 0
@@ -8935,6 +8898,28 @@ camera_init (Camera *camera, GPContext *context)
 			ptp_list_folder (params, params->storageids.Storage[k], PTP_HANDLER_SPECIAL);
 		}
 	}
+
+	// moved down here in case the filesystem needs to first be initialized as the Olympus app does
+	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+		GP_LOG_D ("Initializing Olympus ... ");
+
+		PTPPropertyValue	propval;
+		if (!strncmp(params->deviceinfo.Model,"E-M5",4)) {
+			ptp_olympus_init_pc_mode(params);
+		}
+		ptp_olympus_omd_init(params);
+		propval.u16 = 2;
+		ptp_setdevicepropvalue(params, 0xD078, &propval, PTP_DTC_UINT16);
+		if (!strncmp(params->deviceinfo.Model,"E-M1",4)) {
+			propval.u16 = 2; // save to camera's card
+			ptp_setdevicepropvalue(params, 0xD0DC, &propval, PTP_DTC_UINT16);
+			//propval.u16 = 1;
+			//ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
+			ptp_check_event_handle (params, 0);
+			ptp_olympus_init_pc_mode(params);
+		}
+	}
+
 
 	SET_CONTEXT(camera, NULL);
 	return GP_OK;
