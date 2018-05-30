@@ -1765,7 +1765,11 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	PTP_CNT_INIT(ptp, PTP_OC_SetDevicePropValue, 0xD052);
 	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
 	ptp_debug (params,"PTP: (Olympus Init) switching to PC mode...");
-	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	//ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	int 		timeout;
+	gp_port_get_timeout (camera->port, &timeout);
+	gp_port_set_timeout (camera->port, 1000);
+	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	//gp_port_set_timeout (camera->port, 5000);
 	usleep(1000000);
 	PTPContainer	event;
@@ -1778,7 +1782,7 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 		usleep(100000);
 	}
 	ptp_debug (params,"PTP: (Olympus Init) getting response...");
-	//gp_port_set_timeout (camera->port, timeout);
+	gp_port_set_timeout (camera->port, timeout);
 	ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
 	if(data) free(data);
 	return ret;
