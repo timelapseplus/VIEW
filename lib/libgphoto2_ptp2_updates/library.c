@@ -8783,8 +8783,10 @@ camera_init (Camera *camera, GPContext *context)
 		ptp_olympus_omd_init(params);
 		if (!strncmp(params->deviceinfo.Model,"E-M1",4)) {
 			propval.u16 = 1;
+			ptp_setdevicepropvalue(params, 0xD0DC, &propval, PTP_DTC_UINT16);
+			ptp_check_event(params);
+			propval.u16 = 1;
 			ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
-			ptp_olympus_omd_init(params);
 			ptp_olympus_init_pc_mode(params);
 		}
 	}
