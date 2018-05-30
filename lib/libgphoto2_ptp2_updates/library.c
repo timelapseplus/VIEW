@@ -4329,6 +4329,21 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	//	GP_LOG_D ("expecting raw+jpeg capture");
 	//}
 
+	uint32_t currentVal;
+	uint16_t valuesize;
+	uint32_t waitMS = 1000;
+	ptp_panasonic_getdeviceproperty(params, 0x2000030, &valuesize, &currentVal);
+
+	if(currentVal == '0xFFFFFFFF') {
+		waitMS = 1000;
+	} else if(currentVal & 0x80000000) {
+		currentVal &= ~0x80000000;
+		f = (float) currentVal;
+		waitMS = (uint32_t)f + 1000;
+	} else {
+		waitMS = 1000;
+	}
+
 	uint16_t	ret;
 
 	// clear out old events
@@ -4340,7 +4355,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	GP_LOG_D ("**** GH5: trigger capture...");
 	ret = ptp_panasonic_capture(params);
 
-	usleep(100);
+	usleep(waitMS * 1000);
 
 	event_start = time_now();
 
