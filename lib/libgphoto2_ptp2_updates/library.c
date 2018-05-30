@@ -8903,6 +8903,11 @@ camera_init (Camera *camera, GPContext *context)
 	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
 		GP_LOG_D ("Initializing Olympus ... ");
 
+		if(params->storageids.n > 0) { // Olympus app gets storage info for first item, so emulating here
+			PTPStorageInfo storageinfo;
+			ptp_getstorageinfo(params, params->storageids.Storage[0], &storageinfo);
+		}
+
 		PTPPropertyValue	propval;
 		if (!strncmp(params->deviceinfo.Model,"E-M5",4)) {
 			ptp_olympus_init_pc_mode(params);
