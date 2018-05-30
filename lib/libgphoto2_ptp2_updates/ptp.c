@@ -1785,6 +1785,23 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 }
 
 uint16_t
+ptp_olympus_init_pc_mode2 (PTPParams* params)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned char	*data = NULL;
+	uint32_t	size;
+
+	PTPPropertyValue	propval;
+	propval.u16 = 1;
+	PTP_CNT_INIT(ptp, PTP_OC_SetDevicePropValue, 0xD052);
+	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
+	ptp_debug (params,"PTP: (Olympus Init) switching to PC mode...");
+	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	return ret;
+}
+
+uint16_t
 ptp_setdevicepropvalue_raw (PTPParams* params, uint16_t propcode,
 			unsigned char *data, uint32_t size)
 {
