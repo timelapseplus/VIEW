@@ -8768,27 +8768,18 @@ camera_init (Camera *camera, GPContext *context)
 		GP_LOG_D ("Initializing Olympus ... ");
 		PTPPropertyValue	propval;
 		if (!strncmp(params->deviceinfo.Model,"E-M5",4)) {
-			propval.u16 = 1;
-			int 		timeout;
-			gp_port_get_timeout (camera->port, &timeout);
-			gp_port_set_timeout (camera->port, 1000);
-			ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16); // switches camera to PC mode
-			gp_port_set_timeout (camera->port, 5000);
-			ptp_check_event(params);
-			gp_port_set_timeout (camera->port, timeout);
 			ptp_olympus_init_pc_mode(params);
 		}
 		propval.u16 = 2;
 		ptp_setdevicepropvalue(params, 0xD078, &propval, PTP_DTC_UINT16);
-		ptp_olympus_omd_init(params);
 		if (!strncmp(params->deviceinfo.Model,"E-M1",4)) {
 			propval.u16 = 1;
 			ptp_setdevicepropvalue(params, 0xD0DC, &propval, PTP_DTC_UINT16);
 			ptp_check_event(params);
 			propval.u16 = 1;
 			ptp_setdevicepropvalue(params, 0xD052, &propval, PTP_DTC_UINT16);
-			ptp_olympus_init_pc_mode(params);
 		}
+		ptp_olympus_omd_init(params);
 	}
 
 	switch (params->deviceinfo.VendorExtensionID) {
