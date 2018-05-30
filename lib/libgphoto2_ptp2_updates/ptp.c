@@ -1767,8 +1767,8 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	ptp_debug (params,"PTP: (Olympus Init) switching to PC mode...");
 	//ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
 	int 		timeout;
-	gp_port_get_timeout (camera->port, &timeout);
-	gp_port_set_timeout (camera->port, 1000);
+	//gp_port_get_timeout (camera->port, &timeout);
+	//gp_port_set_timeout (camera->port, 1000);
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
 	//gp_port_set_timeout (camera->port, 5000);
 	//usleep(1000000);
