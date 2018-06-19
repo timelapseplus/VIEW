@@ -4180,7 +4180,7 @@ app.on('message', function(msg) {
                     (function(key, reply) {
                         db.get(key, function(err, val){
                             if(val === undefined) val = null;
-                            console.log("dbVal:", key, val);
+                            console.log("dbVal:", key, val ? val.id : val);
                             reply('dbVal', {
                                 key: key,
                                 val: val,
