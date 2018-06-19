@@ -1147,6 +1147,8 @@ intervalometer.run = function(program, date, utcOffset) {
                     status.trackingPanEnabled = false;
                     status.trackingTiltEnabled = false;
                     status.dynamicChange = {};
+                    status.trackingTilt = 0;
+                    status.trackingPan = 0;
 
                     if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                         planHdr(program.hdrCount, program.hdrStops);
@@ -1169,8 +1171,6 @@ intervalometer.run = function(program, date, utcOffset) {
                             azimuth: sunmoon.moonpos.az,
                             altitude: sunmoon.moonpos.alt,
                         }
-                        status.trackingTilt = 0;
-                        status.trackingPan = 0;
                     }
                     exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
                     status.running = true;
