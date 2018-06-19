@@ -169,7 +169,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
     var steps = Math.round(degrees * this._stepsPerDegree);
     if(!steps) {
         console.log("GenieMini(" + this._id + "): NOT moving motor", steps, "steps, (", degrees, " degrees)");
-        return callback && callback(null, self._position / self._stepsPerDegree);
+        return callback && callback(null, this._position / this._stepsPerDegree);
     }
     console.log("GenieMini(" + this._id + "): moving motor", steps, "steps");
     if(!this._enabled) this.enable();
