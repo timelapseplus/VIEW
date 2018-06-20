@@ -50,6 +50,15 @@ var clientCounter = 0;
 var clients = [];
 var eventQueue = [];
 
+var baseInstallPath = "/home/view/";
+var installs = fs.readdirSync(baseInstallPath);
+var current = "";
+if(installs.indexOf('current') !== -1) {
+  current = fs.readlinkSync(baseInstallPath + 'current');
+  current = current.match(/[^\/]+$/)[0];
+  console.log("current version:", current);
+}
+
 var server = net.createServer(function(c) {
   // 'connection' listener
   console.log('client connected');
