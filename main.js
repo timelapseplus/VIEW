@@ -1969,7 +1969,7 @@ if (VIEW_HARDWARE) {
                             if(core.currentProgram.tracking == "15deg") {
                                 core.currentProgram.axes[panMotor.name] = {
                                     type: 'constant',
-                                    orientation: 'tilt',
+                                    orientation: 'pan',
                                     rate: 15,
                                     reverse: panMotor.reverse
                                 }
