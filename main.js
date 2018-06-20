@@ -1892,7 +1892,7 @@ if (VIEW_HARDWARE) {
             action: trackingPanMotorMenu,
             help: help.trackingPanMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && (mcu.validCoordinates() || core.currentProgram.tracking != '15deg') && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
