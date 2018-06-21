@@ -1327,6 +1327,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
 
     if(rampableChange.indexOf(parameter) !== -1) {
         if(!frames || frames < 1) frames = 1;
+        console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
         intervalometer.status.dynamicChange[parameter] = {
             startVal: intervalometer.currentProgram[parameter],
             endVal: newValue,
