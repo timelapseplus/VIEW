@@ -1316,6 +1316,7 @@ function dynamicChangeUpdate() {
                 }
             }
         }
+        intervalometer.emit("currentProgram", intervalometer.currentProgram);
     }
 }
 
@@ -1330,7 +1331,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
         console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
         intervalometer.status.dynamicChange[parameter] = {
             startVal: intervalometer.currentProgram[parameter],
-            endVal: newValue,
+            endVal: parseFloat(newValue),
             startFrame: intervalometer.status.frames,
             endFrame: intervalometer.status.frames + frames
         };

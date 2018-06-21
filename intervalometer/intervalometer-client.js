@@ -119,6 +119,8 @@ function connect() {
                     if(core.intervalometerStatus.running == false) {
                         power.performance('low');
                     }
+                } else if(data.type == 'intervalometer.currentProgram') {
+                    core.currentProgram = data.data;
                 }
                 console.log("CORE:", data.type, "event");
                 core.emit(data.type, data.data);

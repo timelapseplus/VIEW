@@ -4813,6 +4813,10 @@ core.on('camera.status', function(msg) {
     }
 });
 
+core.on('intervalometer.currentProgram', function(msg) {
+    app.send('timelapseProgram', {program: core.currentProgram});
+}
+
 core.on('intervalometer.status', function(msg) {
     //console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
