@@ -384,7 +384,9 @@ intervalometer.on('status', function(data) {
 intervalometer.on('error', function(data) {
   sendEvent('intervalometer.error', data);
 });
-
+intervalometer.on('currentProgram', function(data) {
+  sendEvent('intervalometer.currentProgram', data);
+});
 
 function sendCameraUpdate() {
   var data = {
