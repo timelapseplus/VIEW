@@ -1305,11 +1305,11 @@ function dynamicChangeUpdate() {
             if(intervalometer.status.dynamicChange.hasOwnProperty(param) && intervalometer.status.dynamicChange[param]) {
                 var item = intervalometer.status.dynamicChange[param];
                 intervalometer.currentProgram[param] = interpolate.linear([{
-                    x: item.startVal,
-                    y: item.startFrame
+                    x: item.startFrame,
+                    y: item.startVal
                 }, {
-                    x: item.endVal,
-                    y: item.endFrame
+                    x: item.endFrame,
+                    y: item.endVal
                 }], intervalometer.status.frames);
                 if(item.endFrame < intervalometer.status.frames) {
                     delete intervalometer.status.dynamicChange[param];
