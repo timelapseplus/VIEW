@@ -65,7 +65,8 @@ status = {
     rampEv: null,
     autoSettings: {
         paddingTimeMs: 2000
-    }
+    },
+    exposure: exp
 }
 intervalometer.status = status;
 
@@ -1301,22 +1302,29 @@ intervalometer.addGpsData = function(gpsData, callback) {
 
 function dynamicChangeUpdate() {
     if(intervalometer.status.dynamicChange) {
+        var change = false;
         for(param in intervalometer.status.dynamicChange) {
             if(intervalometer.status.dynamicChange.hasOwnProperty(param) && intervalometer.status.dynamicChange[param]) {
                 var item = intervalometer.status.dynamicChange[param];
-                intervalometer.currentProgram[param] = interpolate.linear([{
+                var newVal = interpolate.linear([{
                     x: item.startFrame,
                     y: item.startVal
                 }, {
                     x: item.endFrame,
                     y: item.endVal
-                }], intervalometer.status.frames);
+                }], intervalometer.status.frames);                
+                if(param == 'offsetEv') {
+                    intervalometer.status.exp.offsetEv = newVal;
+                } else {
+                    intervalometer.currentProgram[param] = newVal;
+                }
                 if(item.endFrame < intervalometer.status.frames) {
                     delete intervalometer.status.dynamicChange[param];
                 }
+                change = true;
             }
         }
-        intervalometer.emit("currentProgram", intervalometer.currentProgram);
+        if(change) intervalometer.emit("currentProgram", intervalometer.currentProgram);
     }
 }
 
@@ -1324,7 +1332,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1353,17 +1361,30 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
                 break
+
             case 'rampMode':
                 if(newValue == 'auto') {
                     status.rampMode = 'auto';
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
-                if(newValue == 'lock') {
+                if(newValue == 'fixed') {
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
                     status.rampMode = 'fixed';
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
+                break;
+
+            case 'offsetEv':
+                frames = parseInt(frames);
+                if(!frames || frames < 1) frames = 1;
+                console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
+                intervalometer.status.dynamicChange[parameter] = {
+                    startVal: parseFloat(intervalometer.status.exp.offsetEv),
+                    endVal: parseFloat(newValue),
+                    startFrame: intervalometer.status.frames,
+                    endFrame: intervalometer.status.frames + frames
+                };
                 break;
 
             case 'hdrCount':
