@@ -1324,7 +1324,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1339,14 +1339,30 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
         callback && callback();
     } else if(specialChange.indexOf(parameter) !== -1) {
         switch(parameter) {
+            case 'intervalMode':
+                var newInt = intervalometer.status.intervalMs / 1000;
+                if(newValue == 'auto' && intervalometer.currentProgram.intervalMode == 'fixed') {
+                    intervalometer.currentProgram.dayInterval = newInt;
+                    intervalometer.currentProgram.nightInterval = newInt;
+                    intervalometer.currentProgram.intervalMode = 'auto';
+                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                }
+                if(newValue == 'fixed' && intervalometer.currentProgram.intervalMode == 'auto') {
+                    intervalometer.currentProgram.interval = newInt;
+                    intervalometer.currentProgram.intervalMode = 'fixed';
+                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                }
+                break
             case 'rampMode':
                 if(newValue == 'auto') {
                     status.rampMode = 'auto';
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
                 if(newValue == 'lock') {
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
                     status.rampMode = 'fixed';
+                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
                 break;
 
@@ -1354,6 +1370,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'hdrStops':
                 intervalometer.currentProgram[parameter] = newValue;
                 planHdr(intervalometer.currentProgram.hdrCount, intervalometer.currentProgram.hdrStops);
+                intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 break;
         }
         callback && callback();
