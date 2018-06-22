@@ -1327,10 +1327,11 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var specialChange = ['rampMode', 'hdrCount', 'hdrStops'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
+        frames = parseInt(frames);
         if(!frames || frames < 1) frames = 1;
         console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
         intervalometer.status.dynamicChange[parameter] = {
-            startVal: intervalometer.currentProgram[parameter],
+            startVal: parseFloat(intervalometer.currentProgram[parameter]),
             endVal: parseFloat(newValue),
             startFrame: intervalometer.status.frames,
             endFrame: intervalometer.status.frames + frames
