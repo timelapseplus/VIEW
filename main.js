@@ -2646,7 +2646,6 @@ if (VIEW_HARDWARE) {
             },
             button3: function(arg) {
                 var w = arg.action.arg;
-                ui.back();
                 var details = "SSID: " + w.ssid + "\t";
                 if(w.encryption_wep) {
                     details += "Encryption: WEP\t";
@@ -2658,7 +2657,7 @@ if (VIEW_HARDWARE) {
                     details += "Encryption: NONE\t";
                 } 
                 details += "BSSID: " + w.address + "\t";
-                details += "Strength: " + w.signal + "\t";
+                details += "Channel: " + w.channel + "\t";
                 ui.alert('Wifi details', details);
             }
         };});
