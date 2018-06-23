@@ -2647,7 +2647,7 @@ if (VIEW_HARDWARE) {
             button3: function(arg) {
                 var w = arg.action.arg;
                 ui.back();
-                details = "SSID: " + w.ssid + "\t";
+                var details = "SSID: " + w.ssid + "\t";
                 if(w.encryption_wep) {
                     details += "Encryption: WEP\t";
                 } else if(w.encryption_wpa) {
