@@ -1315,6 +1315,8 @@ function dynamicChangeUpdate() {
                 }], intervalometer.status.frames);                
                 if(param == 'offsetEv') {
                     intervalometer.status.exposure.status.offsetEv = newVal;
+                } else if(param == 'rampEv') {
+                    intervalometer.status.rampEv = newVal;
                 } else {
                     intervalometer.currentProgram[param] = newVal;
                 }
@@ -1324,7 +1326,10 @@ function dynamicChangeUpdate() {
                 change = true;
             }
         }
-        if(change) intervalometer.emit("currentProgram", intervalometer.currentProgram);
+        if(change) {
+            intervalometer.emit("status", status);
+            intervalometer.emit("currentProgram", intervalometer.currentProgram);
+        }
     }
 }
 
@@ -1366,12 +1371,12 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 if(newValue == 'auto') {
                     status.rampMode = 'auto';
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
-                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                    intervalometer.emit("status", status);
                 }
                 if(newValue == 'fixed') {
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
                     status.rampMode = 'fixed';
-                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                    intervalometer.emit("status", status);
                 }
                 break;
 
@@ -1382,6 +1387,18 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: parseFloat(intervalometer.status.exposure.status.offsetEv),
                     endVal: parseFloat(newValue),
+                    startFrame: intervalometer.status.frames,
+                    endFrame: intervalometer.status.frames + frames
+                };
+                break;
+
+            case 'rampEv':
+                frames = parseInt(frames);
+                if(!frames || frames < 1) frames = 1;
+                console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
+                intervalometer.status.dynamicChange[parameter] = {
+                    startVal: intervalometer.status.rampEv,
+                    endVal: intervalometer.status.rampEv + parseFloat(newValue),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
