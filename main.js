@@ -2603,6 +2603,7 @@ if (VIEW_HARDWARE) {
             help: help.wifiConnect,
             action: {
                 type: 'function',
+                arg: item,
                 fn: function(res, cb){
                     if(item.encryption_any) {
                         console.log("running textInput", item.address);
@@ -2642,6 +2643,23 @@ if (VIEW_HARDWARE) {
                         ui.back();
                     }
                 }
+            },
+            button3: function(arg) {
+                w = arg.action.arg;
+                ui.back();
+                details = "SSID: " + w.ssid + "\t";
+                if(w.encryption_wep) {
+                    details += "Encryption: WEP\t";
+                } else if(w.encryption_wpa) {
+                    details += "Encryption: WPA\t";
+                } else if(w.encryption_wpa2) {
+                    details += "Encryption: WPA2\t";
+                } else {
+                    details += "Encryption: NONE\t";
+                } 
+                details += "BSSID: " + w.address + "\t";
+                details += "Strength: " + w.signal + "\t";
+                ui.alert('Wifi details', details);
             }
         };});
         cb(null, m);

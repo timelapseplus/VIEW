@@ -1337,7 +1337,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv', 'rampEv'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1368,7 +1368,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 break
 
             case 'rampMode':
-                if(newValue == 'auto') {
+                if(newValue == 'auto') { // needs to update offsetEv based on next frame (reset 'first' flag?)
                     status.rampMode = 'auto';
                     if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
                     intervalometer.emit("status", status);
