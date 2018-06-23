@@ -1314,7 +1314,7 @@ function dynamicChangeUpdate() {
                     y: item.endVal
                 }], intervalometer.status.frames);                
                 if(param == 'offsetEv') {
-                    intervalometer.status.exp.offsetEv = newVal;
+                    intervalometer.status.exposure.status.offsetEv = newVal;
                 } else {
                     intervalometer.currentProgram[param] = newVal;
                 }
@@ -1380,7 +1380,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 if(!frames || frames < 1) frames = 1;
                 console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
-                    startVal: parseFloat(intervalometer.status.exp.offsetEv),
+                    startVal: parseFloat(intervalometer.status.exposure.status.offsetEv),
                     endVal: parseFloat(newValue),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
