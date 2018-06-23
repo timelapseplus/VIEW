@@ -25792,3 +25792,7 @@ page-intervalometer .item-ios ion-thumbnail ion-img, page-intervalometer .item-i
 .button {
   margin: 0.4rem 0.4rem !important;
 }
+
+.alert-md .alert-input {
+  color: #fff !important;
+}
