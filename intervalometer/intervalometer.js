@@ -1337,7 +1337,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv', 'rampEv'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv', 'rampEv', 'frames'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1361,6 +1361,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);
                 }
                 if(newValue == 'fixed' && intervalometer.currentProgram.intervalMode == 'auto') {
+                    intervalometer.currentProgram.frames = Math.ceil(intervalometer.status.frames / 100) * 100 + 500;
                     intervalometer.currentProgram.interval = newInt;
                     intervalometer.currentProgram.intervalMode = 'fixed';
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);
@@ -1368,9 +1369,10 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 break
 
             case 'rampMode':
-                if(newValue == 'auto') { // needs to update offsetEv based on next frame (reset 'first' flag?)
+                if(newValue == 'auto' && status.rampMode != 'auto') { // restart ramping based on current exposure
                     status.rampMode = 'auto';
-                    if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                    intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+                    exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), intervalometer.currentProgram.nightCompensation, intervalometer.currentProgram.highlightProtection);
                     intervalometer.emit("status", status);
                 }
                 if(newValue == 'fixed') {
@@ -1402,6 +1404,15 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
+                break;
+
+            case 'frames':
+                if(parseInt(newValue) > intervalometer.status.frames) {
+                    intervalometer.currentProgram.frames = parseInt(newValue);
+                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                } else {
+                    callback && callback("frames must be greated than completed frames");
+                }
                 break;
 
             case 'hdrCount':
