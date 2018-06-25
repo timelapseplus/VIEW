@@ -290,28 +290,6 @@ if (VIEW_HARDWARE) {
             })
         }, {
             name: "Timelapse Mode",
-            value: "Auto Sunset",
-            help: help.rampingOptions,
-            action: ui.set(core.currentProgram, 'rampMode', 'sunset', function(){
-                core.currentProgram = reconfigureProgram(core.currentProgram);
-                ui.back();
-            }),
-            condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lrt';
-            }
-        }, {
-            name: "Timelapse Mode",
-            value: "Auto Sunrise",
-            help: help.rampingOptions,
-            action: ui.set(core.currentProgram, 'rampMode', 'sunrise', function(){
-                core.currentProgram = reconfigureProgram(core.currentProgram);
-                ui.back();
-            }),
-            condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lrt';
-            }
-        }, {
-            name: "Timelapse Mode",
             value: "Eclipse Mode",
             help: help.rampingOptions,
             action: ui.set(core.currentProgram, 'rampMode', 'eclipse', function(){
@@ -324,12 +302,44 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var lrtDirection = {
+        name: "timelapse mode",
+        type: "options",
+        items: [{
+            name: "Ramp Direction",
+            value: "Auto Ramping",
+            help: help.lrtDirection,
+            action: ui.set(core.currentProgram, 'rampMode', 'auto', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            })
+        }, {
+            name: "Ramp Direction",
+            value: "Auto Sunset",
+            help: help.lrtDirection,
+            action: ui.set(core.currentProgram, 'rampMode', 'sunset', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            })
+        }, {
+            name: "Ramp Direction",
+            value: "Auto Sunrise",
+            help: help.lrtDirection,
+            action: ui.set(core.currentProgram, 'rampMode', 'sunrise', function(){
+                core.currentProgram = reconfigureProgram(core.currentProgram);
+                ui.back();
+            }),
+        }]
+    }
+
     var reconfigureProgram = function(program) {
         if(!program.exposurePlans) program.exposurePlans = [];
+        if(program.rampMode == 'sunset' || program.rampMode == 'sunrise') {
+            program.lrtDirection = program.rampMode;
+            program.rampMode = 'auto';
+        }
         if(program.rampMode == 'auto') {
             program.exposurePlans = [];
-        } else if(program.rampAlgorithm != 'lrt' && (program.rampMode == 'sunset' || program.rampMode == 'sunrise')) {
-            program.rampMode = 'auto';
         } else if(program.rampMode == 'eclipse') {
             var coords = mcu.validCoordinates();
             program.exposurePlans = [];
@@ -1392,14 +1402,14 @@ if (VIEW_HARDWARE) {
             help: help.rampingAlgorithm,
             action: rampingAlgorithmOptions,
             condition: function() {
-                return core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset';
+                return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
             help: help.highlightProtection,
             action: highlightProtectionOptions,
             condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lum' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
+                return core.currentProgram.rampAlgorithm == 'lum' && core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
@@ -1844,6 +1854,13 @@ if (VIEW_HARDWARE) {
             help: help.rampingOptions,
             action: rampingOptions
         }, {
+            name: valueDisplay("Ramp Direction", core.currentProgram, 'lrtDirection'),
+            help: help.lrtDirection,
+            action: lrtDirection,
+            condition: function() {
+                return core.currentProgram.rampAlgorithm == 'lrt' && core.currentProgram.rampMode == 'auto';
+            }
+        }, {
             name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
             action: intervalOptions,
@@ -1862,14 +1879,14 @@ if (VIEW_HARDWARE) {
             action: dayInterval,
             help: help.dayInterval,
             condition: function() {
-                return core.currentProgram.intervalMode == 'auto' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
+                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Night Interval", core.currentProgram, 'nightInterval'),
             action: nightInterval,
             help: help.nightInterval,
             condition: function() {
-                return core.currentProgram.intervalMode == 'auto' && (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
+                return core.currentProgram.intervalMode == 'auto' && core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Frames", core.currentProgram, 'frames'),
@@ -1934,14 +1951,14 @@ if (VIEW_HARDWARE) {
             action: hdrCountOptions,
             help: help.interval,
             condition: function() {
-                return (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset');
+                return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("HDR Bracket Step", core.currentProgram, 'hdrStops'),
             action: hdrStopsOptions,
             help: help.interval,
             condition: function() {
-                return (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset') && core.currentProgram.hdrCount > 1;
+                return core.currentProgram.rampMode == 'auto' && core.currentProgram.hdrCount > 1;
             }
         }, {
              name: "Review Program",
@@ -4858,7 +4875,7 @@ core.on('intervalometer.status', function(msg) {
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
         rampModeText: core.currentProgram.rampMode,
-        intervalModeText: (core.currentProgram.rampMode == 'auto' || core.currentProgram.rampMode == 'sunrise' || core.currentProgram.rampMode == 'sunset') ? core.currentProgram.intervalMode : 'fixed',
+        intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
         shutterSeconds: msg.cameraSettings.details.shutter ? lists.getSecondsFromEv(msg.cameraSettings.details.shutter.ev) : 0,

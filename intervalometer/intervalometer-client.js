@@ -273,6 +273,7 @@ core.resetBt = function(callback) {
 
 defaultProgram = {
     rampMode: "fixed",
+    lrtDirection: "auto",
     intervalMode: "fixed",
     rampAlgorithm: "lum",
     highlightProtection: true,

@@ -175,3 +175,5 @@ exports.nmxMotorOptionsEnable = "Enable motor on the NMX.  This axis will appear
 exports.nmxMotorAttachment = "Manually enable/disable motors connected to NMX";
 
 exports.configureNMX = "Configure the NMX motion controller by Dynamic Perception (connects via Bluetooth or USB)";
+
+exports.lrtDirection = "Direction for exposure ramping.  Note that this applies only to the LRTimelapse ramping algorithm.  The PID Luminance algorithm (default) is always auto bi-directional."
