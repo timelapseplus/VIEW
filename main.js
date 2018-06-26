@@ -1991,10 +1991,11 @@ if (VIEW_HARDWARE) {
                                     reverse: panMotor.reverse
                                 }
                             } else {
+                                core.currentProgram.trackingTarget = core.currentProgram.tracking;
                                 core.currentProgram.axes[panMotor.name] = {
                                     type: 'tracking',
                                     orientation: 'pan',
-                                    target: core.currentProgram.tracking,
+                                    trackBelowHorizon: false,
                                     reverse: panMotor.reverse
                                 }
                             }
@@ -2002,10 +2003,11 @@ if (VIEW_HARDWARE) {
                         }
                         var tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
                         if(tiltMotor) {
+                            core.currentProgram.trackingTarget = core.currentProgram.tracking;
                             core.currentProgram.axes[tiltMotor.name] = {
                                 type: 'tracking',
                                 orientation: 'tilt',
-                                target: core.currentProgram.tracking,
+                                trackBelowHorizon: false,
                                 reverse: panMotor.reverse
                             }
                             core.currentProgram[tiltMotor.name + "Pos"] = 0;
