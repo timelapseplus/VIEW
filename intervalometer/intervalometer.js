@@ -992,6 +992,32 @@ camera.ptp.on('saveErrorCardFull', function(msg) {
     }
 });
 
+function autoSetExposure(offset, callback) {
+    if(!offset) offset = 0;
+    function captureTestEv() {
+        camera.ptp.capture({mode:'test'}, function(err, res) {
+            if(!err && res && res.ev != null) {
+                status.message = "checking exposure after delay...";
+                intervalometer.emit("status", status);
+                var evChange = res.ev - offset;
+                camera.ptp.getSettings(function() {
+                    var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+                    camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
+                        if(Math.abs(evChange) < 2) {
+                            callback && callback(null);
+                        } else {
+                            captureTestEv();
+                        }
+                    })
+                });
+            } else {
+                callback && callback(err||"invalid exposure");
+            }
+        });
+    }
+    captureTestEv();
+}
+
 intervalometer.validate = function(program) {
     var results = {
         errors: []
@@ -1235,29 +1261,14 @@ intervalometer.run = function(program, date, utcOffset) {
                                                 delayHandle = setTimeout(function() {
                                                     if(delayedMinutes * 60 >= program.delay) {
                                                         if(delayExposureReferenceEv != null) {
-                                                            function captureTestEv() {
-                                                                camera.ptp.capture({mode:'test'}, function(err, res) {
-                                                                    if(!err && res && res.ev != null) {
-                                                                        status.message = "checking exposure after delay...";
-                                                                        intervalometer.emit("status", status);
-                                                                        var evChange = res.ev - delayExposureReferenceEv;
-                                                                        camera.ptp.getSettings(function() {
-                                                                            var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
-                                                                            camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
-                                                                                if(Math.abs(evChange) < 2) {
-                                                                                    runPhoto();
-                                                                                } else {
-                                                                                    captureTestEv();
-                                                                                }
-                                                                            })
-                                                                        });
-                                                                    } else {
-                                                                        error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
-                                                                        runPhoto();
-                                                                    }
-                                                                });
-                                                            }
-                                                            captureTestEv();
+                                                            autoSetExposure(delayExposureReferenceEv, function(err) {
+                                                                if(err) {
+                                                                    error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
+                                                                    runPhoto();
+                                                                } else {
+                                                                    runPhoto();
+                                                                }
+                                                            });
                                                         } else {
                                                             runPhoto();
                                                         }
