@@ -4795,6 +4795,8 @@ core.on('camera.photo', function() {
                 setTimeout(core.preview, liveviewOnApp ? 150 : 0);
             }
         }
+    } else {
+        console.log("EVENT: camera.photo UNKNOWN, type=", core.photo);
     }
 });
 
