@@ -291,7 +291,8 @@ defaultProgram = {
     manualAperture: -5,
     hdrCount: 0,
     hdrStops: 1,
-    exposurePlans: [],    
+    exposurePlans: [],
+    trackingTarget: 'moon',    
     keyframes: [{
         focus: 0,
         ev: "not set",

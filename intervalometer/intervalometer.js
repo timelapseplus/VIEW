@@ -214,12 +214,12 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
     }
 }
 
-function calculateCelestialDistance(startPos, currentPos) {
+function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
     var panDiff = (currentPos.azimuth - startPos.azimuth) * 180 / Math.PI;
     var tiltDiff = (currentPos.altitude - startPos.altitude) * 180 / Math.PI;
     var altDeg = currentPos.altitude * 180 / Math.PI;
     var ease = 1;
-    if(altDeg < 5) {
+    if(!trackBelowHorizon && altDeg < 5) {
         if(altDeg < -10) {
             ease = 0;
         } else {
@@ -367,10 +367,10 @@ function processKeyframes(setupFirst, callback) {
             }
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
-            if(axis.type == 'tracking' && axis.target == 'sun' && sunPos) {
-                trackingTarget = calculateCelestialDistance(status.sunPos, sunPos);
-            } else if(axis.type == 'tracking' && axis.target == 'moon' && moonPos) {
-                trackingTarget = calculateCelestialDistance(status.moonPos, moonPos);
+            if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'sun' && sunPos) {
+                trackingTarget = calculateCelestialDistance(status.sunPos, sunPos, axis.trackBelowHorizon);
+            } else if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'moon' && moonPos) {
+                trackingTarget = calculateCelestialDistance(status.moonPos, moonPos, axis.trackBelowHorizon);
             } else if(axis.type == 'constant') {
                 if(axis.rate == null) axis.rate = 15;
                 if(axis.orientation == 'pan') {
