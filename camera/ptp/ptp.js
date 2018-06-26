@@ -538,8 +538,8 @@ camera.capture = function(options, callback) {
                 type: 'camera',
                 do: 'capture',
                 options: options,
-                id: isPrimary ? getCallbackId(worker.port, 'capture', function(err){
-                    callback && callback(err);
+                id: isPrimary ? getCallbackId(worker.port, 'capture', function(err, res){
+                    callback && callback(err, res);
                 }) : null
             }
             console.log(capture);
