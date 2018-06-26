@@ -1976,6 +1976,7 @@ if (VIEW_HARDWARE) {
             action: {
                 type: "function",
                 fn: function(arg, cb) {
+                    core.currentProgram.delay = 1;
                     core.currentProgram.keyframes = null;
                     core.currentProgram.scheduled = null;
                     core.currentProgram.axes = {};

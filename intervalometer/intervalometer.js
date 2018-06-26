@@ -1220,9 +1220,60 @@ intervalometer.run = function(program, date, utcOffset) {
                                     busyPhoto = false;
                                     if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
                                         if(scheduled()) {
-                                            delayHandle = setTimeout(function() {
-                                                runPhoto();
-                                            }, program.delay * 1000);
+                                            var delayExposureReferenceEv = null;
+                                            var delayedMinutes = 0;
+                                            function delayed() {
+                                                if(program.delay > 5) {
+                                                    status.message = "delaying start for " + (Math.round(program.delay / 60) - delayedMinutes).toString() + " minutes...";
+                                                    intervalometer.emit("status", status);
+                                                }
+                                                var delay = 60;
+                                                if(program.delay - delayedMinutes * 60 < 60) delay = program.delay - delayedMinutes * 60;
+                                                if(delay < 0) delay = 0;
+                                                delayedMinutes++;
+                                                delayHandle = setTimeout(function() {
+                                                    if(delayedMinutes * 60 >= program.delay) {
+                                                        if(delayExposureReferenceEv != null) {
+                                                            camera.ptp.capture({mode:'test'}, function(err, res) {
+                                                                if(!err && res && res.ev != null) {
+                                                                    status.message = "checking exposure after delay...";
+                                                                    intervalometer.emit("status", status);
+                                                                    var evChange = res.ev - delayExposureReferenceEv;
+                                                                    camera.ptp.getSettings(function() {
+                                                                        var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+                                                                        camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
+                                                                            runPhoto();
+                                                                        })
+                                                                    });
+                                                                } else {
+                                                                    intervalometer.cancel('err');
+                                                                    error("Failed to determine reference exposure for delayed start");
+                                                                }
+                                                            });
+                                                        } else {
+                                                            runPhoto();
+                                                        }
+                                                    } else {
+                                                        delayed();
+                                                    }
+                                                }, delay * 1000);
+
+                                            }
+                                            if(program.delay > 60 && program.rampMode == 'auto') {
+                                                status.message = "capturing reference image";
+                                                intervalometer.emit("status", status);
+                                                camera.ptp.capture({mode:'test'}, function(err, res){
+                                                    if(!err && res && res.ev != null) {
+                                                        delayExposureReferenceEv = res.ev;
+                                                        delayed();
+                                                    } else {
+                                                        intervalometer.cancel('err');
+                                                        error("Failed to determine reference exposure for delayed start");
+                                                    }
+                                                });
+                                            } else {
+                                                delayed();
+                                            }
                                         }   
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {

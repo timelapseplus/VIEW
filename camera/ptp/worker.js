@@ -308,6 +308,14 @@ function processRawPath(path, options, info, callback) {
                             zoomed: false,
                             type: 'test'
                         });
+                        if (callback) {
+                            callback(err, {
+                                ev: ev,
+                                histogram: histogram,
+                                file: info,
+                                thumbnailPath: thumbnailFileFromIndex(options.index)
+                            });
+                        }
                     });
                 });
             } else {
