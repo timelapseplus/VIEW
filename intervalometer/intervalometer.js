@@ -1246,8 +1246,8 @@ intervalometer.run = function(program, date, utcOffset) {
                                                                         })
                                                                     });
                                                                 } else {
-                                                                    intervalometer.cancel('err');
-                                                                    error("Failed to determine reference exposure for delayed start");
+                                                                    error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
+                                                                    runPhoto();
                                                                 }
                                                             });
                                                         } else {
@@ -1263,6 +1263,7 @@ intervalometer.run = function(program, date, utcOffset) {
                                                 status.message = "capturing reference image";
                                                 intervalometer.emit("status", status);
                                                 camera.ptp.capture({mode:'test'}, function(err, res){
+                                                    console.log("reference exposure result:", err, res);
                                                     if(!err && res && res.ev != null) {
                                                         delayExposureReferenceEv = res.ev;
                                                         delayed();
