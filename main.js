@@ -4630,7 +4630,7 @@ app.on('message', function(msg) {
                 if (core.cameraConnected) {
                     core.getSettings(function() {
                         core.cameraSettings.stats = lists.evStats(core.cameraSettings);
-                        core.setEv(core.cameraSettings.stats+1/3, {}, function() {
+                        core.setEv(core.cameraSettings.stats.ev+1/3, {}, function() {
                             core.getSettings(function() {
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
@@ -4646,7 +4646,7 @@ app.on('message', function(msg) {
                 if (core.cameraConnected) {
                     core.getSettings(function() {
                         core.cameraSettings.stats = lists.evStats(core.cameraSettings);
-                        core.setEv(core.cameraSettings.stats-1/3, {}, function() {
+                        core.setEv(core.cameraSettings.stats.ev-1/3, {}, function() {
                             core.getSettings(function() {
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
