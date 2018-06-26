@@ -1244,7 +1244,7 @@ intervalometer.run = function(program, date, utcOffset) {
                                                                         camera.ptp.getSettings(function() {
                                                                             var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
                                                                             camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
-                                                                                if(evChange < 2) {
+                                                                                if(Math.abs(evChange) < 2) {
                                                                                     runPhoto();
                                                                                 } else {
                                                                                     captureTestEv();
