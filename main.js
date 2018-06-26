@@ -4626,6 +4626,38 @@ app.on('message', function(msg) {
                 }
                 break;
 
+            case 'setEvUp':
+                if (core.cameraConnected) {
+                    core.getSettings(function() {
+                        core.cameraSettings.stats = lists.evStats(core.cameraSettings);
+                        core.setEv(core.cameraSettings.stats+1/3, {}, function() {
+                            core.getSettings(function() {
+                                core.cameraSettings.stats = lists.evStats(core.cameraSettings);
+                                msg.reply('settings', {
+                                    settings: core.cameraSettings
+                                });
+                            });
+                        });
+                    });
+                }
+                break;
+
+            case 'setEvDown':
+                if (core.cameraConnected) {
+                    core.getSettings(function() {
+                        core.cameraSettings.stats = lists.evStats(core.cameraSettings);
+                        core.setEv(core.cameraSettings.stats-1/3, {}, function() {
+                            core.getSettings(function() {
+                                core.cameraSettings.stats = lists.evStats(core.cameraSettings);
+                                msg.reply('settings', {
+                                    settings: core.cameraSettings
+                                });
+                            });
+                        });
+                    });
+                }
+                break;
+
             case 'get':
                 if (msg.key == "settings") {
                     if (core.cameraConnected) {
