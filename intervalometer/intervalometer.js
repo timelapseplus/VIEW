@@ -998,7 +998,7 @@ intervalometer.validate = function(program) {
     };
     if(program.frames === null) program.frames = Infinity;
     
-    if (parseInt(program.delay) < 1) program.delay = 2;
+    if (parseInt(program.delay) < 1) program.delay = 1;
     if(program.rampMode == 'fixed' && !program.scheduled) {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
@@ -1219,7 +1219,11 @@ intervalometer.run = function(program, date, utcOffset) {
                                 setTimeout(function() {
                                     busyPhoto = false;
                                     if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
-                                        if(scheduled()) runPhoto();   
+                                        if(scheduled()) {
+                                            delayHandle = setTimeout(function() {
+                                                runPhoto();
+                                            }, program.delay * 1000);
+                                        }   
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {
                                         status.message = "waiting for AUX2...";
@@ -1228,9 +1232,6 @@ intervalometer.run = function(program, date, utcOffset) {
                                 }, 3000);
                             });
                         });
-                        //delayHandle = setTimeout(function() {
-                        //    runPhoto();
-                        //}, program.delay * 1000);
                     }
 
                     if (program.destination && program.destination == 'sd' && camera.ptp.sdPresent) {

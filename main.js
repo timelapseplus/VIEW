@@ -4781,7 +4781,7 @@ core.on('camera.photo', function() {
             time: new Date()
         };
 
-        if (previewImage.imageType == "photo" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
+        if (previewImage.imageType == "photo" || previewImage.imageType == "test" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
             liveviewRequestStart = false;
             previewImageLastTime = previewImage.time;
             setTimeout(function(){
