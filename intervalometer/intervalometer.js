@@ -1114,14 +1114,18 @@ intervalometer.run = function(program, date, utcOffset) {
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
 
-    if(date && utcOffset) { // sync time with phone app local time
+    if(date && utcOffset != null) { // sync time with phone app local time
         var diff = moment(date).diff(moment(), 'minutes');
         console.log("date difference (minutes):", diff);
         diff += utcOffset;
         status.utcOffset = diff;
         console.log("current local time:", moment().utcOffset(status.utcOffset).format());
+    else if(utcOffset != null) { // cached utcOffset from restart
+        status.utcOffset = parseInt(utcOffset);
+    } else {
+        status.utcOffset = moment().utcOffset();
     }
-
+    if(!status.utcOffset) status.utcOffset = 0;
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
     if (camera.ptp.connected) {

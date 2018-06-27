@@ -76,7 +76,14 @@ var server = net.createServer(function(c) {
       sendEvent('media.present', camera.ptp.sdMounted);
     }
     sendEvent('motion.status', motion.status);
+    sendEvent('process.pid', process.pid);
     while(ev = eventQueue.shift()) c.write(ev);
+    if(!c.wdtInterval) {
+        sendEvent('watchdog.set', process.pid);
+        c.wdtInterval = setInterval(function(){
+          sendEvent('watchdog.set', process.pid);
+        }, 5000); // this will have the server kill this process if it ever gets stuck
+    }
   } catch (e) {
     console.log("error during event queue write:", e);
   }
@@ -105,6 +112,7 @@ var server = net.createServer(function(c) {
   });
   c.on('end', function() {
     c.ready = false;
+    if(c.wdtInterval) clearInterval(c.wdtInterval);
     console.log('client disconnected');
     for(var i = 0; i < clients.length; i++) {
       if(clients[i].index == c.index) {

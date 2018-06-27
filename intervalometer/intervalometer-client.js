@@ -51,6 +51,22 @@ core.cameraSupports = {};
 core.intervalometerStatus = {};
 core.histogram = [];
 core.motionStatus = {};
+core.currentProgram = {};
+var restartProgram = null;
+
+function checkRestart() {
+    console.log("SERVER CRASHED: checking time-lapse if restart needed");
+    if(core.intervalometerStatus.running && core.currentProgram.scheduled) {
+        restartProgram = _.extendOwn({}, core.currentProgram);
+        restartProgram._utcOffset = core.intervalometerStatus.utcOffset;
+    }
+}
+
+watchdog.onKill(function(pid){
+    if(pid == core.processId) {
+        checkRestart();
+    }
+});
 
 var dataBuf = new Buffer(0);
 var client;
@@ -58,6 +74,10 @@ function connect() {
     client = net.connect('/tmp/intervalometer.sock', function() {
       console.log('connected to server!');
       client.ready = true;
+      if(restartProgram) {
+        core.startIntervalometer(restartProgram, null, restartProgram._utcOffset);
+        restartProgram = null;
+      }
     });
     client.on('data', function(rawChunk) {
       var data;
@@ -76,9 +96,12 @@ function connect() {
             data = JSON.parse(pieces[i]);
             if(data.type == 'callback') {
                 runCallback(data.data);
-            } else if(data.type == 'watchdog') {
+            } else if(data.type == 'watchdog.set') {
                 var pid = parseInt(data.data);
-                watchdog.watch(pid);
+                watchdog.watch(pid, 60000);
+            } else if(data.type == 'watchdog.disable') {
+                var pid = parseInt(data.data);
+                watchdog.disable(pid);
             } else {
                 if(data.type == 'camera.photo') {
                     if(data.data.base64) {
@@ -121,6 +144,8 @@ function connect() {
                     }
                 } else if(data.type == 'intervalometer.currentProgram') {
                     core.currentProgram = data.data;
+                } else if(data.type == 'process.pid') {
+                    core.processId = data.data;
                 }
                 console.log("CORE:", data.type, "event");
                 core.emit(data.type, data.data);
@@ -132,6 +157,7 @@ function connect() {
     });
     client.on('end', function() {
       client.ready = false;
+      checkRestart();
       console.log('disconnected from server');
       setTimeout(connect, 2000);
     });
