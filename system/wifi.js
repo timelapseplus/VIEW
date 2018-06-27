@@ -16,7 +16,7 @@ var BT_UNBLOCK = "sudo modprobe btusb;sudo rfkill unblock bluetooth;";
 var BT_DISABLE = BT_BLOCK;//"sudo modprobe -r btusb";
 var BT_ENABLE = BT_RESET;//"sudo modprobe btusb";
 
-var SYSTEM_WIFI_EVENTS = 'dmesg -w | grep "RTL871X: sta recv deauth reason code"';
+var SYSTEM_WIFI_EVENTS = 'dmesg';//-w | grep "RTL871X: sta recv deauth reason code"';
 
 var iw = new Wireless({ iface:'wlan0', iface2: false, updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -54,11 +54,11 @@ wifi.apName = "TL+VIEW";
 wifi.apPass = "timelapse+";
 
 
-var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, [], {shell: true});
+var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
 
 sys_events_mon.stdout.on('data', function(data) {
   console.log("WIFI: deauth event: ", data);
-  var matches = data.match(/sta recv deauth reason code\(([0-9]+)\)/);
+  var matches = data.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
   if(matches && matches.length > 0) {
   	var reasonCode = parseInt(matches[1]);
   	console.log("WIFI: deauth reason code: ", reasonCode);
