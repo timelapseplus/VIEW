@@ -69,6 +69,7 @@ sys_events_mon.stdout.on('data', function(data) {
 		  	console.log("WIFI: deauth reason code: ", reasonCode);
 		  	if(reasonCode == 2) {
 		  		wifi.invalidPassword = true;
+				wifi.disconnect();
 				wifi.emit("error", "Failed to connect: invalid Wifi password.  Please verify the password and try connecting again.");
 		  	} else if(reasonCode == 3) {
 				wifi.emit("error", "Wifi disconnected.  This is likely due to being out of range or the access point becoming unavailable.");
