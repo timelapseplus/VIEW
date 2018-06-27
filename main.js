@@ -231,6 +231,9 @@ if (VIEW_HARDWARE) {
         oled.setIcon('wifi', false);
         if(reload) ui.reload();
     });
+    wifi.on('error', function(message) {
+        ui.alert('Error', message);
+    });
     wifi.on('disconnect', function(previousConnection) {
         app.disableRemote();
         oled.setIcon('wifi', false);

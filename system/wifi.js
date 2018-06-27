@@ -1,5 +1,6 @@
 var Wireless = require('wireless');
 var exec = require("child_process").exec;
+var spawn = require("child_process").spawn;
 var fs = require('fs');
 var EventEmitter = require("events").EventEmitter;
 
@@ -14,6 +15,8 @@ var BT_BLOCK = "sudo rfkill block bluetooth;sudo modprobe -r btusb;";
 var BT_UNBLOCK = "sudo modprobe btusb;sudo rfkill unblock bluetooth;";
 var BT_DISABLE = BT_BLOCK;//"sudo modprobe -r btusb";
 var BT_ENABLE = BT_RESET;//"sudo modprobe btusb";
+
+var SYSTEM_WIFI_EVENTS = 'dmesg -w | grep "RTL871X: sta recv deauth reason code"';
 
 var iw = new Wireless({ iface:'wlan0', iface2: false, updateFrequency: 60, connectionSpyFrequency: 10 });
 
@@ -44,11 +47,27 @@ var disableBtReset = false;
 wifi.apMode = false;
 wifi.enabled = false;
 wifi.connected = false;
+wifi.connecting = false;
 wifi.list = [];
 wifi.btEnabled = false;
 wifi.apName = "TL+VIEW";
 wifi.apPass = "timelapse+";
 
+
+var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, [], {shell: true});
+
+sys_events_mon.stdout.on('data', (data) => {
+  console.log("WIFI: deauth event: ", data);
+  var matches = data.match(/sta recv deauth reason code\(([0-9]+)\)/);
+  if(matches and matches.length > 0) {
+  	var reasonCode = parseInt(matches[1]);
+  	console.log("WIFI: deauth reason code: ", reasonCode);
+  	if(wifi.connecting) {
+		wifi.connecting = false;
+		wifi.emit("error", "Failed to connect wifi. Reason Code: " + reasonCode);
+  	}
+  }
+});
 
 function hostApdConfig(ssid, pass, channel, callback) {
 	console.log("WIFI: configuring AP with SSID '" + ssid + "' on channel " + channel);
@@ -117,6 +136,7 @@ iw.on('empty', function() {
 });
 
 iw.on('join', function(data) {
+	wifi.connecting = false;
 	console.log("[Wifi] Join:", data);
 	wifi.connected = data;
 	wifi.emit("connect", data.ssid);
@@ -131,6 +151,7 @@ iw.on('join', function(data) {
 });
 
 iw.on('former', function(data) {
+	wifi.connecting = false;
 	console.log("[Wifi] Former:", data);
 	wifi.connected = data;
 	wifi.emit("connect", data.ssid);
@@ -265,6 +286,7 @@ wifi.disable = function(cb, disableEvents) {
 }
 
 wifi.connect = function(network, password, callback) {
+	wifi.connecting = true;
 	disableBtReset = false;
 	var join = function() { 
 		iw.join(network, password, function(){
@@ -287,6 +309,7 @@ wifi.connect = function(network, password, callback) {
 }
 
 wifi.disconnect = function(callback) {
+	wifi.connecting = false;
 	disableBtReset = false;
 	if(wifi.connected) {
 		wifi.connected = false;
