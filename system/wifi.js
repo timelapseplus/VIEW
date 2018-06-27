@@ -47,7 +47,6 @@ var disableBtReset = false;
 wifi.apMode = false;
 wifi.enabled = false;
 wifi.connected = false;
-wifi.connecting = false;
 wifi.list = [];
 wifi.btEnabled = false;
 wifi.apName = "TL+VIEW";
@@ -55,17 +54,23 @@ wifi.apPass = "timelapse+";
 
 
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
-
+var firstEvent = true;
 sys_events_mon.stdout.on('data', function(data) {
-  console.log("WIFI: deauth event: ", data);
-  var matches = data.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
-  if(matches && matches.length > 0) {
-  	var reasonCode = parseInt(matches[1]);
-  	console.log("WIFI: deauth reason code: ", reasonCode);
-  	if(wifi.connecting) {
-		wifi.connecting = false;
-		wifi.emit("error", "Failed to connect wifi. Reason Code: " + reasonCode);
-  	}
+  if(firstEvent) {
+  	firstEvent = false;
+  	return;
+  }
+  data = data.toString();
+  if(data.indexOf("RTL871X") !== -1) {
+	  console.log("WIFI: system event: ", data);
+	  var matches = data.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
+	  if(matches && matches.length > 0) {
+	  	var reasonCode = parseInt(matches[1]);
+	  	console.log("WIFI: deauth reason code: ", reasonCode);
+	  	if(reasonCode == 2) {
+			wifi.emit("error", "Failed to connect: invalid Wifi password.  Please verify the password and try connecting again.");
+	  	}
+	  }
   }
 });
 
@@ -136,7 +141,6 @@ iw.on('empty', function() {
 });
 
 iw.on('join', function(data) {
-	wifi.connecting = false;
 	console.log("[Wifi] Join:", data);
 	wifi.connected = data;
 	wifi.emit("connect", data.ssid);
@@ -151,7 +155,6 @@ iw.on('join', function(data) {
 });
 
 iw.on('former', function(data) {
-	wifi.connecting = false;
 	console.log("[Wifi] Former:", data);
 	wifi.connected = data;
 	wifi.emit("connect", data.ssid);
@@ -286,7 +289,6 @@ wifi.disable = function(cb, disableEvents) {
 }
 
 wifi.connect = function(network, password, callback) {
-	wifi.connecting = true;
 	disableBtReset = false;
 	var join = function() { 
 		iw.join(network, password, function(){
@@ -309,7 +311,6 @@ wifi.connect = function(network, password, callback) {
 }
 
 wifi.disconnect = function(callback) {
-	wifi.connecting = false;
 	disableBtReset = false;
 	if(wifi.connected) {
 		wifi.connected = false;
