@@ -1120,7 +1120,7 @@ intervalometer.run = function(program, date, utcOffset) {
         diff += utcOffset;
         status.utcOffset = diff;
         console.log("current local time:", moment().utcOffset(status.utcOffset).format());
-    else if(utcOffset != null) { // cached utcOffset from restart
+    } else if(utcOffset != null) { // cached utcOffset from restart
         status.utcOffset = parseInt(utcOffset);
     } else {
         status.utcOffset = moment().utcOffset();
