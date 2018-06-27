@@ -70,6 +70,8 @@ sys_events_mon.stdout.on('data', function(data) {
 		  	if(reasonCode == 2) {
 		  		wifi.invalidPassword = true;
 				wifi.emit("error", "Failed to connect: invalid Wifi password.  Please verify the password and try connecting again.");
+		  	} else if(reasonCode == 3) {
+				wifi.emit("error", "Wifi disconnected.  This is likely due to being out of range or the access point becoming unavailable.");
 		  	} else {
 				wifi.emit("error", "Wifi disconnected with code: " + reasonCode);
 		  	}

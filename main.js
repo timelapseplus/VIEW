@@ -243,7 +243,7 @@ if (VIEW_HARDWARE) {
             if(currentTime - wifiConnectionTime < 30 * 1000) {
                 // show alert -- authentication probably failed
                 console.log("WIFI: failed to connect to " + previousConnection.ssid);
-                ui.alert('Error', "WiFi failed to connect to " + previousConnection.ssid + ".\nTry again, double-checking that the password is correct.\nNote: if it continues to fail to connect, try a different access point if possible.  There might be an issue with connection to Apple Airport wireless routers.  This will hopefully be resolved in the near future.");
+                ui.alert('Error', "WiFi failed to connect to " + previousConnection.ssid + ".\nTry again, double-checking that the password is correct.\nNote: if it continues to fail to connect, try a different access point if possible.");
             } else {
                 console.log("WIFI: disconnected, trying to reconnect to " + previousConnection.ssid);
                 wifiConnectionTime = new Date().getTime();
