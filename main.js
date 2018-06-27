@@ -238,7 +238,7 @@ if (VIEW_HARDWARE) {
         app.disableRemote();
         oled.setIcon('wifi', false);
         ui.status('wifi disconnected');
-        if(previousConnection && previousConnection.address) {
+        if(previousConnection && previousConnection.address && !wifi.invalidPassword) {
             var currentTime = new Date().getTime();
             if(currentTime - wifiConnectionTime < 30 * 1000) {
                 // show alert -- authentication probably failed

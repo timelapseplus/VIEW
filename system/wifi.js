@@ -51,25 +51,29 @@ wifi.list = [];
 wifi.btEnabled = false;
 wifi.apName = "TL+VIEW";
 wifi.apPass = "timelapse+";
+wifi.invalidPassword = false;
 
 
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
-var firstEvent = true;
+var startTime = Date.now();
 sys_events_mon.stdout.on('data', function(data) {
-  if(firstEvent) {
-  	firstEvent = false;
-  	return;
-  }
-  data = data.toString();
-  if(data.indexOf("RTL871X") !== -1) {
-	  console.log("WIFI: system event: ", data);
-	  var matches = data.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
-	  if(matches && matches.length > 0) {
-	  	var reasonCode = parseInt(matches[1]);
-	  	console.log("WIFI: deauth reason code: ", reasonCode);
-	  	if(reasonCode == 2) {
-			wifi.emit("error", "Failed to connect: invalid Wifi password.  Please verify the password and try connecting again.");
-	  	}
+  if(Date.now() - startTime < 30000) return;
+  var lines = data.toString().split('\n');
+  for(var i = 0; i < lines.length; i++) {
+	  var line = lines[i];
+	  if(line.indexOf("RTL871X") !== -1) {
+		  console.log("WIFI: system event: ", line);
+		  var matches = line.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
+		  if(matches && matches.length > 0) {
+		  	var reasonCode = parseInt(matches[1]);
+		  	console.log("WIFI: deauth reason code: ", reasonCode);
+		  	if(reasonCode == 2) {
+		  		wifi.invalidPassword = true;
+				wifi.emit("error", "Failed to connect: invalid Wifi password.  Please verify the password and try connecting again.");
+		  	} else {
+				wifi.emit("error", "Wifi disconnected with code: " + reasonCode);
+		  	}
+		  }
 	  }
   }
 });
@@ -289,6 +293,7 @@ wifi.disable = function(cb, disableEvents) {
 }
 
 wifi.connect = function(network, password, callback) {
+	wifi.invalidPassword = false;
 	disableBtReset = false;
 	var join = function() { 
 		iw.join(network, password, function(){
