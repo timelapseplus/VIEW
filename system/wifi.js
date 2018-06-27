@@ -77,7 +77,7 @@ sys_events_mon.stdout.on('data', function(data) {
 				wifi.emit("error", "Wifi disconnected with code: " + reasonCode);
 		  	}
 		  }
-	  } else if(line.indexOf("bluetooth:") !== -1) {
+	  } else if(line.indexOf("Bluetooth:") !== -1) {
 	  	if(line.indexOf("tx timeout") !== -1) { // this happens if the driver is somehow corrupted
 	  		wifi.disableBt(function(){
 	  			wifi.enableBt();
