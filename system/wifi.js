@@ -56,7 +56,7 @@ wifi.apPass = "timelapse+";
 
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, [], {shell: true});
 
-sys_events_mon.stdout.on('data', (data) => {
+sys_events_mon.stdout.on('data', function(data) {
   console.log("WIFI: deauth event: ", data);
   var matches = data.match(/sta recv deauth reason code\(([0-9]+)\)/);
   if(matches and matches.length > 0) {
