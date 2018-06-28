@@ -52,10 +52,14 @@ wifi.btEnabled = false;
 wifi.apName = "TL+VIEW";
 wifi.apPass = "timelapse+";
 wifi.invalidPassword = false;
+wifi.lastNetwork = null;
+wifi.lastPassword = null;
+wifi.noReset = false;
 
 
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
 var startTime = Date.now();
+var lastBtReset = Date.now() - 2 * 60 * 1000;
 sys_events_mon.stdout.on('data', function(data) {
   if(Date.now() - startTime < 30000) return;
   var lines = data.toString().split('\n');
@@ -78,10 +82,36 @@ sys_events_mon.stdout.on('data', function(data) {
 		  	}
 		  }
 	  } else if(line.indexOf("Bluetooth:") !== -1) {
-	  	if(line.indexOf("tx timeout") !== -1) { // this happens if the driver is somehow corrupted
-	  		wifi.disableBt(function(){
-	  			wifi.enableBt();
-	  		});
+	  	if(wifi.btEnabled && line.indexOf("tx timeout") !== -1 && Date.now() - lastBtReset > 2 * 60 * 1000) { // this happens if the driver is somehow corrupted
+	  		lastBtReset = Date.now();
+	  		if(wifi.noReset) {
+		  		wifi.disableBt(function(){
+		  			wifi.enableBt();
+		  		});
+	  		} else {
+	  			var reconnect = "none";
+	  			var reconnectNetwork, reconnectPassword;
+	  			if(wifi.connected) {
+	  				reconnect = "client";
+	  				reconnectNetwork = wifi.lastNetwork;
+	  				reconnectPassword = wifi.lastPassword;
+	  			} else if(wifi.apMode) {
+	  				reconnect = "apMode";	  				
+	  			}
+		  		wifi.powerCycle(function(){
+		  			if(reconnect == "client") {
+		  				wifi.connect(reconnectNetwork, reconnectPassword, function(){
+				  			wifi.enableBt();
+		  				});
+		  			} else if(reconnect == "apMode") {
+		  				wifi.enableAP(function(){
+				  			wifi.enableBt();
+		  				});
+		  			} else {
+		  				wifi.disableBt();
+		  			}
+		  		});
+	  		}
 	  	}
 	  }
   }
@@ -304,6 +334,8 @@ wifi.disable = function(cb, disableEvents) {
 wifi.connect = function(network, password, callback) {
 	wifi.invalidPassword = false;
 	disableBtReset = false;
+	wifi.lastNetwork = network;
+	wifi.lastPassword = password;
 	var join = function() { 
 		iw.join(network, password, function(){
 			iw.dhcp(function(){

@@ -4838,6 +4838,7 @@ var btBlockedForSony = false;
 core.on('camera.connected', function() {
     if(core.cameraModel == "SonyWifi") {
         app.disableRemote();
+        wifi.noReset = true;
         if(wifi.btEnabled) {
             wifi.blockBt();
             btBlockedForSony = true;
@@ -4865,6 +4866,7 @@ console.log("Setting default status to '" + defaultStatus + "'")
 core.on('camera.exiting', function() {    
     if(btBlockedForSony) {
         wifi.unblockBt();
+        wifi.noReset = false;
     }
     oled.setIcon('camera', false);
     app.send('camera', {
