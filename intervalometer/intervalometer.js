@@ -388,7 +388,8 @@ function processKeyframes(setupFirst, callback) {
             }
             var motor = null;
             motor = getTrackingMotor(m);
-            motor.direction = axis.reverse ? -1 : 1;
+            var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
+            motor.direction = rev ? -1 : 1;
 
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
@@ -423,7 +424,6 @@ function processKeyframes(setupFirst, callback) {
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
                         }
-                        var direction = -1;
                         console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
                         motion.move(motor.driver, motor.motor, tiltSteps * motor.direction, function() {
                             status.trackingTilt += tiltSteps / motor.stepsPerDegree;

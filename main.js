@@ -2012,7 +2012,7 @@ if (VIEW_HARDWARE) {
                                 type: 'tracking',
                                 orientation: 'tilt',
                                 trackBelowHorizon: false,
-                                reverse: panMotor.reverse
+                                reverse: tiltMotor.reverse
                             }
                             core.currentProgram[tiltMotor.name + "Pos"] = 0;
                         }
