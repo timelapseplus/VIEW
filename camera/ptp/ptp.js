@@ -1098,7 +1098,7 @@ camera.focus = function(step, repeat, callback) {
         if(worker.model.match(/olympus/i)) {
             console.log("focus: olympus");
             focusOlympus(step, repeat, callback);
-        else if(camera.settings.focusdrive == 'canon') {
+        } else if(camera.settings.focusdrive == 'canon') {
             console.log("focus: canon");
             focusCanon(step, repeat, callback);
         } else if(camera.settings.focusdrive == 'nikon') {
