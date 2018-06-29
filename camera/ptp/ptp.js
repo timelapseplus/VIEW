@@ -236,6 +236,7 @@ var startWorker = function(port) {
                         worker.supports.liveview = true;
                     } else if(worker.model.match(/olympus/i)) {
                         worker.supports.liveview = true;
+                        worker.supports.focus = true;
                     }
                     updateCameraCounts();
                     if(worker.port == camera.primaryPort) {
@@ -831,6 +832,58 @@ function focusCanon(step, repeat, callback) {
     }
     doFocus();
 }
+function focusOlympus(step, repeat, callback) {
+    var worker = getPrimaryWorker();
+    if (!repeat) repeat = 1;
+    var param;
+    if (!step) return callback && callback(null, camera.focusPos);
+    if (step < 0) {
+        param = "Near 1";
+        if (step < -1) param = "Near 2";
+    } else {
+        param = "Far 1";
+        if (step > 1) param = "Far 2";
+    }
+    var errCount = 0;
+    var errorLimit = 10;
+
+    if(Math.abs(step) == 1) {
+        camera.focusPos += (step * repeat);
+    }
+
+    var doFocus = function() {
+        camera.lvTimerReset();
+        if(worker.connected) {
+                worker.send({
+                type: 'camera',
+                setDirect: 'manualfocusdrive',
+                value: param,
+                id: getCallbackId(worker.port, 'focusOlympus', function(err) {
+                    if(err) {
+                        errCount++;
+                        if(errCount > errorLimit) {
+                            console.log("focus move error", err);
+                            return callback && callback(err);
+                        }
+                    } else {
+                        errCount = 0;
+                        repeat--;
+                    }
+                    if (repeat > 0) {
+                        var pause = repeat % 5 == 0 ? 50 : 5;
+                        console.log(pause);
+                        setTimeout(doFocus, pause);
+                    } else {
+                        if (callback) callback(null, camera.focusPos);
+                    }
+                })
+            });
+        } else {
+            if (callback) callback("not connected");
+        }
+    }
+    doFocus();
+}
 function focusSony(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
@@ -1042,7 +1095,10 @@ function focusFuji(step, repeat, callback) {
 camera.focus = function(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (worker && camera.connected) {
-        if(camera.settings.focusdrive == 'canon') {
+        if(worker.model.match(/olympus/i)) {
+            console.log("focus: olympus");
+            focusOlympus(step, repeat, callback);
+        else if(camera.settings.focusdrive == 'canon') {
             console.log("focus: canon");
             focusCanon(step, repeat, callback);
         } else if(camera.settings.focusdrive == 'nikon') {
