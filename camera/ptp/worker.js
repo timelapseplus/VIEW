@@ -849,17 +849,17 @@ function mapParam(type, value, halfs, manufacturer) {
     var list = LISTS[type];
     if (list && value != null) {
         value = value.toString().trim().toLowerCase();
+        if(type == "aperture" && manufacturer == "OLYMPUS") {
+            var origVal = value;
+            var ival = parseInt(value);
+            if(ival) value = (ival / 10).toString();
+            //console.log("OLYMPUS: converted", origVal, "to", value);
+        }
         for (var i = 0; i < list.length; i++) {
             if (value === list[i].name) {
                 return list[i];
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
-                    if(type == "aperture" && manufacturer == "OLYMPUS") {
-                        var origVal = value;
-                        var ival = parseInt(value);
-                        if(ival) value = (ival / 10).toString();
-                        console.log("OLYMPUS: converted", origVal, "to", value);
-                    }
                     if (list[i].values[j].toLowerCase() == value) {
                         if(type == "shutter" && value == '30') { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
                             if(manufacturer == "FUJIFILM") {
