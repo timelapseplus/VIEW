@@ -858,6 +858,7 @@ function mapParam(type, value, halfs, manufacturer) {
                         var origVal = value;
                         var ival = parseInt(value);
                         if(ival) value = (ival / 10).toString();
+                        console.log("OLYMPUS: converted", origVal, "to", value);
                     }
                     if (list[i].values[j].toLowerCase() == value) {
                         if(type == "shutter" && value == '30') { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
