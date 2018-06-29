@@ -854,6 +854,10 @@ function mapParam(type, value, halfs, manufacturer) {
                 return list[i];
             } else {
                 for (var j = 0; j < list[i].values.length; j++) {
+                    if(type == "aperture" && manufacturer == "OLYMPUS") {
+                        var ival = parseInt(value);
+                        if(ival) value = (value / 10).toString();
+                    }
                     if (list[i].values[j].toLowerCase() == value) {
                         if(type == "shutter" && value == '30') { // not pretty, but this avoids mapping Fuji's 1/32000 shutter speed as 30"
                             if(manufacturer == "FUJIFILM") {
