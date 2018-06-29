@@ -219,11 +219,13 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
     var tiltDiff = (currentPos.altitude - startPos.altitude) * 180 / Math.PI;
     var altDeg = currentPos.altitude * 180 / Math.PI;
     var ease = 1;
-    if(!trackBelowHorizon && altDeg < 5) {
-        if(altDeg < -10) {
+    var easeStartDegrees = 15;
+    var easeEndDegrees = -5;
+    if(!trackBelowHorizon && altDeg < easeStartDegrees) {
+        if(altDeg < easeEndDegrees) {
             ease = 0;
         } else {
-            ease = (altDeg - -10) / 15;
+            ease = (altDeg - easeEndDegrees) / (easeStartDegrees - easeEndDegrees);
         }
     }
     return {
