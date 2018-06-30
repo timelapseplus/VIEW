@@ -852,7 +852,6 @@ function focusOlympus(step, repeat, callback) {
     }
 
     var doFocus = function() {
-        camera.lvTimerReset();
         if(worker.connected) {
                 worker.send({
                 type: 'camera',
