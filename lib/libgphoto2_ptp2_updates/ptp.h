@@ -178,7 +178,8 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_VENDOR_MTP			0xffffffff  
 
 /* gphoto overrides */
-#define PTP_VENDOR_GP_OLYMPUS		0xfffffffe
+#define PTP_VENDOR_GP_OLYMPUS		0x0000fffe
+#define PTP_VENDOR_GP_OLYMPUS_OMD	0x0000fffd
 
 /* Operation Codes */
 
@@ -675,6 +676,7 @@ typedef struct _PTPIPHeader PTPIPHeader;
 
 /* Olympus OMD series commands */
 #define PTP_OC_OLYMPUS_OMD_Capture			0x9481
+#define PTP_OC_OLYMPUS_OMD_MFDrive			0x9487
 
 /* Olympus E series commands */
 #define PTP_OC_OLYMPUS_Capture				0x9101
@@ -3381,6 +3383,11 @@ uint16_t ptp_olympus_getdeviceinfo (PTPParams*, PTPDeviceInfo*);
 uint16_t ptp_olympus_opensession (PTPParams*, unsigned char**, unsigned int *);
 #define ptp_olympus_capture(params,p1) ptp_generic_no_data (params, PTP_OC_OLYMPUS_Capture, 1, p1)
 uint16_t ptp_olympus_getcameraid (PTPParams*, unsigned char**, unsigned int *);
+
+
+uint16_t ptp_olympus_omd_capture (PTPParams* params);
+uint16_t ptp_olympus_omd_move_focus (PTPParams* params, uint32_t direction, uint32_t step_size);
+
 
 /* Non PTP protocol functions */
 static inline int

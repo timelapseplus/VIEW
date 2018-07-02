@@ -220,6 +220,17 @@ ptp_usb_getpacket(PTPParams *params, PTPUSBBulkContainer *packet, uint32_t maxsi
 	int		tries = 0, result;
 	Camera		*camera = ((PTPData *)params->data)->camera;
 
+	if(packet == NULL) {
+		PTPUSBBulkContainer *packetTest;
+		result = gp_port_read (camera->port, (char*)packetTest, sizeof(*packetTest));
+		GP_LOG_D ("--> flushed data from IN endpoint: %d", result);
+		if (result == 0) {
+			result = gp_port_read (camera->port, (char*)packetTest, sizeof(*packetTest));
+			GP_LOG_D ("--> flushed data from IN endpoint: %d", result);
+		}
+		return PTP_RC_OK;
+	}
+
 	/* read the header and potentially the first data */
 	if (params->response_packet_size > 0) {
 		GP_LOG_D ("Returning previously buffered response packet.");
@@ -441,6 +452,11 @@ ptp_usb_getresp (PTPParams* params, PTPContainer* resp)
 	uint32_t		rlen;
 	PTPUSBBulkContainer	usbresp;
 	/*GPContext		*context = ((PTPData *)params->data)->context;*/
+
+	if(resp == NULL) {
+		GP_LOG_D ("Reading IN endpoint for OLYMPUS...(but not expecting anything)");
+		return ptp_usb_getpacket(params, NULL, 0, NULL); // trigger read but expect to get nothing (necessary for Olympus) 
+	}
 
 	GP_LOG_D ("Reading PTP_OC 0x%0x (%s) response...", resp->Code, ptp_get_opcode_name(params, resp->Code));
 	PTP_CNT_INIT(usbresp);

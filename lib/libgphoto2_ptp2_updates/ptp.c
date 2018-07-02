@@ -25,6 +25,7 @@
 #define _DEFAULT_SOURCE
 #include "config.h"
 #include "ptp.h"
+#include "ptp-private.h" // added
 
 #ifdef HAVE_LIBXML2
 # include <libxml/parser.h>
@@ -196,9 +197,13 @@ ptp_transaction_new (PTPParams* params, PTPContainer* ptp,
 		}
 	} else {
 		ptp_debug (params,"PTP: **only** checking response (Olympus Init)");
+		//params->getresp_func(params, NULL);
+		return PTP_RC_OK;
 	}
 	if(flags&PTP_DP_NORESPONSE&&!(flags&PTP_DP_RESPONSEONLY)) {
 		ptp_debug (params,"PTP: **not** checking response (Olympus Init)");
+		//usleep(500000);
+		//params->getresp_func(params, NULL);
 		return PTP_RC_OK;
 	}
 	tries = 3;
@@ -1762,31 +1767,32 @@ ptp_olympus_init_pc_mode (PTPParams* params)
 	//gp_port_get_timeout (camera->port, &timeout);
 	//gp_port_set_timeout (camera->port, 1000);
 
+	PTPUSBEventContainer	usbevent;
+	Camera			*camera = ((PTPData *)params->data)->camera;
+
+
 	PTP_CNT_INIT(ptp, PTP_OC_SetDevicePropValue, 0xD052);
 	size=ptp_pack_DPV(params, &propval, &data, PTP_DTC_UINT16);
 	ptp_debug (params,"PTP: (Olympus Init) switching to PC mode...");
-	//ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	//gp_port_check_int (camera->port, (char*)&usbevent, sizeof(usbevent));
 	ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
-	//int 		timeout;
-	//gp_port_get_timeout (camera->port, &timeout);
-	//gp_port_set_timeout (camera->port, 1000);
-	//ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
-	//gp_port_set_timeout (camera->port, 5000);
-	//usleep(1000000);
-	usleep(10000);
+	//gp_port_check_int (camera->port, (char*)&usbevent, sizeof(usbevent));
+	//ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
+	//ret=ptp_transaction(params, &ptp, PTP_DP_SENDDATA|PTP_DP_NORESPONSE, size, &data, NULL);
+	usleep(100000);
 	PTPContainer	event;
 	int i;
-	for(i = 0; i < 50; i++) {
+	for(i = 0; i < 2; i++) {
 		ptp_debug (params,"PTP: (Olympus Init) checking events...");
 		/* Just busy loop until the camera is ready again. */
 		ptp_check_event_handle (params, 0);
 		if (ptp_get_one_event(params, &event)) break;
 		usleep(100000);
 	}
-	ptp_debug (params,"PTP: (Olympus Init) getting response...");
+	//ptp_debug (params,"PTP: (Olympus Init) getting response...");
 	//gp_port_set_timeout (camera->port, timeout);
-	ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
-	if(data) free(data);
+	//ret=ptp_transaction(params, &ptp, PTP_DP_RESPONSEONLY, size, &data, NULL);
+	//if(data) free(data);
 	return ret;
 }
 
@@ -3310,6 +3316,17 @@ ptp_olympus_omd_capture (PTPParams* params)
 	PTP_CNT_INIT(ptp, 0x9486); // initiate capture
 	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &buffer, &size);
 	free (buffer);
+	return ret;
+}
+
+uint16_t
+ptp_olympus_omd_move_focus (PTPParams* params, uint32_t direction, uint32_t step_size)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	PTP_CNT_INIT(ptp, PTP_OC_OLYMPUS_OMD_MFDrive, direction, step_size);
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+
 	return ret;
 }
 

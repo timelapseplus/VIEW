@@ -5708,6 +5708,55 @@ _put_Canon_EOS_MFDrive(CONFIG_PUT_ARGS) {
 
 
 static int
+_get_Olympus_OMD_MFDrive(CONFIG_GET_ARGS) {
+	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
+	gp_widget_set_name (*widget,menu->name);
+
+	gp_widget_add_choice (*widget, _("Near 1"));
+	gp_widget_add_choice (*widget, _("Near 2"));
+	gp_widget_add_choice (*widget, _("Near 3"));
+	gp_widget_add_choice (*widget, _("None"));
+	gp_widget_add_choice (*widget, _("Far 1"));
+	gp_widget_add_choice (*widget, _("Far 2"));
+	gp_widget_add_choice (*widget, _("Far 3"));
+
+	gp_widget_set_value (*widget, _("None"));
+	return (GP_OK);
+}
+
+static int
+_put_Olympus_OMD_MFDrive(CONFIG_PUT_ARGS) {
+	const char*	val;
+	unsigned int	xval;
+	uint32_t direction = 0x01;
+	uint32_t step_size = 0x0e;
+	PTPParams *params = &(camera->pl->params);
+
+	if (!ptp_operation_issupported(params, PTP_OC_OLYMPUS_OMD_MFDrive)) 
+		return (GP_ERROR_NOT_SUPPORTED);
+	gp_widget_get_value(widget, &val);
+
+	if (!strcmp (val, _("None"))) return GP_OK;
+
+	if (!sscanf (val, _("Near %d"), &xval)) {
+		if (!sscanf (val, _("Far %d"), &xval)) {
+			GP_LOG_D ("Could not parse %s", val);
+			return GP_ERROR;
+		} else {
+			direction = 0x02;
+		}
+	}
+	if(xval == 1) step_size = 0x03;
+	if(xval == 2) step_size = 0x0e;
+	if(xval == 3) step_size = 0x3c;
+
+	C_PTP_MSG (ptp_olympus_omd_move_focus (params, direction, step_size),
+		   "Olympus manual focus drive 0x%x failed", xval);
+	return GP_OK;
+}
+
+
+static int
 _get_Canon_EOS_Zoom(CONFIG_GET_ARGS) {
 	gp_widget_new (GP_WIDGET_TEXT, _(menu->label), widget);
 	gp_widget_set_name (*widget, menu->name);
@@ -7426,6 +7475,7 @@ static struct submenu camera_actions_menu[] = {
 	{ N_("Set Nikon Control Mode"),         "controlmode",      0,  PTP_VENDOR_NIKON,   PTP_OC_NIKON_SetControlMode,        _get_Nikon_ControlMode,         _put_Nikon_ControlMode },
 	{ N_("Drive Canon DSLR Manual focus"),  "manualfocusdrive", 0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_DriveLens,         _get_Canon_EOS_MFDrive,         _put_Canon_EOS_MFDrive },
 	{ N_("Cancel Canon DSLR Autofocus"),    "cancelautofocus",  0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_AfCancel,          _get_Canon_EOS_AFCancel,        _put_Canon_EOS_AFCancel },
+	{ N_("Drive Olympus OMD Manual focus"), "manualfocusdrive", 0,  PTP_VENDOR_GP_OLYMPUS_OMD, PTP_OC_OLYMPUS_OMD_MFDrive,         _get_Olympus_OMD_MFDrive,       _put_Olympus_OMD_MFDrive },
 	{ N_("Canon EOS Zoom"),                 "eoszoom",          0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_Zoom,              _get_Canon_EOS_Zoom,            _put_Canon_EOS_Zoom },
 	{ N_("Canon EOS Zoom Position"),        "eoszoomposition",  0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_ZoomPosition,      _get_Canon_EOS_ZoomPosition,    _put_Canon_EOS_ZoomPosition },
 	{ N_("Canon EOS Viewfinder"),           "viewfinder",       0,  PTP_VENDOR_CANON,   PTP_OC_CANON_EOS_GetViewFinderData, _get_Canon_EOS_ViewFinder,      _put_Canon_EOS_ViewFinder },

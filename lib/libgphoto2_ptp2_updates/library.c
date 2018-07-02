@@ -306,6 +306,12 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
 		return GP_OK;
 	}
 
+	GP_LOG_D ("Checking Olympus VendorExtensionID");
+	if (	di->Manufacturer && !strcmp(di->Manufacturer,"OLYMPUS") && !strncmp(di->Model,"E-M",3)  ) {
+		GP_LOG_D ("Setting Olympus VendorExtensionID to PTP_VENDOR_GP_OLYMPUS_OMD");
+		di->VendorExtensionID = PTP_VENDOR_GP_OLYMPUS_OMD;
+	}
+
 	/* for USB class matches on unknown cameras that were matches with PTP generic... */
 	if (!a.usb_vendor && di->Manufacturer) {
 		if (strstr (di->Manufacturer,"Canon"))
@@ -1493,6 +1499,7 @@ static struct {
 	/* Richard Wonka <richard.wonka@gmail.com> */
 	{"Olympus:E-M5 Mark II",	  0x07b4, 0x0130, 0},
 	{"Olympus:E-M1",	  		  0x07b4, 0x0130, 0}, /* same as E-M5 Mark II ?? */
+	{"Olympus:E-M1 Mark II",	  0x07b4, 0x0130, 0},
 
 	/* IRC report */
 	{"Casio:EX-Z120",                 0x07cf, 0x1042, 0},
@@ -2641,7 +2648,7 @@ camera_capture_preview (Camera *camera, CameraFile *file, GPContext *context)
 
 	camera->pl->checkevents = TRUE;
 	switch (params->deviceinfo.VendorExtensionID) {
-	case PTP_VENDOR_CANON:
+	case PTP_VENDOR_CANON: {
 		/* Canon PowerShot / IXUS preview mode */
 		if (ptp_operation_issupported(params, PTP_OC_CANON_ViewfinderOn)) {
 			SET_CONTEXT_P(params, context);
@@ -2790,6 +2797,7 @@ camera_capture_preview (Camera *camera, CameraFile *file, GPContext *context)
 		}
 		gp_context_error (context, _("Sorry, your Canon camera does not support Canon Viewfinder mode"));
 		return GP_ERROR_NOT_SUPPORTED;
+	}
 	case PTP_VENDOR_NIKON: {
 		PTPPropertyValue	value;
 		int 			tries, firstimage = 0;
@@ -3098,11 +3106,7 @@ enable_liveview:
 		SET_CONTEXT_P(params, NULL);
 		return GP_OK;
 	}
-	default: {
-		break;
-	}
-	}
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+	case PTP_VENDOR_GP_OLYMPUS_OMD: {
 		unsigned char	*ximage = NULL;
 		PTPPropertyValue	value;
 		uint16_t ret;
@@ -3172,6 +3176,10 @@ enable_liveview:
 
 		SET_CONTEXT_P(params, NULL);
 		return GP_OK;
+	}
+	default: {
+		break;
+	}
 	}
 	return GP_ERROR_NOT_SUPPORTED;
 }
@@ -4465,6 +4473,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 
 		while (ptp_get_one_event(params, &event)) {
 			switch (event.Code) {
+			case 0xc002:
 			case PTP_EC_ObjectAdded:
 				newobject = event.Param1;
 				goto downloadfile;
@@ -4739,7 +4748,7 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		/* for CARD capture and unsupported combinations, fall through */
 	}
 
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7))
+	if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_GP_OLYMPUS_OMD)
 		return camera_olympus_omd_capture (camera, type, path, context);
 
 	if (params->device_flags & DEVICE_FLAG_OLYMPUS_XML_WRAPPED)
@@ -8900,9 +8909,11 @@ camera_init (Camera *camera, GPContext *context)
 	}
 
 	// moved down here in case the filesystem needs to first be initialized as the Olympus app does
-	if (!strncmp(params->deviceinfo.Model,"E-M",3) && !strncmp(params->deviceinfo.Manufacturer,"OLYMPUS",7)) {
+	if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_GP_OLYMPUS_OMD) {
 		GP_LOG_D ("Initializing Olympus ... ");
+		ptp_olympus_init_pc_mode(params);
 
+		/*
 		if(params->storageids.n > 0) { // Olympus app gets storage info for first item, so emulating here
 			PTPStorageInfo storageinfo;
 			ptp_getstorageinfo(params, params->storageids.Storage[0], &storageinfo);
@@ -8923,6 +8934,7 @@ camera_init (Camera *camera, GPContext *context)
 			ptp_check_event_handle (params, 0);
 			ptp_olympus_init_pc_mode(params);
 		}
+		*/
 	}
 
 
