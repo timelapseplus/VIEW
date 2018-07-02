@@ -4306,7 +4306,7 @@ app.on('message', function(msg) {
                         });
                     })(msg.driver, msg.motor, msg.val, msg.reply);
                 } else if (msg.key == "zero" && msg.motor && msg.driver) {
-                    console.log("moving motor " + msg.motor);
+                    console.log("zero motor " + msg.motor);
                     (function(driver, motor, reply) {
                         core.zeroMotion(driver, motor, function(err) {
                             reply('move', {
@@ -4334,10 +4334,11 @@ app.on('message', function(msg) {
 
             case 'focus':
                 if (msg.key == "manual") {
-                    core.focus(msg.val, msg.repeat, function(err){
+                    core.focus(msg.val, msg.repeat, function(err, pos){
                         console.log("MAIN: focus complete");
                         msg.reply('focus', {
                             complete: true,
+                            position: pos
                         });
                     });
                 }
