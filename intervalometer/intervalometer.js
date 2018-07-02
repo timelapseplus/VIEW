@@ -173,8 +173,8 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
 
         if (setupFirst) {
             keyframes[0].seconds = 0;
-            keyframes[0].position = position || null;
-            kfSet = 0;
+            //keyframes[0].position = position || null;
+            kfSet = keyframes[0].position;
             axisPositions[axisName] = position;
         } else {
             var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
