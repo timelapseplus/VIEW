@@ -255,7 +255,15 @@ if (VIEW_HARDWARE) {
         ui.reload();
     });
 
+    var updateAppBattery = function() {
+        app.send('battery', {
+            percentage: power.percentage,
+            charging: power.charging
+        });
+    }
+
     power.on('charging', function(status) {
+        updateAppBattery();
         oled.chargeStatus(status);
     });
 
@@ -264,6 +272,7 @@ if (VIEW_HARDWARE) {
     });
 
     power.on('percentage', function(percentage) {
+        updateAppBattery();
         oled.batteryPercentage(percentage);
     });
 
@@ -4693,6 +4702,8 @@ app.on('message', function(msg) {
                     msg.reply('light', {
                         light: light.ev()
                     });
+                } else if (msg.key == "battery") {
+                    updateAppBattery();
                 } else if (msg.key == "motion") {
                     core.motionStatusUpdate(function(motion){
                         msg.reply('motion', motion);

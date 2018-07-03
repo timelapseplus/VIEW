@@ -18,6 +18,12 @@ lists.paramMap = [{
         item: "recordingmedia"
     }]
 }, {
+    name: "battery",
+    maps: [{
+        section: "status",
+        item: "batterylevel"
+    }]
+}, {
     name: "autofocus",
     maps: [{
         section: "settings",
