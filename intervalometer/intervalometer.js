@@ -711,6 +711,8 @@ function checkTime(m) {
     var mStart = startHour * 60 + startMinute;
     var mStop = stopHour * 60 + stopMinute;
 
+    console.log("mNow", mNow, "mStart", mStart, "mStop");
+
     status.minutesUntilStart = Math.round(mStart - mNow);
     if(mStart < mStop) { // day only
         return (mNow >= mStart && mNow < mStop);
@@ -1311,7 +1313,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 }, delay * 1000);
 
                                             }
-                                            if(program.delay > 60 && program.rampMode == 'auto' || program.scheduled) {
+                                            if((program.delay > 60 || program.scheduled) && program.rampMode == 'auto') {
                                                 getReferenceExposure(function(err, ev) {
                                                     if(err) {
                                                         intervalometer.cancel('err');
