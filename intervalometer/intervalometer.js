@@ -730,11 +730,13 @@ function waitForSchedule() {
                 if(status.frames > 0) {
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function(){
+                            console.log("Intervalometer: running scheduled start...");
                             intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
                         });
                     });
                 } else {
                     setTimeout(function(){
+                        console.log("Intervalometer: running scheduled start...");
                         intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
                     });
                 }
@@ -1162,7 +1164,7 @@ function getReferenceExposure(callback) {
 }
 
 intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarget, callback) {
-    if (intervalometer.status.running) return;
+    if (intervalometer.status.running && autoExposureTarget == null) return;
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
