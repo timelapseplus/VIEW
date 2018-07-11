@@ -726,6 +726,7 @@ function waitForSchedule() {
     scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
             if(status.running) {
+                console.log("Intervalometer: scheduled start beginning...");
                 if(status.frames > 0) {
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function(){
@@ -737,6 +738,8 @@ function waitForSchedule() {
                         intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
                     });
                 }
+             } else {
+                console.log("Intervalometer: scheduled start canceled because time-lapse is no longer running.");
              }
         } else {
             waitForSchedule();
@@ -749,6 +752,8 @@ function scheduled(noResume) {
         var m = moment().add(status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
+                console.log("Intervalometer: scheduled start ready");
+                console.trace();
                 return true;
             } else {
                 if(status.minutesUntilStart < 0) {
