@@ -1323,7 +1323,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 delayedMinutes++;
                                                 delayHandle = setTimeout(function() {
                                                     if(delayedMinutes * 60 >= program.delay) {
-                                                        if(status.exposureReferenceEv != null) {
+                                                        if(status.exposureReferenceEv != null && (!program.scheduled || autoExposureTarget != null)) {
                                                             autoSetExposure(status.exposureReferenceEv, function(err) {
                                                                 if(err) {
                                                                     error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
