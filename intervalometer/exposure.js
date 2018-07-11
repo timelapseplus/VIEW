@@ -256,7 +256,27 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     });
 
     if (local.first) {
-        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum);
+        //                          2                    -          -(2 - 0) - 2               = 4
+        //                          2                    -          -(2 - -1.5)               = 5.5
+
+        //                          2                    -        (2 +  -(2 - 0))               = 2
+        //                          2                    -        (2 +  -(2 - -1.5))               = 3.5
+
+        //                          2                    +          -(2 - 0)               = 0
+        //                          2                    +          -(2 - -1.5)               = -1.5
+        //                          2                    +          -(1 - -1.5)               = -0.5
+        var evScale = [{
+            x: exp.config.nightCompensationNightEv,
+            y: 1
+        }, {
+            x: exp.config.nightCompensationDayEv,
+            y: 0
+        }]
+        var nightRatio = interpolate.linear(evScale, ev);
+
+        exp.status.nightRefEv = lastPhotoLum * nightRatio;
+        exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
+        exp.status.offsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
         local.first = false;
     }
 
@@ -289,10 +309,10 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         } else { // auto calculate night exposure
             evScale = [{
                 ev: exp.config.nightCompensationNightEv,
-                offset: -(lastPhotoLum - -1.5) // -1.5
+                offset: -((lastPhotoLum - exp.status.nightRefEv) - -1.5) // -1.5
             }, {
                 ev: exp.config.nightCompensationDayEv,
-                offset: -(lastPhotoLum - 0.0)
+                offset: -((lastPhotoLum - exp.status.dayRefEv) - 0.0)
             }]
         }
     } else {
