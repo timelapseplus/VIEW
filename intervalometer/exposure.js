@@ -272,7 +272,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
             x: exp.config.nightCompensationDayEv,
             y: 0
         }]
-        var nightRatio = interpolate.linear(evScale, ev);
+        var nightRatio = interpolate.linear(evScale, currentEv);
 
         exp.status.nightRefEv = lastPhotoLum * nightRatio;
         exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
