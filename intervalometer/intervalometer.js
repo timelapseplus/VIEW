@@ -754,8 +754,7 @@ function scheduled(noResume) {
         var m = moment().add(status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
-                console.log("Intervalometer: scheduled start ready");
-                console.trace();
+                console.trace("Intervalometer: scheduled start ready");
                 return true;
             } else {
                 if(status.minutesUntilStart < 0) {

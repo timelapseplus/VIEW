@@ -256,7 +256,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     });
 
     if (local.first) {
-        exp.status.offsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
+        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum);
         local.first = false;
     }
 
