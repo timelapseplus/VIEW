@@ -1142,7 +1142,7 @@ function getReferenceExposure(callback) {
     camera.ptp.capture({mode:'test'}, function(err, res){
         console.log("reference exposure result:", err, res);
         if(!err && res && res.ev != null) {
-            callback && callback(null, ev);
+            callback && callback(null, res.ev);
         } else {
             callback && callback("Failed to determine reference exposure for delayed start", null);
         }
