@@ -754,7 +754,13 @@ function scheduled(noResume) {
                 if(status.minutesUntilStart < 0) {
                     status.message = "done for today...";
                 } else {
-                    status.message = "starting in " + status.minutesUntilStart + "...";
+                    var minutes = status.minutesUntilStart % 60;
+                    var hours = (status.minutesUntilStart - minutes) / 60;
+                    if(hours > 0) {
+                        status.message = "starting in " + hours + "hour" + (hours > 0 ? "s, ":", ") + minutes + " minute" + (minutes > 0 ? "s...":"...");
+                    } else {
+                        status.message = "starting in " + minutes + " minute" + (minutes > 0 ? "s...":"...");
+                    }
                 }
                 intervalometer.emit("status", status);
 
@@ -1292,7 +1298,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                 setTimeout(function() {
                                     busyPhoto = false;
                                     if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
-                                        if(scheduled()) {
+                                        if(scheduled(true)) {
                                             var delayedMinutes = 0;
                                             function delayed() {
                                                 if(program.delay > 5) {
@@ -1337,7 +1343,19 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                             } else {
                                                 delayed();
                                             }
-                                        }   
+                                        } else {
+                                            if(program.rampMode == 'auto') {
+                                                getReferenceExposure(function(err, ev) {
+                                                    if(err) {
+                                                        intervalometer.cancel('err');
+                                                        error(err);
+                                                    } else {
+                                                        status.exposureReferenceEv = ev;
+                                                        if(scheduled()) runPhoto();
+                                                    }
+                                                });
+                                            }
+                                        }
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {
                                         status.message = "waiting for AUX2...";
