@@ -58,7 +58,8 @@ function checkRestart() {
     console.log("SERVER CRASHED: checking time-lapse if restart needed");
     if(core.intervalometerStatus.running && core.currentProgram.scheduled) {
         restartProgram = _.extendOwn({}, core.currentProgram);
-        restartProgram._utcOffset = core.intervalometerStatus.utcOffset;
+        restartProgram._timeOffsetSeconds = core.intervalometerStatus.timeOffsetSeconds;
+        restartProgram._exposureReferenceEv = core.intervalometerStatus.exposureReferenceEv;
     }
 }
 
@@ -75,7 +76,7 @@ function connect() {
       console.log('connected to server!');
       client.ready = true;
       if(restartProgram) {
-        core.startIntervalometer(restartProgram, null, restartProgram._utcOffset);
+        core.startIntervalometer(restartProgram, null, restartProgram._timeOffsetSeconds, restartProgram._exposureReferenceEv);
         restartProgram = null;
       }
     });
@@ -139,7 +140,7 @@ function connect() {
                     core.sdPresent = false;
                 } else if(data.type == 'intervalometer.status') {
                     core.intervalometerStatus = data.data;
-                    if(core.intervalometerStatus.running == false) {
+                    if(core.intervalometerStatus && core.intervalometerStatus.running == false) {
                         power.performance('low');
                     }
                 } else if(data.type == 'intervalometer.currentProgram') {
@@ -390,15 +391,16 @@ core.loadProgram(defaultProgram);
 core.stopIntervalometer = function(callback) {
     call('intervalometer.cancel', {}, callback);
 }
-core.startIntervalometer = function(program, date, utcOffset, callback) {
+core.startIntervalometer = function(program, date, timeOffsetSeconds, exposureReferenceEv, callback) {
     if(typeof date == 'function') {
         callback = date;
         date = null;
-        utcOffset = null;
+        timeOffsetSeconds = null;
+        exposureReferenceEv = null;
     }
     power.performance('high');
     core.addGpsData(mcu.validCoordinates());
-    call('intervalometer.run', {program:program, date:date, utcOffset:utcOffset}, callback);
+    call('intervalometer.run', {program:program, date:date, timeOffsetSeconds:timeOffsetSeconds, exposureReferenceEv:exposureReferenceEv}, callback);
 }
 core.addGpsData = function(gpsData, callback) {
     call('gps', {gpsData:gpsData}, callback);

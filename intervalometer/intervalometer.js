@@ -711,6 +711,7 @@ function checkTime(m) {
     var mStart = startHour * 60 + startMinute;
     var mStop = stopHour * 60 + stopMinute;
 
+    status.minutesUntilStart = Math.round(mStart - mNow);
     if(mStart < mStop) { // day only
         return (mNow >= mStart && mNow < mStop);
     } else { // night only
@@ -720,16 +721,20 @@ function checkTime(m) {
 
 var scheduleHandle = null;
 function waitForSchedule() {
-    status.message = "waiting for schedule...";
-    intervalometer.emit("status", status);
     scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
             if(status.running) {
-                intervalometer.cancel("scheduled stop", function(){ // each day a new clip is generated
-                    setTimeout(function(){
-                        intervalometer.run(intervalometer.currentProgram);
+                if(status.frames > 0) {
+                    intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
+                        setTimeout(function(){
+                            intervalometer.run(intervalometer.currentProgram, null, null, status.exposureReferenceEv);
+                        });
                     });
-                });
+                } else {
+                    setTimeout(function(){
+                        intervalometer.run(intervalometer.currentProgram, null, null, status.exposureReferenceEv);
+                    });
+                }
              }
         } else {
             waitForSchedule();
@@ -739,15 +744,20 @@ function waitForSchedule() {
 
 function scheduled(noResume) {
     if(intervalometer.currentProgram && intervalometer.currentProgram.scheduled) {
-        var m = moment().utcOffset(status.utcOffset);
+        var m = moment().add(status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
                 return true;
             } else {
+                status.message = "starting in " + status.minutesUntilStart + "...";
+                intervalometer.emit("status", status);
+
                 if(!noResume) waitForSchedule();
                 return false;
             }
         } else {
+            status.message = "not scheduled today, waiting...";
+            intervalometer.emit("status", status);
             if(!noResume) waitForSchedule();
             return false;
         }
@@ -975,9 +985,12 @@ function runPhoto(isRetry) {
     }
 }
 
-function error(msg) {
+function error(msg, callback) {
     setTimeout(function(){
         intervalometer.emit("error", msg);
+    }, 50);
+    setTimeout(function(){
+        return callback && callback(msg);
     }, 100);
 }
 
@@ -1080,6 +1093,7 @@ intervalometer.cancel = function(reason, callback) {
         intervalometer.status.stopping = true;
         if(reason == 'err') intervalometer.status.message = "stopped due to error";
         else if(reason == 'done') intervalometer.status.message = "time-lapse complete";
+        else if(reason == 'schedule') intervalometer.status.message = "time-lapse stopped on schedule";
         else intervalometer.status.message = "time-lapse canceled";
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("status", status);
@@ -1110,24 +1124,38 @@ intervalometer.resume = function() {
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
 }
 
-intervalometer.run = function(program, date, utcOffset) {
+function getReferenceExposure(callback) {
+    status.message = "capturing reference image";
+    intervalometer.emit("status", status);
+    camera.ptp.capture({mode:'test'}, function(err, res){
+        console.log("reference exposure result:", err, res);
+        if(!err && res && res.ev != null) {
+            callback && callback(null, ev);
+        } else {
+            callback && callback("Failed to determine reference exposure for delayed start", null);
+        }
+    });
+}
+
+intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarget, callback) {
     if (intervalometer.status.running) return;
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
 
-    if(date && utcOffset != null) { // sync time with phone app local time
-        var diff = moment(date).diff(moment(), 'minutes');
-        console.log("date difference (minutes):", diff);
-        diff += utcOffset;
-        status.utcOffset = diff;
-        console.log("current local time:", moment().utcOffset(status.utcOffset).format());
-    } else if(utcOffset != null) { // cached utcOffset from restart
-        status.utcOffset = parseInt(utcOffset);
-    } else {
-        status.utcOffset = moment().utcOffset();
+    if(date && timeOffsetSeconds != null) { // sync time with phone app local time
+        status.timeOffsetSeconds = moment(date).diff(moment(), 'minutes');
+        console.log("date difference (seconds):", status.timeOffsetSeconds);
+    } else if(timeOffsetSeconds != null) { // cached timeOffsetSeconds from restart
+        status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
-    if(!status.utcOffset) status.utcOffset = 0;
+    if(!status.timeOffsetSeconds) status.timeOffsetSeconds = 0;
+    if(autoSetExposure != null) {
+        status.exposureReferenceEv = autoExposureTarget;
+    } else {
+        status.exposureReferenceEv = null;
+    }
+
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
     if (camera.ptp.connected) {
@@ -1252,7 +1280,6 @@ intervalometer.run = function(program, date, utcOffset) {
                                     busyPhoto = false;
                                     if(intervalometer.currentProgram.intervalMode != 'aux' || intervalometer.currentProgram.rampMode == 'fixed') {
                                         if(scheduled()) {
-                                            var delayExposureReferenceEv = null;
                                             var delayedMinutes = 0;
                                             function delayed() {
                                                 if(program.delay > 5) {
@@ -1262,12 +1289,12 @@ intervalometer.run = function(program, date, utcOffset) {
                                                 }
                                                 var delay = 60;
                                                 if(program.delay - delayedMinutes * 60 < 60) delay = program.delay - delayedMinutes * 60;
-                                                if(delay < 0) delay = 0;
+                                                if(delay < 0 || program.scheduled) delay = 0;
                                                 delayedMinutes++;
                                                 delayHandle = setTimeout(function() {
                                                     if(delayedMinutes * 60 >= program.delay) {
-                                                        if(delayExposureReferenceEv != null) {
-                                                            autoSetExposure(delayExposureReferenceEv, function(err) {
+                                                        if(status.exposureReferenceEv != null) {
+                                                            autoSetExposure(status.exposureReferenceEv, function(err) {
                                                                 if(err) {
                                                                     error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
                                                                     runPhoto();
@@ -1284,17 +1311,14 @@ intervalometer.run = function(program, date, utcOffset) {
                                                 }, delay * 1000);
 
                                             }
-                                            if(program.delay > 60 && program.rampMode == 'auto') {
-                                                status.message = "capturing reference image";
-                                                intervalometer.emit("status", status);
-                                                camera.ptp.capture({mode:'test'}, function(err, res){
-                                                    console.log("reference exposure result:", err, res);
-                                                    if(!err && res && res.ev != null) {
-                                                        delayExposureReferenceEv = res.ev;
-                                                        delayed();
-                                                    } else {
+                                            if(program.delay > 60 && program.rampMode == 'auto' || program.scheduled) {
+                                                getReferenceExposure(function(err, ev) {
+                                                    if(err) {
                                                         intervalometer.cancel('err');
-                                                        error("Failed to determine reference exposure for delayed start");
+                                                        error(err);
+                                                    } else {
+                                                        status.exposureReferenceEv = ev;
+                                                        delayed();
                                                     }
                                                 });
                                             } else {
@@ -1307,6 +1331,7 @@ intervalometer.run = function(program, date, utcOffset) {
                                         intervalometer.emit("status", status);
                                     }
                                 }, 3000);
+                                callback && callback();
                             });
                         });
                     }
@@ -1316,14 +1341,14 @@ intervalometer.run = function(program, date, utcOffset) {
                             if(mountErr) {
                                 console.log("Error mounting SD card");
                                 intervalometer.cancel('err');
-                                error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr);
+                                error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr, callback);
                             } else {
                                 status.mediaFolder = "/media/" + status.tlName;
                                 fs.mkdir(status.mediaFolder, function(folderErr) {
                                     if(folderErr) {
                                         console.log("Error creating folder", status.mediaFolder);
                                         intervalometer.cancel('err');
-                                        error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)");
+                                        error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)", callback);
                                     } else {
                                         start();
                                     }
@@ -1347,13 +1372,12 @@ intervalometer.run = function(program, date, utcOffset) {
                     errorList += "- " + validationResults.errors[i].reason + val + "\n";
                 }
                 intervalometer.cancel('err');
-                error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.");
+                error("Failed to start time-lapse: \n" + errorList + "Please correct and try again.", callback);
             }
         });
     } else {
         intervalometer.cancel('err');
-        error("Camera not connected.  Please verify camera connection via USB and try again.");
-        return;
+        error("Camera not connected.  Please verify camera connection via USB and try again.", callback);
     }
 
 }
