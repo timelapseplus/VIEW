@@ -757,9 +757,9 @@ function scheduled(noResume) {
                     var minutes = status.minutesUntilStart % 60;
                     var hours = (status.minutesUntilStart - minutes) / 60;
                     if(hours > 0) {
-                        status.message = "starting in " + hours + "hour" + (hours > 0 ? "s, ":", ") + minutes + " minute" + (minutes > 0 ? "s...":"...");
+                        status.message = "starting in " + hours + "hour" + (hours > 1 ? "s, ":", ") + minutes + " minute" + (minutes > 1 ? "s...":"...");
                     } else {
-                        status.message = "starting in " + minutes + " minute" + (minutes > 0 ? "s...":"...");
+                        status.message = "starting in " + minutes + " minute" + (minutes > 1 ? "s...":"...");
                     }
                 }
                 intervalometer.emit("status", status);
