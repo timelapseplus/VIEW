@@ -4386,7 +4386,7 @@ app.on('message', function(msg) {
 
             case 'run':
                 core.loadProgram(msg.program);
-                core.startIntervalometer(msg.program, msg.date, msg.utcOffset);
+                core.startIntervalometer(msg.program, msg.date);
                 break;
 
             case 'stop':

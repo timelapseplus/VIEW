@@ -1149,7 +1149,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
 
-    if(date && timeOffsetSeconds != null) { // sync time with phone app local time
+    if(date != null) { // sync time with phone app local time
         var mD = moment(date);
         var mN = moment();
         console.log("Intervalometer: App time:", mD.format(), "VIEW time:", mN.format());
