@@ -711,7 +711,7 @@ function checkTime(m) {
     var mStart = startHour * 60 + startMinute;
     var mStop = stopHour * 60 + stopMinute;
 
-    console.log("mNow", mNow, "mStart", mStart, "mStop");
+    console.log("Intervalometer: mNow", mNow, "mStart", mStart, "mStop", mStop);
 
     status.minutesUntilStart = Math.round(mStart - mNow);
     if(mStart < mStop) { // day only
@@ -751,7 +751,11 @@ function scheduled(noResume) {
             if(checkTime(m)) {
                 return true;
             } else {
-                status.message = "starting in " + status.minutesUntilStart + "...";
+                if(status.minutesUntilStart < 0) {
+                    status.message = "done for today...";
+                } else {
+                    status.message = "starting in " + status.minutesUntilStart + "...";
+                }
                 intervalometer.emit("status", status);
 
                 if(!noResume) waitForSchedule();
@@ -1146,8 +1150,15 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
     db.set('intervalometer.currentProgram', program);
 
     if(date && timeOffsetSeconds != null) { // sync time with phone app local time
-        status.timeOffsetSeconds = moment(date).diff(moment(), 'minutes');
-        console.log("date difference (seconds):", status.timeOffsetSeconds);
+        var mD = moment(date);
+        var mN = moment();
+        console.log("Intervalometer: App time:", mD.format(), "VIEW time:", mN.format());
+        var daysDiff = mD.day() - mN.day();
+        var hoursDiff = mD.hour() - mN.hour();
+        var minutesDiff = mD.minute() - mN.minute();
+        var secondsDiff = mD.seconds() - mN.seconds();
+        status.timeOffsetSeconds = daysDiff * 86400 + hoursDiff * 3600 + minutesDiff * 60 + secondsDiff;
+        console.log("Intervalometer: date difference (seconds):", status.timeOffsetSeconds);
     } else if(timeOffsetSeconds != null) { // cached timeOffsetSeconds from restart
         status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
