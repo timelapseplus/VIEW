@@ -973,8 +973,8 @@ function runPhoto(isRetry) {
                     if(intervalometer.currentProgram.intervalMode == 'aux') status.message = "waiting for AUX2...";
                     intervalometer.emit("status", status);
                     console.log("TL: program status:", status);
-                    if(status.frames == 1 && photoRes.ev > 2.5) {
-                        error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then start again.");
+                    if(status.frames == 1 && status.exposureReferenceEv == null) {
+                        brightWarning(photoRes.ev);
                     }
 
                 } else {
@@ -994,6 +994,12 @@ function runPhoto(isRetry) {
                 });
             });
         }
+    }
+}
+
+function brightWarning(ev) {
+    if(ev > 2.5) {
+        error("WARNING: the exposure is too high for reliable ramping. It will attempt to continue, but it's strongly recommended to stop the time-lapse, descrease the exposure to expose for the highlights and then start again.");
     }
 }
 
@@ -1347,6 +1353,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                         intervalometer.cancel('err');
                                                         error(err);
                                                     } else {
+                                                        brightWarning(ev);
                                                         status.exposureReferenceEv = ev;
                                                         delayed();
                                                     }
@@ -1362,6 +1369,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                             intervalometer.cancel('err');
                                                             error(err);
                                                         } else {
+                                                            brightWarning(ev);
                                                             status.exposureReferenceEv = ev;
                                                             if(scheduled()) runPhoto();
                                                         }
