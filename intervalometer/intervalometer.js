@@ -1378,10 +1378,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                     autoSetExposure(status.exposureReferenceEv, function(err) {
                                                         if(err) {
                                                             error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
-                                                            runPhoto();
-                                                        } else {
-                                                            runPhoto();
                                                         }
+                                                        if(scheduled()) runPhoto();
                                                     });
                                                 }
                                             }
