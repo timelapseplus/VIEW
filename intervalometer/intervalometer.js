@@ -729,12 +729,12 @@ function waitForSchedule() {
                 if(status.frames > 0) {
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function(){
-                            intervalometer.run(intervalometer.currentProgram, null, null, status.exposureReferenceEv);
+                            intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
                         });
                     });
                 } else {
                     setTimeout(function(){
-                        intervalometer.run(intervalometer.currentProgram, null, null, status.exposureReferenceEv);
+                        intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
                     });
                 }
              }
@@ -1024,7 +1024,7 @@ function autoSetExposure(offset, callback) {
     function captureTestEv() {
         camera.ptp.capture({mode:'test'}, function(err, res) {
             if(!err && res && res.ev != null) {
-                status.message = "checking exposure after delay...";
+                status.message = "checking/setting exposure...";
                 intervalometer.emit("status", status);
                 var evChange = res.ev - offset;
                 camera.ptp.getSettings(function() {
@@ -1052,6 +1052,7 @@ intervalometer.validate = function(program) {
     if(program.frames === null) program.frames = Infinity;
     
     if (parseInt(program.delay) < 1) program.delay = 1;
+    if(program.scheduled) program.delay = 0;
     if(program.rampMode == 'fixed' && !program.scheduled) {
         if (parseInt(program.frames) < 1) results.errors.push({param:'frames', reason: 'frame count not set'});
     } else {
@@ -1169,7 +1170,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
         status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
     if(!status.timeOffsetSeconds) status.timeOffsetSeconds = 0;
-    if(autoSetExposure != null) {
+    if(autoExposureTarget != null) {
         status.exposureReferenceEv = autoExposureTarget;
     } else {
         status.exposureReferenceEv = null;
@@ -1279,10 +1280,14 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     }
 
                     function start2() {
-                        if(program.scheduled && autoSetExposure != null) {
-                            autoSetExposure(status.exposureReferenceEv, function(err) {
+                        if(program.scheduled && autoExposureTarget != null) {
+                            if(scheduled(true)) {
+                                autoSetExposure(status.exposureReferenceEv, function(err) {
+                                    start3();
+                                });
+                            } else {
                                 start3();
-                            });
+                            }
                         } else {
                             if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
                                 camera.ptp.capture({mode:"test"}, start3);
@@ -1350,16 +1355,27 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 delayed();
                                             }
                                         } else {
-                                            if(program.rampMode == 'auto' && status.exposureReferenceEv == null) {
-                                                getReferenceExposure(function(err, ev) {
-                                                    if(err) {
-                                                        intervalometer.cancel('err');
-                                                        error(err);
-                                                    } else {
-                                                        status.exposureReferenceEv = ev;
-                                                        if(scheduled()) runPhoto();
-                                                    }
-                                                });
+                                            if(program.rampMode == 'auto') {
+                                                if(status.exposureReferenceEv == null) {
+                                                    getReferenceExposure(function(err, ev) {
+                                                        if(err) {
+                                                            intervalometer.cancel('err');
+                                                            error(err);
+                                                        } else {
+                                                            status.exposureReferenceEv = ev;
+                                                            if(scheduled()) runPhoto();
+                                                        }
+                                                    });
+                                                } else {
+                                                    autoSetExposure(status.exposureReferenceEv, function(err) {
+                                                        if(err) {
+                                                            error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
+                                                            runPhoto();
+                                                        } else {
+                                                            runPhoto();
+                                                        }
+                                                    });
+                                                }
                                             }
                                         }
                                     }
