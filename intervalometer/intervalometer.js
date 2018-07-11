@@ -1279,10 +1279,16 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     }
 
                     function start2() {
-                        if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
-                            camera.ptp.capture({mode:"test"}, start3);
+                        if(program.scheduled && autoSetExposure != null) {
+                            autoSetExposure(status.exposureReferenceEv, function(err) {
+                                start3();
+                            });
                         } else {
-                            start3();
+                            if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
+                                camera.ptp.capture({mode:"test"}, start3);
+                            } else {
+                                start3();
+                            }
                         }
                     }
 
@@ -1344,7 +1350,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 delayed();
                                             }
                                         } else {
-                                            if(program.rampMode == 'auto') {
+                                            if(program.rampMode == 'auto' && status.exposureReferenceEv == null) {
                                                 getReferenceExposure(function(err, ev) {
                                                     if(err) {
                                                         intervalometer.cancel('err');
