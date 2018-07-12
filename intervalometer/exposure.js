@@ -179,11 +179,11 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
 
         if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights && exp.status.highlightProtection < exp.config.highlightProtectionLimit) {
             exp.status.highlightProtection += 0.333;
-            exp.status.offsetEv -= 0.333;
+            exp.status.manualOffsetEv -= 0.333;
             exp.status.rampEv += 0.333;
         } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0.3) {
             exp.status.highlightProtection -= 0.333;
-            exp.status.offsetEv += 0.333;
+            exp.status.manualOffsetEv += 0.333;
             exp.status.rampEv -= 0.333;
         }
         exp.status.highlightProtection = Math.round(exp.status.highlightProtection * 1000) / 1000;
@@ -262,6 +262,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         //                          2                    -        (2 +  -(2 - 0))               = 2
         //                          2                    -        (2 +  -(2 - -1.5))               = 3.5
 
+
         //                          2                    +          -(2 - 0)               = 0
         //                          2                    +          -(2 - -1.5)               = -1.5
         //                          2                    +          -(1 - -1.5)               = -0.5
@@ -274,9 +275,10 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         }]
         var nightRatio = interpolate.linear(evScale, currentEv);
 
-        exp.status.nightRefEv = lastPhotoLum * nightRatio;
+        exp.status.nightRefEv = lastPhotoLum * nightRatio + -1.5 * (1 - nightRatio);
         exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
-        exp.status.offsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
+        exp.status.fixedRefEv = lastPhotoLum;
+        exp.status.manualOffsetEv = 0;
         local.first = false;
     }
 
@@ -291,7 +293,8 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evMean = filteredMean(local.lumArray, trim);
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
-    return lastPhotoLum - exp.status.offsetEv - getEvOffsetScale(currentEv, lastPhotoLum);
+    exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum);
+    return lastPhotoLum - exp.status.manualOffsetEv - exp.status.offsetEv;
 }
 
 
@@ -318,10 +321,10 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
     } else {
         evScale = [{
             ev: exp.config.nightCompensationNightEv,
-            offset: exp.config.nightCompensation
+            offset: exp.status.fixedRefEv - (parseFloat(exp.config.nightCompensation) || 0.0)
         }, {
             ev: exp.config.nightCompensationDayEv,
-            offset: 0
+            offset: exp.status.fixedRefEv - 0
         }]
     }
 

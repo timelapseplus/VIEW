@@ -1479,14 +1479,15 @@ function dynamicChangeUpdate() {
                 }, {
                     x: item.endFrame,
                     y: item.endVal
-                }], intervalometer.status.frames);                
+                }], intervalometer.status.frames);
                 if(param == 'offsetEv') {
-                    intervalometer.status.exposure.status.offsetEv = newVal;
+                    intervalometer.status.exposure.status.manualOffsetEv += newVal - item.lastVal; // this allows the highlight protection to also change it without overwriting
                 } else if(param == 'rampEv') {
                     intervalometer.status.rampEv = newVal;
                 } else {
                     intervalometer.currentProgram[param] = newVal;
                 }
+                item.lastVal = newVal;
                 if(item.endFrame < intervalometer.status.frames) {
                     delete intervalometer.status.dynamicChange[param];
                 }
@@ -1512,6 +1513,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
         console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
         intervalometer.status.dynamicChange[parameter] = {
             startVal: parseFloat(intervalometer.currentProgram[parameter]),
+            lastVal: parseFloat(intervalometer.currentProgram[parameter]),
             endVal: parseFloat(newValue),
             startFrame: intervalometer.status.frames,
             endFrame: intervalometer.status.frames + frames
@@ -1554,8 +1556,9 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 if(!frames || frames < 1) frames = 1;
                 console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
-                    startVal: parseFloat(intervalometer.status.exposure.status.offsetEv),
-                    endVal: parseFloat(newValue),
+                    startVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
+                    lastVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
+                    endVal: parseFloat(newValue - intervalometer.status.exposure.status.offsetEv),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
@@ -1567,6 +1570,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: intervalometer.status.rampEv,
+                    lastVal: intervalometer.status.rampEv,
                     endVal: intervalometer.status.rampEv + parseFloat(newValue),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
