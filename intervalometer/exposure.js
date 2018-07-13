@@ -269,7 +269,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
         exp.status.fixedRefEv = lastPhotoLum;
         exp.status.manualOffsetEv = getEvOffsetScale(currentEv, lastPhotoLum) - lastPhotoLum;
-        exp.status.offsetEv = exp.status.manualOffsetEv - getEvOffsetScale(currentEv, lastPhotoLum);
+        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) - exp.status.manualOffsetEv;
         local.first = false;
     }
 
