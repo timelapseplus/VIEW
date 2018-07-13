@@ -1001,7 +1001,7 @@ function focusFuji(step, repeat, callback) {
 
     var doFocus = function(target, cb) {
         camera.getSettings(function(err, settings){
-            var currentPos = parseInf(camera.settings.fujifocuspos);
+            var currentPos = parseInt(camera.settings.fujifocuspos);
             if(settings) {
                 currentPos = parseInt(settings.fujifocuspos);
                 camera.focusPos = currentPos / FUJI_FOCUS_RESOLUTION;
