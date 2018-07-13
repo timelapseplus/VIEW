@@ -275,7 +275,7 @@ var startWorker = function(port) {
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
                     if(newSettings.fujifocuspos != null && newSettings.fujifocuspos !== false) {
-                        newSettings.focusPos = newSettings.fujifocuspos;
+                        newSettings.focusPos = parseInt(newSettings.fujifocuspos);
                     } else {
                         newSettings.focusPos = camera.focusPos;
                     }
