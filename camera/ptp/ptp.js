@@ -1011,7 +1011,7 @@ function focusFuji(step, repeat, callback) {
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
                 if (callback) callback(null, camera.focusPos);
             } else {
-                var targetPos = target || parseInt(currentPos) - relativeMove;
+                var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
                 if(worker.connected) {
