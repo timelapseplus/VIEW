@@ -27,6 +27,8 @@ camera.lvOn = false;
 camera.supports = {};
 camera.focusPos = 0;
 
+var FUJI_FOCUS_RESOLUTION = 5;
+
 // multi-cam properties
 camera.primaryPort = null;
 camera.count = 0;
@@ -275,7 +277,7 @@ var startWorker = function(port) {
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
                     if(newSettings.fujifocuspos != null && newSettings.fujifocuspos !== false) {
-                        newSettings.focusPos = parseInt(newSettings.fujifocuspos);
+                        newSettings.focusPos = parseInt(newSettings.fujifocuspos) / FUJI_FOCUS_RESOLUTION;
                     } else {
                         newSettings.focusPos = camera.focusPos;
                     }
@@ -995,14 +997,14 @@ function focusFuji(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var attempts = 0;
-    var relativeMove = (parseInt(step) * 5 * parseInt(repeat));
+    var relativeMove = (parseInt(step) * FUJI_FOCUS_RESOLUTION * parseInt(repeat));
 
     var doFocus = function(target, cb) {
         camera.getSettings(function(err, settings){
-            var currentPos = camera.settings.fujifocuspos;
+            var currentPos = parseInf(camera.settings.fujifocuspos);
             if(settings) {
-                currentPos = settings.fujifocuspos;
-                camera.focusPos = currentPos;
+                currentPos = parseInt(settings.fujifocuspos);
+                camera.focusPos = currentPos / FUJI_FOCUS_RESOLUTION;
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
                 fujiFocusPosCache = parseInt(target);
