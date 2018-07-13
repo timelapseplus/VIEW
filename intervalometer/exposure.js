@@ -268,8 +268,12 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         exp.status.nightRefEv = lastPhotoLum * nightRatio + -1.5 * (1 - nightRatio);
         exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
         exp.status.fixedRefEv = lastPhotoLum;
-        exp.status.manualOffsetEv = getEvOffsetScale(currentEv, lastPhotoLum) - lastPhotoLum;
+        exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
+        console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
+        console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
+        console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
         exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) - exp.status.manualOffsetEv;
+        console.log("EXPOSURE: exp.status.offsetEv =", exp.status.offsetEv);
         local.first = false;
     }
 

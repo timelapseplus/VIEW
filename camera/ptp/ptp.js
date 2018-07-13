@@ -1042,7 +1042,7 @@ function focusFuji(step, repeat, callback) {
     var startFocus = function(cb) {
         if(camera.settings.fujifocus == 'enabled') {
             if(fujiFocusPosCache != null) {
-                doFocus(parseInt(fujiFocusPosCache) - relativeMove, cb);
+                doFocus(parseInt(fujiFocusPosCache) + relativeMove, cb);
             } else {
                 doFocus(null, cb);
             }
