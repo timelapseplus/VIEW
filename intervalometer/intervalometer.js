@@ -1482,7 +1482,7 @@ function dynamicChangeUpdate() {
                 }], intervalometer.status.frames);
                 if(param == 'offsetEv') {
                     intervalometer.status.exposure.status.manualOffsetEv += newVal - item.lastVal; // this allows the highlight protection to also change it without overwriting
-                    intervalometer.status.exposure.status.rampEv += newVal - item.lastVal; // this make for an immediate change without destabilizing the PID loop
+                    intervalometer.status.exposure.status.rampEv -= newVal - item.lastVal; // this make for an immediate change without destabilizing the PID loop
                 } else if(param == 'rampEv') {
                     intervalometer.status.rampEv = newVal;
                 } else {
@@ -1559,7 +1559,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
                     lastVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
-                    endVal: parseFloat(intervalometer.status.exposure.status.offsetEv - newValue),
+                    endVal: parseFloat(newValue - intervalometer.status.exposure.status.offsetEv),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
