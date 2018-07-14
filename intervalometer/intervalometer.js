@@ -1559,7 +1559,8 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
                     lastVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
-                    endVal: parseFloat(newValue - intervalometer.status.exposure.status.offsetEv),
+                    endVal: parseFloat(newValue),
+                    //endVal: parseFloat(newValue - intervalometer.status.exposure.status.offsetEv),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };

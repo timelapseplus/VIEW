@@ -272,7 +272,8 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
         console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
         console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
-        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
+        //exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
+        exp.status.offsetEv = exp.status.manualOffsetEv;
         console.log("EXPOSURE: exp.status.offsetEv =", exp.status.offsetEv);
         console.log("EXPOSURE: lastPhotoLum - exp.status.offsetEv =", lastPhotoLum - exp.status.offsetEv);
         local.first = false;
@@ -289,8 +290,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evMean = filteredMean(local.lumArray, trim);
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
-    exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
-    return lastPhotoLum - exp.status.offsetEv;
+    return lastPhotoLum - (getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv);
 }
 
 
