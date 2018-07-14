@@ -272,7 +272,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
         console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
         console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
-        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
+        exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) - exp.status.manualOffsetEv;
         console.log("EXPOSURE: exp.status.offsetEv =", exp.status.offsetEv);
         console.log("EXPOSURE: lastPhotoLum - exp.status.offsetEv =", lastPhotoLum - exp.status.offsetEv);
         local.first = false;
@@ -308,7 +308,7 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         } else { // auto calculate night exposure
             evScale = [{
                 ev: exp.config.nightCompensationNightEv,
-                offset: exp.status.nightRefEv - 1.5
+                offset: exp.status.nightRefEv
             }, {
                 ev: exp.config.nightCompensationDayEv,
                 offset: exp.status.dayRefEv
