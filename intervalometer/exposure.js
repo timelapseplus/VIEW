@@ -88,7 +88,7 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
 
     var lum1 = lum;
 
-    lum -= (lum * getEvOffsetScale(currentEv, lastPhotoLum)) / 2; // apply night compensation
+    lum -= (lum * getEvOffsetScale(currentEv, lastPhotoLum, true)) / 2; // apply night compensation
 
     var lum2 = lum;
 
@@ -268,7 +268,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         exp.status.nightRefEv = lastPhotoLum * nightRatio + -1.5 * (1 - nightRatio);
         exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
         exp.status.fixedRefEv = lastPhotoLum;
-        exp.status.manualOffsetEv = getEvOffsetScale(currentEv, lastPhotoLum);
+        exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
         console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
         console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
         console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
@@ -308,19 +308,19 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         } else { // auto calculate night exposure
             evScale = [{
                 ev: exp.config.nightCompensationNightEv,
-                offset: -(exp.status.nightRefEv - -1.5) // -1.5
+                offset: exp.status.nightRefEv - 1.5
             }, {
                 ev: exp.config.nightCompensationDayEv,
-                offset: -(exp.status.dayRefEv - 0.0)
+                offset: exp.status.dayRefEv
             }]
         }
     } else {
         evScale = [{
             ev: exp.config.nightCompensationNightEv,
-            offset: exp.status.fixedRefEv - (parseFloat(exp.config.nightCompensation) || 0.0)
+            offset: exp.status.fixedRefEv + (parseFloat(exp.config.nightCompensation) || 0.0)
         }, {
             ev: exp.config.nightCompensationDayEv,
-            offset: exp.status.fixedRefEv - 0
+            offset: exp.status.fixedRefEv + 0
         }]
     }
 
