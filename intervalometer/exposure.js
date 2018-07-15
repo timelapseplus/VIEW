@@ -273,9 +273,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
         console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
         //exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
-        exp.status.offsetEv = exp.status.manualOffsetEv;
-        console.log("EXPOSURE: exp.status.offsetEv =", exp.status.offsetEv);
-        console.log("EXPOSURE: lastPhotoLum - exp.status.offsetEv =", lastPhotoLum - exp.status.offsetEv);
+        console.log("EXPOSURE: lastPhotoLum - exp.status.manualOffsetEv =", lastPhotoLum - exp.status.manualOffsetEv);
         local.first = false;
     }
 

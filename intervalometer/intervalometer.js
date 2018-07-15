@@ -1480,7 +1480,7 @@ function dynamicChangeUpdate() {
                     x: item.endFrame,
                     y: item.endVal
                 }], intervalometer.status.frames);
-                if(param == 'offsetEv') {
+                if(param == 'manualOffsetEv') {
                     intervalometer.status.exposure.status.manualOffsetEv += newVal - item.lastVal; // this allows the highlight protection to also change it without overwriting
                     intervalometer.status.exposure.status.rampEv -= newVal - item.lastVal; // this make for an immediate change without destabilizing the PID loop
                 } else if(param == 'rampEv') {
@@ -1506,7 +1506,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'offsetEv', 'rampEv', 'frames'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'rampEv', 'frames'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1552,7 +1552,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 }
                 break;
 
-            case 'offsetEv':
+            case 'manualOffsetEv':
                 frames = parseInt(frames);
                 if(!frames || frames < 1) frames = 1;
                 console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
@@ -1560,7 +1560,6 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                     startVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
                     lastVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
                     endVal: parseFloat(newValue),
-                    //endVal: parseFloat(newValue - intervalometer.status.exposure.status.offsetEv),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
