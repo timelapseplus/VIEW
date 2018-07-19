@@ -1532,6 +1532,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 }
                 if(newValue == 'fixed' && intervalometer.currentProgram.intervalMode == 'auto') {
                     intervalometer.currentProgram.frames = Math.ceil(intervalometer.status.frames / 100) * 100 + 500;
+                    intervalometer.status.framesRemaining = intervalometer.currentProgram.frames - intervalometer.status.frames;
                     intervalometer.currentProgram.interval = newInt;
                     intervalometer.currentProgram.intervalMode = 'fixed';
                     intervalometer.emit("currentProgram", intervalometer.currentProgram);

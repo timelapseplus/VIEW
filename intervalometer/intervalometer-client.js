@@ -144,6 +144,7 @@ function connect() {
                         power.performance('low');
                     }
                 } else if(data.type == 'intervalometer.currentProgram') {
+                    console.log("CLIENT: updating currentProgram from server")
                     core.currentProgram = data.data;
                 } else if(data.type == 'process.pid') {
                     core.processId = data.data;
