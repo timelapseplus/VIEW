@@ -1480,13 +1480,18 @@ function dynamicChangeUpdate() {
                     x: item.endFrame,
                     y: item.endVal
                 }], intervalometer.status.frames);
-                if(param == 'manualOffsetEv') {
-                    intervalometer.status.exposure.status.manualOffsetEv += newVal - item.lastVal; // this allows the highlight protection to also change it without overwriting
-                    intervalometer.status.exposure.status.rampEv -= newVal - item.lastVal; // this make for an immediate change without destabilizing the PID loop
-                } else if(param == 'rampEv') {
-                    intervalometer.status.rampEv = newVal;
-                } else {
-                    intervalometer.currentProgram[param] = newVal;
+                switch(param) {
+                    case 'manualOffsetEv':
+                        intervalometer.status.exposure.status.rampEv -= newVal - item.lastVal; // this makes for an immediate change without destabilizing the PID loop
+                    case 'nightRefEv':
+                    case 'dayRefEv':
+                        intervalometer.status.exposure.status[param] += newVal - item.lastVal; // this allows the highlight protection to also change it without overwriting
+                        break;
+                    case 'rampEv':
+                        intervalometer.status.rampEv = newVal;
+                        break;
+                    default:
+                        intervalometer.currentProgram[param] = newVal;
                 }
                 item.lastVal = newVal;
                 if(item.endFrame < intervalometer.status.frames) {
@@ -1506,7 +1511,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'rampEv', 'frames'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'dayOffsetEv', 'nightOffsetEv', 'rampEv', 'frames'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
@@ -1554,17 +1559,20 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 break;
 
             case 'manualOffsetEv':
+            case 'nightRefEv':
+            case 'dayRefEv':
                 frames = parseInt(frames);
                 if(!frames || frames < 1) frames = 1;
                 console.log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
-                    startVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
-                    lastVal: parseFloat(intervalometer.status.exposure.status.manualOffsetEv),
+                    startVal: parseFloat(intervalometer.status.exposure.status[parameter]),
+                    lastVal: parseFloat(intervalometer.status.exposure.status[parameter]),
                     endVal: parseFloat(newValue),
                     startFrame: intervalometer.status.frames,
                     endFrame: intervalometer.status.frames + frames
                 };
                 break;
+
 
             case 'rampEv':
                 frames = parseInt(frames);

@@ -255,18 +255,18 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         time: new Date()
     });
 
-    if (local.first) {
-        var evScale = [{
-            x: exp.config.nightCompensationNightEv,
-            y: 1
-        }, {
-            x: exp.config.nightCompensationDayEv,
-            y: 0
-        }]
-        var nightRatio = interpolate.linear(evScale, currentEv);
+    var evScale = [{
+        x: exp.config.nightCompensationNightEv,
+        y: 1
+    }, {
+        x: exp.config.nightCompensationDayEv,
+        y: 0
+    }]
+    exp.status.nightRatio = interpolate.linear(evScale, currentEv);
 
-        exp.status.nightRefEv = lastPhotoLum * nightRatio + -1.5 * (1 - nightRatio);
-        exp.status.dayRefEv = lastPhotoLum * (1 - nightRatio);
+    if (local.first) {
+        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
+        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio);
         exp.status.fixedRefEv = lastPhotoLum;
         exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
         console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
