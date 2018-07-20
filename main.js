@@ -4268,12 +4268,14 @@ app.on('message', function(msg) {
 
             case 'clip-log-report':
                 if(msg.name) {
-                    db.sendLog(msg.name, msg.description || 'unknown', function() {
-                        app.sendLogs();
-                        reply('clip-log-report', {
-                            message: help.logsQueued,
+                    (function(name, description, reply) {
+                        db.sendLog(msg.name, msg.description || 'unknown', function() {
+                            app.sendLogs();
+                            reply('clip-log-report', {
+                                message: help.logsQueued,
+                            });
                         });
-                    });
+                    })(msg.name, msg.description, msg.reply);
                 }
             case 'camera-images':
                 var response = {};
