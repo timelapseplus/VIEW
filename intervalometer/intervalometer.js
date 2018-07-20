@@ -55,7 +55,7 @@ intervalometer.autoSettings = {
 
 intervalometer.timelapseFolder = false;
 
-status = {
+intervalometer.status = {
     running: false,
     frames: 0,
     framesRemaining: 0,
@@ -68,13 +68,12 @@ status = {
     },
     exposure: exp
 }
-intervalometer.status = status;
 
 var auxTrigger = new Button('input-aux2');
 
 auxTrigger.on('press', function() {
     console.log("AUX2 trigger!");
-    if (status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
+    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
 });
 
 auxTrigger.on('error', function(err) {
@@ -82,7 +81,7 @@ auxTrigger.on('error', function(err) {
 });
 
 function motionSyncPulse() {
-    if (status.running && intervalometer.currentProgram.intervalMode != 'aux') {
+    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode != 'aux') {
         gpio.read(HOTSHOE_IN, function(err, shutterClosed) {
             console.log("hotshoe:", shutterClosed);
             if(shutterClosed) {
@@ -101,25 +100,25 @@ function motionSyncPulse() {
 }
 
 function fileInit() {
-    fs.writeFileSync(status.timelapseFolder + "/details.csv", "frame, error, target, setting, rate, interval, timestamp, file, p, i, d\n");
+    fs.writeFileSync(intervalometer.status.timelapseFolder + "/details.csv", "frame, error, target, setting, rate, interval, timestamp, file, p, i, d\n");
 }
 
 function writeFile() {
-    fs.appendFileSync(status.timelapseFolder + "/details.csv", status.frames + ", " + status.evDiff + "," + exp.status.targetEv + "," + status.rampEv + "," + exp.status.rate + "," + (status.intervalMs / 1000) + "," + status.lastPhotoTime + "," + status.path + "," + exp.status.pComponent + "," + exp.status.iComponent + "," + exp.status.dComponent + "\n");
-    //image.writeXMP(name, status.evDiff);
+    fs.appendFileSync(intervalometer.status.timelapseFolder + "/details.csv", intervalometer.status.frames + ", " + intervalometer.status.evDiff + "," + exp.status.targetEv + "," + intervalometer.status.rampEv + "," + exp.status.rate + "," + (intervalometer.status.intervalMs / 1000) + "," + intervalometer.status.lastPhotoTime + "," + intervalometer.status.path + "," + exp.status.pComponent + "," + exp.status.iComponent + "," + exp.status.dComponent + "\n");
+    //image.writeXMP(name, intervalometer.status.evDiff);
 }
 
 function getDetails(file) {
     var d = {
-        frames: status.frames,
-        evCorrection: status.evDiff,
+        frames: intervalometer.status.frames,
+        evCorrection: intervalometer.status.evDiff,
         targetEv: exp.status.targetEv,
-        actualEv: status.rampEv,
-        cameraEv: status.cameraEv,
+        actualEv: intervalometer.status.rampEv,
+        cameraEv: intervalometer.status.cameraEv,
         rampRate: exp.status.rate,
-        intervalMs: status.intervalMs,
-        timestamp: status.lastPhotoTime,
-        fileName: file || status.path,
+        intervalMs: intervalometer.status.intervalMs,
+        timestamp: intervalometer.status.lastPhotoTime,
+        fileName: file || intervalometer.status.path,
         p: exp.status.pComponent,
         i: exp.status.iComponent,
         d: exp.status.dComponent,
@@ -167,7 +166,7 @@ function calculateIntervalMs(interval, currentEv) {
 var axisPositions = {};
 function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, position, motionFunction) {
     if(interpolationMethod != 'smooth') interpolationMethod = 'linear';
-    if (status.running && keyframes && keyframes.length > 0 && keyframes[0].position != null) {
+    if (intervalometer.status.running && keyframes && keyframes.length > 0 && keyframes[0].position != null) {
         var kfSet = null;
         var kfCurrent = null;
 
@@ -177,7 +176,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             kfSet = keyframes[0].position;
             axisPositions[axisName] = position;
         } else {
-            var secondsSinceStart = status.lastPhotoTime + (status.intervalMs / 1000);
+            var secondsSinceStart = intervalometer.status.lastPhotoTime + (intervalometer.status.intervalMs / 1000);
 
             console.log("KF: Seconds since last: " + secondsSinceStart);
             var totalSeconds = 0;
@@ -294,7 +293,7 @@ function processKeyframes(setupFirst, callback) {
                         var dir = focus > 0 ? 1 : -1;
                         var steps = Math.abs(focus);
                         camera.ptp.focus(dir, steps, function() {
-                            if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
+                            if(camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
                                 checkDone('focus');
                             } else {
                                 setTimeout(function(){
@@ -307,10 +306,10 @@ function processKeyframes(setupFirst, callback) {
                             }
                         });
                     }
-                    focus += status.focusDiffNew;
-                    status.focusDiffNew = 0;
+                    focus += intervalometer.status.focusDiffNew;
+                    intervalometer.status.focusDiffNew = 0;
                     if(focus) {
-                        if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
+                        if(camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
                             doFocus();
                         } else {
                             camera.ptp.preview(function() {
@@ -328,7 +327,7 @@ function processKeyframes(setupFirst, callback) {
                 });
             } else if(m == 'interval') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', null, function(interval) {
-                    //status.intervalMs = interval * 1000;
+                    //intervalometer.status.intervalMs = interval * 1000;
                     checkDone('interval');
                 });
             } else {
@@ -370,20 +369,20 @@ function processKeyframes(setupFirst, callback) {
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
             if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'sun' && sunPos) {
-                trackingTarget = calculateCelestialDistance(status.sunPos, sunPos, axis.trackBelowHorizon);
+                trackingTarget = calculateCelestialDistance(intervalometer.status.sunPos, sunPos, axis.trackBelowHorizon);
             } else if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'moon' && moonPos) {
-                trackingTarget = calculateCelestialDistance(status.moonPos, moonPos, axis.trackBelowHorizon);
+                trackingTarget = calculateCelestialDistance(intervalometer.status.moonPos, moonPos, axis.trackBelowHorizon);
             } else if(axis.type == 'constant') {
                 if(axis.rate == null) axis.rate = 15;
                 if(axis.orientation == 'pan') {
                     trackingTarget = {
-                        pan: (((new Date() / 1000) - status.startTime) / 3600) * parseFloat(axis.rate),
+                        pan: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
                         tilt: 0
                     }
                 }
                 if(axis.orientation == 'tilt') {
                     trackingTarget = {
-                        tilt: (((new Date() / 1000) - status.startTime) / 3600) * parseFloat(axis.rate),
+                        tilt: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
                         pan: 0
                     }
                 }
@@ -395,40 +394,40 @@ function processKeyframes(setupFirst, callback) {
 
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
-                    var panDegrees = trackingTarget.pan - status.trackingPan;
-                    if(status.panDiff != status.panDiffNew) {
-                        status.panDiff = status.panDiffNew;
+                    var panDegrees = trackingTarget.pan - intervalometer.status.trackingPan;
+                    if(intervalometer.status.panDiff != intervalometer.status.panDiffNew) {
+                        intervalometer.status.panDiff = intervalometer.status.panDiffNew;
                     }
-                    panDegrees += status.panDiff;
+                    panDegrees += intervalometer.status.panDiff;
                     if(panDegrees != 0) {
-                        status.trackingPanEnabled = true;
+                        intervalometer.status.trackingPanEnabled = true;
                         var panSteps = panDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             panSteps = Math.round(panSteps);
                         }
-                        console.log("Intervalometer: tracking pan", panDegrees, status.trackingPan, panSteps, status.frames);
+                        console.log("Intervalometer: tracking pan", panDegrees, intervalometer.status.trackingPan, panSteps, intervalometer.status.frames);
                         motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
-                            status.trackingPan += panSteps / motor.stepsPerDegree;
+                            intervalometer.status.trackingPan += panSteps / motor.stepsPerDegree;
                             checkDone('tracking');
                         });
                     } else {
                         checkDone('tracking');
                     }
                 } else if(axis.orientation == 'tilt') {
-                    var tiltDegrees = trackingTarget.tilt - status.trackingTilt;
-                    if(status.tiltDiff != status.tiltDiffNew) {
-                        status.tiltDiff = status.tiltDiffNew;
+                    var tiltDegrees = trackingTarget.tilt - intervalometer.status.trackingTilt;
+                    if(intervalometer.status.tiltDiff != intervalometer.status.tiltDiffNew) {
+                        intervalometer.status.tiltDiff = intervalometer.status.tiltDiffNew;
                     }
-                    tiltDegrees += status.tiltDiff;
+                    tiltDegrees += intervalometer.status.tiltDiff;
                     if(tiltDegrees != 0 && axis.orientation == 'tilt') {
-                        status.trackingTiltEnabled = true;
+                        intervalometer.status.trackingTiltEnabled = true;
                         var tiltSteps = tiltDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
                         }
-                        console.log("Intervalometer: tracking tilt", tiltDegrees, status.trackingTilt, tiltSteps, status.frames);
+                        console.log("Intervalometer: tracking tilt", tiltDegrees, intervalometer.status.trackingTilt, tiltSteps, intervalometer.status.frames);
                         motion.move(motor.driver, motor.motor, tiltSteps * motor.direction, function() {
-                            status.trackingTilt += tiltSteps / motor.stepsPerDegree;
+                            intervalometer.status.trackingTilt += tiltSteps / motor.stepsPerDegree;
                             checkDone('tracking');
                         });
                     } else {
@@ -447,7 +446,7 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     camera.ptp.focus(dir, steps, function() {
-                        if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
+                        if(camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
                             checkDone('focus-update');
                         } else {
                             setTimeout(function(){
@@ -460,14 +459,14 @@ function processKeyframes(setupFirst, callback) {
                         }
                     });
                 }
-                if(status.focusDiffNew) {
-                    status.focusDiffNew = 0;
-                    if(camera.ptp.model.match(/fuji/i) || status.useLiveview) {
-                        doFocus(status.focusDiffNew);
+                if(intervalometer.status.focusDiffNew) {
+                    intervalometer.status.focusDiffNew = 0;
+                    if(camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                        doFocus(intervalometer.status.focusDiffNew);
                     } else {
                         camera.ptp.preview(function() {
                             setTimeout(function(){
-                                doFocus(status.focusDiffNew);
+                                doFocus(intervalometer.status.focusDiffNew);
                             }, 1000);
                         });
                     }
@@ -485,7 +484,7 @@ function processKeyframes(setupFirst, callback) {
 
 
 function getEvOptions() {
-    var maxShutterLengthMs = (status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+    var maxShutterLengthMs = (intervalometer.status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
     if(intervalometer.currentProgram.intervalMode == 'aux') maxShutterLengthMs -= 2000; // add an extra 2 seconds for external motion
     if(maxShutterLengthMs < 500) maxShutterLengthMs = 500;
     return {
@@ -506,7 +505,7 @@ var busyExposure = false;
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     console.log("\n\nEXP: setupExposure");
-    if(status.useLiveview && !busyExposure) {
+    if(intervalometer.status.useLiveview && !busyExposure) {
         busyExposure = true;
         return camera.ptp.liveview(function(){
             setupExposure(cb);
@@ -514,29 +513,29 @@ function setupExposure(cb) {
     }
     busyExposure = true;
     camera.ptp.getSettings(function() {
-        console.log("EXP: current interval: ", status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+        console.log("EXP: current interval: ", intervalometer.status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         var diff = 0;
-        if(!status.rampEv) {
-            status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+        if(!intervalometer.status.rampEv) {
+            intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
         }
         dynamicChangeUpdate();
-        if(status.hdrSet && status.hdrSet.length > 0) {
-            if(!status.hdrIndex) status.hdrIndex = 0;
-            if(status.hdrIndex < status.hdrSet.length) {
-                diff = status.hdrSet[status.hdrIndex];
-                status.hdrIndex++;
+        if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+            if(!intervalometer.status.hdrIndex) intervalometer.status.hdrIndex = 0;
+            if(intervalometer.status.hdrIndex < intervalometer.status.hdrSet.length) {
+                diff = intervalometer.status.hdrSet[intervalometer.status.hdrIndex];
+                intervalometer.status.hdrIndex++;
             } else {
-                status.hdrIndex = 0;
+                intervalometer.status.hdrIndex = 0;
             }
-            console.log("HDR adjustment:", diff, status.hdrIndex);
+            console.log("HDR adjustment:", diff, intervalometer.status.hdrIndex);
         }
-        if(status.rampMode == 'preset') {
-            camera.setExposure(status.shutterPreset + diff, status.aperturePreset, status.isoPreset, function(err, ev) {
+        if(intervalometer.status.rampMode == 'preset') {
+            camera.setExposure(intervalometer.status.shutterPreset + diff, intervalometer.status.aperturePreset, intervalometer.status.isoPreset, function(err, ev) {
                 if(ev != null) {
-                    status.cameraEv = ev;
+                    intervalometer.status.cameraEv = ev;
                 } 
-                status.cameraSettings = camera.ptp.settings;
-                status.evDiff = status.cameraEv - status.rampEv;
+                intervalometer.status.cameraSettings = camera.ptp.settings;
+                intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                 console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                 busyExposure = false;
                 setTimeout(function(){
@@ -544,16 +543,16 @@ function setupExposure(cb) {
                 }, 100)
             });
         } else {
-            if(status.hdrSet && status.hdrSet.length > 0) {
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
                 var options = getEvOptions();
                 options.doNotSet = true;
-                camera.setEv(status.rampEv + status.hdrMax, options, function(err, res) {
-                    camera.setExposure(res.shutter.ev + diff - status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
+                camera.setEv(intervalometer.status.rampEv + intervalometer.status.hdrMax, options, function(err, res) {
+                    camera.setExposure(res.shutter.ev + diff - intervalometer.status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
                         if(ev != null) {
-                            status.cameraEv = ev;
+                            intervalometer.status.cameraEv = ev;
                         } 
-                        status.cameraSettings = camera.ptp.settings;
-                        status.evDiff = status.cameraEv - status.rampEv;
+                        intervalometer.status.cameraSettings = camera.ptp.settings;
+                        intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                         console.log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                         busyExposure = false;
                         setTimeout(function(){
@@ -562,12 +561,12 @@ function setupExposure(cb) {
                     });
                 });
             } else {
-                camera.setEv(status.rampEv + diff, getEvOptions(), function(err, res) {
+                camera.setEv(intervalometer.status.rampEv + diff, getEvOptions(), function(err, res) {
                     if(res.ev != null) {
-                        status.cameraEv = res.ev;
+                        intervalometer.status.cameraEv = res.ev;
                     } 
-                    status.cameraSettings = camera.ptp.settings;
-                    status.evDiff = status.cameraEv - status.rampEv;
+                    intervalometer.status.cameraSettings = camera.ptp.settings;
+                    intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                     console.log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                     busyExposure = false;
                     setTimeout(function(){
@@ -596,15 +595,15 @@ function planHdr(hdrCount, hdrStops) {
         underSet.push(hdrStops * -(i + 1));                        
     }
 
-    status.hdrIndex = 0;
-    status.hdrSet = [];
-    status.hdrMax = overHdr;
+    intervalometer.status.hdrIndex = 0;
+    intervalometer.status.hdrSet = [];
+    intervalometer.status.hdrMax = overHdr;
     
     while(overSet.length || underSet.length) {
-        if(overSet.length) status.hdrSet.push(overSet.shift());
-        if(underSet.length) status.hdrSet.push(underSet.shift());
+        if(overSet.length) intervalometer.status.hdrSet.push(overSet.shift());
+        if(underSet.length) intervalometer.status.hdrSet.push(underSet.shift());
     }
-    console.log("planHdr:", status.hdrSet)
+    console.log("planHdr:", intervalometer.status.hdrSet)
 }
 
 function checkCurrentPlan(restart) {
@@ -620,9 +619,9 @@ function checkCurrentPlan(restart) {
             }
         }
         //console.log("PLAN: checking plans...", planIndex);
-        if(status.currentPlanIndex !== planIndex) {
-            status.currentPlanIndex = planIndex;
-            status.framesRemaining = Infinity;
+        if(intervalometer.status.currentPlanIndex !== planIndex) {
+            intervalometer.status.currentPlanIndex = planIndex;
+            intervalometer.status.framesRemaining = Infinity;
             var plan = intervalometer.currentProgram.exposurePlans[planIndex];
             console.log("PLAN: switching to ", plan.name);
             /*
@@ -637,19 +636,19 @@ function checkCurrentPlan(restart) {
                 .nightIntervl
             */
             if(plan.mode == 'auto') {
-                status.rampMode = 'auto';
-                if(status.rampEv == null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                intervalometer.status.rampMode = 'auto';
+                if(intervalometer.status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
             }
             if(plan.mode == 'lock') {
-                if(status.rampEv == null) status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
-                status.rampMode = 'fixed';
+                if(intervalometer.status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                intervalometer.status.rampMode = 'fixed';
             }
             if(plan.mode == 'preset') {
-                status.rampMode = 'preset';
-                status.shutterPreset = plan.shutter;
-                status.aperturePreset = plan.aperture;
-                status.isoPreset = plan.iso;
-                status.rampEv = camera.lists.getEv(status.shutterPreset, status.aperturePreset, status.isoPreset);
+                intervalometer.status.rampMode = 'preset';
+                intervalometer.status.shutterPreset = plan.shutter;
+                intervalometer.status.aperturePreset = plan.aperture;
+                intervalometer.status.isoPreset = plan.iso;
+                intervalometer.status.rampEv = camera.lists.getEv(intervalometer.status.shutterPreset, intervalometer.status.aperturePreset, intervalometer.status.isoPreset);
             }
             if(intervalometer.currentProgram.intervalMode != 'aux') {
                 intervalometer.currentProgram.intervalMode = plan.intervalMode;
@@ -713,7 +712,7 @@ function checkTime(m) {
 
     console.log("Intervalometer: mNow", mNow, "mStart", mStart, "mStop", mStop);
 
-    status.minutesUntilStart = Math.round(mStart - mNow);
+    intervalometer.status.minutesUntilStart = Math.round(mStart - mNow);
     if(mStart < mStop) { // day only
         return (mNow >= mStart && mNow < mStop);
     } else { // night only
@@ -725,19 +724,19 @@ var scheduleHandle = null;
 function waitForSchedule() {
     scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
-            if(status.running) {
+            if(intervalometer.status.running) {
                 console.log("Intervalometer: scheduled start beginning...");
-                if(status.frames > 0) {
+                if(intervalometer.status.frames > 0) {
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function(){
                             console.log("Intervalometer: running scheduled start...");
-                            intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
+                            intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv);
                         });
                     });
                 } else {
                     setTimeout(function(){
                         console.log("Intervalometer: running scheduled start...");
-                        intervalometer.run(intervalometer.currentProgram, null, status.timeOffsetSeconds, status.exposureReferenceEv);
+                        intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv);
                     });
                 }
              } else {
@@ -751,31 +750,31 @@ function waitForSchedule() {
 
 function scheduled(noResume) {
     if(intervalometer.currentProgram && intervalometer.currentProgram.scheduled) {
-        var m = moment().add(status.timeOffsetSeconds, 'seconds');
+        var m = moment().add(intervalometer.status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
                 console.trace("Intervalometer: scheduled start ready");
                 return true;
             } else {
-                if(status.minutesUntilStart < 0) {
-                    status.message = "done for today...";
+                if(intervalometer.status.minutesUntilStart < 0) {
+                    intervalometer.status.message = "done for today...";
                 } else {
-                    var minutes = status.minutesUntilStart % 60;
-                    var hours = (status.minutesUntilStart - minutes) / 60;
+                    var minutes = intervalometer.status.minutesUntilStart % 60;
+                    var hours = (intervalometer.status.minutesUntilStart - minutes) / 60;
                     if(hours > 0) {
-                        status.message = "starting in " + hours + "hour" + (hours > 1 ? "s, ":", ") + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                        intervalometer.status.message = "starting in " + hours + "hour" + (hours > 1 ? "s, ":", ") + minutes + " minute" + (minutes > 1 ? "s...":"...");
                     } else {
-                        status.message = "starting in " + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                        intervalometer.status.message = "starting in " + minutes + " minute" + (minutes > 1 ? "s...":"...");
                     }
                 }
-                intervalometer.emit("status", status);
+                intervalometer.emit("intervalometer.status", intervalometer.status);
 
                 if(!noResume) waitForSchedule();
                 return false;
             }
         } else {
-            status.message = "not scheduled today, waiting...";
-            intervalometer.emit("status", status);
+            intervalometer.status.message = "not scheduled today, waiting...";
+            intervalometer.emit("intervalometer.status", intervalometer.status);
             if(!noResume) waitForSchedule();
             return false;
         }
@@ -791,9 +790,9 @@ var referencePhotoRes = null;
 var retryCounter = 0;
 
 function runPhoto(isRetry) {
-    if(!status.running) {
+    if(!intervalometer.status.running) {
         busyPhoto = false;
-        status.stopping = false;
+        intervalometer.status.stopping = false;
         return;
     }
     
@@ -806,12 +805,12 @@ function runPhoto(isRetry) {
         }
         retryCounter++;
         if(retryCounter >= 20) retryCounter = 0;
-        if (status.running) retryHandle = setTimeout(function(){runPhoto(true);}, 100);
+        if (intervalometer.status.running) retryHandle = setTimeout(function(){runPhoto(true);}, 100);
         return;
     }
-    if(!status.running) return;
-    if(status.first) {
-        status.first = false;
+    if(!intervalometer.status.running) return;
+    if(intervalometer.status.first) {
+        intervalometer.status.first = false;
         return setTimeout(function() {
             setupExposure(runPhoto);
         });
@@ -820,59 +819,59 @@ function runPhoto(isRetry) {
     busyPhoto = true;
     if (camera.ptp.connected) {
         //console.trace("Starting Photo...");
-        if(status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
-        if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
-            status.captureStartTime = new Date() / 1000;
+        if(intervalometer.status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
+        if(!(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) || intervalometer.status.hdrIndex == 1) {
+            intervalometer.status.captureStartTime = new Date() / 1000;
         }
-        intervalometer.emit("status", status);
+        intervalometer.emit("intervalometer.status", intervalometer.status);
         var captureOptions = {
             thumbnail: true,
-            index: status.frames,
-            noDownload: (status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) // only fetch thumbnail for the reference photo in the HDR set
-                //saveTiff: "/mnt/sd/test" + status.frames + ".tiff",
-                //saveRaw: "/mnt/sd/test" + status.frames + ".cr2",
+            index: intervalometer.status.frames,
+            noDownload: (intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0) // only fetch thumbnail for the reference photo in the HDR set
+                //saveTiff: "/mnt/sd/test" + intervalometer.status.frames + ".tiff",
+                //saveRaw: "/mnt/sd/test" + intervalometer.status.frames + ".cr2",
         }
         if (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) {
             console.log("CAPT: Saving timelapse to SD card");
             captureOptions.thumbnail = false;
-            var framesPadded = status.frames.toString();
+            var framesPadded = intervalometer.status.frames.toString();
             while (framesPadded.length < 4) framesPadded = '0' + framesPadded;
-            captureOptions.saveRaw = status.mediaFolder + "/img-" + framesPadded;
+            captureOptions.saveRaw = intervalometer.status.mediaFolder + "/img-" + framesPadded;
             camera.ptp.saveToCameraCard(false);
         } else {
             camera.ptp.saveToCameraCard(true);
         }
 
         if (intervalometer.currentProgram.rampMode == "fixed") {
-            status.intervalMs = intervalometer.currentProgram.interval * 1000;
-            if (status.running && scheduled()) timerHandle = setTimeout(runPhoto, status.intervalMs);
+            intervalometer.status.intervalMs = intervalometer.currentProgram.interval * 1000;
+            if (intervalometer.status.running && scheduled()) timerHandle = setTimeout(runPhoto, intervalometer.status.intervalMs);
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev) * 1000 + 1500);
             captureOptions.calculateEv = false;
-            status.lastPhotoTime = new Date() / 1000 - status.startTime;
+            intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
-                    status.path = photoRes.file;
+                    intervalometer.status.path = photoRes.file;
                     if(photoRes.cameraCount > 1) {
                         for(var i = 0; i < photoRes.cameraResults.length; i++) {
                             console.log("photoRes.cameraResults[" + i + "]:", photoRes.cameraResults[i].file, photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
-                            db.setTimelapseFrame(status.id, 0, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
+                            db.setTimelapseFrame(intervalometer.status.id, 0, getDetails(photoRes.cameraResults[i].file), photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
                         }
                     } else {
-                        db.setTimelapseFrame(status.id, 0, getDetails(), 1, photoRes.thumbnailPath);
+                        db.setTimelapseFrame(intervalometer.status.id, 0, getDetails(), 1, photoRes.thumbnailPath);
                     }
-                    status.message = "running";
-                    if (status.framesRemaining > 0) status.framesRemaining--;
-                    status.frames++;
+                    intervalometer.status.message = "running";
+                    if (intervalometer.status.framesRemaining > 0) intervalometer.status.framesRemaining--;
+                    intervalometer.status.frames++;
                     //writeFile();
-                    intervalometer.emit("status", status);
-                    console.log("TL: program status:", status);
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
+                    console.log("TL: program intervalometer.status:", intervalometer.status);
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
-                if ((status.framesRemaining < 1 && !intervalometer.currentProgram.scheduled) || status.running == false || status.stopping == true) {
+                if ((intervalometer.status.framesRemaining < 1 && !intervalometer.currentProgram.scheduled) || intervalometer.status.running == false || intervalometer.status.stopping == true) {
                     clearTimeout(timerHandle);
-                    status.message = "done";
-                    status.framesRemaining = 0;
+                    intervalometer.status.message = "done";
+                    intervalometer.status.framesRemaining = 0;
                     intervalometer.cancel('done');
                 }
                 dynamicChangeUpdate();
@@ -881,14 +880,14 @@ function runPhoto(isRetry) {
                 });
             });
         } else {
-            if (status.rampEv === null) {
-                status.cameraEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
-                status.rampEv = status.cameraEv;
+            if (intervalometer.status.rampEv === null) {
+                intervalometer.status.cameraEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                intervalometer.status.rampEv = intervalometer.status.cameraEv;
             }
-            captureOptions.exposureCompensation = status.evDiff || 0;
+            captureOptions.exposureCompensation = intervalometer.status.evDiff || 0;
 
-            if(status.hdrSet && status.hdrSet.length > 0) {
-                if(status.hdrIndex == 0) {
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+                if(intervalometer.status.hdrIndex == 0) {
                     captureOptions.calculateEv = true;
                 } else {
                     captureOptions.calculateEv = false;
@@ -898,37 +897,37 @@ function runPhoto(isRetry) {
             }
 
             if(intervalometer.currentProgram.intervalMode == 'aux') {
-                if(status.intervalStartTime) status.intervalMs = ((new Date() / 1000) - status.intervalStartTime) * 1000;
-                status.intervalStartTime = new Date() / 1000;
-            } else if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) { // only start interval timer at first HDR exposure
-                status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, status.rampEv);                
-                console.log("TL: Setting timer for interval at ", status.intervalMs);
+                if(intervalometer.status.intervalStartTime) intervalometer.status.intervalMs = ((new Date() / 1000) - intervalometer.status.intervalStartTime) * 1000;
+                intervalometer.status.intervalStartTime = new Date() / 1000;
+            } else if(!(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) || intervalometer.status.hdrIndex == 1) { // only start interval timer at first HDR exposure
+                intervalometer.status.intervalMs = calculateIntervalMs(intervalometer.currentProgram.interval, intervalometer.status.rampEv);                
+                console.log("TL: Setting timer for interval at ", intervalometer.status.intervalMs);
                 if (timerHandle) clearTimeout(timerHandle);
                 var runIntervalHdrCheck = function() {
-                    if(!(status.hdrSet && status.hdrSet.length > 0) || status.hdrIndex == 1) {
+                    if(!(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) || intervalometer.status.hdrIndex == 1) {
                         runPhoto();
                     } else {
                         console.log("HDR: delaying interval for HDR set");
-                        if (status.running) timerHandle = setTimeout(runIntervalHdrCheck, 100);
+                        if (intervalometer.status.running) timerHandle = setTimeout(runIntervalHdrCheck, 100);
                     }
                 }
-                if (status.running && scheduled()) timerHandle = setTimeout(runIntervalHdrCheck, status.intervalMs);
+                if (intervalometer.status.running && scheduled()) timerHandle = setTimeout(runIntervalHdrCheck, intervalometer.status.intervalMs);
             } 
 
-            intervalometer.emit("status", status);
+            intervalometer.emit("intervalometer.status", intervalometer.status);
             var shutterEv;
             if(camera.ptp.settings.details && camera.ptp.settings.details.shutter) shutterEv = camera.ptp.settings.details.shutter.ev; else shutterEv = 0;
 
-            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0 && status.rampEv + status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions())) {
-                status.hdrIndex = 0; // disable HDR is the exposure is at the maximum
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0 && intervalometer.status.rampEv + intervalometer.status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions())) {
+                intervalometer.status.hdrIndex = 0; // disable HDR is the exposure is at the maximum
             }
-            if(status.hdrSet && status.hdrSet.length > 0 && status.hdrIndex > 0) {
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0) {
                 if(checkCurrentPlan(true)) {
                     busyPhoto = false;
                     return;
                 }
                 var nextHDRms = 100 + camera.lists.getSecondsFromEv(shutterEv) * 1000;
-                console.log("running next in HDR sequence", status.hdrIndex, nextHDRms);
+                console.log("running next in HDR sequence", intervalometer.status.hdrIndex, nextHDRms);
                 camera.ptp.capture(captureOptions);
                 setTimeout(function(){
                     setupExposure(function(){
@@ -940,46 +939,46 @@ function runPhoto(isRetry) {
             } else {
                 var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
                 setTimeout(motionSyncPulse, msDelayPulse);
-                status.lastPhotoTime = new Date() / 1000 - status.startTime;
+                intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
             }
             camera.ptp.capture(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
-                    if(!status.hdrIndex) referencePhotoRes = photoRes;
+                    if(!intervalometer.status.hdrIndex) referencePhotoRes = photoRes;
 
-                    var bufferTime = (new Date() / 1000) - status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
-                    if(!status.bufferSeconds) {
-                        status.bufferSeconds = bufferTime;
-                    } else if(bufferTime != status.bufferSeconds) {
-                        status.bufferSeconds = (status.bufferSeconds + bufferTime) / 2;
+                    var bufferTime = (new Date() / 1000) - intervalometer.status.captureStartTime - camera.lists.getSecondsFromEv(camera.ptp.settings.details.shutter.ev);
+                    if(!intervalometer.status.bufferSeconds) {
+                        intervalometer.status.bufferSeconds = bufferTime;
+                    } else if(bufferTime != intervalometer.status.bufferSeconds) {
+                        intervalometer.status.bufferSeconds = (intervalometer.status.bufferSeconds + bufferTime) / 2;
                     }
-                    status.path = referencePhotoRes.file;
+                    intervalometer.status.path = referencePhotoRes.file;
                     if(referencePhotoRes.cameraCount > 1) {
                         for(var i = 0; i < referencePhotoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(status.id, status.evDiff, getDetails(referencePhotoRes.cameraResults[i].file), referencePhotoRes.cameraResults[i].cameraIndex, referencePhotoRes.cameraResults[i].thumbnailPath);
+                            db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, getDetails(referencePhotoRes.cameraResults[i].file), referencePhotoRes.cameraResults[i].cameraIndex, referencePhotoRes.cameraResults[i].thumbnailPath);
                         }
                     } else {
-                        db.setTimelapseFrame(status.id, status.evDiff, getDetails(), 1, referencePhotoRes.thumbnailPath);
+                        db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, getDetails(), 1, referencePhotoRes.thumbnailPath);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
+                    intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
 
-                    if(status.rampMode == "auto") {
-                        status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
-                        status.rampRate = exp.status.rate;
-                    } else if(status.rampMode == "fixed") {
-                        status.rampRate = 0;
+                    if(intervalometer.status.rampMode == "auto") {
+                        intervalometer.status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, intervalometer.status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
+                        intervalometer.status.rampRate = exp.status.rate;
+                    } else if(intervalometer.status.rampMode == "fixed") {
+                        intervalometer.status.rampRate = 0;
                     }
 
-                    status.path = referencePhotoRes.file;
-                    status.message = "running";                    
+                    intervalometer.status.path = referencePhotoRes.file;
+                    intervalometer.status.message = "running";                    
                     if(!checkCurrentPlan(true)) setupExposure();
 
-                    if (status.framesRemaining > 0) status.framesRemaining--;
-                    status.frames++;
+                    if (intervalometer.status.framesRemaining > 0) intervalometer.status.framesRemaining--;
+                    intervalometer.status.frames++;
                     writeFile();
-                    if(intervalometer.currentProgram.intervalMode == 'aux') status.message = "waiting for AUX2...";
-                    intervalometer.emit("status", status);
-                    console.log("TL: program status:", status);
-                    if(status.frames == 1 && status.exposureReferenceEv == null) {
+                    if(intervalometer.currentProgram.intervalMode == 'aux') intervalometer.status.message = "waiting for AUX2...";
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
+                    console.log("TL: program intervalometer.status:", intervalometer.status);
+                    if(intervalometer.status.frames == 1 && intervalometer.status.exposureReferenceEv == null) {
                         brightWarning(photoRes.ev);
                     }
 
@@ -988,11 +987,11 @@ function runPhoto(isRetry) {
                     error("An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: " + err);
                     console.log("TL: error:", err);
                 }
-                if ((intervalometer.currentProgram.intervalMode == "fixed" && status.framesRemaining < 1) || status.running == false || status.stopping == true) {
+                if ((intervalometer.currentProgram.intervalMode == "fixed" && intervalometer.status.framesRemaining < 1) || intervalometer.status.running == false || intervalometer.status.stopping == true) {
                     clearTimeout(timerHandle);
-                    status.stopping = false;
-                    status.message = "done";
-                    status.framesRemaining = 0;
+                    intervalometer.status.stopping = false;
+                    intervalometer.status.message = "done";
+                    intervalometer.status.framesRemaining = 0;
                     intervalometer.cancel('done');
                 }
                 processKeyframes(false, function() {
@@ -1036,8 +1035,8 @@ function autoSetExposure(offset, callback) {
     function captureTestEv() {
         camera.ptp.capture({mode:'test'}, function(err, res) {
             if(!err && res && res.ev != null) {
-                status.message = "checking/setting exposure...";
-                intervalometer.emit("status", status);
+                intervalometer.status.message = "checking/setting exposure...";
+                intervalometer.emit("intervalometer.status", intervalometer.status);
                 var evChange = res.ev - offset;
                 camera.ptp.getSettings(function() {
                     var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
@@ -1121,7 +1120,7 @@ intervalometer.cancel = function(reason, callback) {
         else if(reason == 'schedule') intervalometer.status.message = "time-lapse stopped on schedule";
         else intervalometer.status.message = "time-lapse canceled";
         intervalometer.status.framesRemaining = 0;
-        intervalometer.emit("status", status);
+        intervalometer.emit("intervalometer.status", intervalometer.status);
         camera.ptp.completeWrites(function() {
             busyPhoto = false;
             intervalometer.status.running = false;
@@ -1129,8 +1128,8 @@ intervalometer.cancel = function(reason, callback) {
             intervalometer.timelapseFolder = false;
             camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
             camera.ptp.unmountSd();
-            intervalometer.emit("status", status);
-            console.log("==========> END TIMELAPSE", status.tlName);
+            intervalometer.emit("intervalometer.status", intervalometer.status);
+            console.log("==========> END TIMELAPSE", intervalometer.status.tlName);
             callback && callback();
         });
     }    
@@ -1144,14 +1143,14 @@ intervalometer.resume = function() {
     clearTimeout(delayHandle);
     clearTimeout(retryHandle);
     clearTimeout(scheduleHandle);
-    var ms = status.intervalMs - ((new Date() / 1000) - (status.startTime + status.lastPhotoTime)) * 1000;
+    var ms = intervalometer.status.intervalMs - ((new Date() / 1000) - (intervalometer.status.startTime + intervalometer.status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
 }
 
 function getReferenceExposure(callback) {
-    status.message = "capturing reference image";
-    intervalometer.emit("status", status);
+    intervalometer.status.message = "capturing reference image";
+    intervalometer.emit("intervalometer.status", intervalometer.status);
     camera.ptp.capture({mode:'test'}, function(err, res){
         console.log("reference exposure result:", err, res);
         if(!err && res && res.ev != null) {
@@ -1176,16 +1175,16 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
         var hoursDiff = mD.hour() - mN.hour();
         var minutesDiff = mD.minute() - mN.minute();
         var secondsDiff = mD.seconds() - mN.seconds();
-        status.timeOffsetSeconds = daysDiff * 86400 + hoursDiff * 3600 + minutesDiff * 60 + secondsDiff;
-        console.log("Intervalometer: date difference (seconds):", status.timeOffsetSeconds);
+        intervalometer.status.timeOffsetSeconds = daysDiff * 86400 + hoursDiff * 3600 + minutesDiff * 60 + secondsDiff;
+        console.log("Intervalometer: date difference (seconds):", intervalometer.status.timeOffsetSeconds);
     } else if(timeOffsetSeconds != null) { // cached timeOffsetSeconds from restart
-        status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
+        intervalometer.status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
-    if(!status.timeOffsetSeconds) status.timeOffsetSeconds = 0;
+    if(!intervalometer.status.timeOffsetSeconds) intervalometer.status.timeOffsetSeconds = 0;
     if(autoExposureTarget != null) {
-        status.exposureReferenceEv = autoExposureTarget;
+        intervalometer.status.exposureReferenceEv = autoExposureTarget;
     } else {
-        status.exposureReferenceEv = null;
+        intervalometer.status.exposureReferenceEv = null;
     }
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
@@ -1202,72 +1201,72 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     if(tlIndex < 99) tlIndex += 99;
 
                     var list = fs.readdirSync(TLROOT);
-                    console.log("Intervalometer: time-lapse list:", list);
+                    //console.log("Intervalometer: time-lapse list:", list);
                     var name;
                     do {
                         tlIndex++;
                         name = "tl-" + tlIndex;
                     } while(list.indexOf(name) !== -1);
 
-                    status.tlName = "tl-" + tlIndex;
-                    console.log("==========> TIMELAPSE START", status.tlName);
-                    intervalometer.timelapseFolder = TLROOT + "/" + status.tlName;
+                    intervalometer.status.tlName = "tl-" + tlIndex;
+                    console.log("==========> TIMELAPSE START", intervalometer.status.tlName);
+                    intervalometer.timelapseFolder = TLROOT + "/" + intervalometer.status.tlName;
                     fs.mkdirSync(intervalometer.timelapseFolder);
                     camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                    status.timelapseFolder = intervalometer.timelapseFolder;
+                    intervalometer.status.timelapseFolder = intervalometer.timelapseFolder;
                     fileInit();
 
                     busyPhoto = false;
                     intervalometer.currentProgram = program;
-                    status.intervalMs = program.interval * 1000;
-                    status.message = "starting";
-                    status.frames = 0;
-                    status.first = program.rampMode == 'fixed' ? false : true; // triggers setup exposure before first capture unless fixed mode
-                    status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
-                    status.framesRemaining = (program.intervalMode == "auto" && status.rampMode == "auto") ? Infinity : program.frames;
-                    status.startTime = new Date() / 1000;
-                    status.rampEv = null;
-                    status.bufferSeconds = 0;
-                    status.cameraSettings = camera.ptp.settings;
-                    status.hdrSet = [];
-                    status.hdrIndex = 0;
-                    status.currentPlanIndex = null;
-                    status.panDiffNew = 0;
-                    status.tiltDiffNew = 0;
-                    status.focusDiffNew = 0;
-                    status.panDiff = 0;
-                    status.tiltDiff = 0;
-                    status.trackingPanEnabled = false;
-                    status.trackingTiltEnabled = false;
-                    status.dynamicChange = {};
-                    status.trackingTilt = 0;
-                    status.trackingPan = 0;
+                    intervalometer.status.intervalMs = program.interval * 1000;
+                    intervalometer.status.message = "starting";
+                    intervalometer.status.frames = 0;
+                    intervalometer.status.first = program.rampMode == 'fixed' ? false : true; // triggers setup exposure before first capture unless fixed mode
+                    intervalometer.status.rampMode = program.rampMode == 'fixed' ? 'fixed' : 'auto';
+                    intervalometer.status.framesRemaining = (program.intervalMode == "auto" && intervalometer.status.rampMode == "auto") ? Infinity : program.frames;
+                    intervalometer.status.startTime = new Date() / 1000;
+                    intervalometer.status.rampEv = null;
+                    intervalometer.status.bufferSeconds = 0;
+                    intervalometer.status.cameraSettings = camera.ptp.settings;
+                    intervalometer.status.hdrSet = [];
+                    intervalometer.status.hdrIndex = 0;
+                    intervalometer.status.currentPlanIndex = null;
+                    intervalometer.status.panDiffNew = 0;
+                    intervalometer.status.tiltDiffNew = 0;
+                    intervalometer.status.focusDiffNew = 0;
+                    intervalometer.status.panDiff = 0;
+                    intervalometer.status.tiltDiff = 0;
+                    intervalometer.status.trackingPanEnabled = false;
+                    intervalometer.status.trackingTiltEnabled = false;
+                    intervalometer.status.dynamicChange = {};
+                    intervalometer.status.trackingTilt = 0;
+                    intervalometer.status.trackingPan = 0;
 
                     if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                         planHdr(program.hdrCount, program.hdrStops);
                     }
 
-                    if(status.rampMode != 'fixed') {
+                    if(intervalometer.status.rampMode != 'fixed') {
                         checkCurrentPlan();
                     }
 
                     if(intervalometer.gpsData) {
-                        status.latitude = intervalometer.gpsData.lat;
-                        status.longitude = intervalometer.gpsData.lon;
+                        intervalometer.status.latitude = intervalometer.gpsData.lat;
+                        intervalometer.status.longitude = intervalometer.gpsData.lon;
             
                         var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
-                        status.sunPos = {
+                        intervalometer.status.sunPos = {
                             azimuth: sunmoon.sunpos.az,
                             altitude: sunmoon.sunpos.alt,
                         }
-                        status.moonPos = {
+                        intervalometer.status.moonPos = {
                             azimuth: sunmoon.moonpos.az,
                             altitude: sunmoon.moonpos.alt,
                         }
                     }
                     exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
-                    status.running = true;
-                    intervalometer.emit("status", status);
+                    intervalometer.status.running = true;
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
                     console.log("program:", "starting", program);
 
                     //function start() {
@@ -1280,11 +1279,11 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     //}
 
                     function start() {
-                        status.useLiveview = false;
+                        intervalometer.status.useLiveview = false;
                         if(camera.ptp.model.match(/nikon/i) && ((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
                             console.log("Intervalometer: using Nikon liveview for capture");
                             camera.ptp.liveview(start2);
-                            status.useLiveview = true;
+                            intervalometer.status.useLiveview = true;
                             //camera.ptp.set("afmode", "manual", start2); // doesn't work because focusmode is read-only on Nikon
                         } else {
                             start2();
@@ -1294,7 +1293,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     function start2() {
                         if(program.scheduled && autoExposureTarget != null) {
                             //if(scheduled(true)) {
-                            //    autoSetExposure(status.exposureReferenceEv, function(err) {
+                            //    autoSetExposure(intervalometer.status.exposureReferenceEv, function(err) {
                             //        start3();
                             //    });
                             //} else {
@@ -1315,8 +1314,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                             cameras = camera.ptp.count;
                             primary = camera.ptp.getPrimaryCameraIndex();
                         }
-                        db.setTimelapse(status.tlName, program, cameras, primary, status, function(err, timelapseId) {
-                            status.id = timelapseId;
+                        db.setTimelapse(intervalometer.status.tlName, program, cameras, primary, intervalometer.status, function(err, timelapseId) {
+                            intervalometer.status.id = timelapseId;
                             processKeyframes(true, function() {
                                 setTimeout(function() {
                                     busyPhoto = false;
@@ -1326,8 +1325,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                             function delayed() {
                                                 if(program.delay > 5) {
                                                     var minutes = (Math.round(program.delay / 60) - delayedMinutes);
-                                                    status.message = "delaying start for " + minutes.toString() + " minute" + (minutes > 1 ? 's' : '') + "...";
-                                                    intervalometer.emit("status", status);
+                                                    intervalometer.status.message = "delaying start for " + minutes.toString() + " minute" + (minutes > 1 ? 's' : '') + "...";
+                                                    intervalometer.emit("intervalometer.status", intervalometer.status);
                                                 }
                                                 var delay = 60;
                                                 if(program.delay - delayedMinutes * 60 < 60) delay = program.delay - delayedMinutes * 60;
@@ -1335,8 +1334,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 delayedMinutes++;
                                                 delayHandle = setTimeout(function() {
                                                     if(delayedMinutes * 60 >= program.delay) {
-                                                        if(status.exposureReferenceEv != null && (!program.scheduled || autoExposureTarget != null)) {
-                                                            autoSetExposure(status.exposureReferenceEv, function(err) {
+                                                        if(intervalometer.status.exposureReferenceEv != null && (!program.scheduled || autoExposureTarget != null)) {
+                                                            autoSetExposure(intervalometer.status.exposureReferenceEv, function(err) {
                                                                 if(err) {
                                                                     error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
                                                                     runPhoto();
@@ -1353,14 +1352,14 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 }, delay * 1000);
 
                                             }
-                                            if((program.delay > 60 || (program.scheduled && status.exposureReferenceEv == null)) && program.rampMode == 'auto') {
+                                            if((program.delay > 60 || (program.scheduled && intervalometer.status.exposureReferenceEv == null)) && program.rampMode == 'auto') {
                                                 getReferenceExposure(function(err, ev) {
                                                     if(err) {
                                                         intervalometer.cancel('err');
                                                         error(err);
                                                     } else {
                                                         brightWarning(ev);
-                                                        status.exposureReferenceEv = ev;
+                                                        intervalometer.status.exposureReferenceEv = ev;
                                                         delayed();
                                                     }
                                                 });
@@ -1369,19 +1368,19 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                             }
                                         } else {
                                             if(program.rampMode == 'auto') {
-                                                if(status.exposureReferenceEv == null) {
+                                                if(intervalometer.status.exposureReferenceEv == null) {
                                                     getReferenceExposure(function(err, ev) {
                                                         if(err) {
                                                             intervalometer.cancel('err');
                                                             error(err);
                                                         } else {
                                                             brightWarning(ev);
-                                                            status.exposureReferenceEv = ev;
+                                                            intervalometer.status.exposureReferenceEv = ev;
                                                             if(scheduled()) runPhoto();
                                                         }
                                                     });
                                                 } else {
-                                                    autoSetExposure(status.exposureReferenceEv, function(err) {
+                                                    autoSetExposure(intervalometer.status.exposureReferenceEv, function(err) {
                                                         if(err) {
                                                             error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
                                                         }
@@ -1392,8 +1391,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                         }
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {
-                                        status.message = "waiting for AUX2...";
-                                        intervalometer.emit("status", status);
+                                        intervalometer.status.message = "waiting for AUX2...";
+                                        intervalometer.emit("intervalometer.status", intervalometer.status);
                                     }
                                 }, 3000);
                                 callback && callback();
@@ -1408,12 +1407,12 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                 intervalometer.cancel('err');
                                 error("Error mounting SD card. \nVerify the SD card is formatted and fully inserted in the VIEW, then try starting the time-lapse again.\nMessage from system: " + mountErr, callback);
                             } else {
-                                status.mediaFolder = "/media/" + status.tlName;
-                                fs.mkdir(status.mediaFolder, function(folderErr) {
+                                intervalometer.status.mediaFolder = "/media/" + intervalometer.status.tlName;
+                                fs.mkdir(intervalometer.status.mediaFolder, function(folderErr) {
                                     if(folderErr) {
-                                        console.log("Error creating folder", status.mediaFolder);
+                                        console.log("Error creating folder", intervalometer.status.mediaFolder);
                                         intervalometer.cancel('err');
-                                        error("Error creating folder on SD card: /" + status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)", callback);
+                                        error("Error creating folder on SD card: /" + intervalometer.status.tlName + ".\nVerify the card is present and not write-protected, then try starting the time-lapse again.\nAlternatively, set the Destination to Camera instead (if supported)", callback);
                                     } else {
                                         start();
                                     }
@@ -1501,7 +1500,7 @@ function dynamicChangeUpdate() {
             }
         }
         if(change) {
-            intervalometer.emit("status", status);
+            intervalometer.emit("intervalometer.status", intervalometer.status);
             intervalometer.emit("currentProgram", intervalometer.currentProgram);
         }
     }
@@ -1545,16 +1544,16 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 break
 
             case 'rampMode':
-                if(newValue == 'auto' && status.rampMode != 'auto') { // restart ramping based on current exposure
-                    status.rampMode = 'auto';
+                if(newValue == 'auto' && intervalometer.status.rampMode != 'auto') { // restart ramping based on current exposure
+                    intervalometer.status.rampMode = 'auto';
                     intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
                     exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), intervalometer.currentProgram.nightCompensation, intervalometer.currentProgram.highlightProtection);
-                    intervalometer.emit("status", status);
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
                 }
                 if(newValue == 'fixed') {
-                    if(status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
-                    status.rampMode = 'fixed';
-                    intervalometer.emit("status", status);
+                    if(intervalometer.status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                    intervalometer.status.rampMode = 'fixed';
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
                 }
                 break;
 

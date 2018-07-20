@@ -145,7 +145,7 @@ function connect() {
                     }
                 } else if(data.type == 'intervalometer.currentProgram') {
                     console.log("CLIENT: updating currentProgram from server")
-                    core.currentProgram = data.data;
+                    core.currentProgram = _.extendOwn(core.currentProgram, data.data);
                 } else if(data.type == 'process.pid') {
                     core.processId = data.data;
                 }
