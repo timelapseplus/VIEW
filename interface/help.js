@@ -94,7 +94,7 @@ exports.logFilesUploaded = "The logs files have been successfully uploaded for r
 
 exports.errorReportReasonMenu = "Please select the reason for sending the log that best matches the issues you've experienced.  This will help us know what to look for in the report.  If unsure, just select 'other'.  Thanks for your feedback!";
 
-exports.logsQueued = "The log file has been queued for upload and will be sent now or when a wifi connection is next available.  Thank you for your feedback - we will work resolve any issues as soon as possible.";
+exports.logsQueued = "The log file has been queued for upload and will be sent now or when a wifi connection is next available.  Thank you for your feedback - we will work resolve any issues as soon as possible.  Once it's uploaded, you'll get an email. Please reply with any additional details.  Thanks!";
 
 exports.useTimelapseSetup = "This will load the settings used for this clip as a new time-lapse setup.  Selecting it will update the current time-lapse setup and open the Time-lapse menu.";
 
