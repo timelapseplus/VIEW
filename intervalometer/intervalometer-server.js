@@ -392,7 +392,7 @@ intervalometer.on('intervalometer.status', function(data) {
 intervalometer.on('error', function(data) {
   sendEvent('intervalometer.error', data);
 });
-intervalometer.on('currentProgram', function(data) {
+intervalometer.on('intervalometer.currentProgram', function(data) {
   sendEvent('intervalometer.currentProgram', data);
 });
 

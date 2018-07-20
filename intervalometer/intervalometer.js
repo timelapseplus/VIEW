@@ -1279,6 +1279,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     //}
 
                     function start() {
+                        intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                         intervalometer.status.useLiveview = false;
                         if(camera.ptp.model.match(/nikon/i) && ((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
                             console.log("Intervalometer: using Nikon liveview for capture");
@@ -1501,7 +1502,7 @@ function dynamicChangeUpdate() {
         }
         if(change) {
             intervalometer.emit("intervalometer.status", intervalometer.status);
-            intervalometer.emit("currentProgram", intervalometer.currentProgram);
+            intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
         }
     }
 }
@@ -1532,15 +1533,16 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                     intervalometer.currentProgram.dayInterval = newInt;
                     intervalometer.currentProgram.nightInterval = newInt;
                     intervalometer.currentProgram.intervalMode = 'auto';
-                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                    intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                 }
                 if(newValue == 'fixed' && intervalometer.currentProgram.intervalMode == 'auto') {
                     intervalometer.currentProgram.frames = Math.ceil(intervalometer.status.frames / 100) * 100 + 500;
                     intervalometer.status.framesRemaining = intervalometer.currentProgram.frames - intervalometer.status.frames;
                     intervalometer.currentProgram.interval = newInt;
                     intervalometer.currentProgram.intervalMode = 'fixed';
-                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                    intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                 }
+                intervalometer.emit("intervalometer.status", intervalometer.status);
                 break
 
             case 'rampMode':
@@ -1589,7 +1591,9 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'frames':
                 if(parseInt(newValue) > intervalometer.status.frames) {
                     intervalometer.currentProgram.frames = parseInt(newValue);
-                    intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                    intervalometer.status.framesRemaining = intervalometer.currentProgram.frames - intervalometer.status.frames;
+                    intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
                 } else {
                     callback && callback("frames must be greated than completed frames");
                 }
@@ -1599,7 +1603,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'hdrStops':
                 intervalometer.currentProgram[parameter] = newValue;
                 planHdr(intervalometer.currentProgram.hdrCount, intervalometer.currentProgram.hdrStops);
-                intervalometer.emit("currentProgram", intervalometer.currentProgram);
+                intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                 break;
         }
         callback && callback();
