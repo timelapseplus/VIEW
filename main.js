@@ -4269,7 +4269,7 @@ app.on('message', function(msg) {
             case 'clip-log-report':
                 if(msg.name) {
                     (function(name, description, reply) {
-                        db.sendLog(msg.name, msg.description || 'unknown', function() {
+                        db.sendLog(name, description || 'unknown', function() {
                             app.sendLogs();
                             reply('clip-log-report', {
                                 message: help.logsQueued,
