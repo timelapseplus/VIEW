@@ -4266,6 +4266,15 @@ app.on('message', function(msg) {
                 }
                 break;
 
+            case 'clip-log-report':
+                if(msg.name) {
+                    db.sendLog(msg.name, msg.description || 'unknown', function() {
+                        app.sendLogs();
+                        reply('clip-log-report', {
+                            message: help.logsQueued,
+                        });
+                    });
+                }
             case 'camera-images':
                 var response = {};
                 core.getFilesList(function(err, files){
