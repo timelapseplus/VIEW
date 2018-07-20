@@ -4268,6 +4268,7 @@ app.on('message', function(msg) {
 
             case 'clip-log-report':
                 if(msg.name) {
+                    console.log("Log report:", msg);
                     (function(name, description, reply) {
                         db.sendLog(name, description || 'unknown', function() {
                             app.sendLogs();
@@ -4277,6 +4278,8 @@ app.on('message', function(msg) {
                         });
                     })(msg.name, msg.description, msg.reply);
                 }
+                break;
+
             case 'camera-images':
                 var response = {};
                 core.getFilesList(function(err, files){
