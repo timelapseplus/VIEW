@@ -1511,7 +1511,7 @@ function dynamicChangeUpdate() {
 // parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
-    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'dayOffsetEv', 'nightOffsetEv', 'rampEv', 'frames'];
+    var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'dayRefEv', 'nightRefEv', 'rampEv', 'frames'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
