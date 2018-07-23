@@ -89,7 +89,7 @@ GenieMini.prototype._init = function() {
     var self = this;
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    dataBuf.writeInt32LE(0x000E, 0);
+    dataBuf.writeInt32LE(0x000B, 0);
     setInterval(function(){
     self._write(0x001E, dataBuf, function(err) { // checks orientation
         var tries = 0;
@@ -137,7 +137,7 @@ GenieMini.prototype._parseIncoming = function(data) {
     //    if(orientation == 0x04) this.orientation = 'pan';
     //    if(orientation == 0x03) this.orientation = 'tilt';
     //    console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
-    //} else {
+    } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
 }
