@@ -109,7 +109,7 @@ var wsRemote;
 var remotePingHandle = null;
 
 
-function connectRemote() {
+function connectRemote(version) {
     if (app.remote || !app.remoteEnabled) return;
     console.log("connecting to view.tl");
     wsRemote = new WebSocket('wss://app.view.tl/socket/device', {
@@ -134,6 +134,7 @@ function connectRemote() {
                     remotePingHandle = setInterval(function() {
                         send_message('ping', null, wsRemote);
                     }, 10000);
+                    if(version) send_message('version', {version: version}, wsRemote);
                     sendLogs();
                 } else if(msg.code) {
                     app.authCode = msg.code;
@@ -330,9 +331,9 @@ function receive_message(msg_string, socket) {
     }
 }
 
-app.enableRemote = function() {
+app.enableRemote = function(version) {
     app.remoteEnabled = true;    
-    connectRemote();
+    connectRemote(version);
 }
 
 app.disableRemote = function() {

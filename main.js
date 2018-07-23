@@ -210,7 +210,7 @@ if (VIEW_HARDWARE) {
         }
     });
     wifi.on('connect', function(ssid) {
-        app.enableRemote();
+        app.enableRemote(updates.version);
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);

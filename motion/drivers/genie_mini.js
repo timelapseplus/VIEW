@@ -85,10 +85,10 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
     });
 }
 
-// 18-24th August
-
 GenieMini.prototype._init = function() {
-    this.emit("status", this.getStatus());
+    self._write(0x005E, dataBuf, function(err) { // checks orientation
+        this.emit("status", this.getStatus());
+    });
 }
 
 GenieMini.prototype._parseIncoming = function(data) {
