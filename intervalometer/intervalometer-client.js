@@ -278,17 +278,25 @@ core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
 };
 
 var wdtInterval = null;
+var wdtStartTimer = null;
 core.watchdogEnable = function(callback) {
-    if(!wdtInterval) {
-        wdtInterval = setInterval(core.watchdogEnable, 5000); // this will have the server kill this process if it ever gets stuck
-    }
-    call('watchdog.set', {pid:process.pid}, callback);
+    wdtStartTimer = setTimeout(function(){
+        wdtStartTimer = null;
+        if(!wdtInterval) {
+            wdtInterval = setInterval(core.watchdogEnable, 5000); // this will have the server kill this process if it ever gets stuck
+        }
+        call('watchdog.set', {pid:process.pid}, callback);
+    }, 10000); // wait 10 seconds before starting initially
 };
 
 core.watchdogDisable = function(callback) {
     if(wdtInterval) {
         clearInterval(wdtInterval);
         wdtInterval = null;
+    }
+    if(wdtStartTimer) {
+        clearTimeout(wdtStartTimer);
+        wdtStartTimer = null;
     }
     call('watchdog.disable', {pid:process.pid}, function(err){
         callback && callback(err);
