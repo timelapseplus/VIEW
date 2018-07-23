@@ -512,6 +512,7 @@ function startScan() {
 }
 
 function stopScan() {
+    console.log("CORE: stopping BLE scan");
     clearScanTimeouts();
     noble.stopScanning();
 }
@@ -587,6 +588,7 @@ function btDiscover(peripheral) {
         if(connected) {
           stopScan();
         } else {
+          console.log("CORE: peripheral not NMX, trying GM");
           connectGM();
         }
       });

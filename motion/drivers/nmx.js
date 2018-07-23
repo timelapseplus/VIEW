@@ -789,6 +789,8 @@ function init() {
 }
 
 function _connectBt(btPeripheral, callback) {
+    var runCallback = false;
+    if(callback) runCallback = true;
     btPeripheral.connect(function(err1) {
         if (err1) {
             if(_dev) {
@@ -835,20 +837,29 @@ function _connectBt(btPeripheral, callback) {
                                 });
                                 console.log("NMX: connected!");
                                 init();
-                                if (callback) callback(true);
+                                if (callback && runCallback) {
+                                    runCallback = false;
+                                    callback(true);
+                                }
                             });
                         } else {
                             if(_dev) _dev.connected = false;
                             console.log("NMX: couldn't locate characteristics, disconnecting... ", err);
                             btPeripheral.disconnect();
-                            if (callback) callback(false);
+                            if (callback && runCallback) {
+                                runCallback = false;
+                                callback(false);
+                            }
                         }
                     });
                 } else {
                     if(_dev) _dev.connected = false;
                     console.log("NMX: couldn't locate services, disconnecting... ", err2);
                     btPeripheral.disconnect();
-                    if (callback) callback(false);
+                    if (callback && runCallback) {
+                        runCallback = false;
+                        callback(false);
+                    }
                 }
 
             });
@@ -864,7 +875,11 @@ function _connectBt(btPeripheral, callback) {
             //    });
             //} else {
                 _dev = null;
-                nmx.emit("status", getStatus());
+                if(callback && runCallback) {
+                    callback(false);
+                } else {
+                    nmx.emit("status", getStatus());
+                }
             //}
         });
 
