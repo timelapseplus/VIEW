@@ -110,13 +110,13 @@ GenieMini.prototype._parseIncoming = function(data) {
         var state = data.readUInt8(7);
         var steps = data.readInt16LE(3);
         this._moving = (state == 0x01);
-        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps);
+        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps, "id:", id);
     } else if(id == 0x000B || id == 0x0052) { // current state
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
         this._angle = angle;
         this._moving = (state == 0x01);
-        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", angle:", angle);
+        console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", angle:", angle, "id:", id);
         if(this._currentMove != null && this._lastAngle != null) {
             if(Math.abs(angle - this._lastAngle) < 180) {
                 this._currentMove += angle - this._lastAngle;
@@ -130,11 +130,11 @@ GenieMini.prototype._parseIncoming = function(data) {
             console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
         }
         this._lastAngle = angle;
-    } else if(id == 0x0025) { // current state
-        var orientation = data.readUInt8(3);
-        if(orientation == 0x94) this.orientation = 'pan';
-        if(orientation == 0x90) this.orientation = 'tilt';
-        console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
+    //} else if(id == 0x0025) { // current state
+    //    var orientation = data.readUInt8(3);
+    //    if(orientation == 0x94) this.orientation = 'pan';
+    //    if(orientation == 0x90) this.orientation = 'tilt';
+    //    console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
     } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
