@@ -89,8 +89,9 @@ GenieMini.prototype._init = function() {
     var self = this;
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    dataBuf.writeInt32LE(0x0052, 0);
-    this._write(0x001E, dataBuf, function(err) { // checks orientation
+    dataBuf.writeInt32LE(0x000E, 0);
+    setInterval(function(){
+    self._write(0x001E, dataBuf, function(err) { // checks orientation
         var tries = 0;
         var waitForOrientation = function() {
             tries++;
@@ -102,6 +103,7 @@ GenieMini.prototype._init = function() {
         }
         waitForOrientation();
     });
+    }, 5000);
 }
 
 GenieMini.prototype._parseIncoming = function(data) {
@@ -130,12 +132,12 @@ GenieMini.prototype._parseIncoming = function(data) {
             console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
         }
         this._lastAngle = angle;
-    } else if(id == 0x0025) {
-        var orientation = data.readUInt8(4);
-        if(orientation == 0x04) this.orientation = 'pan';
-        if(orientation == 0x03) this.orientation = 'tilt';
-        console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
-    } else {
+    //} else if(id == 0x0025) {
+    //    var orientation = data.readUInt8(4);
+    //    if(orientation == 0x04) this.orientation = 'pan';
+    //    if(orientation == 0x03) this.orientation = 'tilt';
+    //    console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
+    //} else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
 }
