@@ -12,6 +12,8 @@ function GenieMini(id) {
     this._position = 0;
     this._currentMove = null;
     this._stepsPerDegree = 186.56716418;
+
+    this.orientation = null;
 }
 
 util.inherits(GenieMini, EventEmitter);
@@ -99,6 +101,7 @@ GenieMini.prototype._parseIncoming = function(data) {
     } else if(id == 0x000B || id == 0x0052) { // current state
         var state = data.readUInt8(4);
         var angle = data.readUInt16LE(12);
+        this.orientation = (id == 0x000B ? 'pan' : 'tilt');
         this._angle = angle;
         this._moving = (state == 0x01);
         console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", angle:", angle);

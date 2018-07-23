@@ -1409,13 +1409,13 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Night Exposure", core.currentProgram, 'nightCompensation'),
             action: rampingNightCompensation,
             help: help.rampingNightCompensation
-        }, {
-            name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
-            help: help.rampingAlgorithm,
-            action: rampingAlgorithmOptions,
-            condition: function() {
-                return core.currentProgram.rampMode == 'auto';
-            }
+        //}, {
+        //    name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
+        //    help: help.rampingAlgorithm,
+        //    action: rampingAlgorithmOptions,
+        //    condition: function() {
+        //        return core.currentProgram.rampMode == 'auto';
+        //    }
         }, {
             name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
             help: help.highlightProtection,
@@ -1809,6 +1809,23 @@ if (VIEW_HARDWARE) {
         return info;
     }
 
+    var motorOrientationKnown = function() {
+        if(!core.motionStatus.motors) return false;
+        if(core.motionStatus.motors.length > 3) return false;
+        if(core.motionStatus.motors.length == 2 && core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt')) {
+            return {
+                core.motionStatus.motors[0].orientation: core.motionStatus.motors[0]
+            }
+        }
+        if(core.motionStatus.motors.length == 2 && core.motionStatus.motors[0].orientation && core.motionStatus.motors[1].orientation && core.motionStatus.motors[0].orientation != core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt') && (core.motionStatus.motors[1].orientation == 'pan' || core.motionStatus.motors[1].orientation == 'tilt')) {
+            return {
+                core.motionStatus.motors[0].orientation: core.motionStatus.motors[0],
+                core.motionStatus.motors[1].orientation: core.motionStatus.motors[1]
+            }
+        }
+        return false;
+    }
+
     var timelapseMenu = {
         name: "time-lapse",
         type: "menu",
@@ -1921,14 +1938,14 @@ if (VIEW_HARDWARE) {
             action: trackingPanMotorMenu,
             help: help.trackingPanMotor,
             condition: function() {
-                return core.motionStatus.available && (mcu.validCoordinates() || core.currentProgram.tracking == '15deg') && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
+                return core.motionStatus.available && ((mcu.validCoordinates() && !motorOrientationKnown()) || core.currentProgram.tracking == '15deg') && core.currentProgram.tracking && core.currentProgram.tracking != 'none';
             }
         }, {
             name: valueDisplay("Tracking Tilt", core.currentProgram, 'trackingTiltMotor'),
             action: trackingTiltMotorMenu,
             help: help.trackingTiltMotor,
             condition: function() {
-                return core.motionStatus.available && mcu.validCoordinates() && core.currentProgram.tracking && core.currentProgram.tracking != 'none' && core.currentProgram.tracking != '15deg';
+                return core.motionStatus.available && (mcu.validCoordinates() && !motorOrientationKnown()) && core.currentProgram.tracking && core.currentProgram.tracking != 'none' && core.currentProgram.tracking != '15deg';
             }
         }, {
             name: valueDisplay("Destination", core.currentProgram, 'destination'),
@@ -1994,6 +2011,7 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.axes = {};
                     core.currentProgram.focusPos = 0;
                     if(core.currentProgram.tracking != 'none') {
+                        var autoOrient = motorOrientationKnown();
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
                         if(panMotor) {
                             if(core.currentProgram.tracking == "15deg") {
@@ -2004,6 +2022,7 @@ if (VIEW_HARDWARE) {
                                     reverse: panMotor.reverse
                                 }
                             } else {
+                                if(autoOrient && autoOrient.pan) panMotor = autoOrient.pan;
                                 core.currentProgram.trackingTarget = core.currentProgram.tracking;
                                 core.currentProgram.axes[panMotor.name] = {
                                     type: 'tracking',
@@ -2014,7 +2033,7 @@ if (VIEW_HARDWARE) {
                             }
                             core.currentProgram[panMotor.name + "Pos"] = 0;
                         }
-                        var tiltMotor = getTrackingMotor(core.currentProgram.trackingTiltMotor);
+                        var tiltMotor = (autoOrient && autoOrient.tilt) ? autoOrient.tilt : getTrackingMotor(core.currentProgram.trackingTiltMotor);
                         if(tiltMotor) {
                             core.currentProgram.trackingTarget = core.currentProgram.tracking;
                             core.currentProgram.axes[tiltMotor.name] = {

@@ -73,11 +73,11 @@ exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhot
 
     if(['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
 
-    if(algorithm == "lrt") {
-        return exp.calculate_LRTtimelapse(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
-    } else {
+    //if(algorithm == "lrt") {
+    //    return exp.calculate_LRTtimelapse(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
+    //} else {
         return exp.calculate_TLPAuto(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
-    }
+    //}
 }
 
 exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
