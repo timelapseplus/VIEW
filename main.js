@@ -1813,15 +1813,15 @@ if (VIEW_HARDWARE) {
         if(!core.motionStatus.motors) return false;
         if(core.motionStatus.motors.length > 3) return false;
         if(core.motionStatus.motors.length == 2 && core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt')) {
-            return {
-                core.motionStatus.motors[0].orientation: core.motionStatus.motors[0]
-            }
+            var res = {};
+            res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
+            return res;
         }
         if(core.motionStatus.motors.length == 2 && core.motionStatus.motors[0].orientation && core.motionStatus.motors[1].orientation && core.motionStatus.motors[0].orientation != core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt') && (core.motionStatus.motors[1].orientation == 'pan' || core.motionStatus.motors[1].orientation == 'tilt')) {
-            return {
-                core.motionStatus.motors[0].orientation: core.motionStatus.motors[0],
-                core.motionStatus.motors[1].orientation: core.motionStatus.motors[1]
-            }
+            var res = {};
+            res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
+            res[core.motionStatus.motors[1].orientation] = core.motionStatus.motors[1];
+            return res;
         }
         return false;
     }
