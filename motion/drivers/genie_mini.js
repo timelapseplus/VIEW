@@ -89,9 +89,18 @@ GenieMini.prototype._init = function() {
     var self = this;
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
-    dataBuf.writeInt32LE(steps, 0);
-    this._write(0x005E, dataBuf, function(err) { // checks orientation
-        self.emit("status", self.getStatus());
+    dataBuf.writeInt32LE(0x000E, 0);
+    this._write(0x001E, dataBuf, function(err) { // checks orientation
+        var tries = 0;
+        var waitForOrientation = function() {
+            tries++;
+            if(self.orientation || tries > 5) {
+                self.emit("status", self.getStatus());
+            } else {
+                setTimeout(waitForOrientation, 500);
+            }
+        }
+        waitForOrientation();
     });
 }
 
