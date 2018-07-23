@@ -86,8 +86,9 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
 }
 
 GenieMini.prototype._init = function() {
-    self._write(0x005E, dataBuf, function(err) { // checks orientation
-        this.emit("status", this.getStatus());
+    var self = this;
+    this._write(0x005E, dataBuf, function(err) { // checks orientation
+        self.emit("status", self.getStatus());
     });
 }
 
