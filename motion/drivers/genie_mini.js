@@ -140,7 +140,7 @@ GenieMini.prototype._parseIncoming = function(data) {
         if(orientation == 0x94) this.orientation = 'tilt';
         if(origOrientation != this.orientation) {
             console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
-            self.emit("status", self.getStatus());
+            this.emit("status", this.getStatus());
         }
     } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
