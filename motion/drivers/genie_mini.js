@@ -79,6 +79,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
             console.log("GenieMini(" + self._id + "): disconnected");
             self._dev = null;
             self.connected = false;
+            clearInterval(self.statusIntervalHandle);
             self.emit("status", self.getStatus());
         });
 
@@ -90,7 +91,7 @@ GenieMini.prototype._init = function() {
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
     dataBuf.writeInt32LE(0x000B, 0);
-    setInterval(function(){
+    self.statusIntervalHandle = setInterval(function(){
     self._write(0x001E, dataBuf, function(err) { // checks orientation
         var tries = 0;
         var waitForOrientation = function() {
