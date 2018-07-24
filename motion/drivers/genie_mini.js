@@ -135,9 +135,13 @@ GenieMini.prototype._parseIncoming = function(data) {
         this._lastAngle = angle;
     } else if(id == 0x0025) {
         var orientation = data.readUInt8(3);
+        var origOrientation = this.orientation;
         if(orientation == 0x90) this.orientation = 'pan';
         if(orientation == 0x94) this.orientation = 'tilt';
-        console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
+        if(origOrientation != this.orientation) {
+            console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
+            self.emit("status", self.getStatus());
+        }
     } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
@@ -173,6 +177,7 @@ GenieMini.prototype.getStatus = function() {
         connectionType: type,
         motor1: this._dev && this._dev.connected,
         motor1pos: this._position / this._stepsPerDegree,
+        orientation: this.orientation
     }   
 }
 
