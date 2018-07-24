@@ -79,7 +79,7 @@ GenieMini.prototype._connectBt = function(btPeripheral, callback) {
             console.log("GenieMini(" + self._id + "): disconnected");
             self._dev = null;
             self.connected = false;
-            clearInterval(self.statusIntervalHandle);
+            //clearInterval(self.statusIntervalHandle);
             self.emit("status", self.getStatus());
         });
 
@@ -91,7 +91,7 @@ GenieMini.prototype._init = function() {
     var dataBuf = new Buffer(4);
     dataBuf.fill(0);
     dataBuf.writeInt32LE(0x000B, 0);
-    self.statusIntervalHandle = setInterval(function(){
+    //self.statusIntervalHandle = setInterval(function(){
     self._write(0x001E, dataBuf, function(err) { // checks orientation
         var tries = 0;
         var waitForOrientation = function() {
@@ -104,7 +104,7 @@ GenieMini.prototype._init = function() {
         }
         waitForOrientation();
     });
-    }, 5000);
+    //}, 5000);
 }
 
 GenieMini.prototype._parseIncoming = function(data) {
@@ -133,11 +133,11 @@ GenieMini.prototype._parseIncoming = function(data) {
             console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
         }
         this._lastAngle = angle;
-    //} else if(id == 0x0025) {
-    //    var orientation = data.readUInt8(4);
-    //    if(orientation == 0x04) this.orientation = 'pan';
-    //    if(orientation == 0x03) this.orientation = 'tilt';
-    //    console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
+    } else if(id == 0x0025) {
+        var orientation = data.readUInt8(3);
+        if(orientation == 0x90) this.orientation = 'pan';
+        if(orientation == 0x94) this.orientation = 'tilt';
+        console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
     } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
     }
