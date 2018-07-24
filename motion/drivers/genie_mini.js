@@ -142,7 +142,7 @@ GenieMini.prototype._parseIncoming = function(data) {
             console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
             this.emit("status", this.getStatus());
         }
-    } else if(id == 0x0078) {
+    } else if(id == 0x004E) {
         this._init(); // update orientation on change
     } else {
         console.log("GenieMini(" + this._id + "): unknown id", id, "data", data);
