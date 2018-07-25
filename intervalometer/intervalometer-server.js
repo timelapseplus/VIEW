@@ -50,6 +50,8 @@ var clientCounter = 0;
 var clients = [];
 var eventQueue = [];
 
+var intervalometerStatus = null;
+
 var baseInstallPath = "/home/view/";
 var installs = fs.readdirSync(baseInstallPath);
 var current = "";
@@ -77,6 +79,7 @@ var server = net.createServer(function(c) {
     }
     sendEvent('motion.status', motion.status);
     sendEvent('process.pid', process.pid);
+    if(intervalometerStatus) sendEvent('intervalometer.status', intervalometerStatus);
     while(ev = eventQueue.shift()) c.write(ev);
     if(!c.wdtInterval) {
         sendEvent('watchdog.set', process.pid);
@@ -383,6 +386,8 @@ intervalometer.on('intervalometer.status', function(data) {
   data.autoSettings = intervalometer.autoSettings;
   if(!data.running && camera.ptp.model.match(/nikon/i)) camera.ptp.set("controlmode", 0, function(){});
   sendEvent('intervalometer.status', data);
+  intervalometerStatus = data;
+
   if(!data.running) {
     motion.refresh(function(){
       sendEvent('motion.status', motion.status);
@@ -452,14 +457,19 @@ camera.ptp.on('status', function(data) {
 camera.ptp.on('connectionError', function(data) {
   sendEvent('camera.connectionError', data);
 });
+var nmxBT = true;
 camera.ptp.on('nmxSerial', function(status) {
     if (status == "connected") {
         console.log("NMX attached");
+        nmxBT = false;
         motion.nmx.connect(camera.ptp.nmxDevice);
     } else {
         console.log("NMX detached");
         var status = motion.nmx.getStatus();
         if(status.connected && status.type == "serial") motion.nmx.disconnect();
+        setTimeout(function(){
+          nmxBT = true;
+        }, 10000);
     }
 });
 
@@ -491,7 +501,9 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                noble.startScanning(motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds), false, function(err){
+                var scanIds = motion.gm1.btServiceIds;
+                if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds);
+                noble.startScanning(scanIds, false, function(err){
                     console.log("BLE scan started: ", err);
                 });
             } else {
@@ -579,7 +591,7 @@ function btDiscover(peripheral) {
       }
     }
     var status = motion.nmx.getStatus();
-    if(status.connected && status.connectionType == "bt") {
+    if(status.connected || !nmxBT) {
       connectGM();
     } else {
       btConnecting = true;

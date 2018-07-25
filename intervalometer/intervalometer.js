@@ -69,6 +69,10 @@ intervalometer.status = {
     exposure: exp
 }
 
+intervalometer.internal = {};
+
+intervalometer.emit("intervalometer.status", intervalometer.status);
+
 var auxTrigger = new Button('input-aux2');
 
 auxTrigger.on('press', function() {
@@ -438,6 +442,68 @@ function processKeyframes(setupFirst, callback) {
                 }
             } else {
                 checkDone('tracking');
+            }
+        } else if(axis.type == 'polar') {
+            motor = getTrackingMotor(m);
+            motor.direction = axis.reverse ? -1 : 1;
+            var currentPolarPos = motion.getPosition(motor.driver, motor.motor);
+            if(intervalometer.internal.polarStart == null) intervalometer.internal.polarStart = currentPolarPos;
+            var backlashAmount = 5 * motor.stepsPerDegree;
+            var degressPerHour = 15;            
+            var stepsPerSecond = ((motor.stepsPerDegree * degressPerHour) / 3600) * motor.direction;
+
+            var setupTracking = function(speed, _motor) {
+                var moveBack = function(cb) {
+                    console.log("Intervalometer: polar: moving back");
+                    motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -_motor.direction), function(err) {
+                        if(err) console.log("Intervalometer: polar: err:", err);
+                        setTimeout(cb);
+                    });
+                }
+                var moveStart = function(cb) {
+                    console.log("Intervalometer: polar: moving to start");
+                    motion.move(_motor.driver, _motor.motor, backlashAmount * _motor.direction, function(err) {
+                        if(err) console.log("Intervalometer: polar: err:", err);
+                        setTimeout(cb);
+                    });
+                }
+                var startTracking = function() {
+                    console.log("Intervalometer: polar: moving tracking...");
+                    intervalometer.internal.polarTrackIntervalHandle = setInterval(function(){
+                        motion.joystick(_motor.driver, _motor.motor, speed);
+                    }, 500);
+                    setTimeout(function(){
+                        checkDone('polar');
+                    }, 100);
+                }
+                if(camera.ptp.settings.details.shutter.ev < -2) { // only for shutter speeds longer than 1/15
+                    moveBack(function(){
+                        moveStart(function(){
+                            startTracking();
+                        });
+                    });
+                } else {
+                    checkDone('polar');
+                }
+            }
+            if(intervalometer.internal.polarTrackIntervalHandle) {
+                clearInterval(intervalometer.internal.polarTrackIntervalHandle);
+                intervalometer.internal.polarTrackIntervalHandle = null;
+                motion.joystick(motor.driver, motor.motor, 0, function(){
+                    setupTracking(stepsPerSecond + 1000 * motor.direction, motor);
+                });
+            } else {
+                motion.getBacklash(motor.driver, motor.motor, function(backlash) {
+                    console.log("Intervalometer: polar: backlash was", backlash);
+                    intervalometer.internal.polarMotorBacklash = {
+                        backlash: backlash,
+                        driver: motor.driver,
+                        motor: motor.motor
+                    }
+                    motion.setBacklash(motor.driver, motor.motor, 0, function() {
+                        setupTracking(stepsPerSecond + 1000 * motor.direction, motor);
+                    });
+                });
             }
         } else {
             if(m == 'focus') {
@@ -1111,6 +1177,18 @@ intervalometer.validate = function(program) {
 }
 intervalometer.cancel = function(reason, callback) {
     if(!reason) reason = 'stopped';
+    if(intervalometer.internal.polarTrackIntervalHandle) {
+        clearInterval(intervalometer.internal.polarTrackIntervalHandle);
+        intervalometer.internal.polarTrackIntervalHandle = null;
+    }
+    if(intervalometer.internal.polarMotorBacklash) {
+        setTimeout(function(){
+            console.log("Intervalometer: polar: resetting backlash to", intervalometer.internal.polarMotorBacklash.backlash);
+            motion.setBacklash(intervalometer.internal.polarMotorBacklash.driver, intervalometer.internal.polarMotorBacklash.motor, intervalometer.internal.polarMotorBacklash.backlash, function(){
+                intervalometer.internal.polarMotorBacklash = null;
+            });
+        }, 2000);
+    }
     if (intervalometer.status.running) {
         clearTimeout(timerHandle);
         clearTimeout(delayHandle);
@@ -1241,6 +1319,10 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     intervalometer.status.dynamicChange = {};
                     intervalometer.status.trackingTilt = 0;
                     intervalometer.status.trackingPan = 0;
+
+                    intervalometer.internal.polarStart = null;
+                    intervalometer.internal.polarTrackIntervalHandle = null;
+
 
                     if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                         planHdr(program.hdrCount, program.hdrStops);

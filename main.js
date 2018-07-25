@@ -1815,16 +1815,19 @@ if (VIEW_HARDWARE) {
         for(var i = 0; i < core.motionStatus.motors.length; i++) {
             if(core.motionStatus.motors[i].connected) numberConnected++;
         }
+        //console.log("MAIN: motorOrientationKnown: numberConnected", numberConnected);
         if(numberConnected > 3) return false;
         if(numberConnected == 1 && core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt')) {
             var res = {};
             res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
+            //console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
-        if(numberConnected == 2 && core.motionStatus.motors[0].orientation && core.motionStatus.motors[1].orientation && core.motionStatus.motors[0].orientation != core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt') && (core.motionStatus.motors[1].orientation == 'pan' || core.motionStatus.motors[1].orientation == 'tilt')) {
+        if(numberConnected == 2 && core.motionStatus.motors[0].orientation && core.motionStatus.motors[1].orientation && core.motionStatus.motors[0].orientation != core.motionStatus.motors[1].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt') && (core.motionStatus.motors[1].orientation == 'pan' || core.motionStatus.motors[1].orientation == 'tilt')) {
             var res = {};
             res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
             res[core.motionStatus.motors[1].orientation] = core.motionStatus.motors[1];
+            //console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
         return false;

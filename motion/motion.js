@@ -74,6 +74,22 @@ motion.getPosition = function(driver, motorId) {
 	return 0;
 }
 
+motion.getBacklash = function(driver, motorId, callback) {
+	if(driver == "NMX") {
+		motion.nmx.getMotorBacklash(motorId, callback);
+	} else {
+		callback && callback(0);
+	}
+}
+
+motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
+	if(driver == "NMX") {
+		motion.nmx.setMotorBacklash(motorId, backlashSteps, callback);
+	} else {
+		callback && callback(0);
+	}
+}
+
 motion.refresh = function(callback) {
 	var nmxStatus = motion.nmx.getStatus();
 	if(nmxStatus.connected) {

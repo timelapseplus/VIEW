@@ -58,6 +58,18 @@ var CMD_MOTOR_POSITION = {
     hasAck: true,
     delay: 50
 }
+var CMD_MOTOR_BACKLASH = {
+    cmd: 0x65,
+    hasReponse: true,
+    hasAck: true,
+    delay: 10
+}
+var CMD_MOTOR_SET_BACKLASH = {
+    cmd: 0x05,
+    hasReponse: false,
+    hasAck: true,
+    delay: 10
+}
 var CMD_MOTOR_RESET = {
     cmd: 0x1B,
     hasReponse: false,
@@ -163,7 +175,11 @@ function getStatus() {
 }
 
 function move(motorId, steps, callback) {
-    if (motorRunning[motorId]) return console.log("NMX: motor already running");
+    console.log("NMX: (init) moving motor " + motorId + " by " + steps + " steps");
+    if (motorRunning[motorId]) {
+        console.log("NMX: motor already running");
+        return callback && callback("NMX: motor already running");
+    }
     if(!enabled[motorId]) enable(motorId);
     if(inJoystickMode) return joystickMode(false, function() {
         move(motorId, steps, callback);
@@ -307,15 +323,22 @@ function constantMove(motorId, speed, callback) {
         });
     }
 
-    if(joystickAxisBusy[motorId] && speed != 0) return callback(null);
+    if(joystickAxisBusy[motorId] && speed != 0) return callback && callback(null);
 
     joystickAxisBusy[motorId] = true;
     var m = new Buffer(4);
     m.fill(0);
-    var maxSpeed = 3000;
-    speed = Math.floor((speed / 100) * maxSpeed);
-    if(speed > maxSpeed) speed = maxSpeed;
-    if(speed < -maxSpeed) speed = -maxSpeed;
+
+    if(Math.abs(speed) < 1000) { // speed is percentage
+        var maxSpeed = 3000;
+        speed = Math.floor((speed / 100) * maxSpeed);
+        if(speed > maxSpeed) speed = maxSpeed;
+        if(speed < -maxSpeed) speed = -maxSpeed;
+    } else { // speed is steps/second + 1000
+        if(speed > 0) speed -= 1000; else speed += 1000;
+        if(speed > 100) speed = 100;
+        if(speed < -100) speed = -100;
+    }
     m.writeFloatBE(speed, 0, 4);
     motorRunning[motorId] = true;
 
@@ -399,6 +422,34 @@ function checkMotorSpeed(motorId, callback) {
     _queueCommand(cmd, function(err, speed) {
         console.log("NMX: motor " + motorId + " moving at speed: ", speed);
         if (callback) callback(speed);
+    });
+}
+
+function getMotorBacklash(motorId, callback) {
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_BACKLASH
+    }
+    _queueCommand(cmd, function(err, backlash) {
+        console.log("NMX: motor " + motorId + " backlash steps: ", backlash);
+        if (callback) callback(backlash || 0);
+    });
+}
+
+function setMotorBacklash(motorId, backlashSteps, callback) {
+    var backlash = new Buffer(2);
+    backlash.fill(0);
+    backlash.writeUInt16BE(backlashSteps, 0, 2);
+
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_SET_BACKLASH,
+        dataBuf: backlash
+    }
+
+    _queueCommand(cmd, function(err) {
+        console.log("NMX: set motor " + motorId + " backlash steps: ", backlashSteps);
+        if (callback) callback();
     });
 }
 
@@ -638,6 +689,8 @@ nmx.resetMotorPosition = resetMotorPosition;
 nmx.setMotorPosition = setMotorPosition;
 nmx.checkMotorAttachment = checkMotorAttachment;
 nmx.setMotorAttachment = setMotorAttachment;
+nmx.setMotorBacklash = setMotorBacklash;
+nmx.getMotorBacklash = getMotorBacklash;
 
 module.exports = nmx;
 
@@ -713,10 +766,10 @@ function _connectSerial(path, callback) {
                 _dev = null;
                 nmx.emit("status", getStatus());
                 console.log("NMX: ERROR: NMX Disconnected: ", err);
-                console.log("NMX: reconnecting");
-                process.nextTick(function() {
-                    _connectSerial(path);
-                });
+                //console.log("NMX: reconnecting");
+                //process.nextTick(function() {
+                //    _connectSerial(path);
+                //});
             }
         });
         _dev.port.once('error', function(err) {
@@ -953,7 +1006,7 @@ function _runQueue(queueItem, rec) {
         console.log("NMX: writing", nextItem.buffer);
         (function(item) {
             _nmxCommandCh.write(item.buffer, true, function(err) {
-                if(err) console.log("NMX: error writing:", err);
+                if(err) console.log("NMX: error writing:", err, err.code);
                 //console.log("checking callback");
                 if (item.readback) {
                     setTimeout(function() {
