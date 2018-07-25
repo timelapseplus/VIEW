@@ -1811,23 +1811,27 @@ if (VIEW_HARDWARE) {
 
     var motorOrientationKnown = function() {
         if(!core.motionStatus.motors) return false;
-        var numberConnected = 0;
+
+        var motors = [];        
         for(var i = 0; i < core.motionStatus.motors.length; i++) {
-            if(core.motionStatus.motors[i].connected) numberConnected++;
+            if(core.motionStatus.motors[i].connected) motors.push(core.motionStatus.motors[i]);
         }
-        //console.log("MAIN: motorOrientationKnown: numberConnected", numberConnected);
-        if(numberConnected > 3) return false;
-        if(numberConnected == 1 && core.motionStatus.motors[0].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt')) {
+        console.log("MAIN: motorOrientationKnown: motors.length", motors.length);
+        console.log("MAIN: motorOrientationKnown: core.motionStatus.motors[0]", motors[0]);
+        console.log("MAIN: motorOrientationKnown: core.motionStatus.motors[1]", motors[1]);
+
+        if(motors.length > 3) return false;
+        if(motors.length == 1 && motors[0].orientation && (motors[0].orientation == 'pan' || motors[0].orientation == 'tilt')) {
             var res = {};
-            res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
-            //console.log("MAIN: motorOrientationKnown: res", res);
+            res[motors[0].orientation] = motors[0];
+            console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
-        if(numberConnected == 2 && core.motionStatus.motors[0].orientation && core.motionStatus.motors[1].orientation && core.motionStatus.motors[0].orientation != core.motionStatus.motors[1].orientation && (core.motionStatus.motors[0].orientation == 'pan' || core.motionStatus.motors[0].orientation == 'tilt') && (core.motionStatus.motors[1].orientation == 'pan' || core.motionStatus.motors[1].orientation == 'tilt')) {
+        if(motors.length == 2 && motors[0].orientation && motors[1].orientation && motors[0].orientation != motors[1].orientation && (motors[0].orientation == 'pan' || motors[0].orientation == 'tilt') && (motors[1].orientation == 'pan' || motors[1].orientation == 'tilt')) {
             var res = {};
-            res[core.motionStatus.motors[0].orientation] = core.motionStatus.motors[0];
-            res[core.motionStatus.motors[1].orientation] = core.motionStatus.motors[1];
-            //console.log("MAIN: motorOrientationKnown: res", res);
+            res[motors[0].orientation] = motors[0];
+            res[motors[1].orientation] = motors[1];
+            console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
         return false;
