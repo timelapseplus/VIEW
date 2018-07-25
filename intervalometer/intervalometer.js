@@ -372,6 +372,11 @@ function processKeyframes(setupFirst, callback) {
             }
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
+            if(!intervalometer.gpsData) {
+                axis.type = disabled;
+                intervalometer.emit('error', "No GPS/coordinates available for tracking calculations.  Time-lapse will continue with tracking disabled on axis " + m + ".");
+                checkDone('tracking');
+            }
             if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'sun' && sunPos) {
                 trackingTarget = calculateCelestialDistance(intervalometer.status.sunPos, sunPos, axis.trackBelowHorizon);
             } else if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'moon' && moonPos) {

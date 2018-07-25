@@ -1824,13 +1824,16 @@ if (VIEW_HARDWARE) {
         if(motors.length == 1 && motors[0].orientation && (motors[0].orientation == 'pan' || motors[0].orientation == 'tilt')) {
             var res = {};
             res[motors[0].orientation] = motors[0];
+            res[motors[0].orientation].name = motors[0].driver + "-" + motors[0].motor;
             console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
         if(motors.length == 2 && motors[0].orientation && motors[1].orientation && motors[0].orientation != motors[1].orientation && (motors[0].orientation == 'pan' || motors[0].orientation == 'tilt') && (motors[1].orientation == 'pan' || motors[1].orientation == 'tilt')) {
             var res = {};
             res[motors[0].orientation] = motors[0];
+            res[motors[0].orientation].name = motors[0].driver + "-" + motors[0].motor;
             res[motors[1].orientation] = motors[1];
+            res[motors[1].orientation].name = motors[1].driver + "-" + motors[1].motor;
             console.log("MAIN: motorOrientationKnown: res", res);
             return res;
         }
@@ -2021,9 +2024,13 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.scheduled = null;
                     core.currentProgram.axes = {};
                     core.currentProgram.focusPos = 0;
+                    if(!mcu.validCoordinates()) core.currentProgram.tracking = 'none';
                     if(core.currentProgram.tracking != 'none') {
                         var autoOrient = motorOrientationKnown();
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
+                        if(core.currentProgram.tracking == "15deg" && (autoOrient && autoOrient.pan)) {
+                            panMotor = autoOrient.pan;
+                        }
                         if(panMotor) {
                             if(core.currentProgram.tracking == "15deg") {
                                 core.currentProgram.axes[panMotor.name] = {
@@ -2033,7 +2040,6 @@ if (VIEW_HARDWARE) {
                                     reverse: panMotor.reverse
                                 }
                             } else {
-                                if(autoOrient && autoOrient.pan) panMotor = autoOrient.pan;
                                 core.currentProgram.trackingTarget = core.currentProgram.tracking;
                                 core.currentProgram.axes[panMotor.name] = {
                                     type: 'tracking',
