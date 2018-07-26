@@ -814,7 +814,7 @@ function waitForSchedule() {
                 } else {
                     setTimeout(function(){
                         console.log("Intervalometer: running scheduled start...");
-                        intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv);
+                        intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv || 0);
                     });
                 }
              } else {
@@ -1271,7 +1271,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
         intervalometer.status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
     if(!intervalometer.status.timeOffsetSeconds) intervalometer.status.timeOffsetSeconds = 0;
-    if(autoExposureTarget != null) {
+    if(autoExposureTarget != null && program.rampMode == 'auto') {
         intervalometer.status.exposureReferenceEv = autoExposureTarget;
     } else {
         intervalometer.status.exposureReferenceEv = null;

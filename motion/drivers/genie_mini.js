@@ -137,8 +137,7 @@ GenieMini.prototype._parseIncoming = function(data) {
         var orientationCode = data.readUInt8(3);
         console.log("GenieMini(" + this._id + "): orientationCode:", orientationCode);
         var origOrientation = this.orientation;
-        if(orientationCode == 0x90) this.orientation = 'pan';
-        if(orientationCode == 0x94) this.orientation = 'tilt';
+        if(orientationCode & 0x4) this.orientation = 'tilt'; else this.orientation = 'pan'; // pan = 0x90, 0x80, tilt = 0x94, 0x84
         if(origOrientation != this.orientation) {
             console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
             this.emit("status", this.getStatus());
