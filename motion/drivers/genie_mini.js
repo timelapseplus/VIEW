@@ -134,10 +134,11 @@ GenieMini.prototype._parseIncoming = function(data) {
         }
         this._lastAngle = angle;
     } else if(id == 0x0025) {
-        var orientation = data.readUInt8(3);
+        var orientationCode = data.readUInt8(3);
+        console.log("GenieMini(" + this._id + "): orientationCode:", orientationCode;
         var origOrientation = this.orientation;
-        if(orientation == 0x90) this.orientation = 'pan';
-        if(orientation == 0x94) this.orientation = 'tilt';
+        if(orientationCode == 0x90) this.orientation = 'pan';
+        if(orientationCode == 0x94) this.orientation = 'tilt';
         if(origOrientation != this.orientation) {
             console.log("GenieMini(" + this._id + "): orientation:", this.orientation);
             this.emit("status", this.getStatus());
