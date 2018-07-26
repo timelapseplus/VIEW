@@ -373,7 +373,7 @@ function processKeyframes(setupFirst, callback) {
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
             if(!intervalometer.gpsData) {
-                axis.type = disabled;
+                axis.type = 'disabled';
                 intervalometer.emit('error', "No GPS/coordinates available for tracking calculations.  Time-lapse will continue with tracking disabled on axis " + m + ".");
                 checkDone('tracking');
             }
@@ -399,6 +399,7 @@ function processKeyframes(setupFirst, callback) {
             var motor = null;
             motor = getTrackingMotor(m);
             var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
+            if(axis.motor && axis.motor.reverse) rev = !rev;
             motor.direction = rev ? -1 : 1;
 
             if(trackingTarget) {
@@ -449,8 +450,12 @@ function processKeyframes(setupFirst, callback) {
                 checkDone('tracking');
             }
         } else if(axis.type == 'polar') {
+            var motor = null;
             motor = getTrackingMotor(m);
-            motor.direction = axis.reverse ? -1 : 1;
+            var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
+            if(axis.motor && axis.motor.reverse) rev = !rev;
+            motor.direction = rev ? -1 : 1;
+
             var currentPolarPos = motion.getPosition(motor.driver, motor.motor);
             if(intervalometer.internal.polarStart == null) intervalometer.internal.polarStart = currentPolarPos;
             var backlashAmount = 5 * motor.stepsPerDegree;
