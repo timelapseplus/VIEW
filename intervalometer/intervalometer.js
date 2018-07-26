@@ -262,6 +262,8 @@ function processKeyframes(setupFirst, callback) {
     var numAxes = 1;
     var axesDone = 0;
 
+    if(intervalometer.currentProgram.scheduled) return callback();
+
     var checkDone = function(item) {
         axesDone++;
         console.log("KF: " + item + "completed");
@@ -1480,6 +1482,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                         if(scheduled()) runPhoto();
                                                     });
                                                 }
+                                            } else {
+                                                if(scheduled()) runPhoto();
                                             }
                                         }
                                     }
