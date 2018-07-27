@@ -232,8 +232,9 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
         }
     }
     return {
-        pan: panDiff * ease,
-        tilt: tiltDiff * ease
+        pan: panDiff,
+        tilt: tiltDiff,
+        ease: ease
     }
 }
 
@@ -388,13 +389,15 @@ function processKeyframes(setupFirst, callback) {
                 if(axis.orientation == 'pan') {
                     trackingTarget = {
                         pan: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
-                        tilt: 0
+                        tilt: 0,
+                        ease: 1
                     }
                 }
                 if(axis.orientation == 'tilt') {
                     trackingTarget = {
                         tilt: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
-                        pan: 0
+                        pan: 0,
+                        ease: 1
                     }
                 }
             }
@@ -407,6 +410,7 @@ function processKeyframes(setupFirst, callback) {
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
                     var panDegrees = trackingTarget.pan - intervalometer.status.trackingPan;
+                    panDegrees *= trackingTarget.ease;
                     if(intervalometer.status.panDiff != intervalometer.status.panDiffNew) {
                         intervalometer.status.panDiff = intervalometer.status.panDiffNew;
                     }
@@ -427,6 +431,7 @@ function processKeyframes(setupFirst, callback) {
                     }
                 } else if(axis.orientation == 'tilt') {
                     var tiltDegrees = trackingTarget.tilt - intervalometer.status.trackingTilt;
+                    tiltDegrees *= trackingTarget.ease;
                     if(intervalometer.status.tiltDiff != intervalometer.status.tiltDiffNew) {
                         intervalometer.status.tiltDiff = intervalometer.status.tiltDiffNew;
                     }
