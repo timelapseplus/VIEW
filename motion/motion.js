@@ -30,7 +30,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var gyroThreshold = 0.2;
 	var accelThreshold = 1.5;
 
-	if(!IMU) callback && callback("unable to access IMU");
+	if(!IMU) return callback && callback("unable to access IMU");
 
 	var stop = false;
 	var detectMove = function(cb) {
@@ -50,13 +50,13 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				return cb && cb(err || "no data available");
 			}
 			if(!stop) {
-				IMU.getData(processData);
+				IMU.getValue(processData);
 			} else {
 				return cb && cb(null, false);
 			}
 		}
 		setTimeout(function() {
-			IMU.getData(processData);
+			IMU.getValue(processData);
 		});
 	}
 
