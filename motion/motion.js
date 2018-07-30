@@ -2,6 +2,7 @@ var EventEmitter = require("events").EventEmitter;
 require('rootpath')();
 var nmx = require('motion/drivers/nmx.js');
 var GenieMini = require('motion/drivers/genie_mini.js');
+var async = require('async');
 var nodeimu = require('nodeimu');
 var IMU = false;
 try {
