@@ -63,7 +63,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			setTimeout(function(){
 				cb && cb(err, moved);
 			}, 500);
-		}
+		});
 	}
 
 	var doCycle = function(cb) {
