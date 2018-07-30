@@ -30,6 +30,8 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var gyroThreshold = 0.1;
 	var accelThreshold = 1.4;
 
+	var origBacklash = 0;
+
 	if(!IMU) return callback && callback("unable to access IMU");
 
 	var stop = false;
@@ -67,7 +69,11 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			moved = move;
 		});
 		motion.move(driver, motorId, steps * direction, function(err, pos) {
-			console.log("motion pos:", (pos));
+			if(err) {
+				console.log("motion error:", (err));
+			} else {
+				console.log("motion pos:", (pos));
+			}
 			stop = true;
 			setTimeout(function(){
 				cb && cb(err, moved);
@@ -80,7 +86,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		var moveRight = function(cb2) { checkMove(1, cb2); }
 		var moveLeft = function(cb2) { checkMove(-1, cb2); }
 		async.series([moveRight, moveLeft], function(err, results) {
-			if(err) cb(err);
+			if(err) return cb(err);
 			var moved = results[0] || results[1];
 			if(!moved) {
 				if(tries == 1) cb("failed to detect motion");
@@ -107,9 +113,10 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 							motion.move(driver, motorId, (steps / 2), function(){
 								if(err) {
 									console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
+									motion.setBacklash(driver, motorId, origBacklash);
 								} else {
 									console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlash);
-									//motion.setMotorBacklash(motorId, driver, backlash);
+									motion.setBacklash(driver, motorId, backlashSteps);
 								}
 								callback && callback(err, backlash);
 							})
@@ -123,8 +130,12 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 
 	}
 
-	startCalibration();
-
+	motion.getBacklash(driver, motorId, function(backlash){
+		if(backlash) origBacklash = backlash;
+		motion.setBacklash(driver, motorId, 0, function(){
+			startCalibration();
+		});
+	}
 
 }
 
