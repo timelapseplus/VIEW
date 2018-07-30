@@ -68,9 +68,11 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		});
 		motion.move(driver, motorId, steps * direction, function(err, res) {
 			stop = true;
-			setTimeout(function(){
-				cb && cb(err, moved);
-			}, 500);
+			if(err || res.complete) {
+				setTimeout(function(){
+					cb && cb(err, moved);
+				}, 500);
+			}
 		});
 	}
 
@@ -97,8 +99,8 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				if(err) {
 					console.log("calibration failed for", driver, "motor", motor, ". Error:", err);
 				} else {
-					motion.setMotorBacklash(motor, driver, backlash);
 					console.log("calibration complete for", driver, "motor", motor, ". Backlash steps:", backlash);
+					//motion.setMotorBacklash(motorId, driver, backlash);
 				}
 				callback && callback(err, backlash);
 			})
