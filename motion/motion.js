@@ -27,8 +27,8 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var steps = (driver == 'NMX') ? 1000 : 2.0;
 	var dec = (driver == 'NMX') ? 4 : 0.01;
 
-	var gyroThreshold = 0.2;
-	var accelThreshold = 1.5;
+	var gyroThreshold = 0.1;
+	var accelThreshold = 1.4;
 
 	if(!IMU) return callback && callback("unable to access IMU");
 
@@ -92,19 +92,39 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		});
 	}
 
-	motion.move(driver, motorId, -(steps / 2), function(){
-		doCycle(function(err, backlash){
-			motion.move(driver, motorId, (steps / 2), function(){
-				if(err) {
-					console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
+	var startCalibration = function() {
+		IMU.getValue(function(err, data) {
+			if(!err && data) {
+				var gyro = Math.abs(data.gyro.x) + Math.abs(data.gyro.y) + Math.abs(data.gyro.z);
+				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
+				if(gyro == 0 || accel == 0) {
+					startCalibration();
 				} else {
-					console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlash);
-					//motion.setMotorBacklash(motorId, driver, backlash);
+					gyroThreshold = gyro * 1.05;
+					accelThreshold = accel * 1.05;
+					motion.move(driver, motorId, -(steps / 2), function(){
+						doCycle(function(err, backlash){
+							motion.move(driver, motorId, (steps / 2), function(){
+								if(err) {
+									console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
+								} else {
+									console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlash);
+									//motion.setMotorBacklash(motorId, driver, backlash);
+								}
+								callback && callback(err, backlash);
+							})
+						})
+					});
 				}
-				callback && callback(err, backlash);
-			})
-		})
-	});
+			} else {
+				callback && callback(err || "unable to read IMU");
+			}
+		});
+
+	}
+
+	startCalibration();
+
 
 }
 

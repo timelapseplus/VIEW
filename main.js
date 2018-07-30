@@ -4380,7 +4380,7 @@ app.on('message', function(msg) {
                     console.log("calibrating motor " + msg.motor);
                     (function(driver, motor, reply) {
                         core.motionCalibrateBacklash(driver, motor, function(err, backlash) {
-                            reply('motion', {
+                            reply('calibrate', {
                                 complete: true,
                                 error: err,
                                 motor: motor,
