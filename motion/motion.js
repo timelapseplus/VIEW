@@ -24,7 +24,7 @@ motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
 
 motion.calibrateBacklash = function(driver, motorId, callback) {
-	var steps = (driver == 'NMX') ? 1000 : 2.0;
+	var steps = (driver == 'NMX') ? 600 : 1.1;
 	var dec = (driver == 'NMX') ? 4 : 0.01;
 
 	var gyroThreshold = 0.1;
@@ -87,7 +87,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				else(cb(null, steps));
 			} else {
 				steps -= dec;
-				setTimeout(doCycle);
+				setTimeout(function(){doCycle(cb)});
 			}
 		});
 	}
