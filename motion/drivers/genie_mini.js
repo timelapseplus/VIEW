@@ -12,6 +12,8 @@ function GenieMini(id) {
     this._position = 0;
     this._currentMove = null;
     this._stepsPerDegree = 186.56716418;
+    this._backlash = 0;
+    this._lastDirection = 0;
 
     this.orientation = null;
 }
@@ -196,6 +198,11 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         if (callback) callback("GenieMini(" + this._id + "): motor already running");
         return console.log("GenieMini(" + this._id + "): motor already running");
     }
+    var sign = Math.sign(degrees);
+    if(sign && this._lastDirection != sign) {
+        this._lastDirection = sign;
+        degrees += this._backlash * sign;
+    }
     var steps = Math.round(degrees * this._stepsPerDegree);
     if(!steps) {
         console.log("GenieMini(" + this._id + "): NOT moving motor", steps, "steps, (", degrees, " degrees)");
@@ -338,18 +345,13 @@ GenieMini.prototype.resetMotorPosition = function(motor, callback) {
     check();
 }
 
-GenieMini.prototype.setMotorPosition = function(motor, position, callback) {
-    var self = this;
-    var check = function() {
-        if(self._moving) {
-            setTimeout(check, 200); // keep checking until stop
-        } else {
-            console.log("GenieMini(" + self._id + "): updating position to", position);
-            self._position = position;
-            if (callback) callback();
-        }
-    }
-    check();
+GenieMini.prototype.getMotorBacklash = function(motor, backlash, callback) {
+    this._backlash = backlash;
+    if (callback) callback(this._backlash);
+}
+
+GenieMini.prototype.getMotorBacklash = function(motor, callback) {
+    if (callback) callback(this._backlash);
 }
 
 module.exports = GenieMini;

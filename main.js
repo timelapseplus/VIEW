@@ -2028,7 +2028,7 @@ if (VIEW_HARDWARE) {
                     if(core.currentProgram.tracking != 'none') {
                         var autoOrient = motorOrientationKnown();
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
-                        if(core.currentProgram.tracking == "15deg" && (autoOrient && autoOrient.pan)) {
+                        if(core.currentProgram.tracking != "15deg" && (autoOrient && autoOrient.pan)) {
                             panMotor = autoOrient.pan;
                         }
                         if(panMotor) {
@@ -4373,6 +4373,19 @@ app.on('message', function(msg) {
                                 motor: motor,
                                 driver: driver,
                                 position: 0
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.reply);
+                } else if (msg.key == "calibrate" && msg.motor && msg.driver) {
+                    console.log("calibrating motor " + msg.motor);
+                    (function(driver, motor, reply) {
+                        core.motionCalibrateBacklash(driver, motor, function(err, backlash) {
+                            reply('motion', {
+                                complete: true,
+                                error: err,
+                                motor: motor,
+                                driver: driver,
+                                backlash: backlash
                             });
                         });
                     })(msg.driver, msg.motor, msg.reply);

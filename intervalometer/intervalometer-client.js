@@ -257,6 +257,10 @@ core.zeroMotion = function(driver, motor, callback) {
     call('motion.zero', {driver:driver, motor:motor}, callback);
 };
 
+core.motionCalibrateBacklash = function(driver, motor, callback) {
+    call('motion.calibrateBacklash', {driver:driver, motor:motor}, callback);
+};
+
 core.setMotionPosition = function(driver, motor, position, callback) {
     call('motion.setPosition', {driver:driver, motor:motor, position:position}, callback);
 };

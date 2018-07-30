@@ -2,6 +2,8 @@ var EventEmitter = require("events").EventEmitter;
 require('rootpath')();
 var nmx = require('motion/drivers/nmx.js');
 var GenieMini = require('motion/drivers/genie_mini.js');
+var nodeimu = require('nodeimu');
+var IMU = new nodeimu.IMU();
 
 var motion = new EventEmitter();
 
@@ -14,6 +16,88 @@ var lastStatus = motion.status;
 motion.nmx = nmx;
 motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
+
+motion.calibrateBacklash = function(driver, motorId, callback) {
+	var steps = (driver == 'NMX') ? 1000 : 2.0;
+	var dec = (driver == 'NMX') ? 4 : 0.01;
+
+	var gyroThreshold = 0.2;
+	var accelThreshold = 1.5;
+
+	var stop = false;
+	var detectMove = function(cb) {
+		stop = false;
+		var processData = function(err, data) {
+			if(!err && data) {
+				var gyro = Math.abs(data.gyro.x) + Math.abs(data.gyro.y) + Math.abs(data.gyro.z);
+				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
+				console.log("detecting move:", gyro, accel);
+				if(gyro > gyroThreshold || accel > accelThreshold) {
+					stop = true;
+					console.log("---> move detected:", gyro, accel);
+					return cb && cb(null, true);
+				}
+			} else {
+				stop = true;
+				return cb && cb(err || "no data available");
+			}
+			if(!stop) {
+				IMU.getData(processData);
+			} else {
+				return cb && cb(null, false);
+			}
+		}
+		setTimeout(function() {
+			IMU.getData(processData);
+		});
+	}
+
+	var tries = 0;
+	var checkMove = function(direction, cb) {
+		var moved = false;
+		detectMove(function(err, move) {
+			moved = move;
+		});
+		motion.move(driver, motorId, steps * direction, function(err, res) {
+			stop = true;
+			setTimeout(function(){
+				cb && cb(err, moved);
+			}, 500);
+		}
+	}
+
+	var doCycle = function(cb) {
+		tries++;
+		var moveRight = function(cb2) { checkMove(1, cb2); }
+		var moveLeft = function(cb2) { checkMove(-1, cb2); }
+		async.series([moveRight, moveLeft], function(err, results) {
+			if(err) cb(err);
+			var moved = results[0] || results[1];
+			if(!moved) {
+				if(tries == 1) cb("failed to detect motion");
+				else(cb(null, steps));
+			} else {
+				steps -= dec;
+				setTimeout(doCycle);
+			}
+		});
+	}
+
+	motion.move(driver, motorId, -(steps / 2), function(){
+		doCycle(function(err, backlash){
+			motion.move(driver, motorId, (steps / 2), function(){
+				if(err) {
+					console.log("calibration failed for", driver, "motor", motor, ". Error:", err);
+				} else {
+					motion.setMotorBacklash(motor, driver, backlash);
+					console.log("calibration complete for", driver, "motor", motor, ". Backlash steps:", backlash);
+				}
+				callback && callback(err, backlash);
+			})
+		})
+	});
+
+}
 
 motion.move = function(driver, motorId, steps, callback) {
 	if(driver == "NMX") {
@@ -78,7 +162,11 @@ motion.getBacklash = function(driver, motorId, callback) {
 	if(driver == "NMX") {
 		motion.nmx.getMotorBacklash(motorId, callback);
 	} else {
-		callback && callback(0);
+		if(motorId == 2) {
+			motion.gm2.getMotorBacklash(motorId, callback);
+		} else {
+			motion.gm1.getMotorBacklash(motorId, callback);
+		}
 	}
 }
 
@@ -86,7 +174,11 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
 	if(driver == "NMX") {
 		motion.nmx.setMotorBacklash(motorId, backlashSteps, callback);
 	} else {
-		callback && callback(0);
+		if(motorId == 2) {
+			motion.gm2.setMotorBacklash(motorId, backlashSteps, callback);
+		} else {
+			motion.gm1.setMotorBacklash(motorId, backlashSteps, callback);
+		}
 	}
 }
 

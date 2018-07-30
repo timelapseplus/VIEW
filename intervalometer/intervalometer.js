@@ -410,7 +410,10 @@ function processKeyframes(setupFirst, callback) {
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
                     var panDegrees = trackingTarget.pan - intervalometer.status.trackingPan;
+                    var addSkippedDegrees = panDegrees;
                     panDegrees *= trackingTarget.ease;
+                    addSkippedDegrees -= panDegrees;
+                    intervalometer.status.trackingPan += addSkippedDegrees;
                     if(intervalometer.status.panDiff != intervalometer.status.panDiffNew) {
                         intervalometer.status.panDiff = intervalometer.status.panDiffNew;
                     }
@@ -431,7 +434,10 @@ function processKeyframes(setupFirst, callback) {
                     }
                 } else if(axis.orientation == 'tilt') {
                     var tiltDegrees = trackingTarget.tilt - intervalometer.status.trackingTilt;
+                    var addSkippedDegrees = tiltDegrees;
                     tiltDegrees *= trackingTarget.ease;
+                    addSkippedDegrees -= tiltDegrees;
+                    intervalometer.status.trackingTilt += addSkippedDegrees;
                     if(intervalometer.status.tiltDiff != intervalometer.status.tiltDiffNew) {
                         intervalometer.status.tiltDiff = intervalometer.status.tiltDiffNew;
                     }

@@ -339,6 +339,9 @@ function runCommand(type, args, callback, client) {
     case 'motion.joystick':
       motion.joystick(args.driver, args.motor, args.speed, callback);
       break;
+    case 'motion.calibrateBacklash':
+      motion.calibrateBacklash((args.driver, args.motor, callback);
+      break;
 
     case 'motion.setNMXMotor':
       motion.nmx.setMotorAttachment(args.motor, args.status, callback);

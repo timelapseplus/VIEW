@@ -138,7 +138,9 @@ camera.setEv = function(ev, options, cb) {
         var iso = settings.details.iso;
 
         var apertureEnabled = false;
+        //var shutterEnabled = true; //to be added
         if(options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
+        // if(options.parameters && options.parameters.indexOf('I') === -1) shutterEnabled = false // defaults to enabled
 
         if (!aperture) {
             apertureEnabled = false;
