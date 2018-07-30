@@ -67,8 +67,9 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			moved = move;
 		});
 		motion.move(driver, motorId, steps * direction, function(err, res) {
-			stop = true;
-			if(err || res.complete) {
+			console.log("motion moving:", (res && res.complete));
+			if(err || (res && res.complete)) {
+				stop = true;
 				setTimeout(function(){
 					cb && cb(err, moved);
 				}, 500);
