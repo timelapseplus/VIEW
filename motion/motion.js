@@ -39,7 +39,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			if(!err && data) {
 				var gyro = Math.abs(data.gyro.x) + Math.abs(data.gyro.y) + Math.abs(data.gyro.z);
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
-				console.log("detecting move:", gyro, accel);
+				//console.log("detecting move:", gyro, accel);
 				if(gyro > gyroThreshold || accel > accelThreshold) {
 					stop = true;
 					console.log("---> move detected:", gyro, accel);
@@ -96,9 +96,9 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		doCycle(function(err, backlash){
 			motion.move(driver, motorId, (steps / 2), function(){
 				if(err) {
-					console.log("calibration failed for", driver, "motor", motor, ". Error:", err);
+					console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
 				} else {
-					console.log("calibration complete for", driver, "motor", motor, ". Backlash steps:", backlash);
+					console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlash);
 					//motion.setMotorBacklash(motorId, driver, backlash);
 				}
 				callback && callback(err, backlash);
