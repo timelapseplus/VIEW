@@ -3,7 +3,12 @@ require('rootpath')();
 var nmx = require('motion/drivers/nmx.js');
 var GenieMini = require('motion/drivers/genie_mini.js');
 var nodeimu = require('nodeimu');
-var IMU = new nodeimu.IMU();
+var IMU = false;
+try {
+	IMU = new nodeimu.IMU();
+} catch(e) {
+	console.log("ERROR: cannot connect to IMU!");
+}
 
 var motion = new EventEmitter();
 
@@ -23,6 +28,8 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 
 	var gyroThreshold = 0.2;
 	var accelThreshold = 1.5;
+
+	if(!IMU) callback && callback("unable to access IMU");
 
 	var stop = false;
 	var detectMove = function(cb) {

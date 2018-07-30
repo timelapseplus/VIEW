@@ -198,7 +198,10 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
         if (callback) callback("GenieMini(" + this._id + "): motor already running");
         return console.log("GenieMini(" + this._id + "): motor already running");
     }
-    var sign = Math.sign(degrees);
+    var sign = 0;
+    if(degrees > 0) sign = 1;
+    if(degrees < 0) sign = -1;
+
     if(sign && this._lastDirection != sign) {
         this._lastDirection = sign;
         degrees += this._backlash * sign;
