@@ -348,7 +348,7 @@ GenieMini.prototype.resetMotorPosition = function(motor, callback) {
     check();
 }
 
-GenieMini.prototype.getMotorBacklash = function(motor, backlash, callback) {
+GenieMini.prototype.setMotorBacklash = function(motor, backlash, callback) {
     this._backlash = backlash;
     if (callback) callback(this._backlash);
 }
