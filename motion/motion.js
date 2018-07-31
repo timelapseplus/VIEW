@@ -43,9 +43,9 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			if(!err && data) {
 				var fusion = Math.abs(data.fusionPose.x) + Math.abs(data.fusionPose.y) + Math.abs(data.fusionPose.z);
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
-				//console.log("detecting move:", usion, accel);
+				//console.log("detecting move:", fusion, accel);
 				if(fusionThreshold === null || accelThreshold === null) {
-					if(usion == 0 || accel == 0) {
+					if(fusion == 0 || accel == 0) {
 						return IMU.getValue(processData);
 					} else {
 						fusionThreshold = fusion * 1.05;
@@ -53,7 +53,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 						return IMU.getValue(processData);
 					}
 				}
-				if(usion > fusionThreshold || accel > accelThreshold) {
+				if(fusion > fusionThreshold || accel > accelThreshold) {
 					stop = true;
 					console.log("---> move detected:", fusion, accel);
 					return cb && cb(null, true);
