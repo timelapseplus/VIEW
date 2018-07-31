@@ -221,6 +221,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
 
     var self = this;
     self._write(0x005E, dataBuf, function(err) {
+        this._moving = true;
         if (!err) {
             var check = function() {
                 setTimeout(function() {
@@ -232,7 +233,7 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
                         console.log("GenieMini(" + self._id + "): position:", self._position);
                         if (callback) callback(null, self._position / self._stepsPerDegree);
                     }
-                }, 200);
+                }, 300);
             }
             check();
         } else {
