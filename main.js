@@ -4376,6 +4376,19 @@ app.on('message', function(msg) {
                             });
                         });
                     })(msg.driver, msg.motor, msg.reply);
+                } else if (msg.key == "cancelCalibration" && msg.motor && msg.driver) {
+                    console.log("calibrating motor " + msg.motor);
+                    (function(driver, motor, reply) {
+                        core.motionCancelCalibration(driver, motor, function(err, backlash) {
+                            reply('cancelCalibration', {
+                                complete: true,
+                                error: err,
+                                motor: motor,
+                                driver: driver,
+                                backlash: backlash
+                            });
+                        });
+                    })(msg.driver, msg.motor, msg.reply);
                 } else if (msg.key == "calibrate" && msg.motor && msg.driver) {
                     console.log("calibrating motor " + msg.motor);
                     (function(driver, motor, reply) {

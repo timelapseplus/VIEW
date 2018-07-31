@@ -15,13 +15,19 @@ var motion = new EventEmitter();
 
 motion.status = {
 	motors: [],
-	available: false
+	available: false,
+	calibrating: false
 }
 var lastStatus = motion.status;
 
 motion.nmx = nmx;
 motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
+
+motion.cancelCalibration = function(driver, motorId, callback) {
+	motion.status.calibrating = false;
+	callback && callback();
+}
 
 motion.calibrateBacklash = function(driver, motorId, callback) {
 	var steps = (driver == 'NMX') ? 600 : 1.1;
@@ -87,6 +93,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var tries = 0;
 	var checkMove = function(direction, cb) {
 		var moved = false;
+		if(!motion.status.calibrating) cb && cb("calibration cancelled");
 		detectMove(function(err) {
 			if(err) {
 				cb && cb(err);
@@ -123,12 +130,17 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				if(steps <= 0) {
 					return cb("too much motion interference, failed to find backlash value");
 				}
-				setTimeout(function(){doCycle(cb)});
+				if(motion.status.calibrating) {
+					setTimeout(function(){doCycle(cb)});
+				} else {
+					return cb("calibration cancelled");
+				}
 			}
 		});
 	}
 
 	var startCalibration = function() {
+		motion.status.calibrating = true;
 		motion.move(driver, motorId, -(steps / 2), function(){
 			doCycle(function(err, backlashSteps){
 				motion.move(driver, motorId, (steps / 2), function(){
@@ -139,6 +151,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
 						motion.setBacklash(driver, motorId, backlashSteps);
 					}
+					motion.status.calibrating = false;
 					callback && callback(err, backlashSteps);
 				})
 			})
