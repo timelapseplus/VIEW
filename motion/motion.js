@@ -58,7 +58,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				console.log("detecting move:", fusionDiff, fusion.x, fusion.y, fusion.z, accel);
 				
 				if(fusionDiffReference === null) {
-					fusionDiffReference = (fusionDiff * 1.01) || 0.0015;
+					fusionDiffReference = (fusionDiff * 2) || 0.0015;
 					startMotorCb && startMotorCb(null);
 					return IMU.getValue(processData);
 				}
