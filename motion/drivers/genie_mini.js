@@ -114,8 +114,11 @@ GenieMini.prototype._parseIncoming = function(data) {
     if(id == 0x0060 || id == 0x0061) { // moving steps
         var state = data.readUInt8(7);
         var steps = data.readInt16LE(3);
-        this._moving = (this._lastSteps == steps) ? this._moving : (state == 0x01);
-        this._lastSteps = steps;
+        this._moving = (state == 0x01);
+        //if(this._newMove) {
+        //    this._newMove = false;
+        //    this._moving = true;
+        //}
         console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps, "id:", id);
     } else if(id == 0x000B || id == 0x0052) { // current state
         var state = data.readUInt8(4);
@@ -221,8 +224,9 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
     this._moving = true;
 
     var self = this;
+    //this._newMove = true;
     self._write(0x005E, dataBuf, function(err) {
-        this._moving = true;
+        self._moving = true;
         if (!err) {
             var check = function() {
                 setTimeout(function() {
