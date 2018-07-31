@@ -41,7 +41,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		accelThreshold = null;
 		var processData = function(err, data) {
 			if(!err && data) {
-				var fusion = Math.abs(data.fusion.x) + Math.abs(data.fusion.y) + Math.abs(data.fusion.z);
+				var fusion = Math.abs(data.fusionPose.x) + Math.abs(data.fusionPose.y) + Math.abs(data.fusionPose.z);
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
 				//console.log("detecting move:", usion, accel);
 				if(fusionThreshold === null || accelThreshold === null) {
