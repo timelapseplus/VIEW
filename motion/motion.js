@@ -35,7 +35,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	if(!IMU) return callback && callback("unable to access IMU");
 
 	var stop = false;
-	var detectMove = function(cb) {
+	var detectMove = function(startMotorCb, moveCb) {
 		stop = false;
 		fusionThreshold = null;
 		accelThreshold = null;
@@ -50,22 +50,25 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 						console.log("baseline data for detecting move:", fusion, accel);
 						fusionThreshold = fusion * 1.05;
 						accelThreshold = accel * 1.05;
+						startMotorCb && startMotorCb(null);
 						return IMU.getValue(processData);
 					}
 				}
+				if(fusion && accel) console.log("detecting move:", fusion, accel);
 				if(fusion > fusionThreshold || accel > accelThreshold) {
 					stop = true;
 					console.log("---> move detected:", fusion, accel);
-					return cb && cb(null, true);
+					return moveCb && moveCb(null, true);
 				}
 			} else {
 				stop = true;
-				return cb && cb(err || "no data available");
+				startMotorCb && startMotorCb(err || "no data available");
+				return moveCb && moveCb(err || "no data available");
 			}
 			if(!stop) {
 				return IMU.getValue(processData);
 			} else {
-				return cb && cb(null, false);
+				return moveCb && moveCb(null, false);
 			}
 		}
 		setTimeout(function() {
@@ -76,19 +79,24 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var tries = 0;
 	var checkMove = function(direction, cb) {
 		var moved = false;
-		detectMove(function(err, move) {
-			moved = move;
-		});
-		motion.move(driver, motorId, steps * direction, function(err, pos) {
+		detectMove(function(err) {
 			if(err) {
-				console.log("motion error:", (err));
+				cb && cb(err);
 			} else {
-				console.log("motion pos:", (pos));
+				motion.move(driver, motorId, steps * direction, function(err, pos) {
+					if(err) {
+						console.log("motion error:", (err));
+					} else {
+						console.log("motion pos:", (pos));
+					}
+					stop = true;
+					setTimeout(function(){
+						cb && cb(err, moved);
+					}, 500);
+				});
 			}
-			stop = true;
-			setTimeout(function(){
-				cb && cb(err, moved);
-			}, 500);
+		}, function(err, move) {
+			moved = move;
 		});
 	}
 
