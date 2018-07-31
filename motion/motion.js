@@ -56,7 +56,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				}
 				var fusionDiff = Math.abs(data.fusionPose.x - fusion.x) + Math.abs(data.fusionPose.y - fusion.y) + Math.abs(data.fusionPose.z - fusion.z);
 				if(fusionDiffReference === null) {
-					fusionDiffReference = fusionDiff * 1.01;
+					fusionDiffReference = fusionDiff * 1.0015;
 					startMotorCb && startMotorCb(null);
 					return IMU.getValue(processData);
 				}
