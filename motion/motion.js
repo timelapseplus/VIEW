@@ -58,7 +58,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				console.log("detecting move:", fusionDiff, fusion.x, fusion.y, fusion.z, accel);
 				
 				if(fusionDiffReference === null) {
-					fusionDiffReference = (fusionDiff * 2) || 0.0015;
+					fusionDiffReference = Math.max((fusionDiff * 2), 0.0015);
 					startMotorCb && startMotorCb(null);
 					return IMU.getValue(processData);
 				}
@@ -120,7 +120,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				return cb(null, steps);
 			} else {
 				steps -= dec;
-				if(steps < 1) {
+				if(steps <= 0) {
 					return cb("too much motion interference, failed to find backlash value");
 				}
 				setTimeout(function(){doCycle(cb)});
