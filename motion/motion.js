@@ -27,7 +27,8 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var steps = (driver == 'NMX') ? 600 : 1.1;
 	var dec = (driver == 'NMX') ? 12 : 0.025;
 
-	var fusionThreshold = null;
+	var fusionReference = null;
+	var fusionDiffReference = null;
 	var accelThreshold = null;
 
 	var origBacklash = 0;
@@ -37,27 +38,33 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var stop = false;
 	var detectMove = function(startMotorCb, moveCb) {
 		stop = false;
-		fusionThreshold = null;
+		fusionReference = null;
+		fusionDiffReference = null;
 		accelThreshold = null;
 		var processData = function(err, data) {
 			if(!err && data) {
-				var fusion = Math.abs(data.fusionPose.x) + Math.abs(data.fusionPose.y) + Math.abs(data.fusionPose.z);
+				var fusion = data.fusionPose;
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
-				if(fusionThreshold === null || accelThreshold === null) {
-					if(fusion == 0 || accel == 0) {
-						return IMU.getValue(processData);
-					} else {
-						console.log("baseline data for detecting move:", fusion, accel);
-						fusionThreshold = fusion * 1.05;
-						accelThreshold = accel * 1.05;
-						startMotorCb && startMotorCb(null);
-						return IMU.getValue(processData);
-					}
+				if((fusion.x == 0 && fusion.y == 0 && fusion.z == 0) || accel == 0) {
+					return IMU.getValue(processData);
 				}
-				if(fusion && accel) console.log("detecting move:", fusion, accel);
-				if(fusion > fusionThreshold || accel > accelThreshold) {
+				if(fusionReference === null || accelThreshold === null) {
+					//console.log("baseline data for detecting move:", fusion);
+					fusionReference = fusion;
+					accelThreshold = accel * 1.05;
+					return IMU.getValue(processData);
+				}
+				var fusionDiff = Math.abs(data.fusionPose.x - fusion.x) + Math.abs(data.fusionPose.y - fusion.y) + Math.abs(data.fusionPose.z - fusion.z);
+				if(fusionDiffReference === null) {
+					fusionDiffReference = fusionDiff * 1.01;
+					startMotorCb && startMotorCb(null);
+					return IMU.getValue(processData);
+				}
+				console.log("detecting move:", fusionDiff, fusion.x, fusion.y, fusion.z, accel);
+				
+				if(fusionDiff > fusionDiffReference || accel > accelThreshold) {
 					stop = true;
-					console.log("---> move detected:", fusion, accel);
+					console.log("---> move detected:", fusionDiff, accel);
 					return moveCb && moveCb(null, true);
 				}
 			} else {
