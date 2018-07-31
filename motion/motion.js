@@ -43,11 +43,11 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			if(!err && data) {
 				var fusion = Math.abs(data.fusionPose.x) + Math.abs(data.fusionPose.y) + Math.abs(data.fusionPose.z);
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
-				//console.log("detecting move:", fusion, accel);
 				if(fusionThreshold === null || accelThreshold === null) {
 					if(fusion == 0 || accel == 0) {
 						return IMU.getValue(processData);
 					} else {
+						console.log("baseline data for detecting move:", fusion, accel);
 						fusionThreshold = fusion * 1.05;
 						accelThreshold = accel * 1.05;
 						return IMU.getValue(processData);
@@ -123,14 +123,14 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
 						motion.setBacklash(driver, motorId, backlashSteps);
 					}
-					callback && callback(err, backlash);
+					callback && callback(err, backlashSteps);
 				})
 			})
 		});
 	}
 
 	motion.getBacklash(driver, motorId, function(backlash){
-		if(backlash) origBacklash = backlash;
+		origBacklash = backlash || 0;
 		motion.setBacklash(driver, motorId, 0, function(){
 			startCalibration();
 		});
