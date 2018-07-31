@@ -114,7 +114,7 @@ GenieMini.prototype._parseIncoming = function(data) {
     if(id == 0x0060 || id == 0x0061) { // moving steps
         var state = data.readUInt8(7);
         var steps = data.readInt16LE(3);
-        this._moving = (this._lastSteps = steps) ? this._moving : (state == 0x01);
+        this._moving = (this._lastSteps == steps) ? this._moving : (state == 0x01);
         this._lastSteps = steps;
         console.log("GenieMini(" + this._id + "): moving: ", this._moving, ", steps:", steps, "id:", id);
     } else if(id == 0x000B || id == 0x0052) { // current state
