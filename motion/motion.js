@@ -95,7 +95,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var tries = 0;
 	var checkMove = function(direction, cb) {
 		var moved = false;
-		if(!motion.status.calibrating) cb && cb("calibration cancelled");
+		if(!motion.status.calibrating) return cb && cb("calibration cancelled");
 		detectMove(function(err) {
 			if(err) {
 				cb && cb(err);
@@ -109,6 +109,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 					stop = true;
 					setTimeout(function(){
 						cb && cb(err, moved);
+						cb = null;
 					}, 500);
 				});
 			}
