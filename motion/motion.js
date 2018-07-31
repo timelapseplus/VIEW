@@ -25,9 +25,9 @@ motion.gm2 = new GenieMini(2);
 
 motion.calibrateBacklash = function(driver, motorId, callback) {
 	var steps = (driver == 'NMX') ? 600 : 1.1;
-	var dec = (driver == 'NMX') ? 4 : 0.01;
+	var dec = (driver == 'NMX') ? 12 : 0.025;
 
-	var gyroThreshold = null;
+	var fusionThreshold = null;
 	var accelThreshold = null;
 
 	var origBacklash = 0;
@@ -37,25 +37,25 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var stop = false;
 	var detectMove = function(cb) {
 		stop = false;
-		gyroThreshold = null;
+		fusionThreshold = null;
 		accelThreshold = null;
 		var processData = function(err, data) {
 			if(!err && data) {
-				var gyro = Math.abs(data.gyro.x) + Math.abs(data.gyro.y) + Math.abs(data.gyro.z);
+				var fusion = Math.abs(data.fusion.x) + Math.abs(data.fusion.y) + Math.abs(data.fusion.z);
 				var accel = Math.abs(data.accel.x) + Math.abs(data.accel.y) + Math.abs(data.accel.z);
-				//console.log("detecting move:", gyro, accel);
-				if(gyroThreshold === null || accelThreshold === null) {
-					if(gyro == 0 || accel == 0) {
+				//console.log("detecting move:", usion, accel);
+				if(fusionThreshold === null || accelThreshold === null) {
+					if(usion == 0 || accel == 0) {
 						return IMU.getValue(processData);
 					} else {
-						gyroThreshold = gyro * 1.05;
+						fusionThreshold = fusion * 1.05;
 						accelThreshold = accel * 1.05;
 						return IMU.getValue(processData);
 					}
 				}
-				if(gyro > gyroThreshold || accel > accelThreshold) {
+				if(usion > fusionThreshold || accel > accelThreshold) {
 					stop = true;
-					console.log("---> move detected:", gyro, accel);
+					console.log("---> move detected:", fusion, accel);
 					return cb && cb(null, true);
 				}
 			} else {
@@ -100,10 +100,13 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 			if(err) return cb(err);
 			var moved = results[0] || results[1];
 			if(!moved) {
-				if(tries == 1) cb("failed to detect motion");
-				else(cb(null, steps));
+				if(tries == 1) return cb("failed to detect motion");
+				return cb(null, steps);
 			} else {
 				steps -= dec;
+				if(steps < 1) {
+					return cb("too much motion interference, failed to find backlash value");
+				}
 				setTimeout(function(){doCycle(cb)});
 			}
 		});
@@ -111,13 +114,13 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 
 	var startCalibration = function() {
 		motion.move(driver, motorId, -(steps / 2), function(){
-			doCycle(function(err, backlash){
+			doCycle(function(err, backlashSteps){
 				motion.move(driver, motorId, (steps / 2), function(){
 					if(err) {
 						console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
 						motion.setBacklash(driver, motorId, origBacklash);
 					} else {
-						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlash);
+						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
 						motion.setBacklash(driver, motorId, backlashSteps);
 					}
 					callback && callback(err, backlash);
