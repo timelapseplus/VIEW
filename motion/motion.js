@@ -26,12 +26,6 @@ motion.nmx = nmx;
 motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
 
-motion.loadBacklash("NMX", 1);
-motion.loadBacklash("NMX", 2);
-motion.loadBacklash("NMX", 3);
-motion.loadBacklash("GM", 1);
-motion.loadBacklash("GM", 2);
-
 motion.cancelCalibration = function(driver, motorId, callback) {
 	motion.status.calibrating = false;
 	callback && callback();
@@ -314,6 +308,12 @@ function updateStatus() {
     lastStatus = motion.status;
     lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected);
 }
+
+motion.loadBacklash("NMX", 1);
+motion.loadBacklash("NMX", 2);
+motion.loadBacklash("NMX", 3);
+motion.loadBacklash("GM", 1);
+motion.loadBacklash("GM", 2);
 
 motion.nmx.on('status', function(status) {
     updateStatus()
