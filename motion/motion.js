@@ -135,7 +135,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		motion.setBacklash(driver, motorId, 0, function(){
 			startCalibration();
 		});
-	}
+	});
 
 }
 
