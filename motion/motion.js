@@ -28,7 +28,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var dec = (driver == 'NMX') ? 12 : 0.025;
 
 	var fusionReference = null;
-	var fusionDiffReference = null;
+	var fusionDiffReference = 0.0015;
 	var accelThreshold = null;
 
 	var origBacklash = 0;
@@ -39,7 +39,6 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var detectMove = function(startMotorCb, moveCb) {
 		stop = false;
 		fusionReference = null;
-		fusionDiffReference = null;
 		accelThreshold = null;
 		var processData = function(err, data) {
 			if(!err && data) {
@@ -52,14 +51,10 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 					//console.log("baseline data for detecting move:", fusion);
 					fusionReference = fusion;
 					accelThreshold = accel * 1.05;
-					return IMU.getValue(processData);
-				}
-				var fusionDiff = Math.abs(data.fusionPose.x - fusion.x) + Math.abs(data.fusionPose.y - fusion.y) + Math.abs(data.fusionPose.z - fusion.z);
-				if(fusionDiffReference === null) {
-					fusionDiffReference = fusionDiff * 1.0015;
 					startMotorCb && startMotorCb(null);
 					return IMU.getValue(processData);
 				}
+				var fusionDiff = Math.abs(data.fusionPose.x - fusion.x) + Math.abs(data.fusionPose.y - fusion.y) + Math.abs(data.fusionPose.z - fusion.z);
 				console.log("detecting move:", fusionDiff, fusion.x, fusion.y, fusion.z, accel);
 				
 				if(fusionDiff > fusionDiffReference || accel > accelThreshold) {
