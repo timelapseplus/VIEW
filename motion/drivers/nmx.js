@@ -138,6 +138,7 @@ var motorPos = {'1': 0, '2': 0, '3': 0};
 var motorPosExact = {'1': 0, '2': 0, '3': 0};
 var motorConnected = [false, false, false];
 var motorAttachment = [null, null, null];
+var motorBacklash = {'1': 0, '2': 0, '3': 0};
 
 var _nmxQueue = [];
 var _queueRunning = false;
@@ -426,31 +427,40 @@ function checkMotorSpeed(motorId, callback) {
 }
 
 function getMotorBacklash(motorId, callback) {
-    var cmd = {
-        motor: motorId,
-        command: CMD_MOTOR_BACKLASH
+    if(_dev && _dev.connected) {
+        var cmd = {
+            motor: motorId,
+            command: CMD_MOTOR_BACKLASH
+        }
+        _queueCommand(cmd, function(err, backlash) {
+            console.log("NMX: motor " + motorId + " backlash steps: ", backlash);
+            if (callback) callback(backlash || 0);
+        });
+    } else {
+        return callback && callback(motorBacklash[motorId] || 0);    
     }
-    _queueCommand(cmd, function(err, backlash) {
-        console.log("NMX: motor " + motorId + " backlash steps: ", backlash);
-        if (callback) callback(backlash || 0);
-    });
 }
 
 function setMotorBacklash(motorId, backlashSteps, callback) {
-    var backlash = new Buffer(2);
-    backlash.fill(0);
-    backlash.writeUInt16BE(backlashSteps, 0, 2);
+    motorBacklash[motorId] = backlashSteps;
+    if(_dev && _dev.connected) {
+        var backlash = new Buffer(2);
+        backlash.fill(0);
+        backlash.writeUInt16BE(backlashSteps, 0, 2);
 
-    var cmd = {
-        motor: motorId,
-        command: CMD_MOTOR_SET_BACKLASH,
-        dataBuf: backlash
+        var cmd = {
+            motor: motorId,
+            command: CMD_MOTOR_SET_BACKLASH,
+            dataBuf: backlash
+        }
+
+        _queueCommand(cmd, function(err) {
+            console.log("NMX: set motor " + motorId + " backlash steps: ", backlashSteps);
+            if (callback) callback(err);
+        });
+    } else {
+        callback && callback();       
     }
-
-    _queueCommand(cmd, function(err) {
-        console.log("NMX: set motor " + motorId + " backlash steps: ", backlashSteps);
-        if (callback) callback();
-    });
 }
 
 function checkMotorAttachment(callback) {
@@ -838,6 +848,9 @@ function init() {
         setMaxSpeed(1, 3000);
         setMaxSpeed(2, 3000);
         setMaxSpeed(3, 3000);
+        if(motorBacklash['1'] > 0) setMotorBacklash(1, motorBacklash['1']);
+        if(motorBacklash['2'] > 0) setMotorBacklash(2, motorBacklash['2']);
+        if(motorBacklash['3'] > 0) setMotorBacklash(3, motorBacklash['3']);
     });
 }
 

@@ -2,6 +2,8 @@ var EventEmitter = require("events").EventEmitter;
 require('rootpath')();
 var nmx = require('motion/drivers/nmx.js');
 var GenieMini = require('motion/drivers/genie_mini.js');
+var db = require('system/db.js');
+
 var async = require('async');
 var nodeimu = require('nodeimu');
 var IMU = false;
@@ -23,6 +25,12 @@ var lastStatus = motion.status;
 motion.nmx = nmx;
 motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
+
+motion.loadBacklash("NMX", 1);
+motion.loadBacklash("NMX", 2);
+motion.loadBacklash("NMX", 3);
+motion.loadBacklash("GM", 1);
+motion.loadBacklash("GM", 2);
 
 motion.cancelCalibration = function(driver, motorId, callback) {
 	motion.status.calibrating = false;
@@ -149,6 +157,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 						motion.setBacklash(driver, motorId, origBacklash);
 					} else {
 						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
+						motion.saveBacklash(driver, motorId, backlashSteps)
 						motion.setBacklash(driver, motorId, backlashSteps);
 					}
 					motion.status.calibrating = false;
@@ -248,6 +257,20 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
 			motion.gm1.setMotorBacklash(motorId, backlashSteps, callback);
 		}
 	}
+}
+
+motion.saveBacklash = function(driver, motorId, backlashSteps, callback) {
+	db.set(driver + motorId + '-backlash', backlashSteps, callback);
+}
+
+motion.loadBacklash = function(driver, motorId, callback) {
+	db.get(driver + motorId + '-backlash', function(err, backlashSteps) {
+		if(!err && backlashSteps != null) {
+			motion.setBacklash(driver, motorId, backlashSteps, callback);
+		} else {
+			callback && callback(err);
+		}
+	});
 }
 
 motion.refresh = function(callback) {
