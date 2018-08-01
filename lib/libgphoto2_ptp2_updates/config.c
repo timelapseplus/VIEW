@@ -69,6 +69,8 @@
 
 #define SET_CONTEXT(camera, ctx) ((PTPData *) camera->pl->params.data)->context = ctx
 
+uint16_t fuji_unsupported_props = [0x500c, 0xd218, 0xd219, 0x5018, 0x5001, 0x500c, 0x5018, 0x5019, 0xd002, 0xd003, 0xd004, 0xd005, 0xd007, 0xd009, 0xd00d, 0xd00e, 0xd00f, 0xd010, 0xd011, 0xd012, 0xd013, 0xd014, 0xd016, 0xd019, 0xd01a, 0xd101, 0xd102, 0xd103, 0xd104, 0xd105, 0xd107, 0xd108, 0xd109, 0xd10c, 0xd10d, 0xd10e, 0xd10f, 0xd110, 0xd111, 0xd113, 0xd114, 0xd115, 0xd116, 0xd117, 0xd118, 0xd119, 0xd11a, 0xd11b, 0xd11c, 0xd11d, 0xd11e, 0xd11f, 0xd120, 0xd121, 0xd122, 0xd123, 0xd124, 0xd125, 0xd126, 0xd127, 0xd128, 0xd129, 0xd12a, 0xd12b, 0xd12c, 0xd12d, 0xd12e, 0xd12f, 0xd130, 0xd131, 0xd132, 0xd133, 0xd134, 0xd135, 0xd137, 0xd138, 0xd139, 0xd13a, 0xd13b, 0xd13c, 0xd13d, 0xd13e, 0xd13f, 0xd140, 0xd141, 0xd142, 0xd143, 0xd144, 0xd146, 0xd147, 0xd148, 0xd149, 0xd14a, 0xd14b, 0xd14c, 0xd14d, 0xd14e, 0xd14f, 0xd150, 0xd151, 0xd152, 0xd153, 0xd157, 0xd158, 0xd159, 0xd15a, 0xd15b, 0xd15c, 0xd15d, 0xd15e, 0xd15f, 0xd160, 0xd161, 0xd200, 0xd202, 0xd203, 0xd204, 0xd205, 0xd206, 0xd20a, 0xd20b, 0xd20f, 0xd210, 0xd211, 0xd213, 0xd214, 0xd215, 0xd217, 0xd218, 0xd219, 0xd21a, 0xd21b];
+
 int
 have_prop(Camera *camera, uint16_t vendor, uint16_t prop) {
 	unsigned int i;
@@ -76,6 +78,12 @@ have_prop(Camera *camera, uint16_t vendor, uint16_t prop) {
 	/* prop 0 matches */
 	if (!prop && (camera->pl->params.deviceinfo.VendorExtensionID==vendor))
 		return 1;
+
+	if(vendor == PTP_VENDOR_FUJI) {
+		for(i=0; i<sizeof(fuji_unsupported_props)/sizeof(uint16_t); i++) {
+			if(prop == fuji_unsupported_props[i]) return 0;
+		}
+	}
 
 	if (	((prop & 0x7000) == 0x5000) ||
 		(NIKON_1(&camera->pl->params) && ((prop & 0xf000) == 0xf000))
@@ -7520,7 +7528,7 @@ static struct submenu camera_status_menu[] = {
 	{ N_("DPOF Version"),           "dpofversion",      PTP_DPC_CANON_EOS_DPOFVersion,          PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_INT,                       _put_None },
 	{ N_("AC Power"),               "acpower",          PTP_DPC_NIKON_ACPower,                  PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OnOff_UINT8,         _put_None },
 	{ N_("External Flash"),         "externalflash",    PTP_DPC_NIKON_ExternalFlashAttached,    PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OnOff_UINT8,         _put_None },
-	{ N_("Battery Level"),          "batterylevel",     0,                   					PTP_VENDOR_FUJI,	PTP_DTC_UINT8,  _get_BatteryLevelFuji,          _put_None },
+//	{ N_("Battery Level"),          "batterylevel",     0,                   					PTP_VENDOR_FUJI,	PTP_DTC_UINT8,  _get_BatteryLevelFuji,          _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_BatteryLevel,                   0,                  PTP_DTC_UINT8,  _get_BatteryLevel,              _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_CANON_EOS_BatteryPower,         PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_EOS_BatteryLevel,    _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_SONY_BatteryLevel,              PTP_VENDOR_SONY,    PTP_DTC_INT8,   _get_SONY_BatteryLevel,         _put_None },
@@ -8536,7 +8544,7 @@ _set_config (Camera *camera, const char *confname, CameraWidget *window, GPConte
 		hiddenProperties[0] = 0x500d; // Shutter
 		hiddenProperties[1] = 0x5007; // Aperture
 		hiddenProperties[2] = 0xd38c; // PC mode
-                hiddenProperties[3] = 0xd171; // Focus control
+        hiddenProperties[3] = 0xd171; // Focus control
 		hiddenProperties[4] = 0xd21c; // Needed for X-T2? 
 	}
 
