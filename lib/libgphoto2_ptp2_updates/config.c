@@ -5226,6 +5226,22 @@ _get_BatteryLevel(CONFIG_GET_ARGS) {
 }
 
 static int
+_get_BatteryLevelFuji(CONFIG_GET_ARGS) {
+	PTPPropertyValue	value;
+	PTPParams		*params = &(camera->pl->params);
+
+	char	buffer[20];
+
+	gp_widget_new (GP_WIDGET_TEXT, _(menu->label), widget);
+
+	if (LOG_ON_PTP_E (ptp_getdevicepropvalue (params, PTP_DPC_BatteryLevel, &value, PTP_DTC_UINT8)) != PTP_RC_OK )
+		value.u8 = 0;
+
+	sprintf (buffer, "%d%%", value.u8);
+	return gp_widget_set_value(*widget, buffer);
+}
+
+static int
 _get_SONY_BatteryLevel(CONFIG_GET_ARGS) {
 	unsigned char value_float , start, end;
 	char	buffer[20];
@@ -7504,6 +7520,7 @@ static struct submenu camera_status_menu[] = {
 	{ N_("DPOF Version"),           "dpofversion",      PTP_DPC_CANON_EOS_DPOFVersion,          PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_INT,                       _put_None },
 	{ N_("AC Power"),               "acpower",          PTP_DPC_NIKON_ACPower,                  PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OnOff_UINT8,         _put_None },
 	{ N_("External Flash"),         "externalflash",    PTP_DPC_NIKON_ExternalFlashAttached,    PTP_VENDOR_NIKON,   PTP_DTC_UINT8,  _get_Nikon_OnOff_UINT8,         _put_None },
+	{ N_("Battery Level"),          "batterylevel",     0,                   					PTP_VENDOR_FUJI,	PTP_DTC_UINT8,  _get_BatteryLevelFuji,          _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_BatteryLevel,                   0,                  PTP_DTC_UINT8,  _get_BatteryLevel,              _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_CANON_EOS_BatteryPower,         PTP_VENDOR_CANON,   PTP_DTC_UINT16, _get_Canon_EOS_BatteryLevel,    _put_None },
 	{ N_("Battery Level"),          "batterylevel",     PTP_DPC_SONY_BatteryLevel,              PTP_VENDOR_SONY,    PTP_DTC_INT8,   _get_SONY_BatteryLevel,         _put_None },
