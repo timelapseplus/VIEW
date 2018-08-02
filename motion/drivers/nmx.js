@@ -171,7 +171,10 @@ function getStatus() {
         motor3: motorConnected[2],
         motor1pos: motorPos[1],
         motor2pos: motorPos[2],
-        motor3pos: motorPos[3]
+        motor3pos: motorPos[3],
+        motor1Backlash: motorBacklash[1],
+        motor2Backlash: motorBacklash[2],
+        motor3Backlash: motorBacklash[3]
     }   
 }
 

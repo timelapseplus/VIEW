@@ -70,7 +70,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				if(fusionDiffReference === null) {
 					preSamples.push(fusionDiff);
 					if(preSamples.length >= 10) {
-						fusionDiffReference = Math.max((Math.max(fusionDiff) * 4), 0.002);
+						fusionDiffReference = Math.max((Math.max(preSamples) * 4), 0.002);
 						startMotorCb && startMotorCb(null);
 					}
 					return IMU.getValue(processData);
@@ -296,11 +296,11 @@ function updateStatus() {
 
 	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected);
 
-    motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1 && nmxStatus.connected, position:nmxStatus.motor1pos, unit: 'steps', orientation: null});
-    motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2 && nmxStatus.connected, position:nmxStatus.motor2pos, unit: 'steps', orientation: null});
-    motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3 && nmxStatus.connected, position:nmxStatus.motor3pos, unit: 'steps', orientation: null});
-    motors.push({driver:'GM', motor:1, connected:gm1Status.motor1 && gm1Status.connected, position:gm1Status.motor1pos, unit: '°', orientation: gm1Status.orientation});
-    motors.push({driver:'GM', motor:2, connected:gm2Status.motor1 && gm2Status.connected, position:gm2Status.motor1pos, unit: '°', orientation: gm2Status.orientation});
+    motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1 && nmxStatus.connected, position:nmxStatus.motor1pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor1backlash});
+    motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2 && nmxStatus.connected, position:nmxStatus.motor2pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor2backlash});
+    motors.push({driver:'NMX', motor:3, connected:nmxStatus.motor3 && nmxStatus.connected, position:nmxStatus.motor3pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor3backlash});
+    motors.push({driver:'GM', motor:1, connected:gm1Status.motor1 && gm1Status.connected, position:gm1Status.motor1pos, unit: '°', orientation: gm1Status.orientation, backlash: gm1Status.motor1backlash});
+    motors.push({driver:'GM', motor:2, connected:gm2Status.motor1 && gm2Status.connected, position:gm2Status.motor1pos, unit: '°', orientation: gm2Status.orientation, backlash: gm2Status.motor1backlash});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),

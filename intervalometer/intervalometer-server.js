@@ -342,6 +342,11 @@ function runCommand(type, args, callback, client) {
     case 'motion.calibrateBacklash':
       motion.calibrateBacklash(args.driver, args.motor, callback);
       break;
+    case 'motion.setBacklash':
+      motion.saveBacklash(args.driver, args.motor, args.backlash, function(){
+        motion.setBacklash(args.driver, args.motor, args.backlash, callback);
+      });
+      break;
     case 'motion.cancelCalibration':
       motion.cancelCalibration(args.driver, args.motor, callback);
       break;

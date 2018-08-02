@@ -185,7 +185,8 @@ GenieMini.prototype.getStatus = function() {
         connectionType: type,
         motor1: this._dev && this._dev.connected,
         motor1pos: this._position / this._stepsPerDegree,
-        orientation: this.orientation
+        orientation: this.orientation,
+        motor1backlash: this._backlash
     }   
 }
 
