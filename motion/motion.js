@@ -40,6 +40,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var accelThreshold = null;
 
 	var origBacklash = 0;
+	var preSamples = [];
 
 	if(!IMU) return callback && callback("unable to access IMU");
 
@@ -49,6 +50,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		fusionReference = null;
 		fusionDiffReference = null;
 		accelThreshold = null;
+		preSamples = [];
 		var processData = function(err, data) {
 			if(!err && data) {
 				var fusion = data.fusionPose;
@@ -66,8 +68,11 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				console.log("detecting move:", fusionDiff, fusion.x, fusion.y, fusion.z, accel);
 				
 				if(fusionDiffReference === null) {
-					fusionDiffReference = Math.max((fusionDiff * 2), 0.0015);
-					startMotorCb && startMotorCb(null);
+					preSamples.push(fusionDiff);
+					if(preSamples.length >= 10) {
+						fusionDiffReference = Math.max((Math.max(fusionDiff) * 4), 0.002);
+						startMotorCb && startMotorCb(null);
+					}
 					return IMU.getValue(processData);
 				}
 
