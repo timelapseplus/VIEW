@@ -8195,6 +8195,7 @@ _get_config (Camera *camera, const char *confname, CameraWidget **outwidget, Cam
 			continue;
 		}
 #endif
+		if(!have_prop(camera,params->deviceinfo.VendorExtensionID,propid)) continue; // skip if not supported
 
 		sprintf(buf,"%04x", propid);
 		if ((mode == MODE_SINGLE_GET) && strcmp (buf, confname))
