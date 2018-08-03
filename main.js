@@ -2024,7 +2024,11 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.scheduled = null;
                     core.currentProgram.axes = {};
                     core.currentProgram.focusPos = 0;
-                    if(!mcu.validCoordinates()) core.currentProgram.tracking = 'none';
+                    core.currentProgram.coords = mcu.validCoordinates();
+                    if(!core.currentProgram.coords) {
+                        core.currentProgram.tracking = 'none';
+                    }
+
                     if(core.currentProgram.tracking != 'none') {
                         var autoOrient = motorOrientationKnown();
                         var panMotor = getTrackingMotor(core.currentProgram.trackingPanMotor);
@@ -4479,6 +4483,7 @@ app.on('message', function(msg) {
                 break;
 
             case 'run':
+                if(!msg.program.coords || msg.program.coords.src != 'app') msg.program.coords = mcu.validCoordinates();
                 core.loadProgram(msg.program);
                 core.startIntervalometer(msg.program, msg.date);
                 break;

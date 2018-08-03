@@ -65,24 +65,29 @@ mcu.validCoordinates = function() {
 	var lat = null;
 	var lon = null;
 	var alt = null;
+	var src = null;
 	if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 		lat = gps.state.lat;
 		lon = gps.state.lon;
 		alt = gps.state.alt || 0;
+		src = 'gps';
 	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
 		lat = mcu.lastGpsFix.lat;
 		lon = mcu.lastGpsFix.lon;
 		alt = mcu.lastGpsFix.alt || 0;
+		src = 'cache';
 	} else if((power.gpsEnabled == 'disabled' || !mcu.gpsAvailable) && mcu.customLatitude !== null && mcu.customLongitude != null) {
 		lat = mcu.customLatitude;
 		lon = mcu.customLongitude;
 		alt = 0;
+		src = 'manual';
 	}
 	if(lat !== null && lon != null) {
 		return {
 			lat: lat,
 			lon: lon,
-			alt: alt
+			alt: alt,
+			src: src
 		}
 	} else {
 		return null;

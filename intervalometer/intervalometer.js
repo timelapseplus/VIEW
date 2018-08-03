@@ -275,8 +275,8 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    if(intervalometer.gpsData) {
-        var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+    if(intervalometer.currentProgram.coords) {
+        var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt);
         var sunPos = {
             azimuth: sunmoon.sunpos.az,
             altitude: sunmoon.sunpos.alt,
@@ -375,7 +375,7 @@ function processKeyframes(setupFirst, callback) {
             }
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
-            if(axis.type == 'tracking' && !intervalometer.gpsData) {
+            if(axis.type == 'tracking' && !intervalometer.currentProgram.coords) {
                 axis.type = 'disabled';
                 intervalometer.emit('error', "No GPS/coordinates available for tracking calculations.  Time-lapse will continue with tracking disabled on axis " + m + ".");
                 return checkDone('tracking');
@@ -1355,11 +1355,12 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                         checkCurrentPlan();
                     }
 
-                    if(intervalometer.gpsData) {
-                        intervalometer.status.latitude = intervalometer.gpsData.lat;
-                        intervalometer.status.longitude = intervalometer.gpsData.lon;
+                    if(intervalometer.currentProgram.coords) {
+                        intervalometer.status.latitude = intervalometer.currentProgram.coords.lat;
+                        intervalometer.status.longitude = intervalometer.currentProgram.coords.lon;
+                        intervalometer.status.altitude = intervalometer.currentProgram.coords.alt;
             
-                        var sunmoon = meeus.sunmoon(new Date(), intervalometer.gpsData.lat, intervalometer.gpsData.lon, intervalometer.gpsData.alt);
+                        var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt);
                         intervalometer.status.sunPos = {
                             azimuth: sunmoon.sunpos.az,
                             altitude: sunmoon.sunpos.alt,
