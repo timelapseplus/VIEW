@@ -3368,15 +3368,21 @@ if (VIEW_HARDWARE) {
     var gpsInfo = function() {
         var info = "";
         if(power.gpsEnabled != 'disabled' && mcu.gpsAvailable) {
-            if(mcu.lastGpsFix) {
-                var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
-                info = "GPS enabled\t";
-                info += "Lat: " + limitPrecison(mcu.lastGpsFix.lat, 6) + "\t";
-                info += "Lon: " + limitPrecison(mcu.lastGpsFix.lon, 6) + "\t";
-                info += "Altitude: " + limitPrecison(mcu.lastGpsFix.alt, 1) + "\t";
+            var coords = mcu.validCoordinates();
+            if(coords) {
+                //var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
+                var now = moment();
+                info = "Lat: " + limitPrecison(coords.lat, 6) + "\t";
+                info += "Lon: " + limitPrecison(coords.lon, 6) + "\t";
+                info += "Altitude: " + limitPrecison(coords.alt, 1) + "\t";
                 info += "Date: " + now.format("D MMMM YYYY") + "\t";
                 info += "Time: " + now.format("h:mm:ss A") + "\t";
                 info += "Timezone: " + now.format("z (ZZ)") + "\t";
+                if(mcu.gps.fix) {
+                    info += "GPS Fix: YES\t";
+                } else {
+                    info += "GPS Fix: NO (cached data)\t";
+                }
                 if(mcu.gps.satsActive) info += "Active Sats: " + mcu.gps.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
