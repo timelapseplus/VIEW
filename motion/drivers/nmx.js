@@ -172,9 +172,9 @@ function getStatus() {
         motor1pos: motorPos[1],
         motor2pos: motorPos[2],
         motor3pos: motorPos[3],
-        motor1Backlash: motorBacklash[1],
-        motor2Backlash: motorBacklash[2],
-        motor3Backlash: motorBacklash[3]
+        motor1backlash: motorBacklash[1],
+        motor2backlash: motorBacklash[2],
+        motor3backlash: motorBacklash[3]
     }   
 }
 

@@ -4414,8 +4414,8 @@ app.on('message', function(msg) {
                             });
                         });
                     })(msg.driver, msg.motor, msg.position, msg.reply);
-                } else if (msg.key == "setBacklash" && msg.motor && msg.driver && msg.position != null) {
-                    console.log("setBacklash", msg.driver, "motor", msg.motor, "pos", msg.position);
+                } else if (msg.key == "setBacklash" && msg.motor && msg.driver && msg.backlash != null) {
+                    console.log("setBacklash", msg.driver, "motor", msg.motor, "backlash", msg.backlash);
                     (function(driver, motor, backlash, reply) {
                         core.motionSetBacklash(driver, motor, backlash, function(err) {
                             reply('setBacklash', {
