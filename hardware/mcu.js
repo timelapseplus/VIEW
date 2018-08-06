@@ -159,7 +159,7 @@ function _parseData(data) {
 			//console.log(mcu.knob);
 		}
 	} catch(e) {
-		console.log("Error while parsing MCU data", e);
+		console.log("Error while parsing MCU data", e, data);
 	}
 }
 
