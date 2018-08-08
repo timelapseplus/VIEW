@@ -52,6 +52,15 @@ intervalometer.autoSettings = {
     paddingTimeMs: 2000
 }
 
+var auxOutConfig = {
+    inverted: false,
+    lengthMs: 200,
+
+}
+
+// this is where the pulse length is set
+//auxOutConfig.lengthMs = 1000;
+//auxOutConfig.inverted = true;
 
 intervalometer.timelapseFolder = false;
 
@@ -84,16 +93,20 @@ auxTrigger.on('error', function(err) {
     console.log("AUX2 error: ", err);
 });
 
+function motionSyncSetup() {
+    gpio.write(AUXTIP_OUT, (auxOutConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
+}
+
 function motionSyncPulse() {
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode != 'aux') {
         gpio.read(HOTSHOE_IN, function(err, shutterClosed) {
             console.log("hotshoe:", shutterClosed);
             if(shutterClosed) {
                 console.log("=> AUX Pulse");
-                gpio.write(AUXTIP_OUT, 0, function() {
+                gpio.write(AUXTIP_OUT, auxOutConfig.inverted ? 1 : 0, function() {
                     setTimeout(function(){
-                        gpio.write(AUXTIP_OUT, 1);
-                    }, 200);
+                        gpio.write(AUXTIP_OUT, auxOutConfig.inverted ? 0 : 1);
+                    }, auxOutConfig.lengthMs);
                 });
             } else {
                 setTimeout(motionSyncPulse, 100);
@@ -574,7 +587,11 @@ function processKeyframes(setupFirst, callback) {
 
 function getEvOptions() {
     var maxShutterLengthMs = (intervalometer.status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
-    if(intervalometer.currentProgram.intervalMode == 'aux') maxShutterLengthMs -= 2000; // add an extra 2 seconds for external motion
+    if(intervalometer.currentProgram.intervalMode == 'aux') {
+        maxShutterLengthMs -= 2000; // add an extra 2 seconds for external motion
+    } else {
+        maxShutterLengthMs -= auxOutConfig.lengthMs;
+    }
     if(maxShutterLengthMs < 500) maxShutterLengthMs = 500;
     return {
         cameraSettings: camera.ptp.settings,
@@ -1267,6 +1284,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
     intervalometer.status.stopping = false;
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
+
+    motionSyncSetup();
 
     if(date != null) { // sync time with phone app local time
         var mD = moment(date);
