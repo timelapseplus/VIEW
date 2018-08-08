@@ -265,7 +265,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.nightRatio = interpolate.linear(evScale, currentEv);
 
     if (local.first) {
-        exp.status.nightRefEv = (lastPhotoLum - 1.5) * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
+        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
         exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio);
         exp.status.fixedRefEv = lastPhotoLum;
         exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
