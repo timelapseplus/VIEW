@@ -1896,13 +1896,13 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Timelapse Mode", core.currentProgram, 'rampMode'),
             help: help.rampingOptions,
             action: rampingOptions
-        }, {
+        /*}, {
             name: valueDisplay("Ramp Direction", core.currentProgram, 'lrtDirection'),
             help: help.lrtDirection,
             action: lrtDirection,
             condition: function() {
                 return core.currentProgram.rampAlgorithm == 'lrt' && core.currentProgram.rampMode == 'auto';
-            }
+            }*/
         }, {
             name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
