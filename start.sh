@@ -60,4 +60,4 @@ prepend_date() { while read line; do echo $(date +%Y%m%d-%H%M%S) $line; done }
 forever main.js 2>&1 | prepend_date >> $UILOGFILE &
 forever intervalometer/intervalometer-server.js 2>&1 | prepend_date >> $CORELOGFILE &
 
-test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4.4.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4.4.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4.4.4 # disable libusb0.1 for Olympus support
+test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
