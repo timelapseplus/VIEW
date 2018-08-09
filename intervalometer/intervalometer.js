@@ -52,15 +52,15 @@ intervalometer.autoSettings = {
     paddingTimeMs: 2000
 }
 
-var auxOutConfig = {
+var auxMotionConfig = {
     inverted: false,
     lengthMs: 200,
-
+    externalIntervalPaddingMs: 500
 }
 
 // this is where the pulse length is set
-//auxOutConfig.lengthMs = 1000;
-//auxOutConfig.inverted = true;
+//auxMotionConfig.lengthMs = 1000;
+//auxMotionConfig.inverted = true;
 
 intervalometer.timelapseFolder = false;
 
@@ -94,7 +94,7 @@ auxTrigger.on('error', function(err) {
 });
 
 function motionSyncSetup() {
-    gpio.write(AUXTIP_OUT, (auxOutConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
+    gpio.write(AUXTIP_OUT, (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
 }
 
 function motionSyncPulse() {
@@ -103,10 +103,10 @@ function motionSyncPulse() {
             console.log("hotshoe:", shutterClosed);
             if(shutterClosed) {
                 console.log("=> AUX Pulse");
-                gpio.write(AUXTIP_OUT, auxOutConfig.inverted ? 1 : 0, function() {
+                gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
                     setTimeout(function(){
-                        gpio.write(AUXTIP_OUT, auxOutConfig.inverted ? 0 : 1);
-                    }, auxOutConfig.lengthMs);
+                        gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 0 : 1);
+                    }, auxMotionConfig.lengthMs);
                 });
             } else {
                 setTimeout(motionSyncPulse, 100);
@@ -388,37 +388,38 @@ function processKeyframes(setupFirst, callback) {
             }
         } else if(axis.type == 'tracking' || axis.type == 'constant') {
             var trackingTarget = null;
+
             if(axis.type == 'tracking' && !intervalometer.currentProgram.coords) {
                 axis.type = 'disabled';
                 intervalometer.emit('error', "No GPS/coordinates available for tracking calculations.  Time-lapse will continue with tracking disabled on axis " + m + ".");
-                return checkDone('tracking');
-            }
-            if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'sun' && sunPos) {
-                trackingTarget = calculateCelestialDistance(intervalometer.status.sunPos, sunPos, axis.trackBelowHorizon);
-            } else if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'moon' && moonPos) {
-                trackingTarget = calculateCelestialDistance(intervalometer.status.moonPos, moonPos, axis.trackBelowHorizon);
-            } else if(axis.type == 'constant') {
-                if(axis.rate == null) axis.rate = 15;
-                if(axis.orientation == 'pan') {
-                    trackingTarget = {
-                        pan: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
-                        tilt: 0,
-                        ease: 1
+            } else {
+                if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'sun' && sunPos) {
+                    trackingTarget = calculateCelestialDistance(intervalometer.status.sunPos, sunPos, axis.trackBelowHorizon);
+                } else if(axis.type == 'tracking' && intervalometer.currentProgram.trackingTarget == 'moon' && moonPos) {
+                    trackingTarget = calculateCelestialDistance(intervalometer.status.moonPos, moonPos, axis.trackBelowHorizon);
+                } else if(axis.type == 'constant') {
+                    if(axis.rate == null) axis.rate = 15;
+                    if(axis.orientation == 'pan') {
+                        trackingTarget = {
+                            pan: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
+                            tilt: 0,
+                            ease: 1
+                        }
+                    }
+                    if(axis.orientation == 'tilt') {
+                        trackingTarget = {
+                            tilt: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
+                            pan: 0,
+                            ease: 1
+                        }
                     }
                 }
-                if(axis.orientation == 'tilt') {
-                    trackingTarget = {
-                        tilt: (((new Date() / 1000) - intervalometer.status.startTime) / 3600) * parseFloat(axis.rate),
-                        pan: 0,
-                        ease: 1
-                    }
-                }
+                var motor = null;
+                motor = getTrackingMotor(m);
+                var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
+                if(axis.motor && axis.motor.reverse) rev = !rev;
+                motor.direction = rev ? -1 : 1;
             }
-            var motor = null;
-            motor = getTrackingMotor(m);
-            var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
-            if(axis.motor && axis.motor.reverse) rev = !rev;
-            motor.direction = rev ? -1 : 1;
 
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
@@ -588,9 +589,9 @@ function processKeyframes(setupFirst, callback) {
 function getEvOptions() {
     var maxShutterLengthMs = (intervalometer.status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
     if(intervalometer.currentProgram.intervalMode == 'aux') {
-        maxShutterLengthMs -= 2000; // add an extra 2 seconds for external motion
+        maxShutterLengthMs -= auxMotionConfig.externalIntervalPaddingMs; // add an extra padding for external motion
     } else {
-        maxShutterLengthMs -= auxOutConfig.lengthMs;
+        maxShutterLengthMs -= auxMotionConfig.lengthMs;
     }
     if(maxShutterLengthMs < 500) maxShutterLengthMs = 500;
     return {
