@@ -841,13 +841,13 @@ if (VIEW_HARDWARE) {
             action: ui.set(core.currentProgram, 'interval', i)
         });
     }
-    for (var i = 5; i < 12; i++) interval.items.push({
+    for (var i = 5; i < 12; i += 0.5) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " seconds",
         action: ui.set(core.currentProgram, 'interval', i)
     });
-    for (var i = 12; i < 35; i += 2) interval.items.push({
+    for (var i = 12; i < 35; i += 1) interval.items.push({
         name: "Interval",
         help: help.interval,
         value: i + " seconds",
