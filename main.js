@@ -732,13 +732,13 @@ if (VIEW_HARDWARE) {
             type: "options",
             items: []
         }
-        for (var i = 6; i < 12; i++) res.items.push({
+        for (var i = 6; i < 12; i += 0.5) res.items.push({
             name: "Night Interval",
             help: help.nightInterval,
             value: i + " seconds",
             action: ui.set(core.currentProgram.exposurePlans[planIndex], 'nightInterval', i)
         });
-        for (var i = 12; i < 35; i += 2) res.items.push({
+        for (var i = 12; i < 35; i += 1) res.items.push({
             name: "Night Interval",
             help: help.nightInterval,
             value: i + " seconds",
@@ -804,13 +804,13 @@ if (VIEW_HARDWARE) {
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
             });
         }
-        for (var i = 5; i < 12; i++) res.items.push({
+        for (var i = 5; i < 12; i += 0.5) res.items.push({
             name: "Day Interval",
             help: help.dayInterval,
             value: i + " seconds",
             action: ui.set(core.currentProgram.exposurePlans[planIndex], 'dayInterval', i)
         });
-        for (var i = 12; i < 35; i += 2) res.items.push({
+        for (var i = 12; i < 35; i += 1) res.items.push({
             name: "Day Interval",
             help: help.dayInterval,
             value: i + " seconds",
