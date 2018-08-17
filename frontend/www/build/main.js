@@ -133,7 +133,7 @@ var CameraPage = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_chart_js__ = __webpack_require__(433);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_chart_js__ = __webpack_require__(434);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_chart_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_chart_js__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -364,6 +364,8 @@ var IntervalometerPage = (function () {
         });
     }
     IntervalometerPage.prototype.updateKeyframeData = function () {
+        if (this.viewApi.intervalometer.status.running)
+            return;
         if (!this.viewApi.intervalometer.program.hasOwnProperty('axes'))
             this.viewApi.intervalometer.program.axes = {};
         this.axes = this.viewApi.intervalometer.program.axes;
@@ -396,18 +398,18 @@ var IntervalometerPage = (function () {
             if (!this.axes[key].present) {
                 this.axes[key] = null;
                 delete this.axes[key];
-                console.log("deleted", key);
+                //console.log("deleted", key);
             }
         }
         var axisPresent = false;
         for (var key in this.axes) {
-            console.log("key", key);
+            //console.log("key", key)
             axisPresent = true;
             break;
         }
-        console.log("this.motion.axis.length", this.motion.axis.length);
-        console.log("axisPresent", axisPresent);
-        console.log("this.axes", this.axes);
+        //console.log("this.motion.axis.length", this.motion.axis.length);
+        //console.log("axisPresent", axisPresent);
+        //console.log("this.axes", this.axes);
         this.showAxisSetup = axisPresent;
         this.ionViewDidLoad();
         this.updateAxisTypes();
@@ -1648,13 +1650,13 @@ var SettingsPage = (function () {
 
 /***/ }),
 
-/***/ 340:
+/***/ 341:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(341);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(360);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(342);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(361);
 
 
 Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* platformBrowserDynamic */])().bootstrapModule(__WEBPACK_IMPORTED_MODULE_1__app_module__["a" /* AppModule */]);
@@ -1662,7 +1664,7 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 
 /***/ }),
 
-/***/ 360:
+/***/ 361:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1680,7 +1682,7 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_settings_settings__ = __webpack_require__(338);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__ionic_native_status_bar__ = __webpack_require__(206);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__ionic_native_splash_screen__ = __webpack_require__(209);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__ionic_pro__ = __webpack_require__(479);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__ionic_pro__ = __webpack_require__(339);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__ionic_pro___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__ionic_pro__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_time_ago_pipe_index__ = __webpack_require__(480);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_time_ago_pipe_index___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_time_ago_pipe_index__);
@@ -1805,13 +1807,13 @@ var AppModule = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_common_http__ = __webpack_require__(204);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_queueing_subject__ = __webpack_require__(418);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_queueing_subject__ = __webpack_require__(419);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_queueing_subject___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_queueing_subject__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_websockets__ = __webpack_require__(419);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_websockets__ = __webpack_require__(420);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_websockets___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_websockets__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_share__ = __webpack_require__(421);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_share__ = __webpack_require__(422);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_share___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_share__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout__ = __webpack_require__(422);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout__ = __webpack_require__(423);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_moment__);
@@ -3067,7 +3069,7 @@ var ViewProvider = (function () {
 
 /***/ }),
 
-/***/ 432:
+/***/ 433:
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
@@ -3324,7 +3326,7 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 432;
+webpackContext.id = 433;
 
 /***/ }),
 
@@ -3345,6 +3347,8 @@ webpackContext.id = 432;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__ = __webpack_require__(337);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(338);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_view_view__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__ionic_pro__ = __webpack_require__(339);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__ionic_pro___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__ionic_pro__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -3354,6 +3358,42 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
 
 
 
@@ -3385,6 +3425,7 @@ var ViewApp = (function () {
             { title: 'Settings', component: __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */], icon: 'settings' }
         ];
         var alert = null;
+        var hasPerformedSync = false;
         events.subscribe('error', function (err) {
             var wait = 0;
             if (alert) {
@@ -3452,6 +3493,12 @@ var ViewApp = (function () {
                 newToast.present();
                 toast = newToast;
             }, wait);
+            console.log("Connected! Logged in: ", _this.viewApi.loggedIn);
+            if (!hasPerformedSync && _this.viewApi.loggedIn) {
+                hasPerformedSync = true;
+                console.log("Checking for version update... (new)");
+                _this.runVersionUpdate();
+            }
         });
         events.subscribe('nodevice', function (status) {
             var wait = 0;
@@ -3486,12 +3533,56 @@ var ViewApp = (function () {
             }, wait);
         });
     }
+    ViewApp.prototype.runVersionUpdate = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var currentVersion, resp, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Checking for version update (async)...");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, __WEBPACK_IMPORTED_MODULE_9__ionic_pro__["Pro"].deploy.getCurrentVersion()];
+                    case 2:
+                        currentVersion = _a.sent();
+                        console.log("Current version: ", currentVersion);
+                        return [4 /*yield*/, __WEBPACK_IMPORTED_MODULE_9__ionic_pro__["Pro"].deploy.sync({ updateMethod: 'background' })];
+                    case 3:
+                        resp = _a.sent();
+                        if (!currentVersion || !resp) {
+                            console.log("Error occurred during update:", "version data not available");
+                        }
+                        else {
+                            if (currentVersion.versionId !== resp.versionId) {
+                                console.log("Update check complete, new version will load on next boot");
+                                // We found an update, and are in process of redirecting you since you put auto!
+                            }
+                            else {
+                                console.log("Update check complete, no update available");
+                                // No update available
+                            }
+                        }
+                        return [3 /*break*/, 5];
+                    case 4:
+                        err_1 = _a.sent();
+                        console.log("Error occurred during update:", err_1);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
     ViewApp.prototype.initializeApp = function () {
         var _this = this;
         this.platform.ready().then(function () {
             // Okay, so the platform is ready and our plugins are available.
             // Here you can do any higher level native things you might need.
-            _this.statusBar.styleDefault();
+            __WEBPACK_IMPORTED_MODULE_9__ionic_pro__["Pro"].deploy.configure({
+                'appId': '5d0a65db',
+                'channel': 'Production'
+            });
+            _this.statusBar.styleBlackTranslucent();
             _this.splashScreen.hide();
         });
     };
@@ -3977,5 +4068,5 @@ var MotionModalContentPage = (function () {
 
 /***/ })
 
-},[340]);
+},[341]);
 //# sourceMappingURL=main.js.map

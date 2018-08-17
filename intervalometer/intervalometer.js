@@ -485,7 +485,7 @@ function processKeyframes(setupFirst, callback) {
 
             var currentPolarPos = motion.getPosition(motor.driver, motor.motor);
             if(intervalometer.internal.polarStart == null) intervalometer.internal.polarStart = currentPolarPos;
-            var backlashAmount = 5 * motor.stepsPerDegree;
+            var backlashAmount = 2 * motor.stepsPerDegree;
             var degressPerHour = 15;            
             var stepsPerSecond = ((motor.stepsPerDegree * degressPerHour) / 3600) * motor.direction;
 
@@ -493,7 +493,7 @@ function processKeyframes(setupFirst, callback) {
                 var moveBack = function(cb) {
                     console.log("Intervalometer: polar: moving back");
                     motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -_motor.direction), function(err) {
-                        if(err) console.log("Intervalometer: polar: err:", err);
+                        if(err) console.log("Intervalometer: polar: err:", err);                        
                         setTimeout(cb);
                     });
                 }
@@ -517,6 +517,12 @@ function processKeyframes(setupFirst, callback) {
                     moveBack(function(){
                         moveStart(function(){
                             startTracking();
+                        });
+                    });
+                } else if(intervalometer.status.frames == 0) { // takeup backlash on first frame
+                    moveBack(function(){
+                        moveStart(function(){
+                            checkDone('polar');
                         });
                     });
                 } else {
