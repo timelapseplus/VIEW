@@ -229,13 +229,28 @@ function processRawPath(path, options, info, callback) {
                 if(err || stderr) {
                     console.log("WORKER: #################### ERROR SAVING RAW IMAGE:", err, stderr);
                     if(stderr.indexOf("No space left on device") !== -1) {
+                        sdWriting = false;
                         sendEvent('saveErrorCardFull', "Error saving RAW file " + dest + "\nNo space left on SD card.");
+                    } else if(stderr.indexOf("Input/output error") !== -1 || stderr.indexOf("Software caused connection abort") !== -1) { // unmount/mount, and try again first 
+                        exec("umount /media", function(err) {
+                            exec("mount /dev/mmcblk1p1 /media", function(err) {
+                                execFile('/bin/cp', ['--no-target-directory', path, dest], {}, function(err, stdout, stderr) {
+                                    if(err || stderr) {
+                                        sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
+                                    }
+                                    sdWriting = false;
+                                    fs.unlink(path);
+                                });
+                            });
+                        });
                     } else {
+                        sdWriting = false;
                         sendEvent('saveError', "Error saving RAW file " + dest + "\nError code: " + err + ", message: " + stderr);
                     }
+                } else {
+                    sdWriting = false;
                 }
-                sdWriting = false;
-                fs.unlink(path);
+                if(!sdWriting) fs.unlink(path);
             });
             if(options.index || options.index===0) {
                 var s = options.saveRaw.match(/(tl-[0-9]+)/i);

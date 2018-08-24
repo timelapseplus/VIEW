@@ -192,10 +192,18 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             //keyframes[0].position = position || null;
             kfSet = keyframes[0].position;
             axisPositions[axisName] = position;
+            intervalometer.status.keyframeSeconds = 0;
         } else {
             var secondsSinceStart = intervalometer.status.lastPhotoTime + (intervalometer.status.intervalMs / 1000);
+            intervalometer.status.keyframeSeconds += (intervalometer.status.intervalMs / 1000);
 
-            console.log("KF: Seconds since last: " + secondsSinceStart);
+            var diff = secondsSinceStart - intervalometer.status.keyframeSeconds;
+            if(diff != 0) {
+                intervalometer.status.keyframeSeconds = diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
+            }
+
+
+            console.log("KF: Seconds since last: " + secondsSinceStart, "diff:", diff, "corrected:", intervalometer.status.keyframeSeconds);
             var totalSeconds = 0;
             kfPoints = keyframes.map(function(kf) {
                 return {
@@ -207,7 +215,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
                 if(a.x > b.x) return 1;
                 return 0;                
             });
-            kfSet = interpolate[interpolationMethod](kfPoints, secondsSinceStart);
+            kfSet = interpolate[interpolationMethod](kfPoints, intervalometer.status.keyframeSeconds);
             console.log("KF: " + axisName + " target: " + kfSet, "points:", kfPoints);
         }
 
@@ -252,6 +260,7 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
 }
 
 function getTrackingMotor(trackingMotor) {
+    console.log("INTERVALOMETER: getTrackingMotor: no motor info found for " + trackingMotor);
     if(trackingMotor && trackingMotor != 'none') {
         var parts = trackingMotor.match(/^([A-Z]+)-([0-9]+)(r?)$/);
         if(parts && parts.length > 2) {
@@ -260,7 +269,6 @@ function getTrackingMotor(trackingMotor) {
             return {
                 driver: parts[1],
                 motor: parts[2],
-                direction: parts[3] == 'r' ? -1 : 1,
                 stepsPerDegree: stepsPerDegree
             }
         } else {
@@ -415,7 +423,12 @@ function processKeyframes(setupFirst, callback) {
                     }
                 }
                 var motor = null;
-                motor = getTrackingMotor(m);
+                if(axis.motor) {
+                    motor = axis.motor;
+                    motor.stepsPerDegree = motor.unitSteps || 1;
+                } else {
+                    motor = getTrackingMotor(m);
+                }
                 var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
                 if(axis.motor && axis.motor.reverse) rev = !rev;
                 motor.direction = rev ? -1 : 1;
@@ -478,7 +491,12 @@ function processKeyframes(setupFirst, callback) {
             }
         } else if(axis.type == 'polar') {
             var motor = null;
-            motor = getTrackingMotor(m);
+            if(axis.motor) {
+                motor = axis.motor;
+                motor.stepsPerDegree = motor.unitSteps || 1;
+            } else {
+                motor = getTrackingMotor(m);
+            }
             var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
             if(axis.motor && axis.motor.reverse) rev = !rev;
             motor.direction = rev ? -1 : 1;
@@ -1122,6 +1140,7 @@ function brightWarning(ev) {
 }
 
 function error(msg, callback) {
+    console.log("INTERVALOMETER: error:", msg);
     setTimeout(function(){
         intervalometer.emit("error", msg);
     }, 50);

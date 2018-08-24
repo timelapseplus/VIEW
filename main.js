@@ -1771,6 +1771,10 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var getMotor = function(motorName, callback) {
+        db.get('motion-'+motorName, callback);
+    } 
+
     var exposurePlansReview = function() {
         var info = "";
         var pad = "- ";
@@ -2040,6 +2044,8 @@ if (VIEW_HARDWARE) {
                     if(!core.currentProgram.coords) {
                         core.currentProgram.tracking = 'none';
                     }
+                    oled.timelapseStatus = null;
+
 
                     if(core.currentProgram.tracking != 'none') {
                         var autoOrient = motorOrientationKnown();
@@ -2047,40 +2053,63 @@ if (VIEW_HARDWARE) {
                         if(core.currentProgram.tracking != "15deg" && (autoOrient && autoOrient.pan)) {
                             panMotor = autoOrient.pan;
                         }
-                        if(panMotor) {
-                            if(core.currentProgram.tracking == "15deg") {
-                                core.currentProgram.axes[panMotor.name] = {
-                                    type: 'constant',
-                                    orientation: 'pan',
-                                    rate: 15,
-                                    reverse: panMotor.reverse
-                                }
+                        var checkTilt = function(){
+                            var tiltMotor = (autoOrient && autoOrient.tilt) ? autoOrient.tilt : getTrackingMotor(core.currentProgram.trackingTiltMotor);
+                            if(tiltMotor) {
+                                getMotor(tiltMotor.name, function(err, tMotor) {
+                                    if(err || !tMotor) {
+                                        tMotor = tiltMotor;
+                                    }
+                                    core.currentProgram.trackingTarget = core.currentProgram.tracking;
+                                    core.currentProgram.axes[tiltMotor.name] = {
+                                        type: 'tracking',
+                                        orientation: 'tilt',
+                                        trackBelowHorizon: false,
+                                        reverse: tiltMotor.reverse,
+                                        motor: tMotor
+                                    }
+                                    core.currentProgram[tiltMotor.name + "Pos"] = 0;
+                                    core.startIntervalometer(core.currentProgram);
+                                    cb();
+                                });
                             } else {
-                                core.currentProgram.trackingTarget = core.currentProgram.tracking;
-                                core.currentProgram.axes[panMotor.name] = {
-                                    type: 'tracking',
-                                    orientation: 'pan',
-                                    trackBelowHorizon: false,
-                                    reverse: panMotor.reverse
+                                core.startIntervalometer(core.currentProgram);
+                                cb();
+                            }
+                        }
+                        if(panMotor) {
+                            getMotor(panMotor.name, function(err, pMotor) {
+                                if(err || !pMotor) {
+                                    pMotor = panMotor;
                                 }
-                            }
-                            core.currentProgram[panMotor.name + "Pos"] = 0;
+                                if(core.currentProgram.tracking == "15deg") {
+                                    core.currentProgram.axes[panMotor.name] = {
+                                        type: 'constant',
+                                        orientation: 'pan',
+                                        rate: 15,
+                                        reverse: panMotor.reverse,
+                                        motor: pMotor
+                                    }
+                                } else {
+                                    core.currentProgram.trackingTarget = core.currentProgram.tracking;
+                                    core.currentProgram.axes[panMotor.name] = {
+                                        type: 'tracking',
+                                        orientation: 'pan',
+                                        trackBelowHorizon: false,
+                                        reverse: panMotor.reverse,
+                                        motor: pMotor
+                                    }
+                                }
+                                core.currentProgram[panMotor.name + "Pos"] = 0;
+                                checkTilt();
+                            });
+                        } else {
+                            checkTilt();
                         }
-                        var tiltMotor = (autoOrient && autoOrient.tilt) ? autoOrient.tilt : getTrackingMotor(core.currentProgram.trackingTiltMotor);
-                        if(tiltMotor) {
-                            core.currentProgram.trackingTarget = core.currentProgram.tracking;
-                            core.currentProgram.axes[tiltMotor.name] = {
-                                type: 'tracking',
-                                orientation: 'tilt',
-                                trackBelowHorizon: false,
-                                reverse: tiltMotor.reverse
-                            }
-                            core.currentProgram[tiltMotor.name + "Pos"] = 0;
-                        }
+                    } else {
+                        core.startIntervalometer(core.currentProgram);
+                        cb();
                     }
-                    oled.timelapseStatus = null;
-                    core.startIntervalometer(core.currentProgram);
-                    cb();
                 }
             }
         }, ]

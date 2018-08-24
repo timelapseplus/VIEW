@@ -56,6 +56,8 @@ wifi.lastNetwork = null;
 wifi.lastPassword = null;
 wifi.noReset = false;
 
+var reconnect = "none";
+var reconnectNetwork, reconnectPassword;
 
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
 var startTime = Date.now();
@@ -89,8 +91,7 @@ sys_events_mon.stdout.on('data', function(data) {
 		  			wifi.enableBt();
 		  		});
 	  		} else {
-	  			var reconnect = "none";
-	  			var reconnectNetwork, reconnectPassword;
+	  			reconnect = "none";
 	  			if(wifi.connected) {
 	  				reconnect = "client";
 	  				reconnectNetwork = wifi.lastNetwork;
@@ -332,6 +333,7 @@ wifi.disable = function(cb, disableEvents) {
 }
 
 wifi.connect = function(network, password, callback) {
+	if(!network) return callback && callback("no network specified");
 	wifi.invalidPassword = false;
 	disableBtReset = false;
 	wifi.lastNetwork = network;
