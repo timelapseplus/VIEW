@@ -193,17 +193,20 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             kfSet = keyframes[0].position;
             axisPositions[axisName] = position;
             intervalometer.status.keyframeSeconds = 0;
+            intervalometer.status.keyframesFrames = intervalometer.status.frames;
         } else {
             var secondsSinceStart = intervalometer.status.lastPhotoTime + (intervalometer.status.intervalMs / 1000);
-            intervalometer.status.keyframeSeconds += (intervalometer.status.intervalMs / 1000);
 
-            var diff = secondsSinceStart - intervalometer.status.keyframeSeconds;
-            if(diff != 0) {
-                intervalometer.status.keyframeSeconds += diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
+            if(intervalometer.status.frames > intervalometer.status.keyframesFrames) {
+                intervalometer.status.keyframesFrames = intervalometer.status.frames;
+                intervalometer.status.keyframeSeconds += (intervalometer.status.intervalMs / 1000);
+                var diff = secondsSinceStart - intervalometer.status.keyframeSeconds;
+                if(diff != 0) {
+                    intervalometer.status.keyframeSeconds += diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
+                }
+                console.log("KF: Seconds since last: " + secondsSinceStart, "diff:", diff, "corrected:", intervalometer.status.keyframeSeconds);
             }
 
-
-            console.log("KF: Seconds since last: " + secondsSinceStart, "diff:", diff, "corrected:", intervalometer.status.keyframeSeconds);
             var totalSeconds = 0;
             kfPoints = keyframes.map(function(kf) {
                 return {
