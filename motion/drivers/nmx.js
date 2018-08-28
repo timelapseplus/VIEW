@@ -186,9 +186,20 @@ function move(motorId, steps, callback) {
         return callback && callback("NMX: motor already running");
     }
     if(!enabled[motorId]) enable(motorId);
-    if(inJoystickMode) return joystickMode(false, function() {
-        move(motorId, steps, callback);
-    });
+    if(inJoystickMode) {
+        inJoystickMode = null;
+        return joystickMode(false, function(){
+            if(inJoystickMode) {
+                move(motorId, steps, callback);
+            } else {
+                callback && callback("failed to exit joystick mode");
+            }
+        });
+    }
+
+
+
+
     steps = Math.round(steps);
     if(steps == 0) { // a move of zero steps triggers a bug in the NMX causing it to move extreme distances
         return callback && callback(null, motorPos[motorId]);
@@ -249,6 +260,16 @@ function move(motorId, steps, callback) {
                                         if (callback) callback(tries > 5 ? "position not reached" : null, position);
                                     } else {
                                         tries++;
+                                        if(tries == 1 && motorPosExact[motorId] == position) { // didn't move at all
+                                            console.log("NMX: Motor didn't move, togging joystick and trying again...");
+                                            joystickMode(true, function(){
+                                                constantMove(motorId, 0, function(){
+                                                    joystickMode(false, function(){
+                                                        setTimeout(moveToAbsolutePos);
+                                                    });
+                                                });
+                                            });
+                                        }
                                         console.log("NMX: position not reached, trying again", tries);
                                         setTimeout(moveToAbsolutePos, 50);
                                     }
