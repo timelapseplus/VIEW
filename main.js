@@ -2082,6 +2082,7 @@ if (VIEW_HARDWARE) {
                                 if(err || !pMotor) {
                                     pMotor = panMotor;
                                 }
+                                core.currentProgram[panMotor.name + "Pos"] = 0;
                                 if(core.currentProgram.tracking == "15deg") {
                                     core.currentProgram.axes[panMotor.name] = {
                                         type: 'constant',
@@ -2090,6 +2091,8 @@ if (VIEW_HARDWARE) {
                                         reverse: panMotor.reverse,
                                         motor: pMotor
                                     }
+                                    core.startIntervalometer(core.currentProgram);
+                                    cb();
                                 } else {
                                     core.currentProgram.trackingTarget = core.currentProgram.tracking;
                                     core.currentProgram.axes[panMotor.name] = {
@@ -2099,9 +2102,8 @@ if (VIEW_HARDWARE) {
                                         reverse: panMotor.reverse,
                                         motor: pMotor
                                     }
+                                    checkTilt();
                                 }
-                                core.currentProgram[panMotor.name + "Pos"] = 0;
-                                checkTilt();
                             });
                         } else {
                             checkTilt();
