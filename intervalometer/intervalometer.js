@@ -199,7 +199,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
 
             var diff = secondsSinceStart - intervalometer.status.keyframeSeconds;
             if(diff != 0) {
-                intervalometer.status.keyframeSeconds = diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
+                intervalometer.status.keyframeSeconds += diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
             }
 
 
