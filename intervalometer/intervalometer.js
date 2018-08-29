@@ -1283,6 +1283,7 @@ intervalometer.cancel = function(reason, callback) {
 }
 
 intervalometer.resume = function() {
+    console.log("Intervalometer: resuming time-lapse...")
     camera.ptp.cancelCallbacks();
     busyPhoto = false;
     busyExposure = false;
