@@ -500,13 +500,14 @@ function processKeyframes(setupFirst, callback) {
             } else {
                 motor = getTrackingMotor(m);
             }
-            var rev = axis.orientation == 'tilt' ? !axis.reverse : axis.reverse; // tilt axis is naturally reversed
+            console.log("Intervalometer: polar: motor.stepsPerDegree =", motor.stepsPerDegree);
+            var rev = axis.reverse;
             if(axis.motor && axis.motor.reverse) rev = !rev;
             motor.direction = rev ? -1 : 1;
 
             var currentPolarPos = motion.getPosition(motor.driver, motor.motor);
             if(intervalometer.internal.polarStart == null) intervalometer.internal.polarStart = currentPolarPos;
-            var backlashAmount = 2 * motor.stepsPerDegree;
+            var backlashAmount = 1 * motor.stepsPerDegree;
             var degressPerHour = 15;            
             var stepsPerSecond = ((motor.stepsPerDegree * degressPerHour) / 3600) * motor.direction;
 
@@ -1247,8 +1248,10 @@ intervalometer.validate = function(program) {
 intervalometer.cancel = function(reason, callback) {
     if(!reason) reason = 'stopped';
     if(intervalometer.internal.polarTrackIntervalHandle) {
+        console.log("Intervalometer: polar: stopping tracking motion");
         clearInterval(intervalometer.internal.polarTrackIntervalHandle);
         intervalometer.internal.polarTrackIntervalHandle = null;
+        motion.joystick(motor.driver, motor.motor, 0);
     }
     if(intervalometer.internal.polarMotorBacklash) {
         setTimeout(function(){
@@ -1291,6 +1294,12 @@ intervalometer.resume = function() {
     clearTimeout(delayHandle);
     clearTimeout(retryHandle);
     clearTimeout(scheduleHandle);
+    if(intervalometer.internal.polarTrackIntervalHandle) {
+        console.log("Intervalometer: polar: stopping tracking motion for resume");
+        clearInterval(intervalometer.internal.polarTrackIntervalHandle);
+        intervalometer.internal.polarTrackIntervalHandle = null;
+        motion.joystick(motor.driver, motor.motor, 0);
+    }
     var ms = intervalometer.status.intervalMs - ((new Date() / 1000) - (intervalometer.status.startTime + intervalometer.status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
