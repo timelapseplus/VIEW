@@ -1254,7 +1254,7 @@ intervalometer.cancel = function(reason, callback) {
         console.log("Intervalometer: polar: stopping tracking motion");
         clearInterval(intervalometer.internal.polarTrackIntervalHandle);
         intervalometer.internal.polarTrackIntervalHandle = null;
-        motion.joystick(motor.driver, motor.motor, 0);
+        motion.joystick(intervalometer.internal.polarMotorBacklash.driver, intervalometer.internal.polarMotorBacklash.motor, 0);
     }
     if(intervalometer.internal.polarMotorBacklash) {
         setTimeout(function(){
@@ -1282,7 +1282,7 @@ intervalometer.cancel = function(reason, callback) {
             camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
             camera.ptp.unmountSd();
             intervalometer.emit("intervalometer.status", intervalometer.status);
-            console.log("==========> END TIMELAPSE", intervalometer.status.tlName);
+            console.log("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
             callback && callback();
         });
     }    
