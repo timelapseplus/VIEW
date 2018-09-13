@@ -185,6 +185,8 @@ motion.move = function(driver, motorId, steps, callback) {
 		} else {
 			motion.gm1.move(motorId, steps, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 
@@ -197,6 +199,8 @@ motion.joystick = function(driver, motorId, speed, callback) {
 		} else {
 			motion.gm1.constantMove(motorId, speed, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 
@@ -209,6 +213,8 @@ motion.zero = function(driver, motorId, callback) {
 		} else {
 			motion.gm1.resetMotorPosition(motorId, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 
@@ -221,6 +227,8 @@ motion.setPosition = function(driver, motorId, position, callback) {
 		} else {
 			motion.gm1.setMotorPosition(motorId, position, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 
@@ -238,24 +246,28 @@ motion.getPosition = function(driver, motorId) {
 motion.getBacklash = function(driver, motorId, callback) {
 	if(driver == "NMX") {
 		motion.nmx.getMotorBacklash(motorId, callback);
-	} else {
+	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.getMotorBacklash(motorId, callback);
 		} else {
 			motion.gm1.getMotorBacklash(motorId, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 
 motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
 	if(driver == "NMX") {
 		motion.nmx.setMotorBacklash(motorId, backlashSteps, callback);
-	} else {
+	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.setMotorBacklash(motorId, backlashSteps, callback);
 		} else {
 			motion.gm1.setMotorBacklash(motorId, backlashSteps, callback);
 		}
+	} else {
+		callback && callback("invalid motion driver: " + driver);
 	}
 }
 

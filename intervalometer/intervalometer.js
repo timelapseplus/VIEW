@@ -311,8 +311,7 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    for(var m in intervalometer.currentProgram.axes) {
-        var axis = intervalometer.currentProgram.axes[m];
+    var eachAxis = function(axis) {
         numAxes++;
         console.log("Intervalometer: KF: running axis", m);
 
@@ -513,7 +512,7 @@ function processKeyframes(setupFirst, callback) {
 
             var setupTracking = function(speed, _motor) {
                 var moveBack = function(cb) {
-                    console.log("Intervalometer: polar: moving back");
+                    console.log("Intervalometer: polar: moving back", "(motor", _motor.motor, ")");
                     motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -_motor.direction), function(err) {
                         if(err) console.log("Intervalometer: polar: err:", err);                        
                         setTimeout(cb);
@@ -541,7 +540,7 @@ function processKeyframes(setupFirst, callback) {
                             startTracking();
                         });
                     });
-                } else if(intervalometer.status.frames == 0) { // takeup backlash on first frame
+                } else if(intervalometer.status.frames == 0) { // take up backlash on first frame
                     moveBack(function(){
                         moveStart(function(){
                             checkDone('polar');
@@ -608,7 +607,11 @@ function processKeyframes(setupFirst, callback) {
                 checkDone(m);
             }
         }
+    }
 
+
+    for(var m in intervalometer.currentProgram.axes) {
+        eachAxis(intervalometer.currentProgram.axes[m]);
     }
     checkDone('function');
 }
