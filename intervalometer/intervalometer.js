@@ -529,7 +529,7 @@ function processKeyframes(setupFirst, callback) {
                     console.log("Intervalometer: polar: moving tracking...");
                     intervalometer.internal.polarTrackIntervalHandle = setInterval(function(){
                         motion.joystick(_motor.driver, _motor.motor, speed);
-                    }, 500);
+                    }, 1000);
                     setTimeout(function(){
                         checkDone('polar');
                     }, 100);
@@ -1249,6 +1249,10 @@ intervalometer.validate = function(program) {
     return results;
 }
 intervalometer.cancel = function(reason, callback) {
+    if(!callback && typeof reason == 'function') {
+        callback = reason;
+        reason = null;
+    }
     if(!reason) reason = 'stopped';
     if(intervalometer.internal.polarTrackIntervalHandle) {
         console.log("Intervalometer: polar: stopping tracking motion");
@@ -1297,11 +1301,11 @@ intervalometer.resume = function() {
     clearTimeout(delayHandle);
     clearTimeout(retryHandle);
     clearTimeout(scheduleHandle);
-    if(intervalometer.internal.polarTrackIntervalHandle) {
+    if(intervalometer.internal.polarTrackIntervalHandle && intervalometer.internal.polarMotorBacklash) {
         console.log("Intervalometer: polar: stopping tracking motion for resume");
         clearInterval(intervalometer.internal.polarTrackIntervalHandle);
         intervalometer.internal.polarTrackIntervalHandle = null;
-        motion.joystick(motor.driver, motor.motor, 0);
+        motion.joystick(intervalometer.internal.polarMotorBacklash.driver, intervalometer.internal.polarMotorBacklash.motor, 0);
     }
     var ms = intervalometer.status.intervalMs - ((new Date() / 1000) - (intervalometer.status.startTime + intervalometer.status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
