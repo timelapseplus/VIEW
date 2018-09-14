@@ -188,8 +188,8 @@ function move(motorId, steps, callback) {
     if(!enabled[motorId]) enable(motorId);
     if(inJoystickMode) {
         inJoystickMode = null;
-        return joystickMode(false, function(){
-            if(inJoystickMode) {
+        return joystickMode(false, function(err){
+            if(!err) {
                 move(motorId, steps, callback);
             } else {
                 callback && callback("failed to exit joystick mode");
@@ -427,8 +427,8 @@ function checkJoystickMode(callback) {
         command: CMD_CHECK_JOYSTICK_MODE
     }
     _queueCommand(cmd, function(err, jsMode) {
-        console.log("NMX: joystick mode: ", jsMode);
         inJoystickMode = !!jsMode;
+        console.log("NMX: joystick mode: ", inJoystickMode);
         if (callback) callback(err, inJoystickMode);
     });
 }
