@@ -502,25 +502,25 @@ function processKeyframes(setupFirst, callback) {
             console.log("Intervalometer: polar: motor.stepsPerDegree =", motor.stepsPerDegree);
             var rev = axis.reverse;
             if(axis.motor && axis.motor.reverse) rev = !rev;
-            motor.direction = rev ? -1 : 1;
+            var polarDirection = rev ? -1 : 1;
 
             var currentPolarPos = motion.getPosition(motor.driver, motor.motor);
             if(intervalometer.internal.polarStart == null) intervalometer.internal.polarStart = currentPolarPos;
             var backlashAmount = 1 * motor.stepsPerDegree;
             var degressPerHour = 15;            
-            var stepsPerSecond = ((motor.stepsPerDegree * degressPerHour) / 3600) * motor.direction;
+            var stepsPerSecond = ((motor.stepsPerDegree * degressPerHour) / 3600) * polarDirection;
 
             var setupTracking = function(speed, _motor) {
                 var moveBack = function(cb) {
                     console.log("Intervalometer: polar: moving back", "(motor", _motor.motor, ")");
-                    motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -_motor.direction), function(err) {
+                    motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -polarDirection), function(err) {
                         if(err) console.log("Intervalometer: polar: err:", err);                        
                         setTimeout(cb);
                     });
                 }
                 var moveStart = function(cb) {
                     console.log("Intervalometer: polar: moving to start");
-                    motion.move(_motor.driver, _motor.motor, backlashAmount * _motor.direction, function(err) {
+                    motion.move(_motor.driver, _motor.motor, backlashAmount * polarDirection, function(err) {
                         if(err) console.log("Intervalometer: polar: err:", err);
                         setTimeout(cb);
                     });
@@ -555,7 +555,7 @@ function processKeyframes(setupFirst, callback) {
                 clearInterval(intervalometer.internal.polarTrackIntervalHandle);
                 intervalometer.internal.polarTrackIntervalHandle = null;
                 motion.joystick(motor.driver, motor.motor, 0, function(){
-                    setupTracking(stepsPerSecond + 1000 * motor.direction, motor);
+                    setupTracking(stepsPerSecond * polarDirection, motor);
                 });
             } else {
                 motion.getBacklash(motor.driver, motor.motor, function(backlash) {
@@ -566,7 +566,7 @@ function processKeyframes(setupFirst, callback) {
                         motor: motor.motor
                     }
                     motion.setBacklash(motor.driver, motor.motor, 0, function() {
-                        setupTracking(stepsPerSecond + 1000 * motor.direction, motor);
+                        setupTracking(stepsPerSecond * polarDirection, motor);
                     });
                 });
             }
