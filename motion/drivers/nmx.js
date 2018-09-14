@@ -428,8 +428,8 @@ function checkJoystickMode(callback) {
     }
     _queueCommand(cmd, function(err, jsMode) {
         console.log("NMX: joystick mode: ", jsMode);
-        inJoystickMode = jsMode;
-        if (callback) callback(err, jsMode);
+        inJoystickMode = !!jsMode;
+        if (callback) callback(err, inJoystickMode);
     });
 }
 
