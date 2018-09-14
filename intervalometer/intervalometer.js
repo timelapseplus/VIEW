@@ -527,9 +527,9 @@ function processKeyframes(setupFirst, callback) {
                 }
                 var startTracking = function() {
                     console.log("Intervalometer: polar: moving tracking...");
-                    intervalometer.internal.polarTrackIntervalHandle = setInterval(function(){
+                    if(intervalometer.status.running) intervalometer.internal.polarTrackIntervalHandle = setInterval(function(){
                         console.log("Intervalometer: polar: continuing tracking...");
-                        motion.joystick(_motor.driver, _motor.motor, speed);
+                        motion.joystick(_motor.driver, _motor.motor, speed + 1000);
                     }, 1000);
                     setTimeout(function(){
                         checkDone('polar');
