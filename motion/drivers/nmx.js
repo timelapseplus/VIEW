@@ -501,15 +501,21 @@ function checkMotorAttachment(callback) {
         motor: 0,
         command: CMD_CONNECTED_MOTORS
     }
-    _queueCommand(cmd, function(err, status) {
-        if(!err) {
-            motorConnected[0] = motorAttachment[0] === null ? ((status & 1<<0) ? true : false) : motorAttachment[0];
-            motorConnected[1] = motorAttachment[1] === null ? ((status & 1<<1) ? true : false) : motorAttachment[1];
-            motorConnected[2] = motorAttachment[2] === null ? ((status & 1<<2) ? true : false) : motorAttachment[2];
-            console.log("NMX: motors connected", motorConnected);
-        }
-        if (callback) callback(motorConnected);
-    });
+    if(!motorRunning['1'] && !motorRunning['2'] && !motorRunning['3'] && (motorAttachment[0] === null || motorAttachment[1] === null || motorAttachment[2] === null)) {
+        _queueCommand(cmd, function(err, status) {
+            if(!err) {
+                motorConnected[0] = motorAttachment[0] === null ? ((status & 1<<0) ? true : false) : motorAttachment[0];
+                motorConnected[1] = motorAttachment[1] === null ? ((status & 1<<1) ? true : false) : motorAttachment[1];
+                motorConnected[2] = motorAttachment[2] === null ? ((status & 1<<2) ? true : false) : motorAttachment[2];
+                console.log("NMX: motors connected", motorConnected);
+            }
+            if (callback) callback(motorConnected);
+        });
+    } else {
+        motorConnected[0] = motorAttachment[0] === null ? motorConnected[0] : motorAttachment[0];
+        motorConnected[1] = motorAttachment[1] === null ? motorConnected[1] : motorAttachment[1];
+        motorConnected[2] = motorAttachment[2] === null ? motorConnected[2] : motorAttachment[2];
+    }
 }
 
 function setMotorAttachment(motor, status, callback) {
