@@ -21,6 +21,7 @@ mcu.knob = 0;
 mcu.tzAutoSet = false;
 mcu.customLatitude = null;
 mcu.customLongitude = null;
+mcu.disableGpsTimeUpdate = false;
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -132,7 +133,7 @@ function _parseData(data) {
 			gps.update(data);
 			if(gps.state.fix && gps.state.lat !== null && gps.state.lon !== null) {
 				mcu.lastGpsFix = _.clone(gps.state);
-				if(!gpsFix) {
+				if(!gpsFix && !mcu.disableGpsTimeUpdate) {
 					mcu.setDateTime(mcu.lastGpsFix.time);
 					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
 					if(tz && process.env.TZ != tz) {

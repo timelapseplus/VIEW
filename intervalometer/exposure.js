@@ -139,7 +139,10 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
     exp.status.intervalSeconds = 0;
     var thisPhotoTime = new Date();
     if (local.lastPhotoTime) {
-        exp.status.intervalSeconds = (thisPhotoTime - local.lastPhotoTime) / 1000;
+        var intervalSeconds = (thisPhotoTime - local.lastPhotoTime) / 1000;
+        if(intervalSeconds > 0) {
+            exp.status.intervalSeconds = intervalSeconds; // in case the time changes while running, make sure this is never negative
+        }
     }
     local.lastPhotoTime = thisPhotoTime;
 

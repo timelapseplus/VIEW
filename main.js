@@ -2940,25 +2940,6 @@ if (VIEW_HARDWARE) {
             }
         }, ]
     }
-    var nmxMotorAttachment = {
-        motorEnabled1: 'autodetect',
-        motorEnabled2: 'autodetect',
-        motorEnabled3: 'autodetect',
-    }
-    db.get('nmxMotorAttachment', function(err, res) {
-        if(!err && res) {
-            for(var key in nmxMotorAttachment) {
-                if(res.hasOwnProperty(key)) {
-                    nmxMotorAttachment[key] = res[key];
-                    var m = key.match(/[0-9]/);
-                    if(m && m.length > 0) {
-                        m = parseInt(m[0]);
-                        if(m > 0) core.setNMXMotor(m, nmxMotorAttachment[key]);
-                    }
-                }
-            }
-        }
-    });
     var buildNmxMotorOptions = function(motorNumber) {
         return {
             name: "NMX Motor " + motorNumber,
@@ -5064,9 +5045,11 @@ core.on('intervalometer.status', function(msg) {
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
     if(msg.running) {
+        mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
     } else if(cache.intervalometerStatus.running) {
         power.enableAutoOff();
+        mcu.disableGpsTimeUpdate = false;
     }
     app.send('intervalometerStatus', {
         status: msg
