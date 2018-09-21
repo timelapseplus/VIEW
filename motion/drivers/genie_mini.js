@@ -358,6 +358,19 @@ GenieMini.prototype.resetMotorPosition = function(motor, callback) {
     check();
 }
 
+GenieMini.prototype.setMotorPosition = function(motor, position, callback) {
+    var self = this;
+    var check = function() {
+        if(self._moving) {
+            setTimeout(check, 200); // keep checking until stop
+        } else {
+            self._position = position;
+            if (callback) callback();
+        }
+    }
+    check();
+}
+
 GenieMini.prototype.setMotorBacklash = function(motor, backlash, callback) {
     this._backlash = backlash;
     if (callback) callback(this._backlash);
