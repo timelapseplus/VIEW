@@ -1024,6 +1024,7 @@ static struct {
 
 	/* Elijah Parker, mail@timelapseplus.com */
 	{"Sony:Alpha-A7III (Control)",	0x054c, 0x0994, PTP_CAP|PTP_CAP_PREVIEW},
+	{"Sony:Alpha-A7III (Control)",	0x054c, 0x0c34, PTP_CAP|PTP_CAP_PREVIEW},
 
 	/* Andre Crone <andre@elysia.nl> */
 	{"Sony:DSC-RX100M4",          	0x054c, 0x0a6d, 0},
