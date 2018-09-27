@@ -530,6 +530,24 @@ camera.capture = function(options, callback) {
     if(!camera.connected) {
         return callback && callback("not connected");
     }
+
+    if(camera.lvOn === true && camera.model && camera.model.match(/fuji/i)) {
+        if(restartPreview) {
+            clearTimeout(restartPreview);
+            restartPreview = null;
+        }
+        console.log("PTP: turning off LV for capture");
+        return camera.lvOff(function(){
+            camera.capture(options, function(err, res) {
+                restartPreview = setTimeout(function(){
+                    restartPreview = null;
+                    console.log("PTP: resuming LV");
+                    camera.preview();
+                }, 1000);
+            });
+        }, true);
+    }
+
     var primaryWorker = getPrimaryWorker();
     primaryWorker.captureInitiated = true;
     if(options && options.mode == 'test') {
