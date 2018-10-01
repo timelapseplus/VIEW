@@ -1100,7 +1100,7 @@ function runPhoto(isRetry) {
                     }
                     intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
 
-                    if(camera.ptp.model.match(/5DS/i) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
+                    if(camera.ptp.model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
 
                     if(intervalometer.status.rampMode == "auto") {
                         intervalometer.status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, intervalometer.status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
