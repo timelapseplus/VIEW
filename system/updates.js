@@ -13,7 +13,7 @@ var baseInstallPath = "/home/view/";
 var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
-var libgphoto2Version = "2.5.14.18";
+var libgphoto2Version = "2.5.14.19";
 
 var getLibGPhoto2Version = "/usr/local/bin/gphoto2 --version | grep \"libgphoto2 \"";
 var installLibGPhoto2 = "/usr/bin/test -e /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb && dpkg -i /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb";
@@ -29,25 +29,34 @@ var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-
 var installIcons = "/usr/bin/test -e /home/view/current/fonts/icons.ttf && cp -u /home/view/current/fonts/icons.ttf /usr/share/fonts/truetype/";
 
 function logDateHelper(logFileName) {
-	var m = logFileName.match(/[a-z\/\-]+([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])-([0-1][0-9])([0-5][0-9])([0-5][0-9])\.txt/);
-	var year = parseInt(m[1]);
-	var month = parseInt(m[2]) - 1;
-	var day = parseInt(m[3]);
-	var hour = parseInt(m[4]);
-	var minute = parseInt(m[5]);
-	var second = parseInt(m[6]);
-	var date = new Date(year, month, day, hour, minute, second, 0);
-	//console.log(date);
-	return date;
+	var m = logFileName.match(/[a-z\/\-]+([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])-([0-2][0-9])([0-5][0-9])([0-5][0-9])\.txt/);
+	if(m) {
+		var year = parseInt(m[1]);
+		var month = parseInt(m[2]) - 1;
+		var day = parseInt(m[3]);
+		var hour = parseInt(m[4]);
+		var minute = parseInt(m[5]);
+		var second = parseInt(m[6]);
+		var date = new Date(year, month, day, hour, minute, second, 0);
+		console.log(date);
+		return date;
+	} else {
+		return null;
+		console.log("LOG CLEANUP: no match:", logFileName);
+	}
 }
 
 function logPurgeHelper(logList, numberToKeep) {
 	if(logList && logList.length > numberToKeep) {
-		logList.sort(function(a, b) {
-			return logDateHelper(a) - logDateHelper(b);
-		});
-		for(var i = numberToKeep; i < logList.length; i++) {
-			console.log("LOG CLEANUP: deleting", logList[i]);
+		logList = logList.filter(function(l) { return logDateHelper(l);});
+		if(logList && logList.length > numberToKeep) {
+			logList.sort(function(a, b) {
+				return logDateHelper(b) - logDateHelper(a);
+			});
+			for(var i = numberToKeep; i < logList.length; i++) {
+				console.log("LOG CLEANUP: deleting", logList[i]);
+				fs.unlink(logList[i]);
+			}
 		}
 	}
 }
