@@ -28,6 +28,44 @@ var doUBootUpdate = "/usr/bin/test -e /home/view/current/boot/u-boot-sunxi-with-
 
 var installIcons = "/usr/bin/test -e /home/view/current/fonts/icons.ttf && cp -u /home/view/current/fonts/icons.ttf /usr/share/fonts/truetype/";
 
+function logDateHelper(logFileName) {
+	var m = logFileName.match(/[a-z\/\-]+([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])-([0-1][0-9])([0-5][0-9])([0-5][0-9])\.txt/);
+	var year = parseInt(m[1]);
+	var month = parseInt(m[2]) - 1;
+	var day = parseInt(m[3]);
+	var hour = parseInt(m[4]);
+	var minute = parseInt(m[5]);
+	var second = parseInt(m[6]);
+	var date = new Date(year, month, day, hour, minute, second, 0);
+	//console.log(date);
+	return date;
+}
+
+function logPurgeHelper(logList, numberToKeep) {
+	if(logList && logList.length > numberToKeep) {
+		logList.sort(function(a, b) {
+			return logDateHelper(a) - logDateHelper(b);
+		});
+		for(var i = numberToKeep; i < logList.length) {
+			console.log("LOG CLEANUP: deleting", logList[i]);
+		}
+	}
+}
+
+function cleanupLogs() {
+	exec('ls /var/log/view-*', function(err, res) {
+		if(!err && res) {
+			var logs = res.trim().split('\n');
+			var uiLogs = logs.filter(function(l){return l.indexOf('ui')>0});
+			var coreLogs = logs.filter(function(l){return l.indexOf('core')>0});
+			logPurgeHelper(uiLogs, 2);
+			logPurgeHelper(coreLogs, 10);
+		}
+	});
+}
+
+cleanupLogs(); // run on each start
+
 function checkLibGPhotoUpdate(callback) {
 	exec(getLibGPhoto2Version, function(err, stdout, stderr) {
 		if(!err && stdout) {
