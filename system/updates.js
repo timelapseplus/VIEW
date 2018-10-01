@@ -46,7 +46,7 @@ function logPurgeHelper(logList, numberToKeep) {
 		logList.sort(function(a, b) {
 			return logDateHelper(a) - logDateHelper(b);
 		});
-		for(var i = numberToKeep; i < logList.length) {
+		for(var i = numberToKeep; i < logList.length; i++) {
 			console.log("LOG CLEANUP: deleting", logList[i]);
 		}
 	}
