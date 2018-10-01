@@ -2106,6 +2106,7 @@ static struct {
 	{"Fuji:Fujifilm X-T10",			0x04cb, 0x02c8, 0},
 	/* with new updated firmware 1.1 */
 	{"Fuji:Fujifilm X-T2",			0x04cb, 0x02cd, PTP_CAP},
+	{"Fuji:Fujifilm X-T3",			0x04cb, 0x02dd, PTP_CAP},
 	{"Fuji:Fujifilm X-H1",			0x04cb, 0x02d7, PTP_CAP},
 	{"Fuji:Fujifilm GFX 50S",		0x04cb, 0x02d3, PTP_CAP},
 
