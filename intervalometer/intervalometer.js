@@ -1282,6 +1282,10 @@ intervalometer.cancel = function(reason, callback) {
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("intervalometer.status", intervalometer.status);
         camera.ptp.completeWrites(function() {
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+                var options = getEvOptions();
+                camera.setEv(intervalometer.status.rampEv, options);
+            }
             busyPhoto = false;
             intervalometer.status.running = false;
             intervalometer.status.stopping = false;
