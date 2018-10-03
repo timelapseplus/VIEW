@@ -355,6 +355,13 @@ function runCommand(type, args, callback, client) {
       motion.nmx.setMotorAttachment(args.motor, args.status, callback);
       break;
 
+    case 'motion.setAuxPulseLength':
+      intervalometer.setAuxPulseLength(args.length, callback);
+      break;
+    case 'motion.setAuxPulseInvert':
+      intervalometer.setAuxPulseInvert(args.invert, callback);
+      break;
+
     case 'intervalometer.moveTracking':
       intervalometer.moveTracking(args.axis, args.degrees, callback);
       break;

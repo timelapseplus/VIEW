@@ -176,4 +176,10 @@ exports.nmxMotorAttachment = "Manually enable/disable motors connected to NMX";
 
 exports.configureNMX = "Configure the NMX motion controller by Dynamic Perception (connects via Bluetooth or USB)";
 
-exports.lrtDirection = "Direction for exposure ramping.  Note that this applies only to the LRTimelapse ramping algorithm.  The PID Luminance algorithm (default) is always auto bi-directional."
+exports.lrtDirection = "Direction for exposure ramping.  Note that this applies only to the LRTimelapse ramping algorithm.  The PID Luminance algorithm (default) is always auto bi-directional.";
+
+exports.configureAUX = "Setup AUX2 output parameters for triggering external motion systems.";
+
+exports.auxPulseLength = "Set the length of the pulse sent out AUX2 after each capture is completed (this tells an external motion system when to move).";
+
+exports.auxPulseInvert = "Configures whether the shield-tip connection on AUX2 is normally open (default, most motion systems expect this) or normally close (inverted, open for pulse length after capture).";

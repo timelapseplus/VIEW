@@ -1801,4 +1801,17 @@ intervalometer.updateProgram = function(updates, callback) {
     callback && callback();
 }
 
+intervalometer.setAuxPulseLength = function(lengthMs, callback) {
+    auxMotionConfig.lengthMs = lengthMs;
+    console.log("INTERVALOMETER: set aux lengthMs to", auxMotionConfig.lengthMs);
+}
+
+intervalometer.setAuxPulseInvert = function(invert, callback) {
+    auxMotionConfig.inverted = !!invert;
+    console.log("INTERVALOMETER: set aux invert to", auxMotionConfig.inverted);
+}
+
+
+
+
 module.exports = intervalometer;

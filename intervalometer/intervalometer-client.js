@@ -285,6 +285,16 @@ core.setNMXMotor = function(motorNumber, status, callback) {
     call('motion.setNMXMotor', {motor:motorNumber, status:status}, callback);
 };
 
+core.setAuxPulseLength = function(length, callback) {
+    core.auxPulseLength = length;
+    call('motion.setAuxPulseLength', {length:length}, callback);
+};
+
+core.setAuxPulseInvert = function(invert, callback) {
+    core.auxPulseInvert = invert ? "true" : "false";
+    call('motion.setAuxPulseInvert', {invert:invert}, callback);
+};
+
 core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
     call('db.currentTimelapseFrames', {cameraIndex:cameraIndex}, callback);
 };

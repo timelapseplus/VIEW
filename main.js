@@ -3022,6 +3022,84 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    db.get('auxPulseLength', function(err, length) {
+        if(!err && length) {
+            core.setAuxPulseLength(length);
+        } else {
+            core.setAuxPulseLength(200);
+        }
+    });
+
+    db.get('auxPulseInvert', function(err, invert) {
+        if(!err && invert == 'yes') {
+            core.setAuxPulseInvert(true);
+        } else {
+            core.setAuxPulseInvert(false);
+        }
+    });
+
+    var auxPulseLengthMenu = {
+        name: "AUX2 Pulse Length",
+        type: "options",
+        items: [{
+            name: "AUX2 Pulse Length",
+            value: "100ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 100, function(cb){
+                db.set('auxPulseLength', 100);
+                core.setAuxPulseLength(100);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "200ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 200, function(cb){
+                db.set('auxPulseLength', 200);
+                core.setAuxPulseLength(200);
+                cb && cb();
+            })
+        }]
+    }
+
+    var auxPulseInvertMenu = {
+        name: "AUX2 Pulse Invert",
+        type: "options",
+        items: [{
+            name: "AUX2 Pulse Invert",
+            value: "No (closed=move)",
+            help: help.auxPulseInvert,
+            action: ui.set(core, 'auxPulseInvert', 'no', function(cb){
+                db.set('auxPulseInvert', 'no');
+                core.setAuxPulseInvert(false);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Invert",
+            value: "Yes (open=move)",
+            help: help.auxPulseInvert,
+            action: ui.set(core, 'auxPulseInvert', 'yes', function(cb){
+                db.set('auxPulseInvert', 'yes');
+                core.setAuxPulseInvert(true);
+                cb && cb();
+            })
+        }]
+    }
+
+    var motionSetupMenuAUX = {
+        name: "AUX Setup",
+        type: "menu",
+        items: [{
+            name: "Pulse Length",
+            help: help.auxPulseLength,
+            action: auxPulseLengthMenu
+        }, {
+            name: "Invert Pulse",
+            help: help.nmxMotorAttachment,
+            action: buildNmxMotorOptions(2)
+        }]
+    }
+
     var motionSetupMenu = {
         name: "NMX Setup",
         type: "menu",
@@ -3029,6 +3107,10 @@ if (VIEW_HARDWARE) {
             name: "Configure NMX",
             help: help.configureNMX,
             action: motionSetupMenuNMX
+        },{
+            name: "AUX2 Sync Setup",
+            help: help.configureAUX,
+            action: motionSetupMenuAUX
         }]
     }
 
