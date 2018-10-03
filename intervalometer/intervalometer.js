@@ -1338,8 +1338,6 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
     console.log("loading time-lapse program:", program);
     db.set('intervalometer.currentProgram', program);
 
-    motionSyncSetup();
-
     if(date != null) { // sync time with phone app local time
         var mD = moment(date);
         var mN = moment();
@@ -1418,7 +1416,6 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     intervalometer.internal.polarStart = null;
                     intervalometer.internal.polarTrackIntervalHandle = null;
 
-
                     if(program.hdrCount && program.hdrCount > 1 && program.hdrStops) {
                         planHdr(program.hdrCount, program.hdrStops);
                     }
@@ -1426,6 +1423,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     if(intervalometer.status.rampMode != 'fixed') {
                         checkCurrentPlan();
                     }
+
+                    motionSyncSetup();
 
                     if(intervalometer.currentProgram.coords) {
                         intervalometer.status.latitude = intervalometer.currentProgram.coords.lat;

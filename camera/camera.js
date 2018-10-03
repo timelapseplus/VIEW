@@ -382,7 +382,7 @@ camera.setExposure = function(shutterEv, apertureEv, isoEv, cb) {
 
     var correction = 0;
 
-    if (shutterEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.shutter || shutterEv != camera.ptp.settings.details.shutter.ev)) {
+    if (shutterEv != null && (!camera.ptp.settings.details || (camera.ptp.settings.details.shutter && shutterEv != camera.ptp.settings.details.shutter.ev))) {
         var res = getItemFromEvList(camera.ptp.settings.lists.shutter, shutterEv);
         if(res != null) {
             correction = res.correction;
@@ -392,7 +392,7 @@ camera.setExposure = function(shutterEv, apertureEv, isoEv, cb) {
             });
         }
     }
-    if (apertureEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.aperture || apertureEv != camera.ptp.settings.details.aperture.ev)) {
+    if (apertureEv != null && (!camera.ptp.settings.details || (camera.ptp.settings.details.aperture && apertureEv != camera.ptp.settings.details.aperture.ev))) {
         var res = getItemFromEvList(camera.ptp.settings.lists.aperture, apertureEv + correction);
         if(res != null) {
             correction = res.correction;
@@ -402,7 +402,7 @@ camera.setExposure = function(shutterEv, apertureEv, isoEv, cb) {
             });
         }
     }
-    if (isoEv != null && (!camera.ptp.settings.details || camera.ptp.settings.details.iso || isoEv != camera.ptp.settings.details.iso.ev)) {
+    if (isoEv != null && (!camera.ptp.settings.details || (camera.ptp.settings.details.iso && isoEv != camera.ptp.settings.details.iso.ev))) {
         var res = getItemFromEvList(camera.ptp.settings.lists.iso, isoEv + correction);
         if(res != null) {
             correction = res.correction;
