@@ -3095,8 +3095,8 @@ if (VIEW_HARDWARE) {
             action: auxPulseLengthMenu
         }, {
             name: "Invert Pulse",
-            help: help.nmxMotorAttachment,
-            action: buildNmxMotorOptions(2)
+            help: help.auxPulseInvert,
+            action: auxPulseInvertMenu
         }]
     }
 
