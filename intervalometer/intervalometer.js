@@ -1808,6 +1808,7 @@ intervalometer.setAuxPulseLength = function(lengthMs, callback) {
 
 intervalometer.setAuxPulseInvert = function(invert, callback) {
     auxMotionConfig.inverted = !!invert;
+    motionSyncSetup();
     console.log("INTERVALOMETER: set aux invert to", auxMotionConfig.inverted);
 }
 

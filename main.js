@@ -3059,6 +3059,204 @@ if (VIEW_HARDWARE) {
                 core.setAuxPulseLength(200);
                 cb && cb();
             })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "300ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 300, function(cb){
+                db.set('auxPulseLength', 300);
+                core.setAuxPulseLength(300);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "400ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 400, function(cb){
+                db.set('auxPulseLength', 400);
+                core.setAuxPulseLength(400);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "500ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 500, function(cb){
+                db.set('auxPulseLength', 500);
+                core.setAuxPulseLength(500);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "600ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 600, function(cb){
+                db.set('auxPulseLength', 600);
+                core.setAuxPulseLength(600);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "700ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 700, function(cb){
+                db.set('auxPulseLength', 700);
+                core.setAuxPulseLength(700);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "800ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 800, function(cb){
+                db.set('auxPulseLength', 800);
+                core.setAuxPulseLength(800);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "900ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 900, function(cb){
+                db.set('auxPulseLength', 900);
+                core.setAuxPulseLength(900);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "1000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 1000, function(cb){
+                db.set('auxPulseLength', 1000);
+                core.setAuxPulseLength(1000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "1200ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 1200, function(cb){
+                db.set('auxPulseLength', 1200);
+                core.setAuxPulseLength(1200);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "1400ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 1400, function(cb){
+                db.set('auxPulseLength', 1400);
+                core.setAuxPulseLength(1400);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "1600ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 1600, function(cb){
+                db.set('auxPulseLength', 1600);
+                core.setAuxPulseLength(1600);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "1800ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 1800, function(cb){
+                db.set('auxPulseLength', 1800);
+                core.setAuxPulseLength(1800);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "2000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 2000, function(cb){
+                db.set('auxPulseLength', 2000);
+                core.setAuxPulseLength(2000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "2500ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 2500, function(cb){
+                db.set('auxPulseLength', 2500);
+                core.setAuxPulseLength(2500);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "3000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 3000, function(cb){
+                db.set('auxPulseLength', 3000);
+                core.setAuxPulseLength(3000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "4000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 4000, function(cb){
+                db.set('auxPulseLength', 4000);
+                core.setAuxPulseLength(4000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "5000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 5000, function(cb){
+                db.set('auxPulseLength', 5000);
+                core.setAuxPulseLength(5000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "6000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 6000, function(cb){
+                db.set('auxPulseLength', 6000);
+                core.setAuxPulseLength(6000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "7000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 7000, function(cb){
+                db.set('auxPulseLength', 7000);
+                core.setAuxPulseLength(7000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "8000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 8000, function(cb){
+                db.set('auxPulseLength', 8000);
+                core.setAuxPulseLength(8000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "9000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 9000, function(cb){
+                db.set('auxPulseLength', 9000);
+                core.setAuxPulseLength(9000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Pulse Length",
+            value: "10000ms",
+            help: help.auxPulseLength,
+            action: ui.set(core, 'auxPulseLength', 10000, function(cb){
+                db.set('auxPulseLength', 10000);
+                core.setAuxPulseLength(10000);
+                cb && cb();
+            })
         }]
     }
 
