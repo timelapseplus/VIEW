@@ -291,7 +291,7 @@ core.setAuxPulseLength = function(length, callback) {
 };
 
 core.setAuxPulseInvert = function(invert, callback) {
-    core.auxPulseInvert = invert ? "true" : "false";
+    core.auxPulseInvert = invert ? "yes" : "no";
     call('motion.setAuxPulseInvert', {invert:invert}, callback);
 };
 
