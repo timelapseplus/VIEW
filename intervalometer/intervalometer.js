@@ -100,13 +100,17 @@ function motionSyncSetup() {
 }
 motionSyncSetup();
 
+var busyAuxPulse = false;
+
 function motionSyncPulse(callback) {
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode != 'aux') {
         gpio.read(HOTSHOE_IN, function(err, shutterClosed) {
             console.log("hotshoe:", shutterClosed);
             if(shutterClosed) {
                 console.log("=> AUX Pulse");
+                busyAuxPulse = true;
                 aux2out({lengthMs: auxMotionConfig.lengthMs, invert: auxMotionConfig.inverted}, function(){
+                    busyAuxPulse = false;
                     callback && callback();
                 });
                 //gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
@@ -940,6 +944,8 @@ function runPhoto(isRetry) {
         intervalometer.status.stopping = false;
         return;
     }
+
+    if(busyAuxPulse) return setTimeout(runPhoto, 100);
     
     if((busyPhoto || busyExposure) && pendingPhoto && !isRetry) return; // drop frame if backed up
 
