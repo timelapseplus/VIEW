@@ -76,9 +76,15 @@ var CMD_MOTOR_RESET = {
     hasAck: true,
     delay: 0
 }
-var CMD_MOTOR_MAX_SPEED = {
+var CMD_MOTOR_SET_MAX_SPEED = {
     cmd: 0x07,
     hasReponse: false,
+    hasAck: true,
+    delay: 0
+}
+var CMD_MOTOR_GET_MAX_SPEED = {
+    cmd: 0x68,
+    hasReponse: true,
     hasAck: true,
     delay: 0
 }
@@ -136,6 +142,7 @@ var nmx = new EventEmitter();
 var motorRunning = {'1': false, '2': false, '3': false};
 var motorPos = {'1': 0, '2': 0, '3': 0};
 var motorPosExact = {'1': 0, '2': 0, '3': 0};
+var motorMaxSpeed = {'1': 3000, '2': 3000, '3': 3000};
 var motorConnected = [false, false, false];
 var motorAttachment = [null, null, null];
 var motorBacklash = {'1': 0, '2': 0, '3': 0};
@@ -323,7 +330,7 @@ function setMaxSpeed(motorId, speed, callback) {
 
     var cmd = {
         motor: motorId,
-        command: CMD_MOTOR_MAX_SPEED,
+        command: CMD_MOTOR_SET_MAX_SPEED,
         dataBuf: m
     }
 
@@ -331,6 +338,23 @@ function setMaxSpeed(motorId, speed, callback) {
         if (callback) callback(err);
     });
 }
+
+function getMaxSpeed(motorId, callback) {
+    if(!_dev || !_dev.connected) callback && callback("not connected");
+    var cmd = {
+        motor: motorId,
+        command: CMD_MOTOR_GET_MAX_SPEED,
+        readback: true,
+        readbackDelayMs: 50
+    }
+    _queueCommand(cmd, function(err, maxSpeed) {
+        console.log("NMX: motor " + motorId + " maxSpeed: ", maxSpeed);
+        if(!err) motorMaxSpeed[motorId] = maxSpeed;
+        if (callback) callback(maxSpeed);
+    });
+}
+
+
 
 var inJoystickMode = null;
 var resetJoystickMode = false;
@@ -359,7 +383,7 @@ function constantMove(motorId, speed, callback) {
     m.fill(0);
 
     if(Math.abs(speed) < 1000) { // speed is percentage
-        var maxSpeed = 3000;
+        var maxSpeed = motorMaxSpeed[motorId];
         speed = Math.floor((speed / 100) * maxSpeed);
         if(speed > maxSpeed) speed = maxSpeed;
         if(speed < -maxSpeed) speed = -maxSpeed;
@@ -890,12 +914,15 @@ function init() {
         //resetMotorPosition(1);
         //resetMotorPosition(2);
         //resetMotorPosition(3);
-        setAccel(1, 7500); // 2436.75 to 12675
-        setAccel(2, 7500);
-        setAccel(3, 7500);
-        setMaxSpeed(1, 3000);
-        setMaxSpeed(2, 3000);
-        setMaxSpeed(3, 3000);
+        //setAccel(1, 7500); // 2436.75 to 12675
+        //setAccel(2, 7500);
+        //setAccel(3, 7500);
+        //setMaxSpeed(1, 3000);
+        //setMaxSpeed(2, 3000);
+        //setMaxSpeed(3, 3000);
+        getMaxSpeed(1);
+        getMaxSpeed(2);
+        getMaxSpeed(3);
         if(motorBacklash['1'] > 0) setMotorBacklash(1, motorBacklash['1']);
         if(motorBacklash['2'] > 0) setMotorBacklash(2, motorBacklash['2']);
         if(motorBacklash['3'] > 0) setMotorBacklash(3, motorBacklash['3']);
