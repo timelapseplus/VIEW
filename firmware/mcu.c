@@ -16,19 +16,27 @@ unsigned char USART0_Receive( void );
 void USART0_Transmit( unsigned char data );
 unsigned char USART0_DataReady( void );
 
-volatile uint8_t bits = 8;
-volatile char rx = 0;
+volatile uint8_t bits_gps = 8;
+volatile char rx_gps = 0;
+volatile uint8_t bits_aux = 8;
+volatile char rx_aux = 0;
 
-#define read_rx() ( PINA  &   ( 1 << PA7 ) )
+#define read_rx_gps() ( PINA  &   ( 1 << PA7 ) )
+#define read_rx_aux() ( PINA  &   ( 1 << PA0 ) )
 #define read_a() ( PINB  &   ( 1 << PB0 ) )
 #define read_b() ( PINB  &   ( 1 << PB1 ) )
 
 volatile int8_t encoderPos = 0;
 
 #define BUFSIZE (255)
-volatile static char           inbuf[BUFSIZE];
-volatile static uint8_t  qin;
-static uint8_t           qout;
+volatile static char     inbuf_gps[BUFSIZE];
+volatile static uint8_t  qin_gps;
+static uint8_t           qout_gps;
+
+volatile static char     inbuf_aux[BUFSIZE];
+volatile static uint8_t  qin_aux;
+static uint8_t           qout_aux;
+
 
 void init( void )
 {
@@ -37,67 +45,119 @@ void init( void )
 	sreg_tmp = SREG;
 	cli();
 	
-	OCR1A = 100;     /* set top (~100us) */
+	OCR1A = 100;     /* set top (~100us), 9600 baud */
 	TCNT1 = 0; /* reset counter */
+
+	OCR2A = 14;     /* set top (~17us), 57600 baud */
+	TCNT2 = 0; /* reset counter */
 	
 	SREG = sreg_tmp;
 
 	DDRA &= ~( 1 << PA7 ); // set GPS rx as input
+	DDRA &= ~( 1 << PA0 ); // set AUX rx as input
 	DDRB &= ~( 1 << PB0 ); // set knob a as input
 	DDRB &= ~( 1 << PB1 ); // set knob b as input
 
 	USART0_Init( 12 ); /* Set the baudrate to 38400 bps using a 8.0000MHz INTOSC/crystal */
 
 	PCMSK0 = 1<<PCINT7; // enable PCINT7 (GPS serial in)
+	PCMSK0 |= 1<<PCINT0; // enable PCINT0 (AUX serial in)
 	PCMSK1 = 1<<PCINT8 | 1<<PCINT9; // enable knob interrupt
 	GIMSK = 1<<PCIE0 | 1<<PCIE1; // enable pcint
 }
 
-void rec_char(char c)
+void rec_char_gps(char c)
 {
-	inbuf[qin] = c;
-	if ( ++qin >= BUFSIZE ) {
+	inbuf_gps[qin_gps] = c;
+	if ( ++qin_gps >= BUFSIZE ) {
 		// overflow - reset inbuf-index
-		qin = 0;
+		qin_gps = 0;
 	}
 }
 
-char getchar( void )
+char getchar_gps( void )
 {
 	char ch;
 
-	if ( qout == qin ) {
+	if ( qout_gps == qin_gps ) {
 		return 0;
 	}
-	ch = inbuf[qout];
-	if ( ++qout >= BUFSIZE ) {
-		qout = 0;
+	ch = inbuf_gps[qout_gps];
+	if ( ++qout_gps >= BUFSIZE ) {
+		qout_gps = 0;
 	}
 	
 	return( ch );
 }
 
-uint8_t scanbuf( char c )
+uint8_t scanbuf_gps( char c )
 {
-	uint8_t s = qout;
+	uint8_t s = qout_gps;
 	for(uint8_t i = 0; i < BUFSIZE; i++) {
-		if(inbuf[s] == c) {
+		if(inbuf_gps[s] == c) {
 			return 1;
 		}
-		if(++s == qin) break;
+		if(++s == qin_gps) break;
 	}
 	return 0;
 }
 
-uint8_t char_waiting( void )
+uint8_t char_waiting_gps( void )
 {
-	return( qin != qout );
+	return( qin_gps != qout_gps );
 }
 
-void flush_buffer( void )
+void flush_buffer_gps( void )
 {
-	qin  = 0;
-	qout = 0;
+	qin_gps  = 0;
+	qout_gps = 0;
+}
+	
+void rec_char_aux(char c)
+{
+	inbuf_aux[qin_aux] = c;
+	if ( ++qin_aux >= BUFSIZE ) {
+		// overflow - reset inbuf-index
+		qin_aux = 0;
+	}
+}
+
+char getchar_aux( void )
+{
+	char ch;
+
+	if ( qout_aux == qin_aux ) {
+		return 0;
+	}
+	ch = inbuf_aux[qout_aux];
+	if ( ++qout_aux >= BUFSIZE ) {
+		qout_aux = 0;
+	}
+	
+	return( ch );
+}
+
+uint8_t scanbuf_aux( char c )
+{
+	uint8_t s = qout_aux;
+	for(uint8_t i = 0; i < BUFSIZE; i++) {
+		if(inbuf_aux[s] == c) {
+			return 1;
+		}
+		if(++s == qin_aux) break;
+	}
+	return 0;
+}
+
+uint8_t char_waiting_aux( void )
+{
+	return( qin_aux != qout_aux );
+}
+
+void flush_buffer_aux( void )
+{
+	qin_aux  = 0;
+	qout_aux = 0;
 }
 	
 
@@ -122,30 +182,55 @@ ISR(PCINT1_vect)
 
 ISR(PCINT0_vect)
 {
-	if(!read_rx()) { // falling edge for start bit
-		PCMSK0 = 0;
-		bits = 8;
-		rx = 0;
+	if(!read_rx_gps()) { // falling edge for start bit
+		PCMSK0 &= ~(1<<PCINT7);
+		bits_gps = 8;
+		rx _gps= 0;
 		TCNT1 = 0; /* reset counter */
 		TCCR1A = 1 << WGM11;
 		TCCR1B = 1 << CS11;
 		TIMSK1 = 1 << OCIE1A;
+	}
+	if(!read_rx_aux()) { // falling edge for start bit
+		PCMSK0 &= ~(1<<PCINT0);
+		bits_aux = 8;
+		rx_aux = 0;
+		TCNT2 = 0; /* reset counter */
+		TCCR2A = 1 << WGM21;
+		TCCR2B = 1 << CS21;
+		TIMSK2 = 1 << OCIE2A;
 	}
 }
 
 ISR(TIMER1_COMPA_vect)
 {
 	TCNT1 = 0; /* reset counter */
-	bits--;
-	if( read_rx() ) {
-		rx |= 1<<(7-bits);
+	bits_gps--;
+	if( read_rx_gps() ) {
+		rx_gps |= 1<<(7-bits_gps);
 	}
-	if(bits == 0) {
+	if(bits_gps == 0) {
 		TIMSK1 = 0;
 		TCCR1A = 0;
 		TCCR1B = 0;
-		PCMSK0 = 1<<PCINT7;
-		rec_char(rx);
+		PCMSK0 |= 1<<PCINT7;
+		rec_char_gps(rx_gps);
+	}
+}
+
+ISR(TIMER2_COMPA_vect)
+{
+	TCNT2 = 0; /* reset counter */
+	bits_aux--;
+	if( read_rx_aux() ) {
+		rx_aux |= 1<<(7-bits_aux);
+	}
+	if(bits_aux == 0) {
+		TIMSK2 = 0;
+		TCCR2A = 0;
+		TCCR2B = 0;
+		PCMSK0 |= 1<<PCINT0;
+		rec_char_aux(rx_aux);
 	}
 }
 
@@ -161,23 +246,39 @@ int main( void )
 
 	for(;;) 	    /* Forever */
 	{
-		if ( char_waiting() ) {
-			if(scanbuf('\n')) {
-				c = getchar();
+		if ( char_waiting_gps() ) {
+			if(scanbuf_gps('\n')) {
+				c = getchar_gps();
 				if(c == '$') {
 					while(c) {
 						USART0_Transmit(c);
-						c = getchar();
+						c = getchar_gps();
 						if(c == '\n' || c == '\r') {
 							break;
 						}
 					}
-					c = getchar();
+					c = getchar_gps();
 					USART0_Transmit('\r');
 					USART0_Transmit('\n');
 				} else {
-					flush_buffer();
+					flush_buffer_gps();
 				}
+			}
+		}
+		if ( char_waiting_aux() ) {
+			if(scanbuf_aux('\n')) {
+				USART0_Transmit('@');
+				c = getchar_aux();
+				while(c) {
+					USART0_Transmit(c);
+					c = getchar_aux();
+					if(c == '\n' || c == '\r') {
+						break;
+					}
+				}
+				c = getchar_aux();
+				USART0_Transmit('\r');
+				USART0_Transmit('\n');
 			}
 		}
 		if(USART0_DataReady()) {
@@ -188,6 +289,9 @@ int main( void )
 				USART0_Transmit('0' + VERSION_MINOR);
 				USART0_Transmit('\r');
 				USART0_Transmit('\n');
+			}
+			if(c == '@') { // send data out AUX
+				// still need to write aux tx using timer0
 			}
 		}
 		if(encoderPos) {
