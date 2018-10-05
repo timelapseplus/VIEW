@@ -12,6 +12,7 @@ var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
 var gpio = require('linux-gpio');
+var aux2out = require('aux2out');
 var _ = require('underscore');
 //var suncalc = require('suncalc');
 var meeus = require('meeusjs');
@@ -25,15 +26,15 @@ var HOTSHOE_IN = 34;
 
 gpio.setMode(gpio.MODE_RAW);
 
-gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, function(err){
-    if(err) console.log("GPIO error: ", err);
-    gpio.write(AUXTIP_OUT, 1);
-});
-
-gpio.setup(AUXRING_OUT, gpio.DIR_OUT, function(err){
-    if(err) console.log("GPIO error: ", err);
-    gpio.write(AUXRING_OUT, 1);
-});
+//gpio.setup(AUXTIP_OUT, gpio.DIR_OUT, function(err){
+//    if(err) console.log("GPIO error: ", err);
+//    gpio.write(AUXTIP_OUT, 1);
+//});
+//
+//gpio.setup(AUXRING_OUT, gpio.DIR_OUT, function(err){
+//    if(err) console.log("GPIO error: ", err);
+//    gpio.write(AUXRING_OUT, 1);
+//});
 
 gpio.setup(HOTSHOE_IN, gpio.DIR_IN, function(err){
     if(err) console.log("GPIO error: ", err);
@@ -94,20 +95,25 @@ auxTrigger.on('error', function(err) {
 });
 
 function motionSyncSetup() {
-    gpio.write(AUXTIP_OUT, (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
+    //gpio.write(AUXTIP_OUT, (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
+    aux2out({lengthMs: 0, invert: auxMotionConfig.inverted}, function(){});
 }
+motionSyncSetup();
 
-function motionSyncPulse() {
+function motionSyncPulse(callback) {
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode != 'aux') {
         gpio.read(HOTSHOE_IN, function(err, shutterClosed) {
             console.log("hotshoe:", shutterClosed);
             if(shutterClosed) {
                 console.log("=> AUX Pulse");
-                gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
-                    setTimeout(function(){
-                        gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 0 : 1);
-                    }, auxMotionConfig.lengthMs);
+                aux2out({lengthMs: auxMotionConfig.lengthMs, invert: auxMotionConfig.inverted}, function(){
+                    callback && callback();
                 });
+                //gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
+                //    setTimeout(function(){
+                //        gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 0 : 1);
+                //    }, auxMotionConfig.lengthMs);
+                //});
             } else {
                 setTimeout(motionSyncPulse, 100);
             }
