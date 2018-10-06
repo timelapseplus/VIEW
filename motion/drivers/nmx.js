@@ -539,6 +539,7 @@ function checkMotorAttachment(callback) {
         motorConnected[0] = motorAttachment[0] === null ? motorConnected[0] : motorAttachment[0];
         motorConnected[1] = motorAttachment[1] === null ? motorConnected[1] : motorAttachment[1];
         motorConnected[2] = motorAttachment[2] === null ? motorConnected[2] : motorAttachment[2];
+        if (callback) callback(motorConnected);
     }
 }
 
@@ -902,10 +903,10 @@ function init() {
         checkMotorPosition(1);
         checkMotorPosition(2);
         checkMotorPosition(3, function(){
-            nmx.emit("status", getStatus());
             motorPos[1] = motorPosExact[1];
             motorPos[2] = motorPosExact[2];
             motorPos[3] = motorPosExact[3];
+            nmx.emit("status", getStatus());
         });
     });
     firmwareVersion(function(err, version) {
