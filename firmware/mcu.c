@@ -7,8 +7,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define VERSION_MAJOR 0
-#define VERSION_MINOR 2
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 0
 
 /* Prototypes */
 void USART0_Init( unsigned int baudrate );
@@ -20,15 +20,23 @@ volatile uint8_t bits_gps = 8;
 volatile char rx_gps = 0;
 volatile uint8_t bits_aux = 8;
 volatile char rx_aux = 0;
+volatile uint8_t bits_auxout = 8;
+volatile char byte_auxout = 0;
+volatile uint8_t aux_tx_sending = 0;
+volatile uint8_t aux_tx_enabled = 0;
 
 #define read_rx_gps() ( PINA  &   ( 1 << PA7 ) )
 #define read_rx_aux() ( PINA  &   ( 1 << PA0 ) )
+#define set_tx_aux() PORTB  |=   ( 1 << PB2 )
+#define clr_tx_aux() PORTB  &=   ~( 1 << PB2 )
+#define enable_tx_aux() DDRB  |=   ( 1 << PB2 )
+#define disable_tx_aux() DDRB  &=   ~( 1 << PB2 )
 #define read_a() ( PINB  &   ( 1 << PB0 ) )
 #define read_b() ( PINB  &   ( 1 << PB1 ) )
 
 volatile int8_t encoderPos = 0;
 
-#define BUFSIZE (255)
+#define BUFSIZE (192)
 volatile static char     inbuf_gps[BUFSIZE];
 volatile static uint8_t  qin_gps;
 static uint8_t           qout_gps;
@@ -37,6 +45,9 @@ volatile static char     inbuf_aux[BUFSIZE];
 volatile static uint8_t  qin_aux;
 static uint8_t           qout_aux;
 
+volatile static char     inbuf_auxout[BUFSIZE];
+volatile static uint8_t  qin_auxout;
+static uint8_t           qout_auxout;
 
 void init( void )
 {
@@ -50,6 +61,8 @@ void init( void )
 
 	OCR2A = 14;     /* set top (~17us), 57600 baud */
 	TCNT2 = 0; /* reset counter */
+
+	OCR0A = 139;     /* set top (~17us), 57600 baud */
 	
 	SREG = sreg_tmp;
 
@@ -64,6 +77,19 @@ void init( void )
 	PCMSK0 |= 1<<PCINT0; // enable PCINT0 (AUX serial in)
 	PCMSK1 = 1<<PCINT8 | 1<<PCINT9; // enable knob interrupt
 	GIMSK = 1<<PCIE0 | 1<<PCIE1; // enable pcint
+}
+
+void setup_tx_aux(uint8_t en)
+{
+	if(en) {
+		set_tx_aux();
+		enable_tx_aux();
+		aux_tx_enabled = 1;
+	} else {
+		clr_tx_aux();
+		disable_tx_aux();
+		aux_tx_enabled = 0;
+	}
 }
 
 void rec_char_gps(char c)
@@ -161,6 +187,52 @@ void flush_buffer_aux( void )
 }
 	
 
+void rec_char_auxout(char c)
+{
+	if(!c) return;
+	inbuf_auxout[qin_auxout] = c;
+	if ( ++qin_auxout >= BUFSIZE ) {
+		// overflow - reset inbuf-index
+		qin_auxout = 0;
+	}
+}
+
+char getchar_auxout( void )
+{
+	char ch;
+
+	if ( qout_auxout == qin_auxout ) {
+		return 0;
+	}
+	ch = inbuf_auxout[qout_auxout];
+	if ( ++qout_auxout >= BUFSIZE ) {
+		qout_auxout = 0;
+	}
+	
+	return( ch );
+}
+
+void send_auxout(char c)
+{
+	if(!aux_tx_enabled) return;
+	rec_char_auxout(c);
+	if(!aux_tx_sending)
+	{
+		aux_tx_sending = 1;
+		byte_auxout = getchar_auxout();
+		bits_auxout = 0;
+		if(byte_auxout)
+		{
+			TCNT0 = 0;
+			TCCR0A = 1 << WGM01;
+			TCCR0B = 1 << CS00; //no prescale, 8MHz
+			TIMSK0 = 1 << OCIE0A;
+		}
+	
+	}
+}
+	
+
 ISR(PCINT1_vect)
 {
     static int8_t aPrev = -1, bPrev = -1;
@@ -185,7 +257,7 @@ ISR(PCINT0_vect)
 	if(!read_rx_gps()) { // falling edge for start bit
 		PCMSK0 &= ~(1<<PCINT7);
 		bits_gps = 8;
-		rx _gps= 0;
+		rx_gps = 0;
 		TCNT1 = 0; /* reset counter */
 		TCCR1A = 1 << WGM11;
 		TCCR1B = 1 << CS11;
@@ -200,6 +272,44 @@ ISR(PCINT0_vect)
 		TCCR2B = 1 << CS21;
 		TIMSK2 = 1 << OCIE2A;
 	}
+}
+
+ISR(TIMER0_COMPA_vect)
+{
+	TCNT0 = 0; /* reset counter */
+	if(bits_auxout == 0) 
+	{
+		clr_tx_aux(); // start bit
+	} 
+	else if(bits_auxout <= 8) 
+	{
+		if(byte_auxout & 1<<(8-bits_auxout))
+		{
+			set_tx_aux(); // send 1
+		}
+		else
+		{
+			clr_tx_aux(); // send 0
+		}
+	} 
+	else if(bits_auxout <= 10) 
+	{
+		set_tx_aux(); // stop bit
+	} 
+	else 
+	{
+		//setup next
+		byte_auxout = getchar_auxout();
+		bits_auxout = 0;
+		if(!byte_auxout)
+		{
+			aux_tx_sending = 0;
+			TCCR0A = 0;
+			TCCR0B = 0;
+		}
+		return;
+	}
+	bits_auxout++;
 }
 
 ISR(TIMER1_COMPA_vect)
@@ -283,15 +393,28 @@ int main( void )
 		}
 		if(USART0_DataReady()) {
 			c = USART0_Receive();
-			if(c == 'V') {
+			if(c == 'V') 
+			{
 				USART0_Transmit('V');
 				USART0_Transmit('0' + VERSION_MAJOR);
 				USART0_Transmit('0' + VERSION_MINOR);
 				USART0_Transmit('\r');
 				USART0_Transmit('\n');
 			}
-			if(c == '@') { // send data out AUX
-				// still need to write aux tx using timer0
+			else if(c == '@') // send data out AUX
+			{
+				while(USART0_DataReady()) {
+					c = USART0_Receive();
+					send_auxout(c);
+				}
+			}
+			else if(c == '#') // enable AUX tx
+			{
+				setup_tx_aux(1);
+			}
+			else if(c == '~') // disable AUX tx
+			{
+				setup_tx_aux(0);
 			}
 		}
 		if(encoderPos) {
