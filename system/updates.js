@@ -13,7 +13,7 @@ var baseInstallPath = "/home/view/";
 var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
 var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
 
-var libgphoto2Version = "2.5.14.19";
+var libgphoto2Version = "2.5.14.20";
 
 var getLibGPhoto2Version = "/usr/local/bin/gphoto2 --version | grep \"libgphoto2 \"";
 var installLibGPhoto2 = "/usr/bin/test -e /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb && dpkg -i /home/view/current/lib/libgphoto2_" + libgphoto2Version + "-1_armhf.deb";
@@ -38,7 +38,7 @@ function logDateHelper(logFileName) {
 		var minute = parseInt(m[5]);
 		var second = parseInt(m[6]);
 		var date = new Date(year, month, day, hour, minute, second, 0);
-		console.log(date);
+		//console.log(date);
 		return date;
 	} else {
 		return null;
