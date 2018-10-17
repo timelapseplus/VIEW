@@ -1948,7 +1948,7 @@ static struct {
 	{"Canon:EOS 5D Mark IV",		0x04a9, 0x3281, PTP_CAP|PTP_CAP_PREVIEW|PTP_DONT_CLOSE_SESSION},
 
 	/* Elijah Parker <mail@timelapseplus.com> */
-	{"Canon:EOS 5D Mark IV",		0x04a9, 0x32da, PTP_CAP|PTP_CAP_PREVIEW|PTP_DONT_CLOSE_SESSION},
+	{"Canon:EOS R",		0x04a9, 0x32da, PTP_CAP|PTP_CAP_PREVIEW|PTP_DONT_CLOSE_SESSION},
 
 	/* https://sourceforge.net/p/gphoto/feature-requests/445/ */
 	{"Canon:PowerShot Elph135",		0x04a9, 0x3288, PTPBUG_DELETE_SENDS_EVENT},
