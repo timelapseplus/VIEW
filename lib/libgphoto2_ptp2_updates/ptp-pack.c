@@ -2060,8 +2060,6 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 
 			ptp_debug (params, "event %d: propxtype is %x, prop is 0x%04x, data type is 0x%04x, propxcnt is %d.",
 				   i, propxtype, proptype, dpd->DataType, propxcnt);
-			if(proptype == 0xd103) ptp_debug (params, "event %d: prop is 0x%04x, current value is 0x%04x",
-				   i, proptype, dpd->CurrentValue.u16);
 			dpd->FormFlag = PTP_DPFF_Enumeration;
 			dpd->FORM.Enum.NumberOfValues = propxcnt;
 			free (dpd->FORM.Enum.SupportedValue);
@@ -2111,6 +2109,8 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 					break;
 				}
 			}
+			if(proptype == 0xd103) ptp_debug (params, "event %d: prop is 0x%04x, current value is 0x%04x",
+				   i, proptype, dpd->CurrentValue.u16);
 			break;
 		}
 		case PTP_EC_CANON_EOS_PropValueChanged:
