@@ -8128,7 +8128,7 @@ _get_config (Camera *camera, const char *confname, CameraWidget **outwidget, Cam
 				//GP_LOG_D ("Getting EOS property '%s' / 0x%04x", cursub->label, cursub->propid );
 				memset(&dpd,0,sizeof(dpd));
 				ptp_canon_eos_getdevicepropdesc (params,cursub->propid, &dpd);
-				GP_LOG_D ("Getting EOS property '%s' / 0x%04x, current = 0x%04x", cursub->label, cursub->propid, dpd.CurrentValue.u16);
+				GP_LOG_D ("Getting EOS property '%s' / 0x%04x, current=0x%04x, default=0x%04x", cursub->label, cursub->propid, dpd.CurrentValue.u16, dpd.FactoryDefaultValue.u16);
 
 				ret = cursub->getfunc (camera, &widget, cursub, &dpd);
 				ptp_free_devicepropdesc(&dpd);
