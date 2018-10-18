@@ -634,6 +634,7 @@ static struct {
 	 * The very first PTP camera (with special firmware only), also
 	 * called "PTP Prototype", may report non PTP interface class
 	 */
+#if 0
 	{"Kodak:DC240 (PTP mode)",  0x040a, 0x0121, 0},
 	/*
 	 * Old DC-4800 firmware reported custom interface class, so we have
@@ -883,6 +884,8 @@ static struct {
 	/* "Riccardo (C10uD)" <c10ud.dev@gmail.com> */
 	{"Sony:DSC-S730 (PTP mode)",  0x054c, 0x0296, 0},
 	{"Sony:DSC-S780 (PTP mode)",  0x054c, 0x0296, 0},
+#endif
+
 	/* Fernando Santoro <fernando.lopezjr@gmail.com> */
 	{"Sony:DSC-A100 (PTP mode)",  0x054c, 0x02c0, 0},
 	/* Sam Tseng <samtz1223@gmail.com> */
@@ -1023,8 +1026,8 @@ static struct {
 	{"Sony:Alpha-A9 (Control)",	0x054c, 0x0c2a, PTP_CAP|PTP_CAP_PREVIEW},
 
 	/* Elijah Parker, mail@timelapseplus.com */
-	{"Sony:Alpha-A7III (Control)",	0x054c, 0x0994, PTP_CAP|PTP_CAP_PREVIEW},
-	//{"Sony:Alpha-A7III (Control)",	0x054c, 0x0c34, PTP_CAP|PTP_CAP_PREVIEW}, // somehow this was causing problems
+	{"Sony:Alpha-A7 III (Control)",	0x054c, 0x0994, PTP_CAP|PTP_CAP_PREVIEW},
+	{"Sony:Alpha-A7 III (Control)",	0x054c, 0x0c34, PTP_CAP|PTP_CAP_PREVIEW}, // I'm not sure why there seems to be two product IDs
 
 	/* Andre Crone <andre@elysia.nl> */
 	{"Sony:DSC-RX100M4",          	0x054c, 0x0a6d, 0},
