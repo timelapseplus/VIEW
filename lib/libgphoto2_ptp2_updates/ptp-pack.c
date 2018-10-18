@@ -2034,10 +2034,10 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 				break;
 			}
 
-			ptp_debug (params, "event %d: EOS prop %04x desc record, datasize %d, propxtype %d", i, proptype, size-PTP_ece_Prop_Desc_Data, propxtype);
 			for (j=0;j<params->nrofcanon_props;j++)
 				if (params->canon_props[j].proptype == proptype)
 					break;
+			ptp_debug (params, "event %d: EOS prop %04x (%d) desc record, datasize %d, propxtype %d", i, proptype, j, size-PTP_ece_Prop_Desc_Data, propxtype);
 			if (j==params->nrofcanon_props) {
 				ptp_debug (params, "event %d: propdesc %x, default value not found.", i, proptype);
 				break;
@@ -2060,6 +2060,8 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 
 			ptp_debug (params, "event %d: propxtype is %x, prop is 0x%04x, data type is 0x%04x, propxcnt is %d.",
 				   i, propxtype, proptype, dpd->DataType, propxcnt);
+			if(proptype == 0xd103) ptp_debug (params, "event %d: prop is 0x%04x, current value is 0x%04x",
+				   i, proptype, dpd->CurrentValue.u16);
 			dpd->FormFlag = PTP_DPFF_Enumeration;
 			dpd->FORM.Enum.NumberOfValues = propxcnt;
 			free (dpd->FORM.Enum.SupportedValue);
