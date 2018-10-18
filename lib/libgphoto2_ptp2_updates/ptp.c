@@ -2502,6 +2502,7 @@ ptp_canon_eos_getdevicepropdesc (PTPParams* params, uint16_t propcode,
 		dpd->FactoryDefaultValue.str = strdup( params->canon_props[i].dpd.FactoryDefaultValue.str );
 		dpd->CurrentValue.str = strdup( params->canon_props[i].dpd.CurrentValue.str );
 	}
+	if(propcode == 0xd103) ptp_debug (params, "Retrieved EOS prop %04x (%d) = %04x\n", propcode, i, dpd->CurrentValue.u16);
 
 	return PTP_RC_OK;
 }

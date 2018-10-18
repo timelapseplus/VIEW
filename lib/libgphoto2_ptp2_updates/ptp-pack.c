@@ -2122,10 +2122,10 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 					ptp_debug (params, "size %d is smaller than %d", size, PTP_ece_Prop_Val_Data);
 					break;
 				}
-				ptp_debug (params, "event %d: EOS prop %04x info record, datasize is %d", i, proptype, size-PTP_ece_Prop_Val_Data);
 				for (j=0;j<params->nrofcanon_props;j++)
 					if (params->canon_props[j].proptype == proptype)
 						break;
+				ptp_debug (params, "event %d: EOS prop %04x (%d) info record, datasize is %d", i, proptype, j, size-PTP_ece_Prop_Val_Data);
 				if (j<params->nrofcanon_props) {
 					if (	(params->canon_props[j].size != size) ||
 						(memcmp(params->canon_props[j].data,xdata,size-PTP_ece_Prop_Val_Data))) {
