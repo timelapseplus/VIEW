@@ -2670,7 +2670,7 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 		if (i >= entries) {
 			ptp_debug (params, "BAD: i %d, entries %d", i, entries);
 		}
-		if(params->nrofcanon_props >= 5) ptp_debug (params, "----> EOS ISO: %04x", params->canon_props[5].dpd.CurrentValue.u16);
+		if(params->nrofcanon_props >= 5) ptp_debug (params, "ev %d ----> EOS ISO: %04x", i, params->canon_props[5].dpd.CurrentValue.u16);
 	}
 	if (!i) {
 		free (ce);
