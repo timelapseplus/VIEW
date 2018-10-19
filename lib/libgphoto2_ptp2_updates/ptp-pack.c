@@ -2676,6 +2676,11 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 		ce = NULL;
 	}
 	*pce = ce;
+
+	// debug EOS R -- somewhere this is changing...
+	if(params->nrofcanon_props >= 5) ptp_debug ("----> EOS ISO: %04x", params->canon_props[5].dpd->CurrentValue.u16);
+
+
 	return i;
 }
 
