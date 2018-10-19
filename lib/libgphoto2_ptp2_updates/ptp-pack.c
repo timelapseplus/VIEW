@@ -2435,8 +2435,8 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 				/* 6 bytes: 01 01 98 10 00 60 */
 				/* this seesm to be the shutter speed record */
 				proptype = PTP_DPC_CANON_EOS_ShutterSpeed;
-				dpd = _lookup_or_allocate_canon_prop(params, proptype);
-				dpd->CurrentValue.u16 = curdata[curoff+5]; /* just use last byte */
+				//dpd = _lookup_or_allocate_canon_prop(params, proptype);
+				//dpd->CurrentValue.u16 = curdata[curoff+5]; /* just use last byte */
 
 				ce[i].type = PTP_CANON_EOS_CHANGES_TYPE_PROPERTY;
 				ce[i].u.propid = proptype;
@@ -2447,8 +2447,8 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 				/* 5 bytes: 01 01 5b 30 30 */
 				/* this seesm to be the aperture record */
 				proptype = PTP_DPC_CANON_EOS_Aperture;
-				dpd = _lookup_or_allocate_canon_prop(params, proptype);
-				dpd->CurrentValue.u16 = curdata[curoff+4]; /* just use last byte */
+				//dpd = _lookup_or_allocate_canon_prop(params, proptype);
+				//dpd->CurrentValue.u16 = curdata[curoff+4]; /* just use last byte */
 
 				ce[i].type = PTP_CANON_EOS_CHANGES_TYPE_PROPERTY;
 				ce[i].u.propid = proptype;
@@ -2459,8 +2459,8 @@ ptp_unpack_CANON_changes (PTPParams *params, unsigned char* data, int datasize, 
 				/* 5 bytes: 01 01 00 78 */
 				/* this seesm to be the aperture record */
 				proptype = PTP_DPC_CANON_EOS_ISOSpeed;
-				dpd = _lookup_or_allocate_canon_prop(params, proptype);
-				dpd->CurrentValue.u16 = curdata[curoff+3]; /* just use last byte */
+				//dpd = _lookup_or_allocate_canon_prop(params, proptype);
+				//dpd->CurrentValue.u16 = curdata[curoff+3]; /* just use last byte */
 
 				ce[i].type = PTP_CANON_EOS_CHANGES_TYPE_PROPERTY;
 				ce[i].u.propid = proptype;
