@@ -7412,7 +7412,8 @@ get_file_func (CameraFilesystem *fs, const char *folder, const char *filename,
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW)) &&
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_MOV)) &&
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_MOV2)) &&
-			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW3))
+			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW3)) &&
+			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW4))
 		))
 			return GP_ERROR_NOT_SUPPORTED;
 		C_PTP_REP (ptp_getthumb(params, oid, &ximage, &xlen));
