@@ -426,7 +426,7 @@ function capture(options, callback) {
                             console.log("WORKER: running luminance calc on low-res preview...", lowResJpg.length, "bytes");
                             img = lowResJpg;
                         } else {
-                            console.log("WORKER: running luminance calc on full-res preview...");
+                            console.log("WORKER: running luminance calc on full-res preview...", photo.length, "bytes");
                             img = photo;
                         }
                         var startTime = new Date() / 1000;

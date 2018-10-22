@@ -1236,25 +1236,32 @@ intervalometer.validate = function(program) {
 
     var settingsDetails = camera.ptp.settings.details;
 
-    if(!settingsDetails.iso || settingsDetails.iso.ev == null) {
-        console.log("VAL: Error: invalid ISO setting", settingsDetails.iso);
-        results.errors.push({param:false, reason: "invalid ISO setting on camera."});
-    }
+    if(!settingsDetails) {
+        console.log("VAL: Error: invalid cameras settings", settingsDetails);
+        results.errors.push({param:false, reason: "unable to read camera settings."});
+    } else {
+    
+        if(!settingsDetails.iso || settingsDetails.iso.ev == null) {
+            console.log("VAL: Error: invalid ISO setting", settingsDetails.iso);
+            results.errors.push({param:false, reason: "invalid ISO setting on camera."});
+        }
 
-    if(!settingsDetails.shutter || settingsDetails.shutter.ev == null) {
-        console.log("VAL: Error: invalid shutter setting", settingsDetails.shutter);
-        results.errors.push({param:false, reason: "invalid shutter setting on camera."});
-    }
+        if(!settingsDetails.shutter || settingsDetails.shutter.ev == null) {
+            console.log("VAL: Error: invalid shutter setting", settingsDetails.shutter);
+            results.errors.push({param:false, reason: "invalid shutter setting on camera."});
+        }
 
-    if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd' && camera.ptp.sdPresent) {
-        if(camera.ptp.model == 'SonyWifi') {
-            console.log("VAL: Error: SonyWifi doesn't support Destination='SD'");
-            results.errors.push({param:false, reason: "Destination must be set to 'Camera' when connected to Sony cameras via Wifi"});
-        } else {
-            console.log("VAL: Error: camera not set to save in RAW");
-            results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+        if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd' && camera.ptp.sdPresent) {
+            if(camera.ptp.model == 'SonyWifi') {
+                console.log("VAL: Error: SonyWifi doesn't support Destination='SD'");
+                results.errors.push({param:false, reason: "Destination must be set to 'Camera' when connected to Sony cameras via Wifi"});
+            } else {
+                console.log("VAL: Error: camera not set to save in RAW");
+                results.errors.push({param:false, reason: "camera must be set to save in RAW. The VIEW expects RAW files when processing images to the SD card (RAW+JPEG does not work)"});
+            }
         }
     }
+
 
     if(!program.axes) program.axes = {};
     if(!program.axes.focus) program.axes.focus = {type:'disabled'}; // make focus adjustment available
