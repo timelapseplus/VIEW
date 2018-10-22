@@ -247,10 +247,8 @@ if (VIEW_HARDWARE) {
             } else {
                 console.log("WIFI: disconnected, trying to reconnect to " + previousConnection.ssid);
                 wifiConnectionTime = new Date().getTime();
-                var nmxStatus = motion.nmx.getStatus();
-                var gmStatus = motion.gm1.getStatus();
                 var btMotion = false;
-                if((nmxStatus.connected && nmxStatus.connectionType == "bt") || (gmStatus.connected && gmStatus.connectionType == "bt")) btMotion = true;
+                if(core.motionStatus.nmxConnectedBt || core.motionStatus.gmConnectedBt) btMotion = true;
                 if(core.intervalometerStatus.running && btMotion) { // don't reset wifi module if BT motion is connected
                     db.get('wifi-status', function(err, wifiStatus) {
                         if(wifiStatus && wifiStatus.enabled && wifiStatus.connect) {
@@ -5275,6 +5273,7 @@ core.on('camera.connected', function() {
         wifi.noReset = true;
         if(wifi.btEnabled) {
             wifi.blockBt();
+            console.log("MAIN: blocking BT for SonyWifi");
             btBlockedForSony = true;
         }
     }
