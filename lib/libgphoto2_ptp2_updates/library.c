@@ -7454,7 +7454,11 @@ get_file_func (CameraFilesystem *fs, const char *folder, const char *filename,
 				return GP_ERROR;
 			}
 
-			CR (gp_file_set_data_and_size (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr));
+			set_mimetype (file, params->deviceinfo.VendorExtensionID, PTP_OFC_EXIF_JPEG);
+			int jpeg_len = jpgEndPtr-jpgStartPtr;
+			unsigned char *jpeg = malloc(jpeg_len);
+			memcpy(jpeg, jpgStartPtr, jpeg_len);
+			CR (gp_file_set_data_and_size (file, (char*)jpeg, jpeg_len));
 
 
 		} else {
