@@ -1005,14 +1005,14 @@ function getConfig(noEvent, cached, cb) {
                                 for (var j = 0; j < l.length; j++) {
                                     if(l[j].values.length > 1) data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available shutter speeds, so define them here
                                 }
-                            } /* else if (item == 'f-number' && data.status && manufacturer == 'Sony Corporation') {
+                            }  else if (item == 'f-number' && data.status && manufacturer == 'Sony Corporation') {
                                 console.log("WORKER: manually adding aperture value list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
-                                supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
+                                //supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.apertureHalfs : LISTS.aperture;
                                 for (var j = 0; j < l.length; j++) {
                                     if(l[j].values.length > 1) data[section].children[item].choices.push(l[j].values[0]); // sony doesn't report available aperture values, so define them here
                                 }
-                            }*/
+                            }
                         } catch (e) {
                             console.log("WORKER: error manually adding shutter speeds/aperture values:", e);
                         }

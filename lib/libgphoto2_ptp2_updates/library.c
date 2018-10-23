@@ -7413,11 +7413,12 @@ get_file_func (CameraFilesystem *fs, const char *folder, const char *filename,
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_MOV)) &&
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_MOV2)) &&
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW3)) &&
-			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW4))
+			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW4)) &&
+			((ob->oi.ObjectFormat != PTP_OFC_SONY_RAW))
 		))
 			return GP_ERROR_NOT_SUPPORTED;
 
-		if(ob->oi.ObjectFormat == PTP_OFC_CANON_CRW4) {
+		if(ob->oi.ObjectFormat == PTP_OFC_CANON_CRW4 || ob->oi.ObjectFormat == PTP_OFC_SONY_RAW) {
 			unsigned char	*jpgStartPtr = NULL, *jpgEndPtr = NULL;
 			
 			C_PTP_REP (ptp_getpartialobject (params,
