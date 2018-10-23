@@ -1540,16 +1540,7 @@ ptp_getthumb (PTPParams* params, uint32_t handle, unsigned char** object, unsign
 	uint16_t	ret;
 
 	PTP_CNT_INIT(ptp, PTP_OC_GetThumb, handle);
-
-	ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, object, len);
-	//if(ret < 0) return ret;
-
-	//if(len < 100) {
-		usleep(100000);
-		PTP_CNT_INIT(ptp, PTP_OC_GetThumb, handle);
-		ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, object, len);
-	//}
-	return ret;
+	return ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, object, len);	
 }
 
 /**

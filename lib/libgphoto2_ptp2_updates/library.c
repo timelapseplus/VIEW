@@ -7416,9 +7416,53 @@ get_file_func (CameraFilesystem *fs, const char *folder, const char *filename,
 			((ob->oi.ObjectFormat != PTP_OFC_CANON_CRW4))
 		))
 			return GP_ERROR_NOT_SUPPORTED;
-		C_PTP_REP (ptp_getthumb(params, oid, &ximage, &xlen));
-		set_mimetype (file, params->deviceinfo.VendorExtensionID, ob->oi.ThumbFormat);
-		CR (gp_file_set_data_and_size (file, (char*)ximage, xlen));
+
+		if(ob->oi.ObjectFormat == PTP_OFC_CANON_CRW4) {
+			unsigned char	*jpgStartPtr = NULL, *jpgEndPtr = NULL;
+			
+			C_PTP_REP (ptp_getpartialobject (params,
+				oid, 0, 0x8000, &ximage, &xlen));
+
+			/* look for the JPEG SOI marker (0xFFD8) in data */
+			jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, xlen);
+			while(jpgStartPtr && ((jpgStartPtr+1) < (ximage + xlen))) {
+				if(*(jpgStartPtr + 1) == 0xd8) { /* SOI found */
+					break;
+				} else { /* go on looking (starting at next byte) */
+					jpgStartPtr++;
+					jpgStartPtr = (unsigned char*)memchr(jpgStartPtr, 0xff, ximage + xlen - jpgStartPtr);
+				}
+			}
+			if(!jpgStartPtr) { /* no SOI -> no JPEG */
+				gp_context_error (context, _("Unable to extract thumbnail image (1)"));
+				return GP_ERROR;
+			}
+			/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
+			   (just to be sure we will not go beyond the end of the data array) */
+			jpgEndPtr = (unsigned char*)memchr(jpgStartPtr+1, 0xff, ximage+xlen-jpgStartPtr-1);
+			while(jpgEndPtr && ((jpgEndPtr+1) < (ximage + xlen))) {
+				if(*(jpgEndPtr + 1) == 0xd9) { /* EOI found */
+					jpgEndPtr += 2;
+					break;
+				} else { /* go on looking (starting at next byte) */
+					jpgEndPtr++;
+					jpgEndPtr = (unsigned char*)memchr(jpgEndPtr, 0xff, ximage + xlen - jpgEndPtr);
+				}
+			}
+			if(!jpgEndPtr) { /* no EOI -> no JPEG */
+				gp_context_error (context, _("Unable to extract thumbnail image (2)"));
+				return GP_ERROR;
+			}
+
+			CR (gp_file_set_data_and_size (file, (char*)jpgStartPtr, jpgEndPtr-jpgStartPtr));
+
+
+		} else {
+			C_PTP_REP (ptp_getthumb(params, oid, &ximage, &xlen));
+			set_mimetype (file, params->deviceinfo.VendorExtensionID, ob->oi.ThumbFormat);
+			CR (gp_file_set_data_and_size (file, (char*)ximage, xlen));
+		}
+
 		break;
 	}
 	case	GP_FILE_TYPE_METADATA:
