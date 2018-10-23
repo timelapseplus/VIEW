@@ -1543,7 +1543,8 @@ ptp_getthumb (PTPParams* params, uint32_t handle, unsigned char** object, unsign
 
 	ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, object, len);
 	if(ret < 0) return ret;
-	if(len == 0) {
+
+	if(len < 100) {
 		usleep(100000);
 		ret = ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, object, len);
 	}
