@@ -209,6 +209,7 @@ var startWorker = function(port) {
                         if(worker.model.match(/(A7r III|A9|A7 III)/i)) {
                             console.log("PTP: matched sony, setting supports.destination = true");
                             worker.supports.destination = true;
+                            worker.supports.thumbnail = true;
                             worker.supports.focus = true;
                         } else {
                             console.log("PTP: matched sony, setting supports.destination = false");
