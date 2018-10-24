@@ -3327,7 +3327,6 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		memcpy(jpeg, jpgStartPtr, jpeg_len);
 		free(ximage);
 
-		C_PTP_REP (ret);
 		GP_LOG_D ("setting size");
 		ret = gp_file_set_data_and_size(file, (char*)jpeg, jpeg_len);
 	} else {
