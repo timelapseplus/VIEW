@@ -3282,7 +3282,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 	ret = gp_file_new(&file);
 	if (ret!=GP_OK) return ret;
 	gp_file_set_mtime (file, time(NULL));
-	set_mimetype (file, params->deviceinfo.VendorExtensionID, oi->ObjectFormat);
+	set_mimetype (file, params->deviceinfo.VendorExtensionID, PTP_OFC_EXIF_JPEG);
 	if(oi->ObjectFormat == PTP_OFC_SONY_RAW) {
 
 		unsigned char*jpgStartPtr = NULL, *jpgEndPtr = NULL;
@@ -4350,15 +4350,16 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 	C_PTP (ptp_getobjectinfo (params, newobject, &oi));
 
 	sprintf (path->folder,"/");
-	if (oi.ObjectFormat == PTP_OFC_SONY_RAW)
-		sprintf (path->name, "capt%04d.arw", capcnt++);
-	else
-		sprintf (path->name, "capt%04d.jpg", capcnt++);
 
 	char 			buf[1024];
 	if ((GP_OK == gp_setting_get("ptp2","capturetarget",buf)) && !strcmp(buf,"sdram")) {
+		if (oi.ObjectFormat == PTP_OFC_SONY_RAW)
+			sprintf (path->name, "capt%04d.arw", capcnt++);
+		else
+			sprintf (path->name, "capt%04d.jpg", capcnt++);
 		return add_objectid_and_upload (camera, path, context, newobject, &oi);
 	} else {
+		sprintf (path->name, "capt%04d.jpg", capcnt++);
 		return add_objectid_and_upload_thumbnail (camera, path, context, newobject, &oi); // thumbnail doesn't seem to work with Sony -- no data is returned
 	}
 }
