@@ -3293,8 +3293,6 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 
 		unsigned char*jpgStartPtr = NULL, *jpgEndPtr = NULL;
 		
-		C_PTP_REP (ptp_getobject_with_size (params, newobject, &ximage, &len));
-
 		/* look for the JPEG SOI marker (0xFFD8) in data */
 		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, len);
 		while(jpgStartPtr && ((jpgStartPtr+1) < (ximage + len))) {
