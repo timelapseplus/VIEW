@@ -791,10 +791,10 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             }
             for (var i = 0; i < list.length; i++) {
                 if (list[i].cameraName == value || list[i].name == value) {
-                    console.log("WORKER:  (set " + item + " = " + (list[i].cameraName || value) + ")");
                     if(item == 'f-number' && camera.model.match(/sony/i) && port != "SonyWifi") value = parseFloat(value);
+                    console.log("WORKER:  (set " + item + " = " + (value) + ")");
                     camera.setConfigValue(item, list[i].cameraName || value, function(err) {
-                        if(err) console.log("WORKER: (2) error setting " + item + " to '" + (list[i].cameraName || value) + "': ", err);
+                        if(err) console.log("WORKER: (2) error setting " + item + " to '" + value + "': ", err);
                         if (err) sendEvent('error', err);
                         if (callback) callback(err);
                     });
