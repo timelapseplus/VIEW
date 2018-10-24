@@ -3377,7 +3377,8 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 	info.preview.height	= oi->ThumbPixHeight;
 	info.preview.size	= oi->ThumbCompressedSize;
 	GP_LOG_D ("setting fileinfo in fs");
-	return gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
+	ret = gp_filesystem_set_info_noop(camera->fs, path->folder, path->name, info, context);
+	return GP_OK;
 }
 
 /**
