@@ -783,7 +783,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             if (toggle) {
                 console.log("WORKER:  (set " + item + " = " + value + ") (toggle)");
                 camera.setConfigValue(item, value, function(err) {
-                    console.log("WORKER: (1) error setting " + item + " to '" + value + "': ", err);
+                    if(err) console.log("WORKER: (1) error setting " + item + " to '" + value + "': ", err);
                     if (err) sendEvent('error', err);
                     if (callback) callback(err);
                 });
@@ -791,9 +791,9 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             }
             for (var i = 0; i < list.length; i++) {
                 if (list[i].cameraName == value || list[i].name == value) {
-                    console.log("WORKER:  (set " + item + " = " + value + ")");
+                    console.log("WORKER:  (set " + item + " = " + (list[i].cameraName || value) + ")");
                     camera.setConfigValue(item, list[i].cameraName || value, function(err) {
-                        console.log("WORKER: (2) error setting " + item + " to '" + (list[i].cameraName || value) + "': ", err);
+                        if(err) console.log("WORKER: (2) error setting " + item + " to '" + (list[i].cameraName || value) + "': ", err);
                         if (err) sendEvent('error', err);
                         if (callback) callback(err);
                     });
@@ -807,7 +807,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
         } else {
             console.log('WORKER: error', "item not found in list: " + item + " = [" + value + "] (trying anyway)");
             camera.setConfigValue(item, value, function(err) {
-                console.log("WORKER: (3) error setting " + item + " to '" + value + "': ", err);
+                if(err) console.log("WORKER: (3) error setting " + item + " to '" + value + "': ", err);
                 if (err) sendEvent('error', err);
                 if (callback) callback(err);
             });
@@ -865,6 +865,7 @@ function mapParam(type, value, halfs, manufacturer) {
     if(halfs) type += "Halfs";
     var list = LISTS[type];
     if (list && value != null) {
+        if(typeof value == 'number') value = Math.round(value * 100) / 100;
         value = value.toString().trim().toLowerCase();
         if(type == "aperture" && manufacturer == "OLYMPUS") {
             var origVal = value;
