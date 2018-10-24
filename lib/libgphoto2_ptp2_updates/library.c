@@ -3287,8 +3287,8 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 
 		unsigned char*jpgStartPtr = NULL, *jpgEndPtr = NULL;
 		
-		C_PTP_REP (ptp_getpartialobject (params,
-			newobject, 0, 0x8000, &ximage, &len));
+		C_PTP_REP (ptp_getobject (params,
+			newobject, &ximage, &len));
 
 		/* look for the JPEG SOI marker (0xFFD8) in data */
 		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, len);
@@ -3325,14 +3325,15 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		int jpeg_len = jpgEndPtr-jpgStartPtr;
 		unsigned char *jpeg = malloc(jpeg_len);
 		memcpy(jpeg, jpgStartPtr, jpeg_len);
+		free(ximage);
 
 		C_PTP_REP (ret);
 		GP_LOG_D ("setting size");
 		ret = gp_file_set_data_and_size(file, (char*)jpeg, jpeg_len);
 	} else {
 		GP_LOG_D ("fetching thumbnail");
-		ret = ptp_getthumb(params, newobject, &ximage, &len);
-		GP_LOG_E ("ptp_getthumb ret val %d, len = %d", ret, len);
+		ret = ptp_gettobject(params, newobject, &ximage, &len);
+		GP_LOG_E ("ptp_gettobject ret val %d, len = %d", ret, len);
 		C_PTP_REP (ret);
 		GP_LOG_D ("setting size");
 		ret = gp_file_set_data_and_size(file, (char*)ximage, len);
@@ -7500,6 +7501,7 @@ get_file_func (CameraFilesystem *fs, const char *folder, const char *filename,
 			int jpeg_len = jpgEndPtr-jpgStartPtr;
 			unsigned char *jpeg = malloc(jpeg_len);
 			memcpy(jpeg, jpgStartPtr, jpeg_len);
+			free(ximage);
 			CR (gp_file_set_data_and_size (file, (char*)jpeg, jpeg_len));
 
 
