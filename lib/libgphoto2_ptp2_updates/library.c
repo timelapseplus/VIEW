@@ -3287,7 +3287,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 
 		unsigned char*jpgStartPtr = NULL, *jpgEndPtr = NULL;
 		
-		C_PTP_REP (ptp_getobject (params,
+		C_PTP_REP (ptp_getobject_with_size (params,
 			newobject, &ximage, &len));
 
 		/* look for the JPEG SOI marker (0xFFD8) in data */
@@ -3332,7 +3332,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		ret = gp_file_set_data_and_size(file, (char*)jpeg, jpeg_len);
 	} else {
 		GP_LOG_D ("fetching thumbnail");
-		ret = ptp_gettobject(params, newobject, &ximage, &len);
+		ret = ptp_getobject_with_size(params, newobject, &ximage, &len);
 		GP_LOG_E ("ptp_gettobject ret val %d, len = %d", ret, len);
 		C_PTP_REP (ret);
 		GP_LOG_D ("setting size");
