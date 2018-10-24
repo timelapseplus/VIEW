@@ -3283,12 +3283,17 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 	if (ret!=GP_OK) return ret;
 	gp_file_set_mtime (file, time(NULL));
 	set_mimetype (file, params->deviceinfo.VendorExtensionID, PTP_OFC_EXIF_JPEG);
+
+	GP_LOG_D ("fetching thumbnail");
+	ret = ptp_getobject_with_size(params, newobject, &ximage, &len);
+	GP_LOG_E ("ptp_gettobject ret val %d, len = %d", ret, len);
+	C_PTP_REP (ret);
+
 	if(oi->ObjectFormat == PTP_OFC_SONY_RAW) {
 
 		unsigned char*jpgStartPtr = NULL, *jpgEndPtr = NULL;
 		
-		C_PTP_REP (ptp_getobject_with_size (params,
-			newobject, &ximage, &len));
+		C_PTP_REP (ptp_getobject_with_size (params, newobject, &ximage, &len));
 
 		/* look for the JPEG SOI marker (0xFFD8) in data */
 		jpgStartPtr = (unsigned char*)memchr(ximage, 0xff, len);
@@ -3302,7 +3307,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		}
 		if(!jpgStartPtr) { /* no SOI -> no JPEG */
 			gp_context_error (context, _("Unable to extract thumbnail image (1)"));
-			return GP_ERROR;
+			return GP_ERROR_CORRUPTED_DATA;
 		}
 		/* if SOI found, start looking for EOI marker (0xFFD9) one byte after SOI
 		   (just to be sure we will not go beyond the end of the data array) */
@@ -3318,7 +3323,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		}
 		if(!jpgEndPtr) { /* no EOI -> no JPEG */
 			gp_context_error (context, _("Unable to extract thumbnail image (2)"));
-			return GP_ERROR;
+			return GP_ERROR_CORRUPTED_DATA;
 		}
 
 		set_mimetype (file, params->deviceinfo.VendorExtensionID, PTP_OFC_EXIF_JPEG);
@@ -3330,12 +3335,9 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		GP_LOG_D ("setting size");
 		ret = gp_file_set_data_and_size(file, (char*)jpeg, jpeg_len);
 	} else {
-		GP_LOG_D ("fetching thumbnail");
-		ret = ptp_getobject_with_size(params, newobject, &ximage, &len);
-		GP_LOG_E ("ptp_gettobject ret val %d, len = %d", ret, len);
-		C_PTP_REP (ret);
 		GP_LOG_D ("setting size");
 		ret = gp_file_set_data_and_size(file, (char*)ximage, len);
+
 	}
 	if (ret != GP_OK) {
 		gp_file_free (file);
