@@ -398,8 +398,6 @@ function capture(options, callback) {
             thumbnail: (options.thumbnail && supports.thumbnail) ? true : false,
             keepOnCamera: (options.removeFromCamera) ? false : true
         }
-        console.log("supports.thumbnail", supports.thumbnail);
-        console.log("options.thumbnail", options.thumbnail);
     }
     console.log("cameraOptions:", captureOptions);
     //console.log("options:", options);
