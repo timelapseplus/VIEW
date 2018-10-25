@@ -3348,7 +3348,7 @@ add_objectid_and_upload_thumbnail (Camera *camera, CameraFilePath *path, GPConte
 		return ret;
 	}
 	GP_LOG_D ("adding filedata to fs");
-	ret = gp_filesystem_set_file_noop(camera->fs, path->folder, path->name, GP_FILE_TYPE_NORMAL, file, context);
+	ret = gp_filesystem_set_file_noop(camera->fs, path->folder, path->name, GP_FILE_TYPE_PREVIEW, file, context);
         if (ret != GP_OK) {
 		gp_file_free (file);
 		return ret;
