@@ -910,11 +910,11 @@ function focusSony(step, repeat, callback) {
     var param;
     if (!step) return callback && callback(null, camera.focusPos);
     if (step < 0) {
-        param = -2;
-        if (step < -1) param = -5;
+        param = -2.01;
+        if (step < -1) param = -5.01;
     } else {
-        param = 2;
-        if (step > 1) param = 5;
+        param = 1.99;
+        if (step > 1) param = 4.99;
     }
 
     if(Math.abs(step) == 1) {
