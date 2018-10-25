@@ -802,6 +802,9 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
                         value = parseFloat(value);
                         if(Math.round(value) == value) value += 0.000000001;
                     }
+                    if(item == 'manualfocus' && camera.model.match(/sony/i) && port != "SonyWifi") {
+                        value = parseInt(value);
+                    }
                     console.log("WORKER:  (set " + item + " = " + value + ") (" + typeof(value) + ")");
                     camera.setConfigValue(item, value, function(err) {
                         if(err) console.log("WORKER: (2) error setting " + item + " to '" + value + "': ", err);
