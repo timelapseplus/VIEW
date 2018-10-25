@@ -4762,31 +4762,34 @@ app.on('message', function(msg) {
 
             case 'focus':
                 if (msg.key == "manual") {
-                    if()
-                }
-
-                (function(lastLV) {
-                    if(!lastLV && core.cameraModel.match(/canon|nikon/i)) {
-                        core.preview(function(){
+                    (function(lastLV) {
+                        if(!lastLV && core.cameraModel.match(/canon|nikon/i)) {
+                            core.preview(function(){
+                                core.focus(msg.val, msg.repeat, function(err, pos){
+                                    console.log("MAIN: focus complete");
+                                    msg.reply('focus', {
+                                        complete: true,
+                                        position: pos
+                                    });
+                                    core.lvOff();
+                                });
+                            });
+                        } else {
                             core.focus(msg.val, msg.repeat, function(err, pos){
                                 console.log("MAIN: focus complete");
                                 msg.reply('focus', {
                                     complete: true,
                                     position: pos
                                 });
-                                core.lvOff();
                             });
-                        });
-                    } else {
-                        core.focus(msg.val, msg.repeat, function(err, pos){
-                            console.log("MAIN: focus complete");
-                            msg.reply('focus', {
-                                complete: true,
-                                position: pos
-                            });
-                        });
-                    }
-                })(liveviewOn);
+                        }
+                    })(liveviewOn);
+                } else {
+                    msg.reply('focus', {
+                        complete: true,
+                        position: pos
+                    });
+                }
                 break;
 
             case 'capture':
