@@ -116,9 +116,9 @@ process.on('message', function(msg) {
                 //waitEvent();
 
                 console.log('WORKER: Found', camera.model);
-                //GPhoto.onLog(0, function(level, dom, message) {
-                //    console.log("LIBGPHOTO2:", level, dom, message);
-                //});
+                GPhoto.onLog(0, function(level, dom, message) {
+                    console.log("LIBGPHOTO2:", level, dom, message);
+                });
 
                 getConfig(false, false, function() {
                     sendEvent('connected', camera.model);
