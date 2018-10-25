@@ -1407,7 +1407,7 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 	inttype			origval;						\
 	time_t			start,end;						\
 											\
-	GP_LOG_D("setting 0x%04x to 0x%08x", prop, value);				\
+	GP_LOG_E("setting 0x%04x to 0x%08x", prop, value);				\
 											\
 	/*C_PTP_REP (ptp_generic_getdevicepropdesc (params, prop, &dpd));			\
 	if (value == dpd.CurrentValue.bits) {						\
@@ -1434,7 +1434,7 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 				gp_context_error (context, _("Target value is not in enumeration."));\
 				return GP_ERROR_BAD_PARAMETERS;				\
 			}								\
-			GP_LOG_D("posnew %d, posorig %d, value %d", posnew, posorig, value);	\
+			GP_LOG_E("posnew %d, posorig %d, value %d", posnew, posorig, value);	\
 			if (posnew == posorig)						\
 				break;							\
 			if (posnew > posorig)						\
@@ -1474,7 +1474,7 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 		} while (end-start <= 3);						\
 											\
 		if (dpd.CurrentValue.bits == value) {					\
-			GP_LOG_D ("Value matched!");					\
+			GP_LOG_E ("Value matched!");					\
 			break;								\
 		}									\
 		if (dpd.CurrentValue.bits == origval) {					\
@@ -1498,11 +1498,11 @@ _put_sony_value_##bits (PTPParams*params, uint16_t prop, inttype value,int useen
 			GP_LOG_D("posnow %d, value %d", posnow, dpd.CurrentValue.bits);	\
 			if ((posnow == 0) && (propval.u8 == 0xff)) {			\
 				gp_context_error (context, _("Sony was not able to set the new value, is it valid?"));	\
-				GP_LOG_D ("hit bottom of enumeration, not good.");	\
+				GP_LOG_E ("hit bottom of enumeration, not good.");	\
 				return GP_ERROR;					\
 			}								\
 			if ((posnow == dpd.FORM.Enum.NumberOfValues-1) && (propval.u8 == 0x01)) {			\
-				GP_LOG_D ("hit top of enumeration, not good.");		\
+				GP_LOG_E ("hit top of enumeration, not good.");		\
 				gp_context_error (context, _("Sony was not able to set the new value, is it valid?"));	\
 				return GP_ERROR;					\
 			}								\

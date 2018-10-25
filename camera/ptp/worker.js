@@ -428,21 +428,30 @@ function capture(options, callback) {
                             img = photo;
                         }
                         var startTime = new Date() / 1000;
-                        image.exposureValue(img, function(err, ev, histogram) {
-                            console.log("WORKER: adjusting ev by ", options.exposureCompensation);
-                            ev = ev + options.exposureCompensation;
-                            var processingTime = (new Date() / 1000) - startTime;
-                            console.log("WORKER: luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
-                            sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
-                            sendEvent('histogram', histogram);
-                            //sendEvent('ev', ev);
-                            if (callback) callback(err, {
-                                ev: ev,
-                                histogram: histogram,
+                        try {
+                            image.exposureValue(img, function(err, ev, histogram) {
+                                console.log("WORKER: adjusting ev by ", options.exposureCompensation);
+                                ev = ev + options.exposureCompensation;
+                                var processingTime = (new Date() / 1000) - startTime;
+                                console.log("WORKER: luminance calc complete. ev:", ev, "Processed in ", processingTime, "seconds");
+                                sendEvent('status', "photo ev: " + (Math.round(ev * 100) / 100));
+                                sendEvent('histogram', histogram);
+                                //sendEvent('ev', ev);
+                                if (callback) callback(err, {
+                                    ev: ev,
+                                    histogram: histogram,
+                                    file: info,
+                                    thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
+                                });
+                            });
+                        } catch(e) {
+                            if (callback) callback(e, {
+                                ev: null,
+                                histogram: null,
                                 file: info,
                                 thumbnailPath: thumbnailFileFromIndex(options.index, options.cameraIndex)
                             });
-                        });
+                        }
                     });
                 } else {
                     sendEvent('status', "photo saved to camera");
