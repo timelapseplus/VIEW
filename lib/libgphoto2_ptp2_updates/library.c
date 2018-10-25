@@ -4360,7 +4360,7 @@ camera_sony_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pat
 			sprintf (path->name, "capt%04d.jpg", capcnt++);
 		return add_objectid_and_upload (camera, path, context, newobject, &oi);
 	} else {
-		sprintf (path->name, "capt%04d.jpg", capcnt++);
+		sprintf (path->name, "capt0000.jpg");
 		return add_objectid_and_upload_thumbnail (camera, path, context, newobject, &oi); // thumbnail doesn't seem to work with Sony -- no data is returned
 	}
 }
