@@ -4372,6 +4372,8 @@ if (VIEW_HARDWARE) {
                 gestureVideoPlaying = false;
                 oled.stopVideo();
                 gestureModeTimer();
+            } else if(ui.currentOrigin() == 'alert') {
+                ui.back();
             } else {
                 gestureMode = false;
                 oled.hide();
