@@ -800,7 +800,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
                 if (list[i].cameraName == value || list[i].name == value) {
                     if(item == 'f-number' && camera.model.match(/sony/i) && port != "SonyWifi") {
                         value = parseFloat(value);
-                        if(isInteger(value) value += 0.000000001);
+                        if(isInteger(value)) value += 0.000000001;
                     }
                     console.log("WORKER:  (set " + item + " = " + value + ") (" + typeof(value) + ")");
                     camera.setConfigValue(item, value, function(err) {
