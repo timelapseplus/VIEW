@@ -5129,12 +5129,16 @@ app.on('message', function(msg) {
             case 'get':
                 if (msg.key == "settings") {
                     if (core.cameraConnected) {
-                        core.getSettings(function() {
-                            core.cameraSettings.stats = lists.evStats(core.cameraSettings);
-                            msg.reply('settings', {
-                                settings: core.cameraSettings
+                        if(core.intervalometerStatus && core.intervalometerStatus.running) {
+                            settings: core.cameraSettings
+                        } else {
+                            core.getSettings(function() {
+                                core.cameraSettings.stats = lists.evStats(core.cameraSettings);
+                                msg.reply('settings', {
+                                    settings: core.cameraSettings
+                                });
                             });
-                        });
+                        }
                     } else {
                         msg.reply('settings', {
                             settings: null,
