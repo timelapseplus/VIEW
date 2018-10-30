@@ -2535,6 +2535,8 @@ if (VIEW_HARDWARE) {
                                         });
                                     } else {
                                         wifi.unblockBt();
+                                        core.watchdogEnable();
+                                        power.enableAutoOff();
                                         ui.status('error updating');
                                         if(cb) cb();
                                         ui.back();
@@ -2542,7 +2544,10 @@ if (VIEW_HARDWARE) {
                                 }, function(statusUpdate) {
                                     oled.value([{
                                         name: statusUpdate,
-                                        value: "Please Wait"
+                                        value: "Please Wait",
+                                        button3: function() {
+                                            updates.cancel(); // needs confirmation prompt
+                                        }
                                     }]);
                                     ui.status(statusUpdate);
                                     oled.update();

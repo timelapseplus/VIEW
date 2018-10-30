@@ -131,13 +131,15 @@ function apiRequest(method, callback) {
 	});
 }
 
+var dl = null;
 function download(href, path, progressCallback, callback) {
     console.log("UPDATES: downloading " + href);
     var downloadSize = null;
-	var dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
+	dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);
+		dl = null;
 	});
 	dl.on('start', function(fileSize) {
 	    downloadSize = fileSize;
@@ -145,43 +147,25 @@ function download(href, path, progressCallback, callback) {
 	});
 	dl.on('end', function(output) {
 	    console.log("UPDATES: download complete: ", output);
-		callback(null, path);
+	    if(dl.cancelled) {
+			callback("cancelled");
+	    } else {
+			callback(null, path);
+	    }
+		dl = null;
 	});
 	dl.on('progress', function(bytesDownloaded) {
 		progressCallback && progressCallback(bytesDownloaded, downloadSize);
 	});
-	//var options = url.parse(href);
-	//options.headers = {'user-agent': 'VIEW-app'};
-	//options.method = "GET";
-	////options.auth = username+':'+accessToken;
-
-	//var req = https.get(options, function(res) {
-	//	//console.log(`STATUS: ${res.statusCode}`);
-	//	//console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-	//	if(res.statusCode == 302 && res.headers.location) {
-	//		download(res.headers.location, path, callback);
-	//		return;
-	//	}
-	//	var fd = fs.openSync(path, 'w');
-	//	if(!fd) callback("error creating " + path);
-	//	res.on('data', function(chunk) {
-	//		var bytes = 0;
-	//		if(fd) bytes = fs.writeSync(fd, chunk, 0, chunk.length);
-	//		//console.log("Writing " + bytes + " bytes to file ", fd, chunk.length);
-	//	});
-	//	res.on('end', function() {
-	//		if(fd) {
-	//			fs.closeSync(fd);
-	//			callback(null, path);
-	//		}
-	//	});
-
-	//});
-	//req.end();
-	//req.on('error', function(err) {
-	//	callback(err);
-	//});
 }
+
+function cancelDownload() {
+	if(dl && dl.req && dl.req.abort) {
+		dl.cancelled = true;
+		dl.req.abort();
+	}
+}
+
 
 function extract(zipPath, destFolder, callback) {
 	exec("test -e " + destFolder + '_zip_extract' + " && rm -rf " + destFolder + '_zip_extract', function(err){
@@ -564,6 +548,7 @@ exports.getValidVersionFromSdCard = function(callback) {
 
 
 exports.download = download;
+exports.cancel = cancelDownload;
 exports.extract = extract;
 exports.apiRequest = apiRequest;
 

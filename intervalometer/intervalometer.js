@@ -1333,6 +1333,9 @@ intervalometer.resume = function() {
         intervalometer.internal.polarTrackIntervalHandle = null;
         motion.joystick(intervalometer.internal.polarMotorBacklash.driver, intervalometer.internal.polarMotorBacklash.motor, 0);
     }
+    if(intervalometer.status.rampMode != 'fixed' && intervalometer.status.rampEv != null) {
+        camera.setEv(intervalometer.status.rampEv, getEvOptions());
+    }
     var ms = intervalometer.status.intervalMs - ((new Date() / 1000) - (intervalometer.status.startTime + intervalometer.status.lastPhotoTime)) * 1000;
     if(ms < 0) ms = 0;
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
