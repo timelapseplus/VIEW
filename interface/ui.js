@@ -292,7 +292,7 @@ exports.dismissAlert = function() {
 }
 exports.button3 = function() {
     activity();
-    if(exports.busy) return;
+    //if(exports.busy) return;
     //beep.play(beepClick);
     if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
         currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);

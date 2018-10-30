@@ -2435,6 +2435,8 @@ if (VIEW_HARDWARE) {
     }
 
     var versionUpdateConfirmMenuBuild = function(versionTarget) {
+        var statusValue = null;
+        var cancelPrompt = false;
         return {
             name: "Install version " + versionTarget.version + "?",
             type: "options",
@@ -2542,15 +2544,35 @@ if (VIEW_HARDWARE) {
                                         ui.back();
                                     }
                                 }, function(statusUpdate) {
-                                    oled.value([{
+                                    ui.activity();
+                                    statusValue = [{
                                         name: statusUpdate,
                                         value: "Please Wait",
                                         button3: function() {
-                                            updates.cancel(); // needs confirmation prompt
+                                            oled.value([{
+                                                name: "Cancel firmware download?",
+                                                value: "go back",
+                                                action: function() {
+                                                    cancelPrompt = false;
+                                                    oled.value(statusValue);
+                                                    oled.update();
+                                                }
+                                            },{
+                                                name: "Cancel firmware download?",
+                                                value: "cancel download",
+                                                action: function() {
+                                                    cancelPrompt = false;
+                                                    updates.cancel(); // needs confirmation prompt
+                                                }
+                                            }]);
+                                            oled.update();
                                         }
-                                    }]);
-                                    ui.status(statusUpdate);
-                                    oled.update();
+                                    }];
+                                    if(!cancelPrompt) {
+                                        oled.value(statusValue);
+                                        ui.status(statusUpdate);
+                                        oled.update();
+                                    }
                                     oled.activity();
                                 });
                             }
@@ -2560,6 +2582,7 @@ if (VIEW_HARDWARE) {
             }]
         }
     }
+
 
     var softwareMenu = function(cb) {
         var buildUpdateMenu = function(err, versions) {
