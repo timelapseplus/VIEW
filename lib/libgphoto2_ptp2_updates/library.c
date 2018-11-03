@@ -1401,6 +1401,9 @@ static struct {
 	/* Elijah Parker <mail@timelapseplus.com> */
 	{"Nikon:DSC D850",                0x04b0, 0x0441, PTP_CAP|PTP_CAP_PREVIEW},
 
+	/* Elijah Parker <mail@timelapseplus.com> */
+	{"Nikon:Z7",                0x04b0, 0x0442, PTP_CAP|PTP_CAP_PREVIEW},
+
 	/* http://sourceforge.net/tracker/?func=detail&aid=3536904&group_id=8874&atid=108874 */
 	{"Nikon:V1",    		  0x04b0, 0x0601, PTP_CAP|PTP_NIKON_1},
 	/* https://sourceforge.net/tracker/?func=detail&atid=358874&aid=3556403&group_id=8874 */
