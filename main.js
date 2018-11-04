@@ -2544,7 +2544,7 @@ if (VIEW_HARDWARE) {
                                         ui.back();
                                     }
                                 }, function(statusUpdate) {
-                                    ui.activity();
+                                    oled.activity();
                                     statusValue = [{
                                         name: statusUpdate,
                                         value: "Please Wait",
