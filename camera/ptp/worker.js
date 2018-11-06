@@ -798,6 +798,7 @@ function set(item, value, callback) { // item can be 'iso', 'aperture', 'shutter
             }
             for (var i = 0; i < list.length; i++) {
                 if (list[i].cameraName == value || list[i].name == value) {
+                    value = list[i].cameraName;
                     if(item == 'f-number' && camera.model.match(/sony/i) && port != "SonyWifi") {
                         value = parseFloat(value);
                         if(Math.round(value) == value) value += 0.000000001;
