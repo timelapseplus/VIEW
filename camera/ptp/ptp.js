@@ -975,6 +975,7 @@ function focusNikon(step, repeat, callback) {
             delay = 50;
         }
     }
+    param += Math.random() / 100;
 
     if(Math.abs(step) == 1) {
         camera.focusPos += (step * repeat);
