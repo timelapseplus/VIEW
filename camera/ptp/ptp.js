@@ -53,6 +53,7 @@ camera.cameraList = function(callback) {
 }
 
 camera.switchPrimary = function(cameraObject, callback) {
+    if(camera.lvOn) camera.lvOff();
     if(cameraObject._port) {
         console.log("switching primary camera to ", cameraObject.model);            
         var index = getWorkerIndex(cameraObject._port);
@@ -545,6 +546,7 @@ camera.capture = function(options, callback) {
                     console.log("PTP: resuming LV");
                     camera.preview();
                 }, 1000);
+                callback && callback(err, res);
             });
         }, true);
     }
