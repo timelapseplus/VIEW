@@ -295,6 +295,7 @@ camera.setEv = function(ev, options, cb) {
         }
 
         if(options.doNotSet) {
+            console.log("setEv: done, not applying changes.");
             if (cb) return cb(null, {
                 ev: currentEv,
                 shutter: shutter,
@@ -319,6 +320,7 @@ camera.setEv = function(ev, options, cb) {
         });
 
         runQueue(setQueue, function() {
+            console.log("setEv: done.");
             if (cb) cb(null, {
                 ev: currentEv,
                 shutter: shutter,
