@@ -977,7 +977,6 @@ function focusNikon(step, repeat, callback) {
             delay *= 2;
         }
     }
-    param += Math.random() / 100;
 
     if(Math.abs(step) == 1) {
         camera.focusPos += (step * repeat);
@@ -992,7 +991,7 @@ function focusNikon(step, repeat, callback) {
             worker.send({
                 type: 'camera',
                 setDirect: 'manualfocusdrive',
-                value: param,
+                value: param + Math.random() / 100,
                 id: getCallbackId(worker.port, 'focusNikon', function(err) {
                     if(err) {
                         errCount++;
