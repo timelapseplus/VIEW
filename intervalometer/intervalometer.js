@@ -661,7 +661,8 @@ function setupExposure(cb) {
         });
     }
     busyExposure = true;
-    camera.ptp.getSettings(function() {
+    var doSetup = function() {
+        if(intervalometer.status.stopping) return cb && cb();
         console.log("EXP: current interval: ", intervalometer.status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
         var diff = 0;
         if(!intervalometer.status.rampEv) {
@@ -696,6 +697,7 @@ function setupExposure(cb) {
                 var options = getEvOptions();
                 options.doNotSet = true;
                 camera.setEv(intervalometer.status.rampEv + intervalometer.status.hdrMax, options, function(err, res) {
+                    if(intervalometer.status.stopping) return cb && cb();
                     camera.setExposure(res.shutter.ev + diff - intervalometer.status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
                         if(ev != null) {
                             intervalometer.status.cameraEv = ev;
@@ -724,7 +726,12 @@ function setupExposure(cb) {
                 });
             }
         }
-    });
+    }
+    if(if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0)) { // speed HDR performance by not refreshing settings from camera
+        doSetup();
+    } else {
+        camera.ptp.getSettings(doSetup);
+    }
 }
 
 function planHdr(hdrCount, hdrStops) {
