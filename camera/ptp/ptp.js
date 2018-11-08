@@ -960,19 +960,21 @@ function focusSony(step, repeat, callback) {
 function focusNikon(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
-    var param, delay = 200;
+    var param;
     if (!step) return callback && callback(null, camera.focusPos);
+    var baseMove = worker.model.match(/nikon dsc z/i) ? 50 : 20;
+    var delay = worker.model.match(/nikon dsc z/i) ? 50 : 200;
     if (step < 0) {
-        param = -20.5;
+        param = -(baseMove + 0.5);
         if (step < -1) { 
-            param = -200.5;
-            delay = 50;
+            param = -(baseMove * 10 + 0.5);
+            delay *= 2;
         }
     } else {
-        param = 20.5;
+        param = baseMove + 0.5;
         if (step > 1) {
-            param = 200.5;
-            delay = 50;
+            param = baseMove * 10 + 0.5;
+            delay *= 2;
         }
     }
     param += Math.random() / 100;
