@@ -5524,6 +5524,7 @@ _put_Nikon_MFDrive(CONFIG_PUT_ARGS) {
 		flag = 0x2;
 	}
 	if (!xval) xval = 1;
+	nikon_wait_busy (&camera->pl->params, 20, 1000);
 	ret = LOG_ON_PTP_E (ptp_nikon_mfdrive (&camera->pl->params, flag, xval));
 	if (ret == PTP_RC_NIKON_NotLiveView) {
 		gp_context_error (context, _("Nikon manual focus works only in LiveView mode."));
