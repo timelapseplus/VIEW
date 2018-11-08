@@ -727,7 +727,7 @@ function setupExposure(cb) {
             }
         }
     }
-    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) { // speed HDR performance by not refreshing settings from camera
+    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && diff != 0) { // speed HDR performance by not refreshing settings from camera
         doSetup();
     } else {
         camera.ptp.getSettings(doSetup);
@@ -1309,8 +1309,10 @@ intervalometer.cancel = function(reason, callback) {
         intervalometer.emit("intervalometer.status", intervalometer.status);
         camera.ptp.completeWrites(function() {
             if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
-                var options = getEvOptions();
-                camera.setEv(intervalometer.status.rampEv, options);
+                camera.ptp.getSettings(function() {
+                    var options = getEvOptions();
+                    camera.setEv(intervalometer.status.rampEv, options);
+                });
             }
             busyPhoto = false;
             intervalometer.status.running = false;
