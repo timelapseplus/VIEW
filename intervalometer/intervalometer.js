@@ -727,7 +727,7 @@ function setupExposure(cb) {
             }
         }
     }
-    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0)) { // speed HDR performance by not refreshing settings from camera
+    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) { // speed HDR performance by not refreshing settings from camera
         doSetup();
     } else {
         camera.ptp.getSettings(doSetup);
