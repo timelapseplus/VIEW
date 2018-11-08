@@ -661,24 +661,26 @@ function setupExposure(cb) {
         });
     }
     busyExposure = true;
+
+    var diff = 0;
+    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+        if(!intervalometer.status.hdrIndex) intervalometer.status.hdrIndex = 0;
+        if(intervalometer.status.hdrIndex < intervalometer.status.hdrSet.length) {
+            diff = intervalometer.status.hdrSet[intervalometer.status.hdrIndex];
+            intervalometer.status.hdrIndex++;
+        } else {
+            intervalometer.status.hdrIndex = 0;
+        }
+        console.log("HDR adjustment:", diff, intervalometer.status.hdrIndex);
+    }
+
     var doSetup = function() {
         if(intervalometer.status.stopping) return cb && cb();
         console.log("EXP: current interval: ", intervalometer.status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-        var diff = 0;
         if(!intervalometer.status.rampEv) {
             intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
         }
         dynamicChangeUpdate();
-        if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
-            if(!intervalometer.status.hdrIndex) intervalometer.status.hdrIndex = 0;
-            if(intervalometer.status.hdrIndex < intervalometer.status.hdrSet.length) {
-                diff = intervalometer.status.hdrSet[intervalometer.status.hdrIndex];
-                intervalometer.status.hdrIndex++;
-            } else {
-                intervalometer.status.hdrIndex = 0;
-            }
-            console.log("HDR adjustment:", diff, intervalometer.status.hdrIndex);
-        }
         if(intervalometer.status.rampMode == 'preset') {
             camera.setExposure(intervalometer.status.shutterPreset + diff, intervalometer.status.aperturePreset, intervalometer.status.isoPreset, function(err, ev) {
                 if(ev != null) {
