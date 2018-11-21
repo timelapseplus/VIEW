@@ -3726,6 +3726,7 @@ if (VIEW_HARDWARE) {
             action: function(cb) {
                 db.set('timezone', tz.toString());
                 mcu.timezone = tz;
+                ui.back();
                 cb && cb();
             }
         }
@@ -4066,7 +4067,7 @@ if (VIEW_HARDWARE) {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
         }, {
-            name: "Set Timezone",
+            name: valueDisplay("Set Timezone", mcu, 'timezone'),
             help: help.setTimezone,
             action: setTimezoneMenu
         }, {
