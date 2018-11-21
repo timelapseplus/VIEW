@@ -3733,7 +3733,7 @@ if (VIEW_HARDWARE) {
 
     var setTimezoneMenu = {
         name: "Time Zone",
-        type: "menu",
+        type: "options",
         items: [
             buildTimeZone(-11),
             buildTimeZone(-10),
