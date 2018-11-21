@@ -3715,7 +3715,7 @@ if (VIEW_HARDWARE) {
     }
 
     var buildTimeZone = function(tz) {
-        var tzString = tx.toString();
+        var tzString = tz.toString();
         if(tzString.length < 2) tzString = '0' + tzString;
         if(tz >= 0) tzString = '+' + tzString;
 
