@@ -46,7 +46,7 @@ mcu.timezoneOffset = function() {
 mcu.now = function() {
 	var now = moment();
 	now.utcOffset(mcu.timezoneOffset());
-	return now();
+	return now;
 }
 
 mcu.setDate = function(date) {
