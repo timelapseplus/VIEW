@@ -3726,7 +3726,7 @@ if (VIEW_HARDWARE) {
             action: ui.set(mcu, 'timezone', tzString, function(cb) {
                 db.set('timezone', tzString.toString());
                 cb && cb();
-            }
+            })
         }
     }
 
