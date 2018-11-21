@@ -3724,10 +3724,11 @@ if (VIEW_HARDWARE) {
             value: "GMT" + tzString + ":00",
             help: help.setTimezone,
             action: function(cb) {
-                db.set('timezone', tz);
+                db.set('timezone', tz.toString());
                 mcu.timezone = tz;
                 cb && cb();
             }
+        }
     }
 
     var setTimezoneMenu = {
