@@ -3718,15 +3718,13 @@ if (VIEW_HARDWARE) {
         var tzString = tz.toString();
         if(tzString.length < 2) tzString = '0' + tzString;
         if(tz >= 0) tzString = '+' + tzString;
-
+        tzString = "GMT" + tzString + ":00";
         return {
             name: "Time Zone",
-            value: "GMT" + tzString + ":00",
+            value: tzString,
             help: help.setTimezone,
-            action: function(cb) {
-                db.set('timezone', tz.toString());
-                mcu.timezone = tz;
-                ui.back();
+            action: ui.set(mcu, 'timezone', tzString, function(cb) {
+                db.set('timezone', tzString.toString());
                 cb && cb();
             }
         }
@@ -3775,7 +3773,7 @@ if (VIEW_HARDWARE) {
             if(coords) {
                 //var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
                 var now = moment();
-                now.utcOffset(mcu.timezone);
+                now.utcOffset(mcu.timezoneOffset());
                 info = "Lat: " + limitPrecison(coords.lat, 6) + "\t";
                 info += "Lon: " + limitPrecison(coords.lon, 6) + "\t";
                 info += "Altitude: " + limitPrecison(coords.alt, 1) + "\t";
@@ -4669,7 +4667,7 @@ db.get('lastGpsFix', function(err, res) {
 
 db.get('timezone', function(err, tz) {
     if(!err && tz) {
-        mcu.timezone = parseInt(tz);
+        mcu.timezone = tz;
     }
 });
 

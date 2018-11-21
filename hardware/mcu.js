@@ -35,6 +35,14 @@ mcu.init = function(callback) {
 	});
 }
 
+mcu.timezoneOffset() {
+	var matches = mcu.timezone.match(/GMT([+-]?[0-9]+)/);
+	if(matches && matches.length > 1) {
+		return parseInt(matches(1));
+	}
+	return 0;
+}
+
 mcu.setDate = function(date) {
 	var date = moment(date).utc();
 	var time = moment().utc();
