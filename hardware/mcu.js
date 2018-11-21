@@ -2,7 +2,6 @@ var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var SerialPort = require('serialport');
 var _ = require('underscore');
-var geoTz = require('geo-tz');
 var GPS = require('gps');
 var moment = require('moment');
 require('rootpath')();
@@ -18,10 +17,11 @@ mcu.gpsAvailable = null;
 mcu.gps = gps.state;
 mcu.lastGpsFix = null;
 mcu.knob = 0;
-mcu.tzAutoSet = false;
 mcu.customLatitude = null;
 mcu.customLongitude = null;
 mcu.disableGpsTimeUpdate = false;
+
+mcu.timezone = 0;
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -33,12 +33,6 @@ mcu.init = function(callback) {
 			callback && callback(err);
 		}
 	});
-}
-
-mcu.setTz = function(tz) {
-	if(!mcu.tzAutoSet) {
-		process.env.TZ = tz;
-	}
 }
 
 mcu.setDate = function(date) {
@@ -135,13 +129,6 @@ function _parseData(data) {
 				mcu.lastGpsFix = _.clone(gps.state);
 				if(!gpsFix && !mcu.disableGpsTimeUpdate) {
 					mcu.setDateTime(mcu.lastGpsFix.time);
-					var tz = geoTz.tz(mcu.lastGpsFix.lat, mcu.lastGpsFix.lon);
-					if(tz && process.env.TZ != tz) {
-						process.env.TZ = tz;
-						mcu.tzAutoSet = true;
-						console.log("set timezone to", tz);
-						mcu.emit('timezone', tz);
-					}
 				}
 			}
 			if(!mcu.gpsAvailable) {

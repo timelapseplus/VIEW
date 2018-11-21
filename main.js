@@ -3713,6 +3713,54 @@ if (VIEW_HARDWARE) {
             help: help.buttonModeMenu
         }, ]
     }
+
+    var buildTimeZone = function(tz) {
+        var tzString = tx.toString();
+        if(tzString.length < 2) tzString = '0' + tzString;
+        if(tz >= 0) tzString = '+' + tzString;
+
+        return {
+            name: "Time Zone",
+            value: "GMT" + tzString + ":00",
+            help: help.setTimezone,
+            action: function(cb) {
+                db.set('timezone', tz);
+                mcu.timezone = tz;
+                cb && cb();
+            }
+    }
+
+    var setTimezoneMenu = {
+        name: "Time Zone",
+        type: "menu",
+        items: [
+            buildTimeZone(-11),
+            buildTimeZone(-10),
+            buildTimeZone(-9),
+            buildTimeZone(-8),
+            buildTimeZone(-7),
+            buildTimeZone(-6),
+            buildTimeZone(-5),
+            buildTimeZone(-4),
+            buildTimeZone(-3),
+            buildTimeZone(-2),
+            buildTimeZone(-1),
+            buildTimeZone(0),
+            buildTimeZone(1),
+            buildTimeZone(2),
+            buildTimeZone(3),
+            buildTimeZone(4),
+            buildTimeZone(5),
+            buildTimeZone(6),
+            buildTimeZone(7),
+            buildTimeZone(8),
+            buildTimeZone(9),
+            buildTimeZone(10),
+            buildTimeZone(11),
+        ]
+    }
+
+
     var limitPrecison = function(n, p) {
         var f = Math.pow(10, p);
         n = Math.round(n * f) / f;
@@ -3725,12 +3773,13 @@ if (VIEW_HARDWARE) {
             if(coords) {
                 //var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
                 var now = moment();
+                now.utcOffset(mcu.timezone);
                 info = "Lat: " + limitPrecison(coords.lat, 6) + "\t";
                 info += "Lon: " + limitPrecison(coords.lon, 6) + "\t";
                 info += "Altitude: " + limitPrecison(coords.alt, 1) + "\t";
                 info += "Date: " + now.format("D MMMM YYYY") + "\t";
                 info += "Time: " + now.format("h:mm:ss A") + "\t";
-                info += "Timezone: " + now.format("z (ZZ)") + "\t";
+                info += "Timezone: " + now.format("(ZZ)") + "\t";
                 if(mcu.gps.fix) {
                     info += "GPS Fix: YES\t";
                 } else {
@@ -4005,10 +4054,20 @@ if (VIEW_HARDWARE) {
             name: "Set UTC Time",
             help: help.setTime,
             action: setTimeAction
+            condition: function() {
+                return !gpsExists || power.gpsEnabled != 'enabled';
+            },
         }, {
             name: "Set UTC Date",
             help: help.setDate,
             action: setDateAction
+            condition: function() {
+                return !gpsExists || power.gpsEnabled != 'enabled';
+            },
+        }, {
+            name: "Set Timezone",
+            help: help.setTimezone,
+            action: setTimezoneMenu
         }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
@@ -4608,16 +4667,8 @@ db.get('lastGpsFix', function(err, res) {
 
 db.get('timezone', function(err, tz) {
     if(!err && tz) {
-        mcu.setTz(tz);
+        mcu.timezone = parseInt(tz);
     }
-});
-
-mcu.on('timezone', function(tz) {
-    db.get('timezone', function(err, tzOld) {
-        if(err || !tzOld || tzOld != tz) {
-            db.set('timezone', tz);
-        }
-    });
 });
 
 mcu.on('gps', function(index) {

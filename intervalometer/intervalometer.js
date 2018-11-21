@@ -211,9 +211,8 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
                 intervalometer.status.keyframesFrames = intervalometer.status.frames;
                 intervalometer.status.keyframeSeconds += (intervalometer.status.intervalMs / 1000);
                 var diff = secondsSinceStart - intervalometer.status.keyframeSeconds;
-                if(diff != 0) {
-                    intervalometer.status.keyframeSeconds += diff / (Math.abs(diff) / ((intervalometer.status.intervalMs / 1000) / 100));
-                }
+                intervalometer.status.keyframeSeconds += diff * ((intervalometer.status.intervalMs / 1000) / 100); // catch up within 100 seconds
+
                 console.log("KF: Seconds since last: " + secondsSinceStart, "diff:", diff, "corrected:", intervalometer.status.keyframeSeconds);
             }
 

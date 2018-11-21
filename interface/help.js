@@ -183,3 +183,6 @@ exports.configureAUX = "Setup AUX2 output parameters for triggering external mot
 exports.auxPulseLength = "Set the length of the pulse sent out AUX2 after each capture is completed (this tells an external motion system when to move).";
 
 exports.auxPulseInvert = "Configures whether the shield-tip connection on AUX2 is normally open (default, most motion systems expect this) or normally close (inverted, open for pulse length after capture).";
+
+exports.setTimezone = "Sets local time-zone for time/date display.  Not essential for operation otherwise.";
+
