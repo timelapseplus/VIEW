@@ -4053,14 +4053,14 @@ if (VIEW_HARDWARE) {
         }, {
             name: "Set UTC Time",
             help: help.setTime,
-            action: setTimeAction
+            action: setTimeAction,
             condition: function() {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
         }, {
             name: "Set UTC Date",
             help: help.setDate,
-            action: setDateAction
+            action: setDateAction,
             condition: function() {
                 return !gpsExists || power.gpsEnabled != 'enabled';
             },
