@@ -4492,7 +4492,7 @@ if (VIEW_HARDWARE) {
 }
 
 var systemClosed = false;
-function closeSystem(callback) {
+var closeSystem = function(callback) {
     systemClosed = true;
     console.log("Shutting down!");
     app.close();
