@@ -21,7 +21,7 @@ mcu.customLatitude = null;
 mcu.customLongitude = null;
 mcu.disableGpsTimeUpdate = false;
 
-mcu.timezone = 0;
+mcu.timezone = "GMT+00:00";
 
 mcu.init = function(callback) {
 	_connectSerial('/dev/ttyS1', function(err, version) {
@@ -36,11 +36,17 @@ mcu.init = function(callback) {
 }
 
 mcu.timezoneOffset = function() {
-	var matches = mcu.timezone.match(/GMT([+-]?[0-9]+)/);
+	var matches = mcu.timezone.match(/GMT([+-][0-9]+)/);
 	if(matches && matches.length > 1) {
 		return parseInt(matches(1));
 	}
 	return 0;
+}
+
+mcu.now = function() {
+	var now = moment();
+	now.utcOffset(mcu.timezoneOffset());
+	return now();
 }
 
 mcu.setDate = function(date) {

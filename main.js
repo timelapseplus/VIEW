@@ -3771,9 +3771,7 @@ if (VIEW_HARDWARE) {
         if(power.gpsEnabled != 'disabled' && mcu.gpsAvailable) {
             var coords = mcu.validCoordinates();
             if(coords) {
-                //var now = moment(new Date(mcu.gps.time || mcu.lastGpsFix.time));
-                var now = moment();
-                now.utcOffset(mcu.timezoneOffset());
+                var now = mcu.now();
                 info = "Lat: " + limitPrecison(coords.lat, 6) + "\t";
                 info += "Lon: " + limitPrecison(coords.lon, 6) + "\t";
                 info += "Altitude: " + limitPrecison(coords.alt, 1) + "\t";
@@ -3866,11 +3864,11 @@ if (VIEW_HARDWARE) {
         var coords = mcu.validCoordinates();
         if(coords) {
             var sunmoon = meeus.sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
-            var now = moment();
-            var sunrise = moment(sunmoon.suntimes.rise);
-            var sunset = moment(sunmoon.suntimes.set);
-            var moonrise = moment(sunmoon.moontimes.rise);
-            var moonset = moment(sunmoon.moontimes.set);
+            var now = mcu.now();
+            var sunrise = moment(sunmoon.suntimes.rise).utcOffset(mcu.timezoneOffset());
+            var sunset = moment(sunmoon.suntimes.set).utcOffset(mcu.timezoneOffset());
+            var moonrise = moment(sunmoon.moontimes.rise).utcOffset(mcu.timezoneOffset());
+            var moonset = moment(sunmoon.moontimes.set).utcOffset(mcu.timezoneOffset());
 
             info += "Current Time: " + now.format("h:mm:ss A") + "\t";
             info += "Sun sets at " + sunset.format("h:mm:ss A") + "\t   (" + sunset.fromNow() + ")\t";
@@ -3915,11 +3913,11 @@ if (VIEW_HARDWARE) {
             var data = getEclipseData();
             if(data != null) {
                 console.log("eclipse data:", data);
-                var now = moment();
-                var c1 = data.c1_timestamp ? moment(data.c1_timestamp) : null;
-                var c2 = data.c2_timestamp ? moment(data.c2_timestamp) : null;
-                var c3 = data.c3_timestamp ? moment(data.c3_timestamp) : null;
-                var c4 = data.c4_timestamp ? moment(data.c4_timestamp) : null;
+                var now = mcu.now();
+                var c1 = data.c1_timestamp ? moment(data.c1_timestamp).utcOffset(mcu.timezoneOffset()) : null;
+                var c2 = data.c2_timestamp ? moment(data.c2_timestamp).utcOffset(mcu.timezoneOffset()) : null;
+                var c3 = data.c3_timestamp ? moment(data.c3_timestamp).utcOffset(mcu.timezoneOffset()) : null;
+                var c4 = data.c4_timestamp ? moment(data.c4_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "\t";
                 info += "(" + c1.fromNow() + ")\n";
                 if(c2 && c3) {
