@@ -35,7 +35,7 @@ mcu.init = function(callback) {
 	});
 }
 
-mcu.timezoneOffset() {
+mcu.timezoneOffset = function() {
 	var matches = mcu.timezone.match(/GMT([+-]?[0-9]+)/);
 	if(matches && matches.length > 1) {
 		return parseInt(matches(1));
