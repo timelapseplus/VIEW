@@ -2461,19 +2461,23 @@ if (VIEW_HARDWARE) {
                             power.disableAutoOff();
                             core.watchdogDisable();
                             ui.busy = true;
-                            oled.value([{
-                                name: "Installing...",
-                                value: "Please Wait"
-                            }]);
-                            oled.update();
+                            ui.load({
+                                type: "progress",
+                                name: "Installing " + versionTarget.version + "",
+                                progress: 0.1,
+                                status: "uncompressing..."
+                            });
                             updates.installFromPath(versionTarget, function(err){
                                 core.unmountSd(function(){
                                     if(err) {
+                                        ui.busy = false;
+                                        ui.back();
                                         ui.alert('error', "Installation failed!  Reason unknown.");
                                     } else {
-                                        oled.value([{
-                                            name: "Reloading app...",
-                                            value: "Please Wait"
+                                        oled.progress([{
+                                            name: "Installing " + versionTarget.version + "",
+                                            progress: 0.9,
+                                            status: "reloading..."
                                         }]);
                                         oled.update();
                                         wifi.unblockBt(function(){
@@ -2490,18 +2494,20 @@ if (VIEW_HARDWARE) {
                             });
                         } else {
                             if(updates.installing) {
-                                oled.value([{
-                                    name: "Error",
-                                    value: "Install in progress"
-                                }]);
-                                oled.update();
+                                ui.alert('error', "Installation already in progress.");
                             } else if(versionTarget.installed) {
+                                ui.load({
+                                    type: "progress",
+                                    name: "Installing " + versionTarget.version + "",
+                                    progress: 0.1,
+                                    status: "starting..."
+                                });
                                 updates.setVersion(versionTarget, function(){
-                                    oled.value([{
-                                        name: "Reloading app...",
-                                        value: "Please Wait"
+                                    oled.progress([{
+                                        name: "Installing " + versionTarget.version + "",
+                                        progress: 0.7,
+                                        status: "reloading app..."
                                     }]);
-                                    oled.update();
                                     closeSystem(function(){
                                         var killServer = '';
                                         if(core.processId) {
@@ -2515,14 +2521,41 @@ if (VIEW_HARDWARE) {
                                 core.watchdogDisable();
                                 wifi.blockBt();
                                 ui.busy = true;
+                                ui.load({
+                                    name: "Installing " + versionTarget.version + "",
+                                    progress: 0.0,
+                                    status: "starting...",
+                                    button3: function() {
+                                        ui.load({
+                                            name: "Cancel firmware download?",
+                                            type: "options",
+                                            items: [{
+                                                name: "Cancel firmware download?",
+                                                value: "go back",
+                                                action: function() {
+                                                    cancelPrompt = false;
+                                                    ui.back();
+                                                }
+                                            },{
+                                                name: "Cancel firmware download?",
+                                                value: "cancel download",
+                                                action: function() {
+                                                    cancelPrompt = false;
+                                                    updates.cancel();
+                                                    ui.back();
+                                                }
+                                            }]
+                                        });
+                                    }
+                                });
                                 updates.installVersion(versionTarget, function(err){
                                     ui.busy = false;
                                     if(!err) {
                                         updates.setVersion(versionTarget, function(){
-                                            ui.status('update successful');
-                                            oled.value([{
-                                                name: "Reloading app...",
-                                                value: "Please Wait"
+                                            oled.progress([{
+                                                name: "Installing " + versionTarget.version + "",
+                                                progress: 1,
+                                                status: "reloading app..."
                                             }]);
                                             oled.update();
                                             wifi.unblockBt(function(){
@@ -2545,35 +2578,14 @@ if (VIEW_HARDWARE) {
                                     }
                                 }, function(statusUpdate) {
                                     oled.activity();
-                                    statusValue = [{
-                                        name: statusUpdate,
-                                        value: "Please Wait",
-                                        button3: function() {
-                                            oled.value([{
-                                                name: "Cancel firmware download?",
-                                                value: "go back",
-                                                action: function() {
-                                                    cancelPrompt = false;
-                                                    oled.value(statusValue);
-                                                    oled.update();
-                                                }
-                                            },{
-                                                name: "Cancel firmware download?",
-                                                value: "cancel download",
-                                                action: function() {
-                                                    cancelPrompt = false;
-                                                    updates.cancel(); // needs confirmation prompt
-                                                }
-                                            }]);
-                                            oled.update();
-                                        }
-                                    }];
                                     if(!cancelPrompt) {
-                                        oled.value(statusValue);
-                                        ui.status(statusUpdate);
+                                        oled.progress([{
+                                            name: "Installing " + versionTarget.version + "",
+                                            progress: 0.7,
+                                            status: statusUpdate
+                                        }]);
                                         oled.update();
                                     }
-                                    oled.activity();
                                 });
                             }
                         }

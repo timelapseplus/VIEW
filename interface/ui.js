@@ -110,6 +110,10 @@ function load(program, selected) {
         oled.date(currentProgram.name, currentProgram.value);
         oled.update();
     }
+    if (currentProgram.type == "progress") {
+        oled.progress(currentProgram.name, currentProgram.status, currentProgram.progress, currentProgram.button3 ? true : false);
+        oled.update();
+    }
     if (currentProgram.type == "textDisplay") {
         oled.displayText(currentProgram.name, currentProgram.value);
         oled.update();
@@ -332,7 +336,7 @@ exports.back = function() {
 exports.backButton = function() {
     if (stack.length > 0) {
         activity();
-        if(exports.busy) return;
+        if(exports.busy || currentProgram.type == 'progress') return;
         //beep.play(beepBack);
         back();
     } else {

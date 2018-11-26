@@ -661,6 +661,25 @@ oled.writeMenu = function() {
         fb.text(0, 128 - 0, "hold to scroll cursor");
 
 
+    } else if(oled.mode == 'progress') { // progress bar
+        fb.font(10, false, FONT_DEFAULT);
+        color("secondary");
+        fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 5, oled.progressTitle);
+
+        color("background");
+        fb.rect(MENU_XOFFSET, 128 / 2 + 5, 160 - MENU_XOFFSET * 2, 10, true);
+        color("help");
+        fb.rect(MENU_XOFFSET, 128 / 2 + 5, (160 - MENU_XOFFSET * 2) * oled.progressPercent, 10, true);
+
+        color("primary");
+        fb.text(MENU_XOFFSET * 2, 128 / 2 - MENU_FONT_SIZE - 5 + MENU_FONT_SIZE, oled.progressStatus);
+
+        if(oled.progressCancel) {
+            color("alert");
+            fb.font(MENU_FONT_SIZE, false, FONT_MONO); // monospace font
+            fb.text(160 - 18, 125, 'CANCEL');
+        }
+
     } else if(oled.mode == 'imageMenu') { // menu image list mode
         //console.log("MENU-IMAGE mode");
         itemArray = oled.imageMenu;
@@ -849,6 +868,15 @@ oled.date = function(name, value) {
         seconds: value.seconds(),
         moment: value
     }
+    oled.writeMenu();
+}
+
+oled.progress = function(title, status, percent, cancel) {
+    oled.mode = 'progress';
+    oled.progressTitle = title;
+    oled.progressStatus = status;
+    oled.progressPercent = percent;
+    oled.progressCancel = cancel;
     oled.writeMenu();
 }
 

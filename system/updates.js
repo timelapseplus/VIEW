@@ -438,10 +438,10 @@ exports.installStatus = null;
 var statusTimer = null;
 exports.installVersion = function(versionInfo, callback, statusCallback) {
 	exports.installing = true;
-	var updateStatus = function(status) {
+	var updateStatus = function(status, percent) {
 		console.log("INSTALL:", status);
 		exports.installStatus = status;
-		if(statusCallback) statusCallback(status);
+		if(statusCallback) statusCallback(status, percent || 0.0);
 		if(statusTimer) clearTimeout(statusTimer);
 		statusTimer = setTimeout(function(){
 			statusTimer = null;
@@ -457,7 +457,7 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 		var percentage = Math.round((bytesDownloaded/downloadSize)*100);
 			if(percentage != lastPercentage) {
 				console.log("UPDATES: download progress:", percentage);
-				updateStatus('downloading...' + percentage + '%');
+				updateStatus('downloading...', percentage/100);
 				lastPercentage = percentage;
 			}
 		},function(err, info){
