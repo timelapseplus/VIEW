@@ -2517,26 +2517,27 @@ if (VIEW_HARDWARE) {
                                     name: "Installing " + versionTarget.version,
                                     percent: 0.0,
                                     status: "starting...",
-                                    button3: function() {
+                                    button3: function(cb) {
                                         ui.load({
                                             name: "Cancel firmware download?",
                                             type: "options",
                                             items: [{
                                                 name: "Cancel firmware download?",
                                                 value: "go back",
-                                                action: function(cb) {
+                                                action: function() {
+                                                    cb && cb();
                                                     ui.back();
                                                 }
                                             },{
                                                 name: "Cancel firmware download?",
                                                 value: "cancel download",
-                                                action: function(cb) {
+                                                action: function() {
                                                     updates.cancel();
+                                                    cb && cb();
                                                     ui.back();
                                                 }
                                             }]
                                         });
-                                        cb && cb();
                                     }
                                 });
                                 updates.installVersion(versionTarget, function(err){
