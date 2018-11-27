@@ -2525,19 +2525,18 @@ if (VIEW_HARDWARE) {
                                                 name: "Cancel firmware download?",
                                                 value: "go back",
                                                 action: function(cb) {
-                                                    cb && cb();
-                                                    //ui.back();
+                                                    ui.back();
                                                 }
                                             },{
                                                 name: "Cancel firmware download?",
                                                 value: "cancel download",
                                                 action: function(cb) {
                                                     updates.cancel();
-                                                    cb && cb();
-                                                    //ui.back();
+                                                    ui.back();
                                                 }
                                             }]
                                         });
+                                        cb && cb();
                                     }
                                 });
                                 updates.installVersion(versionTarget, function(err){
@@ -2567,7 +2566,7 @@ if (VIEW_HARDWARE) {
                                 }, function(statusUpdate, percent) {
                                     oled.activity();
                                     if(ui.type == 'progress') {
-                                        oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, percent == null ? false : true);
+                                        oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, statusUpdate == "extracting..." ? false : true);
                                         oled.update();
                                     }
                                 });
