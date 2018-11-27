@@ -441,7 +441,7 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 	var updateStatus = function(status, percent) {
 		console.log("INSTALL:", status);
 		exports.installStatus = status;
-		if(statusCallback) statusCallback(status, percent || 0.0);
+		if(statusCallback) statusCallback(status, percent || null);
 		if(statusTimer) clearTimeout(statusTimer);
 		statusTimer = setTimeout(function(){
 			statusTimer = null;
@@ -466,8 +466,17 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 				exports.installing = false;
 				callback(err);
 			} else {
-				updateStatus('extracting...');
+				updateStatus('extracting...', 0.0);
+				var extractComplete = 0;
+				var extractSeconds = 230;
+				var extractInterval = setInterval(function(){
+					extractComplete += 2;
+					if(extractComplete > extractSeconds) extractComplete = extractSeconds;
+					updateStatus('extracting...', extractComplete / extractSeconds);
+				}, 2);
+
 				extract(baseInstallPath + "tmp.zip", baseInstallPath + versionInfo.version, function(err) {
+					clearInterval(extractInterval);
 					if(err) {
 						updateStatus('extract failed.');
 						exports.installing = false;

@@ -677,7 +677,7 @@ oled.writeMenu = function() {
         if(oled.progressCancel) {
             color("alert");
             fb.font(MENU_FONT_SIZE, false, FONT_MONO); // monospace font
-            fb.text(160 - 18, 125, 'CANCEL');
+            fb.text(160 - 78, 125, 'CANCEL');
         }
 
     } else if(oled.mode == 'imageMenu') { // menu image list mode

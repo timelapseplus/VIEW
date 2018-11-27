@@ -2473,7 +2473,7 @@ if (VIEW_HARDWARE) {
                                         ui.back();
                                         ui.alert('error', "Installation failed!  Reason unknown.");
                                     } else {
-                                        oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
+                                        oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                         oled.update();
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
@@ -2498,7 +2498,7 @@ if (VIEW_HARDWARE) {
                                     status: "starting..."
                                 });
                                 updates.setVersion(versionTarget, function(){
-                                    oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
+                                    oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                     closeSystem(function(){
                                         var killServer = '';
                                         if(core.processId) {
@@ -2514,7 +2514,7 @@ if (VIEW_HARDWARE) {
                                 ui.busy = true;
                                 ui.load({
                                     type: "progress",
-                                    name: "Installing " + versionTarget.version + "",
+                                    name: "Installing " + versionTarget.version,
                                     percent: 0.0,
                                     status: "starting...",
                                     button3: function() {
@@ -2544,7 +2544,7 @@ if (VIEW_HARDWARE) {
                                     ui.busy = false;
                                     if(!err) {
                                         updates.setVersion(versionTarget, function(){
-                                            oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
+                                            oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                             oled.update();
                                             wifi.unblockBt(function(){
                                                 closeSystem(function(){
