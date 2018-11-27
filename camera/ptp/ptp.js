@@ -279,7 +279,7 @@ var startWorker = function(port) {
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
                     if(newSettings.fujifocuspos != null && newSettings.fujifocuspos !== false) {
-                        newSettings.focusPos = parseInt(newSettings.fujifocuspos) / FUJI_FOCUS_RESOLUTION;
+                        newSettings.focusPos = parseInt(newSettings.fujifocuspos / FUJI_FOCUS_RESOLUTION);
                     } else {
                         newSettings.focusPos = camera.focusPos;
                     }
@@ -1027,12 +1027,12 @@ function focusFuji(step, repeat, callback) {
             var currentPos = parseInt(camera.settings.fujifocuspos);
             if(settings) {
                 currentPos = parseInt(settings.fujifocuspos);
-                camera.focusPos = currentPos / FUJI_FOCUS_RESOLUTION;
+                camera.focusPos = parseInt(currentPos / FUJI_FOCUS_RESOLUTION);
             }
-            if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < 2) {
+            if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
                 fujiFocusPosCache = parseInt(target);
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
-                if (callback) callback(null, camera.focusPos);
+                if (cb) cb(null, camera.focusPos);
             } else {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
@@ -1099,16 +1099,16 @@ function focusFuji(step, repeat, callback) {
             clearTimeout(restartPreview);
             restartPreview = null;
         }
-        console.log("PTP: turning off LV for focus mode");
+        console.log("PTP: turning off LV for focus move");
         return camera.lvOff(function(){
             setTimeout(function(){
-                startFocus(function(err){
+                startFocus(function(err, pos){
                     restartPreview = setTimeout(function(){
                         restartPreview = null;
                         console.log("PTP: resuming LV after focus move");
                         camera.preview();
                     }, 100);
-                    callback && callback(err);
+                    callback && callback(err, pos);
                 });
             }, 500);
         }, true);
