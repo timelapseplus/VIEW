@@ -2463,8 +2463,8 @@ if (VIEW_HARDWARE) {
                             ui.load({
                                 type: "progress",
                                 name: "Installing " + versionTarget.version + "",
-                                progress: 0.1,
-                                status: "uncompressing..."
+                                progress: 0.0,
+                                status: "starting..."
                             });
                             updates.installFromPath(versionTarget, function(err){
                                 core.unmountSd(function(){
@@ -2486,6 +2486,13 @@ if (VIEW_HARDWARE) {
                                         });
                                     }
                                 });
+                            }, function(statusUpdate, percent) {
+                                oled.activity();
+                                if(ui.type == 'progress') {
+                                    oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, statusUpdate == "extracting..." ? false : true);
+                                    if(ui.currentProgram && ui.currentProgram.button3 && statusUpdate == "extracting...") ui.currentProgram.button3 = null; // disabled cancel
+                                    oled.update();
+                                }
                             });
                         } else {
                             if(updates.installing) {

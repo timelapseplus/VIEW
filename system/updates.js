@@ -517,8 +517,19 @@ exports.installIcons = function(callback) {
 	exec(installIcons, callback);
 }
 
-exports.installFromPath = function(versionInfo, callback) {
+exports.installFromPath = function(versionInfo, callback, statusCallback) {
+	var updateStatus = function(status, percent) {
+		if(statusCallback) statusCallback(status, percent || null);
+	}
+	var extractComplete = 0;
+	var extractSeconds = 230;
+	var extractInterval = setInterval(function(){
+		extractComplete += 2;
+		if(extractComplete > extractSeconds) extractComplete = extractSeconds;
+		updateStatus('extracting...', extractComplete / extractSeconds);
+	}, 2000);
 	extract(versionInfo.zipPath, baseInstallPath + versionInfo.version, function(err, destFolder) {
+		clearInterval(extractInterval);
 		if(err) {
 			callback && callback(true);
 		} else {
