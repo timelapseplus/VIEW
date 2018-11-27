@@ -2568,7 +2568,7 @@ if (VIEW_HARDWARE) {
                                     oled.activity();
                                     if(ui.type == 'progress') {
                                         oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, statusUpdate == "extracting..." ? false : true);
-                                        if(exports.currentProgram.button3 && statusUpdate == "extracting...") exports.currentProgram.button3 = null; // disabled cancel
+                                        if(ui.currentProgram && ui.currentProgram.button3 && statusUpdate == "extracting...") ui.currentProgram.button3 = null; // disabled cancel
                                         oled.update();
                                     }
                                 });
