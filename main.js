@@ -2436,7 +2436,6 @@ if (VIEW_HARDWARE) {
 
     var versionUpdateConfirmMenuBuild = function(versionTarget) {
         var statusValue = null;
-        var cancelPrompt = false;
         return {
             name: "Install version " + versionTarget.version + "?",
             type: "options",
@@ -2532,17 +2531,17 @@ if (VIEW_HARDWARE) {
                                             items: [{
                                                 name: "Cancel firmware download?",
                                                 value: "go back",
-                                                action: function() {
-                                                    cancelPrompt = false;
-                                                    ui.back();
+                                                action: function(cb) {
+                                                    cb && cb();
+                                                    //ui.back();
                                                 }
                                             },{
                                                 name: "Cancel firmware download?",
                                                 value: "cancel download",
-                                                action: function() {
-                                                    cancelPrompt = false;
+                                                action: function(cb) {
                                                     updates.cancel();
-                                                    ui.back();
+                                                    cb && cb();
+                                                    //ui.back();
                                                 }
                                             }]
                                         });
@@ -2552,11 +2551,7 @@ if (VIEW_HARDWARE) {
                                     ui.busy = false;
                                     if(!err) {
                                         updates.setVersion(versionTarget, function(){
-                                            oled.progress([{
-                                                name: "Installing " + versionTarget.version + "",
-                                                progress: 1,
-                                                status: "reloading app..."
-                                            }]);
+                                            oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
                                             oled.update();
                                             wifi.unblockBt(function(){
                                                 closeSystem(function(){
@@ -2576,14 +2571,10 @@ if (VIEW_HARDWARE) {
                                         if(cb) cb();
                                         ui.back();
                                     }
-                                }, function(statusUpdate) {
+                                }, function(statusUpdate, percent) {
                                     oled.activity();
-                                    if(!cancelPrompt) {
-                                        oled.progress([{
-                                            name: "Installing " + versionTarget.version + "",
-                                            progress: 0.7,
-                                            status: statusUpdate
-                                        }]);
+                                    if(ui.currentProgram.type == 'progress') {
+                                        oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, percent == null ? false : true);
                                         oled.update();
                                     }
                                 });
