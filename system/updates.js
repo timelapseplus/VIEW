@@ -477,7 +477,7 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 					extractComplete += 2;
 					if(extractComplete > extractSeconds) extractComplete = extractSeconds;
 					updateStatus('extracting...', extractComplete / extractSeconds);
-				}, 2);
+				}, 2000);
 
 				extract(baseInstallPath + "tmp.zip", baseInstallPath + versionInfo.version, function(err) {
 					clearInterval(extractInterval);

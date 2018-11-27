@@ -1,7 +1,6 @@
 var beep = require('interface/beep.js');
 var _ = require('underscore');
 var oled = null;
-var currentProgram = null;
 var backupProgram = null;
 var currentName = "";
 var stack = [];
@@ -14,6 +13,7 @@ var beepAlarm = beep.sine2(2954, 1540, 0.1);
 
 beep.enable(true);
 
+exports.currentProgram = null;
 exports.busy = false;
 exports.audio = 'disabled';
 exports.name = "";
@@ -38,25 +38,25 @@ function load(program, selected) {
     }
 
     currentName = program.name;
-    currentProgram = _.clone(program);
+    exports.currentProgram = _.clone(program);
 
     exports.name = currentName;
-    exports.type = currentProgram.type;
+    exports.type = exports.currentProgram.type;
 
-    if (currentProgram.items && currentProgram.items.slice) {
-        currentProgram.items = currentProgram.items.slice(0);
-        currentProgram.items = currentProgram.items.filter(function(item) {
+    if (exports.currentProgram.items && exports.currentProgram.items.slice) {
+        exports.currentProgram.items = exports.currentProgram.items.slice(0);
+        exports.currentProgram.items = exports.currentProgram.items.filter(function(item) {
             if (typeof item.condition === "function") {
                 return item.condition();
             } else {
                 return true;
             }
         });
-        for (var i = 0; i < currentProgram.items.length; i++) {
-            var item = currentProgram.items[i];
+        for (var i = 0; i < exports.currentProgram.items.length; i++) {
+            var item = exports.currentProgram.items[i];
             if (typeof item.name == 'function') {
-                currentProgram.items[i] = _.clone(item);
-                item = currentProgram.items[i];
+                exports.currentProgram.items[i] = _.clone(item);
+                item = exports.currentProgram.items[i];
                 item.name = item.name();
             }
             if (selected == null) {
@@ -73,15 +73,15 @@ function load(program, selected) {
                 }
             }
         }
-        if(selected >= currentProgram.items.length) selected = currentProgram.items.length - 1;
+        if(selected >= exports.currentProgram.items.length) selected = exports.currentProgram.items.length - 1;
     }
-    if (currentProgram.type == "timelapse") {
+    if (exports.currentProgram.type == "timelapse") {
         oled.setTimelapseMode(true);
     } else {
         oled.setTimelapseMode(false);
     }
-    if (currentProgram.type == "menu" && currentProgram.hasImages == true) {
-        oled.createMenuImage(currentProgram.items.map(function(item) {
+    if (exports.currentProgram.type == "menu" && exports.currentProgram.hasImages == true) {
+        oled.createMenuImage(exports.currentProgram.items.map(function(item) {
             return {
                 name: item.name,
                 line2: item.line2,
@@ -89,45 +89,45 @@ function load(program, selected) {
             };
         }), selected || 0);
         oled.update();
-    } else if (currentProgram.type == "menu") {
-        oled.create(currentProgram.items.map(function(item) {
+    } else if (exports.currentProgram.type == "menu") {
+        oled.create(exports.currentProgram.items.map(function(item) {
             return item.name;
         }), selected || 0);
         oled.update();
     }
-    if (currentProgram.type == "options") {
-        oled.value(currentProgram.items, selected || 0);
+    if (exports.currentProgram.type == "options") {
+        oled.value(exports.currentProgram.items, selected || 0);
         oled.update();
     }
-    if (currentProgram.type == "textInput") {
-        oled.text(currentProgram.name, currentProgram.value);
+    if (exports.currentProgram.type == "textInput") {
+        oled.text(exports.currentProgram.name, exports.currentProgram.value);
         oled.update();
     }
-    if (currentProgram.type == "numberInput") {
-        oled.number(currentProgram.name, currentProgram.value);
+    if (exports.currentProgram.type == "numberInput") {
+        oled.number(exports.currentProgram.name, exports.currentProgram.value);
         oled.update();
     }
-    if (currentProgram.type == "timeInput") {
-        oled.time(currentProgram.name, currentProgram.value);
+    if (exports.currentProgram.type == "timeInput") {
+        oled.time(exports.currentProgram.name, exports.currentProgram.value);
         oled.update();
     }
-    if (currentProgram.type == "dateInput") {
-        oled.date(currentProgram.name, currentProgram.value);
+    if (exports.currentProgram.type == "dateInput") {
+        oled.date(exports.currentProgram.name, exports.currentProgram.value);
         oled.update();
     }
-    if (currentProgram.type == "progress") {
-        oled.progress(currentProgram.name, currentProgram.status, currentProgram.progress, currentProgram.button3 ? true : false);
+    if (exports.currentProgram.type == "progress") {
+        oled.progress(exports.currentProgram.name, exports.currentProgram.status, exports.currentProgram.progress, exports.currentProgram.button3 ? true : false);
         oled.update();
     }
-    if (currentProgram.type == "textDisplay") {
-        oled.displayText(currentProgram.name, currentProgram.value);
+    if (exports.currentProgram.type == "textDisplay") {
+        oled.displayText(exports.currentProgram.name, exports.currentProgram.value);
         oled.update();
     }
-    if (currentProgram.type == "png" && currentProgram.file) {
-        oled.png(currentProgram.file);
+    if (exports.currentProgram.type == "png" && exports.currentProgram.file) {
+        oled.png(exports.currentProgram.file);
     }
-    if (currentProgram.type == "function" && currentProgram.fn) {
-        currentProgram.fn(currentProgram.arg, function(err, program) {
+    if (exports.currentProgram.type == "function" && exports.currentProgram.fn) {
+        exports.currentProgram.fn(exports.currentProgram.arg, function(err, program) {
             if(!err && program && (program.type)) {
                 load(program);
             } else {
@@ -136,8 +136,8 @@ function load(program, selected) {
             }
         });
     }
-    if (currentProgram.type == "menuFunction" && currentProgram.fn) {
-        currentProgram.fn(currentProgram.arg, function(err, p) {
+    if (exports.currentProgram.type == "menuFunction" && exports.currentProgram.fn) {
+        exports.currentProgram.fn(exports.currentProgram.arg, function(err, p) {
             if (!err) exports.load(p, true);
         });
     }
@@ -145,9 +145,9 @@ function load(program, selected) {
 
 exports.load = function(menuProgram, noPush, selected, forceStack) {
     exports.busy = false;
-    if(currentProgram && currentProgram.intervalHandle) {
-        clearInterval(currentProgram.intervalHandle)
-        currentProgram.intervalHandle = null;
+    if(exports.currentProgram && exports.currentProgram.intervalHandle) {
+        clearInterval(exports.currentProgram.intervalHandle)
+        exports.currentProgram.intervalHandle = null;
     }
     if ((forceStack && backupProgram != null) || (backupProgram != null && !noPush && backupProgram.type != "options" && backupProgram.type != "function")) {
         stack.push({
@@ -180,11 +180,11 @@ exports.reload = function() {
 exports.up = function(alt) {
     activity();
     if(exports.busy) return;
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
+    if (exports.currentProgram.type == "menu" || exports.currentProgram.type == "options") {
         oled.up();
-    } else if(currentProgram.type == "textDisplay") {
+    } else if(exports.currentProgram.type == "textDisplay") {
         oled.up();
-    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput" || currentProgram.type == "timeInput" || currentProgram.type == "dateInput") {
+    } else if(exports.currentProgram.type == "textInput" || exports.currentProgram.type == "numberInput" || exports.currentProgram.type == "timeInput" || exports.currentProgram.type == "dateInput") {
         if(alt) {
             oled.textMoveBackward();
         } else {
@@ -195,11 +195,11 @@ exports.up = function(alt) {
 exports.down = function(alt) {
     activity();
     if(exports.busy) return;
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
+    if (exports.currentProgram.type == "menu" || exports.currentProgram.type == "options") {
         oled.down();
-    } else if(currentProgram.type == "textDisplay") {
+    } else if(exports.currentProgram.type == "textDisplay") {
         oled.down();
-    } else if(currentProgram.type == "textInput" || currentProgram.type == "numberInput" || currentProgram.type == "timeInput" || currentProgram.type == "dateInput") {
+    } else if(exports.currentProgram.type == "textInput" || exports.currentProgram.type == "numberInput" || exports.currentProgram.type == "timeInput" || exports.currentProgram.type == "dateInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
@@ -210,66 +210,66 @@ exports.down = function(alt) {
 exports.enter = function(alt) {
     activity();
     if(exports.busy) return;
-    if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        if(currentProgram.items[oled.selected]) exports.load(currentProgram.items[oled.selected].action);
-    } else if (currentProgram.type == "textInput") {
+    if (exports.currentProgram.type == "menu" || exports.currentProgram.type == "options") {
+        if(exports.currentProgram.items[oled.selected]) exports.load(exports.currentProgram.items[oled.selected].action);
+    } else if (exports.currentProgram.type == "textInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
             //console.log("resulting string", oled.getTextValue());
-            if(currentProgram.onSave) currentProgram.onSave(oled.getTextValue());
+            if(exports.currentProgram.onSave) exports.currentProgram.onSave(oled.getTextValue());
             back();
         }
-    } else if (currentProgram.type == "numberInput") {
+    } else if (exports.currentProgram.type == "numberInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
             //console.log("resulting string", oled.getTextValue());
-            if(currentProgram.onSave) currentProgram.onSave(oled.getNumberValue());
+            if(exports.currentProgram.onSave) exports.currentProgram.onSave(oled.getNumberValue());
             back();
         }
-    } else if (currentProgram.type == "timeInput") {
+    } else if (exports.currentProgram.type == "timeInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
             //console.log("resulting string", oled.getTextValue());
-            if(currentProgram.onSave) currentProgram.onSave(oled.getTimeValue());
+            if(exports.currentProgram.onSave) exports.currentProgram.onSave(oled.getTimeValue());
             back();
         }
-    } else if (currentProgram.type == "dateInput") {
+    } else if (exports.currentProgram.type == "dateInput") {
         if(alt) {
             oled.textMoveForward();
         } else {
             //console.log("resulting string", oled.getTextValue());
-            if(currentProgram.onSave) currentProgram.onSave(oled.getDateValue());
+            if(exports.currentProgram.onSave) exports.currentProgram.onSave(oled.getDateValue());
             back();
         }
-    } else if (currentProgram.type == "png") {
+    } else if (exports.currentProgram.type == "png") {
         back();
-    } else if (currentProgram.enter && typeof currentProgram.enter == "function") {
-        currentProgram.enter();
+    } else if (exports.currentProgram.enter && typeof exports.currentProgram.enter == "function") {
+        exports.currentProgram.enter();
     }
 }
 exports.help = function() {
     activity();
     if(exports.busy) return;
-    if(currentProgram.type == "textDisplay" && currentProgram.origin == "help") {
+    if(exports.currentProgram.type == "textDisplay" && exports.currentProgram.origin == "help") {
         back();
-    } else if (currentProgram.type == "menu" || currentProgram.type == "options") {
-        if (currentProgram.items[oled.selected] && currentProgram.items[oled.selected].help) {
+    } else if (exports.currentProgram.type == "menu" || exports.currentProgram.type == "options") {
+        if (exports.currentProgram.items[oled.selected] && exports.currentProgram.items[oled.selected].help) {
             exports.load({
                 type: "textDisplay",
                 origin: "help",
-                name: "HELP - " + currentProgram.items[oled.selected].name || currentProgram.name,
-                value: currentProgram.items[oled.selected].help
+                name: "HELP - " + exports.currentProgram.items[oled.selected].name || exports.currentProgram.name,
+                value: exports.currentProgram.items[oled.selected].help
             });
         }
-    } else if(currentProgram.help) {
+    } else if(exports.currentProgram.help) {
         exports.load({
             type: "textDisplay",
             origin: "help",
-            name: "HELP - " + currentProgram.name,
-            value: currentProgram.help
+            name: "HELP - " + exports.currentProgram.name,
+            value: exports.currentProgram.help
         });
     }
 }
@@ -293,22 +293,22 @@ exports.alert = function(title, text, updateInterval, audioAlert) {
     });
 }
 exports.currentOrigin = function() {
-    return currentProgram.origin;
+    return exports.currentProgram.origin;
 }
 exports.dismissAlert = function() {
     activity();
-    if (currentProgram.type == "textDisplay" && currentProgram.origin == "alert" ) back();
+    if (exports.currentProgram.type == "textDisplay" && exports.currentProgram.origin == "alert" ) back();
 }
 exports.button3 = function() {
     activity();
     //if(exports.busy) return;
     //beep.play(beepClick);
-    if (currentProgram.type == "menu" && currentProgram.items[oled.selected] && currentProgram.items[oled.selected].button3) {
-        currentProgram.items[oled.selected].button3(currentProgram.items[oled.selected]);
-    } else if (currentProgram.type == "textInput") {
+    if (exports.currentProgram.type == "menu" && exports.currentProgram.items[oled.selected] && exports.currentProgram.items[oled.selected].button3) {
+        exports.currentProgram.items[oled.selected].button3(exports.currentProgram.items[oled.selected]);
+    } else if (exports.currentProgram.type == "textInput") {
         oled.textCycleMode();
-    } else if (currentProgram.button3 && typeof currentProgram.button3 == "function") {
-        currentProgram.button3();
+    } else if (exports.currentProgram.button3 && typeof exports.currentProgram.button3 == "function") {
+        exports.currentProgram.button3();
     }
 }
 function back() {
@@ -320,7 +320,7 @@ function back() {
     do {
         b = stack.pop();
     } while((!b || !b.name) && stack.length > 0);
-    if(currentProgram.origin == "prompt" && stack.length > 0) {
+    if(exports.currentProgram.origin == "prompt" && stack.length > 0) {
         do {
             b = stack.pop();
         } while((!b || !b.name) && stack.length > 0);
@@ -341,7 +341,7 @@ exports.back = function() {
 exports.backButton = function() {
     if (stack.length > 0) {
         activity();
-        if(exports.busy || currentProgram.type == 'progress') return;
+        if(exports.busy || exports.currentProgram.type == 'progress') return;
         //beep.play(beepBack);
         back();
     } else {
