@@ -16,6 +16,8 @@ beep.enable(true);
 
 exports.busy = false;
 exports.audio = 'disabled';
+exports.name = "";
+exports.type = "";
 
 function activity() {
     oled.activity();
@@ -37,6 +39,9 @@ function load(program, selected) {
 
     currentName = program.name;
     currentProgram = _.clone(program);
+
+    exports.name = currentName;
+    exports.type = currentProgram.type;
 
     if (currentProgram.items && currentProgram.items.slice) {
         currentProgram.items = currentProgram.items.slice(0);

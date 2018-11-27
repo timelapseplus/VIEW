@@ -2473,11 +2473,7 @@ if (VIEW_HARDWARE) {
                                         ui.back();
                                         ui.alert('error', "Installation failed!  Reason unknown.");
                                     } else {
-                                        oled.progress([{
-                                            name: "Installing " + versionTarget.version + "",
-                                            progress: 0.9,
-                                            status: "reloading..."
-                                        }]);
+                                        oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
                                         oled.update();
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
@@ -2498,15 +2494,11 @@ if (VIEW_HARDWARE) {
                                 ui.load({
                                     type: "progress",
                                     name: "Installing " + versionTarget.version + "",
-                                    progress: 0.1,
+                                    percent: 0.1,
                                     status: "starting..."
                                 });
                                 updates.setVersion(versionTarget, function(){
-                                    oled.progress([{
-                                        name: "Installing " + versionTarget.version + "",
-                                        progress: 0.7,
-                                        status: "reloading app..."
-                                    }]);
+                                    oled.progress("Installing " + versionTarget.version + "", "reloading app...", 1, false);
                                     closeSystem(function(){
                                         var killServer = '';
                                         if(core.processId) {
@@ -2521,8 +2513,9 @@ if (VIEW_HARDWARE) {
                                 wifi.blockBt();
                                 ui.busy = true;
                                 ui.load({
+                                    type: "progress",
                                     name: "Installing " + versionTarget.version + "",
-                                    progress: 0.0,
+                                    percent: 0.0,
                                     status: "starting...",
                                     button3: function() {
                                         ui.load({
@@ -2573,7 +2566,7 @@ if (VIEW_HARDWARE) {
                                     }
                                 }, function(statusUpdate, percent) {
                                     oled.activity();
-                                    if(ui.currentProgram.type == 'progress') {
+                                    if(ui.type == 'progress') {
                                         oled.progress("Installing " + versionTarget.version + "", statusUpdate, percent, percent == null ? false : true);
                                         oled.update();
                                     }
