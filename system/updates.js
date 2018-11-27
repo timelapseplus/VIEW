@@ -436,7 +436,7 @@ exports.getInstalledVersions = function(callback){
 exports.installing = false;
 exports.installStatus = null;
 var statusTimer = null;
-\exports.installVersion = function(versionInfo, callback, statusCallback) {
+exports.installVersion = function(versionInfo, callback, statusCallback) {
 	exports.installing = true;
 	var updateStatus = function(status, percent) {
 		console.log("INSTALL:", status);
