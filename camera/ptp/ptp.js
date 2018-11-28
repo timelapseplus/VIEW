@@ -1036,13 +1036,15 @@ function focusFuji(step, repeat, callback) {
             } else {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
+                var targetOffset = 0;
+                if(repeat > 1) targetOffset = Math.sign(targetPos - currentPos);
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
                 if(worker.connected) {
                     try {
                         worker.send({
                             type: 'camera',
                             setDirect: 'd171',
-                            value: targetPos.toString(),
+                            value: (targetPos + targetOffset).toString(),
                             id: getCallbackId(worker.port, 'fujifocuspos', function(err) {
                                 attempts++;
                                 if(attempts < 5) {
