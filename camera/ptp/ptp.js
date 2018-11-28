@@ -279,7 +279,7 @@ var startWorker = function(port) {
                     //if (newSettings.autofocus && newSettings.autofocus != "off") camera.set('autofocus', 'off', null, worker);
                     console.log("PTP: settings updated");
                     if(newSettings.fujifocuspos != null && newSettings.fujifocuspos !== false) {
-                        newSettings.focusPos = parseInt(newSettings.fujifocuspos / FUJI_FOCUS_RESOLUTION);
+                        newSettings.focusPos = Math.round(newSettings.fujifocuspos / FUJI_FOCUS_RESOLUTION);
                     } else {
                         newSettings.focusPos = camera.focusPos;
                     }
@@ -1027,11 +1027,11 @@ function focusFuji(step, repeat, callback) {
             var currentPos = parseInt(camera.settings.fujifocuspos);
             if(settings) {
                 currentPos = parseInt(settings.fujifocuspos);
-                camera.focusPos = parseInt(currentPos / FUJI_FOCUS_RESOLUTION);
+                camera.focusPos = Math.round(currentPos / FUJI_FOCUS_RESOLUTION);
             }
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
                 fujiFocusPosCache = parseInt(target);
-                console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target);
+                console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target, "(" + camera.focusPos + ")");
                 if (cb) cb(null, camera.focusPos);
             } else {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
@@ -1117,6 +1117,7 @@ function focusFuji(step, repeat, callback) {
     }
 }
 camera.focus = function(step, repeat, callback) {
+    console.log("PTP: moving focus", steps * repeat, "steps");
     var worker = getPrimaryWorker();
     if (worker && camera.connected) {
         if(worker.model.match(/olympus/i)) {
