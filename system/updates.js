@@ -476,13 +476,14 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 			downloadTimer = null;
 			if(err) {
 				if(dl && dl.retry) {
+					updateStatus('retrying download...', 0.0);
+					exports.installing = false;
 					return exports.installVersion(versionInfo, callback, statusCallback);
 				} else if(dl && dl.cancelled) {
 					updateStatus('download cancelled');
 				} else {
 					updateStatus('download failed.');
 				}
-				exports.installing = false;
 				callback(err);
 			} else {
 				updateStatus('extracting...', 0.0);
