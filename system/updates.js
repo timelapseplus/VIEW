@@ -159,9 +159,10 @@ function download(href, path, progressCallback, callback) {
 	});
 }
 
-function cancelDownload() {
+function cancelDownload(retry) {
 	if(dl && dl.req && dl.req.abort) {
 		dl.cancelled = true;
+		dl.retry = retry;
 		dl.req.abort();
 	}
 }
@@ -452,17 +453,31 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 		updateStatus('downloading...');
 	    var downloadSize = 80 * 1024 * 1024; // 80MB
 	    var lastPercentage = null;
+		var downloadTimer = null;
+		var setDownloadWatchDog = function() {
+			if(downloadTimer) clearTimeout(downloadTimer);
+			downloadTimer = setTimeout(function() {
+				downloadTimer = null;
+				cancelDownload(true);
+			}, 30000);
+		}
+		setDownloadWatchDog();
 		download(versionInfo.url, baseInstallPath + "tmp.zip", function(bytesDownloaded, totalSize){
-		if(totalSize && totalSize > 0) downloadSize = totalSize;
-		var percentage = Math.round((bytesDownloaded/downloadSize)*100);
+			if(totalSize && totalSize > 0) downloadSize = totalSize;
+			setDownloadWatchDog();
+			var percentage = Math.round((bytesDownloaded/downloadSize)*100);
 			if(percentage != lastPercentage) {
 				console.log("UPDATES: download progress:", percentage);
 				updateStatus('downloading...', percentage/100);
 				lastPercentage = percentage;
 			}
 		},function(err, info){
+			if(downloadTimer) clearTimeout(downloadTimer);
+			downloadTimer = null;
 			if(err) {
-				if(dl && dl.cancelled) {
+				if(dl && dl.retry) {
+					return exports.installVersion(versionInfo, callback, statusCallback);
+				} else if(dl && dl.cancelled) {
 					updateStatus('download cancelled');
 				} else {
 					updateStatus('download failed.');
