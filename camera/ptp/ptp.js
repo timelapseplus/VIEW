@@ -1117,26 +1117,26 @@ function focusFuji(step, repeat, callback) {
     }
 }
 camera.focus = function(step, repeat, callback) {
-    console.log("PTP: moving focus", steps * repeat, "steps");
+    console.log("PTP: moving focus", step * repeat, "steps");
     var worker = getPrimaryWorker();
     if (worker && camera.connected) {
         if(worker.model.match(/olympus/i)) {
-            console.log("focus: olympus");
+            console.log("PTP: focus: olympus");
             focusOlympus(step, repeat, callback);
         } else if(camera.settings.focusdrive == 'canon') {
-            console.log("focus: canon");
+            console.log("PTP: focus: canon");
             focusCanon(step, repeat, callback);
         } else if(camera.settings.focusdrive == 'nikon') {
-            console.log("focus: nikon");
+            console.log("PTP: focus: nikon");
             focusNikon(step, repeat, callback);
         } else if(worker.model.match(/fuji/i)) {
-            console.log("focus: fuji");
+            console.log("PTP: focus: fuji");
             focusFuji(step, repeat, callback);
         } else if(camera.settings.sonyfocus == 'enabled') {
-            console.log("focus: sony");
+            console.log("PTP: focus: sony");
             focusSony(step, repeat, callback);
         } else {
-            console.log("focus: not supported");
+            console.log("PTP: focus: not supported");
             callback && callback("not supported");   
         }
     } else callback && callback("not connected");
