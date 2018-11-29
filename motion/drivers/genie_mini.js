@@ -131,9 +131,9 @@ GenieMini.prototype._parseIncoming = function(data) {
                 this._currentMove += angle - this._lastAngle;
             } else {
                 if(this._lastAngle < angle) {
-                    this._currentMove += 359 - (angle - this._lastAngle);
+                    this._currentMove -= 360 - (angle - this._lastAngle);
                 } else {
-                    this._currentMove -= 359 - (this._lastAngle - angle);
+                    this._currentMove += 360 - (this._lastAngle - angle);
                 }
             }
             console.log("GenieMini(" + this._id + "): _currentMove", this._currentMove);
