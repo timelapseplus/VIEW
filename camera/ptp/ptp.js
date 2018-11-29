@@ -1022,6 +1022,10 @@ function focusFuji(step, repeat, callback) {
     var attempts = 0;
     var relativeMove = (parseInt(step) * FUJI_FOCUS_RESOLUTION * parseInt(repeat));
 
+    var sign = function(n) {
+        return n && n < 0 ? -1 : 1;
+    }
+
     var doFocus = function(target, cb) {
         camera.getSettings(function(err, settings){
             var currentPos = parseInt(camera.settings.fujifocuspos);
@@ -1037,7 +1041,7 @@ function focusFuji(step, repeat, callback) {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
                 var targetOffset = 0;
-                if(repeat > 1) targetOffset = Math.sign(targetPos - currentPos);
+                if(repeat > 1) targetOffset = sign(targetPos - currentPos);
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
                 if(worker.connected) {
                     try {
