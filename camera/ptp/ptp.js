@@ -1036,13 +1036,13 @@ function focusFuji(step, repeat, callback) {
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
                 fujiFocusPosCache = parseInt(target);
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target, "(" + camera.focusPos + ")");
-                if (cb) cb(null, camera.focusPos);
+                if (cb) cb(null, Math.round(fujiFocusPosCache / FUJI_FOCUS_RESOLUTION)); //camera.focusPos);
             } else {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
                 var targetOffset = 0;
-                if(repeat > 1) targetOffset = sign(targetPos - currentPos);
-                console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos);
+                if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
+                console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
                 if(worker.connected) {
                     try {
                         worker.send({
@@ -1055,7 +1055,7 @@ function focusFuji(step, repeat, callback) {
                                     doFocus(targetPos, cb);
                                 } else {
                                     console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
-                                    if (cb) cb("failed to reach focus target");
+                                    if (cb) cb("failed to reach focus target", camera.focusPos);
                                 }
                             })
                         });
