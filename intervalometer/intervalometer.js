@@ -86,8 +86,13 @@ intervalometer.emit("intervalometer.status", intervalometer.status);
 var auxTrigger = new Button('input-aux2');
 
 auxTrigger.on('press', function() {
-    console.log("AUX2 trigger!");
-    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux') timerHandle = setTimeout(runPhoto, 0);
+    if (timerHandle) clearTimeout(timerHandle);
+    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto) {
+        console.log("AUX2 trigger!");
+        timerHandle = setTimeout(runPhoto, 0);
+    } else {
+        console.log("AUX2 trigger! (ignoring)");
+    }
 });
 
 auxTrigger.on('error', function(err) {
@@ -101,6 +106,12 @@ function motionSyncSetup() {
 motionSyncSetup();
 
 var busyAuxPulse = false;
+var busyPhoto = false;
+var pendingPhoto = false;
+var retryHandle = null;
+var referencePhotoRes = null;
+var retryCounter = 0;
+
 
 function motionSyncPulse(callback) {
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode != 'aux') {
@@ -940,22 +951,21 @@ function scheduled(noResume) {
     }
 }
 
-var busyPhoto = false;
-var pendingPhoto = false;
-var retryHandle = null;
-var referencePhotoRes = null;
-var retryCounter = 0;
-
 function runPhoto(isRetry) {
     if(!intervalometer.status.running) {
         busyPhoto = false;
+        busyExposure = false;
+        pendingPhoto = false;
         intervalometer.status.stopping = false;
         return;
     }
 
     if(busyAuxPulse) return setTimeout(runPhoto, 100);
     
-    if((busyPhoto || busyExposure) && pendingPhoto && !isRetry) return; // drop frame if backed up
+    if((busyPhoto || busyExposure) && pendingPhoto && !isRetry) {
+        console.log("INTERVALOMETER: dropping frame!");
+        return; // drop frame if backed up
+    }
 
     if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode != "fixed") {
         if(retryCounter == 0) {

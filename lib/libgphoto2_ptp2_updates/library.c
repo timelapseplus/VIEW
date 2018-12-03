@@ -1901,6 +1901,9 @@ static struct {
 	/* Thorsten Ludewig <t.ludewig@gmail.com> */
 	{"Canon:EOS 70D",			0x04a9, 0x3253, PTP_CAP|PTP_CAP_PREVIEW},
 
+	/* Thomas Schaaf <thomas.schaaf@komola.de> */
+	{"Canon:EOS 6d Mark II",		0x04a9, 0x32ca, PTP_CAP|PTP_CAP_PREVIEW},
+
 	/* Thorsten Ludewig <t.ludewig@gmail.com> */
 	{"Canon:PowerShot G15",			0x04a9, 0x3258, PTPBUG_DELETE_SENDS_EVENT},
 
@@ -4415,8 +4418,6 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		waitMS = 1000;
 	}
 
-	uint16_t	ret;
-
 	// clear out old events
 	GP_LOG_D ("**** GH5: checking old events...");
 	C_PTP_REP (ptp_check_event (params));
@@ -4424,7 +4425,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	while (ptp_get_one_event(params, &event));
 
 	GP_LOG_D ("**** GH5: trigger capture...");
-	ret = ptp_panasonic_capture(params);
+	C_PTP_REP( ptp_panasonic_capture(params) );
 
 	usleep(waitMS * 1000);
 
@@ -4473,7 +4474,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
 
-		ret = gp_filesystem_append (camera->fs, path->folder, path->name, context);
+		C_PTP_REP ( gp_filesystem_append (camera->fs, path->folder, path->name, context) );
 
 		/* we also get the fs info for free, so just set it */
 		CameraFileInfo info;
@@ -4516,13 +4517,11 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	uint32_t *objects;
 	int length = 0;
 
-	uint16_t	ret;
-
 	// clear out old events
 	//C_PTP_REP (ptp_check_event (params));
 	//while (ptp_get_one_event(params, &event));
 
-	ret = ptp_olympus_omd_capture(params);
+	C_PTP_REP( ptp_olympus_omd_capture(params) );
 
 	usleep(100);
 
@@ -4573,7 +4572,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
 
-		ret = gp_filesystem_append (camera->fs, path->folder, path->name, context);
+		C_PTP_REP ( gp_filesystem_append (camera->fs, path->folder, path->name, context) );
 
 		/* we also get the fs info for free, so just set it */
 		CameraFileInfo info;
