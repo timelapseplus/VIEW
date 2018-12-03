@@ -232,11 +232,27 @@ GenieMini.prototype.move = function(motor, degrees, callback) {
     self._write(0x005E, dataBuf, function(err) {
         self._moving = true;
         if (!err) {
+            var n = 0;
             var check = function() {
                 setTimeout(function() {
-                    if(self._moving === undefined) return check();;
-                    if(self._moving) {
-                        check(); // keep checking until stop
+                    if(self._moving || self._moving === undefined) {
+                        n++;
+                        if(n > 90) {
+                            console.log("GenieMini(" + self._id + "): ERROR: timed out waiting for move");
+                            if (callback) callback("timeout");
+                            self._moving = false;
+                        } else if(n % 3 == 0) {
+                            self._write(0x001E, dataBuf, function(err) { // make sure we don't stall, initiate read
+                                if(err) {
+                                    if (callback) callback(err);
+                                    self._moving = false;
+                                } else {
+                                    check(); // keep checking until stop
+                                }
+                            });
+                        } else {
+                            check(); // keep checking until stop
+                        }
                     } else {
                         self._position += steps;
                         console.log("GenieMini(" + self._id + "): position:", self._position);
