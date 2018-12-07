@@ -4425,7 +4425,12 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	while (ptp_get_one_event(params, &event));
 
 	GP_LOG_D ("**** GH5: trigger capture...");
-	C_PTP_REP( ptp_panasonic_capture(params) );
+	uint16_t	ret;
+	ret = ptp_panasonic_capture(params);
+	if(ret != PTP_RC_OK) {
+		GP_LOG_D ("**** GH5: capture error: %04x", ret);
+		return ret;
+	}
 
 	usleep(waitMS * 1000);
 
@@ -4521,8 +4526,12 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	//C_PTP_REP (ptp_check_event (params));
 	//while (ptp_get_one_event(params, &event));
 
-	C_PTP_REP( ptp_olympus_omd_capture(params) );
-
+	uint16_t	ret;
+	ret = ptp_olympus_omd_capture(params);
+	if(ret != PTP_RC_OK) {
+		GP_LOG_D ("**** GH5: capture error: %04x", ret);
+		return ret;
+	}
 	usleep(100);
 
 	event_start = time_now();
