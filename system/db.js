@@ -273,7 +273,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			if(data.frames) frames = parseInt(data.frames);
 			frames++;
 			_currentTimelapsePrimaryCamera = data.primary_camera;
-			if(!data.thumbnail && thumbnail && data.primary_camera == cameraNumber) {
+			if((!data.thumbnail || data.thumbnail == "null") && thumbnail && data.primary_camera == cameraNumber) {
 				console.log("setting clip thumbnail to:", thumbnail);
 				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
 			} else {

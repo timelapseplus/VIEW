@@ -85,6 +85,14 @@ intervalometer.emit("intervalometer.status", intervalometer.status);
 
 var auxTrigger = new Button('input-aux2');
 
+var busyAuxPulse = false;
+var busyPhoto = false;
+var busyKeyframes = false;
+var pendingPhoto = false;
+var retryHandle = null;
+var referencePhotoRes = null;
+var retryCounter = 0;
+
 auxTrigger.on('press', function() {
     if (timerHandle) clearTimeout(timerHandle);
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto) {
@@ -104,13 +112,6 @@ function motionSyncSetup() {
     aux2out({lengthMs: 0, invert: auxMotionConfig.inverted}, function(){});
 }
 motionSyncSetup();
-
-var busyAuxPulse = false;
-var busyPhoto = false;
-var pendingPhoto = false;
-var retryHandle = null;
-var referencePhotoRes = null;
-var retryCounter = 0;
 
 
 function motionSyncPulse(callback) {
@@ -956,6 +957,7 @@ function runPhoto(isRetry) {
         busyPhoto = false;
         busyExposure = false;
         pendingPhoto = false;
+        busyKeyframes = false;
         intervalometer.status.stopping = false;
         return;
     }
@@ -967,10 +969,11 @@ function runPhoto(isRetry) {
         return; // drop frame if backed up
     }
 
-    if ((busyPhoto || busyExposure) && intervalometer.currentProgram.rampMode != "fixed") {
+    if ((busyPhoto || busyExposure || busyKeyframes) && intervalometer.currentProgram.rampMode != "fixed") {
         if(retryCounter == 0) {
             if(busyPhoto) console.log("P");
             if(busyExposure) console.log("E");
+            if(busyKeyframes) console.log("K");
         }
         retryCounter++;
         if(retryCounter >= 20) retryCounter = 0;
@@ -1044,8 +1047,11 @@ function runPhoto(isRetry) {
                     intervalometer.cancel('done');
                 }
                 dynamicChangeUpdate();
+                busyKeyframes = true;
+                busyPhoto = false;
                 processKeyframes(false, function() {
-                    busyPhoto = false;
+                    busyKeyframes = false;
+                    pendingPhoto = false;
                 });
             });
         } else {
@@ -1165,8 +1171,11 @@ function runPhoto(isRetry) {
                     intervalometer.status.framesRemaining = 0;
                     intervalometer.cancel('done');
                 }
+                busyKeyframes = true;
+                busyPhoto = false;
                 processKeyframes(false, function() {
-                    busyPhoto = false;
+                    busyKeyframes = false;
+                    pendingPhoto = false;
                 });
             });
         }
