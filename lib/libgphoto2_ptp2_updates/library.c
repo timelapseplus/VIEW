@@ -4429,7 +4429,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	ret = ptp_panasonic_capture(params);
 	if(ret != PTP_RC_OK) {
 		GP_LOG_D ("**** GH5: capture error: %04x", ret);
-		return ret;
+		return GP_ERROR;
 	}
 
 	usleep(waitMS * 1000);
@@ -4529,8 +4529,8 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	uint16_t	ret;
 	ret = ptp_olympus_omd_capture(params);
 	if(ret != PTP_RC_OK) {
-		GP_LOG_D ("**** GH5: capture error: %04x", ret);
-		return ret;
+		GP_LOG_D ("**** OMD: capture error: %04x", ret);
+		return GP_ERROR;
 	}
 	usleep(100);
 
