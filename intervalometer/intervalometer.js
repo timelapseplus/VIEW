@@ -96,6 +96,7 @@ var retryCounter = 0;
 auxTrigger.on('press', function() {
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto) {
         console.log("AUX2 trigger!");
+        if(timerHandle) clearTimeout(timerHandle);
         timerHandle = setTimeout(runPhoto, 0);
     } else {
         console.log("AUX2 trigger! (ignoring)");
@@ -340,7 +341,7 @@ function processKeyframes(setupFirst, callback) {
             if(m == 'focus') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', camera.ptp.settings.focusPos, function(focus) {
                     var doFocus = function() {
-                        console.log("KF: Moving focus by " + focus + " steps");
+                        console.log("KF: Moving focus by " + focus + " steps (currentPos=" + camera.ptp.settings.focusPos + ")");
                         var dir = focus > 0 ? 1 : -1;
                         var steps = Math.abs(focus);
                         camera.ptp.focus(dir, steps, function() {
