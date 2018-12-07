@@ -94,7 +94,6 @@ var referencePhotoRes = null;
 var retryCounter = 0;
 
 auxTrigger.on('press', function() {
-    if (timerHandle) clearTimeout(timerHandle);
     if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto) {
         console.log("AUX2 trigger!");
         timerHandle = setTimeout(runPhoto, 0);
@@ -954,7 +953,7 @@ function scheduled(noResume) {
 }
 
 function runPhoto(isRetry) {
-    console.log("#############################");
+    //console.log("#############################");
     if(!intervalometer.status.running) {
         busyPhoto = false;
         busyExposure = false;
@@ -1178,6 +1177,7 @@ function runPhoto(isRetry) {
                 processKeyframes(false, function() {
                     busyKeyframes = false;
                     pendingPhoto = false;
+                    console.log("INTERVALOMETER: KF completed.");
                 });
             });
         }
