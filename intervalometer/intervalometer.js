@@ -123,6 +123,7 @@ function motionSyncPulse(callback) {
                 busyAuxPulse = true;
                 aux2out({lengthMs: auxMotionConfig.lengthMs, invert: auxMotionConfig.inverted}, function(){
                     busyAuxPulse = false;
+                    console.log("=> AUX Pulse Complete");
                     callback && callback();
                 });
                 //gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
@@ -953,6 +954,7 @@ function scheduled(noResume) {
 }
 
 function runPhoto(isRetry) {
+    console.log("#############################");
     if(!intervalometer.status.running) {
         busyPhoto = false;
         busyExposure = false;
