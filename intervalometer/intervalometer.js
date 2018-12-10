@@ -203,7 +203,6 @@ function calculateIntervalMs(interval, currentEv) {
     }
 }
 
-var axisPositions = {};
 function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, position, motionFunction) {
     if(interpolationMethod != 'smooth') interpolationMethod = 'linear';
     if (intervalometer.status.running && keyframes && keyframes.length > 0 && keyframes[0].position != null) {
@@ -212,9 +211,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
 
         if (setupFirst) {
             keyframes[0].seconds = 0;
-            //keyframes[0].position = position || null;
             kfSet = keyframes[0].position;
-            axisPositions[axisName] = position;
             intervalometer.status.keyframeSeconds = 0;
             intervalometer.status.keyframesFrames = intervalometer.status.frames;
         } else {
@@ -244,15 +241,14 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             console.log("KF: " + axisName + " target: " + kfSet, "points:", kfPoints);
         }
 
-        if (axisPositions[axisName] == null) {
+        if (position == null) {
             motionFunction(kfSet, axisName); // absolute setting (like ev)
         } else {
             var precision = axisName == 'focus' ? 1 : 10000; // limit precision to ensure we hit even values
             var kfTarget = Math.round(kfSet * precision) / precision;
-            if (kfTarget != Math.round(axisPositions[axisName] * precision) / precision) {
-                var relativeMove = kfTarget - axisPositions[axisName];
+            if (kfTarget != Math.round(position * precision) / precision) {
+                var relativeMove = kfTarget - position;
                 if (motionFunction) motionFunction(relativeMove, axisName);
-                axisPositions[axisName] = kfTarget;
             } else {
                 if (motionFunction) motionFunction(null, axisName);
             }

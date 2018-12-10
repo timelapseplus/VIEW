@@ -3566,6 +3566,7 @@ if (VIEW_HARDWARE) {
                     db.eraseAll();
                     clips.eraseAll();
                     exec("sudo rm /etc/udev/rules.d/70-persistent-net.rules");
+                    exec("rm /home/view/logsForUpload/*");
                     setTimeout(cb, 500);
                 }
             }
@@ -4621,6 +4622,7 @@ db.get('custom-longitude', function(err, lon) {
 
 
 db.get('buttonMode', function(err, mode) {
+    if(!mode) mode = "blink";
     power.setButtons(mode);
 });
 
