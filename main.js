@@ -3720,13 +3720,14 @@ if (VIEW_HARDWARE) {
     }
 
     var buildTimeZone = function(tz) {
+        var sign = tz < 0 ? "-" + "+";
+        tz = Math.abs(tz);
         var hour = Math.floor(tz);
         var minute = (tz - hour) * 60;
         var tzHourString = hour.toString();
         var tzMinuteString = minute ? minute.toString() : "00";
         if(tzHourString.length < 2) tzHourString = '0' + tzHourString;
-        if(tz >= 0) tzHourString = '+' + tzHourString;
-        var tzString = "GMT" + tzHourString + ":" + tzMinuteString;
+        var tzString = "GMT" + sign + tzHourString + ":" + tzMinuteString;
         return {
             name: "Time Zone",
             value: tzString,
