@@ -3720,7 +3720,7 @@ if (VIEW_HARDWARE) {
     }
 
     var buildTimeZone = function(tz) {
-        var sign = tz < 0 ? "-" + "+";
+        var sign = tz < 0 ? "-" : "+";
         tz = Math.abs(tz);
         var hour = Math.floor(tz);
         var minute = (tz - hour) * 60;
