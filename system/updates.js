@@ -147,7 +147,7 @@ function download(href, path, progressCallback, callback) {
 	});
 	dl.on('end', function(output) {
 	    console.log("UPDATES: download complete: ", output);
-	    if(dl.cancelled) {
+	    if(dl && dl.cancelled) {
 			callback("cancelled");
 	    } else {
 			callback(null, path);
