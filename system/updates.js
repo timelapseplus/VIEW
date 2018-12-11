@@ -475,9 +475,9 @@ exports.installVersion = function(versionInfo, callback, statusCallback) {
 			if(downloadTimer) clearTimeout(downloadTimer);
 			downloadTimer = null;
 			if(err) {
+				exports.installing = false;
 				if(dl && dl.retry) {
 					updateStatus('retrying download...', 0.0);
-					exports.installing = false;
 					return exports.installVersion(versionInfo, callback, statusCallback);
 				} else if(dl && dl.cancelled) {
 					updateStatus('download cancelled');
