@@ -3720,16 +3720,19 @@ if (VIEW_HARDWARE) {
     }
 
     var buildTimeZone = function(tz) {
-        var tzString = tz.toString();
-        if(tzString.length < 2) tzString = '0' + tzString;
-        if(tz >= 0) tzString = '+' + tzString;
-        tzString = "GMT" + tzString + ":00";
+        var hour = Math.floor(tz);
+        var minute = (tz - hour) * 60;
+        var tzHourString = hour.toString();
+        var tzMinuteString = minute ? minute.toString() : "00";
+        if(tzHourString.length < 2) tzHourString = '0' + tzHourString;
+        if(tz >= 0) tzHourString = '+' + tzHourString;
+        var tzString = "GMT" + tzHourString + ":" + tzMinuteString;
         return {
             name: "Time Zone",
             value: tzString,
             help: help.setTimezone,
             action: ui.set(mcu, 'timezone', tzString, function(cb) {
-                db.set('timezone', tzString.toString());
+                db.set('timezone', tzString);
                 cb && cb();
             })
         }
@@ -3741,12 +3744,14 @@ if (VIEW_HARDWARE) {
         items: [
             buildTimeZone(-11),
             buildTimeZone(-10),
+            buildTimeZone(-9.5),
             buildTimeZone(-9),
             buildTimeZone(-8),
             buildTimeZone(-7),
             buildTimeZone(-6),
             buildTimeZone(-5),
             buildTimeZone(-4),
+            buildTimeZone(-3.5),
             buildTimeZone(-3),
             buildTimeZone(-2),
             buildTimeZone(-1),
@@ -3754,14 +3759,26 @@ if (VIEW_HARDWARE) {
             buildTimeZone(1),
             buildTimeZone(2),
             buildTimeZone(3),
+            buildTimeZone(3.5),
             buildTimeZone(4),
+            buildTimeZone(4.5),
             buildTimeZone(5),
+            buildTimeZone(5.5),
+            buildTimeZone(5.75),
             buildTimeZone(6),
+            buildTimeZone(6.5),
             buildTimeZone(7),
             buildTimeZone(8),
+            buildTimeZone(8.75),
             buildTimeZone(9),
+            buildTimeZone(9.5),
             buildTimeZone(10),
+            buildTimeZone(10.5),
             buildTimeZone(11),
+            buildTimeZone(12),
+            buildTimeZone(13),
+            buildTimeZone(13.75),
+            buildTimeZone(14),
         ]
     }
 

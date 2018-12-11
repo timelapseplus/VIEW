@@ -36,9 +36,9 @@ mcu.init = function(callback) {
 }
 
 mcu.timezoneOffset = function() {
-	var matches = mcu.timezone.match(/GMT([+-][0-9]+)/);
+	var matches = mcu.timezone.match(/GMT([+-][0-9]+):([0-9]+)/);
 	if(matches && matches.length > 1) {
-		return parseInt(matches[1]);
+		return parseInt(matches[1]) * 60 + parseInt(matches[2]);
 	}
 	return 0;
 }
