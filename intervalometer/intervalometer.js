@@ -248,9 +248,9 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             var kfTarget = Math.round(kfSet * precision) / precision;
             if (kfTarget != Math.round(position * precision) / precision) {
                 var relativeMove = kfTarget - position;
-                if (motionFunction) motionFunction(relativeMove, axisName);
+                if (motionFunction) motionFunction(relativeMove, axisName, kfTarget);
             } else {
-                if (motionFunction) motionFunction(null, axisName);
+                if (motionFunction) motionFunction(null, axisName, kfTarget);
             }
         }
 
@@ -335,7 +335,7 @@ function processKeyframes(setupFirst, callback) {
 
         if(axis.type == 'keyframe') {
             if(m == 'focus') {
-                doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', camera.ptp.settings.focusPos, function(focus) {
+                doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', camera.ptp.settings.focusPos, function(focus, axisName, absFocus) {
                     var doFocus = function() {
                         console.log("KF: Moving focus by " + focus + " steps (currentPos=" + camera.ptp.settings.focusPos + ")");
                         var dir = focus > 0 ? 1 : -1;
@@ -352,7 +352,7 @@ function processKeyframes(setupFirst, callback) {
                                     });
                                 }, 500);
                             }
-                        });
+                        }, absFocus);
                     }
                     focus += intervalometer.status.focusDiffNew;
                     intervalometer.status.focusDiffNew = 0;

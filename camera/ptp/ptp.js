@@ -1016,7 +1016,7 @@ function focusNikon(step, repeat, callback) {
     doFocus();
 }
 var fujiFocusPosCache = null;
-function focusFuji(step, repeat, callback) {
+function focusFuji(step, repeat, callback, absPos) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
     var attempts = 0;
@@ -1070,10 +1070,14 @@ function focusFuji(step, repeat, callback) {
     }
     var startFocus = function(cb) {
         if(camera.settings.fujifocus == 'enabled') {
-            if(fujiFocusPosCache != null) {
-                doFocus(parseInt(fujiFocusPosCache) + relativeMove, cb);
+            if(absPos != null) {
+                doFocus(absPos * FUJI_FOCUS_RESOLUTION, cb);
             } else {
-                doFocus(null, cb);
+                if(fujiFocusPosCache != null) {
+                    doFocus(parseInt(fujiFocusPosCache) + relativeMove, cb);
+                } else {
+                    doFocus(null, cb);
+                }
             }
         } else {
             fujiFocusPosCache = null;
@@ -1085,7 +1089,8 @@ function focusFuji(step, repeat, callback) {
                     camera.getSettings(function(err, settings){
                         if(settings.fujifocus == 'enabled') {
                             attempts = 0;
-                            doFocus(null, cb);
+                            startFocus(cb);
+                            //doFocus(null, cb);
                         } else {
                             attempts++;
                             if(attempts < 5) {
@@ -1122,7 +1127,7 @@ function focusFuji(step, repeat, callback) {
         startFocus(callback);
     }
 }
-camera.focus = function(step, repeat, callback) {
+camera.focus = function(step, repeat, callback, absPos) {
     console.log("PTP: moving focus", step * repeat, "steps");
     var worker = getPrimaryWorker();
     if (worker && camera.connected) {
@@ -1137,7 +1142,7 @@ camera.focus = function(step, repeat, callback) {
             focusNikon(step, repeat, callback);
         } else if(worker.model.match(/fuji/i)) {
             console.log("PTP: focus: fuji");
-            focusFuji(step, repeat, callback);
+            focusFuji(step, repeat, callback, absPos);
         } else if(camera.settings.sonyfocus == 'enabled') {
             console.log("PTP: focus: sony");
             focusSony(step, repeat, callback);
