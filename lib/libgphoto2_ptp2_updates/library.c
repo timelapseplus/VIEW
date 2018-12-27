@@ -949,8 +949,6 @@ static struct {
 	/* t.ludewig@gmail.com */
 	{"Sony:NEX-3N",    0x054c, 0x072f, 0},
 
-	/* Thorsten Ludewig <t.ludewig@gmail.com> */
-	{"Sony:SLT-A58",	      0x054c, 0x0736, 0},
 	/* Marcus Meissner */
 	{"Sony:SLT-A58",    0x054c, 0x0737, PTP_CAP},
 
@@ -961,9 +959,6 @@ static struct {
 
 	/* https://github.com/gphoto/libgphoto2/issues/70 */
 	{"Sony:Alpha-A6300 (MTP)",    0x054c, 0x077a, 0},
-
-	/* https://github.com/gphoto/libgphoto2/issues/190 */
-	{"Sony:Alpha-A6500",	      0x054c, 0x0784, 0},
 
 	/* hanes442@icloud.com */
 	{"Sony:DSC-RX100M5",0x054c, 0x07a3, PTP_CAP},
@@ -2127,6 +2122,7 @@ static struct {
 	{"Fuji:Fujifilm X-T3",			0x04cb, 0x02dd, PTP_CAP},
 	{"Fuji:Fujifilm X-H1",			0x04cb, 0x02d7, PTP_CAP},
 	{"Fuji:Fujifilm GFX 50S",		0x04cb, 0x02d3, PTP_CAP},
+	{"Fuji:Fujifilm GFX 50R",		0x04cb, 0x02dc, PTP_CAP},
 
 	/* https://github.com/gphoto/libgphoto2/issues/133 */
 	//{"Fuji:GFX 50 S",			0x04cb, 0x02d3, 0},

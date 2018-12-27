@@ -204,7 +204,7 @@ var startWorker = function(port) {
                     worker.supports.destination = true;
                     if(worker.model != 'SonyWifi' && worker.model.match(/sony/i)) {
                         worker.supports.thumbnail = false;
-                        if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|A7 II|A7 III|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 M2|a99 II|a77 II|a68|A9)/i)) {
+                        if(worker.model.match(/(a6300|A7r II|A7r III|A7s II|7M2|A7 II|A7 III|ILCE-7M2|ILCE-7M2|A7s|a6500|a99 M2|a99 II|a77 II|a68|A9)/i)) {
                             worker.supports.liveview = true;
                         }
                         if(worker.model.match(/(A7r III|A9|A7 III)/i)) {
