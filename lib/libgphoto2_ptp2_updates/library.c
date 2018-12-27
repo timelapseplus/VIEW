@@ -4425,7 +4425,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	ret = ptp_panasonic_capture(params);
 	if(ret != PTP_RC_OK) {
 		GP_LOG_D ("**** GH5: capture error: %04x", ret);
-		//return GP_ERROR;
+		return GP_ERROR;
 	}
 
 	usleep(waitMS * 1000);
@@ -4475,7 +4475,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
 
-		C_PTP_REP ( gp_filesystem_append (camera->fs, path->folder, path->name, context) );
+		gp_filesystem_append (camera->fs, path->folder, path->name, context);
 
 		/* we also get the fs info for free, so just set it */
 		CameraFileInfo info;
@@ -4577,7 +4577,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 		/* delete last / or we get confused later. */
 		path->folder[ strlen(path->folder)-1 ] = '\0';
 
-		C_PTP_REP ( gp_filesystem_append (camera->fs, path->folder, path->name, context) );
+		gp_filesystem_append (camera->fs, path->folder, path->name, context);
 
 		/* we also get the fs info for free, so just set it */
 		CameraFileInfo info;
