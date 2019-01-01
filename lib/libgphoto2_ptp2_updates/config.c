@@ -5713,7 +5713,7 @@ _put_Canon_EOS_MFDrive(CONFIG_PUT_ARGS) {
 	if (!ptp_operation_issupported(params, PTP_OC_CANON_EOS_DriveLens)) 
 		return (GP_ERROR_NOT_SUPPORTED);
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (*widget, _("None"));
+	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
@@ -5756,7 +5756,7 @@ _put_Panasonic_MFDrive(CONFIG_PUT_ARGS) {
 	PTPParams *params = &(camera->pl->params);
 
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (*widget, _("None"));
+	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
@@ -5812,7 +5812,7 @@ _put_Olympus_OMD_MFDrive(CONFIG_PUT_ARGS) {
 	if (!ptp_operation_issupported(params, PTP_OC_OLYMPUS_OMD_MFDrive)) 
 		return (GP_ERROR_NOT_SUPPORTED);
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (*widget, _("None"));
+	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
