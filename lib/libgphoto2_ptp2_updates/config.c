@@ -5754,8 +5754,6 @@ _put_Panasonic_MFDrive(CONFIG_PUT_ARGS) {
 	uint16_t mode = 0x02;
 	PTPParams *params = &(camera->pl->params);
 
-	if (!ptp_operation_issupported(params, PTP_OC_PANASONIC_ManualFocusDrive)) 
-		return (GP_ERROR_NOT_SUPPORTED);
 	gp_widget_get_value(widget, &val);
 
 	if (!strcmp (val, _("None"))) return GP_OK;
