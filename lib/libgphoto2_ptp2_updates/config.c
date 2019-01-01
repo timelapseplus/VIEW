@@ -5713,7 +5713,6 @@ _put_Canon_EOS_MFDrive(CONFIG_PUT_ARGS) {
 	if (!ptp_operation_issupported(params, PTP_OC_CANON_EOS_DriveLens)) 
 		return (GP_ERROR_NOT_SUPPORTED);
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
@@ -5725,6 +5724,7 @@ _put_Canon_EOS_MFDrive(CONFIG_PUT_ARGS) {
 			xval |= 0x8000;
 		}
 	}
+	gp_widget_set_value (widget, _("None"));
 	C_PTP_MSG (ptp_canon_eos_drivelens (params, xval),
 		   "Canon manual focus drive 0x%x failed", xval);
 	/* Get the next set of event data */
@@ -5756,7 +5756,6 @@ _put_Panasonic_MFDrive(CONFIG_PUT_ARGS) {
 	PTPParams *params = &(camera->pl->params);
 
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
@@ -5776,6 +5775,7 @@ _put_Panasonic_MFDrive(CONFIG_PUT_ARGS) {
 		if(xval == 2) mode = 0x01;
 	}
 
+	gp_widget_set_value (widget, _("None"));
 	C_PTP_MSG (ptp_panasonic_manualfocusdrive (params, mode),
 		   "Panasonic manual focus drive 0x%x failed", xval);
 	/* Get the next set of event data */
@@ -5812,7 +5812,6 @@ _put_Olympus_OMD_MFDrive(CONFIG_PUT_ARGS) {
 	if (!ptp_operation_issupported(params, PTP_OC_OLYMPUS_OMD_MFDrive)) 
 		return (GP_ERROR_NOT_SUPPORTED);
 	gp_widget_get_value(widget, &val);
-	gp_widget_set_value (widget, _("None"));
 
 	if (!strcmp (val, _("None"))) return GP_OK;
 
@@ -5828,6 +5827,7 @@ _put_Olympus_OMD_MFDrive(CONFIG_PUT_ARGS) {
 	if(xval == 2) step_size = 0x0e;
 	if(xval == 3) step_size = 0x3c;
 
+	gp_widget_set_value (widget, _("None"));
 	C_PTP_MSG (ptp_olympus_omd_move_focus (params, direction, step_size),
 		   "Olympus manual focus drive 0x%x failed", xval);
 	return GP_OK;
