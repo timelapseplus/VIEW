@@ -210,7 +210,7 @@ var startWorker = function(port) {
                         if(worker.model.match(/(A7r III|A9|A7 III)/i)) {
                             console.log("PTP: matched sony, setting supports.destination = true");
                             worker.supports.destination = true;
-                            worker.supports.thumbnail = true;
+                            //worker.supports.thumbnail = true; // doesn't actually work -- partial objects are not supported
                             worker.supports.focus = true;
                         } else {
                             console.log("PTP: matched sony, setting supports.destination = false");
@@ -219,6 +219,7 @@ var startWorker = function(port) {
                     } else if(worker.model.match(/panasonic/i)) {
                         if(worker.model.match(/gh5/i) || worker.model.match(/g9/i)) {
                             worker.supports.liveview = true;
+                            worker.supports.focus = true;
                         } else {
                             worker.supports.liveview = false;
                         }
@@ -906,6 +907,57 @@ function focusOlympus(step, repeat, callback) {
     }
     doFocus();
 }
+function focusPanasonic(step, repeat, callback) {
+    var worker = getPrimaryWorker();
+    if (!repeat) repeat = 1;
+    var param;
+    if (!step) return callback && callback(null, camera.focusPos);
+    if (step < 0) {
+        param = "Near 2";
+        if (step < -1) param = "Near 3";
+    } else {
+        param = "Far 2";
+        if (step > 1) param = "Far 3";
+    }
+    var errCount = 0;
+    var errorLimit = 10;
+
+    if(Math.abs(step) == 1) {
+        camera.focusPos += (step * repeat);
+    }
+
+    var doFocus = function() {
+        if(worker.connected) {
+                worker.send({
+                type: 'camera',
+                setDirect: 'manualfocusdrive',
+                value: param,
+                id: getCallbackId(worker.port, 'focusOlympus', function(err) {
+                    if(err) {
+                        errCount++;
+                        if(errCount > errorLimit) {
+                            console.log("focus move error", err);
+                            return callback && callback(err);
+                        }
+                    } else {
+                        errCount = 0;
+                        repeat--;
+                    }
+                    if (repeat > 0) {
+                        var pause = repeat % 5 == 0 ? 50 : 5;
+                        console.log(pause);
+                        setTimeout(doFocus, pause);
+                    } else {
+                        if (callback) callback(null, camera.focusPos);
+                    }
+                })
+            });
+        } else {
+            if (callback) callback("not connected");
+        }
+    }
+    doFocus();
+}
 function focusSony(step, repeat, callback) {
     var worker = getPrimaryWorker();
     if (!repeat) repeat = 1;
@@ -1134,6 +1186,9 @@ camera.focus = function(step, repeat, callback, absPos) {
         if(worker.model.match(/olympus/i)) {
             console.log("PTP: focus: olympus");
             focusOlympus(step, repeat, callback);
+        } else if(worker.model.match(/panasonic/i)) {
+            console.log("PTP: focus: panasonic");
+            focusPanasonic(step, repeat, callback);
         } else if(camera.settings.focusdrive == 'canon') {
             console.log("PTP: focus: canon");
             focusCanon(step, repeat, callback);
