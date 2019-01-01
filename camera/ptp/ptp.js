@@ -913,11 +913,11 @@ function focusPanasonic(step, repeat, callback) {
     var param;
     if (!step) return callback && callback(null, camera.focusPos);
     if (step < 0) {
-        param = "Near 2";
-        if (step < -1) param = "Near 3";
+        param = "Near 1";
+        if (step < -1) param = "Near 2";
     } else {
-        param = "Far 2";
-        if (step > 1) param = "Far 3";
+        param = "Far 1";
+        if (step > 1) param = "Far 2";
     }
     var errCount = 0;
     var errorLimit = 10;
