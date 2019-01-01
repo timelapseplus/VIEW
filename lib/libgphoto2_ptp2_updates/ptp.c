@@ -3408,12 +3408,13 @@ ptp_panasonic_manualfocusdrive (PTPParams* params, uint16_t mode)
 	uint16_t	ret;
 	unsigned char	*data;
 	uint32_t propcode = 0x03010011;
-	uint32_t size = 6;
+	uint32_t size = 6 + 4;
 	uint32_t type = 2;
 	data = calloc(size, sizeof(unsigned char));
 
-	memcpy(data, &type, 4);
-	memcpy(&data[4], &mode, 2);
+	memcpy(data, &propcode, 4);
+	memcpy(&data[4], &type, 4);
+	memcpy(&data[8], &mode, 2);
 
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_ManualFocusDrive, propcode);
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
