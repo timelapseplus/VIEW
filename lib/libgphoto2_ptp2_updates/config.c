@@ -5778,8 +5778,6 @@ _put_Panasonic_MFDrive(CONFIG_PUT_ARGS) {
 	gp_widget_set_value (widget, _("None"));
 	C_PTP_MSG (ptp_panasonic_manualfocusdrive (params, mode),
 		   "Panasonic manual focus drive 0x%x failed", xval);
-	/* Get the next set of event data */
-	C_PTP (ptp_check_eos_events (params));
 	return GP_OK;
 }
 
