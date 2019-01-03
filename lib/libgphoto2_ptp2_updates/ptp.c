@@ -3423,6 +3423,28 @@ ptp_panasonic_manualfocusdrive (PTPParams* params, uint16_t mode)
 }
 
 uint16_t
+ptp_panasonic_setcapturetarget (PTPParams* params, uint16_t mode) // mode == 1 == RAM, mode == 0 == SD
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned char	*data;
+	uint32_t propcode = 0x00000000;
+	uint32_t propcodedata = 0x08000091;
+	uint32_t size = 6 + 4;
+	uint32_t type = 2;
+	data = calloc(size, sizeof(unsigned char));
+
+	memcpy(data, &propcodedata, 4);
+	memcpy(&data[4], &type, 4);
+	memcpy(&data[8], &mode, 2);
+
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_SetCaptureTarget, propcode);
+	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, size, &data, NULL);
+	free(data);
+	return ret;
+}
+
+uint16_t
 ptp_panasonic_getdevicepropertydesc (PTPParams *params, uint32_t propcode, uint16_t valuesize, uint32_t *currentValue, uint32_t **propertyValueList, uint32_t *propertyValueListLength)
 {
 	PTPContainer	ptp;

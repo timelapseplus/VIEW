@@ -6936,6 +6936,14 @@ _put_CaptureTarget(CONFIG_PUT_ARGS) {
 	)
 		CR (camera_canon_eos_update_capture_target( camera, context, -1 ));
 
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) ) {
+		if ((GP_OK != gp_setting_get("ptp2","capturetarget",buf)) || !strcmp(buf,"sdram")) {
+			ptp_panasonic_setcapturetarget(params, 1);
+		} else {
+			ptp_panasonic_setcapturetarget(params, 0);
+		}
+	}
+
 	return GP_OK;
 }
 
@@ -7648,6 +7656,7 @@ static struct submenu camera_settings_menu[] = {
 	{ N_("Capture Target"),		"capturetarget",0,  PTP_VENDOR_SONY,   0,  _get_CaptureTarget,     _put_CaptureTarget },
 	{ N_("Autofocus"),		"autofocus",    0,  PTP_VENDOR_NIKON,   0,  _get_Autofocus,         _put_Autofocus },
 	{ N_("Capture Target"),		"capturetarget",0,  PTP_VENDOR_CANON,   0,  _get_CaptureTarget,     _put_CaptureTarget },
+	{ N_("Capture Target"),		"capturetarget",0,  PTP_VENDOR_PANASONIC,   0,  _get_CaptureTarget,     _put_CaptureTarget },
 	{ N_("CHDK"),     		"chdk",		PTP_OC_CHDK,  PTP_VENDOR_CANON,   0,  _get_CHDK,     _put_CHDK },
 	{ N_("Capture"),		"capture",	0,  PTP_VENDOR_CANON,   0,  _get_Canon_CaptureMode, _put_Canon_CaptureMode },
 	{ 0,0,0,0,0,0,0 },
