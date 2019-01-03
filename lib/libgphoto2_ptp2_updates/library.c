@@ -4415,26 +4415,26 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	}
 
 	// clear out old events
-	GP_LOG_D ("**** GH5: checking old events...");
+	GP_LOG_D ("++++ GH5: checking old events...");
 	C_PTP_REP (ptp_check_event (params));
-	GP_LOG_D ("**** GH5: draining old events...");
+	GP_LOG_D ("++++ GH5: draining old events...");
 	while (ptp_get_one_event(params, &event));
 
-	GP_LOG_E ("**** GH5: trigger capture...");
+	GP_LOG_E ("++++ GH5: trigger capture...");
 	uint16_t	ret;
 	ret = ptp_panasonic_capture(params);
 	if(ret != PTP_RC_OK) {
-		GP_LOG_D ("**** GH5: capture error: %04x", ret);
+		GP_LOG_D ("++++ GH5: capture error: %04x", ret);
 		return GP_ERROR;
 	}
 
-	GP_LOG_E ("**** GH5: waiting %d ms", waitMS);
+	GP_LOG_E ("++++ GH5: waiting %d ms", waitMS);
 	usleep(waitMS * 1000);
 
 	event_start = time_now();
 
 	do {
-		GP_LOG_D ("**** GH5: checking for new object...");
+		GP_LOG_E ("++++ GH5: checking for new object...");
 		C_PTP_REP (ptp_check_event (params));
 
 		while (ptp_get_one_event(params, &event)) {
@@ -4445,7 +4445,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				break;
 			case 0xC108:
 				newobject = event.Param1;
-				GP_LOG_E ("**** GH5: new object event");
+				GP_LOG_E ("++++ GH5: new object event");
 				if((newobject & 0x18000000) == 0x18000000) goto downloadfile; // sometimes an object starting with 0x11 is reported, but we need to wait for another
 				break;
 			default:
@@ -4527,7 +4527,7 @@ camera_olympus_omd_capture (Camera *camera, CameraCaptureType type, CameraFilePa
 	uint16_t	ret;
 	ret = ptp_olympus_omd_capture(params);
 	if(ret != PTP_RC_OK) {
-		GP_LOG_D ("**** OMD: capture error: %04x", ret);
+		GP_LOG_D ("++++ OMD: capture error: %04x", ret);
 		//return GP_ERROR;
 	}
 	usleep(100);
