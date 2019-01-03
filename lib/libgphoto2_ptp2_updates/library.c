@@ -4420,7 +4420,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	GP_LOG_D ("**** GH5: draining old events...");
 	while (ptp_get_one_event(params, &event));
 
-	GP_LOG_D ("**** GH5: trigger capture...");
+	GP_LOG_E ("**** GH5: trigger capture...");
 	uint16_t	ret;
 	ret = ptp_panasonic_capture(params);
 	if(ret != PTP_RC_OK) {
@@ -4428,6 +4428,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 		return GP_ERROR;
 	}
 
+	GP_LOG_E ("**** GH5: waiting %d ms", waitMS);
 	usleep(waitMS * 1000);
 
 	event_start = time_now();
@@ -4444,6 +4445,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				break;
 			case 0xC108:
 				newobject = event.Param1;
+				GP_LOG_E ("**** GH5: new object event");
 				if((newobject & 0x18000000) == 0x18000000) goto downloadfile; // sometimes an object starting with 0x11 is reported, but we need to wait for another
 				break;
 			default:
