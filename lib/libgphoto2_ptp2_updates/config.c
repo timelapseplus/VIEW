@@ -6911,6 +6911,15 @@ _get_CaptureTarget(CONFIG_GET_ARGS) {
 		if (!strcmp (buf,capturetargets[i].name))
 			gp_widget_set_value (*widget, _(capturetargets[i].label));
 	}
+
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) ) {
+		if ((GP_OK != gp_setting_get("ptp2","capturetarget",buf)) || !strcmp(buf,"sdram")) {
+			ptp_panasonic_setcapturetarget(params, 1);
+		} else {
+			ptp_panasonic_setcapturetarget(params, 0);
+		}
+	}
+
 	return GP_OK;
 }
 
@@ -6939,9 +6948,9 @@ _put_CaptureTarget(CONFIG_PUT_ARGS) {
 
 	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_PANASONIC) ) {
 		if ((GP_OK != gp_setting_get("ptp2","capturetarget",buf)) || !strcmp(buf,"sdram")) {
-			ptp_panasonic_setcapturetarget(params, 0);
-		} else {
 			ptp_panasonic_setcapturetarget(params, 1);
+		} else {
+			ptp_panasonic_setcapturetarget(params, 0);
 		}
 	}
 
