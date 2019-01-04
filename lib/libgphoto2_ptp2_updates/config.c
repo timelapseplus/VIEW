@@ -6900,6 +6900,7 @@ static int
 _get_CaptureTarget(CONFIG_GET_ARGS) {
 	int i;
 	char buf[1024];
+	PTPParams	*params = &(camera->pl->params);
 
 	gp_widget_new (GP_WIDGET_RADIO, _(menu->label), widget);
 	gp_widget_set_name (*widget, menu->name);
