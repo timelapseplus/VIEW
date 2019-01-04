@@ -3386,6 +3386,7 @@ ptp_panasonic_poll_events (PTPParams* params)
 {
 	PTPContainer	ptp;
 	uint16_t	ret;
+	uint16_t *size;
 	unsigned char	*data;
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_PollEvents);
 	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, size);
