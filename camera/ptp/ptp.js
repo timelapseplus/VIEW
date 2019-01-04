@@ -932,7 +932,7 @@ function focusPanasonic(step, repeat, callback) {
                 type: 'camera',
                 setDirect: 'manualfocusdrive',
                 value: param,
-                id: getCallbackId(worker.port, 'focusOlympus', function(err) {
+                id: getCallbackId(worker.port, 'focusPanasonic', function(err) {
                     if(err) {
                         errCount++;
                         if(errCount > errorLimit) {
@@ -944,7 +944,7 @@ function focusPanasonic(step, repeat, callback) {
                         repeat--;
                     }
                     if (repeat > 0) {
-                        var pause = repeat % 5 == 0 ? 50 : 5;
+                        var pause = 100;//repeat % 5 == 0 ? 100 : 50;
                         console.log(pause);
                         setTimeout(doFocus, pause);
                     } else {
