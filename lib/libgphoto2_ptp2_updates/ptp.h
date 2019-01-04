@@ -744,6 +744,7 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_OC_PANASONIC_9101			 	0x9101
 #define PTP_OC_PANASONIC_Liveview		 	0x9412
 #define PTP_OC_PANASONIC_LiveviewImage   	0x9706
+#define PTP_OC_PANASONIC_PollEvents			0x9414
 #define PTP_OC_PANASONIC_ManualFocusDrive	0x9416
 #define PTP_OC_PANASONIC_SetCaptureTarget	0x940B
 

@@ -3382,6 +3382,18 @@ ptp_olympus_liveview_image (PTPParams* params, char **data, uint16_t *size)
 
 
 uint16_t
+ptp_panasonic_poll_events (PTPParams* params)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	unsigned char	*data;
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_PollEvents);
+	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, size);
+	if(data) free(data);
+	return ret;
+}
+
+uint16_t
 ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 			PTPPropertyValue *value, uint16_t valuesize)
 {
