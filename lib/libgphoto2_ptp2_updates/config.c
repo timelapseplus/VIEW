@@ -6917,7 +6917,7 @@ _get_CaptureTarget(CONFIG_GET_ARGS) {
 static int
 _put_CaptureTarget(CONFIG_PUT_ARGS) {
 	int		i;
-	char	*val
+	char	*val;
 	char  	*buf;
 	PTPParams	*params = &(camera->pl->params);
 	GPContext	*context = ((PTPData *) params->data)->context;
