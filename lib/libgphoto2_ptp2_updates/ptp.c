@@ -3382,12 +3382,11 @@ ptp_olympus_liveview_image (PTPParams* params, char **data, uint16_t *size)
 
 
 uint16_t
-ptp_panasonic_9401 (PTPParams* params)
+ptp_panasonic_9401 (PTPParams* params, uint32_t param1)
 {
 	PTPContainer	ptp;
 	uint16_t	ret;
 	uint16_t *size;
-	uint32_t param1 = 0x01000010;
 	unsigned char	*data;
 	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_9401, param1);
 	ret =  ptp_transaction(params, &ptp, PTP_DP_GETDATA, 0, &data, size);

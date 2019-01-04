@@ -4435,12 +4435,13 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 
 	do {
 		GP_LOG_E ("++++ GH5: checking for new object...");
-		ptp_panasonic_9401(params); // not sure if this is needed
 		C_PTP_REP (ptp_check_event (params));
 
 		while (ptp_get_one_event(params, &event)) {
 			switch (event.Code) {
 			case 0xC101:
+				ptp_panasonic_9401(params, event.Param1); // not sure if this is needed or what this does (following LUMIXTether)
+				break;
 			case 0xC107:
 				//event_start = time_now(); // still working...
 				break;
