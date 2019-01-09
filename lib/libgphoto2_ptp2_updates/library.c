@@ -4451,7 +4451,9 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 				if((newobject & 0x18000000) == 0x18000000) goto downloadfile; // sometimes an object starting with 0x11 is reported, but we need to wait for another
 				break;
 			case 0xC109: // this is for new object in RAM (capturetarget=RAM)
+				GP_LOG_E ("++++ GH5: new object in RAM event");
 				newobject = event.Param1;
+				goto downloadfile;
 				break;
 			default:
 				GP_LOG_D ("unexpected unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
