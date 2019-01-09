@@ -3395,6 +3395,16 @@ ptp_panasonic_9401 (PTPParams* params, uint32_t param1)
 }
 
 uint16_t
+ptp_panasonic_9402 (PTPParams* params, uint32_t param1)
+{
+	PTPContainer	ptp;
+	uint16_t	ret;
+	PTP_CNT_INIT(ptp, PTP_OC_PANASONIC_9402, param1);
+	ret =  ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL, NULL);
+	return ret;
+}
+
+uint16_t
 ptp_panasonic_setdeviceproperty (PTPParams* params, uint32_t propcode,
 			PTPPropertyValue *value, uint16_t valuesize)
 {

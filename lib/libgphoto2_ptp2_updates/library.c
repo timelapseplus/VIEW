@@ -8970,6 +8970,9 @@ camera_init (Camera *camera, GPContext *context)
 	case PTP_VENDOR_FUJI:
 		CR (camera_prepare_capture (camera, context));
 		break;
+	case PTP_VENDOR_PANASONIC:
+		C_PTP (ptp_panasonic_9402(params, 0x10010));
+		break;
 	default:
 		break;
 	}
