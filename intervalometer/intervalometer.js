@@ -1267,12 +1267,12 @@ intervalometer.validate = function(program) {
         results.errors.push({param:false, reason: "unable to read camera settings."});
     } else {
     
-        if(!settingsDetails.iso || settingsDetails.iso.ev == null) {
+        if((!settingsDetails.iso || settingsDetails.iso.ev == null) && program.rampMode != 'fixed') {
             console.log("VAL: Error: invalid ISO setting", settingsDetails.iso);
             results.errors.push({param:false, reason: "invalid ISO setting on camera."});
         }
 
-        if(!settingsDetails.shutter || settingsDetails.shutter.ev == null) {
+        if((!settingsDetails.shutter || settingsDetails.shutter.ev == null) && program.rampMode != 'fixed') {
             console.log("VAL: Error: invalid shutter setting", settingsDetails.shutter);
             results.errors.push({param:false, reason: "invalid shutter setting on camera."});
         }
