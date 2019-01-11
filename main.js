@@ -2039,7 +2039,7 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.axes = {};
                     core.currentProgram.focusPos = 0;
                     core.currentProgram.coords = mcu.validCoordinates();
-                    if(!core.currentProgram.coords) {
+                    if(!core.currentProgram.coords && core.currentProgram.tracking != '15deg') {
                         core.currentProgram.tracking = 'none';
                     }
                     oled.timelapseStatus = null;

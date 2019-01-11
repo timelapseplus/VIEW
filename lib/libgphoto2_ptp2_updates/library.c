@@ -4434,7 +4434,7 @@ camera_panasonic_capture (Camera *camera, CameraCaptureType type, CameraFilePath
 	event_start = time_now();
 
 	do {
-		GP_LOG_E ("++++ GH5: checking for new object...");
+		//GP_LOG_E ("++++ GH5: checking for new object...");
 		C_PTP_REP (ptp_check_event (params));
 
 		while (ptp_get_one_event(params, &event)) {
