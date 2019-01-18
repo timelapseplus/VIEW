@@ -2040,6 +2040,7 @@ if (VIEW_HARDWARE) {
                     core.currentProgram.focusPos = 0;
                     core.currentProgram.coords = mcu.validCoordinates();
                     if(!core.currentProgram.coords && core.currentProgram.tracking != '15deg') {
+                        ui.alert('Tracking Disabled', "WARNING: tracking option was set to '" + core.currentProgram.tracking + "', but GPS coordinates are not available so tracking has been disabled.  The time-lapse will continue to start anyway.");
                         core.currentProgram.tracking = 'none';
                     }
                     oled.timelapseStatus = null;
