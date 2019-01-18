@@ -481,7 +481,6 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
 					di->OperationsSupported[di->OperationsSupported_len+13] = PTP_OC_NIKON_ChangeAfArea;
 					di->OperationsSupported[di->OperationsSupported_len+14] = PTP_OC_NIKON_InitiateCaptureRecInMedia;
 					di->OperationsSupported[di->OperationsSupported_len+15] = PTP_OC_NIKON_AfDriveCancel;
-					di->OperationsSupported[di->OperationsSupported_len+15] = PTP_OC_NIKON_AfDriveCancel;
 					di->OperationsSupported[di->OperationsSupported_len+16] = PTP_OC_NIKON_StartMovieRecInCard;
 					di->OperationsSupported[di->OperationsSupported_len+17] = PTP_OC_NIKON_EndMovieRec;
 					di->OperationsSupported[di->OperationsSupported_len+18] = PTP_OC_NIKON_TerminateCapture;
@@ -2117,6 +2116,8 @@ static struct {
 	{"Fuji:Fujifilm X-T1",			0x04cb, 0x02bf, 0},
 	/* https://github.com/gphoto/libgphoto2/issues/32 */
 	{"Fuji:Fujifilm X-T10",			0x04cb, 0x02c8, 0},
+
+	{"Fuji:Fujifilm X-Pro2",		0x04cb, 0x02cb, PTP_CAP},
 	/* with new updated firmware 1.1 */
 	{"Fuji:Fujifilm X-T2",			0x04cb, 0x02cd, PTP_CAP},
 	{"Fuji:Fujifilm X-T3",			0x04cb, 0x02dd, PTP_CAP},
