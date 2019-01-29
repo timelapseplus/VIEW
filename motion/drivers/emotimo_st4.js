@@ -42,6 +42,7 @@ function _motorName(motorId) {
 }
 
 st4.getStatus = function() {
+	st4.status.connected = st4.connected;
 	return st4.status;
 }
 
@@ -57,6 +58,7 @@ st4.connect = function(path, callback) {
         _port.once('disconnect', function(err) {
             if (err && _port && st4.connected) {
                 _port = null;
+                st4.connected = false;
                 st4.emit("status", st4.getStatus());
                 console.log("ST4: ERROR: ST4 Disconnected: ", err);
             }
@@ -77,7 +79,10 @@ st4.connect = function(path, callback) {
         });
 
         console.log("ST4: checking positions...");
-        st4.getPosition();
+        st4.getPosition(function(){
+		    st4.emit("status", st4.getStatus());
+			console.log("ST4: status:", st4.status);
+        });
         if (callback) callback(true);
     });
 }
