@@ -143,7 +143,8 @@ st4.getPosition = function(callback) {
 
 st4.setPosition = function(motorId, position, callback) {
 	var args = {};
-	args[_motorName(motorId)] = parseInt(position);
+	args['M'] = parseInt(motorId);
+	args['P'] = parseInt(position);
 	_write('G200', args, callback);
 }
 
@@ -161,7 +162,8 @@ st4.constantMove = function(motorId, speed) {
 	if(speed < -1) speed = -1;
 	var rate = speed * 100000;
 	var args = {};
-	args[_motorName(motorId)] = parseInt(rate);
+	args['M'] = parseInt(motorId);
+	args['V'] = parseInt(rate);
 	_write('G300', args, function(err) {
 		if(err) return callback && callback(err);
 	});
