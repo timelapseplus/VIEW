@@ -490,6 +490,18 @@ camera.ptp.on('nmxSerial', function(status) {
         }, 10000);
     }
 });
+camera.ptp.on('st4Serial', function(status) {
+    if (status == "connected") {
+        console.log("ST4 attached");
+        motion.st4.connect(camera.ptp.st4Device);
+    } else {
+        console.log("ST4 detached");
+        var status = motion.st4.getStatus();
+        motion.st4.disconnect();
+        setTimeout(function(){
+        }, 10000);
+    }
+});
 
 
 var scanTimerHandle = null;

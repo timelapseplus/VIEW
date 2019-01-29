@@ -395,6 +395,11 @@ monitor.on('add', function(device) {
         camera.nmxConnected = true;
         camera.nmxDevice = device.DEVNAME;
         camera.emit("nmxSerial", "connected");
+    } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'FTDI') {
+        console.log("NMX connected:", device.DEVNAME);
+        camera.st4Connected = true;
+        camera.st4Device = device.DEVNAME;
+        camera.emit("st4Serial", "connected");
     }
 });
 
@@ -415,6 +420,11 @@ monitor.on('remove', function(device) {
         camera.nmxConnected = false;
         camera.nmxDevice = null;
         camera.emit("nmxSerial", "disconnected");
+    } else if (device.SUBSYSTEM == 'tty' && device.ID_VENDOR == 'FTDI') {
+        console.log("ST4 disconnected:", device.DEVNAME);
+        camera.st4Connected = false;
+        camera.st4Device = null;
+        camera.emit("st4Serial", "disconnected");
     } else if (device.SUBSYSTEM == 'block' && device.DEVTYPE == 'partition' && device.ID_PATH == 'platform-1c11000.mmc') {
         console.log("SD card removed:", device.DEVNAME);
         camera.sdPresent = false;
