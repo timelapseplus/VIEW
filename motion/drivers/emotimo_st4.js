@@ -4,7 +4,7 @@ var SerialPort = require('serialport');
 var st4 = new EventEmitter();
 
 var _port = null;
-var _read = null;
+var _readFunc = null;
 
 st4.connected = false;
 st4.status = {
@@ -72,9 +72,9 @@ st4.connect = function(path, callback) {
 
         _port.on('data', function(data) {
             console.log("ST4 received: ", data);
-            if(_read) {
-            	_read(data.toString('UTF8'));
-            	_read = null;
+            if(_readFunc) {
+            	_readFunc(data.toString('UTF8'));
+            	_readFunc = null;
             }
         });
 
@@ -107,12 +107,12 @@ function _waitRunning(motorId, callback) {
 	});
 }
 
-function read(callback) {
+function _read(callback) {
 	var handle = setTimeout(function() {
-		_read = null;
+		_readFunc = null;
 		callback && callback("timeout");
 	}, 500);
-	_read = function(data) {
+	_readFunc = function(data) {
 		clearTimeout(handle);
 		callback && callback(null, data);
 	}
@@ -121,7 +121,7 @@ function read(callback) {
 
 st4.getPosition = function(callback) {
 	_write('G500', [], function(err) {
-		read(function(err, data) {
+		_read(function(err, data) {
 			if(!err) {
 				var parts = data.split(' ');
 				var movingSet = parts[0];
@@ -143,13 +143,13 @@ st4.getPosition = function(callback) {
 
 st4.setPosition = function(motorId, position, callback) {
 	var args = {};
-	args[_motorName(motorId)] = position;
+	args[_motorName(motorId)] = parseInt(position);
 	_write('G200', args, callback);
 }
 
 st4.move = function(motorId, steps, callback) {
 	var args = {};
-	args[_motorName(motorId)] = steps;
+	args[_motorName(motorId)] = parseInt(steps);
 	_write('G2', args, function(err) {
 		if(err) return callback && callback(err);
 	});
@@ -161,7 +161,7 @@ st4.constantMove = function(motorId, speed) {
 	if(speed < -1) speed = -1;
 	var rate = speed * 100000;
 	var args = {};
-	args[_motorName(motorId)] = rate;
+	args[_motorName(motorId)] = parseInt(rate);
 	_write('G300', args, function(err) {
 		if(err) return callback && callback(err);
 	});
