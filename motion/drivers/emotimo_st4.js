@@ -19,7 +19,7 @@ function _write(cmd, args, callback) {
 			params.push(key.toUpperCase() + args[key].toString());
 		}
 	}
-	cmd = (cmd.toUpperCase() + ' ' + params.join(' ')).trim();
+	cmd = (cmd.toUpperCase() + ' ' + params.join(' ')).trim() + '\n';
     port.write(cmd, function(err) {
         port.drain(function() {
             callback && callback(err);
