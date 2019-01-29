@@ -71,7 +71,7 @@ st4.connect = function(path, callback) {
         });
 
         _port.on('data', function(data) {
-            console.log("ST4 received: ", data);
+            console.log("ST4 received: ", data.toString('UTF8'));
             if(_readFunc) {
             	_readFunc(data.toString('UTF8'));
             	_readFunc = null;
