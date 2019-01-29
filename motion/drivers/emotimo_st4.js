@@ -3,12 +3,21 @@ var SerialPort = require('serialport');
 
 var st4 = new EventEmitter();
 
-var port = null;
-var buf = null;
+var _port = null;
+var _read = null;
 
 st4.connected = false;
-
-function _parseIncoming() {
+st4.status = {
+	motor1moving: false,
+	motor2moving: false,
+	motor3moving: false,
+	motor4moving: false,
+	motor1pos: 0,
+	motor2pos: 0,
+	motor3pos: 0,
+	motor4pos: 0
+}
+function _parseIncoming(data) {
 
 }
 
@@ -20,8 +29,8 @@ function _write(cmd, args, callback) {
 		}
 	}
 	cmd = (cmd.toUpperCase() + ' ' + params.join(' ')).trim() + '\n';
-    port.write(cmd, function(err) {
-        port.drain(function() {
+    _port.write(cmd, function(err) {
+        _port.drain(function() {
             callback && callback(err);
         });
     })
@@ -33,41 +42,38 @@ function _motorName(motorId) {
 }
 
 st4.getStatus = function() {
-	return {};
+	return st4.status;
 }
 
 st4.connect = function(path, callback) {
     console.log("ST4: connecting via " + path);
-    port = new SerialPort(path, {
+    _port = new SerialPort(path, {
         baudrate: 57600
     }, function() {
         console.log('ST4: serial opened');
-        if (!port) return;
+        if (!_port) return;
         st4.connected = true;
 
-        port.once('disconnect', function(err) {
-            if (err && port && st4.connected) {
-                port = null;
+        _port.once('disconnect', function(err) {
+            if (err && _port && st4.connected) {
+                _port = null;
                 st4.emit("status", st4.getStatus());
                 console.log("ST4: ERROR: ST4 Disconnected: ", err);
             }
         });
-        port.once('error', function(err) {
+        _port.once('error', function(err) {
             console.log("ST4: ERROR: ", err);
         });
-        port.once('close', function() {
+        _port.once('close', function() {
             console.log("ST4: CLOSED");
         });
 
-        port.on('data', function(data) {
+        _port.on('data', function(data) {
             console.log("ST4 received: ", data);
-            //console.log("ST4 buf: ", buf);
-            if (buf && buf.length > 0) {
-                buf = Buffer.concat([buf, data]);
-            } else {
-                buf = data;
+            if(_read) {
+            	_read(data.toString('UTF8'));
+            	_read = null;
             }
-            _parseIncoming();
         });
 
         console.log("ST4: checking positions...");
@@ -76,13 +82,57 @@ st4.connect = function(path, callback) {
     });
 }
 
-function _waitRunning(callback) {
-
+function _waitRunning(motorId, callback) {
+	st4.getPosition(function(err) {
+		if(err) return callback && callback(err);
+		if(motorId == 0 && !(st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving) ) {
+			return callback && callback();
+		} else if(motorId == 1 && !(st4.status.motor1moving) ) {
+			return callback && callback();
+		} else if(motorId == 2 && !(st4.status.motor2moving) ) {
+			return callback && callback();
+		} else if(motorId == 3 && !(st4.status.motor3moving) ) {
+			return callback && callback();
+		} else if(motorId == 4 && !(st4.status.motor4moving) ) {
+			return callback && callback();
+		}
+		setTimeout(function(){
+			_waitRunning(motorId, callback);
+		}, 100);
+	});
 }
+
+function read(callback) {
+	var handle = setTimeout(function() {
+		_read = null;
+		callback && callback("timeout");
+	}, 500);
+	_read = function(data) {
+		clearTimeout(handle);
+		callback && callback(null, data);
+	}
+}
+
 
 st4.getPosition = function(callback) {
 	_write('G500', [], function(err) {
-		callback && callback(err);
+		read(function(err, data) {
+			if(!err) {
+				var parts = data.split(' ');
+				var movingSet = parts[0];
+				var locationSet = parts[1].split(',');
+				st4.status.motor1moving = parseInt(movingSet.substring(0, 0)) > 0;
+				st4.status.motor2moving = parseInt(movingSet.substring(1, 1)) > 0;
+				st4.status.motor3moving = parseInt(movingSet.substring(2, 2)) > 0;
+				st4.status.motor4moving = parseInt(movingSet.substring(3, 3)) > 0;
+				st4.status.motor1pos = parseInt(locationSet[0]);
+				st4.status.motor2pos = parseInt(locationSet[1]);
+				st4.status.motor3pos = parseInt(locationSet[2]);
+				st4.status.motor4pos = parseInt(locationSet[3]);
+				console.log("ST4: status:", st4.status);
+			}
+			callback && callback(err, st4.status.motor1pos, st4.status.motor2pos, st4.status.motor3pos, st4.status.motor4pos);
+		});
 	});
 }
 
@@ -114,8 +164,8 @@ st4.constantMove = function(axis, speed) {
 
 st4.disconnect = function(cb) {
     st4.connected = false;
-    port.close(function() {
-        port = null;
+    _port.close(function() {
+        _port = null;
         cb && cb();
     });
 }
