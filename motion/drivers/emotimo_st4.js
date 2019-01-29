@@ -80,7 +80,7 @@ function _waitRunning(callback) {
 }
 
 st4.getPosition = function(callback) {
-	_write('G500', args, function(err) {
+	_write('G500', [], function(err) {
 		callback && callback(err);
 	});
 }
