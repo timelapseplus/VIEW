@@ -42,7 +42,7 @@ st4.connect = function(path, callback) {
         baudrate: 57600
     }, function() {
         console.log('ST4: serial opened');
-        if (!_dev) return;
+        if (!port) return;
         st4.connected = true;
 
         port.once('disconnect', function(err) {
@@ -70,7 +70,7 @@ st4.connect = function(path, callback) {
             _parseIncoming();
         });
 
-        //init();
+        st4.getPosition();
         if (callback) callback(true);
     });
 }
@@ -80,7 +80,9 @@ function _waitRunning(callback) {
 }
 
 st4.getPosition = function(callback) {
-
+	_write('G500', args, function(err) {
+		callback && callback(err);
+	});
 }
 
 st4.setPosition = function(motorId, position, callback) {
