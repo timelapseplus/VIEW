@@ -60,8 +60,8 @@ st4.connect = function(path, callback) {
         });
 
         port.on('data', function(data) {
-            //console.log("ST4 received: ", data);
-            console.log("ST4 buf: ", buf);
+            console.log("ST4 received: ", data);
+            //console.log("ST4 buf: ", buf);
             if (buf && buf.length > 0) {
                 buf = Buffer.concat([buf, data]);
             } else {
@@ -70,6 +70,7 @@ st4.connect = function(path, callback) {
             _parseIncoming();
         });
 
+        console.log("ST4: checking positions...");
         st4.getPosition();
         if (callback) callback(true);
     });
