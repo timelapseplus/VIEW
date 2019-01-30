@@ -124,17 +124,19 @@ st4.getPosition = function(callback) {
 		_read(function(err, data) {
 			if(!err) {
 				var parts = data.split(' ');
-				var movingSet = parts[0];
-				var locationSet = parts[1].split(',');
-				st4.status.motor1moving = parseInt(movingSet.substring(0, 0)) > 0;
-				st4.status.motor2moving = parseInt(movingSet.substring(1, 1)) > 0;
-				st4.status.motor3moving = parseInt(movingSet.substring(2, 2)) > 0;
-				st4.status.motor4moving = parseInt(movingSet.substring(3, 3)) > 0;
-				st4.status.motor1pos = parseInt(locationSet[0]);
-				st4.status.motor2pos = parseInt(locationSet[1]);
-				st4.status.motor3pos = parseInt(locationSet[2]);
-				st4.status.motor4pos = parseInt(locationSet[3]);
-				console.log("ST4: status:", st4.status);
+				if(parts && parts.length > 1) {
+					var movingSet = parts[0];
+					var locationSet = parts[1].split(',');
+					st4.status.motor1moving = parseInt(movingSet.substring(0, 0)) > 0;
+					st4.status.motor2moving = parseInt(movingSet.substring(1, 1)) > 0;
+					st4.status.motor3moving = parseInt(movingSet.substring(2, 2)) > 0;
+					st4.status.motor4moving = parseInt(movingSet.substring(3, 3)) > 0;
+					st4.status.motor1pos = parseInt(locationSet[0]);
+					st4.status.motor2pos = parseInt(locationSet[1]);
+					st4.status.motor3pos = parseInt(locationSet[2]);
+					st4.status.motor4pos = parseInt(locationSet[3]);
+					console.log("ST4: status:", st4.status);
+				}
 			}
 			callback && callback(err, st4.status.motor1pos, st4.status.motor2pos, st4.status.motor3pos, st4.status.motor4pos);
 		});
@@ -167,7 +169,9 @@ st4.constantMove = function(motorId, speed, callback) {
 	args['V'] = parseInt(rate);
 	_write('G300', args, function(err) {
 		if(err) return callback && callback(err);
-		if(speed == 0) _waitRunning(motorId, callback);
+		if(speed == 0) setTimeout(function() {
+			_waitRunning(motorId, callback);
+		}, 100);
 	});
 }
 
