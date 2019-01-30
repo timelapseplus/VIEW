@@ -161,10 +161,14 @@ st4.getPosition = function(callback) {
 }
 
 st4.setPosition = function(motorId, position, callback) {
-	var args = {};
-	args['M'] = parseInt(motorId);
-	args['P'] = parseInt(position);
-	_transaction('G200', args, callback);
+	_waitRunning(motorId, function() {
+		var args = {};
+		args['M'] = parseInt(motorId);
+		args['P'] = parseInt(position);
+		_transaction('G200', args, function() {
+			_waitRunning(motorId, callback);
+		});
+	});
 }
 
 st4.move = function(motorId, steps, callback) {
