@@ -74,10 +74,10 @@ st4.connect = function(path, callback) {
 
         _port.on('data', function(data) {
         	data = data.toString('UTF8');
-            console.log("ST4: received: ", data);
+            console.log("ST4: received data: ", data);
 			_buf += data;
         	if(_buf[_buf.length - 1] != ",") { // wait if it seems like more is coming
-	            console.log("ST4: re = ", re);
+	            console.log("ST4: message received = ", _buf);
 	            if(_readFunc) {
 	            	_readFunc(_buf);
 	            	_readFunc = null;
