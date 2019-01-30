@@ -334,7 +334,7 @@ function runCommand(type, args, callback, client) {
       motion.setPosition(args.driver, args.motor, args.position, callback);
       break;
     case 'motion.status':
-      if(intervalometerStatus.running) {
+      if(intervalometer.status.running) {
         sendEvent('motion.status', motion.status);
       } else {
         motion.refresh(callback);
