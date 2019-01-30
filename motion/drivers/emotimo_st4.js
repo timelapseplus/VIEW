@@ -157,7 +157,7 @@ st4.move = function(motorId, steps, callback) {
 	});
 }
 
-st4.constantMove = function(motorId, speed) {
+st4.constantMove = function(motorId, speed, callback) {
 	speed /= 100;
 	if(speed > 1) speed = 1;
 	if(speed < -1) speed = -1;
