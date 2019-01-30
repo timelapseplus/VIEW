@@ -61,8 +61,8 @@ st4.getStatus = function() {
 
 st4.connect = function(path, callback) {
     if (path && typeof path == "string") {
-        _connect(device, callback);
-    } else if (!device || typeof device == "function") {
+        _connect(path, callback);
+    } else if (!path || typeof path == "function") {
         SerialPort.list(function(err, ports) {
             console.log("ST4: scanned serial ports");
             for (var i = 0; i < ports.length; i++) {
