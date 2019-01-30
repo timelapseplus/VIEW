@@ -195,6 +195,7 @@ st4.constantMove = function(motorId, speed, callback) {
 	if(speed > 1) speed = 1;
 	if(speed < -1) speed = -1;
 	var rate = Math.pow(speed, 2.0) * 200000; // add curve for finer control
+	console.log("ST4: moving at speed ", speed, ", steps: ", rate);
 	var args = {};
 	args['M'] = parseInt(motorId);
 	args['V'] = parseInt(rate);
