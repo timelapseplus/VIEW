@@ -5,6 +5,7 @@ var st4 = new EventEmitter();
 
 var _port = null;
 var _readFunc = null;
+var _buf = "";
 
 st4.connected = false;
 st4.status = {
@@ -72,12 +73,17 @@ st4.connect = function(path, callback) {
 
         _port.on('data', function(data) {
         	data = data.toString('UTF8');
-        	if(indexOf)
-            console.log("ST4 received: ", data);
-            if(_readFunc) {
-            	_readFunc(data.toString('UTF8'));
-            	_readFunc = null;
-            }
+			_buf += data;
+        	var i = _buf.indexOf('\n');
+        	if(i !== -1) {
+	            var re = _buf.substring(0, i);
+	            _buf = _buf.substring(i + 1);
+	            console.log("ST4 received: ", re);
+	            if(_readFunc) {
+	            	_readFunc(re);
+	            	_readFunc = null;
+	            }
+        	}
         });
 
         console.log("ST4: checking positions...");
@@ -110,6 +116,7 @@ function _waitRunning(motorId, callback) {
 }
 
 function _read(callback) {
+	_buf = "";
 	var handle = setTimeout(function() {
 		_readFunc = null;
 		callback && callback("timeout");
