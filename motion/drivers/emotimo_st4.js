@@ -4,7 +4,6 @@ var SerialPort = require('serialport');
 var st4 = new EventEmitter();
 
 var _port = null;
-var _readFunc = null;
 var _buf = "";
 
 st4.connected = false;
@@ -36,7 +35,7 @@ function _transaction(cmd, args, callback) {
         _port.drain(function() {
 			var handle = setTimeout(function() {
 				if(_buf.length > 0) {
-					callback && callback(err, data);
+					callback && callback(err, _buf);
 				} else {
 					callback && callback(err || "timeout");
 				}
@@ -59,7 +58,27 @@ st4.getStatus = function() {
 	return st4.status;
 }
 
+
 st4.connect = function(path, callback) {
+    if (path && typeof path == "string") {
+        _connect(device, callback);
+    } else if (!device || typeof device == "function") {
+        SerialPort.list(function(err, ports) {
+            console.log("ST4: scanned serial ports");
+            for (var i = 0; i < ports.length; i++) {
+                if (ports[i].manufacturer == 'FTDI') {
+                    _connect(ports[i].comName, callback)
+                    return;
+                }
+            }
+            if (callback) callback("no device found");
+        });
+    } else {
+        if (callback) callback("invalid device");
+    }
+}
+
+function _connect(path, callback) {
     console.log("ST4: connecting via " + path);
     _port = new SerialPort(path, {
         baudrate: 57600

@@ -334,7 +334,11 @@ function runCommand(type, args, callback, client) {
       motion.setPosition(args.driver, args.motor, args.position, callback);
       break;
     case 'motion.status':
-      motion.refresh(callback);
+      if(intervalometerStatus.running) {
+        sendEvent('motion.status', motion.status);
+      } else {
+        motion.refresh(callback);
+      }
       break;
     case 'motion.joystick':
       motion.joystick(args.driver, args.motor, args.speed, callback);
@@ -657,6 +661,7 @@ function setUpBt() {
 setUpBt();
 
 motion.nmx.connect();
+motion.st4.connect();
 
 motion.on('status', function(status) {
     sendEvent('motion.status', status);
