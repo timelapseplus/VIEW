@@ -71,7 +71,9 @@ st4.connect = function(path, callback) {
         });
 
         _port.on('data', function(data) {
-            console.log("ST4 received: ", data.toString('UTF8'));
+        	data = data.toString('UTF8');
+        	if(indexOf)
+            console.log("ST4 received: ", data);
             if(_readFunc) {
             	_readFunc(data.toString('UTF8'));
             	_readFunc = null;
@@ -88,23 +90,23 @@ st4.connect = function(path, callback) {
 }
 
 function _waitRunning(motorId, callback) {
-	st4.getPosition(function(err) {
-		if(err) return callback && callback(err);
-		if(motorId == 0 && !(st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving) ) {
-			return callback && callback();
-		} else if(motorId == 1 && !(st4.status.motor1moving) ) {
-			return callback && callback(null, st4.status.motor1pos);
-		} else if(motorId == 2 && !(st4.status.motor2moving) ) {
-			return callback && callback(null, st4.status.motor2pos);
-		} else if(motorId == 3 && !(st4.status.motor3moving) ) {
-			return callback && callback(null, st4.status.motor3pos);
-		} else if(motorId == 4 && !(st4.status.motor4moving) ) {
-			return callback && callback(null, st4.status.motor4pos);
-		}
-		setTimeout(function(){
+	setTimeout(function(){
+		st4.getPosition(function(err) {
+			if(err) return callback && callback(err);
+			if(motorId == 0 && !(st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving) ) {
+				return callback && callback();
+			} else if(motorId == 1 && !(st4.status.motor1moving) ) {
+				return callback && callback(null, st4.status.motor1pos);
+			} else if(motorId == 2 && !(st4.status.motor2moving) ) {
+				return callback && callback(null, st4.status.motor2pos);
+			} else if(motorId == 3 && !(st4.status.motor3moving) ) {
+				return callback && callback(null, st4.status.motor3pos);
+			} else if(motorId == 4 && !(st4.status.motor4moving) ) {
+				return callback && callback(null, st4.status.motor4pos);
+			}
 			_waitRunning(motorId, callback);
-		}, 100);
-	});
+		});
+	}, 100);
 }
 
 function _read(callback) {
@@ -169,9 +171,7 @@ st4.constantMove = function(motorId, speed, callback) {
 	args['V'] = parseInt(rate);
 	_write('G300', args, function(err) {
 		if(err) return callback && callback(err);
-		if(speed == 0) setTimeout(function() {
-			_waitRunning(motorId, callback);
-		}, 100);
+		if(speed == 0) _waitRunning(motorId, callback);
 	});
 }
 
