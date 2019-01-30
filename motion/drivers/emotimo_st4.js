@@ -190,7 +190,15 @@ st4.move = function(motorId, steps, callback) {
 	});
 }
 
+var watchdogHandle = null;
 st4.constantMove = function(motorId, speed, callback) {
+	if(watchdogHandle) {
+		clearTimeout(watchdogHandle);
+		watchdogHandle = null;
+	}
+	watchdogHandle = setTimeout(function(){
+		st4.constantMove(motorId, 0);
+	}, 500);
 	speed /= 100;
 	if(speed > 1) speed = 1;
 	if(speed < -1) speed = -1;
@@ -202,7 +210,9 @@ st4.constantMove = function(motorId, speed, callback) {
 	args['V'] = parseInt(rate);
 	_transaction('G300', args, function(err) {
 		if(err) return callback && callback(err);
-		if(speed == 0) _waitRunning(motorId, callback);
+		if(speed == 0) {
+			_waitRunning(motorId, callback);
+		}
 	});
 }
 
