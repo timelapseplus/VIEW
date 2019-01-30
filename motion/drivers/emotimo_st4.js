@@ -23,6 +23,7 @@ function _parseIncoming(data) {
 }
 
 function _write(cmd, args, callback) {
+	if(!_port) return callback && callback("not connected");
 	var params = [];
 	for(var key in args) {
 		if(args.hasOwnProperty(key)) {
@@ -73,16 +74,15 @@ st4.connect = function(path, callback) {
 
         _port.on('data', function(data) {
         	data = data.toString('UTF8');
+            console.log("ST4: received: ", data);
 			_buf += data;
-        	var i = _buf.indexOf('\n');
-        	if(i !== -1) {
-	            var re = _buf.substring(0, i);
-	            _buf = _buf.substring(i + 1);
-	            console.log("ST4 received: ", re);
+        	if(_buf[_buf.length - 1] != ",") { // wait if it seems like more is coming
+	            console.log("ST4: re = ", re);
 	            if(_readFunc) {
-	            	_readFunc(re);
+	            	_readFunc(_buf);
 	            	_readFunc = null;
 	            }
+	            _buf = "";
         	}
         });
 
