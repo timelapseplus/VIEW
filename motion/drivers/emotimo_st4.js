@@ -117,10 +117,18 @@ function _connect(path, callback) {
     });
 }
 
-function _waitRunning(motorId, callback) {
+function _waitRunning(motorId, callback, errCount) {
 	setTimeout(function(){
 		st4.getPosition(function(err) {
-			if(err) return callback && callback(err);
+			if(err) {
+				if(errCount == undefined) {
+					errCount = 0;
+				} else if(errCount > 5) {
+					return callback && callback(err);
+				}
+				errCount++;
+				return _waitRunning(motorId, callback);
+			}
 			if(motorId == 0 && !(st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving) ) {
 				return callback && callback();
 			} else if(motorId == 1 && !(st4.status.motor1moving) ) {
