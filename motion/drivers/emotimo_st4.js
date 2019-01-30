@@ -93,13 +93,13 @@ function _waitRunning(motorId, callback) {
 		if(motorId == 0 && !(st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving) ) {
 			return callback && callback();
 		} else if(motorId == 1 && !(st4.status.motor1moving) ) {
-			return callback && callback();
+			return callback && callback(null, st4.status.motor1pos);
 		} else if(motorId == 2 && !(st4.status.motor2moving) ) {
-			return callback && callback();
+			return callback && callback(null, st4.status.motor2pos);
 		} else if(motorId == 3 && !(st4.status.motor3moving) ) {
-			return callback && callback();
+			return callback && callback(null, st4.status.motor3pos);
 		} else if(motorId == 4 && !(st4.status.motor4moving) ) {
-			return callback && callback();
+			return callback && callback(null, st4.status.motor4pos);
 		}
 		setTimeout(function(){
 			_waitRunning(motorId, callback);
@@ -153,6 +153,7 @@ st4.move = function(motorId, steps, callback) {
 	args[_motorName(motorId)] = parseInt(steps);
 	_write('G2', args, function(err) {
 		if(err) return callback && callback(err);
+		_waitRunning(motorId, callback);
 	});
 }
 
@@ -166,6 +167,7 @@ st4.constantMove = function(motorId, speed) {
 	args['V'] = parseInt(rate);
 	_write('G300', args, function(err) {
 		if(err) return callback && callback(err);
+		if(speed == 0) _waitRunning(motorId, callback);
 	});
 }
 
