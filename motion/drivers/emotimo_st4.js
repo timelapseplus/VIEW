@@ -35,13 +35,12 @@ function _transaction(cmd, args, callback) {
 		_buf = "";
         _port.drain(function() {
 			var handle = setTimeout(function() {
-				_readFunc = null;
-				callback && callback(err || "timeout");
-			}, 500);
-			_readFunc = function(data) {
-				clearTimeout(handle);
-				callback && callback(err, data);
-			}
+				if(_buf.length > 0) {
+					callback && callback(err, data);
+				} else {
+					callback && callback(err || "timeout");
+				}
+			}, 100);
         });
     })
 }
@@ -88,14 +87,6 @@ st4.connect = function(path, callback) {
         	data = data.toString('UTF8');
             console.log("ST4: received data: ", data);
 			_buf += data;
-        	if(_buf[_buf.length - 1] != ",") { // wait if it seems like more is coming
-	            console.log("ST4: message received = ", _buf);
-	            if(_readFunc) {
-	            	_readFunc(_buf);
-	            	_readFunc = null;
-	            }
-	            _buf = "";
-        	}
         });
 
         console.log("ST4: checking positions...");
