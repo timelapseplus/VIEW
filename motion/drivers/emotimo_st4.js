@@ -6,10 +6,6 @@ var st4 = new EventEmitter();
 var _port = null;
 var _buf = "";
 
-var _conversions {
-	'3': 1,
-	'4': 1
-}
 
 st4.connected = false;
 st4.status = {
