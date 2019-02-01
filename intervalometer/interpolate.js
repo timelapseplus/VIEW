@@ -72,6 +72,11 @@ vec2.distance = function(a, b) {
     return Math.sqrt(x*x + y*y)
 }
 
+var power = function(b, e) {
+  var sign = b < 0 ? -1 : 1;
+  return Math.pow(Math.abs(b), e) * sign;
+}
+
 var interpolatePoint = function(p0, p1, p2, p3, t0, t1, t2, t3, t) {
   var a1, a2, a3, b1, b2, c;
   a1 = [];
@@ -104,9 +109,9 @@ var catmullRomSplineSegment = function(p0, p1, p2, p3, xVal, knot) {
   segmentDist = vec2.distance(p1, p2);
 
   t0 = 0;
-  t1 = Math.pow(vec2.distance(p0, p1), knot);
-  t2 = Math.pow(segmentDist, knot) + t1;
-  t3 = Math.pow(vec2.distance(p2, p3), knot) + t2;
+  t1 = power(vec2.distance(p0, p1), knot);
+  t2 = power(segmentDist, knot) + t1;
+  t3 = power(vec2.distance(p2, p3), knot) + t2;
 
   var f = (xVal - p1[0]) / (p2[0] - p1[0]);
   var t = t1 + (t2 - t1) * f;

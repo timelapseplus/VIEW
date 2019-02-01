@@ -6,6 +6,11 @@ var st4 = new EventEmitter();
 var _port = null;
 var _buf = "";
 
+var _conversions {
+	'3': 1,
+	'4': 1
+}
+
 st4.connected = false;
 st4.status = {
 	motor1moving: false,
@@ -17,8 +22,10 @@ st4.status = {
 	motor3pos: 0,
 	motor4pos: 0
 }
-function _parseIncoming(data) {
-
+function _conversionFactor(motorId) {
+	if(motorId == 1) return 3275.420875;
+	if(motorId == 2) return 8680.968858;
+	return 1;
 }
 
 function _transaction(cmd, args, callback) {
@@ -158,10 +165,10 @@ st4.getPosition = function(callback) {
 					st4.status.motor2moving = parseInt(movingSet.substring(1, 2)) > 0;
 					st4.status.motor3moving = parseInt(movingSet.substring(2, 3)) > 0;
 					st4.status.motor4moving = parseInt(movingSet.substring(3, 4)) > 0;
-					st4.status.motor1pos = parseInt(locationSet[0]);
-					st4.status.motor2pos = parseInt(locationSet[1]);
-					st4.status.motor3pos = parseInt(locationSet[2]);
-					st4.status.motor4pos = parseInt(locationSet[3]);
+					st4.status.motor1pos = parseInt(locationSet[0]) / _conversionFactor(1);
+					st4.status.motor2pos = parseInt(locationSet[1]) / _conversionFactor(2);
+					st4.status.motor3pos = parseInt(locationSet[2]) / _conversionFactor(3);
+					st4.status.motor4pos = parseInt(locationSet[3]) / _conversionFactor(4);
 				}
 				console.log("ST4: status:", st4.status);
 			}
@@ -174,7 +181,7 @@ st4.setPosition = function(motorId, position, callback) {
 	_waitRunning(motorId, function() {
 		var args = {};
 		args['M'] = parseInt(motorId);
-		args['P'] = parseInt(position);
+		args['P'] = parseInt(position * _conversionFactor(motorId));
 		_transaction('G200', args, function() {
 			_waitRunning(motorId, callback);
 		});
@@ -183,7 +190,7 @@ st4.setPosition = function(motorId, position, callback) {
 
 st4.move = function(motorId, steps, callback) {
 	var args = {};
-	args[_motorName(motorId)] = parseInt(steps);
+	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId));
 	_transaction('G2', args, function(err) {
 		if(err) return callback && callback(err);
 		_waitRunning(motorId, callback);
