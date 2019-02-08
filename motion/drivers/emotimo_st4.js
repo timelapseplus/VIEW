@@ -24,6 +24,11 @@ function _conversionFactor(motorId) {
 	return 1;
 }
 
+function _motorDirection(motorId) {
+	if(motorId == 2) return -1;
+	return 1;
+}
+
 function _transaction(cmd, args, callback) {
 	if(!_port) return callback && callback("not connected");
 	var params = [];
@@ -186,7 +191,7 @@ st4.setPosition = function(motorId, position, callback) {
 
 st4.move = function(motorId, steps, callback) {
 	var args = {};
-	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId));
+	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
 	_transaction('G2', args, function(err) {
 		if(err) return callback && callback(err);
 		_waitRunning(motorId, callback);
@@ -195,6 +200,7 @@ st4.move = function(motorId, steps, callback) {
 
 var watchdogHandle = null;
 st4.constantMove = function(motorId, speed, callback) {
+	speed *= _motorDirection(motorId);
 	if(watchdogHandle) {
 		clearTimeout(watchdogHandle);
 		watchdogHandle = null;

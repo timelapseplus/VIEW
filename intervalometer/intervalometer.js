@@ -266,6 +266,10 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
     var ease = 1;
     var easeStartDegrees = 15;
     var easeEndDegrees = -5;
+
+    if(panDiff > 180) panDiff -= 360;
+    if(panDiff < -180) panDiff += 360;
+
     if(!trackBelowHorizon && altDeg < easeStartDegrees) {
         if(altDeg < easeEndDegrees) {
             ease = 0;
