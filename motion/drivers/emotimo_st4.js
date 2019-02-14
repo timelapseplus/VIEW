@@ -8,6 +8,7 @@ var _buf = "";
 
 
 st4.connected = false;
+st4.busy = false;
 st4.status = {
 	motor1moving: false,
 	motor2moving: false,
@@ -31,6 +32,7 @@ function _motorDirection(motorId) {
 
 function _transaction(cmd, args, callback) {
 	if(!_port) return callback && callback("not connected");
+	st4.busy = true;
 	var params = [];
 	for(var key in args) {
 		if(args.hasOwnProperty(key)) {
@@ -47,14 +49,12 @@ function _transaction(cmd, args, callback) {
 				} else {
 					callback && callback(err || "timeout");
 				}
+				st4.busy = false;
 			}, 100);
         });
     })
 }
 
-
-function _read(callback) {
-}
 
 function _motorName(motorId) {
 	var axes = ['X', 'X', 'Y', 'Z', 'W'];
@@ -65,7 +65,6 @@ st4.getStatus = function() {
 	st4.status.connected = st4.connected;
 	return st4.status;
 }
-
 
 st4.connect = function(path, callback) {
     if (path && typeof path == "string") {
@@ -94,9 +93,11 @@ function _connect(path, callback) {
         console.log('ST4: serial opened');
         if (!_port) return;
         st4.connected = true;
-
+        startPoll();
+        
         _port.once('disconnect', function(err) {
             if (err && _port && st4.connected) {
+            	stopPoll();
                 _port = null;
                 st4.connected = false;
                 st4.emit("status", st4.getStatus());
@@ -153,6 +154,26 @@ function _waitRunning(motorId, callback, errCount) {
 	}, 100);
 }
 
+var pollHandle = null;
+function startPoll() {
+	pollHandle = setInterval(function() {
+		if(!st4.status.moving && !st4.busy) {
+			var p1 = st4.status.motor1pos;
+			var p2 = st4.status.motor2pos;
+			var p3 = st4.status.motor3pos;
+			var p4 = st4.status.motor4pos;
+			st4.getPosition() {
+				if(p1 != st4.status.motor1pos || p2 != st4.status.motor2pos || p3 != st4.status.motor3pos || p4 != st4.status.motor4pos) {
+				    st4.emit("status", st4.getStatus());
+				}
+			}
+		}
+	}, 1000);
+}
+function stopPoll() {
+	if(pollHandle) clearInterval(pollHandle);
+	pollHandle = null;
+}
 
 st4.getPosition = function(callback) {
 	_transaction('G500', [], function(err, data) {
@@ -170,6 +191,7 @@ st4.getPosition = function(callback) {
 					st4.status.motor2pos = parseInt(locationSet[1]) / _conversionFactor(2);
 					st4.status.motor3pos = parseInt(locationSet[2]) / _conversionFactor(3);
 					st4.status.motor4pos = parseInt(locationSet[3]) / _conversionFactor(4);
+					st4.status.moving = st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving;
 				}
 				console.log("ST4: status:", st4.status);
 			}
