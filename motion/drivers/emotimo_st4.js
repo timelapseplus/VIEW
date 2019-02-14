@@ -168,6 +168,9 @@ function startPoll() {
 				    st4.emit("status", st4.getStatus());
 				}
 			});
+		} else {
+			if(st4.busy) console.log("ST4: busy = true");
+			if(st4.joystickMode) console.log("ST4: joystickMode = true");
 		}
 	}, 1000);
 }
@@ -235,7 +238,7 @@ st4.constantMove = function(motorId, speed, callback) {
 	}
 	if(speed) watchdogHandle = setTimeout(function(){
 		st4.constantMove(motorId, 0);
-	}, 1000);
+	}, 1200);
 	speed /= 100;
 	if(speed > 1) speed = 1;
 	if(speed < -1) speed = -1;
