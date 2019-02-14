@@ -223,7 +223,11 @@ st4.move = function(motorId, steps, callback) {
 
 var watchdogHandle = null;
 st4.constantMove = function(motorId, speed, callback) {
-	st4.joystickMode = true;
+	if(speed) {
+		if(st4.busy) return;
+		if(st4.joystickMode && watchdogHandle) return; // wait until stop request is complete
+		st4.joystickMode = true;
+	}
 	speed *= _motorDirection(motorId);
 	if(watchdogHandle) {
 		clearTimeout(watchdogHandle);
@@ -231,7 +235,7 @@ st4.constantMove = function(motorId, speed, callback) {
 	}
 	if(speed) watchdogHandle = setTimeout(function(){
 		st4.constantMove(motorId, 0);
-	}, 500);
+	}, 1000);
 	speed /= 100;
 	if(speed > 1) speed = 1;
 	if(speed < -1) speed = -1;
@@ -244,8 +248,8 @@ st4.constantMove = function(motorId, speed, callback) {
 	_transaction('G300', args, function(err) {
 		if(err) return callback && callback(err);
 		if(speed == 0) {
-			_waitRunning(motorId, function() {
-				callback && callback();
+			_waitRunning(motorId, function(err, pos) {
+				callback && callback(err, pos);
 				st4.joystickMode == false;
 			});
 		}
