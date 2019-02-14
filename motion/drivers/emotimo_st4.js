@@ -9,6 +9,7 @@ var _buf = "";
 
 st4.connected = false;
 st4.busy = false;
+st4.joystickMode = false;
 st4.status = {
 	motor1moving: false,
 	motor2moving: false,
@@ -157,7 +158,7 @@ function _waitRunning(motorId, callback, errCount) {
 var pollHandle = null;
 function startPoll() {
 	pollHandle = setInterval(function() {
-		if(!st4.status.moving && !st4.busy) {
+		if(!st4.busy && !st4.joystickMode) {
 			var p1 = st4.status.motor1pos;
 			var p2 = st4.status.motor2pos;
 			var p3 = st4.status.motor3pos;
@@ -222,6 +223,7 @@ st4.move = function(motorId, steps, callback) {
 
 var watchdogHandle = null;
 st4.constantMove = function(motorId, speed, callback) {
+	st4.joystickMode = true;
 	speed *= _motorDirection(motorId);
 	if(watchdogHandle) {
 		clearTimeout(watchdogHandle);
@@ -242,7 +244,10 @@ st4.constantMove = function(motorId, speed, callback) {
 	_transaction('G300', args, function(err) {
 		if(err) return callback && callback(err);
 		if(speed == 0) {
-			_waitRunning(motorId, callback);
+			_waitRunning(motorId, function() {
+				callback && callback();
+				st4.joystickMode == false;
+			});
 		}
 	});
 }
