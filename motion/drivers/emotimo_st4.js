@@ -94,7 +94,7 @@ function _connect(path, callback) {
         if (!_port) return;
         st4.connected = true;
         startPoll();
-        
+
         _port.once('disconnect', function(err) {
             if (err && _port && st4.connected) {
             	stopPoll();
@@ -162,11 +162,11 @@ function startPoll() {
 			var p2 = st4.status.motor2pos;
 			var p3 = st4.status.motor3pos;
 			var p4 = st4.status.motor4pos;
-			st4.getPosition() {
+			st4.getPosition(function() {
 				if(p1 != st4.status.motor1pos || p2 != st4.status.motor2pos || p3 != st4.status.motor3pos || p4 != st4.status.motor4pos) {
 				    st4.emit("status", st4.getStatus());
 				}
-			}
+			});
 		}
 	}, 1000);
 }
