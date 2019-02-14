@@ -883,10 +883,21 @@ function mapParam(type, value, halfs, manufacturer) {
         if(typeof value == 'number') value = Math.round(value * 100) / 100;
         value = value.toString().trim().toLowerCase();
         if(type == "aperture" && manufacturer == "OLYMPUS") {
-            var origVal = value;
+            //var origVal = value;
             var ival = parseInt(value);
             if(ival) value = (ival / 10).toString();
             //console.log("OLYMPUS: converted", origVal, "to", value);
+        }
+        if(type == "aperture" && manufacturer == "Sony Corporation") {
+            //var origVal = value;            
+            var ival = parseFloat(value);
+            if(ival < 8.0) {
+                ival = Math.round(value * 10) / 10;
+            } else {
+                ival = Math.round(value);
+            }
+            if(ival) value = ival.toString();
+            //console.log("SONY: converted", origVal, "to", value);
         }
         for (var i = 0; i < list.length; i++) {
             if (value === list[i].name) {
