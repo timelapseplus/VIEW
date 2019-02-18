@@ -228,7 +228,7 @@ var watchdogHandle = null;
 st4.constantMove = function(motorId, speed, callback) {
 	if(speed) {
 		if(st4.busy) return;
-		if(st4.joystickMode && watchdogHandle) return; // wait until stop request is complete
+		if(st4.joystickMode && !watchdogHandle) return; // wait until stop request is complete
 		st4.joystickMode = true;
 	}
 	speed *= _motorDirection(motorId);
