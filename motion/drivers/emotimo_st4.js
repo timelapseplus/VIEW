@@ -217,17 +217,13 @@ st4.setPosition = function(motorId, position, callback) {
 }
 
 st4.move = function(motorId, steps, callback) {
-	if(st4.status.moving) {
-		if(!st4.connected) return callback && callback("not connected");
-		return setTimeout(function(){
-			st4.move(motorId, steps, callback);
-		}, 50);
-	}
-	var args = {};
-	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
-	_transaction('G2', args, function(err) {
-		if(err) return callback && callback(err);
-		_waitRunning(motorId, callback);
+	_waitRunning(motorId, function() {
+		var args = {};
+		args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
+		_transaction('G2', args, function(err) {
+			if(err) return callback && callback(err);
+			_waitRunning(motorId, callback);
+		});
 	});
 }
 
