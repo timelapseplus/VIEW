@@ -224,9 +224,9 @@ st4.move = function(motorId, steps, callback) {
 		return setTimeout(function(){
 			st4.move(motorId, steps, callback);
 		}, 100);
-	} else {
-		st4.status.moveStarted = true;
 	}
+	st4.status.moveStarted = true;
+	st4.status.moving = true;
 	var args = {};
 	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
 	_transaction('G2', args, function(err) {
