@@ -18,7 +18,9 @@ st4.status = {
 	motor1pos: 0,
 	motor2pos: 0,
 	motor3pos: 0,
-	motor4pos: 0
+	motor4pos: 0,
+	moving: false,
+	moveStarted: false
 }
 function _conversionFactor(motorId) {
 	if(motorId == 1) return 3275.420875;
@@ -217,18 +219,18 @@ st4.setPosition = function(motorId, position, callback) {
 }
 
 st4.move = function(motorId, steps, callback) {
-	if(st4.status.moving) {
+	if(st4.status.moveStarted || st4.status.moving) {
 		if(!st4.connected) return callback && callback("not connected");
 		return setTimeout(function(){
 			st4.move(motorId, steps, callback);
 		}, 100);
 	} else {
-		st4.status.moving = true;
+		st4.status.moveStarted = true;
 	}
 	var args = {};
 	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
 	_transaction('G2', args, function(err) {
-		st4.status.moving = true;
+		st4.status.moveStarted = false;
 		if(err) return callback && callback(err);
 		_waitRunning(motorId, callback);
 	});
