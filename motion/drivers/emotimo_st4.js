@@ -219,21 +219,37 @@ st4.setPosition = function(motorId, position, callback) {
 }
 
 st4.move = function(motorId, steps, callback) {
-	if(st4.status.moveStarted || st4.status.moving) {
-		if(!st4.connected) return callback && callback("not connected");
-		return setTimeout(function(){
-			st4.move(motorId, steps, callback);
-		}, 100);
+	if(!st4.movePreGroup) st4.movePreGroup = {};
+	if(!st4.movePreGroup[motorId]) st4.movePreGroup[motorId] = 0;
+	st4.movePreGroup[motorId] += steps;
+
+	if(st4.movePreGroupHandle) {
+		return;
 	}
-	st4.status.moveStarted = true;
-	st4.status.moving = true;
-	var args = {};
-	args[_motorName(motorId)] = parseInt(steps * _conversionFactor(motorId) * _motorDirection(motorId));
-	_transaction('G2', args, function(err) {
-		st4.status.moveStarted = false;
-		if(err) return callback && callback(err);
-		_waitRunning(motorId, callback);
-	});
+
+	st4.movePreGroupHandle = setTimeout(function(){
+		st4.movePreGroupHandle = null;
+
+		var args = {};
+		for(var mId in st4.movePreGroup) {
+			args[_motorName(mId)] = parseInt(st4.movePreGroup[mId] * _conversionFactor(mId) * _motorDirection(mId));
+		}
+		st4.movePreGroup = {};
+
+		if(st4.status.moveStarted || st4.status.moving) {
+			if(!st4.connected) return callback && callback("not connected");
+			return setTimeout(function(){
+				st4.move(motorId, steps, callback);
+			}, 100);
+		}
+		st4.status.moveStarted = true;
+		st4.status.moving = true;
+		_transaction('G2', args, function(err) {
+			st4.status.moveStarted = false;
+			if(err) return callback && callback(err);
+			_waitRunning(motorId, callback);
+		});
+	}, 100);
 }
 
 var watchdogHandle = null;
