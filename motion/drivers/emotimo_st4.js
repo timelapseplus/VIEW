@@ -257,8 +257,13 @@ st4.move = function(motorId, steps, callback) {
 			_transaction('G2', args, function(err) {
 				st4.status.moveStarted = false;
 				if(err) return callback && callback(err);
-				_waitRunning(0, function(err, pos) {
+				_waitRunning(0, function(err) {
 					for(var mId in grp) {
+						var pos = null;
+						if(mId == 1) pos = st4.status.motor1pos;
+						if(mId == 2) pos = st4.status.motor2pos;
+						if(mId == 3) pos = st4.status.motor3pos;
+						if(mId == 4) pos = st4.status.motor4pos;
 						for(var i = 0; i < grp[mId].callbacks.length; i++) {
 							grp[mId].callbacks[i] && grp[mId].callbacks[i](err, pos);
 						}					
