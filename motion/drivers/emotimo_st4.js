@@ -265,6 +265,7 @@ st4.move = function(motorId, steps, callback) {
 						if(mId == 3) pos = st4.status.motor3pos;
 						if(mId == 4) pos = st4.status.motor4pos;
 						for(var i = 0; i < grp[mId].callbacks.length; i++) {
+							console.log("ST4: running callback for motor ", mId);
 							grp[mId].callbacks[i] && grp[mId].callbacks[i](err, pos);
 						}					
 					}
