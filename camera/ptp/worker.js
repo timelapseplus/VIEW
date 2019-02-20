@@ -17,6 +17,8 @@ var previewCrop = null;
 var centerFaces = false;
 var thumbnailPath = false;
 
+var firstSettings = true;
+
 supports = {
     thumbnail: true
 };
@@ -642,6 +644,7 @@ function liveViewOff(callback, keepCrop) {
             callback && callback();
         } else if(camera.model.match(/fuji/i)) {
             set('movie', 0, function() {
+                firstSettings = true;
                 getConfig();
                 callback && callback();
             });
@@ -955,7 +958,6 @@ function mapCameraList(type, cameraList, manufacturer) {
 var configCache = null;
 var configTimeoutHandle = null;
 var cameraBusy = false;
-var firstSettings = true;
 
 function getConfig(noEvent, cached, cb) {
     if (cached && configCache) {
