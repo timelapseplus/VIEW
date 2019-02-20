@@ -241,6 +241,9 @@ st4.move = function(motorId, steps, callback) {
 	}
 
 	st4.movePreGroupHandle = setTimeout(function(){
+		st4.status.moveStarted = true;
+		st4.status.moving = true;
+
 		st4.movePreGroupHandle = null;
 		var group = st4.movePreGroup;
 		st4.movePreGroup = {};
@@ -250,19 +253,19 @@ st4.move = function(motorId, steps, callback) {
 			args[_motorName(mId)] = parseInt(group[mId].steps * _conversionFactor(mId) * _motorDirection(mId));
 		}
 
-		st4.status.moveStarted = true;
-		st4.status.moving = true;
-		_transaction('G2', args, function(err) {
-			st4.status.moveStarted = false;
-			if(err) return callback && callback(err);
-			for(var mId in group) {
-				_waitRunning(mId, function(err, pos) {
-					for(var i = 0; i < group[mId].callbacks.length; i++) {
-						group[mId].callbacks[i] && group[mId].callbacks[i](err, pos);
-					}					
-				});
-			}
-		});
+		(function(grp) {
+			_transaction('G2', args, function(err) {
+				st4.status.moveStarted = false;
+				if(err) return callback && callback(err);
+				for(var mId in grp) {
+					_waitRunning(mId, function(err, pos) {
+						for(var i = 0; i < grp[mId].callbacks.length; i++) {
+							grp[mId].callbacks[i] && grp[mId].callbacks[i](err, pos);
+						}					
+					});
+				}
+			});
+		})(group);
 	}, 100);
 }
 
