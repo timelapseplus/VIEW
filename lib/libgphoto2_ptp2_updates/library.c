@@ -3003,6 +3003,7 @@ enable_liveview:
 
 		if(ret != PTP_RC_OK) {
 			C_PTP_REP(ptp_initiateopencapture(params, 0x00000000, 0x00000000));
+			params->opencapture_transid = params->transaction_id-1;
 			usleep(100000);
 		}
 
