@@ -257,13 +257,13 @@ st4.move = function(motorId, steps, callback) {
 			_transaction('G2', args, function(err) {
 				st4.status.moveStarted = false;
 				if(err) return callback && callback(err);
-				for(var mId in grp) {
-					_waitRunning(mId, function(err, pos) {
+				_waitRunning(0, function(err, pos) {
+					for(var mId in grp) {
 						for(var i = 0; i < grp[mId].callbacks.length; i++) {
 							grp[mId].callbacks[i] && grp[mId].callbacks[i](err, pos);
 						}					
-					});
-				}
+					}
+				});
 			});
 		})(group);
 	}, 100);
