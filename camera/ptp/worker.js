@@ -638,19 +638,20 @@ function liveViewOff(callback, keepCrop) {
     if (liveViewTimerHandle != null) clearTimeout(liveViewTimerHandle);
     liveViewTimerHandle = null;
 
+    getConfig();
+
     setTimeout(function(){
         if(camera.model.match(/sony/i)) {
-            getConfig();
             callback && callback();
         } else if(camera.model.match(/fuji/i)) {
             set('movie', 0, function() {
-                firstSettings = true;
-                getConfig();
+                //firstSettings = true;
+                //getConfig();
                 callback && callback();
             });
         } else {
             set('liveview', 0, function() {
-                getConfig();
+                //getConfig();
                 callback && callback();
             });
         }
