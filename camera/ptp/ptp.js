@@ -1267,8 +1267,17 @@ function getSendMulti() {
     }
 }
 
+var blockPreviewTimer = null;
 camera.set = function(item, value, callback, _worker) {
     camera.blockPreview = true;
+    if(blockPreviewTimer) {
+        clearTimeout(blockPreviewTimer);
+        blockPreviewTimer = null;
+    }
+    blockPreviewTimer = setTimeout(function(){
+        blockPreviewTimer = null;
+        camera.blockPreview = false;
+    }, 1000);
     if(camera.lvOn === true && camera.model && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);

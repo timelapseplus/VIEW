@@ -5370,11 +5370,13 @@ core.on('camera.photo', function() {
                     image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                         if (!err && jpgBuf) {
                             image.saveTemp("oledthm", jpgBuf, function(err, path) {
-                                var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
-                                var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
-                                var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
+                                if(!err && path) {
+                                    var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
+                                    var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
+                                    var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
 
-                                oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
+                                    oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
+                                }
                             });
                         }
                     });
