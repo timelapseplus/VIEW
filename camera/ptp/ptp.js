@@ -26,6 +26,8 @@ camera.settings = false;
 camera.lvOn = false;
 camera.supports = {};
 camera.focusPos = 0;
+camera.blockPreview = false;
+
 
 var FUJI_FOCUS_RESOLUTION = 5;
 
@@ -191,6 +193,7 @@ var startWorker = function(port) {
             if(msg.event == 'online') {
                 console.log("worker started, sending port:", port);
                 worker.send({type:'port', port:port});
+                camera.blockPreview = false;
             }
             if (msg.type == 'event') {
                 if(msg.event != "callback") console.log('event:', msg.event); //, msg.value ? msg.value.length : '');
@@ -543,7 +546,7 @@ camera.capture = function(options, callback) {
     if(!camera.connected) {
         return callback && callback("not connected");
     }
-
+    camera.blockPreview = true;
     if(camera.lvOn === true && camera.model && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);
@@ -562,6 +565,11 @@ camera.capture = function(options, callback) {
         }, true);
     }
 
+    var cb = function(err, res) {
+        camera.blockPreview = false;
+        callback && callback(err, res);
+    }
+
     var primaryWorker = getPrimaryWorker();
     primaryWorker.captureInitiated = true;
     if(options && options.mode == 'test') {
@@ -574,7 +582,7 @@ camera.capture = function(options, callback) {
                 do: 'capture',
                 options: options,
                 id: isPrimary ? getCallbackId(worker.port, 'capture', function(err, res){
-                    callback && callback(err, res);
+                    cb && cb(err, res);
                 }) : null
             }
             console.log(capture);
@@ -622,19 +630,19 @@ camera.capture = function(options, callback) {
                     res.cameraCount = results.length;
                     res.cameraResults = results;
                     //console.log("camera.capture results:", res);
-                    callback && callback(err, res);
+                    cb && cb(err, res);
                 } else {
-                    callback && callback(err, results);
+                    cb && cb(err, results);
                 }
             });
         } else {
-            return callback && callback("not connected");
+            return cb && cb("not connected");
         }
     } else { // capture method, not part of time-lapse program
         if(camera.sdPresent) {
             camera.mountSd(function(err) {
                 if(err) {
-                    callback && callback("Error mounting SD card\nSystem message:", err);
+                    cb && cb("Error mounting SD card\nSystem message:", err);
                 } else {
                     var folder = "/media/view-raw-images";
                     exec('mkdir -p ' + folder, function() {
@@ -663,21 +671,21 @@ camera.capture = function(options, callback) {
                                     options: options,
                                     id: isPrimary ? getCallbackId(worker.port, 'capture', function(err){
                                         setTimeout(camera.unmountSd, 1000);
-                                        callback && callback(err);
+                                        cb && cb(err);
                                     }) : null
                                 }
                                 console.log(capture);
                                 worker.send(capture);
                             });
                             if(err) {
-                                return callback && callback("not connected");
+                                return cb && cb("not connected");
                             }
                         });
                     });
                 }
             });
         } else {
-            callback && callback("SD card required in VIEW");
+            cb && cb("SD card required in VIEW");
         }
     }
 }
@@ -739,7 +747,7 @@ camera.liveview = function(callback) {
 }
 var restartPreview = null; // used for temporarily disabling liveview when changing settings
 camera.preview = function(callback) {
-    if(restartPreview) return callback && callback("blocked");
+    if(restartPreview || camera.blockPreview) return callback && callback("blocked");
     camera.lvOn = true;
     var worker = getPrimaryWorker();
     if(!camera.supports.liveview) {
@@ -1260,6 +1268,7 @@ function getSendMulti() {
 }
 
 camera.set = function(item, value, callback, _worker) {
+    camera.blockPreview = true;
     if(camera.lvOn === true && camera.model && camera.model.match(/fuji/i)) {
         if(restartPreview) {
             clearTimeout(restartPreview);
@@ -1282,14 +1291,18 @@ camera.set = function(item, value, callback, _worker) {
         set: item,
         value: value,
     };
+    var cb = function(err) {
+        camera.blockPreview = false;
+        callback && callback(err);
+    }
     if(_worker && _worker.send) {
-        cmd.id = getCallbackId(_worker.port, 'set', callback);
+        cmd.id = getCallbackId(_worker.port, 'set', cb);
         _worker.send(cmd);
     } else if(doEachCamera(function(port, isPrimary, worker) {
-        cmd.id = isPrimary ? getCallbackId(worker.port, 'set', callback) : null;
+        cmd.id = isPrimary ? getCallbackId(worker.port, 'set', cb) : null;
         worker.send(cmd);
     })){
-        callback && callback("not connected");
+        cb && cb("not connected");
     }
 }
 camera.getSettings = function(callback, useCache) {
