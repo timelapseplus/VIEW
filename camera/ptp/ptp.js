@@ -1281,7 +1281,7 @@ camera.set = function(item, value, callback, _worker) {
                     restartPreview = null;
                     console.log("PTP: resuming LV");
                     camera.preview();
-                }, 1000);
+                }, 100);
                 callback && callback(err);
             }, _worker);
         }, true);

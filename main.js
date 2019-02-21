@@ -1520,7 +1520,12 @@ if (VIEW_HARDWARE) {
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
                             }, function() {
-                                getSettingsTimer = setTimeout(core.getSettings, 1000);
+                                getSettingsTimer = setTimeout(function(){
+                                    core.getSettings(function() {
+                                        stats = lists.evStats(core.cameraSettings);
+                                        ev = stats.ev;
+                                    });
+                                }, 500);
                             });
                         }
                     } else if (d == 'D') {
@@ -1534,7 +1539,12 @@ if (VIEW_HARDWARE) {
                             core.setEv(ev, {
                                 cameraSettings: core.cameraSettings
                             }, function() {
-                                getSettingsTimer = setTimeout(core.getSettings, 1000);
+                                getSettingsTimer = setTimeout(function(){
+                                    core.getSettings(function() {
+                                        stats = lists.evStats(core.cameraSettings);
+                                        ev = stats.ev;
+                                    });
+                                }, 500);
                             });
                         }
                     }
@@ -2356,6 +2366,7 @@ if (VIEW_HARDWARE) {
         fn: function(args, cb) {
             blockInputs = true;
             var stats, ev, exiting = false;
+            var getSettingsTimer = null;
 
             function captureButtonHandler(b) {
                 oled.activity();
@@ -2404,16 +2415,38 @@ if (VIEW_HARDWARE) {
                     if (stats.ev < stats.maxEv) {
                         ev += 1 / 3;
                         console.log("(capture) setting ev to ", ev);
+                        if(getSettingsTimer) {
+                            clearTimeout(getSettingsTimer);
+                            getSettingsTimer = null;
+                        }
                         core.setEv(ev, {
                             cameraSettings: core.cameraSettings
+                        }, function() {
+                            getSettingsTimer = setTimeout(function(){
+                                core.getSettings(function() {
+                                    stats = lists.evStats(core.cameraSettings);
+                                    ev = stats.ev;
+                                });
+                            }, 500);
                         });
                     }
                 } else if (d == 'D') {
                     if (stats.ev > stats.minEv) {
                         ev -= 1 / 3;
                         console.log("(capture) setting ev to ", ev);
+                        if(getSettingsTimer) {
+                            clearTimeout(getSettingsTimer);
+                            getSettingsTimer = null;
+                        }
                         core.setEv(ev, {
                             cameraSettings: core.cameraSettings
+                        }, function() {
+                            getSettingsTimer = setTimeout(function(){
+                                core.getSettings(function() {
+                                    stats = lists.evStats(core.cameraSettings);
+                                    ev = stats.ev;
+                                });
+                            }, 500);
                         });
                     }
                 }
