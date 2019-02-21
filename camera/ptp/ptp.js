@@ -558,6 +558,7 @@ camera.capture = function(options, callback) {
                 restartPreview = setTimeout(function(){
                     restartPreview = null;
                     console.log("PTP: resuming LV");
+                    camera.blockPreview = false;
                     camera.preview();
                 }, 1000);
                 callback && callback(err, res);
@@ -1289,8 +1290,9 @@ camera.set = function(item, value, callback, _worker) {
                 restartPreview = setTimeout(function(){
                     restartPreview = null;
                     console.log("PTP: resuming LV");
+                    camera.blockPreview = false;
                     camera.preview();
-                }, 100);
+                }, 500);
                 callback && callback(err);
             }, _worker);
         }, true);
