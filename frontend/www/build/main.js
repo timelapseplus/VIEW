@@ -1,127 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 122:
-/***/ (function(module, exports) {
-
-function webpackEmptyAsyncContext(req) {
-	// Here Promise.resolve().then() is used instead of new Promise() to prevent
-	// uncatched exception popping up in devtools
-	return Promise.resolve().then(function() {
-		throw new Error("Cannot find module '" + req + "'.");
-	});
-}
-webpackEmptyAsyncContext.keys = function() { return []; };
-webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 122;
-
-/***/ }),
-
-/***/ 164:
-/***/ (function(module, exports) {
-
-function webpackEmptyAsyncContext(req) {
-	// Here Promise.resolve().then() is used instead of new Promise() to prevent
-	// uncatched exception popping up in devtools
-	return Promise.resolve().then(function() {
-		throw new Error("Cannot find module '" + req + "'.");
-	});
-}
-webpackEmptyAsyncContext.keys = function() { return []; };
-webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 164;
-
-/***/ }),
-
-/***/ 210:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CameraPage; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-var CameraPage = (function () {
-    function CameraPage(navCtrl, alertCtrl, viewApi, modalCtrl) {
-        this.navCtrl = navCtrl;
-        this.alertCtrl = alertCtrl;
-        this.viewApi = viewApi;
-        this.modalCtrl = modalCtrl;
-        this.camera = {};
-        this.motion = {};
-        this.intervalometer = {};
-        this.viewMode = 'camera';
-        this.camera = this.viewApi.camera;
-        this.motion = this.viewApi.motion;
-        this.intervalometer = this.viewApi.intervalometer;
-        this.motion.get();
-    }
-    CameraPage.prototype.setupMotion = function (axisId) {
-        var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_3__app_app_component__["b" /* MotionModalContentPage */], { axisId: axisId });
-        modal.present();
-    };
-    CameraPage.prototype.zeroMotion = function (axisId) {
-        this.motion.setAxisPosition(axisId, 0);
-    };
-    CameraPage.prototype.doSelect = function (list, model, title, set) {
-        var _this = this;
-        var alert = this.alertCtrl.create();
-        alert.setTitle(title || "select an option");
-        for (var i = 0; i < list.length; i++) {
-            var item = list[i];
-            alert.addInput({
-                type: 'radio',
-                label: item.label || item.title || item,
-                value: item,
-                checked: ((item.value || item.title || item) == (model.value || model.title || model))
-            });
-        }
-        alert.addButton('Cancel');
-        alert.addButton({
-            text: 'Ok',
-            handler: function (data) {
-                console.log('Radio data:', data);
-                for (var key in model) {
-                    model[key] = data[key];
-                }
-                if (set) {
-                    console.log("setting", set, "to", data.value);
-                    _this.camera.set(set, data.value);
-                }
-            }
-        });
-        alert.present();
-    };
-    CameraPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-            selector: 'page-camera',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Camera</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <!--video src="http://192.168.7.42:9000" width="100%" ></video-->\n        <img *ngIf="camera.image.jpeg" [src]="camera.image.jpeg" width="100%">\n        <div *ngIf="!camera.image.jpeg" style="width: 100%; height: 200px; background-color: #488aff; opacity: 0.25;"></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="right"><button ion-fab mini color="{{camera.delay ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.captureDelay()">2s</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="center"><button ion-fab color="success" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.capture()"><ion-icon name="camera"></ion-icon></button></div>\n      </ion-col>\n      <ion-col>\n        <div class="left"><button ion-fab mini color="{{camera.lv ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.liveview()">LV</button></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="center" *ngIf="!viewApi.noDevice&&viewApi.connected">\n          {{camera.status}}\n        </div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-segment [(ngModel)]="viewMode">\n          <ion-segment-button value="camera">\n            Exposure\n          </ion-segment-button>\n          <ion-segment-button value="focus">\n            Focus\n          </ion-segment-button>\n          <ion-segment-button value="motion">\n            Motion\n          </ion-segment-button>\n        </ion-segment>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <hr/>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'camera\'">\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>shutter</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.shutterAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.shutterAvailable, camera.shutter, \'Shutter Speed\', \'shutter\')">{{camera.shutter.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.shutterAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>aperture</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.apertureAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.apertureAvailable, camera.aperture, \'Aperture\', \'aperture\')">{{camera.aperture.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.apertureAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>iso</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.isoAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.isoAvailable, camera.iso, \'ISO\', \'iso\')">{{camera.iso.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.isoAvailable.length"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'focus\'">\n      <ion-col text-center>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 10, true)"><ion-icon name="rewind"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 1, true)"><ion-icon name="skip-backward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 1, true)"><ion-icon name="skip-forward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 10, true)"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <div *ngIf="viewMode==\'motion\'">\n    <ion-row *ngIf="!motion.available">\n      <ion-col text-center>\n        No VIEW-controllable motion hardware is currently connected.\n      </ion-col>\n    </ion-row>\n    <ion-row *ngIf="motion.available">\n      <ion-col >\n        <ion-list *ngFor="let a of motion.axis">\n\n          <ion-list-header *ngIf="a.connected">\n            <ion-badge>{{a.name}}</ion-badge> <span *ngIf="!a.moving">{{(a.pos / a.unitSteps)|number:\'1.0-0\'}}{{a.unit}}</span>\n            <button [disabled]="intervalometer.status.running ? 2 : 0" ion-button outline  color="primary" (click)="setupMotion(a.id)" item-start>\n              <ion-icon name="settings"></ion-icon>\n            </button>\n            <button [disabled]="(intervalometer.status.running || a.pos == 0 || a.moving) ? 2 : 0" ion-button outline  color="primary" (click)="zeroMotion(a.id)" item-end>\n              set zero\n            </button>\n          </ion-list-header>\n\n          <ion-item *ngIf="a.connected">\n            <ion-grid no-padding>\n              <ion-row no-padding>\n                <ion-col no-padding>\n                  <ion-item no-padding *ngIf="a.name!=\'Tilt\'">\n                    <ion-range [disabled]="intervalometer.status.running ? 2 : 0" [(ngModel)]="a.move" (ionChange)="motion.moveConstant(a.id, a.move/10)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                      <ion-icon range-left name="arrow-round-back"></ion-icon>\n                      <ion-icon range-right name="arrow-round-forward"></ion-icon>\n                    </ion-range>\n                  </ion-item>\n                  <ion-item no-padding *ngIf="a.name==\'Tilt\'">\n                    <ion-range [disabled]="intervalometer.status.running ? 2 : 0" [(ngModel)]="a.move" (ionChange)="motion.moveConstant(a.id, (0-a.move)/10)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                      <ion-icon range-left name="arrow-round-down"></ion-icon>\n                      <ion-icon range-right name="arrow-round-up"></ion-icon>\n                    </ion-range>\n                  </ion-item>\n                </ion-col>\n              </ion-row>\n            </ion-grid>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n\n    </ion-row>\n    </div>\n\n    <ion-row>\n      <ion-col>\n        <div class="center" *ngIf="!viewApi.noDevice&&viewApi.connected" style="width:100%;min-width:100%">\n          <small *ngIf="camera.battery">Camera battery: <b>{{camera.battery}}</b>, </small><small> VIEW battery: <b>{{viewApi.battery}}%</b></small>\n        </div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n \n    <ion-row>\n      <ion-col col-12>\n        <ion-list>\n          <button ion-item *ngFor="let image of camera.lastImages" (click)="camera.image.jpeg=image.jpeg">\n            <ion-thumbnail item-start>\n              <img [src]="image.jpeg">\n            </ion-thumbnail>\n            <h2>{{image.shutter.title}} f/{{image.aperture.title}} ISO {{image.iso.title}}</h2>\n            <p>{{image.time|timeAgo}}</p>\n          </button>\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n</ion-content>\n\n\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/
-        }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
-    ], CameraPage);
-    return CameraPage;
-}());
-
-//# sourceMappingURL=camera.js.map
-
-/***/ }),
-
-/***/ 331:
+/***/ 109:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -165,7 +44,8 @@ var IntervalometerPage = (function () {
         this.axisTypes = {};
         this.axes = {};
         this.intervalometer = {
-            program: {}
+            program: {},
+            status: {}
         };
         this.allowedNonMotorAxes = ['interval', 'focus', 'ev'];
         this.viewMode = "status";
@@ -404,8 +284,10 @@ var IntervalometerPage = (function () {
         var axisPresent = false;
         for (var key in this.axes) {
             //console.log("key", key)
-            axisPresent = true;
-            break;
+            if (this.axes.hasOwnProperty(key)) {
+                axisPresent = true;
+                break;
+            }
         }
         //console.log("this.motion.axis.length", this.motion.axis.length);
         //console.log("axisPresent", axisPresent);
@@ -509,8 +391,7 @@ var IntervalometerPage = (function () {
             var found = false;
             for (var i = 0; i < this.motion.axis.length; i++) {
                 if (this.motion.axis[i].id == key && this.motion.axis[i].connected) {
-                    if (this.intervalometer.program.axes[key].motor)
-                        this.intervalometer.program.axes[key].reverse = this.motion.axis[i].reverse;
+                    //if(this.intervalometer.program.axes[key].motor) this.intervalometer.program.axes[key].reverse = this.motion.axis[i].reverse;
                     found = true;
                     break;
                 }
@@ -752,7 +633,7 @@ var IntervalometerPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-intervalometer',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/intervalometer.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Intervalometer</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div *ngIf="!intervalometer.status.running">\n\n  <ion-list>\n\n    <ion-list-header>Time-lapse Mode</ion-list-header>\n\n    <ion-item>\n      <ion-segment [(ngModel)]="intervalometer.program.rampMode" color="dark">\n        <ion-segment-button value="auto">\n          Auto Ramping\n        </ion-segment-button>\n        <ion-segment-button value="fixed">\n          Basic Fixed\n        </ion-segment-button>\n      </ion-segment>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n      <ion-label>Ramping Options</ion-label>\n      <button ion-button outline item-end button-light (click)="openRampingOptions()">{{(intervalometer.program.rampParameters)+\', \'+(intervalometer.program.nightCompensation)+(intervalometer.program.highlightProtection?\', HL\':\'\')}}</button>\n      <!--button ion-button outline item-end button-light (click)="openRampingOptions()">{{(intervalometer.program.rampAlgorithm)+\', \'+(intervalometer.program.rampParameters)+\', \'+(intervalometer.program.nightCompensation)+(intervalometer.program.highlightProtection?\', HL\':\'\')}}</button-->\n    </ion-item>\n    <!--ion-item *ngIf="intervalometer.program.rampMode==\'auto\'&&intervalometer.program.rampAlgorithm==\'lrt\'">\n      <ion-label>Direction</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.lrtDirection, intervalometer.program, \'lrtDirection\', \'Ramping Direction\')">{{intervalometer.program.lrtDirection?intervalometer.program.lrtDirection:\'auto\'}}</button>\n    </ion-item-->\n\n    <ion-list-header>Interval Settings</ion-list-header>\n\n    <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n      <ion-segment [(ngModel)]="intervalometer.program.intervalMode" color="dark">\n        <ion-segment-button value="fixed">\n          Fixed\n        </ion-segment-button>\n        <ion-segment-button value="auto">\n          Auto Day/Night\n        </ion-segment-button>\n        <ion-segment-button value="aux" *ngIf="!intervalometer.program.schedule">\n          External AUX2\n        </ion-segment-button>\n      </ion-segment>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'auto\' && intervalometer.program.intervalMode==\'auto\')">\n      <ion-label>Day Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Day Interval (seconds)\', intervalometer.program, \'dayInterval\')">{{intervalometer.program.dayInterval|number:\'1.0-1\'}} seconds</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'auto\' && intervalometer.program.intervalMode==\'auto\')">\n      <ion-label>Night Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Night Interval (seconds)\', intervalometer.program, \'nightInterval\')">{{intervalometer.program.nightInterval|number:\'1.0-1\'}} seconds</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\')">\n      <ion-label>Interval</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Fixed Interval (seconds)\', intervalometer.program, \'interval\')">{{intervalometer.program.interval|number:\'1.0-1\'}} seconds</button>\n    </ion-item>\n\n    <ion-list-header>Frames &amp; Schedule</ion-list-header>\n\n    <ion-item>\n      <ion-label>Enable Scheduling</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.enableDisable, intervalometer.program, \'scheduled\', \'Enable Scheduling\')">{{intervalometer.program.scheduled?\'enabled\':\'disabled\'}}</button>\n    </ion-item>\n    <ion-item *ngIf="(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\') && !intervalometer.program.scheduled">\n      <ion-label>Frames</ion-label>\n      <button ion-button outline item-end button-light (click)="doNumber(\'Frames\', intervalometer.program, \'frames\')">{{intervalometer.program.frames}}</button>\n    </ion-item>\n    <ion-item *ngIf="!(intervalometer.program.rampMode==\'fixed\' || intervalometer.program.intervalMode==\'fixed\') && !intervalometer.program.scheduled">\n      <ion-label>Frames</ion-label>\n      <button ion-button outline item-end button-light disabled="2">until stopped</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n      <ion-label>Bracketing</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketing, intervalometer.program, \'hdrCount\', \'Bracketing Mode\')">{{intervalometer.program.hdrCount<2?\'single\':\'multi\'}}</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.hdrCount>1&&intervalometer.program.rampMode==\'auto\'">\n      <ion-label>Bracketing Frames</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketingFrames, intervalometer.program, \'hdrCount\', \'Bracketing Frames/Set\')">{{intervalometer.program.hdrCount}}</button>\n    </ion-item>\n    <ion-item *ngIf="intervalometer.program.hdrCount>1&&intervalometer.program.rampMode==\'auto\'">\n      <ion-label>Bracketing Stops/Frame</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.bracketingStops, intervalometer.program, \'hdrStops\', \'Bracketing Stops/Frame\')">{{intervalometer.program.hdrStops|number:\'1.1-1\'}}</button>\n    </ion-item>\n\n    <ion-list-header *ngIf="intervalometer.program.scheduled">Time-lapse Schedule</ion-list-header>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday">Mo</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday">Mo</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday">Tu</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday">Tu</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday">We</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday">We</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday">Th</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday">Th</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday">Fr</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday">Fr</button>\n\n      <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday">Sa</button>\n      <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday">Sa</button>\n\n      <button ion-button item-end button-light class="" *ngIf="intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday">Su</button>\n      <button ion-button outline item-end button-light class="" *ngIf="!intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday">Su</button>\n    </ion-item>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <ion-label>Daily Start Time</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStart\', \'Daily Start Time\')">{{intervalometer.program.schedStart || \'08:00\'}}</button>\n    </ion-item>\n\n    <ion-item *ngIf="intervalometer.program.scheduled">\n      <ion-label>Daily Stop Time</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStop\', \'Daily Start Time\')">{{intervalometer.program.schedStop || \'18:00\'}}</button>\n    </ion-item>\n\n\n    <ion-list-header *ngIf="showAxisSetup && !intervalometer.program.scheduled">Motion &amp; Focus</ion-list-header>\n\n    <ion-item *ngIf="camera && camera.supports && camera.supports.focus && intervalometer.program.axes.focus && !intervalometer.program.scheduled">\n      <ion-label>Focus</ion-label>\n      <button ion-button outline item-end button-light (click)="doSelect(lists.focusOptions, intervalometer.program.axes.focus, \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes.focus.type}}</button>\n    </ion-item>\n\n    <div *ngFor="let a of motion.axis">\n      <ion-item  *ngIf="intervalometer.program.axes[a.id] && !intervalometer.program.scheduled">\n        <ion-label>{{a.id}} ({{a.name}})</ion-label>\n        <button *ngIf="a.motor" ion-button outline  color="primary" (click)="setup(a)" item-start>\n          <ion-icon name="settings"></ion-icon>\n        </button>\n        <button *ngIf="a.name==\'Pan\'&&intervalometer.program.axes[a.id]" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsPan, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n        <button *ngIf="a.name==\'Polar\'&&intervalometer.program.axes[a.id]" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsPolar, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n        <button *ngIf="a.name==\'Tilt\'&&intervalometer.program.axes[a.id]" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsTilt, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n        <button *ngIf="a.name!=\'Pan\'&&a.name!=\'Tilt\'&&a.name!=\'Polar\'&&intervalometer.program.axes[a.id]" ion-button outline item-end button-light (click)="doSelect(lists.motionOptionsOther, intervalometer.program.axes[a.id], \'type\', \'Axis Mode\', updateAxisTypes)">{{intervalometer.program.axes[a.id].type}}</button>\n      </ion-item>\n\n      <ion-list inset *ngIf="intervalometer.program.axes[a.id] && intervalometer.program.axes[a.id].type==\'constant\' && !intervalometer.program.scheduled">\n        <ion-item>\n          <ion-label>Degrees per hour</ion-label>\n          <button ion-button outline item-end button-light (click)="doNumber(\'Degrees per hour\', intervalometer.program.axes[a.id], \'rate\')">{{intervalometer.program.axes[a.id].rate||15}}°/hour</button>\n        </ion-item>\n        <ion-item>\n          <ion-label>Direction</ion-label>\n          <button *ngIf="a.name==\'Pan\'" ion-button outline item-end button-light (click)="doSelect(lists.panDirection, intervalometer.program.axes[a.id], \'reverse\', \'Pan Direction\')">{{intervalometer.program.axes[a.id].reverse?\'left\':\'right\'}}</button>\n          <button *ngIf="a.name==\'Tilt\'" ion-button outline item-end button-light (click)="doSelect(lists.tiltDirection, intervalometer.program.axes[a.id], \'reverse\', \'Tilt Direction\')">{{intervalometer.program.axes[a.id].reverse?\'down\':\'up\'}}</button>\n        </ion-item>\n      </ion-list>\n      <ion-list inset *ngIf="intervalometer.program.axes[a.id] && intervalometer.program.axes[a.id].type==\'tracking\' && !intervalometer.program.scheduled">\n        <ion-item>\n          <ion-label>Follow below horizon?</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.yesNoBool, intervalometer.program.axes[a.id], \'trackBelowHorizon\', \'Track below horizon\')">{{intervalometer.program.axes[a.id].trackBelowHorizon?\'yes\':\'no\'}}</button>\n        </ion-item>\n      </ion-list>\n      <ion-list inset *ngIf="intervalometer.program.axes[a.id] && intervalometer.program.axes[a.id].type==\'polar\' && !intervalometer.program.scheduled">\n        <ion-item>\n          <ion-label>Axis Alignment</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.polarAxes, intervalometer.program.axes[a.id], \'reverse\', \'Axis Alignment\')">{{intervalometer.program.axes[a.id].reverse?\'South\':\'North\'}}</button>\n        </ion-item>\n      </ion-list>\n    </div>\n\n    <ion-list *ngIf="axisTypes.tracking && !intervalometer.program.scheduled">\n      <ion-item>\n        <ion-label>Tracking Target</ion-label>\n        <button ion-button outline item-end button-light (click)="doSelect(lists.trackingTarget, intervalometer.program, \'trackingTarget\', \'Tracking Target\')">follow {{intervalometer.program.trackingTarget}}</button>\n      </ion-item>\n    </ion-list>\n\n    <div [hidden]="!(axisTypes.keyframe && !intervalometer.program.scheduled)">\n      <ion-item (click)="openKeyframe(0)">\n        <canvas #chart height="100px"></canvas>\n      </ion-item>\n    </div>\n\n\n  </ion-list>\n\n  <ion-grid>\n    <ion-row align-items-center>\n      <ion-col>\n        <div class="text-center"><button ion-button outline small icon-start color="light" [disabled]="(camera.connected && !intervalometer.program.scheduled) ? 0: 2" (click)="doSelect(lists.delay, intervalometer.program, \'delay\', \'Delay Start\', start)"><ion-icon name="timer"></ion-icon>delay</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="text-center"><button ion-button round color="success" [disabled]="camera.connected ? 0: 2" (click)="intervalometer.program.delay=1;start(intervalometer.program)">START</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="text-center"><button ion-button outline small icon-start color="light" (click)="saveProgram(intervalometer.program)"><ion-icon name="checkmark"></ion-icon>save</button></div>\n      </ion-col>\n    </ion-row>\n    <ion-row align-items-center>\n      <ion-col>\n        <div class="text-center"><span *ngIf="!camera.connected">connect camera to enable</span></div>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n\n  </div>\n  <div *ngIf="intervalometer.status.running">\n  \n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <div *ngIf="!intervalometer.preview.image" style="width: 100%; height: 250px; background-color: #488aff; opacity: 0.25;"></div>\n        <img *ngIf="intervalometer.preview.image" [src]="intervalometer.preview.image" width="100%">\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item>\n          <ion-range [(ngModel)]="intervalometer.preview.frameIndex" min="0" max="{{frames.current ? frames.current.length - 1 : 1}}" (ionChange)="updateFrame($event)"></ion-range>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex == 0) ? 2 : 0" (click)="startFrame()"><ion-icon name="skip-backward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex == 0) ? 2 : 0" (click)="previousFrame()"><ion-icon name="rewind"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab color="success" [disabled]="intervalometer.preview.loadingFrames ? 2 : 0" (click)="togglePlay()"><ion-icon name="{{intervalometer.preview.playing ? \'pause\' : \'play\'}}" *ngIf="!intervalometer.preview.loadingFrames"></ion-icon><span *ngIf="intervalometer.preview.loadingFrames">{{intervalometer.preview.loadingFramesPercent}}%</span></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex >= frames.current.length - 1) ? 2 : 0" (click)="nextFrame()"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(intervalometer.preview.loadingFrames || intervalometer.preview.frameIndex >= frames.current.length - 1) ? 2 : 0" (click)="endFrame()"><ion-icon name="skip-forward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="intervalometer.status.trackingPanEnabled||intervalometer.status.trackingTiltEnabled||camera.supports.focus||intervalometer.program.scheduled">\n      <ion-col>\n        <ion-segment [(ngModel)]="viewMode">\n          <ion-segment-button value="status">\n            Status\n          </ion-segment-button>\n          <ion-segment-button value="motion" *ngIf="intervalometer.status.trackingPanEnabled||intervalometer.status.trackingTiltEnabled||camera.supports.focus">\n            Motion/Focus\n          </ion-segment-button>\n          <ion-segment-button value="schedule" *ngIf="intervalometer.program.scheduled">\n            Schedule\n          </ion-segment-button>\n        </ion-segment>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="!viewMode||viewMode==\'status\'">\n      <ion-col>\n        <ion-list no-lines>\n          <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n            <div  *ngFor="let col of camera.histogram" style="width:0.390625%; background-color: #ddd; float: left;" [style.height]="col/6 + \'px\'" [style.margin-top]="48-col/6 + \'px\'"></div>\n          </ion-item>\n          <ion-list-header>\n            Time-lapse Running\n          </ion-list-header>\n          <ion-item>\n            {{intervalometer.status.message}} <span *ngIf="camera.status">|</span> {{camera.status}}\n          </ion-item>\n          <ion-item>\n            {{intervalometer.status.frames}} frames ({{intervalometer.status.frames/30|number:\'1.0-1\'}}s @30fps)\n            <button *ngIf="intervalometer.program.intervalMode==\'fixed\'" ion-button outline item-end (click)="openUpdate(\'Total Frames\', \'frames\', intervalometer.program.frames, false, [])">of {{intervalometer.program.frames}}</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.program.rampMode==\'auto\'">\n            Ramping: \n            <button ion-button outline item-end (click)="openUpdate(\'Exposure Mode\', \'rampMode\', intervalometer.status.rampMode, false, [{label: \'Auto Ramping\', value: \'auto\'},{label: \'Fixed/Manual\', value: \'fixed\'}])">{{intervalometer.status.rampMode}}</button>\n            <button *ngIf="intervalometer.status.rampMode==\'auto\'&&intervalometer.status.exposure&&intervalometer.status.exposure.status.manualOffsetEv!=null&&intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.manualOffsetEv?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Exposure Offset\', \'manualOffsetEv\', intervalometer.status.exposure.status.manualOffsetEv, true, [])">offset {{intervalometer.status.exposure.status.manualOffsetEv|number:\'1.0-1\'}} stops</button>\n            <button *ngIf="intervalometer.status.rampMode==\'fixed\'&&intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.rampEv?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Manual Ramp\', \'rampEv\', 0, true, [{label: \'+6 stops\', value:-6},{label: \'+5 stops\', value:-5},{label: \'+4 stops\', value:-4},{label: \'+3 stops\', value:-3},{label: \'+2 stops\', value:-2},{label: \'+1 2/3 stops\', value:-1.6666},{label: \'+1 1/3 stops\', value:-1.3333},{label: \'+1 stop\', value:-1},{label: \'+2/3 stop\', value:-0.6666},{label: \'+1/3 stop\', value:-0.3333},{label: \'no change\', value:0},{label: \'-1/3 stop\', value:0.3333},{label: \'-2/3 stop\', value:0.6666},{label: \'-1 stop\', value:1},{label: \'-1 1/3 stops\', value:1.3333},{label: \'-1 2/3 stops\', value:1.6666},{label: \'-2 stops\', value:2},{label: \'-3 stops\', value:3},{label: \'-4 stops\', value:4},{label: \'-5 stops\', value:5},{label: \'-6 stops\', value:6}])">Manual Ramp ({{intervalometer.status.rampEv|number:\'1.0-1\'}} EV)</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.status.rampMode==\'auto\'&&intervalometer.status.exposure&&intervalometer.status.exposure.status.dayRefEv!=null&&intervalometer.status.exposure.status.nightRefEv!=null&&intervalometer.status.exposure.status.nightRatio!=null">\n            <button *ngIf="intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.dayRefEv?\'danger\':\'primary\'" ion-button outline item-start (click)="openUpdate(\'Day Exposure Reference\', \'dayRefEv\', intervalometer.status.exposure.status.dayRefEv, true, [])">day {{intervalometer.status.exposure.status.dayRefEv|number:\'1.0-1\'}}</button>\n            <div style="border-bottom: 1px dashed #555; width: 90%; height: 1.5em; display:block;margin-left:0.6em;top:-0.75em;position:relative;">\n              <div [style.width]="intervalometer.status.exposure.status.nightRatio*100+\'%\'" style="height:0.5em;display:inline-block"></div>\n              <div [style.width]="(1-intervalometer.status.exposure.status.nightRatio)*100+\'%\'" style="border-left: 3px solid #fff;height:0.5em;display:inline-block;top:0.75em;position:relative;"></div>\n            </div>\n            <button *ngIf="intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.nightRefEv?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Night Exposure Reference\', \'nightRefEv\', intervalometer.status.exposure.status.nightRefEv, true, [])">night {{intervalometer.status.exposure.status.nightRefEv|number:\'1.0-1\'}}</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.status.cameraSettings&&intervalometer.status.rampMode==\'auto\'">\n            Exposure: {{intervalometer.status.cameraSettings.shutter}} f/{{intervalometer.status.cameraSettings.aperture}} {{intervalometer.status.cameraSettings.iso}} ISO\n          </ion-item>\n          <ion-item *ngIf="intervalometer.status.cameraSettings&&intervalometer.status.rampMode!=\'auto\'">\n            Exposure:\n            <button ion-button outline item-end [disabled]="(camera.shutterAvailable.length) ? 0 : 2" (click)="doSetting(camera.shutterAvailable, camera.shutter, \'Shutter Speed\', \'shutter\')">{{camera.shutter.title||\'---\'}}</button>\n            <button ion-button outline item-end [disabled]="(camera.apertureAvailable.length) ? 0 : 2" (click)="doSetting(camera.apertureAvailable, camera.aperture, \'Aperture\', \'aperture\')">{{\'f/\'+camera.aperture.title||\'---\'}}</button>\n            <button ion-button outline item-end [disabled]="(camera.isoAvailable.length) ? 0 : 2" (click)="doSetting(camera.isoAvailable, camera.iso, \'ISO\', \'iso\')">{{camera.iso.title+\' ISO\'||\'---\'}}</button>\n          </ion-item>\n\n\n          <ion-item *ngIf="intervalometer.program.intervalMode!=\'fixed\'">\n            Current Interval: {{intervalometer.status.intervalMs/1000|number:\'1.0-1\'}}s\n            <button *ngIf="intervalometer.program.intervalMode!=\'aux\'" ion-button outline item-end (click)="openUpdate(\'Interval Mode\', \'intervalMode\', intervalometer.program.intervalMode, false, [{label: \'Auto Variable\', value: \'auto\'},{label: \'Fixed Interval\', value: \'fixed\'}])">{{intervalometer.program.intervalMode}}</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.program.intervalMode==\'fixed\'">\n            Interval: {{intervalometer.status.intervalMs/1000|number:\'1.0-1\'}}s <button *ngIf="intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.interval?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Interval\', \'interval\', intervalometer.program.interval, true, [])">edit</button>\n            <button *ngIf="intervalometer.program.rampMode==\'auto\'" ion-button outline item-end (click)="openUpdate(\'Interval Mode\', \'intervalMode\', intervalometer.program.intervalMode, false, [{label: \'Auto Variable\', value: \'auto\'},{label: \'Fixed Interval\', value: \'fixed\'}])">{{intervalometer.program.intervalMode}}</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.program.intervalMode==\'auto\'">\n            Day Interval: {{intervalometer.program.dayInterval|number:\'1.0-1\'}}s <button *ngIf="intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.dayInterval?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Day Interval\', \'dayInterval\', intervalometer.program.dayInterval, true, [])">edit</button>\n          </ion-item>\n          <ion-item *ngIf="intervalometer.program.intervalMode==\'auto\'">\n            Night Interval: {{intervalometer.program.nightInterval|number:\'1.0-1\'}}s <button *ngIf="intervalometer.status.dynamicChange" [color]="intervalometer.status.dynamicChange.nightInterval?\'danger\':\'primary\'" ion-button outline item-end (click)="openUpdate(\'Night Interval\',\'nightInterval\', intervalometer.program.nightInterval, true, [])">edit</button>\n          </ion-item>\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'motion\'">\n      <ion-card *ngIf="intervalometer.status.trackingPanEnabled||intervalometer.status.trackingTiltEnabled">\n        <ion-col>\n          <ion-row *ngIf="intervalometer.status.trackingPanEnabled">\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="moveTracking(\'Pan\', -0.5)" [disabled]="intervalometer.status.panDiff!=intervalometer.status.panDiffNew?2:0"><ion-icon name="arrow-back"></ion-icon></button>\n            </ion-col>\n            <ion-col text-center>\n              Tracking<br>\n              Pan 0.5°<br>\n            </ion-col>\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="moveTracking(\'Pan\', 0.5)" [disabled]="intervalometer.status.panDiff!=intervalometer.status.panDiffNew?2:0"><ion-icon name="arrow-forward"></ion-icon></button>\n            </ion-col>\n          </ion-row>\n          <ion-row *ngIf="intervalometer.status.trackingTiltEnabled">\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="moveTracking(\'Tilt\', -0.5)" [disabled]="intervalometer.status.tiltDiff!=intervalometer.status.tiltDiffNew?2:0"><ion-icon name="arrow-down"></ion-icon></button>\n            </ion-col>\n            <ion-col text-center>\n              Tracking<br>\n              Tilt 0.5°<br>\n            </ion-col>\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="moveTracking(\'Tilt\', 0.5)" [disabled]="intervalometer.status.tiltDiff!=intervalometer.status.tiltDiffNew?2:0"><ion-icon name="arrow-up"></ion-icon></button>\n            </ion-col>\n          </ion-row>\n          <ion-row>\n            <ion-col>\n              <p>This allows for tracking correction while the time-lapse is running and in tracking mode.</p>\n            </ion-col>\n          </ion-row>\n        </ion-col>\n      </ion-card>\n      <ion-card *ngIf="camera && camera.supports && camera.supports.focus">\n        <ion-col>\n          <ion-row>\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="focusOffset(-1)"><ion-icon name="skip-backward"></ion-icon></button>\n            </ion-col>\n            <ion-col text-center>\n              Adjust Focus<br>\n              NEAR - FAR<br>\n              <span *ngIf="intervalometer.status.focusDiffNew">Pending: {{intervalometer.status.focusDiffNew > 0 ? \'+\':\'\'}}{{intervalometer.status.focusDiffNew}}</span>\n            </ion-col>\n            <ion-col text-center>\n              <button ion-button outline color="light" (click)="focusOffset(1)"><ion-icon name="skip-forward"></ion-icon></button>\n            </ion-col>\n          </ion-row>\n          <ion-row>\n            <ion-col>\n              <p>This allows for focus fine-tuning while the time-lapse is running.  For each time the near or far buttons are pressed, the focus will move by one step after the next frame.</p>\n            </ion-col>\n          </ion-row>\n        </ion-col>\n      </ion-card>\n    </ion-row>\n\n\n    <ion-row *ngIf="viewMode==\'schedule\'">\n      <ion-col text-center>\n        <ion-list no-lines>\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMonday;sendSchedule()">Mo</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedMonday" (click)="intervalometer.program.schedMonday=!intervalometer.program.schedMondaysendSchedule()">Mo</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday;sendSchedule()">Tu</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedTuesday" (click)="intervalometer.program.schedTuesday=!intervalometer.program.schedTuesday;sendSchedule()">Tu</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday;sendSchedule()">We</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedWednesday" (click)="intervalometer.program.schedWednesday=!intervalometer.program.schedWednesday;sendSchedule()">We</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday;sendSchedule()">Th</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedThursday" (click)="intervalometer.program.schedThursday=!intervalometer.program.schedThursday;sendSchedule()">Th</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday;sendSchedule()">Fr</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedFriday" (click)="intervalometer.program.schedFriday=!intervalometer.program.schedFriday;sendSchedule()">Fr</button>\n\n            <button ion-button item-end button-light class="compressed" *ngIf="intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday;sendSchedule()">Sa</button>\n            <button ion-button outline item-end button-light class="compressed" *ngIf="!intervalometer.program.schedSaturday" (click)="intervalometer.program.schedSaturday=!intervalometer.program.schedSaturday;sendSchedule()">Sa</button>\n\n            <button ion-button item-end button-light class="" *ngIf="intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday;sendSchedule()">Su</button>\n            <button ion-button outline item-end button-light class="" *ngIf="!intervalometer.program.schedSunday" (click)="intervalometer.program.schedSunday=!intervalometer.program.schedSunday;sendSchedule()">Su</button>\n          </ion-item>\n\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <ion-label>Daily Start Time</ion-label>\n            <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStart\', \'Daily Start Time\');sendSchedule()">{{intervalometer.program.schedStart || \'08:00\'}}</button>\n          </ion-item>\n\n          <ion-item *ngIf="intervalometer.program.scheduled">\n            <ion-label>Daily Stop Time</ion-label>\n            <button ion-button outline item-end button-light (click)="doSelect(lists.timeOfDay, intervalometer.program, \'schedStop\', \'Daily Start Time\');sendSchedule()">{{intervalometer.program.schedStop || \'18:00\'}}</button>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <div class="center" *ngIf="!viewApi.noDevice&&viewApi.connected" style="width:100%;min-width:100%">\n          <small *ngIf="camera.battery">Camera battery: <b>{{camera.battery}}</b>, </small><small> VIEW battery: <b>{{viewApi.battery}}%</b></small>\n        </div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <div class="text-center"><button ion-button round color="danger" (click)="stop()">STOP</button></div>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n  </div>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/intervalometer.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["c" /* Events */]])
     ], IntervalometerPage);
     return IntervalometerPage;
 }());
@@ -851,8 +732,8 @@ var UpdateModalContentPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-update',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/update.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Live Update\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <ion-item *ngIf="list.length == 0">\n          <ion-label>{{title}}</ion-label>\n          <button ion-button outline item-end button-light (click)="doNumber(title, updateObj, \'value\')">{{updateObj.value|number:\'1.0-1\'}}</button>\n        </ion-item>\n        <ion-item *ngIf="list.length > 0">\n          <ion-label>{{title}}</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(list, updateObj, \'value\', title)">{{updateObj.value}}</button>\n        </ion-item>\n        <ion-item *ngIf="rampable">\n          <ion-label>Apply changes</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(rampOptions, updateObj, \'frames\', title)">\n            <span *ngIf="updateObj.frames==0">Immediately</span>\n            <span *ngIf="updateObj.frames>0">over {{updateObj.frames}} frames</span>\n          </button>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n    <ion-row *ngIf=intervalometer.status.dynamicChange[item]>\n      <ion-col>\n        <p>\n          The {{title}} is currently ramping to {{intervalometer.status.dynamicChange[item].endVal}} over the next {{intervalometer.status.dynamicChange[item].endFrame - intervalometer.status.frames}} frames.  Any new changes will replace this schedule and start from the current value of <span *ngIf="list.length > 0">{{value}}</span><span *ngIf="list.length == 0">{{value|number:\'1.0-1\'}}</span>.\n        </p>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <br>\n        <button ion-button item-end (click)="apply()" [disabled]="updateObj.value==value?2:0">\n          Apply Change\n        </button>\n        <button ion-button item-end outline (click)="dismiss()">\n          Cancel\n        </button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/update.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */],
             __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]
             //private modalCtrl: ModalController
@@ -955,7 +836,7 @@ var RampingModalContentPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-update',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/ramping.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Ramping Options\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <!--ion-item>\n          <ion-label>Ramping Algorithm</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.rampAlgorithm, program, \'rampAlgorithm\', \'Ramping Algorithm\')">{{program.rampAlgorithm}}</button>\n        </ion-item-->\n        <ion-item>\n          <ion-label>Ramp Parameters</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.rampParameters, program, \'rampParameters\', \'Ramp Parameters\')">{{program.rampParameters}}</button>\n        </ion-item>\n        <ion-item>\n          <ion-label>Night Compensation</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(lists.nightCompensation, program, \'nightCompensation\', \'Night Compensation\')">{{program.nightCompensation}}</button>\n        </ion-item>\n        <ion-item>\n          <ion-label>Highlight Protection</ion-label>\n          <ion-toggle color="primary" [(ngModel)]="program.highlightProtection"></ion-toggle>\n        </ion-item>\n        <ion-item *ngIf="isoList.length">\n          <ion-label>Maximum ISO</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(isoList, program, \'isoMax\', \'Maximum ISO\')">{{mapEv(program.isoMax, isoList)}}</button>\n        </ion-item>\n        <ion-item *ngIf="isoList.length">\n          <ion-label>Mininum ISO</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(isoList, program, \'isoMin\', \'Mininum ISO\')">{{mapEv(program.isoMin, isoList)}}</button>\n        </ion-item>\n        <ion-item *ngIf="apertureList.length">\n          <ion-label>Maximum Aperture</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(apertureList, program, \'apertureMax\', \'Maximum Aperture\')">{{mapEv(program.apertureMax, apertureList)}}</button>\n        </ion-item>\n        <ion-item *ngIf="apertureList.length">\n          <ion-label>Mininum Aperture</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(apertureList, program, \'apertureMin\', \'Mininum Aperture\')">{{mapEv(program.apertureMin, apertureList)}}</button>\n        </ion-item>\n        <ion-item *ngIf="shutterList.length">\n          <ion-label>Maximum Shutter</ion-label>\n          <button ion-button outline item-end button-light (click)="doSelect(shutterList, program, \'shutterMax\', \'Maximum Shutter\')">{{mapEv(program.shutterMax, shutterList)}}</button>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/ramping.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */],
             __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]
             //private modalCtrl: ModalController
@@ -1460,16 +1341,137 @@ var KeyframeModalContentPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-keyframe',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/intervalometer/keyframe.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Keyframe Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col col-1 class="no-padding-except-top">\n        <button ion-button small outline block item-end color="primary" *ngIf="!camera.lv" [disabled]="camera.connected ? 0 : 2" (click)="camera.liveview()">LV</button>\n        <button ion-button small block item-end color="primary" *ngIf="camera.lv" [disabled]="camera.connected ? 0 : 2" (click)="camera.liveview()">LV</button>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 0 : 2" (click)="camera.captureTest()">\n          <ion-icon name="camera"></ion-icon>\n        </button>\n        <br>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 0 : 2" (click)="camera.setEvDown()">\n          <ion-icon name="add"></ion-icon>\n        </button>\n        <button ion-button small outline block  color="primary" item-end [disabled]="camera.connected ? 0 : 2" (click)="camera.setEvUp()">\n          <ion-icon name="remove"></ion-icon>\n        </button>\n      </ion-col>\n      <ion-col col-11 style="padding-left: 0.75em;">\n        <!--img [src]="\'data:image/jpeg;base64,\' + keyframe.jpeg" width="100%"-->\n        <img *ngIf="camera.image.jpeg" [src]="camera.image.jpeg" width="100%">\n        <div *ngIf="!camera.image.jpeg" style="width: 100%; height: 150px; background-color: #488aff; opacity: 0.25;"></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col col-8>\n        <canvas #chart height="160px"></canvas>\n      </ion-col>\n      <ion-col col-4 class="center-text">\n          <small>Total Duration\n          <button ion-button outline small color="positive" (click)="doDuration(\'Set the total duration\', program, \'durationSeconds\')" [disabled]="(program.intervalMode == \'fixed\' && program.frames > 0 && program.frames != Infinity) ? 2 : 0">\n            {{lengthString}}\n          </button><br>\n          Current Selection<br>\n          <button ion-button outline small color="positive" (click)="doDuration(\'Set the selected point\', false, \'posSeconds\')">\n            {{selectionString}}\n          </button>\n          </small>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item no-padding>\n          <ion-range [(ngModel)]="xSlide" (ionChange)="updateLengthStrings(xSlide, 0);refreshChart()" min="0" max="100" step="1"></ion-range>\n        </ion-item>\n        <ion-scroll scrollY="true" style="height: 300px">\n\n          <!-- MOTOR KEYFRAMES -->\n          <ion-list *ngFor="let a of axesArray">\n            <ion-list-header *ngIf="a.type==\'keyframe\'">\n              <ion-badge *ngIf="a.motor" [style.background-color]="colors.first[a.colorIndex]">{{a.motor.name}}</ion-badge> <span *ngIf="a.motor&&!a.motor.moving">{{(a.motor.pos / a.motor.unitSteps)|number:\'1.0-0\'}}{{a.motor.unit}}</span>\n              <ion-badge *ngIf="!a.motor" [style.background-color]="colors.first[a.colorIndex]">{{a.id}}</ion-badge> <span *ngIf="!a.motor">{{a.pos}}</span>\n\n              <button ion-button clear color="primary" item-start *ngIf="!a.hidden" (click)="a.hidden=true">\n                <ion-icon name="arrow-down"></ion-icon>\n              </button>\n              <button ion-button clear color="primary" item-start *ngIf="a.hidden" (click)="a.hidden=false">\n                <ion-icon name="arrow-forward"></ion-icon>\n              </button>\n\n              <button *ngIf="a.motor" ion-button outline  color="primary" (click)="setup(a)" item-start>\n                <ion-icon name="settings"></ion-icon>\n              </button>\n\n              <button *ngIf="a.id==\'focus\'&&a.hidden" ion-button small outline color="light" item-end [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -1)">\n                <ion-icon name="skip-backward"></ion-icon>\n              </button>\n              <button *ngIf="a.id==\'focus\'&&a.hidden" ion-button small outline color="light" item-end [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 1)">\n                <ion-icon name="skip-forward"></ion-icon>\n              </button>\n\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, -50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name!=\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-back"></ion-icon>&nbsp;\n              </button>\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, 50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name!=\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-forward"></ion-icon>&nbsp;\n              </button>\n\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, 50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name==\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-down"></ion-icon>&nbsp;\n              </button>\n              <button ion-button small color="primary" item-end (touchstart)="moveAxis(a.id, -50)" (touchend)="moveAxis(a.id, 0)" *ngIf="a.motor&&a.hidden&&a.motor.name==\'Tilt\'">\n                &nbsp;<ion-icon name="arrow-round-up"></ion-icon>&nbsp;\n              </button>\n\n              <button ion-button outline  color="primary" item-end (click)="toggleInterpolation(a)" *ngIf="!a.hidden && a.interpolation == \'linear\'">\n                <ion-icon name="analytics"></ion-icon>\n              </button>\n              <button ion-button color="primary" item-end (click)="toggleInterpolation(a)" *ngIf="!a.hidden && a.interpolation != \'linear\'">\n                <ion-icon name="analytics"></ion-icon>\n              </button>\n\n              <button ion-button outline  color="primary" item-end [disabled]="a.prevKeyframe===null?2:0" (click)="updateX(a.prevKeyframe)" *ngIf="!a.hidden">\n                <ion-icon name="arrow-back"></ion-icon>\n              </button>\n              <button *ngIf="!a.selected" ion-button outline  color="primary" item-end (click)="addKeyframe(a.id)">\n                <ion-icon name="radio-button-off"></ion-icon>\n              </button>\n              <button *ngIf="a.selected&&a.atPos" ion-button outline  color="primary" item-end (click)="removeKeyframe(a.id)" [disabled]="a.atPos&&!a.atStartOrEnd?0:2">\n                <ion-icon name="radio-button-on"></ion-icon>\n              </button>\n              <button ion-button outline color="danger" item-end (click)="updateKeyframe(a.id)" *ngIf="a.selected&&!a.atPos">\n                <ion-icon name="radio-button-on"></ion-icon>\n              </button>\n\n              <button ion-button outline  color="primary" item-end [disabled]="a.nextKeyframe===null?2:0" (click)="updateX(a.nextKeyframe)" *ngIf="!a.hidden">\n                <ion-icon name="arrow-forward"></ion-icon>\n              </button>\n\n            </ion-list-header>\n            <ion-item no-lines *ngIf="!a.hidden&&a.type==\'keyframe\'">\n              <ion-grid no-padding>\n                <ion-row no-padding>\n                  <ion-col no-padding *ngIf="a.motor">\n                    <ion-item no-padding *ngIf="a.motor.name!=\'Tilt\'">\n                      <ion-range [(ngModel)]="a.move" (ionChange)="moveAxis(a.id, a.move)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                        <ion-icon range-left name="arrow-round-back"></ion-icon>\n                        <ion-icon range-right name="arrow-round-forward"></ion-icon>\n                      </ion-range>\n                    </ion-item>\n                    <ion-item no-padding *ngIf="a.motor.name==\'Tilt\'">\n                      <ion-range [(ngModel)]="a.move" (ionChange)="moveAxis(a.id, (0 - a.move))" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                        <ion-icon range-left name="arrow-round-down"></ion-icon>\n                        <ion-icon range-right name="arrow-round-up"></ion-icon>\n                      </ion-range>\n                    </ion-item>\n                  </ion-col>\n                  <ion-col no-padding *ngIf="a.id==\'focus\'">\n                    <button class="focus-button" ion-button small outline color="light" item-start [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -10)"><ion-icon name="rewind"></ion-icon></button>\n                    <button class="focus-button" ion-button small outline color="light" item-start [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, -1)"><ion-icon name="skip-backward"></ion-icon></button>\n                    <button class="focus-button" ion-button small outline color="light" item-start [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 1)"><ion-icon name="skip-forward"> </ion-icon></button>\n                    <button class="focus-button" ion-button small outline color="light" item-start [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="moveAxis(a.id, 10)"><ion-icon name="fastforward"></ion-icon></button>\n                  </ion-col>\n                  <ion-col col-4 no-padding>\n                    <button ion-button outline small color="positive" item-end (click)="moveToCurrent(a.id)" [disabled]="a.canMove?0:2">\n                      MOVE\n                    </button>\n                  </ion-col>\n                </ion-row>\n              </ion-grid>\n            </ion-item>\n          </ion-list>\n\n\n        </ion-scroll>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/intervalometer/keyframe.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */],
             __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */]])
     ], KeyframeModalContentPage);
     return KeyframeModalContentPage;
 }());
 
 //# sourceMappingURL=intervalometer.js.map
+
+/***/ }),
+
+/***/ 123:
+/***/ (function(module, exports) {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncatched exception popping up in devtools
+	return Promise.resolve().then(function() {
+		throw new Error("Cannot find module '" + req + "'.");
+	});
+}
+webpackEmptyAsyncContext.keys = function() { return []; };
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+module.exports = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = 123;
+
+/***/ }),
+
+/***/ 165:
+/***/ (function(module, exports) {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncatched exception popping up in devtools
+	return Promise.resolve().then(function() {
+		throw new Error("Cannot find module '" + req + "'.");
+	});
+}
+webpackEmptyAsyncContext.keys = function() { return []; };
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+module.exports = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = 165;
+
+/***/ }),
+
+/***/ 211:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CameraPage; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_app_component__ = __webpack_require__(58);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+var CameraPage = (function () {
+    function CameraPage(navCtrl, alertCtrl, viewApi, modalCtrl) {
+        this.navCtrl = navCtrl;
+        this.alertCtrl = alertCtrl;
+        this.viewApi = viewApi;
+        this.modalCtrl = modalCtrl;
+        this.camera = {};
+        this.motion = {};
+        this.intervalometer = {};
+        this.viewMode = 'camera';
+        this.camera = this.viewApi.camera;
+        this.motion = this.viewApi.motion;
+        this.intervalometer = this.viewApi.intervalometer;
+        this.motion.get();
+    }
+    CameraPage.prototype.setupMotion = function (axisId) {
+        var modal = this.modalCtrl.create(__WEBPACK_IMPORTED_MODULE_3__app_app_component__["b" /* MotionModalContentPage */], { axisId: axisId });
+        modal.present();
+    };
+    CameraPage.prototype.zeroMotion = function (axisId) {
+        this.motion.setAxisPosition(axisId, 0);
+    };
+    CameraPage.prototype.doSelect = function (list, model, title, set) {
+        var _this = this;
+        var alert = this.alertCtrl.create();
+        alert.setTitle(title || "select an option");
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+            alert.addInput({
+                type: 'radio',
+                label: item.label || item.title || item,
+                value: item,
+                checked: ((item.value || item.title || item) == (model.value || model.title || model))
+            });
+        }
+        alert.addButton('Cancel');
+        alert.addButton({
+            text: 'Ok',
+            handler: function (data) {
+                console.log('Radio data:', data);
+                for (var key in model) {
+                    model[key] = data[key];
+                }
+                if (set) {
+                    console.log("setting", set, "to", data.value);
+                    _this.camera.set(set, data.value);
+                }
+            }
+        });
+        alert.present();
+    };
+    CameraPage = __decorate([
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+            selector: 'page-camera',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Camera</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <!--video src="http://192.168.7.42:9000" width="100%" ></video-->\n        <img *ngIf="camera.image.jpeg" [src]="camera.image.jpeg" width="100%">\n        <div *ngIf="!camera.image.jpeg" style="width: 100%; height: 200px; background-color: #488aff; opacity: 0.25;"></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="right"><button ion-fab mini color="{{camera.delay ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.captureDelay()">2s</button></div>\n      </ion-col>\n      <ion-col>\n        <div class="center"><button ion-fab color="success" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.capture()"><ion-icon name="camera"></ion-icon></button></div>\n      </ion-col>\n      <ion-col>\n        <div class="left"><button ion-fab mini color="{{camera.lv ? \'primary\' : \'dark\'}}" [disabled]="(!intervalometer.status.running && camera.connected) ? 0: 2" (click)="camera.liveview()">LV</button></div>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <div class="center" *ngIf="!viewApi.noDevice&&viewApi.connected">\n          {{camera.status}}\n        </div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-segment [(ngModel)]="viewMode">\n          <ion-segment-button value="camera">\n            Exposure\n          </ion-segment-button>\n          <ion-segment-button value="focus">\n            Focus\n          </ion-segment-button>\n          <ion-segment-button value="motion">\n            Motion\n          </ion-segment-button>\n        </ion-segment>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <hr/>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'camera\'">\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>shutter</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.shutterAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.shutterAvailable, camera.shutter, \'Shutter Speed\', \'shutter\')">{{camera.shutter.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.shutterAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>aperture</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.apertureAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.apertureAvailable, camera.aperture, \'Aperture\', \'aperture\')">{{camera.aperture.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.apertureAvailable.length"></ion-icon></button>\n      </ion-col>\n      <ion-col col-4 text-center>\n        <sup ion-text color="primary" text-uppercase>iso</sup><br>\n        <button ion-button no-margin color="light" [disabled]="(!intervalometer.status.running && camera.isoAvailable.length) ? 0 : 2" outline (click)="doSelect(camera.isoAvailable, camera.iso, \'ISO\', \'iso\')">{{camera.iso.title||\'---\'}}&nbsp;<ion-icon name="arrow-dropdown" *ngIf="camera.isoAvailable.length"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="viewMode==\'focus\'">\n      <ion-col text-center>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 10, true)"><ion-icon name="rewind"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(-1, 1, true)"><ion-icon name="skip-backward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 1, true)"><ion-icon name="skip-forward"></ion-icon></button>\n        <button ion-button outline color="light" [disabled]="(!intervalometer.status.running && camera.connected && !camera.focusMoving) ? 0: 2" (click)="camera.focus(1, 10, true)"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <div *ngIf="viewMode==\'motion\'">\n    <ion-row *ngIf="!motion.available">\n      <ion-col text-center>\n        No VIEW-controllable motion hardware is currently connected.\n      </ion-col>\n    </ion-row>\n    <ion-row *ngIf="motion.available">\n      <ion-col >\n        <ion-list *ngFor="let a of motion.axis">\n\n          <ion-list-header *ngIf="a.connected">\n            <ion-badge>{{a.name}}</ion-badge> <span *ngIf="!a.moving">{{(a.pos / a.unitSteps)|number:\'1.0-0\'}}{{a.unit}}</span>\n            <button [disabled]="intervalometer.status.running ? 2 : 0" ion-button outline  color="primary" (click)="setupMotion(a.id)" item-start>\n              <ion-icon name="settings"></ion-icon>\n            </button>\n            <button [disabled]="(intervalometer.status.running || a.pos == 0 || a.moving) ? 2 : 0" ion-button outline  color="primary" (click)="zeroMotion(a.id)" item-end>\n              set zero\n            </button>\n          </ion-list-header>\n\n          <ion-item *ngIf="a.connected">\n            <ion-grid no-padding>\n              <ion-row no-padding>\n                <ion-col no-padding>\n                  <ion-item no-padding *ngIf="a.name!=\'Tilt\'">\n                    <ion-range [disabled]="intervalometer.status.running ? 2 : 0" [(ngModel)]="a.move" (ionChange)="motion.moveConstant(a.id, a.move/10)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                      <ion-icon range-left name="arrow-round-back"></ion-icon>\n                      <ion-icon range-right name="arrow-round-forward"></ion-icon>\n                    </ion-range>\n                  </ion-item>\n                  <ion-item no-padding *ngIf="a.name==\'Tilt\'">\n                    <ion-range [disabled]="intervalometer.status.running ? 2 : 0" [(ngModel)]="a.move" (ionChange)="motion.moveConstant(a.id, (0-a.move)/10)" no-padding min="-10" max="10" step="1" (ionBlur)="a.move=0">\n                      <ion-icon range-left name="arrow-round-down"></ion-icon>\n                      <ion-icon range-right name="arrow-round-up"></ion-icon>\n                    </ion-range>\n                  </ion-item>\n                </ion-col>\n              </ion-row>\n            </ion-grid>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n\n    </ion-row>\n    </div>\n\n    <ion-row>\n      <ion-col>\n        <div class="center" *ngIf="!viewApi.noDevice&&viewApi.connected" style="width:100%;min-width:100%">\n          <small *ngIf="camera.battery">Camera battery: <b>{{camera.battery}}</b>, </small><small> VIEW battery: <b>{{viewApi.battery}}%</b></small>\n        </div>\n        <hr/>\n      </ion-col>\n    </ion-row>\n \n    <ion-row>\n      <ion-col col-12>\n        <ion-list>\n          <button ion-item *ngFor="let image of camera.lastImages" (click)="camera.image.jpeg=image.jpeg">\n            <ion-thumbnail item-start>\n              <img [src]="image.jpeg">\n            </ion-thumbnail>\n            <h2>{{image.shutter.title}} f/{{image.aperture.title}} ISO {{image.iso.title}}</h2>\n            <p>{{image.time|timeAgo}}</p>\n          </button>\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n</ion-content>\n\n\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/camera/camera.html"*/
+        }),
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */]])
+    ], CameraPage);
+    return CameraPage;
+}());
+
+//# sourceMappingURL=camera.js.map
 
 /***/ }),
 
@@ -1482,6 +1484,7 @@ var KeyframeModalContentPage = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__providers_view_view__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__intervalometer_intervalometer__ = __webpack_require__(109);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1491,6 +1494,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+
 
 
 
@@ -1536,19 +1540,25 @@ var ClipsPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-clips',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/clips/clips.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Time-lapse Clips</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div class="center" *ngIf="(!timelapse.clips || timelapse.clips.length == 0) && viewApi.status.fetchingClips" style="padding-top:3em;">\n    Loading clips...\n  </div>\n  <ion-list>\n    <ion-item-sliding *ngFor="let clip of timelapse.clips; let i = index">\n      <button ion-item (click)="open(i)">\n        <ion-thumbnail item-start>\n          <img [src]="\'data:image/jpeg;base64,\' + clip.image">\n        </ion-thumbnail>\n        <h2>{{clip.name}}</h2>\n        <p>{{clip.frames}} frames</p>\n      </button>\n      <ion-item-options side="right">\n        <button ion-button color="danger" (click)="showConfirmDelete(clip)">\n          <ion-icon name="trash"></ion-icon>\n          Delete\n        </button>\n      </ion-item-options>\n    </ion-item-sliding>\n  </ion-list>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/clips/clips.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */], __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
     ], ClipsPage);
     return ClipsPage;
 }());
 
 var ClipsModalContentPage = (function () {
-    function ClipsModalContentPage(params, viewCtrl, viewApi, alertCtrl) {
+    function ClipsModalContentPage(params, viewCtrl, viewApi, alertCtrl, appCtrl) {
         this.params = params;
         this.viewCtrl = viewCtrl;
         this.viewApi = viewApi;
         this.alertCtrl = alertCtrl;
+        this.appCtrl = appCtrl;
+        this.intervalometer = {
+            program: {},
+            status: {}
+        };
         console.log("clipIndex", this.params.get('clipIndex'));
         this.clip = viewApi.timelapse.clips[this.params.get('clipIndex')];
+        this.intervalometer = this.viewApi.intervalometer;
         this.image = this.clip.image;
         this.frames = this.viewApi.timelapse.frames;
         this.clip.frameIndex = 0;
@@ -1654,17 +1664,67 @@ var ClipsModalContentPage = (function () {
         });
         reportPrompt.present();
     };
+    ClipsModalContentPage.prototype.showConfirmLoad = function (clip) {
+        var _this = this;
+        var confirm = this.alertCtrl.create({
+            title: 'Load ' + clip.name + '?',
+            message: 'This will load the settings from this time-lapse into a new time-lapse setup, replacing any existing settings.',
+            buttons: [
+                {
+                    text: 'Cancel',
+                    handler: function () {
+                        console.log('Load canceled');
+                    }
+                },
+                {
+                    text: 'LOAD',
+                    handler: function () {
+                        console.log('Loading ' + clip.index);
+                        _this.viewApi.intervalometer.saveProgram(clip.info.program);
+                        _this.viewCtrl.dismiss();
+                        _this.appCtrl.getRootNav().push(__WEBPACK_IMPORTED_MODULE_3__intervalometer_intervalometer__["a" /* IntervalometerPage */]);
+                    }
+                }
+            ]
+        });
+        confirm.present();
+    };
+    ClipsModalContentPage.prototype.showConfirmDelete = function (clip) {
+        var _this = this;
+        var confirm = this.alertCtrl.create({
+            title: 'Delete ' + clip.name + '?',
+            message: 'This will remove preview thumbnails and data from the VIEW, but not delete any RAW image files',
+            buttons: [
+                {
+                    text: 'Cancel',
+                    handler: function () {
+                        console.log('Delete canceled');
+                    }
+                },
+                {
+                    text: 'DELETE',
+                    handler: function () {
+                        console.log('Deleting ' + clip.index);
+                        _this.viewApi.timelapse.deleteClip(clip.index);
+                        _this.viewCtrl.dismiss();
+                    }
+                }
+            ]
+        });
+        confirm.present();
+    };
     ClipsModalContentPage.prototype.dismiss = function () {
         this.viewCtrl.dismiss();
     };
     ClipsModalContentPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-            selector: 'page-clips',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/clips/modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      {{clip.name}}\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <img [src]="\'data:image/jpeg;base64,\' + image" width="100%">\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item>\n          <ion-range [(ngModel)]="clip.frameIndex" min="0" max="{{frames[clip.index] ? frames[clip.index].length - 1 : 1}}" (ionChange)="updateFrame(clip, $event)"></ion-range>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex == 0) ? 2 : 0" (click)="startFrame(clip)"><ion-icon name="skip-backward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex == 0) ? 2 : 0" (click)="previousFrame(clip)"><ion-icon name="rewind"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab color="success" [disabled]="clip.loadingFrames ? 2 : 0" (click)="togglePlay(clip)"><ion-icon name="{{clip.playing ? \'pause\' : \'play\'}}" *ngIf="!clip.loadingFrames"></ion-icon><span *ngIf="clip.loadingFrames">{{clip.loadingFramesPercent}}%</span></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex >= frames[clip.index].length - 1) ? 2 : 0" (click)="nextFrame(clip)"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex >= frames[clip.index].length - 1) ? 2 : 0" (click)="endFrame(clip)"><ion-icon name="skip-forward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <ion-list *ngIf="clip.info" no-lines>\n          <ion-list-header>\n            {{clip.name}} Details\n          </ion-list-header>\n          <ion-item>\n            {{clip.info.date | date:\'medium\'}}\n          </ion-item>\n          <ion-item>\n            {{clip.frames}} frames ({{clip.frames/30|number:\'1.0-1\'}}s at 30fps)\n          </ion-item>\n          <ion-item *ngIf="clip.info.status && clip.info.status.cameraSettings">\n            Start exposure: {{clip.info.status.cameraSettings.shutter}} f/{{clip.info.status.cameraSettings.aperture}} {{clip.info.status.cameraSettings.iso}} ISO\n          </ion-item>\n          <ion-item *ngIf="clip.info.program">\n            Interval: \n            <span *ngIf="clip.info.program.intervalMode==\'fixed\'">fixed at {{clip.info.program.interval}}s</span>\n            <span *ngIf="clip.info.program.intervalMode==\'auto\'">(auto) day {{clip.info.program.dayInterval}}s, night {{clip.info.program.nightInterval}}s</span>\n            <span *ngIf="clip.info.program.intervalMode==\'aux2\'">external trigger via AUX2 port</span>\n          </ion-item>\n        </ion-list>        \n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngIf="clip.info && clip.info.logfile">\n      <ion-col>\n        <p>\n          Problems?  Get help by <a href="#" (click)="logReport(clip)">sending a log report</a>.\n        </p>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/clips/modal.html"*/
+            selector: 'page-clips',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/clips/modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      {{clip.name}}\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <img [src]="\'data:image/jpeg;base64,\' + image" width="100%">\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-item>\n          <ion-range [(ngModel)]="clip.frameIndex" min="0" max="{{frames[clip.index] ? frames[clip.index].length - 1 : 1}}" (ionChange)="updateFrame(clip, $event)"></ion-range>\n        </ion-item>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex == 0) ? 2 : 0" (click)="startFrame(clip)"><ion-icon name="skip-backward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex == 0) ? 2 : 0" (click)="previousFrame(clip)"><ion-icon name="rewind"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab color="success" [disabled]="clip.loadingFrames ? 2 : 0" (click)="togglePlay(clip)"><ion-icon name="{{clip.playing ? \'pause\' : \'play\'}}" *ngIf="!clip.loadingFrames"></ion-icon><span *ngIf="clip.loadingFrames">{{clip.loadingFramesPercent}}%</span></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex >= frames[clip.index].length - 1) ? 2 : 0" (click)="nextFrame(clip)"><ion-icon name="fastforward"></ion-icon></button>\n      </ion-col>\n      <ion-col class="no-padding">\n        <button ion-fab mini color="dark" [disabled]="(clip.loadingFrames || clip.frameIndex >= frames[clip.index].length - 1) ? 2 : 0" (click)="endFrame(clip)"><ion-icon name="skip-forward"></ion-icon></button>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <ion-list *ngIf="clip.info" no-lines>\n          <ion-list-header>\n            {{clip.name}} Details\n            <button ion-button outline item-end color="primary" [disabled]="(!intervalometer.status.running && clip.info && clip.info.program) ? 0: 2" (click)="showConfirmLoad(clip)"><ion-icon name="copy"></ion-icon></button>\n            <button ion-button outline item-end color="danger" (click)="showConfirmDelete(clip)"><ion-icon name="trash"></ion-icon></button>\n          </ion-list-header>\n          <ion-item>\n            {{clip.info.date | date:\'medium\'}}\n          </ion-item>\n          <ion-item>\n            {{clip.frames}} frames ({{clip.frames/30|number:\'1.0-1\'}}s at 30fps)\n          </ion-item>\n          <ion-item *ngIf="clip.info.status && clip.info.status.cameraSettings">\n            Start exposure: {{clip.info.status.cameraSettings.shutter}} f/{{clip.info.status.cameraSettings.aperture}} {{clip.info.status.cameraSettings.iso}} ISO\n          </ion-item>\n          <ion-item *ngIf="clip.info.program">\n            Interval: \n            <span *ngIf="clip.info.program.intervalMode==\'fixed\'">fixed at {{clip.info.program.interval}}s</span>\n            <span *ngIf="clip.info.program.intervalMode==\'auto\'">(auto) day {{clip.info.program.dayInterval}}s, night {{clip.info.program.nightInterval}}s</span>\n            <span *ngIf="clip.info.program.intervalMode==\'aux2\'">external trigger via AUX2 port</span>\n          </ion-item>\n        </ion-list>        \n      </ion-col>\n    </ion-row>\n\n\n    <ion-row *ngIf="clip.info && clip.info.logfile">\n      <ion-col>\n        <p>\n          Problems?  Get help by <a href="#" (click)="logReport(clip)">sending a log report</a>.\n        </p>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/clips/modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* App */]])
     ], ClipsModalContentPage);
     return ClipsModalContentPage;
 }());
@@ -1717,7 +1777,7 @@ var SettingsPage = (function () {
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'page-settings',template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/pages/settings/settings.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Settings</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <ion-list>\n\n    <button ion-item (click)="pairNew()" *ngIf="viewApi.loggedIn">\n      <ion-icon name="add-circle" item-start></ion-icon>\n      Pair new VIEW device\n    </button>\n    \n    <!--button ion-item (click)="ndFilters()">\n      <ion-icon name="color-filter" item-start></ion-icon>\n      ND Filter Setup\n    </button-->\n\n    <button ion-item (click)="setupMotion()">\n      <ion-icon name="cog" item-start></ion-icon>\n      Configure Motion\n    </button>\n\n    <ion-list-header></ion-list-header>\n    <button ion-item (click)="logout()" *ngIf="viewApi.loggedIn">\n      <ion-icon name="log-out" item-start></ion-icon>\n      Logout {{viewApi.accountEmail}}\n    </button>\n    \n  </ion-list>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/pages/settings/settings.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_2__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */]])
     ], SettingsPage);
     return SettingsPage;
 }());
@@ -1749,15 +1809,15 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(37);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common_http__ = __webpack_require__(204);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common_http__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(206);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_camera_camera__ = __webpack_require__(210);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_intervalometer_intervalometer__ = __webpack_require__(331);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_camera_camera__ = __webpack_require__(211);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_intervalometer_intervalometer__ = __webpack_require__(109);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_clips_clips__ = __webpack_require__(337);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_settings_settings__ = __webpack_require__(338);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__ionic_native_status_bar__ = __webpack_require__(206);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__ionic_native_splash_screen__ = __webpack_require__(209);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__ionic_native_status_bar__ = __webpack_require__(207);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__ionic_native_splash_screen__ = __webpack_require__(210);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__ionic_pro__ = __webpack_require__(339);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__ionic_pro___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__ionic_pro__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_time_ago_pipe_index__ = __webpack_require__(480);
@@ -1794,7 +1854,7 @@ var IonicPro = __WEBPACK_IMPORTED_MODULE_12__ionic_pro__["Pro"].init('5d0a65db',
 var MyErrorHandler = (function () {
     function MyErrorHandler(injector) {
         try {
-            this.ionicErrorHandler = injector.get(__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */]);
+            this.ionicErrorHandler = injector.get(__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicErrorHandler */]);
         }
         catch (e) {
             // Unable to get the IonicErrorHandler provider, ensure 
@@ -1836,13 +1896,13 @@ var AppModule = (function () {
             imports: [
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["a" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_common_http__["b" /* HttpClientModule */],
-                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_5__app_component__["d" /* ViewApp */], {}, {
+                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["f" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_5__app_component__["d" /* ViewApp */], {}, {
                     links: []
                 }),
                 __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* IonicStorageModule */].forRoot(),
                 __WEBPACK_IMPORTED_MODULE_13_time_ago_pipe_index__["TimeAgoPipeModule"]
             ],
-            bootstrap: [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["c" /* IonicApp */]],
+            bootstrap: [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicApp */]],
             entryComponents: [
                 __WEBPACK_IMPORTED_MODULE_5__app_component__["d" /* ViewApp */],
                 __WEBPACK_IMPORTED_MODULE_6__pages_camera_camera__["a" /* CameraPage */],
@@ -1860,10 +1920,10 @@ var AppModule = (function () {
             providers: [
                 __WEBPACK_IMPORTED_MODULE_10__ionic_native_status_bar__["a" /* StatusBar */],
                 __WEBPACK_IMPORTED_MODULE_11__ionic_native_splash_screen__["a" /* SplashScreen */],
-                { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["ErrorHandler"], useClass: __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */] },
+                { provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["ErrorHandler"], useClass: __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicErrorHandler */] },
                 __WEBPACK_IMPORTED_MODULE_14__providers_view_view__["a" /* ViewProvider */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_common_http__["b" /* HttpClientModule */],
-                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["d" /* IonicErrorHandler */],
+                __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* IonicErrorHandler */],
                 [{ provide: __WEBPACK_IMPORTED_MODULE_1__angular_core__["ErrorHandler"], useClass: MyErrorHandler }]
             ]
         })
@@ -1880,7 +1940,7 @@ var AppModule = (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ViewProvider; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_common_http__ = __webpack_require__(204);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_common_http__ = __webpack_require__(205);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_queueing_subject__ = __webpack_require__(419);
@@ -1893,7 +1953,7 @@ var AppModule = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_timeout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_moment__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__ionic_storage__ = __webpack_require__(205);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__ionic_storage__ = __webpack_require__(206);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1995,12 +2055,11 @@ var ViewProvider = (function () {
                     repeat: repeat
                 }, function (err, res) {
                     _this.camera.focusMoving = false;
-                    var pos = null;
-                    if (res && res.position)
-                        pos = res.position;
-                    else
-                        pos = _this.camera.focusPos;
-                    callback && callback(err, pos);
+                    if (res && res.position != null) {
+                        if (parseInt(res.position) != NaN)
+                            _this.camera.focusPos = parseInt(res.position);
+                    }
+                    callback && callback(err, _this.camera.focusPos);
                 });
             },
             captureDelay: function () {
@@ -2150,6 +2209,8 @@ var ViewProvider = (function () {
                         continue;
                     if (!_this.intervalometer.program.axes[m].kf)
                         _this.intervalometer.program.axes[m].kf = [];
+                    if (m == "focus" && _this.camera.focusPos != null)
+                        _this.intervalometer.program.axes[m].pos = _this.camera.focusPos;
                     var min = null;
                     var max = null;
                     var currentPos = ((_this.intervalometer.program.axes[m].motor ? _this.intervalometer.program.axes[m].motor.pos : _this.intervalometer.program.axes[m].pos) || 0);
@@ -3137,7 +3198,7 @@ var ViewProvider = (function () {
     };
     ViewProvider = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["Injectable"])(),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_0__angular_common_http__["a" /* HttpClient */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_8__ionic_storage__["b" /* Storage */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_0__angular_common_http__["a" /* HttpClient */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["c" /* Events */], __WEBPACK_IMPORTED_MODULE_8__ionic_storage__["b" /* Storage */]])
     ], ViewProvider);
     return ViewProvider;
 }());
@@ -3150,244 +3211,244 @@ var ViewProvider = (function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./af": 212,
-	"./af.js": 212,
-	"./ar": 213,
-	"./ar-dz": 214,
-	"./ar-dz.js": 214,
-	"./ar-kw": 215,
-	"./ar-kw.js": 215,
-	"./ar-ly": 216,
-	"./ar-ly.js": 216,
-	"./ar-ma": 217,
-	"./ar-ma.js": 217,
-	"./ar-sa": 218,
-	"./ar-sa.js": 218,
-	"./ar-tn": 219,
-	"./ar-tn.js": 219,
-	"./ar.js": 213,
-	"./az": 220,
-	"./az.js": 220,
-	"./be": 221,
-	"./be.js": 221,
-	"./bg": 222,
-	"./bg.js": 222,
-	"./bm": 223,
-	"./bm.js": 223,
-	"./bn": 224,
-	"./bn.js": 224,
-	"./bo": 225,
-	"./bo.js": 225,
-	"./br": 226,
-	"./br.js": 226,
-	"./bs": 227,
-	"./bs.js": 227,
-	"./ca": 228,
-	"./ca.js": 228,
-	"./cs": 229,
-	"./cs.js": 229,
-	"./cv": 230,
-	"./cv.js": 230,
-	"./cy": 231,
-	"./cy.js": 231,
-	"./da": 232,
-	"./da.js": 232,
-	"./de": 233,
-	"./de-at": 234,
-	"./de-at.js": 234,
-	"./de-ch": 235,
-	"./de-ch.js": 235,
-	"./de.js": 233,
-	"./dv": 236,
-	"./dv.js": 236,
-	"./el": 237,
-	"./el.js": 237,
-	"./en-au": 238,
-	"./en-au.js": 238,
-	"./en-ca": 239,
-	"./en-ca.js": 239,
-	"./en-gb": 240,
-	"./en-gb.js": 240,
-	"./en-ie": 241,
-	"./en-ie.js": 241,
-	"./en-nz": 242,
-	"./en-nz.js": 242,
-	"./eo": 243,
-	"./eo.js": 243,
-	"./es": 244,
-	"./es-do": 245,
-	"./es-do.js": 245,
-	"./es-us": 246,
-	"./es-us.js": 246,
-	"./es.js": 244,
-	"./et": 247,
-	"./et.js": 247,
-	"./eu": 248,
-	"./eu.js": 248,
-	"./fa": 249,
-	"./fa.js": 249,
-	"./fi": 250,
-	"./fi.js": 250,
-	"./fo": 251,
-	"./fo.js": 251,
-	"./fr": 252,
-	"./fr-ca": 253,
-	"./fr-ca.js": 253,
-	"./fr-ch": 254,
-	"./fr-ch.js": 254,
-	"./fr.js": 252,
-	"./fy": 255,
-	"./fy.js": 255,
-	"./gd": 256,
-	"./gd.js": 256,
-	"./gl": 257,
-	"./gl.js": 257,
-	"./gom-latn": 258,
-	"./gom-latn.js": 258,
-	"./gu": 259,
-	"./gu.js": 259,
-	"./he": 260,
-	"./he.js": 260,
-	"./hi": 261,
-	"./hi.js": 261,
-	"./hr": 262,
-	"./hr.js": 262,
-	"./hu": 263,
-	"./hu.js": 263,
-	"./hy-am": 264,
-	"./hy-am.js": 264,
-	"./id": 265,
-	"./id.js": 265,
-	"./is": 266,
-	"./is.js": 266,
-	"./it": 267,
-	"./it.js": 267,
-	"./ja": 268,
-	"./ja.js": 268,
-	"./jv": 269,
-	"./jv.js": 269,
-	"./ka": 270,
-	"./ka.js": 270,
-	"./kk": 271,
-	"./kk.js": 271,
-	"./km": 272,
-	"./km.js": 272,
-	"./kn": 273,
-	"./kn.js": 273,
-	"./ko": 274,
-	"./ko.js": 274,
-	"./ky": 275,
-	"./ky.js": 275,
-	"./lb": 276,
-	"./lb.js": 276,
-	"./lo": 277,
-	"./lo.js": 277,
-	"./lt": 278,
-	"./lt.js": 278,
-	"./lv": 279,
-	"./lv.js": 279,
-	"./me": 280,
-	"./me.js": 280,
-	"./mi": 281,
-	"./mi.js": 281,
-	"./mk": 282,
-	"./mk.js": 282,
-	"./ml": 283,
-	"./ml.js": 283,
-	"./mr": 284,
-	"./mr.js": 284,
-	"./ms": 285,
-	"./ms-my": 286,
-	"./ms-my.js": 286,
-	"./ms.js": 285,
-	"./mt": 287,
-	"./mt.js": 287,
-	"./my": 288,
-	"./my.js": 288,
-	"./nb": 289,
-	"./nb.js": 289,
-	"./ne": 290,
-	"./ne.js": 290,
-	"./nl": 291,
-	"./nl-be": 292,
-	"./nl-be.js": 292,
-	"./nl.js": 291,
-	"./nn": 293,
-	"./nn.js": 293,
-	"./pa-in": 294,
-	"./pa-in.js": 294,
-	"./pl": 295,
-	"./pl.js": 295,
-	"./pt": 296,
-	"./pt-br": 297,
-	"./pt-br.js": 297,
-	"./pt.js": 296,
-	"./ro": 298,
-	"./ro.js": 298,
-	"./ru": 299,
-	"./ru.js": 299,
-	"./sd": 300,
-	"./sd.js": 300,
-	"./se": 301,
-	"./se.js": 301,
-	"./si": 302,
-	"./si.js": 302,
-	"./sk": 303,
-	"./sk.js": 303,
-	"./sl": 304,
-	"./sl.js": 304,
-	"./sq": 305,
-	"./sq.js": 305,
-	"./sr": 306,
-	"./sr-cyrl": 307,
-	"./sr-cyrl.js": 307,
-	"./sr.js": 306,
-	"./ss": 308,
-	"./ss.js": 308,
-	"./sv": 309,
-	"./sv.js": 309,
-	"./sw": 310,
-	"./sw.js": 310,
-	"./ta": 311,
-	"./ta.js": 311,
-	"./te": 312,
-	"./te.js": 312,
-	"./tet": 313,
-	"./tet.js": 313,
-	"./th": 314,
-	"./th.js": 314,
-	"./tl-ph": 315,
-	"./tl-ph.js": 315,
-	"./tlh": 316,
-	"./tlh.js": 316,
-	"./tr": 317,
-	"./tr.js": 317,
-	"./tzl": 318,
-	"./tzl.js": 318,
-	"./tzm": 319,
-	"./tzm-latn": 320,
-	"./tzm-latn.js": 320,
-	"./tzm.js": 319,
-	"./uk": 321,
-	"./uk.js": 321,
-	"./ur": 322,
-	"./ur.js": 322,
-	"./uz": 323,
-	"./uz-latn": 324,
-	"./uz-latn.js": 324,
-	"./uz.js": 323,
-	"./vi": 325,
-	"./vi.js": 325,
-	"./x-pseudo": 326,
-	"./x-pseudo.js": 326,
-	"./yo": 327,
-	"./yo.js": 327,
-	"./zh-cn": 328,
-	"./zh-cn.js": 328,
-	"./zh-hk": 329,
-	"./zh-hk.js": 329,
-	"./zh-tw": 330,
-	"./zh-tw.js": 330
+	"./af": 213,
+	"./af.js": 213,
+	"./ar": 214,
+	"./ar-dz": 215,
+	"./ar-dz.js": 215,
+	"./ar-kw": 216,
+	"./ar-kw.js": 216,
+	"./ar-ly": 217,
+	"./ar-ly.js": 217,
+	"./ar-ma": 218,
+	"./ar-ma.js": 218,
+	"./ar-sa": 219,
+	"./ar-sa.js": 219,
+	"./ar-tn": 220,
+	"./ar-tn.js": 220,
+	"./ar.js": 214,
+	"./az": 221,
+	"./az.js": 221,
+	"./be": 222,
+	"./be.js": 222,
+	"./bg": 223,
+	"./bg.js": 223,
+	"./bm": 224,
+	"./bm.js": 224,
+	"./bn": 225,
+	"./bn.js": 225,
+	"./bo": 226,
+	"./bo.js": 226,
+	"./br": 227,
+	"./br.js": 227,
+	"./bs": 228,
+	"./bs.js": 228,
+	"./ca": 229,
+	"./ca.js": 229,
+	"./cs": 230,
+	"./cs.js": 230,
+	"./cv": 231,
+	"./cv.js": 231,
+	"./cy": 232,
+	"./cy.js": 232,
+	"./da": 233,
+	"./da.js": 233,
+	"./de": 234,
+	"./de-at": 235,
+	"./de-at.js": 235,
+	"./de-ch": 236,
+	"./de-ch.js": 236,
+	"./de.js": 234,
+	"./dv": 237,
+	"./dv.js": 237,
+	"./el": 238,
+	"./el.js": 238,
+	"./en-au": 239,
+	"./en-au.js": 239,
+	"./en-ca": 240,
+	"./en-ca.js": 240,
+	"./en-gb": 241,
+	"./en-gb.js": 241,
+	"./en-ie": 242,
+	"./en-ie.js": 242,
+	"./en-nz": 243,
+	"./en-nz.js": 243,
+	"./eo": 244,
+	"./eo.js": 244,
+	"./es": 245,
+	"./es-do": 246,
+	"./es-do.js": 246,
+	"./es-us": 247,
+	"./es-us.js": 247,
+	"./es.js": 245,
+	"./et": 248,
+	"./et.js": 248,
+	"./eu": 249,
+	"./eu.js": 249,
+	"./fa": 250,
+	"./fa.js": 250,
+	"./fi": 251,
+	"./fi.js": 251,
+	"./fo": 252,
+	"./fo.js": 252,
+	"./fr": 253,
+	"./fr-ca": 254,
+	"./fr-ca.js": 254,
+	"./fr-ch": 255,
+	"./fr-ch.js": 255,
+	"./fr.js": 253,
+	"./fy": 256,
+	"./fy.js": 256,
+	"./gd": 257,
+	"./gd.js": 257,
+	"./gl": 258,
+	"./gl.js": 258,
+	"./gom-latn": 259,
+	"./gom-latn.js": 259,
+	"./gu": 260,
+	"./gu.js": 260,
+	"./he": 261,
+	"./he.js": 261,
+	"./hi": 262,
+	"./hi.js": 262,
+	"./hr": 263,
+	"./hr.js": 263,
+	"./hu": 264,
+	"./hu.js": 264,
+	"./hy-am": 265,
+	"./hy-am.js": 265,
+	"./id": 266,
+	"./id.js": 266,
+	"./is": 267,
+	"./is.js": 267,
+	"./it": 268,
+	"./it.js": 268,
+	"./ja": 269,
+	"./ja.js": 269,
+	"./jv": 270,
+	"./jv.js": 270,
+	"./ka": 271,
+	"./ka.js": 271,
+	"./kk": 272,
+	"./kk.js": 272,
+	"./km": 273,
+	"./km.js": 273,
+	"./kn": 274,
+	"./kn.js": 274,
+	"./ko": 275,
+	"./ko.js": 275,
+	"./ky": 276,
+	"./ky.js": 276,
+	"./lb": 277,
+	"./lb.js": 277,
+	"./lo": 278,
+	"./lo.js": 278,
+	"./lt": 279,
+	"./lt.js": 279,
+	"./lv": 280,
+	"./lv.js": 280,
+	"./me": 281,
+	"./me.js": 281,
+	"./mi": 282,
+	"./mi.js": 282,
+	"./mk": 283,
+	"./mk.js": 283,
+	"./ml": 284,
+	"./ml.js": 284,
+	"./mr": 285,
+	"./mr.js": 285,
+	"./ms": 286,
+	"./ms-my": 287,
+	"./ms-my.js": 287,
+	"./ms.js": 286,
+	"./mt": 288,
+	"./mt.js": 288,
+	"./my": 289,
+	"./my.js": 289,
+	"./nb": 290,
+	"./nb.js": 290,
+	"./ne": 291,
+	"./ne.js": 291,
+	"./nl": 292,
+	"./nl-be": 293,
+	"./nl-be.js": 293,
+	"./nl.js": 292,
+	"./nn": 294,
+	"./nn.js": 294,
+	"./pa-in": 295,
+	"./pa-in.js": 295,
+	"./pl": 296,
+	"./pl.js": 296,
+	"./pt": 297,
+	"./pt-br": 298,
+	"./pt-br.js": 298,
+	"./pt.js": 297,
+	"./ro": 299,
+	"./ro.js": 299,
+	"./ru": 300,
+	"./ru.js": 300,
+	"./sd": 301,
+	"./sd.js": 301,
+	"./se": 302,
+	"./se.js": 302,
+	"./si": 303,
+	"./si.js": 303,
+	"./sk": 304,
+	"./sk.js": 304,
+	"./sl": 305,
+	"./sl.js": 305,
+	"./sq": 306,
+	"./sq.js": 306,
+	"./sr": 307,
+	"./sr-cyrl": 308,
+	"./sr-cyrl.js": 308,
+	"./sr.js": 307,
+	"./ss": 309,
+	"./ss.js": 309,
+	"./sv": 310,
+	"./sv.js": 310,
+	"./sw": 311,
+	"./sw.js": 311,
+	"./ta": 312,
+	"./ta.js": 312,
+	"./te": 313,
+	"./te.js": 313,
+	"./tet": 314,
+	"./tet.js": 314,
+	"./th": 315,
+	"./th.js": 315,
+	"./tl-ph": 316,
+	"./tl-ph.js": 316,
+	"./tlh": 317,
+	"./tlh.js": 317,
+	"./tr": 318,
+	"./tr.js": 318,
+	"./tzl": 319,
+	"./tzl.js": 319,
+	"./tzm": 320,
+	"./tzm-latn": 321,
+	"./tzm-latn.js": 321,
+	"./tzm.js": 320,
+	"./uk": 322,
+	"./uk.js": 322,
+	"./ur": 323,
+	"./ur.js": 323,
+	"./uz": 324,
+	"./uz-latn": 325,
+	"./uz-latn.js": 325,
+	"./uz.js": 324,
+	"./vi": 326,
+	"./vi.js": 326,
+	"./x-pseudo": 327,
+	"./x-pseudo.js": 327,
+	"./yo": 328,
+	"./yo.js": 328,
+	"./zh-cn": 329,
+	"./zh-cn.js": 329,
+	"./zh-hk": 330,
+	"./zh-hk.js": 330,
+	"./zh-tw": 331,
+	"./zh-tw.js": 331
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -3417,10 +3478,10 @@ webpackContext.id = 433;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return MotionModalContentPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(206);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(209);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__ = __webpack_require__(210);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__ = __webpack_require__(331);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__ = __webpack_require__(207);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__ = __webpack_require__(210);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_camera_camera__ = __webpack_require__(211);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__pages_intervalometer_intervalometer__ = __webpack_require__(109);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_clips_clips__ = __webpack_require__(337);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(338);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_view_view__ = __webpack_require__(39);
@@ -3669,13 +3730,13 @@ var ViewApp = (function () {
         this.nav.setRoot(page.component);
     };
     __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */]),
-        __metadata("design:type", __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Nav */])
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* Nav */]),
+        __metadata("design:type", __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* Nav */])
     ], ViewApp.prototype, "nav", void 0);
     ViewApp = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/app.html"*/'<ion-menu [content]="content">\n  <ion-header>\n    <ion-toolbar>\n      <ion-title><img src="assets/imgs/view-text.png" style="margin-top: 0.5em;height:2em;"></ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content>\n    <ion-list no-lines>\n      <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">\n        <ion-icon name="{{p.icon}}"></ion-icon> {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n  <ion-footer>\n    <p>\n      <small style="color:#ccc;padding:1em;">VIEW Intervalometer Remote App</small><br>\n      <small style="color:#ccc;padding:1em;">©2018 Elijah Parker / Timelapse+</small><br>\n      <small style="color:#ccc;padding:1em;"><a href="https://www.timelapseplus.com">timelapseplus.com</a>  <a href="http://docs.view.tl">docs.view.tl</a></small><br>\n    </p>\n  </ion-footer>\n\n\n</ion-menu>\n\n<!-- Disable swipe-to-go-back because it\'s poor UX to combine STGB with side menus -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/app.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/app.html"*/'<ion-menu [content]="content">\n  <ion-header>\n    <ion-toolbar>\n      <ion-title><img src="assets/imgs/view-text.png" style="margin-top: 0.5em;height:2em;"></ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content>\n    <ion-list no-lines>\n      <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">\n        <ion-icon name="{{p.icon}}"></ion-icon> {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n  <ion-footer>\n    <p>\n      <small style="color:#ccc;padding:1em;">VIEW Intervalometer Remote App</small><br>\n      <small style="color:#ccc;padding:1em;">Version 1.0 - b20181129</small><br>\n      <small style="color:#ccc;padding:1em;">©2018 Elijah Parker / Timelapse+</small><br>\n      <small style="color:#ccc;padding:1em;"><a href="https://www.timelapseplus.com">timelapseplus.com</a>  <a href="http://docs.view.tl">docs.view.tl</a></small><br>\n    </p>\n  </ion-footer>\n\n\n</ion-menu>\n\n<!-- Disable swipe-to-go-back because it\'s poor UX to combine STGB with side menus -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/app.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]])
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* Platform */], __WEBPACK_IMPORTED_MODULE_2__ionic_native_status_bar__["a" /* StatusBar */], __WEBPACK_IMPORTED_MODULE_3__ionic_native_splash_screen__["a" /* SplashScreen */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["c" /* Events */], __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* ModalController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ToastController */]])
     ], ViewApp);
     return ViewApp;
 }());
@@ -3937,9 +3998,9 @@ var LoginModalContentPage = (function () {
     LoginModalContentPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Login / Register\n    </ion-title>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <form><!-- (submit)="submit(mode, name, email, password, password1, password2)">-->\n  <ion-grid>\n    <ion-row>\n      <ion-col *ngIf="mode!=\'register\'">\n        <p>\n          Please login with your app.view.tl account email and password.\n        </p>\n        <p>\n          If you don\'t yet have an account, <a href="#" (click)="mode=\'register\'">register here</a>\n        </p>\n        <p>\n          Forgot password? <a href="#" (click)="resetPasswordPrompt(email)">click here to reset</a>\n        </p>\n      </ion-col>\n      <ion-col *ngIf="mode==\'register\'">\n        <p>\n          Complete the form below to create your new account.\n        </p>\n        <p>\n          If already have an account, <a href="#" (click)="mode=\'login\'">login here</a>\n        </p>\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Full Name</ion-label>\n            <ion-input type="text" [(ngModel)]="name" name="name"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label stacked>Email</ion-label>\n            <ion-input type="email" [(ngModel)]="email" name="email"></ion-input>\n          </ion-item>\n\n          <ion-item *ngIf="mode!=\'register\'">\n            <ion-label stacked>Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password" name="password"></ion-input>\n          </ion-item>\n\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password1" name="password1"></ion-input>\n          </ion-item>\n          <ion-item *ngIf="mode==\'register\'">\n            <ion-label stacked>Confirm Password</ion-label>\n            <ion-input type="password" [(ngModel)]="password2" name="password2"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col *ngIf="mode!=\'register\'">\n        <button ion-button (click)="login(email, password)">Login</button>\n      </ion-col>\n      <ion-col *ngIf="mode==\'register\'">\n        <button ion-button (click)="register(name, email, password1, password2)">Create Account</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n  </form>\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/login.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ToastController */],
             __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]])
     ], LoginModalContentPage);
     return LoginModalContentPage;
@@ -4001,9 +4062,9 @@ var PairModalContentPage = (function () {
     PairModalContentPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Pair VIEW device\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        Connect the VIEW to WiFi Internet, then go to Information->Registration &amp; App on the VIEW.  Once it has an Internet connection, it will display a code for pairing.  Enter that code here to pair the VIEW with your app account.\n      </ion-col>\n    </ion-row>\n    <ion-row>\n      <ion-col>\n        <ion-list>\n\n          <ion-item>\n            <ion-label fixed>Device Code</ion-label>\n            <ion-input type="number" [(ngModel)]="code"></ion-input>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n    <ion-row>\n      <ion-col>\n        <button ion-button (click)="pair(code)" [disabled]="code && code.length == 6 ? 0 : 2">Add VIEW</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/pair.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["k" /* ToastController */]])
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ToastController */]])
     ], PairModalContentPage);
     return PairModalContentPage;
 }());
@@ -4151,13 +4212,13 @@ var MotionModalContentPage = (function () {
         }
     };
     MotionModalContentPage = __decorate([
-        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Motion Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row *ngIf="!axes || axes.length == 0">\n      <ion-col>\n        <p>\n          No VIEW-controllable motion equipment is connected.  To connect, enable Bluetooth on the VIEW and power on the motion equipment.  Once connected, the axes will be appear here.\n        </p>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngFor="let a of axes">\n      <ion-col>\n        <ion-list>\n\n          <ion-list-header>{{a.id}}: {{a.name}}</ion-list-header>\n\n          <ion-item *ngIf="a.driver==\'NMX\'">\n            <ion-label>Motion Hardware</ion-label>\n            <ion-select [(ngModel)]="a.hardware" (ionChange)="updateHardware(a)">\n              <ion-option value="sapphire">Sapphire</ion-option>\n              <ion-option value="stager">Stage-R</ion-option>\n              <ion-option value="other">Other</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Slide">Slide</ion-option>\n              <ion-option value="Focus">Focus</ion-option>\n              <ion-option value="#{{a.motor}}">#{{a.motor}}</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'sapphire\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'stager\'">\n            <ion-label>Motor Gearbox</ion-label>\n            <ion-select [(ngModel)]="a.motorRatio" (ionChange)="updateRatios(a)">\n              <ion-option value="19:1">19:1</ion-option>\n              <ion-option value="27:1">27:1</ion-option>\n              <ion-option value="5:1">5:1</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'stager\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Polar">Polar</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'GM\'&&!a.orientation">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Unit</ion-label>\n            <ion-select [(ngModel)]="a.unit">\n              <ion-option value="s">Steps</ion-option>\n              <ion-option value="°">Degrees</ion-option>\n              <ion-option value="in">Inches</ion-option>\n              <ion-option value="cm">Centimeters</ion-option>\n              <ion-option value="m">Meters</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="!(a.unit==\'s\'||a.driver==\'GM\'||a.hardware!=\'other\')">\n            <ion-label fixed>Steps / Unit</ion-label>\n            <ion-input item-end type="number" [(ngModel)]="a.unitSteps"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Reverse Direction</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.reverse"></ion-toggle>\n          </ion-item>\n\n          <ion-item>\n            <ion-label fixed>Backlash</ion-label>\n            <button ion-button item-end outline (click)="doNumber(\'backlash \'+(a.driver==\'GM\'?\'degrees\':\'steps\'), a, \'backlash\', saveBacklash)">{{a.backlash}}</button>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Calibrate Backlash</ion-label>\n            <button *ngIf="!calibrating" ion-button item-end outline (click)="calibrate(a)">calibrate</button>\n            <button *ngIf="calibrating" ion-button item-end color="danger" outline (click)="cancelCalibration(a)">cancel</button>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>{{a.unitSteps}}</ion-label>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/
+        Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({template:/*ion-inline-start:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Motion Setup\n    </ion-title>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">\n        <ion-icon name="close"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content no-lines>\n  <ion-grid>\n    <ion-row *ngIf="!axes || axes.length == 0">\n      <ion-col>\n        <p>\n          No VIEW-controllable motion equipment is connected.  To connect, enable Bluetooth on the VIEW and power on the motion equipment.  Once connected, the axes will be appear here.\n        </p>\n      </ion-col>\n    </ion-row>\n\n    <ion-row *ngFor="let a of axes">\n      <ion-col>\n        <ion-list>\n\n          <ion-list-header>{{a.id}}: {{a.name}}</ion-list-header>\n\n          <ion-item *ngIf="a.driver==\'NMX\'">\n            <ion-label>Motion Hardware</ion-label>\n            <ion-select [(ngModel)]="a.hardware" (ionChange)="updateHardware(a)">\n              <ion-option value="sapphire">Sapphire</ion-option>\n              <ion-option value="stager">Stage-R</ion-option>\n              <ion-option value="other">Other</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Slide">Slide</ion-option>\n              <ion-option value="Focus">Focus</ion-option>\n              <ion-option value="#{{a.motor}}">#{{a.motor}}</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'ST4\'&&a.motor>2">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Slide">Slide</ion-option>\n              <ion-option value="Focus">Focus</ion-option>\n              <ion-option value="#{{a.motor}}">#{{a.motor}}</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'sapphire\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'stager\'">\n            <ion-label>Motor Gearbox</ion-label>\n            <ion-select [(ngModel)]="a.motorRatio" (ionChange)="updateRatios(a)">\n              <ion-option value="19:1">19:1</ion-option>\n              <ion-option value="27:1">27:1</ion-option>\n              <ion-option value="5:1">5:1</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'stager\'">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n              <ion-option value="Polar">Polar</ion-option>\n            </ion-select>\n          </ion-item>\n          <ion-item *ngIf="a.driver==\'GM\'&&!a.orientation">\n            <ion-label>Axis Function</ion-label>\n            <ion-select [(ngModel)]="a.name" (ionChange)="updateType(a)">\n              <ion-option value="Pan">Pan</ion-option>\n              <ion-option value="Tilt">Tilt</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="a.driver==\'NMX\'&&a.hardware==\'other\' || (a.driver==\'ST4\' && a.motor>2)">\n            <ion-label>Axis Unit</ion-label>\n            <ion-select [(ngModel)]="a.unit">\n              <ion-option value="s">Steps</ion-option>\n              <ion-option value="°">Degrees</ion-option>\n              <ion-option value="in">Inches</ion-option>\n              <ion-option value="cm">Centimeters</ion-option>\n              <ion-option value="m">Meters</ion-option>\n            </ion-select>\n          </ion-item>\n\n          <ion-item *ngIf="!(a.unit==\'s\'||a.driver==\'GM\'||a.hardware!=\'other\') || (a.driver==\'ST4\' && a.motor>2 && a.unit != \'s\')">\n            <ion-label fixed>Steps / Unit</ion-label>\n            <ion-input item-end type="number" [(ngModel)]="a.unitSteps"></ion-input>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Reverse Direction</ion-label>\n            <ion-toggle color="light" [(ngModel)]="a.reverse"></ion-toggle>\n          </ion-item>\n\n          <ion-item>\n            <ion-label fixed>Backlash</ion-label>\n            <button ion-button item-end outline (click)="doNumber(\'backlash \'+(a.driver==\'GM\'?\'degrees\':\'steps\'), a, \'backlash\', saveBacklash)">{{a.backlash}}</button>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>Calibrate Backlash</ion-label>\n            <button *ngIf="!calibrating" ion-button item-end outline (click)="calibrate(a)">calibrate</button>\n            <button *ngIf="calibrating" ion-button item-end color="danger" outline (click)="cancelCalibration(a)">cancel</button>\n          </ion-item>\n\n          <ion-item>\n            <ion-label>{{a.unitSteps}}</ion-label>\n          </ion-item>\n\n        </ion-list>\n      </ion-col>\n    </ion-row>\n\n  </ion-grid>\n\n</ion-content>\n'/*ion-inline-end:"/Users/elijah/VIEW-App/src/app/motion.modal.html"*/
         }),
-        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavParams */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["l" /* ViewController */],
+        __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */],
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["m" /* ViewController */],
             __WEBPACK_IMPORTED_MODULE_8__providers_view_view__["a" /* ViewProvider */],
             __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */],
-            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]])
+            __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["c" /* Events */]])
     ], MotionModalContentPage);
     return MotionModalContentPage;
 }());
