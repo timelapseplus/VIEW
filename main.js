@@ -2680,7 +2680,7 @@ if (VIEW_HARDWARE) {
                 };
                 for (var i = 0; i < versions.length; i++) {
                     if (versions[i]) sm.items.push({
-                        name: versions[i].version + (versions[i].current ? " (current)" : (versions[i].installed ? " (installed)" : "")),
+                        name: versions[i].version + (versions[i].current ? " (running)" : (versions[i].installed ? " (downloaded)" : "")),
                         help: help.softwareHelpHeader + ' \n Version release notes: \n ' + versions[i].notes,
                         action: {
                             type: "function",
@@ -2709,13 +2709,26 @@ if (VIEW_HARDWARE) {
                     db.set('versions-installed', dbVersions);
                     buildUpdateMenu(err, versions);
                 } else {
-                    ui.back();
-                    console.log("ERROR: no versions available");
-                    oled.value([{
-                        name: "Version Update Error",
-                        value: "Not Available"
-                    }]);
-                    oled.update();
+                    //ui.back();
+                    //console.log("ERROR: no versions available");
+                    //oled.value([{
+                    //    name: "Version Update Error",
+                    //    value: "Not Available"
+                    //}]);
+                    //oled.update();
+                    updates.getInstalledVersions(function(err, versions) {
+                        if(!err && versions) {
+                            buildUpdateMenu(err, versions);
+                        } else {
+                            ui.back();
+                            console.log("ERROR: no installed versions available");
+                            oled.value([{
+                                name: "Version Update Error",
+                                value: "Not Available"
+                            }]);
+                            oled.update();
+                        }
+                    });
                 }
             });
         } else {
@@ -3457,6 +3470,7 @@ if (VIEW_HARDWARE) {
             help: help.developerModeMenu,
             action: ui.set(updates, 'developerMode', false, function(cb){
                 db.set('developerMode', "no");
+                updates.clearCache();
                 cb && cb();
             })
         }, {
@@ -3465,6 +3479,7 @@ if (VIEW_HARDWARE) {
             help: help.developerModeMenu,
             action: ui.set(updates, 'developerMode', true, function(cb){
                 db.set('developerMode', "yes");
+                updates.clearCache();
                 cb && cb();
             })
         }]
@@ -4073,7 +4088,7 @@ if (VIEW_HARDWARE) {
             action: interfaceSettingsMenu,
             help: help.interfaceSettingsMenu
         }, {
-            name: "Software Version",
+            name: "Firmware Update",
             action: softwareMenu,
             help: help.softwareMenu
         }, {
@@ -4405,6 +4420,7 @@ if (VIEW_HARDWARE) {
         saveDefault = ui.defaultStatusString;
         ui.defaultStatus("app.view.tl code: " + code);
         ui.status("app.view.tl code: " + code);
+        updates.clearCache();
         //displayAuthCode(code);
     });
 
@@ -4423,6 +4439,7 @@ if (VIEW_HARDWARE) {
         power.activity();
         if(saveDefault) ui.defaultStatus(saveDefault);
         saveDefault = false;
+        updates.clearCache();
         ui.status('connected to view.tl');
     });
 
@@ -4958,6 +4975,14 @@ app.on('message', function(msg) {
 
             case 'save-program':
                 core.loadProgram(msg.program);
+                if(!core.currentProgram.keyframes) {
+                    core.currentProgram.keyframes = [{
+                        focus: 0,
+                        ev: "not set",
+                        motor: {}
+                    }]
+                }
+                msg.reply('timelapseProgram', {program: core.currentProgram});
                 break;
 
             case 'run':

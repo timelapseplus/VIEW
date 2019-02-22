@@ -364,6 +364,11 @@ exports.getCurrentVersion = function() {
 
 exports.developerMode = false;
 var cachedVersions = null;
+exports.clearCache = function() {
+	cachedVersions = null;
+}
+
+
 exports.getVersions = function(callback){
 	if(cachedVersions) {
 		callback(null, cachedVersions);
@@ -392,9 +397,7 @@ exports.getVersions = function(callback){
 					});
 				}
 				cachedVersions = list;
-				setTimeout(function(){
-					cachedVersions = null; // clear cache after 5 minutes
-				}, 1000*60*5);
+				setTimeout(exports.clearCache, 1000*60*5);
 				callback(null, list);
 			} else {
 				callback(err);
