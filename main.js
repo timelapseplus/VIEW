@@ -2047,7 +2047,7 @@ if (VIEW_HARDWARE) {
             help: help.startTimelapse,
             condition: function() {
                 return !core.cameraConnected;
-            }
+            },
             action: {
                 ui.back();
                 ui.alert('Error', "Camera not connected.\nPlease connect camera and try again.");
