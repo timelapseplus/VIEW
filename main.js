@@ -2048,7 +2048,7 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return !core.cameraConnected;
             },
-            action: {
+            action: function(){
                 ui.back();
                 ui.alert('Error', "Camera not connected.\nPlease connect camera and try again.");
             }
