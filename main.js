@@ -1872,20 +1872,20 @@ if (VIEW_HARDWARE) {
     var timelapseMenu = {
         name: "time-lapse",
         type: "menu",
-        /*alternate: function() {
+        alternate: function() {
             if (core.intervalometerStatus.running) {
                 return timelapseStatusMenu;
-            } else if (core.cameraConnected) {
+            } else  {
                 return false;
-            } else {
+            /*} else {
                 return {
                     name: "connect camera",
                     type: "png",
                     help: help.connectCamera,
                     file: "/home/view/current/media/view-usb-oled.png"
-                }
+                }*/
             }
-        },*/
+        },
         items: [{
             name: valueDisplay("Camera", core, 'cameraModel'),
             help: help.cameraSelection,
