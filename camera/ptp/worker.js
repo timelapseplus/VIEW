@@ -410,7 +410,7 @@ function capture(options, callback) {
         if (!err && photo) {
             errCount = 0;
             var cameraFileIsJpeg = info && info.slice(-4) == '.jpg';
-            if (options.thumbnail && supports.thumbnail || cameraFileIsJpeg) {
+            if ((options.thumbnail && supports.thumbnail) || cameraFileIsJpeg) {
                 sdWriting = false;
                 //if (!options.index) options.index = 0;
                 if(options.calculateEv) {
@@ -1031,7 +1031,7 @@ function getConfig(noEvent, cached, cb) {
                             //console.log("processing item", item);
                             if (item == 'shutterspeed' && data.status && manufacturer == 'Sony Corporation') {
                                 console.log("WORKER: manually adding shutter speed list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
-                                //supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
+                                supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.shutterHalfs : LISTS.shutter;
                                 data[section].children[item].choices = [];
                                 for (var j = 0; j < l.length; j++) {
@@ -1039,7 +1039,7 @@ function getConfig(noEvent, cached, cb) {
                                 }
                             }  else if (item == 'f-number' && data.status && manufacturer == 'Sony Corporation') {
                                 console.log("WORKER: manually adding aperture value list (" + (halfsUsed ? 'halfs' : 'thirds') + ")", data[section].children[item].choices);
-                                //supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
+                                supports.thumbnail = false; // sony USB doesn't support thumbnail-only capture
                                 var l = halfsUsed ? LISTS.apertureHalfs : LISTS.aperture;
                                 data[section].children[item].choices = [];
                                 for (var j = 0; j < l.length; j++) {
