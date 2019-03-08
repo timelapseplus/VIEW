@@ -665,8 +665,8 @@ var busyExposure = false;
 
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
-    console.log("\n\nEXP: setupExposure");
-    if(intervalometer.status.useLiveview && !busyExposure) {
+    if(intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings.viewfinder == "off") {
+        console.log("\n\nEXP: setupExposure (enabling LV)");
         busyExposure = true;
         return camera.ptp.liveview(function(){
             setupExposure(cb);
@@ -674,6 +674,7 @@ function setupExposure(cb) {
     }
     busyExposure = true;
 
+    console.log("\n\nEXP: setupExposure");
     var diff = 0;
     if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
         if(!intervalometer.status.hdrIndex) intervalometer.status.hdrIndex = 0;
@@ -1136,7 +1137,7 @@ function runPhoto(isRetry) {
                     } else {
                         db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, getDetails(), 1, referencePhotoRes.thumbnailPath);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 250; // add a quarter second for setting exposure
+                    intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
 
                     if(camera.ptp.model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
 
