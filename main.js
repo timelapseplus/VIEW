@@ -940,6 +940,11 @@ if (VIEW_HARDWARE) {
             help: help.rampParameters,
             value: "Sh, Aperture, ISO",
             action: ui.set(core.currentProgram, 'rampParameters', 'S+A+I')
+        }, {
+            name: "Ramp Parameters",
+            help: help.rampParameters,
+            value: "Sh, A, ISO (balanced)",
+            action: ui.set(core.currentProgram, 'rampParameters', 'S=A=I')
         }]
     };
 
@@ -1867,7 +1872,7 @@ if (VIEW_HARDWARE) {
     var timelapseMenu = {
         name: "time-lapse",
         type: "menu",
-        alternate: function() {
+        /*alternate: function() {
             if (core.intervalometerStatus.running) {
                 return timelapseStatusMenu;
             } else if (core.cameraConnected) {
@@ -1880,7 +1885,7 @@ if (VIEW_HARDWARE) {
                     file: "/home/view/current/media/view-usb-oled.png"
                 }
             }
-        },
+        },*/
         items: [{
             name: valueDisplay("Camera", core, 'cameraModel'),
             help: help.cameraSelection,
@@ -2011,7 +2016,7 @@ if (VIEW_HARDWARE) {
             action: manualAperture,
             help: help.manualAperture,
             condition: function() {
-                return core.currentProgram.rampMode != 'fixed' && !(core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
+                return core.cameraConnected && core.currentProgram.rampMode != 'fixed' && !(core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
         }, {
             name: valueDisplay("HDR Exposures", core.currentProgram, 'hdrCount'),
@@ -2040,6 +2045,19 @@ if (VIEW_HARDWARE) {
         }, {
            name: "START",
             help: help.startTimelapse,
+            condition: function() {
+                return !core.cameraConnected;
+            }
+            action: {
+                ui.back();
+                ui.alert('Error', "Camera not connected.\nPlease connect camera and try again.");
+            }
+        }, {
+           name: "START",
+            help: help.startTimelapse,
+            condition: function() {
+                return core.cameraConnected;
+            }
             action: {
                 type: "function",
                 fn: function(arg, cb) {
