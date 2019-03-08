@@ -2057,7 +2057,7 @@ if (VIEW_HARDWARE) {
             help: help.startTimelapse,
             condition: function() {
                 return core.cameraConnected;
-            }
+            },
             action: {
                 type: "function",
                 fn: function(arg, cb) {
