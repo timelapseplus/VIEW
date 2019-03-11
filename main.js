@@ -1771,7 +1771,12 @@ if (VIEW_HARDWARE) {
     var getTrackingMotor = function(trackingMotor) {
         if(trackingMotor && trackingMotor != 'none') {
             var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
+            var parts = trackingMotor.match(/^([A-Z]+)([0-9]+)(r?)$/);
             if(parts && parts.length > 2) {
+                if(parts[1] == "ST") {
+                    parts[1] = "ST4";
+                    parts[2] = parts[2].substring(1);
+                }
                 return {
                     name: parts[1] + '-' + parts[2],
                     reverse: parts[3] == 'r' ? true : false,
