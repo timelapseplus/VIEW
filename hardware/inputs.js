@@ -97,7 +97,7 @@ function setupButton(buttonConfig) {
     });
 
     buttonConfig._button.on('error', function(err) {
-        console.log("button error: ", buttonConfig.name, err);
+        console.log("INPUTS: button error: ", buttonConfig.name, err);
     });
 }
 
@@ -113,7 +113,7 @@ inputs.start = function(knobOptions) {
         if(inputsRunning) return;
         inputsProcess = spawn(INPUTS_BIN_PATH);
         inputsRunning = true;
-        console.log("inputs process started");
+        console.log("INPUTS: process started");
         inputsProcess.stdout.on('data', function(chunk) {
             //console.log("inputs stdin: " + chunk.toString());
             var matches = chunk.toString().match(/([A-Z])=([A-Z0-9\-]+)/);
@@ -126,11 +126,11 @@ inputs.start = function(knobOptions) {
             }
         });
         inputsProcess.stderr.on('data', function(chunk) {
-            console.log("inputs stderr: " + chunk.toString());
+            console.log("INPUTS: stderr: " + chunk.toString());
             chunk = null;
         });
         inputsProcess.on('close', function(code) {
-            console.log("inputs process exited");
+            console.log("INPUTS: process exited");
             inputsRunning = false;
             if (!stop) {
                 setTimeout(function() {
@@ -179,7 +179,7 @@ inputs.stop = function(callback) {
         stop = true;
         stopGesture = true;
         if (inputsRunning) {
-            console.log("inputs process exiting...");
+            console.log("INPUTS: inputs process exiting...");
             try {
                 inputsProcess.stdin.write('\n\n\n');
                 inputsProcess.stdin.end();
