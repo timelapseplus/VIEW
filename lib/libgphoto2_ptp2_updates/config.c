@@ -6460,8 +6460,8 @@ _put_Sony_ManualFocus(CONFIG_PUT_ARGS)
 	CR (gp_widget_get_value(widget, &val));
 
 	if(val != 0.0) {
-		xpropval.u16 = 2;
-		C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
+		//xpropval.u16 = 2;
+		//C_PTP (ptp_sony_setdevicecontrolvalueb (params, 0xd2d2, &xpropval, PTP_DTC_UINT16));
 		if(val <= -7) xpropval.u16 = 0xFFFF - 6;
 		else if(val <= -6.0) xpropval.u16 = 0xFFFF - 5;
 		else if(val <= -5.0) xpropval.u16 = 0xFFFF - 4;
