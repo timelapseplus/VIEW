@@ -267,9 +267,6 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
     var easeStartDegrees = 15;
     var easeEndDegrees = -5;
 
-    if(panDiff > 180) panDiff -= 360;
-    if(panDiff < -180) panDiff += 360;
-
     if(!trackBelowHorizon && altDeg < easeStartDegrees) {
         if(altDeg < easeEndDegrees) {
             ease = 0;
@@ -461,6 +458,11 @@ function processKeyframes(setupFirst, callback) {
             if(trackingTarget) {
                 if(axis.orientation == 'pan') {
                     var panDegrees = trackingTarget.pan - intervalometer.status.trackingPan;
+                    if(axis.type == 'tracking') { // in case it crosses zero
+                        if(panDegrees > 180) panDegrees -= 360;
+                        if(panDegrees < -180) panDegrees += 360;
+                    }
+
                     var addSkippedDegrees = panDegrees;
                     panDegrees *= trackingTarget.ease;
                     addSkippedDegrees -= panDegrees;
