@@ -4809,7 +4809,9 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	}
 
 	/* 1st gen, 2nd gen nikon capture only go to SDRAM */
-	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) &&
+	CameraAbilities a;
+	gp_camera_get_abilities(camera, &a);
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && (a.usb_product == 0x0442 || a.usb_product == 0x0443) &&
 		(ptp_operation_issupported(params, PTP_OC_NIKON_Capture) ||
 		 ptp_operation_issupported(params, PTP_OC_NIKON_AfCaptureSDRAM)
 	)) {
