@@ -1515,7 +1515,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     function start() {
                         intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                         intervalometer.status.useLiveview = false;
-                        if(camera.ptp.model.match(/nikon/i) && ((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
+                        if((camera.ptp.model.match(/nikon/i) && !camera.ptp.model.match(/ Z /i)) && (((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual" || camera.ptp.model.match(/D850/i))) || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
                             console.log("Intervalometer: using Nikon liveview for capture");
                             camera.ptp.liveview(start2);
                             intervalometer.status.useLiveview = true;
