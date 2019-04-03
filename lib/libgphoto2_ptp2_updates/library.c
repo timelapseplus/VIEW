@@ -4789,8 +4789,13 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	}
 
 	/* Use generic capture for Nikon Z  */
-	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && (a.usb_product == 0x0442 || a.usb_product == 0x0443))
-		goto fallback;
+	if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) {
+		CameraAbilities a;
+		gp_camera_get_abilities(camera, &a);
+		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) {
+			goto fallback;
+		}
+	}
 
 	/* Do not use the enhanced capture methods for now. */
 	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && NIKON_BROKEN_CAP(params))
@@ -4813,8 +4818,6 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	}
 
 	/* 1st gen, 2nd gen nikon capture only go to SDRAM */
-	CameraAbilities a;
-	gp_camera_get_abilities(camera, &a);
 	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) &&
 		(ptp_operation_issupported(params, PTP_OC_NIKON_Capture) ||
 		 ptp_operation_issupported(params, PTP_OC_NIKON_AfCaptureSDRAM)
