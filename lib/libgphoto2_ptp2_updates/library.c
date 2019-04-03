@@ -4788,12 +4788,16 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		GP_LOG_D ("draining unhandled event Code %04x, Param 1 %08x", event.Code, event.Param1);
 	}
 
+	/* Use generic capture for Nikon Z  */
+	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && (a.usb_product == 0x0442 || a.usb_product == 0x0443))
+		goto fallback;
+
 	/* Do not use the enhanced capture methods for now. */
 	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && NIKON_BROKEN_CAP(params))
 		goto fallback;
 
 	/* 3rd gen style nikon capture, can do both sdram and card */
-	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) &&
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && 
 		 ptp_operation_issupported(params, PTP_OC_NIKON_InitiateCaptureRecInMedia)
 	) {
 		char buf[1024];
@@ -4811,7 +4815,7 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	/* 1st gen, 2nd gen nikon capture only go to SDRAM */
 	CameraAbilities a;
 	gp_camera_get_abilities(camera, &a);
-	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && (a.usb_product == 0x0442 || a.usb_product == 0x0443) &&
+	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) &&
 		(ptp_operation_issupported(params, PTP_OC_NIKON_Capture) ||
 		 ptp_operation_issupported(params, PTP_OC_NIKON_AfCaptureSDRAM)
 	)) {
