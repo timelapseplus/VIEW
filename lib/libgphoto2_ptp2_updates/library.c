@@ -239,10 +239,10 @@ fixup_cached_deviceinfo (Camera *camera, PTPDeviceInfo *di) {
         gp_camera_get_abilities(camera, &a);
 
 	/* Nikon Z hack */
-	/*if ( di->VendorExtensionID == PTP_VENDOR_MTP && (a.usb_product == 0x0442 || a.usb_product == 0x0443) && camera->port->type == GP_PORT_USB && a.usb_vendor == 0x04b0 )
+	if ( di->VendorExtensionID == PTP_VENDOR_MTP && (a.usb_product == 0x0442 || a.usb_product == 0x0443) && camera->port->type == GP_PORT_USB && a.usb_vendor == 0x04b0 )
 	{
 		di->VendorExtensionID = PTP_VENDOR_NIKON;
-	}*/
+	}
 
 	/* Panasonic hack */
 	if (	(di->VendorExtensionID == PTP_VENDOR_MICROSOFT || a.usb_product == 0x2382) &&
