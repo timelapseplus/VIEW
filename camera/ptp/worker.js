@@ -119,7 +119,7 @@ process.on('message', function(msg) {
 
                 console.log('WORKER: Found', camera.model);
                 GPhoto.onLog(0, function(level, dom, message) {
-                    console.log("LIBGPHOTO2:", level, dom, message);
+                    //console.log("LIBGPHOTO2:", level, dom, message);
                 });
 
                 getConfig(false, false, function() {

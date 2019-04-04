@@ -1041,7 +1041,7 @@ function runPhoto(isRetry) {
                     intervalometer.status.frames++;
                     //writeFile();
                     intervalometer.emit("intervalometer.status", intervalometer.status);
-                    console.log("TL: program intervalometer.status:", intervalometer.status);
+                    console.log("TL: program intervalometer.status:", JSON.stringify(intervalometer.status));
                 } else {
                     intervalometer.emit('error', "An error occurred during capture.  This could mean that the camera body is not supported or possibly an issue with the cable disconnecting.\nThe time-lapse will attempt to continue anyway.\nSystem message: ", err);
                 }
@@ -1159,7 +1159,7 @@ function runPhoto(isRetry) {
                     writeFile();
                     if(intervalometer.currentProgram.intervalMode == 'aux') intervalometer.status.message = "waiting for AUX2...";
                     intervalometer.emit("intervalometer.status", intervalometer.status);
-                    console.log("TL: program intervalometer.status:", intervalometer.status);
+                    console.log("TL: program intervalometer.status:", JSON.stringify(intervalometer.status));
                     if(intervalometer.status.frames == 1 && intervalometer.status.exposureReferenceEv == null) {
                         brightWarning(photoRes.ev);
                     }

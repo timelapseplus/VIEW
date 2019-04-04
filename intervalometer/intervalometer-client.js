@@ -149,7 +149,7 @@ function connect() {
                 } else if(data.type == 'process.pid') {
                     core.processId = data.data;
                 }
-                console.log("CORE:", data.type, "event");
+                //console.log("CORE:", data.type, "event");
                 core.emit(data.type, data.data);
             }
         }
