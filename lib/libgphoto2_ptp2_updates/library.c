@@ -4789,13 +4789,13 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	}
 
 	/* Use generic capture for Nikon Z  */
-	if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) {
+	/*if (params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) {
 		CameraAbilities a;
 		gp_camera_get_abilities(camera, &a);
 		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) {
 			goto fallback;
 		}
-	}
+	}*/
 
 	/* Do not use the enhanced capture methods for now. */
 	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && NIKON_BROKEN_CAP(params))
@@ -4813,6 +4813,8 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 			sdram = 1;
 		if ((GP_OK != gp_setting_get("ptp2","autofocus",buf)) || !strcmp(buf,"off"))
 			af = 0;
+
+		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) af = 0; // disable af for Nikon Z
 
 		return camera_nikon_capture (camera, type, path, af, sdram, context);
 	}
