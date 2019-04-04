@@ -4819,11 +4819,27 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		CameraAbilities a;
 		gp_camera_get_abilities(camera, &a);
 		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) {
-			if(af) {
-				af = 0; // disable af for Nikon Z
-			} else {
-				goto fallback; // if AF isn't enabled, use generic capture because it's faster
-			}
+		int loops = 100;
+			do {
+				ret = ptp_nikon_capture2 (params, 0, sdram);
+				/* Nikon 1 ... if af is 0, it reports PTP_RC_NIKON_InvalidStatus */
+				if (!af && ((ret == PTP_RC_NIKON_InvalidStatus))) {
+					ret = ptp_nikon_capture2 (params, 1, sdram);
+					if (ret == PTP_RC_OK)
+						break;
+				}
+
+				if (	(ret == PTP_RC_DeviceBusy) ||
+					/* this is seen on Nikon V3 */
+					(ret == PTP_RC_NIKON_InvalidStatus)
+				)  usleep(2000);
+			} while (((ret == PTP_RC_DeviceBusy) || (ret ==  PTP_RC_NIKON_InvalidStatus) || (ret == PTP_RC_NIKON_UnknownZResponse)) && loops--);
+			goto getobject;
+			//if(af) {
+			//	af = 0; // disable af for Nikon Z
+			//} else {
+			//	goto fallback; // if AF isn't enabled, use generic capture because it's faster
+			//}
 		}
 		return camera_nikon_capture (camera, type, path, af, sdram, context);
 	}
@@ -4923,7 +4939,7 @@ fallback:
 	 * Thus we set CameraFilePath to the path to last object reported by
 	 * the camera.
 	 */
-
+getobject:
 	/* The Nikon way: Does not send AddObject event ... so try to detect it by checking what objects
 	 * were added. */
 	if ((params->deviceinfo.VendorExtensionID==PTP_VENDOR_NIKON) && NIKON_BROKEN_CAP(params)) {
