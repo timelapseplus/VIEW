@@ -3578,9 +3578,9 @@ capturetriggered:
 					break;
 				}
 				newobject = event.Param1;
-				//done |= 2;
-				checkevt = 1; /* avoid endless loop */
-				done = 3;
+				done |= 2;
+				//checkevt = 1; /* avoid endless loop */
+				//done = 3;
 				break;
 			}
 			case PTP_EC_Nikon_CaptureCompleteRecInSdram:
@@ -4818,8 +4818,13 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 
 		CameraAbilities a;
 		gp_camera_get_abilities(camera, &a);
-		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) af = 0; // disable af for Nikon Z
-
+		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) {
+			if(af) {
+				af = 0; // disable af for Nikon Z
+			} else {
+				goto fallback; // if AF isn't enabled, use generic capture because it's faster
+			}
+		}
 		return camera_nikon_capture (camera, type, path, af, sdram, context);
 	}
 
