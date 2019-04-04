@@ -3500,7 +3500,7 @@ camera_nikon_capture (Camera *camera, CameraCaptureType type, CameraFilePath *pa
 				/* this is seen on Nikon V3 */
 				(ret == PTP_RC_NIKON_InvalidStatus)
 			)  usleep(2000);
-		} while (((ret == PTP_RC_DeviceBusy) || (ret ==  PTP_RC_NIKON_InvalidStatus)) && loops--);
+		} while (((ret == PTP_RC_DeviceBusy) || (ret ==  PTP_RC_NIKON_InvalidStatus) || (ret == PTP_RC_NIKON_UnknownZResponse)) && loops--);
 		goto capturetriggered;
 	}
 

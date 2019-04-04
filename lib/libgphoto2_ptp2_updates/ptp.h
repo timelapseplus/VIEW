@@ -807,6 +807,7 @@ typedef struct _PTPIPHeader PTPIPHeader;
 #define PTP_RC_NIKON_OutOfFocus			0xA002
 #define PTP_RC_NIKON_ChangeCameraModeFailed	0xA003
 #define PTP_RC_NIKON_InvalidStatus		0xA004
+#define PTP_RC_NIKON_UnknownZResponse	0xA201
 #define PTP_RC_NIKON_SetPropertyNotSupported	0xA005
 #define PTP_RC_NIKON_WbResetError		0xA006
 #define PTP_RC_NIKON_DustReferenceError		0xA007
