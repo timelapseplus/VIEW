@@ -4803,6 +4803,7 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 	if ((params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && NIKON_BROKEN_CAP(params))
 		goto fallback;
 
+	int ret;
 	/* 3rd gen style nikon capture, can do both sdram and card */
 	if (	(params->deviceinfo.VendorExtensionID == PTP_VENDOR_NIKON) && 
 		 ptp_operation_issupported(params, PTP_OC_NIKON_InitiateCaptureRecInMedia)
@@ -4849,7 +4850,7 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		(ptp_operation_issupported(params, PTP_OC_NIKON_Capture) ||
 		 ptp_operation_issupported(params, PTP_OC_NIKON_AfCaptureSDRAM)
 	)) {
-		int ret = GP_ERROR_NOT_SUPPORTED;
+		ret = GP_ERROR_NOT_SUPPORTED;
 		char buf[1024];
 		int af = 1;
 
