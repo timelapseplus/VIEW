@@ -3578,7 +3578,9 @@ capturetriggered:
 					break;
 				}
 				newobject = event.Param1;
-				done |= 2;
+				//done |= 2;
+				checkevt = 1; /* avoid endless loop */
+				done = 3;
 				break;
 			}
 			case PTP_EC_Nikon_CaptureCompleteRecInSdram:
