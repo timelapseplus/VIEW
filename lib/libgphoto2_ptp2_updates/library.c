@@ -4814,6 +4814,8 @@ camera_capture (Camera *camera, CameraCaptureType type, CameraFilePath *path,
 		if ((GP_OK != gp_setting_get("ptp2","autofocus",buf)) || !strcmp(buf,"off"))
 			af = 0;
 
+		CameraAbilities a;
+		gp_camera_get_abilities(camera, &a);
 		if(a.usb_product == 0x0442 || a.usb_product == 0x0443) af = 0; // disable af for Nikon Z
 
 		return camera_nikon_capture (camera, type, path, af, sdram, context);
