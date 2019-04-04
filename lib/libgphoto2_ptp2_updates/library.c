@@ -3522,13 +3522,13 @@ capturetriggered:
 
 	CR (gp_port_set_timeout (camera->port, capture_timeout));
 
-	while ((ret = ptp_nikon_device_ready(params)) == PTP_RC_DeviceBusy || (ret == PTP_RC_NIKON_UnknownZResponse)) {
+	while ((ret = ptp_nikon_device_ready(params)) == PTP_RC_DeviceBusy) { //} || (ret == PTP_RC_NIKON_UnknownZResponse)) {
 		gp_context_idle (context);
 		/* do not drain all of the DSLRs compute time */
 		usleep(100*1000); /* 0.1 seconds */
 	}
 
-	C_PTP_REP (ret); /* e.g. out of focus gets reported here. */
+	if(ret != PTP_RC_NIKON_UnknownZResponse) C_PTP_REP (ret); /* e.g. out of focus gets reported here. */
 
 	newobject = 0xffff0001;
 	done = 0; tries = 100;
