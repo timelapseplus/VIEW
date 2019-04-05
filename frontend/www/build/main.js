@@ -761,7 +761,8 @@ var RampingModalContentPage = (function () {
             rampParameters: [
                 { label: 'Shutter, ISO', value: 'S+I' },
                 { label: 'Shutter, ISO (balanced)', value: 'S=I' },
-                { label: 'Shutter, ISO, Aperture', value: 'S+I+A' }
+                { label: 'Shutter, ISO, Aperture', value: 'S+I+A' },
+                { label: 'Shutter, ISO, Aperture (balanced)', value: 'S=I=A' }
             ],
             nightCompensation: [
                 { label: 'Automatic', value: 'auto' },

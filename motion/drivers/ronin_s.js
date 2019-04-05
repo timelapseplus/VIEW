@@ -17,9 +17,10 @@ function Ronin(id) {
     this._dev = null;
     this._moving = false;
     this._angle = null;
-    this._position = 0;
-    this._currentMove = null;
-    this._stepsPerDegree = 186.56716418;
+    this._positionX = 0;
+    this._positionY = 0;
+    this._positionZ = 0;
+    this._stepsPerDegree = 1;
     this._backlash = 0;
     this._lastDirection = 0;
 
@@ -102,6 +103,7 @@ Ronin.prototype._init = function() {
 }
 
 Ronin.prototype._parseIncoming = function(data) {
+    console.log("RONIN: received:", data);
 }
 
 Ronin.prototype.connect = function(device, callback) {

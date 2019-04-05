@@ -296,8 +296,10 @@ wifi.enable = function(cb) {
 	disableBtReset = false;
 	powerControl(true, function(err) {
 		iw.enable(function(err) {
-			if(!err) {
+			setTimeout(function() {
 				if(!wifi.btEnabled) wifi.disableBt();
+			}, 2000);
+			if(!err) {
 				exec("iw wlan0 set power_save off" + (dualInterface ? "; ifconfig wlan1 down" : ""), function(err) {
 					wifi.enabled = true;
 					wifi.emit('enabled', true);
