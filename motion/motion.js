@@ -325,7 +325,7 @@ function updateStatus() {
 	var st4Status = motion.st4.getStatus();
 	var rs1Status = motion.rs1.getStatus();
 
-    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || rs1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected);
+    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected);
     var motors = [];
 
 	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected);
