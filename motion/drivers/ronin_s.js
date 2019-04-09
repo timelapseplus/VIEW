@@ -239,7 +239,7 @@ Ronin.prototype._write = function(buffer, callback) {
     var chksm = new Buffer('0000', 'hex');
     chksm.writeUInt16LE(crc(buffer), 0);
     buf = Buffer.concat([buf, chksm]);
-    console.log("Ronin(" + self._id + "): writing", buf);
+    console.log("Ronin(" + this._id + "): writing", buf);
     try {
         var startIndex = 0;
         while(buf.length - startIndex > 0) {
