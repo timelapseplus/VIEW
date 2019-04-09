@@ -71,7 +71,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
                                     self._posTimer = null;
                                     self._commandIndex = 0;
                                     self._notifyCh.on('data', function(data, isNotification) {
-                                        self._process_events_data(data);
+                                        self._parseIncoming(data);
                                     });
                                     console.log("Ronin(" + self._id + "): connected!");
                                     self._init();
