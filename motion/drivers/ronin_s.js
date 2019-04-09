@@ -290,7 +290,7 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
     return buf;
 }
 
-Ronin.prototype._moveAbsolute(pan, tilt, roll, callback) {
+Ronin.prototype._moveAbsolute = function(pan, tilt, roll, callback) {
     pan *= 10;
     tilt *= 10;
     if(roll !== false) {
@@ -303,11 +303,11 @@ Ronin.prototype._moveAbsolute(pan, tilt, roll, callback) {
     this._write(this._buildMoveCommand(pan, tilt, roll, 'absolute'), callback);
 }
 
-Ronin.prototype._moveRelative(pan, tilt, roll, callback) {
+Ronin.prototype._moveRelative = function(pan, tilt, roll, callback) {
     this._write(this._buildMoveCommand(pan, tilt, roll, 'relative'), callback);
 }
 
-Ronin.prototype._moveJoystick(pan, tilt, roll, callback) {
+Ronin.prototype._moveJoystick = function(pan, tilt, roll, callback) {
     this._write(this._buildMoveCommand(pan, tilt, roll, 'joystick'), callback);
 }
 
