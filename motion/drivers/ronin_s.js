@@ -106,12 +106,14 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._init = function() {
     var self = this;
-    this._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
-    self.emit("status", self.getStatus());
+    setTimeout(function() {
+        self._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+        self.emit("status", self.getStatus());
+    }, 1000);
 }
 
 Ronin.prototype._parseIncoming = function(data) {
-    //console.log("RONIN: received:", data);
+    console.log("Ronin(" + self._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
         //console.log("this._expectedLength =", this._expectedLength);
@@ -125,7 +127,7 @@ Ronin.prototype._parseIncoming = function(data) {
                 var tilt = this._buf.readInt16LE(23) / 10;
                 var roll = this._buf.readInt16LE(27) / 10;
                 var pan = this._buf.readInt16LE(31) / 10;
-                console.log("POSITIONS:", pan, tilt, roll);
+                console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll);
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
                     if(this._posTimer) clearTimeout(this._posTimer);
@@ -244,7 +246,7 @@ Ronin.prototype._write = function(buffer, callback) {
         var startIndex = 0;
         while(buf.length - startIndex > 0) {
             var nb = buf.slice(startIndex, startIndex + 20);
-            console.log("Ronin(" + this._id + "): writing chunk", nb);
+            //console.log("Ronin(" + this._id + "): writing chunk", nb);
             this._cmdCh.write(nb);
             startIndex += nb.length;
         }
@@ -302,15 +304,15 @@ Ronin.prototype._moveAbsolute = function(pan, tilt, roll, callback) {
         pan = tilt;
         tilt = tmp;
     }
-    this._write(this._buildMoveCommand(pan, tilt, roll, 'absolute'), callback);
+    this._write(this._buildMoveCommand(pan, tilt, false, 'absolute'), callback);
 }
 
 Ronin.prototype._moveRelative = function(pan, tilt, roll, callback) {
-    this._write(this._buildMoveCommand(pan, tilt, roll, 'relative'), callback);
+    this._write(this._buildMoveCommand(pan, tilt, false, 'relative'), callback);
 }
 
 Ronin.prototype._moveJoystick = function(pan, tilt, roll, callback) {
-    this._write(this._buildMoveCommand(pan, tilt, roll, 'joystick'), callback);
+    this._write(this._buildMoveCommand(pan, tilt, false, 'joystick'), callback);
 }
 
 
@@ -326,9 +328,9 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         this._watchdog = null;
     }
     if(speed) {
-        var pan = motor == 1 ? speed : 0;
-        var tilt = motor == 2 ? speed : 0;
-        var roll = motor == 3 ? speed : 0;
+        var pan = motor == 1 ? speed / 100 : 0;
+        var tilt = motor == 2 ? speed / 100 : 0;
+        var roll = motor == 3 ? speed / 100 : 0;
         self._moveJoystick(pan, tilt, roll, callback)
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
