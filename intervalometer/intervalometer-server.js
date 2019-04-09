@@ -554,6 +554,27 @@ function startScan() {
           //status = motion.nmx.getStatus();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.gm1.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected GM1, bluetooth powered off");
+          motion.gm1.disconnect();
+          //status = motion.nmx.getStatus();
+          sendEvent('motion.status', motion.status);
+        }
+        var status = motion.gm2.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected GM2, bluetooth powered off");
+          motion.gm2.disconnect();
+          //status = motion.nmx.getStatus();
+          sendEvent('motion.status', motion.status);
+        }
+        var status = motion.rs1.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected RS1, bluetooth powered off");
+          motion.rs1.disconnect();
+          //status = motion.nmx.getStatus();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 //function startScan() {
@@ -652,8 +673,8 @@ function btDiscover(peripheral) {
     if(matchServices(peripheral, motion.rs1.btServiceIds) && !motion.rs1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.rs1.connect(peripheral, function(connected) {
-           if(connected) stopScan();
           btConnecting = false;
+           if(connected) stopScan();
         });
     } else if(!motion.rs1.connected) {
       var connectGM = function(cb) {
@@ -718,7 +739,7 @@ motion.st4.connect();
 
 motion.on('status', function(status) {
     sendEvent('motion.status', status);
-    if (status.connected) {
+    if (status.available) {
         stopScan();
     } else {
         //wifi.resetBt(function(){
