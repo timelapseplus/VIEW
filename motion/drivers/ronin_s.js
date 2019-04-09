@@ -10,7 +10,7 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 function Ronin(id) {
-    this.btServiceIds = ['f000474d04514000b000000000000000'];
+    this.btServiceIds = ['fff0'];
 
     this._id = id;
     this._cmdCh = null;

@@ -535,8 +535,8 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                var scanIds = motion.gm1.btServiceIds;
-                if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds);
+                var scanIds = motion.gm1.btServiceIds.concat(motion.rs1.btServiceIds);
+                if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(scanIds);
                 noble.startScanning(scanIds, false, function(err){
                     console.log("BLE scan started: ", err);
                 });
@@ -556,6 +556,40 @@ function startScan() {
         }
     }
 }
+//function startScan() {
+//    //if(btleScanStarting || updates.installing) return;
+//    if(btleScanStarting) return;
+//    btleScanStarting = true;
+//    clearScanTimeouts()
+//    scanTimerHandle = setTimeout(startScan, 20000);
+//    if (noble.state == "poweredOn") {
+//        scanTimerHandle2 = setTimeout(function() {
+//            noble.stopScanning();
+//        }, 500);
+//        scanTimerHandle3 = setTimeout(function() {
+//            if (noble.state == "poweredOn") {
+//                //console.log("Starting BLE scan...");
+//                var scanIds = motion.gm1.btServiceIds;
+//                if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(motion.gm1.btServiceIds);
+//                noble.startScanning(scanIds, false, function(err){
+//                    console.log("BLE scan started: ", err);
+//                });
+//            } else {
+//              console.log("not scanning, BT state:", noble.state);
+//            }
+//            btleScanStarting = false;
+//        }, 6000);
+//    } else {
+//        btleScanStarting = false;
+//        var status = motion.nmx.getStatus();
+//        if(status.connected && status.connectionType == "bt") {
+//          console.log("CORE: disconnected NMX, bluetooth powered off");
+//          motion.nmx.disconnect();
+//          //status = motion.nmx.getStatus();
+//          sendEvent('motion.status', motion.status);
+//        }
+//    }
+//}
 
 function stopScan() {
     console.log("CORE: stopping BLE scan");
@@ -595,6 +629,15 @@ function btStateChange(state) {
         }
     }
 }
+
+function matchServices(peripheral, serviceIds) {
+  if(!peripheral || !peripheral.advertisement || !peripheral.advertisement.serviceUuids) return false;
+  var res = peripheral.advertisement.serviceUuids.filter(function(n) {
+    return serviceIds.indexOf(n) !== -1;
+  });
+  return res.length > 0;
+}
+
 var btConnecting = false;
 var btConnectingTries = 0;
 function btDiscover(peripheral) {
@@ -605,40 +648,49 @@ function btDiscover(peripheral) {
     btConnecting = false;
     btConnectingTries = 0;
     //console.log('ble', peripheral);
-    var connectGM = function(cb) {
-      var status = motion.gm1.getStatus();
-      if(status.connected && status.connectionType == "bt") {
-        var status = motion.gm2.getStatus();
+
+    if(matchServices(peripheral, motion.rs1.btServiceIds) && !motion.rs1.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.rs1.connect(peripheral, function(connected) {
+          btConnecting = false;
+        });
+    } else {
+      var connectGM = function(cb) {
+        var status = motion.gm1.getStatus();
         if(status.connected && status.connectionType == "bt") {
-          stopScan();
+          var status = motion.gm2.getStatus();
+          if(status.connected && status.connectionType == "bt") {
+            stopScan();
+          } else {
+            btConnecting = true;
+            motion.gm2.connect(peripheral, function(connected) {
+              btConnecting = false;
+            });
+          }
         } else {
           btConnecting = true;
-          motion.gm2.connect(peripheral, function(connected) {
+          motion.gm1.connect(peripheral, function(connected) {
             btConnecting = false;
           });
         }
+      }
+      var status = motion.nmx.getStatus();
+      if(status.connected || !nmxBT) {
+        connectGM();
       } else {
         btConnecting = true;
-        motion.gm1.connect(peripheral, function(connected) {
+        motion.nmx.connect(peripheral, function(connected) {
           btConnecting = false;
+          if(connected) {
+            stopScan();
+          } else {
+            console.log("CORE: peripheral not NMX, trying GM");
+            connectGM();
+          }
         });
       }
     }
-    var status = motion.nmx.getStatus();
-    if(status.connected || !nmxBT) {
-      connectGM();
-    } else {
-      btConnecting = true;
-      motion.nmx.connect(peripheral, function(connected) {
-        btConnecting = false;
-        if(connected) {
-          stopScan();
-        } else {
-          console.log("CORE: peripheral not NMX, trying GM");
-          connectGM();
-        }
-      });
-    }
+
 }
 
 function cleanUpBt() {
