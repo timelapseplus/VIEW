@@ -652,9 +652,10 @@ function btDiscover(peripheral) {
     if(matchServices(peripheral, motion.rs1.btServiceIds) && !motion.rs1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.rs1.connect(peripheral, function(connected) {
+           if(connected) stopScan();
           btConnecting = false;
         });
-    } else {
+    } else if(!motion.rs1.connected) {
       var connectGM = function(cb) {
         var status = motion.gm1.getStatus();
         if(status.connected && status.connectionType == "bt") {
