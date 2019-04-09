@@ -244,6 +244,7 @@ Ronin.prototype._write = function(buffer, callback) {
         var startIndex = 0;
         while(buf.length - startIndex > 0) {
             var nb = buf.slice(startIndex, startIndex + 20);
+            console.log("Ronin(" + self._id + "): writing", nb);
             this._cmdCh.write(nb);
             startIndex += nb.length;
         }
