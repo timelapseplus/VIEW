@@ -234,7 +234,7 @@ Ronin.prototype._write = function(buffer, callback) {
     buf = Buffer.concat([buf, buffer]);
     this._commandIndex++;
     if(this._commandIndex > 0xFF) this._commandIndex = 0x00;
-    buf.writeUInt8(buf.length, 1);
+    buf.writeUInt8(buf.length + 2, 1);
     buf.writeUInt8(this._commandIndex, 6);
     var chksm = new Buffer('0000', 'hex');
     chksm.writeUInt16LE(crc(buffer), 0);
