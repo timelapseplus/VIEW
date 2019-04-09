@@ -230,13 +230,13 @@ Ronin.prototype.move = function(motor, degrees, callback) {
 
 
 Ronin.prototype._write = function(buffer, callback) {
-    var buf = Buffer.from('5500', 'hex');
+    var buf = new Buffer('5500', 'hex');
     buf = Buffer.concat([buf, buffer]);
     commandIndex++;
     if(commandIndex > 0xFF) commandIndex = 0x00;
     buf.writeUInt8(buf.length, 1);
     buf.writeUInt8(commandIndex, 6);
-    var chksm = Buffer.from('0000', 'hex');
+    var chksm = new Buffer('0000', 'hex');
     chksm.writeUInt16LE(crc(buffer), 0);
     buf = Buffer.concat([buf, chksm]);
 
@@ -279,7 +279,7 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
         if(mode == 'joystick') mode_flags = 0x01044001; // joystick move 
     }
       
-    var buf = Buffer.from('04a9020400004004010004000400040000', 'hex');
+    var buf = new Buffer('04a9020400004004010004000400040000', 'hex');
 
     buf.writeUInt32LE(mode_flags, 5);
     buf.writeUInt16LE(tilt, 9);
