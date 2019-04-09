@@ -113,7 +113,7 @@ Ronin.prototype._init = function() {
 }
 
 Ronin.prototype._parseIncoming = function(data) {
-    console.log("Ronin(" + self._id + "): received", data);
+    console.log("Ronin(" + this._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
         //console.log("this._expectedLength =", this._expectedLength);
@@ -127,7 +127,7 @@ Ronin.prototype._parseIncoming = function(data) {
                 var tilt = this._buf.readInt16LE(23) / 10;
                 var roll = this._buf.readInt16LE(27) / 10;
                 var pan = this._buf.readInt16LE(31) / 10;
-                console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll);
+                console.log("Ronin(" + this._id + "): POSITIONS:", pan, tilt, roll);
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
                     if(this._posTimer) clearTimeout(this._posTimer);
