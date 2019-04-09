@@ -232,10 +232,10 @@ Ronin.prototype.move = function(motor, degrees, callback) {
 Ronin.prototype._write = function(buffer, callback) {
     var buf = new Buffer('5500', 'hex');
     buf = Buffer.concat([buf, buffer]);
-    commandIndex++;
-    if(commandIndex > 0xFF) commandIndex = 0x00;
+    this._commandIndex++;
+    if(this.commandIndex > 0xFF) this.commandIndex = 0x00;
     buf.writeUInt8(buf.length, 1);
-    buf.writeUInt8(commandIndex, 6);
+    buf.writeUInt8(this.commandIndex, 6);
     var chksm = new Buffer('0000', 'hex');
     chksm.writeUInt16LE(crc(buffer), 0);
     buf = Buffer.concat([buf, chksm]);
