@@ -78,7 +78,7 @@ function btDiscover(peripheral) {
                                                 }
                                             }
                                             expectedLength = 0;
-                                            //console.log("BT data received:", buf);
+                                            console.log("BT data received:", buf);
                                         }
                                         if(buf.length > 255) {
                                             expectedLength = 0;
@@ -105,7 +105,7 @@ function btDiscover(peripheral) {
                                 //cmdCh.write(new Buffer("551b047502e50800400412103e010000000c0000", 'hex'));
                                 //cmdCh.write(new Buffer("50660c001ccd23", 'hex'));
 
-                                setTimeout(function() {
+                                setTimeout(function() {  //"550e046602e5010080000e00d908"
                                     cmdCh.write(new Buffer("550e046602e5c70080000e000c24", 'hex')); // get positions --- works
                                 }, 1000);
 
