@@ -61,7 +61,7 @@ usb.on('attach', function(device) {
 	tryConnectDevice(device);
 });
 
-usb.on('detach', function(device) { 
+usb.on('dettach', function(device) { 
 	//console.log("DETACHED:", device);
 	var port = device.busNumber + ':' + device.deviceAddress;
 	for(var i = 0; i < api.cameras.length; i++) {
