@@ -57,6 +57,7 @@ util.inherits(CameraAPI, EventEmitter);
 
 
 usb.on('attach', function(device) { 
+	console.log("device attached", device);
 	tryConnectDevice(device);
 });
 
@@ -180,5 +181,7 @@ var devices = usb.getDeviceList();
 for(var i = 0; i < devices.length; i++) {
 	tryConnectDevice(devices[i]);
 }
+
+console.log("ready");
 
 module.exports = api;
