@@ -71,12 +71,11 @@ usb.on('detach', function(device) {
 
 
 CameraAPI.prototype.set = function(parameter, value, callback) {
-	return this._driver.set(this._dev, parameter, value, callback);
+	return this._driver.set(this, parameter, value, callback);
 }
 
 CameraAPI.prototype.init = function(callback) {
-	console.log("init:", this._dev);
-	return this._driver.init(this._dev, callback);
+	return this._driver.init(this, callback);
 }
 
 CameraAPI.prototype.capture = function(target, options, callback) {
@@ -84,24 +83,24 @@ CameraAPI.prototype.capture = function(target, options, callback) {
 		callback = options;
 		options = {};
 	}
-	return this._driver.capture(this._dev, target, options, callback);
+	return this._driver.capture(this, target, options, callback);
 }
 
 CameraAPI.prototype.liveviewMode = function(enable, callback) {
 	if(!this.supports.liveview) return callback && callback("not supported");
 	if(this.config.liveview === enable) return callback && callback();
-	return this._driver.liveviewMode(this._dev, enable, callback);
+	return this._driver.liveviewMode(this, enable, callback);
 }
 
 CameraAPI.prototype.liveviewImage = function(enable, callback) {
 	if(!this.supports.liveview) return callback && callback("not supported");
 	if(!this.config.liveview) return callback && callback("not enabled");
-	return this._driver.liveviewImage(this._dev, callback);
+	return this._driver.liveviewImage(this, callback);
 }
 
 CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
 	if(!this.supports.focus) return callback && callback("not supported");
-	return this._driver.moveFocus(this._dev, enable, callback);
+	return this._driver.moveFocus(this, enable, callback);
 }
 
 function connectCamera(driver, device) {
