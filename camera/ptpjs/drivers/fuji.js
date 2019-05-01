@@ -91,6 +91,8 @@ driver._event = function(camera, data) { // events received
 };
 
 driver.init = function(camera, callback) {
+    console.log("cam", camera._dev);
+    console.log("dev", camera._dev);
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);},
