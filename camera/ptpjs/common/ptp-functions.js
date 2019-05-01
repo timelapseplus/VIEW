@@ -140,7 +140,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				} else {
 					console.log("data received:", rlen);
 					if(rlen > 12) {
-						console.log("requesting mode data:", rlen - 12);
+						console.log("requesting more data:", rlen - 12);
 						cam.ep.in.transfer(packetSize(cam.ep.in, rlen - 12), function(err, data2) {
 							receive(cb, Buffer.concat([data, data2]));
 						});
@@ -181,6 +181,7 @@ exports.parseDeviceInfo = function(buf) {
 	di.operationsCount = buf.readUInt32LE(offset);
 	offset += 4;
 	di.operations = [];
+	return di;
 	for(var i = 0; i < di.operationsCount; i++) {
 		di.operations.push(buf.readUInt16LE(offset).toString(16));
 		offset += 2;
