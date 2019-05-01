@@ -31,7 +31,7 @@ driver.supportedCameras = {
             }
         },
     '04cb:02d7': {
-            name: "Fuji X-H1"
+            name: "Fuji X-H1",
             supports: {
                 shutter: true,
                 aperture: true,
@@ -42,7 +42,7 @@ driver.supportedCameras = {
             }
         },
     '04cb:02dd': {
-            name: "Fuji X-T3"
+            name: "Fuji X-T3",
             supports: {
                 shutter: true,
                 aperture: true,
