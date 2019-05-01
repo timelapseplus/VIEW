@@ -114,6 +114,7 @@ driver.capture = function(camera, target, options, callback) {
                     }
                 });
             }
+            check();
         },
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
