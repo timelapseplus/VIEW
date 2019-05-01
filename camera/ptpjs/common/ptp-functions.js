@@ -38,7 +38,7 @@ exports.PTP_OC_InitiateOpenCapture    =  0x101C
 
 exports.uint16buf = function(uint16) {
 	var buf = new Buffer(2);
-	buf.writeUInt16LE(0, uint16);
+	buf.writeUInt16LE(uint16, 0);
 	return buf;
 }
 
