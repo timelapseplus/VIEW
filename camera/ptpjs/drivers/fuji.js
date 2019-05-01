@@ -74,7 +74,7 @@ var properties = {
             {name: 'focus', code: 0x0200},
             {name: 'capture', code: 0x0304},
         ]
-    }
+    },
     'shutter': {
         name: 'shutter',
         function: ptp.setPropU16,
