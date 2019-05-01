@@ -165,4 +165,4 @@ exports.listCameras = function() {
 	return cameras;
 }
 
-console.log(exports.listCameras);
+console.log(exports.listCameras());
