@@ -37,7 +37,7 @@ exports.PTP_OC_GetPartialObject       =  0x101B
 exports.PTP_OC_InitiateOpenCapture    =  0x101C
 
 exports.uint16buf = function(uint16) {
-	var buf = Buffer.alloc(2);
+	var buf = new Buffer(2);
 	buf.writeUInt16LE(uint16);
 	return buf;
 }
@@ -92,7 +92,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	// uint32 transactionId (4) 8
 	// uint32[4] params (optional) or data 12
 
-	var buf = Buffer.alloc(length);
+	var buf = new Buffer(length);
 
 	buf.writeUInt32LE(length, 0);
 	buf.writeUInt16LE(type, 4);
