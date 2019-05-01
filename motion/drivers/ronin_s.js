@@ -104,10 +104,14 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
     });
 }
 
+Ronin.prototype._pollPositions = function() {
+    self._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+}
+
 Ronin.prototype._init = function() {
     var self = this;
     setTimeout(function() {
-        self._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+        self._pollPositions();
         self.emit("status", self.getStatus());
     }, 1000);
 }
@@ -133,7 +137,7 @@ Ronin.prototype._parseIncoming = function(data) {
                     if(this._posTimer) clearTimeout(this._posTimer);
                     this._posTimer = setTimeout(function() { 
                         this._posTimer = null;
-                        this._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+                        this._pollPositions();
                     }, 1000);
                 } else {
                     this._moving = false;
@@ -145,11 +149,11 @@ Ronin.prototype._parseIncoming = function(data) {
             }
         } else if(this._expectedLength == 0x11) {
             if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x40) { // moved
-                this._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+                this._pollPositions();
             }
         } else if(this._expectedLength == 0x0e) {
             if(this._buf.readUInt16LE(9) == 0x1404 || this._buf.readUInt16LE(9) == 0xe00a) { // moved
-                this._write(new Buffer("046602e5c70080000e00", 'hex')); // get positions
+                this._pollPositions();
             }
         }
         this._expectedLength = 0;
@@ -328,15 +332,18 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         this._watchdog = null;
     }
     if(speed) {
-        var pan = motor == 1 ? speed / 100 : 0;
-        var tilt = motor == 2 ? speed / 100 : 0;
-        var roll = motor == 3 ? speed / 100 : 0;
+        speed /= 100;
+        var pan = motor == 1 ? speed : 0;
+        var tilt = motor == 2 ? speed : 0;
+        var roll = motor == 3 ? speed : 0;
         self._moveJoystick(pan, tilt, roll, callback)
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
             self._moveJoystick(0, 0, 0, callback)
+            this._pollPositions();
         }, 3000);
     } else {
+        this._pollPositions();
         var check = function() {
             if(self._moving) {
                 setTimeout(check, 200); // keep checking until stop

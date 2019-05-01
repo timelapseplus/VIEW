@@ -349,7 +349,7 @@ oled.updateTimelapseStatus = function(status) {
     if(status) {
         oled.timelapseStatus = status;
         if(status.running) {
-            if(oled.mode == 'timelapse') statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 100); 
+            if(oled.mode == 'timelapse') statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 150); 
         } else {
             statusDetails = {};
         }

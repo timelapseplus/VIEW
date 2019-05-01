@@ -39,7 +39,7 @@ light.start = function(cb) {
                     light.lux = val;
                     readings[readings.length - 1] = val;
                 });
-            }, 2000)
+            }, 5000)
         } else {
             console.log("Error initializing: ", err);
             if (cb) cb(err);
