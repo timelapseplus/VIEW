@@ -113,7 +113,7 @@ function buildConnectFunction(driver, device) {
 		camera._dev = cam;
 		if(cam.ep.evt) {
 			cam.ep.evt.startPoll();
-			cam.ep.evt.on('data', (data) => {
+			cam.ep.evt.on('data', function(data) {
 				camera._driver._event(camera._dev, data);
 			});
 		}
