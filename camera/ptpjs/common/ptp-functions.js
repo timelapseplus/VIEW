@@ -74,6 +74,12 @@ exports.getPropU16 = function(cam, prop, value, callback) {
 	});
 }
 
+exports.ptpCapture = function(cam, params, callback) {
+	exports.transaction(cam, exports.PTP_OC_InitiateCapture, params, null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
+	});
+}
+
 exports.hex = function(val) {
 	if(val == null) return "null";
 	return "0x" + val.toString(16);

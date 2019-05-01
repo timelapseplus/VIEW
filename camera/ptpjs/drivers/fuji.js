@@ -66,15 +66,6 @@ driver.supportedCameras = {
 }
 
 var properties = {
-    'capture': {
-        name: 'capture',
-        function: ptp.setPropU16,
-        code: 0xd208,
-        values: [
-            {name: 'focus', code: 0x0200},
-            {name: 'capture', code: 0x0304},
-        ]
-    },
     'shutter': {
         name: 'shutter',
         function: ptp.setPropU16,
@@ -96,6 +87,9 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);},
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}
         ], function(err) {
+            driver.capture(camera, "", {}, function(err){
+                console.log("capture", err);
+            });
             callback && callback(err);
         });
     });
@@ -106,7 +100,25 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.capture = function(camera, target, options, callback) {
-
+    async.series([
+        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
+        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
+        function(cb){
+            var check = function() {
+                ptp.getPropU16(camera._dev, 0xd209, function(err, data) {
+                    if(data == 0x001) {
+                        check();
+                    } else {
+                        cb(err);
+                    }
+                });
+            }
+        },
+        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
+        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
+    ], function(err) {
+        callback && callback(err);
+    });
 }
 
 driver.liveviewMode = function(camera, enable, callback) {
