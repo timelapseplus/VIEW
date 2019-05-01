@@ -57,7 +57,7 @@ util.inherits(CameraAPI, EventEmitter);
 
 
 usb.on('attach', function(device) { 
-	console.log("device attached", device);
+	//console.log("device attached", device);
 	tryConnectDevice(device);
 });
 
@@ -75,6 +75,7 @@ CameraAPI.prototype.set = function(parameter, value, callback) {
 }
 
 CameraAPI.prototype.init = function(callback) {
+	console.log("init:", this._dev);
 	return this._driver.init(this._dev, callback);
 }
 
