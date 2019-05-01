@@ -10,13 +10,19 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 
+var DRIVERS = [];
+DRIVERS.push(require('./drivers/fuji.js'));
+
 function CameraAPI(driver) {
 	this._driver = driver;
 
 	this.exposure = {
 		shutter: null,
 		aperture: null,
-		iso: null
+		iso: null,
+		shutterList: [],
+		apertureList: [],
+		isoList: []
 	}
 	this.status = { // read only
 		busy: null,
@@ -121,6 +127,42 @@ function buildConnectFunction(driver, device) {
 	}
 }
 
+function fourHex(n) {
+	n = n || 0;
+	n = parseInt(n);
+	n = n.toString(16);
+	while(n.length < 4) n = '0' + n;
+	return n;
+}
 
-console.log(usb.getDeviceList());
+function matchDriver(device) {
+	if(device && device.deviceDescriptor) {
+		var id  = fourHex(device.deviceDescriptor.idVendor) + ':' + fourHex(device.deviceDescriptor.idProduct);
+		for(var i = 0; i < DRIVERS.length; i++) {
+			if(DRIVERS[i].supportedCameras[id]) {
+				return {
+					driver: DRIVERS[i],
+					name: DRIVERS[i].supportedCameras[id].name
+				}
+			}
+		}
+	}
+	return null;
+}
 
+exports.listCameras = function() {
+	var cameras = [];
+	var devices = usb.getDeviceList();
+	for(var i = 0; i < devices.length; i++) {
+		var camera = matchDriver(devices[i]);
+		if(camera) {
+			cameras.push({
+				name: camera.name,
+				connect: buildConnectFunction(camera.driver, devices[i])
+			});
+		}
+	}
+	return cameras;
+}
+
+console.log(exports.listCameras);

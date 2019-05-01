@@ -1,8 +1,18 @@
+
+/****************************************************************************
+ LICENSE: CC BY-NC-SA 4.0 https://creativecommons.org/licenses/by-nc-sa/4.0/
+ This is an original driver by Elijah Parker <mail@timelapseplus.com>
+ It is free to use in other projects for non-commercial purposes.  For a
+ commercial license and consulting, please contact mail@timelapseplus.com
+*****************************************************************************/
+
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ptpFunctions = require('../common/ptp-functions.js');
 
 var driver = new EventEmitter();
+
+driver.name = "Fujifilm";
 
 function _log(message) {
     console.log("FUJI:", message);
