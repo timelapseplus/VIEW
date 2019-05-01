@@ -6,6 +6,36 @@
  commercial license and consulting, please contact mail@timelapseplus.com
 *****************************************************************************/
 
+exports.PTP_OC_Undefined              =  0x1000
+exports.PTP_OC_GetDeviceInfo          =  0x1001
+exports.PTP_OC_OpenSession            =  0x1002
+exports.PTP_OC_CloseSession           =  0x1003
+exports.PTP_OC_GetStorageIDs          =  0x1004
+exports.PTP_OC_GetStorageInfo         =  0x1005
+exports.PTP_OC_GetNumObjects          =  0x1006
+exports.PTP_OC_GetObjectHandles       =  0x1007
+exports.PTP_OC_GetObjectInfo          =  0x1008
+exports.PTP_OC_GetObject              =  0x1009
+exports.PTP_OC_GetThumb               =  0x100A
+exports.PTP_OC_DeleteObject           =  0x100B
+exports.PTP_OC_SendObjectInfo         =  0x100C
+exports.PTP_OC_SendObject             =  0x100D
+exports.PTP_OC_InitiateCapture        =  0x100E
+exports.PTP_OC_FormatStore            =  0x100F
+exports.PTP_OC_ResetDevice            =  0x1010
+exports.PTP_OC_SelfTest               =  0x1011
+exports.PTP_OC_SetObjectProtection    =  0x1012
+exports.PTP_OC_PowerDown              =  0x1013
+exports.PTP_OC_GetDevicePropDesc      =  0x1014
+exports.PTP_OC_GetDevicePropValue     =  0x1015
+exports.PTP_OC_SetDevicePropValue     =  0x1016
+exports.PTP_OC_ResetDevicePropValue   =  0x1017
+exports.PTP_OC_TerminateOpenCapture   =  0x1018
+exports.PTP_OC_MoveObject             =  0x1019
+exports.PTP_OC_CopyObject             =  0x101A
+exports.PTP_OC_GetPartialObject       =  0x101B
+exports.PTP_OC_InitiateOpenCapture    =  0x101C
+
 exports.uint16buf = function(uint16) {
 	var buf = Buffer.alloc(2);
 	buf.writeUInt16LE(uint16);
@@ -13,21 +43,34 @@ exports.uint16buf = function(uint16) {
 }
 
 exports.init = function(cam, callback) {
-	exports.transaction(cam, 0x1002, [0x00000001], null, function(err, responseCode, data) {
+	exports.transaction(cam, exports.PTP_OC_OpenSession, [0x00000001], null, function(err, responseCode, data) {
 		console.log("session open", err, exports.hex(responseCode), data);
-		exports.transaction(cam, 0x1001, [], null, function(err, responseCode, data) {
+		exports.transaction(cam, exports.PTP_OC_GetDeviceInfo, [], null, function(err, responseCode, data) {
 			console.log("init complete", err, exports.hex(responseCode), data);
 			var di = exports.parseDeviceInfo(data);
 			console.log("device info:", di);
-			console.log("entering olympus pc mode...");
-			exports.transaction(cam, 0x1016, [0xD052], exports.uint16buf(1), function(err, responseCode, data) {
-				console.log("olympus pc mode", err, responseCode);
-				exports.transaction(cam, 0x9481, [0x3], null, function(err, responseCode, data)  {
-					exports.transaction(cam, 0x9481, [0x6], null, function(err, responseCode, data) {
-					});
-				});
-			});
+			//console.log("entering olympus pc mode...");
+			callback && callback(err, di);
+			//exports.transaction(cam, 0x1016, [0xD052], exports.uint16buf(1), function(err, responseCode, data) {
+			//	console.log("olympus pc mode", err, responseCode);
+			//	exports.transaction(cam, 0x9481, [0x3], null, function(err, responseCode, data)  {
+			//		exports.transaction(cam, 0x9481, [0x6], null, function(err, responseCode, data) {
+			//		});
+			//	});
+			//});
 		});
+	});
+}
+
+exports.setPropU16 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.uint16buf(value), function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
+	});
+}
+
+exports.getPropU16 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
 	});
 }
 

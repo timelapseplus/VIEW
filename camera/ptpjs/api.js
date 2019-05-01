@@ -10,6 +10,8 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 
+var api = new EventEmitter();
+
 var DRIVERS = [];
 DRIVERS.push(require('./drivers/fuji.js'));
 
@@ -54,21 +56,25 @@ function CameraAPI(driver) {
 util.inherits(CameraAPI, EventEmitter);
 
 
-
 usb.on('attach', function(device) { 
-	console.log("ATTACHED:", device);
-	//let camera = utils.open(device);
-	//utils.init(camera);
+	tryConnectDevice(device);
 });
 
 usb.on('detach', function(device) { 
-	console.log("DETACHED:", device);
+	//console.log("DETACHED:", device);
+	var port = device.busNumber + ':' + device.deviceAddress;
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i]._port == port) api.emit('disconnected', camera.name, camera); // had been connected
+	}	
 });
-
 
 
 CameraAPI.prototype.set = function(parameter, value, callback) {
 	return this._driver.set(this._dev, parameter, value, callback);
+}
+
+CameraAPI.prototype.init = function(callback) {
+	return this._driver.init(this._dev, callback);
 }
 
 CameraAPI.prototype.capture = function(target, options, callback) {
@@ -96,35 +102,34 @@ CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
 	return this._driver.moveFocus(this._dev, enable, callback);
 }
 
-function buildConnectFunction(driver, device) {
+function connectCamera(driver, device) {
 	var camera = new CameraAPI(driver);
-	return function(device) {
-		device.open();
-		var iface = device.interfaces[0];
-		iface.claim();
-		var cam = {
-			ep: {
-				in: null,
-				out: null,
-				evt: null
-			},
-			transactionId: 0
-		};
-		for(var i = 0; i < iface.endpoints.length; i++) {
-			var ep = iface.endpoints[i];
-			if(ep.transferType == 2 && ep.direction == 'in') cam.ep.in = ep;
-			if(ep.transferType == 2 && ep.direction == 'out') cam.ep.out = ep;
-			if(ep.transferType == 3 && ep.direction == 'in') cam.ep.evt = ep;
-		}
-		camera._dev = cam;
-		if(cam.ep.evt) {
-			cam.ep.evt.startPoll();
-			cam.ep.evt.on('data', function(data) {
-				camera._driver._event(camera._dev, data);
-			});
-		}
-		return camera;
+	device.open();
+	var iface = device.interfaces[0];
+	iface.claim();
+	var cam = {
+		ep: {
+			in: null,
+			out: null,
+			evt: null
+		},
+		transactionId: 0
+	};
+	for(var i = 0; i < iface.endpoints.length; i++) {
+		var ep = iface.endpoints[i];
+		if(ep.transferType == 2 && ep.direction == 'in') cam.ep.in = ep;
+		if(ep.transferType == 2 && ep.direction == 'out') cam.ep.out = ep;
+		if(ep.transferType == 3 && ep.direction == 'in') cam.ep.evt = ep;
 	}
+	camera._dev = cam;
+	if(cam.ep.evt) {
+		cam.ep.evt.startPoll();
+		cam.ep.evt.on('data', function(data) {
+			camera._driver._event(camera._dev, data);
+		});
+	}
+	camera._port = device.busNumber + ':' + device.deviceAddress;
+	return camera;
 }
 
 function fourHex(n) {
@@ -150,19 +155,30 @@ function matchDriver(device) {
 	return null;
 }
 
-exports.listCameras = function() {
-	var cameras = [];
-	var devices = usb.getDeviceList();
-	for(var i = 0; i < devices.length; i++) {
-		var camera = matchDriver(devices[i]);
-		if(camera) {
-			cameras.push({
-				name: camera.name,
-				connect: buildConnectFunction(camera.driver, devices[i])
-			});
-		}
+api.cameras = [];
+
+function tryConnectDevice(device) {
+	var port = device.busNumber + ':' + device.deviceAddress;
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i]._port == port) return; // already connected
 	}
-	return cameras;
+	var found = matchDriver(device);
+	if(found) {
+		console.log("camera connected:", found.name);
+		var camera = connectCamera(found.driver, device);
+		camera.init(function(err) {
+			api.cameras.push({
+				name: found.name,
+				camera: camera
+			});
+			api.emit('connected', found.name);
+		});
+	}
 }
 
-console.log(exports.listCameras());
+var devices = usb.getDeviceList();
+for(var i = 0; i < devices.length; i++) {
+	tryConnectDevice(devices[i]);
+}
+
+module.exports = api;
