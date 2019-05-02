@@ -145,7 +145,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 					rlen = data.readUInt32LE(0);
 					rtype = data.readUInt16LE(4);
 				}
-				if(rbuf.length => rlen) {
+				if(rbuf.length >= rlen) {
 					rtype = data.readUInt16LE(4);
 				}
 				if(rtype == 3) {
