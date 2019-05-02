@@ -129,7 +129,7 @@ exports.parseObjectInfo = function(data) {
 			filename: "",
 		}
 		if(data.length > 52) {
-			oi.filename = data.toString('utf16', 50)
+			oi.filename = data.toString('utf8', 50)
 		}
 	}
 }
