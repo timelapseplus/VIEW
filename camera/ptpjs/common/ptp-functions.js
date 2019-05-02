@@ -143,8 +143,8 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				var rtype = data.readUInt16LE(4);
 				console.log("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
-					var resposeCode = parseResponse(data);
-					console.log("completed transaction, response code", exports.hex(resposeCode));
+					var responseCode = parseResponse(data);
+					console.log("completed transaction, response code", exports.hex(responseCode));
 					if(rbuf) {
 						rbuf = rbuf.slice(12); // strip header from data returned
 						console.log("-> received", rbuf.length, "bytes: ", rbuf);
