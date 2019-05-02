@@ -15,11 +15,11 @@ var driver = new EventEmitter();
 
 driver.name = "Fujifilm";
 
-function _logD(...arguments) {
+function _logD() {
     if(arguments.length > 0) {
         arguments[0] = "FUJI:" + arguments[0];
     }
-    console.log.call(arguments);
+    console.log.apply(console, arguments);
 }
 
 driver.supportedCameras = {
