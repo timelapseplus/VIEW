@@ -144,6 +144,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				if(rlen === null) {
 					rlen = data.readUInt32LE(0);
 					rtype = data.readUInt16LE(4);
+					console.log("data received:", rlen);
 				}
 				if(rbuf && rbuf.length >= rlen) {
 					rtype = data.readUInt16LE(4);
@@ -152,10 +153,10 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 					console.log("completed transaction");
 					cb && cb(err, parseResponse(data), rbuf);
 				} else {
-					console.log("data received:", rlen);
 					if(rlen > 12) {
 						console.log("requesting more data:", rlen - 12);
 						cam.ep.in.transfer(packetSize(cam.ep.in, rlen - 12), function(err, data2) {
+							console.log("received ", data2.length);
 							receive(cb, Buffer.concat([data, data2]));
 						});
 					} else {
