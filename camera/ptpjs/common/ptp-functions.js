@@ -193,6 +193,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	var length = 12 + 4 * params.length;
 	var type = 1; // command
 	var maxPacket = cam.ep.in.descriptor.wMaxPacketSize;
+	var CHUNK_LIMIT = 6000000;
 
 	// uint32 length (4) 0
 	// uint16 type (2) 4
@@ -254,16 +255,33 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 					cb && cb(err, responseCode, rbuf);
 				} else {
 					if(rlen > data.length) {
-						console.log("requesting more data:", rlen - data.length);
-						cam.ep.in.transfer(packetSize(cam.ep.in, rlen - data.length), function(err, data2) {
-							if(!err && data2) {
-								console.log("received", data2.length, "bytes additional");
-								receive(cb, Buffer.concat([data, data2]));
-							} else {
-								console.log("ERROR", err);
-								receive(cb, data);
-							}
-						});
+						var remainingBytes = rlen - data.length;
+						var receivedIndex = 0;
+						var bigData = new Buffer(rlen);
+						data.copy(bigData, receivedIndex);
+						receivedIndex += data.length;
+						console.log("requesting more data:", remainingBytes);
+
+						var fetchMore = function() {
+							var chunk = rlen - receivedIndex;
+							if(chunk > CHUNK_LIMIT) chunk = CHUNK_LIMIT;
+							cam.ep.in.transfer(packetSize(cam.ep.in, rlen - data.length), function(err, data2) {
+								if(!err && data2) {
+									data2.copy(bigData, receivedIndex);
+									receivedIndex += data2.length;
+									console.log("received", data2.length, "bytes additional");
+									if(receivedIndex < rlen) {
+										fetchMore();
+									} else {
+										receive(cb, bigData);
+									}
+								} else {
+									console.log("ERROR", err);
+									receive(cb, data);
+								}
+							});
+						}
+						fetchMore();
 					} else {
 						receive(cb, data);
 					}
