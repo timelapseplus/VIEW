@@ -15,9 +15,13 @@ var driver = new EventEmitter();
 
 driver.name = "Fujifilm";
 
-function _log(message) {
-    console.log("FUJI:", message);
+function _logD() {
+    if(arguments.length > 0) {
+        arguments[0] = "FUJI:" + arguments[0];
+    }
+    console.log.call(arguments);
 }
+
 driver.supportedCameras = {
     '04cb:02cb': {
             name: "Fuji X-Pro2",
@@ -78,7 +82,7 @@ var properties = {
 }
 
 driver._event = function(camera, data) { // events received
-    _log("data received:", data);
+    _logD("data received:", data);
 };
 
 driver.init = function(camera, callback) {
@@ -88,7 +92,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}
         ], function(err) {
             driver.capture(camera, "", {}, function(err){
-                console.log("capture", err);
+                _logD("capture err result:", err);
             });
             callback && callback(err);
         });
@@ -100,15 +104,13 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.capture = function(camera, target, options, callback) {
-    console.log("##FUJI: capture");
     async.series([
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
             var check = function() {
                 ptp.getPropU16(camera._dev, 0xd209, function(err, data) {
-                    console.log("## data", data);
-                    if(data == 0x001) {
+                    if(data == 0x0001) {
                         check();
                     } else {
                         cb(err);
