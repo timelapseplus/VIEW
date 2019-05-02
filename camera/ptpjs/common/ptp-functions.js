@@ -91,6 +91,12 @@ exports.getPropU16 = function(cam, prop, callback) {
 	});
 }
 
+exports.getObjectInfo = function(cam, objectId, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetObjectInfo, [objectId], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && parseObjectInfo(data));
+	});
+}
+
 exports.ptpCapture = function(cam, params, callback) {
 	exports.transaction(cam, exports.PTP_OC_InitiateCapture, params, null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
@@ -102,28 +108,44 @@ exports.hex = function(val) {
 	return "0x" + val.toString(16);
 }
 
+exports.parseObjectInfo = function(data) {
+	if(data && data.length >= 50) {
+		var oi = {
+			storageId: data.readUInt32LE(0),
+			objectFormat: data.readUInt16LE(4),
+			protectionStatus: data.readUInt16LE(6),
+			objectCompressedSize: data.readUInt32LE(8),
+			thumbFormat: data.readUInt16LE(12),
+			thumbCompressedSize: data.readUInt32LE(14),
+			thumbPixWidth: data.readUInt32LE(18),
+			thumbPixHeight: data.readUInt32LE(22),
+			imagePixWidth: data.readUInt32LE(26),
+			imagePixHeight: data.readUInt32LE(30),
+			imageBitDepth: data.readUInt32LE(34),
+			parentObject: data.readUInt32LE(38),
+			associationType: data.readUInt16LE(42),
+			associationDesc: data.readUInt16LE(44),
+			sequenceNumber: data.readUInt32LE(46),
+			filename: "",
+		}
+		if(data.length > 52) {
+			oi.filename = data.toString('utf16', 50)
+		}
+	}
+}
+
 exports.parseEvent = function(data, callback) {
 	var type = null;
 	var event = null;
-	var value = null;
+	var param1 = null;
+	var param2 = null;
+	var param3 = null;
 	if(data.length >= 6) type = data.readUInt16LE(4);
 	if(data.length >= 8) event = data.readUInt16LE(6);
-	if(type == 1) {
-		if(data.length >= 10 + 1) value = data.readInt8(10);
-	} else if(type == 2) {
-		if(data.length >= 10 + 1) value = data.readUInt8(10);
-	} else if(type == 3) {
-		if(data.length >= 10 + 2) value = data.readInt16LE(10);
-	} else if(type == 4) {
-		if(data.length >= 10 + 2) value = data.readUInt16LE(10);
-	} else if(type == 5) {
-		if(data.length >= 10 + 4) value = data.readInt32LE(10);
-	} else if(type == 6) {
-		if(data.length >= 10 + 4) value = data.readUInt32LE(10);
-	} else {
-		value = data.slice(10);
-	}
-	callback && callback(type, event, value);
+	if(data.length >= 14 + 4*1) param1 = data.readInt32LE(14+4*0);
+	if(data.length >= 14 + 4*2) param2 = data.readInt32LE(14+4*1);
+	if(data.length >= 14 + 4*3) param3 = data.readInt32LE(14+4*2);
+	callback && callback(type, event, param1, param2, param3);
 }
 
 exports.transaction = function(cam, opcode, params, data, callback) {
