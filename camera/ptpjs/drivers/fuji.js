@@ -10,6 +10,7 @@ var util = require('util');
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 var ptp = require('../common/ptp-functions.js');
+var fs = require('fs');
 
 var driver = new EventEmitter();
 
