@@ -88,7 +88,7 @@ driver._event = function(camera, data) { // events received
             _logD("object added:", param1);
             var objectId = param1;
             ptp.getObjectInfo(camera, objectId, function(err, oi) {
-                _logD(oi);
+                console.log(oi);
             });
         }
     });
