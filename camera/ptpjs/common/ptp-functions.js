@@ -260,6 +260,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 								receive(cb, Buffer.concat([data, data2]));
 							} else {
 								console.log("ERROR", err);
+								receive(cb, Buffer.concat([data, data2]));
 							}
 						});
 					} else {
