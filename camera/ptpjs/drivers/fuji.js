@@ -90,17 +90,17 @@ driver._event = function(camera, data) { // events received
             ptp.getObjectInfo(camera, objectId, function(err, oi) {
                 console.log(oi);
                 var image = null;
-                if(camera.thumbnail) {
+                //if(camera.thumbnail) {
                     ptp.getObjectInfo(camera, objectId, function(err, jpeg) {
                         fs.writeFileSync("thumb.jpg", jpeg);
                         ptp.deleteObject(camera, objectId);
                     })
-                } else {
-                    ptp.getObject(camera, objectId, function(err, image) {
-                        fs.writeFileSync("image.raf", jpeg);
-                        ptp.deleteObject(camera, objectId);
-                    })
-                }
+                //} else {
+                //    ptp.getObject(camera, objectId, function(err, image) {
+                //        fs.writeFileSync("image.raf", jpeg);
+                //        ptp.deleteObject(camera, objectId);
+                //    })
+                //}
             });
         }
     });

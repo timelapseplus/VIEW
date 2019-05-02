@@ -165,7 +165,7 @@ exports.parseObjectInfo = function(data) {
 			filename: "",
 		}
 		if(data.length > 52) {
-			oi.filename = data.toString('utf16le', 50)
+			oi.filename = data.toString('utf16le', 53)
 		}
 		return oi;
 	}
