@@ -93,7 +93,7 @@ exports.getPropU16 = function(cam, prop, callback) {
 
 exports.getObjectInfo = function(cam, objectId, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetObjectInfo, [objectId], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && parseObjectInfo(data));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && exports.parseObjectInfo(data));
 	});
 }
 
