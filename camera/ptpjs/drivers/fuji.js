@@ -106,7 +106,7 @@ driver.capture = function(camera, target, options, callback) {
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
             var check = function() {
-                ptp.getPropU16(camera._dev, 0xd209, function(err, rcode, data) {
+                ptp.getPropU16(camera._dev, 0xd209, function(err, data) {
                     console.log("## data", data);
                     if(data == 0x001) {
                         check();
