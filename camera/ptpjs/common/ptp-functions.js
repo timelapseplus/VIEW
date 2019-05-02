@@ -124,6 +124,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	}
 
 	var packetSize = function(ep, bytes) {
+		return bytes;
 		return Math.ceil(bytes / maxPacket) * maxPacket;
 	}
 
