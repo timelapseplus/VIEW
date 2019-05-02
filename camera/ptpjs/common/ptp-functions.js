@@ -144,6 +144,14 @@ exports.hex = function(val) {
 	return "0x" + val.toString(16);
 }
 
+exports.extractJpeg = function(data) {
+    var jpegStart = data.indexOf("FFD8FF", 0, "hex");
+    var jpegEnd = data.indexOf("FFD9", jpegStart, "hex");
+    var jpegBuf = new Buffer(jpegEnd - jpegStart);
+    data.copy(jpegBuf, 0, jpegStart, jpegEnd);
+    return jpegBuf;
+}
+
 exports.parseObjectInfo = function(data) {
 	if(data && data.length >= 50) {
 		var oi = {

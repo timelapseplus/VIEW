@@ -98,6 +98,7 @@ driver._event = function(camera, data) { // events received
                     })
                 } else {
                     ptp.getObject(camera, objectId, function(err, image) {
+                        fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
                         fs.writeFileSync("image.raf", image);
                         ptp.deleteObject(camera, objectId);
                     })
