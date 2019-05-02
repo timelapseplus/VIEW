@@ -85,7 +85,7 @@ driver._event = function(camera, data) { // events received
     _logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
-            _logD("object added:", data);
+            _logD("object added:", param1);
             var objectId = param1;
             ptp.getObjectInfo(camera, objectId, function(err, oi) {
                 _logD(oi);
