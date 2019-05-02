@@ -143,12 +143,13 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				var rtype = data.readUInt16LE(4);
 				console.log("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
-					console.log("completed transaction");
+					var resposeCode = parseResponse(data);
+					console.log("completed transaction, response code", exports.hex(resposeCode));
 					if(rbuf) {
 						rbuf = rbuf.slice(12); // strip header from data returned
 						console.log("-> received", rbuf.length, "bytes: ", rbuf);
 					}
-					cb && cb(err, parseResponse(data), rbuf);
+					cb && cb(err, responseCode, rbuf);
 				} else {
 					if(rlen > data.length) {
 						console.log("requesting more data:", rlen - data.length);
