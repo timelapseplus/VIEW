@@ -142,9 +142,9 @@ exports.parseEvent = function(data, callback) {
 	var param3 = null;
 	if(data.length >= 6) type = data.readUInt16LE(4);
 	if(data.length >= 8) event = data.readUInt16LE(6);
-	if(data.length >= 14 + 4*1) param1 = data.readInt32LE(14+4*0);
-	if(data.length >= 14 + 4*2) param2 = data.readInt32LE(14+4*1);
-	if(data.length >= 14 + 4*3) param3 = data.readInt32LE(14+4*2);
+	if(data.length >= 12 + 4*1) param1 = data.readInt32LE(12+4*0);
+	if(data.length >= 12 + 4*2) param2 = data.readInt32LE(12+4*1);
+	if(data.length >= 12 + 4*3) param3 = data.readInt32LE(12+4*2);
 	callback && callback(type, event, param1, param2, param3);
 }
 
