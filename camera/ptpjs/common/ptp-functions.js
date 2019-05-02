@@ -131,7 +131,9 @@ exports.parseObjectInfo = function(data) {
 		if(data.length > 52) {
 			oi.filename = data.toString('utf8', 50)
 		}
+		return oi;
 	}
+	return {};
 }
 
 exports.parseEvent = function(data, callback) {
