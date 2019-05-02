@@ -92,7 +92,7 @@ driver._event = function(camera, data) { // events received
                 console.log(oi);
                 var image = null;
                 //if(camera.thumbnail) {
-                    ptp.getObjectInfo(camera, objectId, function(err, jpeg) {
+                    ptp.getThumb(camera, objectId, function(err, jpeg) {
                         fs.writeFileSync("thumb.jpg", jpeg);
                         ptp.deleteObject(camera, objectId);
                     })
