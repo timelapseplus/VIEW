@@ -100,13 +100,14 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.capture = function(camera, target, options, callback) {
+    console.log("##FUJI: capture");
     async.series([
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
             var check = function() {
                 ptp.getPropU16(camera._dev, 0xd209, function(err, data) {
-                    console.log("data", data);
+                    console.log("## data", data);
                     if(data == 0x001) {
                         check();
                     } else {
