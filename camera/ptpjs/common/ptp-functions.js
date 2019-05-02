@@ -59,6 +59,12 @@ exports.uint16buf = function(uint16) {
 	return buf;
 }
 
+exports.uint8buf = function(uint8) {
+	var buf = new Buffer(1);
+	buf.writeUInt8(uint8, 0);
+	return buf;
+}
+
 exports.init = function(cam, callback) {
 	exports.transaction(cam, exports.PTP_OC_OpenSession, [0x00000001], null, function(err, responseCode, data) {
 		console.log("session open", err, exports.hex(responseCode), data);
@@ -76,6 +82,18 @@ exports.init = function(cam, callback) {
 			//	});
 			//});
 		});
+	});
+}
+
+exports.setPropU8 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.uint8buf(value), function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
+	});
+}
+
+exports.getPropU8 = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt8 && data.readUInt8(0));
 	});
 }
 
@@ -129,7 +147,7 @@ exports.parseObjectInfo = function(data) {
 			filename: "",
 		}
 		if(data.length > 52) {
-			oi.filename = data.toString('utf8', 50)
+			oi.filename = data.toString('utf16le', 50)
 		}
 		return oi;
 	}
