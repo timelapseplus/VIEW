@@ -143,7 +143,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				var rtype = data.readUInt16LE(4);
 				console.log("received packet type #", rtype, "size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
-					console.log("completed transaction");
+					console.log("completed transaction, total data bytes:", (rbuf && rbuf.length) || 0);
 					cb && cb(err, parseResponse(data), rbuf);
 				} else {
 					if(rlen > data.length) {
