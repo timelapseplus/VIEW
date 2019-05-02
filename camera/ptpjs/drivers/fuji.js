@@ -89,6 +89,18 @@ driver._event = function(camera, data) { // events received
             var objectId = param1;
             ptp.getObjectInfo(camera, objectId, function(err, oi) {
                 console.log(oi);
+                var image = null;
+                if(camera.thumbnail) {
+                    ptp.getObjectInfo(camera, objectId, function(err, jpeg) {
+                        fs.writeFileSync("thumb.jpg", jpeg);
+                        ptp.deleteObject(camera, objectId);
+                    })
+                } else {
+                    ptp.getObject(camera, objectId, function(err, image) {
+                        fs.writeFileSync("image.raf", jpeg);
+                        ptp.deleteObject(camera, objectId);
+                    })
+                }
             });
         }
     });
@@ -114,6 +126,7 @@ driver.set = function(camera, param, value, callback) {
 
 driver.capture = function(camera, target, options, callback) {
     var targetValue = (!target || target == "camera") ? 4 : 2;
+    camera.thumbnail = true;
     async.series([
         function(cb){ptp.setPropU8(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},

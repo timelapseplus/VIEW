@@ -115,6 +115,24 @@ exports.getObjectInfo = function(cam, objectId, callback) {
 	});
 }
 
+exports.getThumb = function(cam, objectId, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetThumb, [objectId], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
+exports.deleteObject = function(cam, objectId, callback) {
+	exports.transaction(cam, exports.PTP_OC_DeleteObject, [objectId], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
+exports.getObject = function(cam, objectId, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetObject, [objectId], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
 exports.ptpCapture = function(cam, params, callback) {
 	exports.transaction(cam, exports.PTP_OC_InitiateCapture, params, null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
