@@ -105,23 +105,23 @@ exports.hex = function(val) {
 exports.parseEvent = function(data, callback) {
 	var type = null;
 	var event = null;
-	var data = null;
+	var value = null;
 	if(data.length >= 6) type = data.readUInt16LE(4);
 	if(data.length >= 8) event = data.readUInt16LE(6);
 	if(type == 1) {
-		if(data.length >= 10 + 1) data = data.readInt8(10);
+		if(data.length >= 10 + 1) value = data.readInt8(10);
 	} else if(type == 2) {
-		if(data.length >= 10 + 1) data = data.readUInt8(10);
+		if(data.length >= 10 + 1) value = data.readUInt8(10);
 	} else if(type == 3) {
-		if(data.length >= 10 + 2) data = data.readInt16LE(10);
+		if(data.length >= 10 + 2) value = data.readInt16LE(10);
 	} else if(type == 4) {
-		if(data.length >= 10 + 2) data = data.readUInt16LE(10);
+		if(data.length >= 10 + 2) value = data.readUInt16LE(10);
 	} else if(type == 5) {
-		if(data.length >= 10 + 4) data = data.readInt32LE(10);
+		if(data.length >= 10 + 4) value = data.readInt32LE(10);
 	} else if(type == 6) {
-		if(data.length >= 10 + 4) data = data.readUInt32LE(10);
+		if(data.length >= 10 + 4) value = data.readUInt32LE(10);
 	} else {
-		data = data.slice(10);
+		value = data.slice(10);
 	}
 	callback && callback(type, event, data);
 }
