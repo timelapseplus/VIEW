@@ -15,7 +15,7 @@ var driver = new EventEmitter();
 
 driver.name = "Fujifilm";
 
-function _logD() {
+function _logD(...arguments) {
     if(arguments.length > 0) {
         arguments[0] = "FUJI:" + arguments[0];
     }
