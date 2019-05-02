@@ -84,7 +84,9 @@ var properties = {
 driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, data) {
         _logD("EVENT:", event, "data:", data);
-
+        if(event == ptp.PTP_EC_ObjectAdded) {
+            _logD("object added:", data);
+        }
     });
 };
 
@@ -107,7 +109,9 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.capture = function(camera, target, options, callback) {
+    var targetValue = (!target || target == "camera") ? 4 : 2;    
     async.series([
+        function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
