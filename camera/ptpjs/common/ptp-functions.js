@@ -257,7 +257,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 						cam.ep.in.transfer(packetSize(cam.ep.in, rlen - data.length), function(err, data2) {
 							if(!err && data2) {
 								console.log("received", data2.length, "bytes additional");
-								receive(cb, Buffer.concat([data, data2]));
+								receive(cb, data);
 							} else {
 								console.log("ERROR", err);
 								receive(cb, Buffer.concat([data, data2]));
