@@ -124,7 +124,6 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	}
 
 	var packetSize = function(ep, bytes) {
-		return bytes;
 		return Math.ceil(bytes / maxPacket) * maxPacket;
 	}
 
@@ -142,14 +141,9 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 		console.log("reading 12 bytes...");
 		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
 			if(!err && data) {
-				if(rlen === null) {
-					rlen = data.readUInt32LE(0);
-					rtype = data.readUInt16LE(4);
-					console.log("data received:", rlen);
-				}
-				if(rbuf && rbuf.length >= rlen) {
-					rtype = data.readUInt16LE(4);
-				}
+				rlen = data.readUInt32LE(0);
+				rtype = data.readUInt16LE(4);
+				console.log("received packet type #", rtype);
 				if(rtype == 3) {
 					console.log("completed transaction");
 					cb && cb(err, parseResponse(data), rbuf);
