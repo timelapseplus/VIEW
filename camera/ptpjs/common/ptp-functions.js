@@ -193,7 +193,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	var length = 12 + 4 * params.length;
 	var type = 1; // command
 	var maxPacket = cam.ep.in.descriptor.wMaxPacketSize;
-	var CHUNK_LIMIT = 4000000;
+	var CHUNK_LIMIT = 3000000;
 
 	// uint32 length (4) 0
 	// uint16 type (2) 4
