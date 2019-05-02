@@ -141,15 +141,16 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 			if(!err && data) {
 				var rlen = data.readUInt32LE(0);
 				var rtype = data.readUInt16LE(4);
-				console.log("received packet type #", rtype, "size:", rlen, "data length received:", data.length);
+				console.log("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
-					console.log("completed transaction, total data bytes:", (rbuf && rbuf.length) || 0);
+					console.log("completed transaction");
+					if(rbuf) console.log("-> received", rbuf.length, "bytes: ", rbuf);
 					cb && cb(err, parseResponse(data), rbuf);
 				} else {
 					if(rlen > data.length) {
 						console.log("requesting more data:", rlen - data.length);
 						cam.ep.in.transfer(packetSize(cam.ep.in, rlen - data.length), function(err, data2) {
-							console.log("received ", data2.length);
+							console.log("received", data2.length, "bytes additional");
 							receive(cb, Buffer.concat([data, data2]));
 						});
 					} else {
