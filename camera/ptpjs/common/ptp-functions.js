@@ -193,7 +193,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	var length = 12 + 4 * params.length;
 	var type = 1; // command
 	var maxPacket = cam.ep.in.descriptor.wMaxPacketSize;
-	var CHUNK_LIMIT = 3000000;
+	var CHUNK_LIMIT = 6000000;
 
 	// uint32 length (4) 0
 	// uint16 type (2) 4
@@ -265,7 +265,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 						var fetchMore = function() {
 							var chunk = rlen - receivedIndex;
 							if(chunk > CHUNK_LIMIT) chunk = CHUNK_LIMIT;
-							cam.ep.in.transfer(packetSize(cam.ep.in, rlen - data.length), function(err, data2) {
+							cam.ep.in.transfer(packetSize(cam.ep.in, chunk), function(err, data2) {
 								if(!err && data2) {
 									data2.copy(bigData, receivedIndex);
 									receivedIndex += data2.length;
