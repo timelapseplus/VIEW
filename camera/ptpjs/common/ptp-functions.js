@@ -144,7 +144,10 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				console.log("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
 					console.log("completed transaction");
-					if(rbuf) console.log("-> received", rbuf.length, "bytes: ", rbuf);
+					if(rbuf) {
+						rbuf = rbuf.slice(12); // strip header from data returned
+						console.log("-> received", rbuf.length, "bytes: ", rbuf);
+					}
 					cb && cb(err, parseResponse(data), rbuf);
 				} else {
 					if(rlen > data.length) {
