@@ -68,7 +68,7 @@ exports.setPropU16 = function(cam, prop, value, callback) {
 	});
 }
 
-exports.getPropU16 = function(cam, prop, value, callback) {
+exports.getPropU16 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
 	});
@@ -147,7 +147,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 					console.log("completed transaction, response code", exports.hex(responseCode));
 					if(rbuf) {
 						rbuf = rbuf.slice(12); // strip header from data returned
-						console.log("-> received", rbuf.length, "bytes: ", rbuf);
+						console.log("-> received", rbuf.length, "bytes: ", rbuf, "with err:", err);
 					}
 					cb && cb(err, responseCode, rbuf);
 				} else {
