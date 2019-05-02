@@ -113,7 +113,7 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.capture = function(camera, target, options, callback) {
-    var targetValue = (!target || target == "camera") ? 2 : 4;
+    var targetValue = (!target || target == "camera") ? 4 : 2;
     async.series([
         function(cb){ptp.setPropU8(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
