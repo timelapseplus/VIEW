@@ -17,7 +17,7 @@ driver.name = "Fujifilm";
 
 function _logD() {
     if(arguments.length > 0) {
-        arguments[0] = "FUJI:" + arguments[0];
+        arguments[0] = "PTP-FUJI: " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
@@ -82,7 +82,10 @@ var properties = {
 }
 
 driver._event = function(camera, data) { // events received
-    _logD("data received:", data);
+    ptp.parseEvent(data, function(type, event, data) {
+        _logD("EVENT:", event, "data:", data);
+
+    });
 };
 
 driver.init = function(camera, callback) {

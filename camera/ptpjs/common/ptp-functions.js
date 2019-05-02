@@ -36,6 +36,23 @@ exports.PTP_OC_CopyObject             =  0x101A
 exports.PTP_OC_GetPartialObject       =  0x101B
 exports.PTP_OC_InitiateOpenCapture    =  0x101C
 
+exports.PTP_EC_Undefined			 = 0x4000
+exports.PTP_EC_CancelTransaction	 = 0x4001
+exports.PTP_EC_ObjectAdded			 = 0x4002
+exports.PTP_EC_ObjectRemoved		 = 0x4003
+exports.PTP_EC_StoreAdded			 = 0x4004
+exports.PTP_EC_StoreRemoved			 = 0x4005
+exports.PTP_EC_DevicePropChanged	 = 0x4006
+exports.PTP_EC_ObjectInfoChanged	 = 0x4007
+exports.PTP_EC_DeviceInfoChanged	 = 0x4008
+exports.PTP_EC_RequestObjectTransfer = 0x4009
+exports.PTP_EC_StoreFull			 = 0x400A
+exports.PTP_EC_DeviceReset			 = 0x400B
+exports.PTP_EC_StorageInfoChanged	 = 0x400C
+exports.PTP_EC_CaptureComplete		 = 0x400D
+exports.PTP_EC_UnreportedStatus		 = 0x400E 
+
+
 exports.uint16buf = function(uint16) {
 	var buf = new Buffer(2);
 	buf.writeUInt16LE(uint16, 0);
@@ -83,6 +100,30 @@ exports.ptpCapture = function(cam, params, callback) {
 exports.hex = function(val) {
 	if(val == null) return "null";
 	return "0x" + val.toString(16);
+}
+
+exports.parseEvent = function(data, callback) {
+	var type = null;
+	var event = null;
+	var data = null;
+	if(data.length >= 6) type = data.readUInt16LE(4);
+	if(data.length >= 8) event = data.readUInt16LE(6);
+	if(type == 1) {
+		if(data.length >= 10 + 1) data = data.readInt8(10);
+	} else if(type == 2) {
+		if(data.length >= 10 + 1) data = data.readUInt8(10);
+	} else if(type == 3) {
+		if(data.length >= 10 + 2) data = data.readInt16LE(10);
+	} else if(type == 4) {
+		if(data.length >= 10 + 2) data = data.readUInt16LE(10);
+	} else if(type == 5) {
+		if(data.length >= 10 + 4) data = data.readInt32LE(10);
+	} else if(type == 6) {
+		if(data.length >= 10 + 4) data = data.readUInt32LE(10);
+	} else {
+		data = data.slice(10);
+	}
+	callback && callback(type, event, data);
 }
 
 exports.transaction = function(cam, opcode, params, data, callback) {
