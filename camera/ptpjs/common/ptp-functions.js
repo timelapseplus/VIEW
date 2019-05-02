@@ -123,7 +123,7 @@ exports.parseEvent = function(data, callback) {
 	} else {
 		value = data.slice(10);
 	}
-	callback && callback(type, event, data);
+	callback && callback(type, event, value);
 }
 
 exports.transaction = function(cam, opcode, params, data, callback) {
