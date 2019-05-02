@@ -61,11 +61,13 @@ usb.on('attach', function(device) {
 	tryConnectDevice(device);
 });
 
-usb.on('dettach', function(device) { 
-	//console.log("DETACHED:", device);
+usb.on('detach', function(device) { 
+	console.log("DETACHED:", device);
 	var port = device.busNumber + ':' + device.deviceAddress;
 	for(var i = 0; i < api.cameras.length; i++) {
-		if(api.cameras[i]._port == port) api.emit('disconnected', camera.name, camera); // had been connected
+		if(api.cameras[i]._port == port) {
+			api.emit('disconnected', camera.name, camera); // had been connected
+		}
 	}	
 });
 
@@ -84,6 +86,14 @@ CameraAPI.prototype.capture = function(target, options, callback) {
 		options = {};
 	}
 	return this._driver.capture(this, target, options, callback);
+}
+
+CameraAPI.prototype.captureHDR = function(target, options, frames, stops, darkerOnly, callback) {
+	if(typeof options == 'function' && callback == undefined) {
+		callback = options;
+		options = {};
+	}
+	return this._driver.captureHDR(this, target, options, frames, stops, darkerOnly, callback);
 }
 
 CameraAPI.prototype.liveviewMode = function(enable, callback) {

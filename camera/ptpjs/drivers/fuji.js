@@ -123,6 +123,10 @@ driver.capture = function(camera, target, options, callback) {
     });
 }
 
+driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback) {
+
+}
+
 driver.liveviewMode = function(camera, enable, callback) {
 
 }

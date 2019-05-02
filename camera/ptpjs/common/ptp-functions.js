@@ -135,13 +135,21 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 		}
 	}
 
+	var rlen = null;
+	var rtype = null;
 	var receive = function(cb, rbuf) {
 		console.log("reading 12 bytes...");
 		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
 			if(!err && data) {
-				var rlen = data.readUInt32LE(0);
-				var rtype = data.readUInt16LE(4);
+				if(rlen === null) {
+					rlen = data.readUInt32LE(0);
+					rtype = data.readUInt16LE(4);
+				}
+				if(rbuf.length => rlen) {
+					rtype = data.readUInt16LE(4);
+				}
 				if(rtype == 3) {
+					console.log("completed transaction");
 					cb && cb(err, parseResponse(data), rbuf);
 				} else {
 					console.log("data received:", rlen);
@@ -162,6 +170,8 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 	}
 
 	send(buf, function(err) {
+		rlen = null;
+		rtype = null;
 		receive(callback);
 	});
 
