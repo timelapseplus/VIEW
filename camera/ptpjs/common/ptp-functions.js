@@ -158,8 +158,10 @@ exports.extractJpeg = function(data) {
     		break;
     	}
     }
-    if(jpegStart === null) return null;
-
+    if(jpegStart === null) {
+    	console.log("no jpeg found.");
+    	return null;
+    }
     for(var i = jpegStart; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
     		jpegEnd = i;
