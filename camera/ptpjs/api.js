@@ -64,11 +64,21 @@ usb.on('attach', function(device) {
 usb.on('detach', function(device) { 
 	console.log("DETACHED:", device);
 	var port = device.busNumber + ':' + device.deviceAddress;
+	var camIndex = null;
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i]._port == port) {
-			api.emit('disconnected', camera.name, camera); // had been connected
+			camIndex = i;
+			var cam = api.cameras[i]._dev;
+			if(cam.ep.evt) {
+				cam.ep.evt.stopPoll();
+			}
+			cam.iface.release();
+			cam.device.close();
+			api.emit('disconnected', api.cameras[i].name); // had been connected
 		}
 	}	
+	api.cameras.splice(camIndex, 1);
+	console.log("cameras connected: ", api.cameras.length);
 });
 
 
@@ -119,6 +129,8 @@ function connectCamera(driver, device) {
 	var iface = device.interfaces[0];
 	iface.claim();
 	var cam = {
+		device: device,
+		iface: iface,
 		ep: {
 			in: null,
 			out: null,
