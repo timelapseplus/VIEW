@@ -145,6 +145,7 @@ exports.hex = function(val) {
 }
 
 exports.extractJpeg = function(data) {
+	data = new Buffer(data);
     var jpegStart = data.indexOf("FFD8FF", 0, "hex");
     var jpegEnd = data.indexOf("FFD9", jpegStart, "hex");
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
