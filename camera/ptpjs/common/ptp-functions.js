@@ -146,9 +146,9 @@ exports.hex = function(val) {
 
 exports.extractJpeg = function(data) {
 	var maxSearch = data.length;
-	if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
+	//if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
 
-    console.log("searching for jpeg...");
+    console.log("searching for jpeg...", maxSearch);
     var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
     var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
 
