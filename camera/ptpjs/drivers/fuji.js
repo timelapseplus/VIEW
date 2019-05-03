@@ -99,7 +99,7 @@ driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
-            function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
+            //function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
         ], function(err) {
             var capture = function() {
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
@@ -115,7 +115,7 @@ driver.init = function(camera, callback) {
                     }, delay);
                 });
             }
-            capture();
+            //capture();
             callback && callback(err);
         });
     });
