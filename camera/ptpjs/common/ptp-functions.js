@@ -365,7 +365,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 				}
 			} else {
 				console.log("error reading:", err);
-				cb && cb(err);
+				cb && cb(err || "no data read");
 			}
 		});
 	}
