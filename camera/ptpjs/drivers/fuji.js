@@ -166,6 +166,7 @@ driver.capture = function(camera, target, options, callback, tries) {
         if(err) {
             callback && callback(err);
         } else {
+            console.log("delaying callback for catpure...");
             camera._captureCallback = function(err, thumb, filename, rawImage) {
                 callback && callback(err, thumb, filename, rawImage);
             }
