@@ -98,21 +98,23 @@ driver._event = function(camera, data) { // events received
                 if(camera.thumbnail) {
                     ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
                         //fs.writeFileSync("thumb.jpg", jpeg);
-                        ptp.deleteObject(camera._dev, objectId);
-                        if(camera._captureCallback) {
-                            camera._captureCallback(err, jpeg, oi.filename, null);
-                            camera._captureCallback = null;
-                        }
+                        ptp.deleteObject(camera._dev, objectId, function() {
+                            if(camera._captureCallback) {
+                                camera._captureCallback(err, jpeg, oi.filename, null);
+                                camera._captureCallback = null;
+                            }
+                        });
                     })
                 } else {
                     ptp.getObject(camera._dev, objectId, function(err, image) {
                         //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
                         //fs.writeFileSync("image.raf", image);
-                        ptp.deleteObject(camera._dev, objectId);
-                        if(camera._captureCallback) {
-                            camera._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
-                            camera._captureCallback = null;
-                        }
+                        ptp.deleteObject(camera._dev, objectId, function() {
+                            if(camera._captureCallback) {
+                                camera._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
+                                camera._captureCallback = null;
+                            }
+                        });
                     })
                 }
             });
