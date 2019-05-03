@@ -153,7 +153,7 @@ exports.extractJpeg = function(data) {
     var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
 
     for(var i = 0; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8) { // && data[i + 1] == 0xFF) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
     		jpegStart = i;
     		break;
     	}
@@ -162,7 +162,7 @@ exports.extractJpeg = function(data) {
     	console.log("no jpeg found.");
     	return null;
     }
-    for(var i = jpegStart; i < maxSearch; i++) {
+    for(var i = jpegStart + 3; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
     		jpegEnd = i;
     		break;
@@ -172,7 +172,7 @@ exports.extractJpeg = function(data) {
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
 
-    console.log("found jpeg size:", jpegBuf.length);
+    console.log("found jpeg at", jpegStart, "size:", jpegBuf.length);
     return jpegBuf;
 }
 
