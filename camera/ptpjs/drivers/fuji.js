@@ -121,16 +121,70 @@ driver.set = function(camera, param, value, callback) {
 
 }
 
-driver.capture = function(camera, target, options, callback, tries) {
-    var targetValue = (!target || target == "camera") ? 2 : 4;
-    camera.thumbnail = true;
-
+function getImage(camera, timeout, callback) {
     var results = {
         thumb: null,
         filename: null,
+        indexNumber: null,
         rawImage: null
     }
 
+    var startTime = Date.now();
+
+    var check = function() {
+        if(Date.now() - startTime > timeout) {
+            return callback && callback("timeout", results);
+        }
+        ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
+            console.log("data:", data);
+            if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
+                var getHandles = function() {
+                    ptp.getObjectHandles(camera._dev, function(err, data) {
+                        console.log("objectHandles:", data);
+                        
+                        var objectCount = data.readUInt32LE(0);
+                        if(objectCount > 0) {
+                            var objectId = data.readUInt32LE(4);
+                            ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
+                                console.log(oi);
+                                var image = null;
+                                results.filename = oi.filename;
+                                results.indexNumber = objectId;
+                                if(camera.thumbnail) {
+                                    ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
+                                        ptp.deleteObject(camera._dev, objectId, function() {
+                                            results.thumb = jpeg;
+                                            callback && callback(err, results);
+                                        });
+                                    })
+                                } else {
+                                    ptp.getObject(camera._dev, objectId, function(err, image) {
+                                        ptp.deleteObject(camera._dev, objectId, function() {
+                                            results.thumb = ptp.extractJpeg(image);
+                                            results.rawImage = image;
+                                            callback && callback(err, results);
+                                        });
+                                    })
+                                }
+                            });
+                        } else {
+                            setTimeout(getHandles, 50);
+                        }
+                    });
+                }
+                getHandles();
+            } else {
+                setTimeout(check, 50);
+            }
+        });
+    }
+    check();
+}
+
+driver.capture = function(camera, target, options, callback, tries) {
+    var targetValue = (!target || target == "camera") ? 2 : 4;
+    camera.thumbnail = true;
+    var results = {};
     async.series([
         function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
@@ -150,52 +204,10 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
-            var check = function() {
-                ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
-                    console.log("data:", data);
-                    if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
-                        var getHandles = function() {
-                            ptp.getObjectHandles(camera._dev, function(err, data) {
-                                console.log("objectHandles:", data);
-                                
-                                var objectCount = data.readUInt32LE(0);
-                                if(objectCount > 0) {
-                                    var objectId = data.readUInt32LE(4);
-                                    ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                                        console.log(oi);
-                                        var image = null;
-                                        results.filename = oi.filename;
-                                        if(camera.thumbnail) {
-                                            ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                                                ptp.deleteObject(camera._dev, objectId, function() {
-                                                    results.thumb = jpeg;
-                                                    cb(err);
-                                                });
-                                            })
-                                        } else {
-                                            ptp.getObject(camera._dev, objectId, function(err, image) {
-                                                //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
-                                                //fs.writeFileSync("image.raf", image);
-                                                ptp.deleteObject(camera._dev, objectId, function() {
-                                                    results.thumb = ptp.extractJpeg(image);
-                                                    results.rawImage = image;
-                                                    cb(err);
-                                                });
-                                            })
-                                        }
-                                    });
-                                } else {
-                                    setTimeout(getHandles, 50);
-                                }
-                            });
-                        }
-                        getHandles();
-                    } else {
-                        check();
-                    }
-                });
-            }
-            check();
+            getImage(camera, 60000, function(err, imageResults) {
+                results = imageResults;
+                cb(err);
+            });
         },
     ], function(err) {
         callback && callback(err, results.thumb, results.filename, results.rawImage);
