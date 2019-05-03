@@ -177,7 +177,7 @@ exports.listProp = function(cam, prop, callback) {
 				}
 			}
 			if(itemSize) {
-				var index = 4;
+				var index = 6 + itemSize;
 				if(data.length >= index + itemSize) {
 					current = data[itemFunction](index);
 					index += itemSize;
