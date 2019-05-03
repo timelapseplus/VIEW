@@ -185,7 +185,7 @@ exports.extractJpeg = function(data) {
 
         var len = (data[off]<<8) | data[off+1];  off+=2;  
 
-        if(mrkr == 0xc0 && data[off - 2] == 0xFF) {
+        if(mrkr == 0xc0) {
         	var details = {
 	            bpc : data[off],     // precission (bits per channel)
 	            w   : (data[off+1]<<8) | data[off+2],
