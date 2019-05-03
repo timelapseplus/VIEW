@@ -127,7 +127,7 @@ exports.listProp = function(cam, prop, callback) {
 		var itemFunction = 'readUInt8';
 
 		var error = (err || responseCode == 0x2001 ? null : responseCode);
-
+		console.log("data", data);
 		if(!error && data && data.length >= 4) {
 			type = data.readUInt16LE(2);
 			switch(type) {
