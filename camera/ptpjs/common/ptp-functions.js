@@ -170,12 +170,12 @@ exports.extractJpeg = function(data) {
         while(data[off] == 0xff) off++;
         var mrkr = data[off];  off++;
 
-        if(mrkr == 0xd8) {
+        if(mrkr == 0xd8 && data[off - 2] == 0xFF) {
         	console.log("found start marker");
         	jpegStart = off - 2;
         	continue;    // SOI
         }
-        if(mrkr == 0xd9) {
+        if(mrkr == 0xd9 && data[off - 2] == 0xFF) {
         	console.log("found end marker");
         	jpegEnd = off;
         	break;       // EOI
@@ -185,7 +185,7 @@ exports.extractJpeg = function(data) {
 
         var len = (data[off]<<8) | data[off+1];  off+=2;  
 
-        if(mrkr == 0xc0) {
+        if(mrkr == 0xc0 && data[off - 2] == 0xFF) {
         	var details = {
 	            bpc : data[off],     // precission (bits per channel)
 	            w   : (data[off+1]<<8) | data[off+2],
