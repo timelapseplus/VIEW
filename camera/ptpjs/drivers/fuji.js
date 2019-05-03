@@ -138,6 +138,7 @@ driver.init = function(camera, callback) {
                     }, delay);
                 });
             }
+            capture();
             callback && callback(err);
         });
     });
