@@ -97,14 +97,22 @@ driver._event = function(camera, data) { // events received
                 var image = null;
                 if(camera.thumbnail) {
                     ptp.getThumb(camera, objectId, function(err, jpeg) {
-                        fs.writeFileSync("thumb.jpg", jpeg);
+                        //fs.writeFileSync("thumb.jpg", jpeg);
                         ptp.deleteObject(camera, objectId);
+                        if(camera._captureCallback) {
+                            camera._captureCallback(err, jpeg, oi.filename, null);
+                            camera._captureCallback = null;
+                        }
                     })
                 } else {
                     ptp.getObject(camera, objectId, function(err, image) {
-                        fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
-                        fs.writeFileSync("image.raf", image);
+                        //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
+                        //fs.writeFileSync("image.raf", image);
                         ptp.deleteObject(camera, objectId);
+                        if(camera._captureCallback) {
+                            camera._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
+                            camera._captureCallback = null;
+                        }
                     })
                 }
             });
@@ -118,10 +126,10 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);},
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}
         ], function(err) {
-            driver.capture(camera, "", {}, function(err){
-                _logD("capture err result:", ptp.hex(err));
-                driver.capture(camera, "", {}, function(err){
-                    _logD("capture err result:", ptp.hex(err));
+            driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
+                _logD("capture err result:", ptp.hex(err), "filename", filename);
+                driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
+                    _logD("capture err result:", ptp.hex(err), "filename", filename);
                 });
             });
             callback && callback(err);
@@ -155,15 +163,12 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
     ], function(err) {
-        if(err == 0x2019 && !tries || tries < 10) { // busy, try again
-            _logD("capture busy, trying again...");
-            if(!tries) tries = 0;
-            tries++;
-            setTimeout(function() {
-                driver.capture(camera, target, options, callback, tries);
-            }, 50);
-        } else {
+        if(err) {
             callback && callback(err);
+        } else {
+            camera._captureCallback = function(err, thumb, filename, rawImage) {
+                callback && callback(err, thumb, filename, rawImage);
+            }
         }
     });
 }
