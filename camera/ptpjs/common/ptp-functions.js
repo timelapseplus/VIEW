@@ -191,7 +191,7 @@ exports.extractJpeg = function(data) {
 	            h   : (data[off+3]<<8) | data[off+4],
 	            cps : data[off+5]    // number of color components
 	        }
-	        if(details.bpc = 8 && cps == 3) {
+	        if(details.bpc = 8 && details.cps == 3) {
 	        	break;
 	        }
 	    }
