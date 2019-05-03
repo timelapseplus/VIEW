@@ -158,30 +158,35 @@ driver.capture = function(camera, target, options, callback, tries) {
                             ptp.getObjectHandles(camera._dev, function(err, data) {
                                 console.log("objectHandles:", data);
                                 
-                                var objectId = data.readUInt32LE(4);
-                                ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                                    console.log(oi);
-                                    var image = null;
-                                    results.filename = oi.filename;
-                                    if(camera.thumbnail) {
-                                        ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                                            ptp.deleteObject(camera._dev, objectId, function() {
-                                                results.thumb = jpeg;
-                                                cb(err);
-                                            });
-                                        })
-                                    } else {
-                                        ptp.getObject(camera._dev, objectId, function(err, image) {
-                                            //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
-                                            //fs.writeFileSync("image.raf", image);
-                                            ptp.deleteObject(camera._dev, objectId, function() {
-                                                results.thumb = ptp.extractJpeg(image);
-                                                results.rawImage = image;
-                                                cb(err);
-                                            });
-                                        })
-                                    }
-                                });
+                                var objectCount = data.readUInt32LE(0);
+                                if(objectCount > 0) {
+                                    var objectId = data.readUInt32LE(4);
+                                    ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
+                                        console.log(oi);
+                                        var image = null;
+                                        results.filename = oi.filename;
+                                        if(camera.thumbnail) {
+                                            ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
+                                                ptp.deleteObject(camera._dev, objectId, function() {
+                                                    results.thumb = jpeg;
+                                                    cb(err);
+                                                });
+                                            })
+                                        } else {
+                                            ptp.getObject(camera._dev, objectId, function(err, image) {
+                                                //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
+                                                //fs.writeFileSync("image.raf", image);
+                                                ptp.deleteObject(camera._dev, objectId, function() {
+                                                    results.thumb = ptp.extractJpeg(image);
+                                                    results.rawImage = image;
+                                                    cb(err);
+                                                });
+                                            })
+                                        }
+                                    });
+                                } else {
+                                    setTimeout(getHandles, 50);
+                                }
                             });
                         }
                         getHandles();
