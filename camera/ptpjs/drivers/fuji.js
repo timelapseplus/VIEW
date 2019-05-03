@@ -99,7 +99,7 @@ driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
-            //function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
+            function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
         ], function(err) {
             var capture = function() {
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
@@ -115,7 +115,7 @@ driver.init = function(camera, callback) {
                     }, delay);
                 });
             }
-            //capture();
+            capture();
             callback && callback(err);
         });
     });
@@ -146,6 +146,14 @@ function getImage(camera, timeout, callback) {
                     ptp.getObjectHandles(camera._dev, function(err, handles) {
                         if(handles.length > 0) {
                             var objectId = handles[0];
+                            var deleteRemaining = function() {
+                                if(handles.length > 1) {
+                                    var id = handles.pop();
+                                    ptp.deleteObject(camera._dev, id, function(err) {
+                                        deleteRemaining();
+                                    });
+                                }
+                            }
                             ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
                                 //console.log(oi);
                                 var image = null;
@@ -156,6 +164,7 @@ function getImage(camera, timeout, callback) {
                                         ptp.deleteObject(camera._dev, objectId, function() {
                                             results.thumb = jpeg;
                                             callback && callback(err, results);
+                                            deleteRemaining();
                                         });
                                     })
                                 } else {
@@ -164,6 +173,7 @@ function getImage(camera, timeout, callback) {
                                             results.thumb = ptp.extractJpeg(image);
                                             results.rawImage = image;
                                             callback && callback(err, results);
+                                            deleteRemaining();
                                         });
                                     })
                                 }
