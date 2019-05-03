@@ -184,6 +184,7 @@ exports.listProp = function(cam, prop, callback) {
 					current = data[itemFunction](index);
 					index += itemSize;
 				}
+				index += 3;
 				for(;;) {
 					if(data.length >= index + itemSize) {
 						list.push(data[itemFunction](index));
