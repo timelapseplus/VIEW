@@ -195,16 +195,17 @@ exports.extractJpeg = function(data) {
         	console.log("jpeg details:", details);
 	        if(details.bpc = 8 && details.cps == 3) {
 	        	jpegDetails = details;
+	        	break;
 	        }
 	    }
         off += len - 2;
     }
-    //for(var i = jpegStart + 3; i < maxSearch; i++) {
-    //	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-    //		jpegEnd = i + 2;
-    //		break;
-    //	}
-    //}
+    for(var i = jpegStart + 3; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+    		jpegEnd = i + 2;
+    		break;
+    	}
+    }
 
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
