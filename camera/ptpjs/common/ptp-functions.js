@@ -145,9 +145,27 @@ exports.hex = function(val) {
 }
 
 exports.extractJpeg = function(data) {
-	if(data.length > 4000000) data = data.slice(0, 4000000); // only check the first 6MB
-    var jpegStart = data.indexOf("FFD8FF", 0, "hex");
-    var jpegEnd = data.indexOf("FFD9", jpegStart, "hex");
+	var maxSearch = data.length;
+	if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
+
+    var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
+    var jpegEnd = null;//data.indexOf("FFD9", jpegStart, "hex");
+
+    for(var i = 0; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 1] == 0xFF) {
+    		jpegStart = i;
+    		break;
+    	}
+    }
+    if(jpegStart === null) return null;
+
+    for(var i = jpegStart; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+    		jpegEnd = i;
+    		break;
+    	}
+    }
+
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
     return jpegBuf;
