@@ -165,45 +165,48 @@ exports.extractJpeg = function(data) {
     	return null;
     }
 
-    var off = jpegStart;
-    while(off < maxSearch) {
-        while(data[off] == 0xff) off++;
-        var mrkr = data[off];  off++;
-
-        if(mrkr == 0xd8 && data[off - 2] == 0xFF) {
-        	console.log("found start marker");
-        	jpegStart = off - 2;
-        	continue;    // SOI
-        }
-        if(mrkr == 0xd9 && data[off - 2] == 0xFF) {
-        	console.log("found end marker");
-        	jpegEnd = off;
-        	break;       // EOI
-        }
-        if(0xd0 <= mrkr && mrkr <= 0xd7) continue;
-        if(mrkr == 0x01) continue;    // TEM
-
-        var len = (data[off]<<8) | data[off+1];  off+=2;  
-
-        if(mrkr == 0xc0) {
-        	var details = {
-	            bpc : data[off],     // precission (bits per channel)
-	            w   : (data[off+1]<<8) | data[off+2],
-	            h   : (data[off+3]<<8) | data[off+4],
-	            cps : data[off+5]    // number of color components
-	        }
-        	console.log("jpeg details:", details);
-	        if(details.bpc = 8 && details.cps == 3) {
-	        	jpegDetails = details;
-	        	break;
-	        }
-	    }
-        off += len - 2;
-    }
+//    var off = jpegStart;
+//    while(off < maxSearch) {
+//        while(data[off] == 0xff) off++;
+//        var mrkr = data[off];  off++;
+//
+//        if(mrkr == 0xd8 && data[off - 2] == 0xFF) {
+//        	console.log("found start marker");
+//        	jpegStart = off - 2;
+//        	continue;    // SOI
+//        }
+//        if(mrkr == 0xd9 && data[off - 2] == 0xFF) {
+//        	console.log("found end marker");
+//        	jpegEnd = off;
+//        	break;       // EOI
+//        }
+//        if(0xd0 <= mrkr && mrkr <= 0xd7) continue;
+//        if(mrkr == 0x01) continue;    // TEM
+//
+//        var len = (data[off]<<8) | data[off+1];  off+=2;  
+//
+//        if(mrkr == 0xc0) {
+//        	var details = {
+//	            bpc : data[off],     // precission (bits per channel)
+//	            w   : (data[off+1]<<8) | data[off+2],
+//	            h   : (data[off+3]<<8) | data[off+4],
+//	            cps : data[off+5]    // number of color components
+//	        }
+//        	console.log("jpeg details:", details);
+//	        if(details.bpc = 8 && details.cps == 3) {
+//	        	jpegDetails = details;
+//	        	break;
+//	        }
+//	    }
+//        off += len - 2;
+//    }
     for(var i = jpegStart + 3; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
     		jpegEnd = i + 2;
     		break;
+    	}
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
+    		jpegStart = i;
     	}
     }
 
