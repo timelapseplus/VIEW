@@ -155,7 +155,8 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
     ], function(err) {
-        if(err == 0x2019 && tries < 10) { // busy, try again
+        if(err == 0x2019 && !tries || tries < 10) { // busy, try again
+            _logD("capture busy, trying again...");
             if(!tries) tries = 0;
             tries++;
             setTimeout(function() {
