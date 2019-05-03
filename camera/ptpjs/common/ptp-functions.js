@@ -52,6 +52,15 @@ exports.PTP_EC_StorageInfoChanged	 = 0x400C
 exports.PTP_EC_CaptureComplete		 = 0x400D
 exports.PTP_EC_UnreportedStatus		 = 0x400E 
 
+var LOG_LEVEL = 1;
+
+function _logD() {
+	if(LOG_LEVEL > 0) return;
+    if(arguments.length > 0) {
+        arguments[0] = "PTP-FUJI: " + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
 
 exports.uint16buf = function(uint16) {
 	var buf = new Buffer(2);
@@ -67,15 +76,15 @@ exports.uint8buf = function(uint8) {
 
 exports.init = function(cam, callback) {
 	exports.transaction(cam, exports.PTP_OC_OpenSession, [0x00000001], null, function(err, responseCode, data) {
-		console.log("session open", err, exports.hex(responseCode), data);
+		_logD("session open", err, exports.hex(responseCode), data);
 		exports.transaction(cam, exports.PTP_OC_GetDeviceInfo, [], null, function(err, responseCode, data) {
-			console.log("init complete", err, exports.hex(responseCode), data);
+			_logD("init complete", err, exports.hex(responseCode), data);
 			var di = exports.parseDeviceInfo(data);
-			console.log("device info:", di);
-			//console.log("entering olympus pc mode...");
+			_logD("device info:", di);
+			//_logD("entering olympus pc mode...");
 			callback && callback(err, di);
 			//exports.transaction(cam, 0x1016, [0xD052], exports.uint16buf(1), function(err, responseCode, data) {
-			//	console.log("olympus pc mode", err, responseCode);
+			//	_logD("olympus pc mode", err, responseCode);
 			//	exports.transaction(cam, 0x9481, [0x3], null, function(err, responseCode, data)  {
 			//		exports.transaction(cam, 0x9481, [0x6], null, function(err, responseCode, data) {
 			//		});
@@ -168,7 +177,7 @@ exports.extractJpeg = function(data) {
 	var maxSearch = data.length;
 	//if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
 
-    console.log("searching for jpeg...", maxSearch);
+    _logD("searching for jpeg...", maxSearch);
     var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
     var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
 
@@ -181,7 +190,7 @@ exports.extractJpeg = function(data) {
     	}
     }
     if(jpegStart === null) {
-    	console.log("no jpeg found.");
+    	_logD("no jpeg found.");
     	return null;
     }
 
@@ -191,12 +200,12 @@ exports.extractJpeg = function(data) {
 //        var mrkr = data[off];  off++;
 //
 //        if(mrkr == 0xd8 && data[off - 2] == 0xFF) {
-//        	console.log("found start marker");
+//        	_logD("found start marker");
 //        	jpegStart = off - 2;
 //        	continue;    // SOI
 //        }
 //        if(mrkr == 0xd9 && data[off - 2] == 0xFF) {
-//        	console.log("found end marker");
+//        	_logD("found end marker");
 //        	jpegEnd = off;
 //        	break;       // EOI
 //        }
@@ -212,7 +221,7 @@ exports.extractJpeg = function(data) {
 //	            h   : (data[off+3]<<8) | data[off+4],
 //	            cps : data[off+5]    // number of color components
 //	        }
-//        	console.log("jpeg details:", details);
+//        	_logD("jpeg details:", details);
 //	        if(details.bpc = 8 && details.cps == 3) {
 //	        	jpegDetails = details;
 //	        	break;
@@ -237,7 +246,7 @@ exports.extractJpeg = function(data) {
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
 
-    console.log("found jpeg at", jpegStart, "size:", jpegBuf.length);
+    _logD("found jpeg at", jpegStart, "size:", jpegBuf.length);
     return jpegBuf;
 }
 
@@ -310,7 +319,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 
 	var send = function(buf, cb) {
 		cam.ep.out.transfer(buf, function(err)  {
-			console.log("sent", buf);
+			_logD("sent", buf);
 			if(data) {
 				buf.writeUInt32LE(12 + data.length, 0); // overwrite length
 				buf.writeUInt16LE(2, 4); // update type to 2 (data)
@@ -336,18 +345,18 @@ function runTransaction(cam, opcode, params, data, callback) {
 	}
 
 	var receive = function(cb, rbuf) {
-		console.log("reading 12 bytes...");
+		_logD("reading 12 bytes...");
 		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
 			if(!err && data) {
 				var rlen = data.readUInt32LE(0);
 				var rtype = data.readUInt16LE(4);
-				console.log("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
+				_logD("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
 				if(rtype == 3) {
 					var responseCode = parseResponse(data);
-					console.log("completed transaction, response code", exports.hex(responseCode));
+					_logD("completed transaction, response code", exports.hex(responseCode));
 					if(rbuf) {
 						rbuf = rbuf.slice(12); // strip header from data returned
-						console.log("-> received", rbuf.length, "bytes: ", rbuf, "with err:", err);
+						_logD("-> received", rbuf.length, "bytes: ", rbuf, "with err:", err);
 					}
 					cb && cb(err, responseCode, rbuf);
 				} else {
@@ -357,7 +366,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 						var bigData = new Buffer(rlen);
 						data.copy(bigData, receivedIndex);
 						receivedIndex += data.length;
-						console.log("requesting more data:", remainingBytes);
+						_logD("requesting more data:", remainingBytes);
 
 						var fetchMore = function() {
 							var chunk = rlen - receivedIndex;
@@ -366,14 +375,14 @@ function runTransaction(cam, opcode, params, data, callback) {
 								if(!err && data2) {
 									data2.copy(bigData, receivedIndex);
 									receivedIndex += data2.length;
-									console.log("received", data2.length, "bytes additional");
+									_logD("received", data2.length, "bytes additional");
 									if(receivedIndex < rlen) {
 										fetchMore();
 									} else {
 										receive(cb, bigData);
 									}
 								} else {
-									console.log("ERROR", err);
+									_logD("ERROR", err);
 									receive(cb, data);
 								}
 							});
@@ -384,7 +393,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 					}
 				}
 			} else {
-				console.log("error reading:", err);
+				_logD("error reading:", err);
 				cb && cb(err || "no data read");
 			}
 		});

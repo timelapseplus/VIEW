@@ -143,7 +143,7 @@ function getImage(camera, timeout, callback) {
                         if(handles.length > 0) {
                             var objectId = handles[0];
                             ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                                console.log(oi);
+                                //console.log(oi);
                                 var image = null;
                                 results.filename = oi.filename;
                                 results.indexNumber = objectId;
