@@ -82,9 +82,9 @@ var properties = {
     }
 }
 
-driver._event = function(camera, data) { // events received
-    _logD("ERROR:", data);
-});
+driver._error = function(camera, error) { // events received
+    _logD("ERROR:", error);
+};
 
 driver._event = function(camera, data) { // events received
     _logD("EVENT:", data);

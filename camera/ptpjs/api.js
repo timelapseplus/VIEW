@@ -138,8 +138,8 @@ function connectCamera(driver, device) {
 		cam.ep.evt.on('data', function(data) {
 			camera._driver._event(camera._dev, data);
 		});
-		cam.ep.evt.on('error', function(data) {
-			camera._driver._error(camera._dev, data);
+		cam.ep.evt.on('error', function(error) {
+			camera._driver._error(camera._dev, error);
 		});
 	}
 	camera._port = device.busNumber + ':' + device.deviceAddress;
