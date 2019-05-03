@@ -165,7 +165,7 @@ exports.extractJpeg = function(data) {
     	return null;
     }
 
-    var off = jpegStart + 3;
+    var off = jpegStart;
     while(off < maxSearch) {
         while(data[off] == 0xff) off++;
         var mrkr = data[off];  off++;
