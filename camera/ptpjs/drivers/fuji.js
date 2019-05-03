@@ -128,14 +128,16 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);},
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}
         ], function(err) {
-            driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                _logD("capture err result:", ptp.hex(err), "filename", filename);
-                setTimeout(function() {
-                    driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                        _logD("capture err result:", ptp.hex(err), "filename", filename);
-                    });
-                }, 2000);
-            });
+            var capture = function() {
+                driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
+                    _logD("capture err result:", ptp.hex(err), "filename", filename);
+                    var delay = 1000;
+                    if(err == 0x2019) delay = 50; 
+                    setTimeout(function() {
+                        capture();
+                    }, delay);
+                });
+            }
             callback && callback(err);
         });
     });
