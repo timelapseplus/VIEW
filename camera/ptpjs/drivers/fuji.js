@@ -99,9 +99,9 @@ driver._event = function(camera, data) { // events received
                     ptp.getThumb(camera, objectId, function(err, jpeg) {
                         //fs.writeFileSync("thumb.jpg", jpeg);
                         ptp.deleteObject(camera, objectId);
-                        if(camera._captureCallback) {
-                            camera._captureCallback(err, jpeg, oi.filename, null);
-                            camera._captureCallback = null;
+                        if(camera._dev._captureCallback) {
+                            camera._dev._captureCallback(err, jpeg, oi.filename, null);
+                            camera._dev._captureCallback = null;
                         }
                     })
                 } else {
@@ -109,9 +109,9 @@ driver._event = function(camera, data) { // events received
                         //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
                         //fs.writeFileSync("image.raf", image);
                         ptp.deleteObject(camera, objectId);
-                        if(camera._captureCallback) {
-                            camera._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
-                            camera._captureCallback = null;
+                        if(camera._dev._captureCallback) {
+                            camera._dev._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
+                            camera._dev._captureCallback = null;
                         }
                     })
                 }
@@ -143,7 +143,7 @@ driver.set = function(camera, param, value, callback) {
 
 driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? 2 : 4;
-    camera.thumbnail = true;
+    camera._dev.thumbnail = true;
     async.series([
         function(cb){ptp.setPropU8(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
@@ -167,7 +167,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             callback && callback(err);
         } else {
             console.log("delaying callback for catpure...");
-            camera._captureCallback = function(err, thumb, filename, rawImage) {
+            camera._dev._captureCallback = function(err, thumb, filename, rawImage) {
                 callback && callback(err, thumb, filename, rawImage);
             }
         }
