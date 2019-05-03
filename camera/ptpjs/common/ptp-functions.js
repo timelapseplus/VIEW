@@ -171,6 +171,7 @@ exports.extractJpeg = function(data) {
         var mrkr = data[off];  off++;
 
         if(mrkr == 0xd8) {
+        	console.log("found start marker");
         	jpegStart = off - 2;
         	continue;    // SOI
         }
@@ -191,6 +192,7 @@ exports.extractJpeg = function(data) {
 	            h   : (data[off+3]<<8) | data[off+4],
 	            cps : data[off+5]    // number of color components
 	        }
+        	console.log("jpeg details:", details);
 	        if(details.bpc = 8 && details.cps == 3) {
 	        	jpegDetails = details;
 	        }
