@@ -392,7 +392,7 @@ function nextTransaction(cam) {
 	cam.transactionRunning = true;
 	if(cam.transactionQueue && cam.transactionQueue.length > 0) {
 		var next = cam.transactionQueue.shift();
-		doTransaction(next.cam, next.opcode, next.params, next.data, function() {
+		runTransaction(next.cam, next.opcode, next.params, next.data, function() {
 			next.callback && next.callback.apply(this, arguments);	
 			nextTransaction(next.cam);
 		});
