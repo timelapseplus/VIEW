@@ -130,9 +130,11 @@ driver.init = function(camera, callback) {
         ], function(err) {
             driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
                 _logD("capture err result:", ptp.hex(err), "filename", filename);
-                driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                    _logD("capture err result:", ptp.hex(err), "filename", filename);
-                });
+                setTimeout(function() {
+                    driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
+                        _logD("capture err result:", ptp.hex(err), "filename", filename);
+                    });
+                }, 500);
             });
             callback && callback(err);
         });
