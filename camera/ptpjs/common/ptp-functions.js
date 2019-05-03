@@ -123,13 +123,15 @@ exports.listProp = function(cam, prop, callback) {
 		var current = null;
 		var list = [];
 		var type = null;
+		var writeable = null;
 		var itemSize = 0;
 		var itemFunction = 'readUInt8';
 
 		var error = (err || responseCode == 0x2001 ? null : responseCode);
 		console.log("data", data);
 		if(!error && data && data.length >= 4) {
-			type = data.readUInt8(2);
+			type = data.readUInt16LE(2);
+			writeable = data.readUInt8(4);
 			switch(type) {
 				case 1: {
 					itemSize = 1;
@@ -182,6 +184,7 @@ exports.listProp = function(cam, prop, callback) {
 					current = data[itemFunction](index);
 					index += itemSize;
 				}
+				index += 1;
 				for(;;) {
 					if(data.length >= index + itemSize) {
 						list.push(data[itemFunction](index));
