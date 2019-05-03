@@ -148,6 +148,7 @@ exports.extractJpeg = function(data) {
 	var maxSearch = data.length;
 	if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
 
+    console.log("searching for jpeg...");
     var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
     var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
 
@@ -168,6 +169,8 @@ exports.extractJpeg = function(data) {
 
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
+
+    console.log("found jpeg size:", jpegBuf.length);
     return jpegBuf;
 }
 
