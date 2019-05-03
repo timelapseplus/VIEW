@@ -136,15 +136,12 @@ function getImage(camera, timeout, callback) {
             return callback && callback("timeout", results);
         }
         ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
-            console.log("data:", data);
+            //console.log("data:", data);
             if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
                 var getHandles = function() {
-                    ptp.getObjectHandles(camera._dev, function(err, data) {
-                        console.log("objectHandles:", data);
-                        
-                        var objectCount = data.readUInt32LE(0);
-                        if(objectCount > 0) {
-                            var objectId = data.readUInt32LE(4);
+                    ptp.getObjectHandles(camera._dev, function(err, handles) {
+                        if(handles.length > 0) {
+                            var objectId = handles[0];
                             ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
                                 console.log(oi);
                                 var image = null;

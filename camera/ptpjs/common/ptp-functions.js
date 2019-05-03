@@ -141,7 +141,15 @@ exports.getObject = function(cam, objectId, callback) {
 
 exports.getObjectHandles = function(cam, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetObjectHandles, [0xFFFFFFFF, 0x00000000], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+		var error = (err || responseCode == 0x2001 ? null);
+		var handles = [];
+		if(!error) {
+            var objectCount = data.readUInt32LE(0);
+            for(var i = 0; i < objectCount; i++) {
+	            handles.push(data.readUInt32LE(4 + i * 4));
+            }
+		}
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, handles);
 	});
 }
 
