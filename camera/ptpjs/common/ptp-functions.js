@@ -145,10 +145,9 @@ exports.hex = function(val) {
 }
 
 exports.extractJpeg = function(data) {
-	var searchStart = new Buffer([0xFF, 0xD8, 0xFF]);
-	var searchEnd = new Buffer([0xFF, 0xD9]);
-    var jpegStart = data.indexOf(searchStart, 0);
-    var jpegEnd = data.indexOf(searchEnd, jpegStart);
+	if(data.length > 6000000) data = data.splice(0, 6000000); // only check the first 6MB
+    var jpegStart = data.indexOf(["FFD8FF", 0, "hex");
+    var jpegEnd = data.indexOf("FFD9", jpegStart, "hex");
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
     return jpegBuf;
