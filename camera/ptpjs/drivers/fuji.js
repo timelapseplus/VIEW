@@ -169,6 +169,19 @@ driver.capture = function(camera, target, options, callback, tries) {
         },
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
+        function(cb){
+            var check = function() {
+                ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
+                    console.log("data:", data);
+                    //if(data == 0x0001) {
+                        check();
+                    //} else {
+                    //    cb(err);
+                    //}
+                });
+            }
+            check();
+        },
     ], function(err) {
         if(err) {
             callback && callback(err);

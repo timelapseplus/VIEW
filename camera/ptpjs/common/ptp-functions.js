@@ -109,6 +109,12 @@ exports.getPropU16 = function(cam, prop, callback) {
 	});
 }
 
+exports.getPropData = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
 exports.getObjectInfo = function(cam, objectId, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetObjectInfo, [objectId], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && exports.parseObjectInfo(data));
@@ -129,6 +135,12 @@ exports.deleteObject = function(cam, objectId, callback) {
 
 exports.getObject = function(cam, objectId, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetObject, [objectId], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
+exports.getObjectHandles = function(cam, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetObjectHandles, [0xFFFFFFFF, 0x00000000], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
 	});
 }
