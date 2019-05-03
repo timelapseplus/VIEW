@@ -168,19 +168,16 @@ exports.extractJpeg = function(data) {
     		break;
     	}
     }
-    for(var i = jpegEnd + 3; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-    		jpegEnd = i + 2;
-    		break;
-    	}
-    }
 
     var off = jpegStart + 3;
     while(off < maxSearch) {
         while(data[off] == 0xff) off++;
         var mrkr = data[off];  off++;
 
-        if(mrkr == 0xd8) continue;    // SOI
+        if(mrkr == 0xd8) {
+        	jpegStart = off - 2;
+        	continue;    // SOI
+        }
         if(mrkr == 0xd9) break;       // EOI
         if(0xd0 <= mrkr && mrkr <= 0xd7) continue;
         if(mrkr == 0x01) continue;    // TEM
@@ -188,14 +185,23 @@ exports.extractJpeg = function(data) {
         var len = (data[off]<<8) | data[off+1];  off+=2;  
 
         if(mrkr == 0xc0) {
-        	console.log({
+        	var details = {
 	            bpc : data[off],     // precission (bits per channel)
 	            w   : (data[off+1]<<8) | data[off+2],
 	            h   : (data[off+3]<<8) | data[off+4],
 	            cps : data[off+5]    // number of color components
-	        });
+	        }
+	        if(details.bpc = 8 && cps == 3) {
+	        	break;
+	        }
 	    }
         off += len - 2;
+    }
+    for(var i = jpegStart + 3; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+    		jpegEnd = i + 2;
+    		break;
+    	}
     }
 
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
