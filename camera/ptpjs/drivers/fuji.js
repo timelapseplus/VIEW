@@ -103,7 +103,11 @@ driver.init = function(camera, callback) {
         ], function(err) {
             var capture = function() {
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                    _logD("capture err result:", ptp.hex(err), "filename", filename);
+                    if(err) {
+                        if(err != 0x2019) _logD("capture err result:", ptp.hex(err));
+                    } else {
+                        _logD("captureed image:", filename);
+                    }
                     var delay = 1000;
                     if(err == 0x2019) delay = 50; 
                     setTimeout(function() {
