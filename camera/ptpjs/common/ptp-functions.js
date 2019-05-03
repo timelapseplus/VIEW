@@ -164,12 +164,6 @@ exports.extractJpeg = function(data) {
     	console.log("no jpeg found.");
     	return null;
     }
-    for(var i = jpegStart + 3; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-    		jpegEnd = i + 2;
-    		break;
-    	}
-    }
 
     var off = jpegStart + 3;
     while(off < maxSearch) {
@@ -181,6 +175,7 @@ exports.extractJpeg = function(data) {
         	continue;    // SOI
         }
         if(mrkr == 0xd9) {
+        	console.log("found end marker");
         	jpegEnd = off;
         	break;       // EOI
         }
