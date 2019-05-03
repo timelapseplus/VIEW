@@ -134,7 +134,7 @@ driver.init = function(camera, callback) {
                     driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
                         _logD("capture err result:", ptp.hex(err), "filename", filename);
                     });
-                }, 1000);
+                }, 2000);
             });
             callback && callback(err);
         });
