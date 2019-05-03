@@ -148,10 +148,10 @@ function connectCamera(driver, device) {
 	if(cam.ep.evt) {
 		cam.ep.evt.startPoll();
 		cam.ep.evt.on('data', function(data) {
-			camera._driver._event(camera._dev, data);
+			camera._driver._event(camera, data);
 		});
 		cam.ep.evt.on('error', function(error) {
-			camera._driver._error(camera._dev, error);
+			camera._driver._error(camera, error);
 		});
 	}
 	camera._port = device.busNumber + ':' + device.deviceAddress;
