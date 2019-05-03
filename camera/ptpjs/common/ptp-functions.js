@@ -129,7 +129,7 @@ exports.listProp = function(cam, prop, callback) {
 		var error = (err || responseCode == 0x2001 ? null : responseCode);
 		console.log("data", data);
 		if(!error && data && data.length >= 4) {
-			type = data.readUInt16LE(2);
+			type = data.readUInt8(2);
 			switch(type) {
 				case 1: {
 					itemSize = 1;
@@ -177,7 +177,7 @@ exports.listProp = function(cam, prop, callback) {
 				}
 			}
 			if(itemSize) {
-				var index = 6 + itemSize;
+				var index = 5 + itemSize;
 				if(data.length >= index + itemSize) {
 					current = data[itemFunction](index);
 					index += itemSize;
