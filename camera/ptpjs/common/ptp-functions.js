@@ -276,7 +276,7 @@ exports.parseEvent = function(data, callback) {
 	callback && callback(type, event, param1, param2, param3);
 }
 
-exports.transaction = function(cam, opcode, params, data, callback) {
+function runTransaction(cam, opcode, params, data, callback) {
 	if(!params) params = [];
 	cam.transactionId++
 	var length = 12 + 4 * params.length;
@@ -386,6 +386,34 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 		receive(callback);
 	});
 
+}
+
+function nextTransaction(cam) {
+	cam.transactionRunning = true;
+	if(cam.transactionQueue && cam.transactionQueue.length > 0) {
+		var next = cam.transactionQueue.shift();
+		doTransaction(next.cam, next.opcode, next.params, next.data, function() {
+			next.callback && next.callback.apply(this, arguments);	
+			nextTransaction(next.cam);
+		});
+	} else {
+		cam.transactionRunning = false;
+	}
+}
+
+exports.transaction = function(cam, opcode, params, data, callback) {
+	if(!cam.transactionQueue) cam.transactionQueue = [];
+	cam.transactionQueue.push({
+		cam: cam,
+		opcode: opcode,
+		params: params,
+		data: data,
+		callback: callback
+	});
+
+	if(!cam.transactionRunning) {
+		nextTransaction(cam);
+	}
 }
 
 exports.parseUnicodeString = function(buf, offset) {
