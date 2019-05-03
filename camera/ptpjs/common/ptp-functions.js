@@ -145,8 +145,10 @@ exports.hex = function(val) {
 }
 
 exports.extractJpeg = function(data) {
-    var jpegStart = data.indexOf([0xFF, 0xD8, 0xFF], 0);
-    var jpegEnd = data.indexOf([0xFF, 0xD9], jpegStart);
+	var searchStart = new Buffer([0xFF, 0xD8, 0xFF]);
+	var searchEnd = new Buffer(searchEnd);
+    var jpegStart = data.indexOf(searchStart, 0);
+    var jpegEnd = data.indexOf(, jpegStart);
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
     return jpegBuf;
