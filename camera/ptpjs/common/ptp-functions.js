@@ -118,6 +118,86 @@ exports.getPropU16 = function(cam, prop, callback) {
 	});
 }
 
+exports.listProp = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropDesc, [prop], null, function(err, responseCode, data) {
+		var current = null;
+		var list = [];
+		var type = null;
+		var itemSize = 0;
+		var itemFunction = 'readUInt8';
+
+		var error = (err || responseCode == 0x2001 ? null : responseCode);
+
+		if(!error && data && data.length >= 4) {
+			type = data.readUInt16LE(2);
+			switch(type) {
+				case 1: {
+					itemSize = 1;
+					itemFunction = 'readInt8';
+					break;
+				}
+				case 2: {
+					itemSize = 1;
+					itemFunction = 'readUInt8';
+					break;
+				}
+				case 3: {
+					itemSize = 2;
+					itemFunction = 'readInt16LE';
+					break;
+				}
+				case 4: {
+					itemSize = 2;
+					itemFunction = 'readUInt16LE';
+					break;
+				}
+				case 5: {
+					itemSize = 4;
+					itemFunction = 'readInt32LE';
+					break;
+				}
+				case 6: {
+					itemSize = 4;
+					itemFunction = 'readUInt32LE';
+					break;
+				}
+				case 7: {
+					itemSize = 8;
+					itemFunction = 'readInt64LE';
+					break;
+				}
+				case 8: {
+					itemSize = 8;
+					itemFunction = 'readUInt64LE';
+					break;
+				}
+				default: {
+					itemSize = 0;
+					break;
+				}
+			}
+			if(itemSize) {
+				var index = 4;
+				if(data.length >= index + itemSize) {
+					current = data[itemFunction](index);
+					index += itemSize;
+				}
+				for(;;) {
+					if(data.length >= index + itemSize) {
+						list.push(data[itemFunction](index));
+						index += itemSize;
+					} else {
+						break;
+					}
+				}
+			}
+			callback && callback(error, current, list);
+		} else {
+			callback && callback(error, null);
+		}
+	});
+}
+
 exports.getPropData = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);

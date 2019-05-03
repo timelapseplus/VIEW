@@ -73,14 +73,76 @@ driver.supportedCameras = {
 var properties = {
     'shutter': {
         name: 'shutter',
-        function: ptp.setPropU16,
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listPropU16,
         code: 0xD219,
         ev: true,
         values: [
-            {name: '1s', ev: -6, code: 0},
+            { name: "30s",     ev: -11,        code: -30 },
+            { name: "25s",     ev: -10 - 2 / 3,code: -28 },
+            { name: "20s",     ev: -10 - 1 / 3,code: -26 },
+            { name: "15s",     ev: -10,        code: -24 },
+            { name: "13s",     ev: -9 - 3 / 3, code: -22 },
+            { name: "10s",     ev: -9 - 1 / 3, code: -20 },
+            { name: "8s",      ev: -9,         code: -18 },
+            { name: "6s",      ev: -8 - 2 / 3, code: -16 },
+            { name: "5s",      ev: -8 - 1 / 3, code: -14 },
+            { name: "4s",      ev: -8,         code: -12 },
+            { name: "3s",      ev: -7 - 2 / 3, code: -10 },
+            { name: "2.5s",    ev: -7 - 1 / 3, code:  -8 },
+            { name: "2s",      ev: -7,         code:  -6 },
+            { name: "1.6s",    ev: -6 - 2 / 3, code:  -4 },
+            { name: "1.3s",    ev: -6 - 1 / 3, code:  -2 },
+            { name: "1s",      ev: -6,         code:   0 },
+            { name: "1/1.3s",  ev: -5 - 2 / 3, code:   2 },
+            { name: "1/1.6s",  ev: -5 - 1 / 3, code:   4 },
+            { name: "1/2s",    ev: -5,         code:   6 },
+            { name: "1/2.5s",  ev: -4 - 2 / 3, code:   8 },
+            { name: "1/3s",    ev: -4 - 1 / 3, code:  10 },
+            { name: "1/4s",    ev: -4,         code:  12 },
+            { name: "1/5s",    ev: -3 - 2 / 3, code:  14 },
+            { name: "1/6s",    ev: -3 - 1 / 3, code:  16 },
+            { name: "1/8s",    ev: -3,         code:  18 },
+            { name: "1/10s",   ev: -2 - 2 / 3, code:  20 },
+            { name: "1/13s",   ev: -2 - 1 / 3, code:  22 },
+            { name: "1/15s",   ev: -2,         code:  24 },
+            { name: "1/20s",   ev: -1 - 2 / 3, code:  26 },
+            { name: "1/25s",   ev: -1 - 1 / 3, code:  28 },
+            { name: "1/30s",   ev: -1,         code:  30 },
+            { name: "1/40s",   ev: 0 - 2 / 3,  code:  32 },
+            { name: "1/50s",   ev: 0 - 1 / 3,  code:  34 },
+            { name: "1/60s",   ev: 0,          code:  36 },
+            { name: "1/80s",   ev: 0 + 1 / 3,  code:  38 },
+            { name: "1/100s",  ev: 0 + 2 / 3,  code:  40 },
+            { name: "1/125s",  ev: 1,          code:  42 },
+            { name: "1/160s",  ev: 1 + 1 / 3,  code:  44 },
+            { name: "1/200s",  ev: 1 + 2 / 3,  code:  46 },
+            { name: "1/250s",  ev: 2,          code:  48 },
+            { name: "1/320s",  ev: 2 + 1 / 3,  code:  50 },
+            { name: "1/400s",  ev: 2 + 2 / 3,  code:  52 },
+            { name: "1/500s",  ev: 3,          code:  54 },
+            { name: "1/640s",  ev: 3 + 1 / 3,  code:  56 },
+            { name: "1/800s",  ev: 3 + 2 / 3,  code:  58 },
+            { name: "1/1000s", ev: 4,          code:  60 },
+            { name: "1/1250s", ev: 4 + 1 / 3,  code:  62 },
+            { name: "1/1250s", ev: 4 + 2 / 3,  code:  62 },
+            { name: "1/1600s", ev: 5,          code:  64 },
+            { name: "1/2000s", ev: 5 + 1 / 3,  code:  66 },
+            { name: "1/2500s", ev: 5 + 2 / 3,  code:  68 },
+            { name: "1/3200s", ev: 6,          code:  70 },
+            { name: "1/4000s", ev: 6 + 1 / 3,  code:  72 },
+            { name: "1/5000s", ev: 6 + 2 / 3,  code:  74 },
+            { name: "1/6400s", ev: 7,          code:  76 },
+            { name: "1/8000s", ev: 7 + 1 / 3,  code:  78 }
         ]
     }
 }
+
+
+
+
+
 
 driver._error = function(camera, error) { // events received
     _logD("ERROR:", error);
@@ -115,7 +177,10 @@ driver.init = function(camera, callback) {
                     }, delay);
                 });
             }
-            capture();
+            //capture();
+            ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
+                _logD("0x500D", current, list);
+            });
             callback && callback(err);
         });
     });
