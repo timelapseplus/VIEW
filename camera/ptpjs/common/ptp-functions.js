@@ -192,6 +192,12 @@ exports.extractJpeg = function(data) {
 	            cps : data[off+5]    // number of color components
 	        }
 	        if(details.bpc = 8 && details.cps == 3) {
+			    for(var i = off + 3; i < maxSearch; i++) {
+			    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+			    		jpegEnd = i + 2;
+			    		break;
+			    	}
+			    }
 	        	break;
 	        }
 	    }
