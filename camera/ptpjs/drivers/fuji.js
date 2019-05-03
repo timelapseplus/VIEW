@@ -91,33 +91,6 @@ driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
             _logD("object added:", param1);
-            var objectId = param1;
-            ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                console.log(oi);
-                var image = null;
-                if(camera.thumbnail) {
-                    ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                        //fs.writeFileSync("thumb.jpg", jpeg);
-                        ptp.deleteObject(camera._dev, objectId, function() {
-                            if(camera._captureCallback) {
-                                camera._captureCallback(err, jpeg, oi.filename, null);
-                                camera._captureCallback = null;
-                            }
-                        });
-                    })
-                } else {
-                    ptp.getObject(camera._dev, objectId, function(err, image) {
-                        //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
-                        //fs.writeFileSync("image.raf", image);
-                        ptp.deleteObject(camera._dev, objectId, function() {
-                            if(camera._captureCallback) {
-                                camera._captureCallback(err, ptp.extractJpeg(image), oi.filename, image);
-                                camera._captureCallback = null;
-                            }
-                        });
-                    })
-                }
-            });
         }
     });
 };
@@ -151,6 +124,13 @@ driver.set = function(camera, param, value, callback) {
 driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
+
+    var results = {
+        thumb: null,
+        filename: null,
+        rawImage: null
+    }
+
     async.series([
         function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
@@ -173,24 +153,40 @@ driver.capture = function(camera, target, options, callback, tries) {
             var check = function() {
                 ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
                     console.log("data:", data);
-                    //if(data == 0x0001) {
+                    if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
+                        var objectId = 0x00000001;
+                        ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
+                            console.log(oi);
+                            var image = null;
+                            results.filename = oi.filename;
+                            if(camera.thumbnail) {
+                                ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
+                                    ptp.deleteObject(camera._dev, objectId, function() {
+                                        results.thumb = jpeg;
+                                        cb(err);
+                                    });
+                                })
+                            } else {
+                                ptp.getObject(camera._dev, objectId, function(err, image) {
+                                    //fs.writeFileSync("embedded.jpg", ptp.extractJpeg(image));
+                                    //fs.writeFileSync("image.raf", image);
+                                    ptp.deleteObject(camera._dev, objectId, function() {
+                                        results.thumb = ptp.extractJpeg(image);
+                                        results.rawImage = image;
+                                        cb(err);
+                                    });
+                                })
+                            }
+                        });
+                    } else {
                         check();
-                    //} else {
-                    //    cb(err);
-                    //}
+                    }
                 });
             }
             check();
         },
     ], function(err) {
-        if(err) {
-            callback && callback(err);
-        } else {
-            console.log("delaying callback for capture...");
-            camera._captureCallback = function(err, thumb, filename, rawImage) {
-                callback && callback(err, thumb, filename, rawImage);
-            }
-        }
+        callback && callback(err, results.thumb, results.filename, results.rawImage);
     });
 }
 
