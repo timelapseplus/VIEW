@@ -200,6 +200,7 @@ exports.extractJpeg = function(data) {
 //	    }
 //        off += len - 2;
 //    }
+
 	var depth = 0;
     for(var i = jpegStart + 3; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {

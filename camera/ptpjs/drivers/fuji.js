@@ -120,6 +120,9 @@ driver.init = function(camera, callback) {
         ], function(err) {
             driver.capture(camera, "", {}, function(err){
                 _logD("capture err result:", err);
+                driver.capture(camera, "", {}, function(err){
+                    _logD("capture err result:", err);
+                });
             });
             callback && callback(err);
         });
