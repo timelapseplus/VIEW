@@ -83,6 +83,10 @@ var properties = {
 }
 
 driver._event = function(camera, data) { // events received
+    _logD("ERROR:", data);
+});
+
+driver._event = function(camera, data) { // events received
     _logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
