@@ -152,6 +152,8 @@ exports.extractJpeg = function(data) {
     var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
     var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
 
+    var jpegDetails = {};
+
     for(var i = 0; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
     		jpegStart = i;
@@ -178,7 +180,10 @@ exports.extractJpeg = function(data) {
         	jpegStart = off - 2;
         	continue;    // SOI
         }
-        if(mrkr == 0xd9) break;       // EOI
+        if(mrkr == 0xd9) {
+        	jpegEnd = off;
+        	break;       // EOI
+        }
         if(0xd0 <= mrkr && mrkr <= 0xd7) continue;
         if(mrkr == 0x01) continue;    // TEM
 
@@ -192,23 +197,17 @@ exports.extractJpeg = function(data) {
 	            cps : data[off+5]    // number of color components
 	        }
 	        if(details.bpc = 8 && details.cps == 3) {
-			    for(var i = off + 3; i < maxSearch; i++) {
-			    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-			    		jpegEnd = i + 2;
-			    		break;
-			    	}
-			    }
-	        	break;
+	        	jpegDetails = details;
 	        }
 	    }
         off += len - 2;
     }
-    for(var i = jpegStart + 3; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-    		jpegEnd = i + 2;
-    		break;
-    	}
-    }
+    //for(var i = jpegStart + 3; i < maxSearch; i++) {
+    //	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+    //		jpegEnd = i + 2;
+    //		break;
+    //	}
+    //}
 
     var jpegBuf = new Buffer(jpegEnd - jpegStart);
     data.copy(jpegBuf, 0, jpegStart, jpegEnd);
