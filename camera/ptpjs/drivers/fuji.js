@@ -149,6 +149,30 @@ var properties = {
             { name: "1/25000s", ev: 9,           code:  38 },
             { name: "1/32000s", ev: 9 + 1 / 3,   code:  30 }
         ]
+    },
+    'aperture': {
+        name: 'aperture',
+        category: 'exposure',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0x5007,
+        ev: true,
+        values: [
+            { name: "15m",      ev: -15,         code:  64000120 },
+        ]
+    },
+    'iso': {
+        name: 'iso',
+        category: 'exposure',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0x500F,
+        ev: true,
+        values: [
+            { name: "15m",      ev: -15,         code:  64000120 },
+        ]
     }
 }
 
