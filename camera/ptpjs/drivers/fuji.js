@@ -80,24 +80,24 @@ var properties = {
         code: 0x500D,
         ev: true,
         values: [
-            { name: "15m",      ev: -15,         code: -64000120 },
-            { name: "8m",       ev: -14,         code: -64000090 },
-            { name: "4m",       ev: -13,         code: -64000060 },
-            { name: "2m",       ev: -12,         code: -64000030 },
-            { name: "60s",      ev: -11,         code: -64000000 },
-            { name: "50s",      ev: -11 - 2 / 3, code: -50796833 },
-            { name: "40s",      ev: -11 - 1 / 3, code: -40317473 },
-            { name: "30s",      ev: -11,         code: -32000000 },
-            { name: "25s",      ev: -10 - 2 / 3, code: -25398416 },
-            { name: "20s",      ev: -10 - 1 / 3, code: -20158736 },
-            { name: "15s",      ev: -10,         code: -16000000 },
-            { name: "13s",      ev: -9 - 3 / 3,  code: -12699208 },
-            { name: "10s",      ev: -9 - 1 / 3,  code: -10079368 },
-            { name: "8s",       ev: -9,          code: -8000000 },
-            { name: "6s",       ev: -8 - 2 / 3,  code: -6349604 },
-            { name: "5s",       ev: -8 - 1 / 3,  code: -5039684 },
-            { name: "4s",       ev: -8,          code: -4000000 },
-            { name: "3s",       ev: -7 - 2 / 3,  code: -3174802 },
+            { name: "15m",      ev: -15,         code:  64000120 },
+            { name: "8m",       ev: -14,         code:  64000090 },
+            { name: "4m",       ev: -13,         code:  64000060 },
+            { name: "2m",       ev: -12,         code:  64000030 },
+            { name: "60s",      ev: -11,         code:  64000000 },
+            { name: "50s",      ev: -11 - 2 / 3, code:  50796833 },
+            { name: "40s",      ev: -11 - 1 / 3, code:  40317473 },
+            { name: "30s",      ev: -11,         code:  32000000 },
+            { name: "25s",      ev: -10 - 2 / 3, code:  25398416 },
+            { name: "20s",      ev: -10 - 1 / 3, code:  20158736 },
+            { name: "15s",      ev: -10,         code:  16000000 },
+            { name: "13s",      ev: -9 - 3 / 3,  code:  12699208 },
+            { name: "10s",      ev: -9 - 1 / 3,  code:  10079368 },
+            { name: "8s",       ev: -9,          code:  8000000 },
+            { name: "6s",       ev: -8 - 2 / 3,  code:  6349604 },
+            { name: "5s",       ev: -8 - 1 / 3,  code:  5039684 },
+            { name: "4s",       ev: -8,          code:  4000000 },
+            { name: "3s",       ev: -7 - 2 / 3,  code:  3174802 },
             { name: "2.5s",     ev: -7 - 1 / 3,  code:  2519842 },
             { name: "2s",       ev: -7,          code:  2000000 },
             { name: "1.6s",     ev: -6 - 2 / 3,  code:  1587401 },
@@ -168,7 +168,7 @@ driver._event = function(camera, data) { // events received
 driver.refresh = function(camera, callback) {
     for(var key in properties) {
         ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
-            _logD(key, current, list);
+            //_logD(key, current, list);
             if(!camera[properties[key].category]) camera[properties[key].category] = {};
             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
             camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
