@@ -179,7 +179,7 @@ driver.refresh = function(camera) {
             camera[properties[key].category][key].list = mappedList;
         });
     }
-    _logD(camera.exposure);
+    console.log(camera.exposure);
 }
 
 driver.init = function(camera, callback) {
