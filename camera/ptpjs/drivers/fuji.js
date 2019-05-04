@@ -205,10 +205,11 @@ driver.init = function(camera, callback) {
                 });
             }
             //capture();
+            driver.refresh(camera);
 
-            ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
-                _logD("0x500D", current, list);
-            });
+            //ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
+            //    _logD("0x500D", current, list);
+            //});
 
             callback && callback(err);
         });
