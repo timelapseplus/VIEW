@@ -128,7 +128,7 @@ exports.listProp = function(cam, prop, callback) {
 		var itemFunction = 'readUInt8';
 
 		var error = (err || responseCode == 0x2001 ? null : responseCode);
-		console.log("data", data);
+		//console.log("data", data);
 		if(!error && data && data.length >= 4) {
 			type = data.readUInt16LE(2);
 			writeable = data.readUInt8(4);
@@ -184,7 +184,7 @@ exports.listProp = function(cam, prop, callback) {
 					current = data[itemFunction](index);
 					index += itemSize;
 				}
-				index += 3;
+				index += 3; // skip form type and length
 				for(;;) {
 					if(data.length >= index + itemSize) {
 						list.push(data[itemFunction](index));
