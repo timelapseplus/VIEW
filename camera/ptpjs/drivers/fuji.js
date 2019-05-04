@@ -171,7 +171,29 @@ var properties = {
         code: 0x500F,
         ev: true,
         values: [
-            { name: "15m",      ev: -15,         code:  64000120 },
+            { name: "160",      ev: -2 / 3,      code: 160  },
+            { name: "200",      ev: -1,          code: 200  },
+            { name: "250",      ev: -1 - 1 / 3,  code: 250  },
+            { name: "320",      ev: -1 - 2 / 3,  code: 320  },
+            { name: "400",      ev: -2,          code: 400  },
+            { name: "500",      ev: -2 - 1 / 3,  code: 500  },
+            { name: "640",      ev: -2 - 2 / 3,  code: 640  },
+            { name: "800",      ev: -3,          code: 800  },
+            { name: "1000",     ev: -3 - 1 / 3,  code: 1000  },
+            { name: "1250",     ev: -3 - 2 / 3,  code: 1250  },
+            { name: "1600",     ev: -4,          code: 1600  },
+            { name: "2000",     ev: -4 - 1 / 3,  code: 2000  },
+            { name: "2500",     ev: -4 - 2 / 3,  code: 2500  },
+            { name: "3200",     ev: -5,          code: 3200  },
+            { name: "4000",     ev: -5 - 1 / 3,  code: 4000  },
+            { name: "5000",     ev: -5 - 2 / 3,  code: 5000  },
+            { name: "6400",     ev: -6,          code: 6400  },
+            { name: "8000",     ev: -6 - 1 / 3,  code: 8000  },
+            { name: "10000",    ev: -6 - 2 / 3,  code: 10000  },
+            { name: "12800",    ev: -7,          code: 12800  },
+            { name: "err-1",    ev: null,        code: -1  },
+            { name: "err-2",    ev: null,        code: -2  },
+            { name: "err-3",    ev: null,        code: -3  }
         ]
     }
 }
