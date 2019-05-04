@@ -171,13 +171,19 @@ driver.refresh = function(camera, callback) {
             _logD(key, current, list);
             if(!camera[properties[key].category]) camera[properties[key].category] = {};
             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-            camera[properties[key].category][key].current = current;
+            camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
             var mappedList = [];
             for(var i = 0; i < list.length; i++) {
-                mappedList.push(mapPropertyItem(list[i], properties[key].values));
+                var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                if(!mappedItem) {
+                    _logD(key, "list item not found:", list[i]);
+                } else {
+
+                }
+                mappedList.push();
             }
             camera[properties[key].category][key].list = mappedList;
-            
+
             console.log(camera.exposure);
         });
     }
@@ -221,6 +227,7 @@ function mapPropertyItem(cameraValue, list) {
     for(var i = 0; i < list.length; i++) {
         if(cameraValue == list[i].code) return list[i];
     }
+    return null;
 }
 
 driver.set = function(camera, param, value, callback) {
