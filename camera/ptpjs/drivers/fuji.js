@@ -190,26 +190,36 @@ driver._event = function(camera, data) { // events received
 };
 
 driver.refresh = function(camera, callback) {
+    var keys = [];
     for(var key in properties) {
-        ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
-            //_logD(key, current, list);
-            if(!camera[properties[key].category]) camera[properties[key].category] = {};
-            if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-            camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
-            var mappedList = [];
-            for(var i = 0; i < list.length; i++) {
-                var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                if(!mappedItem) {
-                    _logD(key, "list item not found:", list[i]);
-                } else {
-                    mappedList.push(mappedItem);
-                }
-            }
-            camera[properties[key].category][key].list = mappedList;
-
-            console.log(camera.exposure);
-        });
+        keys.push(key);
     }
+    var fetchNextProperty = function() {
+        var key = keys.pop();
+        if(key) {
+            ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
+                //_logD(key, current, list);
+                if(!camera[properties[key].category]) camera[properties[key].category] = {};
+                if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
+                camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
+                var mappedList = [];
+                for(var i = 0; i < list.length; i++) {
+                    var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                    if(!mappedItem) {
+                        _logD(key, "list item not found:", list[i]);
+                    } else {
+                        mappedList.push(mappedItem);
+                    }
+                }
+                camera[properties[key].category][key].list = mappedList;
+                fetchNextProperty();
+            });
+        } else {
+            console.log(camera.exposure);
+            callback && callback();
+        }
+    }
+    fetchNextProperty();
 }
 
 driver.init = function(camera, callback) {
