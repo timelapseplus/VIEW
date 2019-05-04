@@ -178,9 +178,8 @@ driver.refresh = function(camera, callback) {
                 if(!mappedItem) {
                     _logD(key, "list item not found:", list[i]);
                 } else {
-
+                    mappedList.push(mappedItem);
                 }
-                mappedList.push();
             }
             camera[properties[key].category][key].list = mappedList;
 
