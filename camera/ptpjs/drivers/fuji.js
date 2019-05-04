@@ -165,7 +165,7 @@ driver._event = function(camera, data) { // events received
     });
 };
 
-driver.refresh = function(camera) {
+driver.refresh = function(camera, callback) {
     for(var key in properties) {
         ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
             _logD(key, current, list);
@@ -177,9 +177,10 @@ driver.refresh = function(camera) {
                 mappedList.push(mapPropertyItem(list[i], properties[key].values));
             }
             camera[properties[key].category][key].list = mappedList;
+            
+            console.log(camera.exposure);
         });
     }
-    console.log(camera.exposure);
 }
 
 driver.init = function(camera, callback) {
