@@ -168,7 +168,7 @@ driver._event = function(camera, data) { // events received
 driver.refresh = function(camera) {
     for(var key in properties) {
         ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
-            //_logD(key, current, list);
+            _logD(key, current, list);
             if(!camera[properties[key].category]) camera[properties[key].category] = {};
             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
             camera[properties[key].category][key].current = current;
