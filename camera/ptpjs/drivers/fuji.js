@@ -295,6 +295,7 @@ driver.init = function(camera, callback) {
                                 capture();
                             });
                         }
+                        set();
                     }, delay);
                 });
             }
