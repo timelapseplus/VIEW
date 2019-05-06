@@ -80,74 +80,74 @@ var properties = {
         code: 0x500D,
         ev: true,
         values: [
-            { name: "15m",      ev: -15,         code:  64000120 },
-            { name: "8m",       ev: -14,         code:  64000090 },
-            { name: "4m",       ev: -13,         code:  64000060 },
-            { name: "2m",       ev: -12,         code:  64000030 },
-            { name: "60s",      ev: -11,         code:  64000000 },
-            { name: "50s",      ev: -11 - 2 / 3, code:  50796833 },
-            { name: "40s",      ev: -11 - 1 / 3, code:  40317473 },
-            { name: "30s",      ev: -11,         code:  32000000 },
-            { name: "25s",      ev: -10 - 2 / 3, code:  25398416 },
-            { name: "20s",      ev: -10 - 1 / 3, code:  20158736 },
-            { name: "15s",      ev: -10,         code:  16000000 },
-            { name: "13s",      ev: -9 - 3 / 3,  code:  12699208 },
-            { name: "10s",      ev: -9 - 1 / 3,  code:  10079368 },
-            { name: "8s",       ev: -9,          code:  8000000 },
-            { name: "6s",       ev: -8 - 2 / 3,  code:  6349604 },
-            { name: "5s",       ev: -8 - 1 / 3,  code:  5039684 },
-            { name: "4s",       ev: -8,          code:  4000000 },
-            { name: "3s",       ev: -7 - 2 / 3,  code:  3174802 },
-            { name: "2.5s",     ev: -7 - 1 / 3,  code:  2519842 },
-            { name: "2s",       ev: -7,          code:  2000000 },
-            { name: "1.6s",     ev: -6 - 2 / 3,  code:  1587401 },
-            { name: "1.3s",     ev: -6 - 1 / 3,  code:  1259921 },
-            { name: "1s",       ev: -6,          code:  1000000 },
-            { name: "1/1.3s",   ev: -5 - 2 / 3,  code:  793700 },
-            { name: "1/1.6s",   ev: -5 - 1 / 3,  code:  629960 },
-            { name: "1/2s",     ev: -5,          code:  500000 },
-            { name: "1/2.5s",   ev: -4 - 2 / 3,  code:  396850 },
-            { name: "1/3s",     ev: -4 - 1 / 3,  code:  314980 },
-            { name: "1/4s",     ev: -4,          code:  250000 },
-            { name: "1/5s",     ev: -3 - 2 / 3,  code:  198425 },
-            { name: "1/6s",     ev: -3 - 1 / 3,  code:  157490 },
-            { name: "1/8s",     ev: -3,          code:  125000 },
-            { name: "1/10s",    ev: -2 - 2 / 3,  code:  99212 },
-            { name: "1/13s",    ev: -2 - 1 / 3,  code:  78745 },
-            { name: "1/15s",    ev: -2,          code:  62500 },
-            { name: "1/20s",    ev: -1 - 2 / 3,  code:  49606 },
-            { name: "1/25s",    ev: -1 - 1 / 3,  code:  39372 },
-            { name: "1/30s",    ev: -1,          code:  31250 },
-            { name: "1/40s",    ev: 0 - 2 / 3,   code:  24803 },
-            { name: "1/50s",    ev: 0 - 1 / 3,   code:  19686 },
-            { name: "1/60s",    ev: 0,           code:  15625 },
-            { name: "1/80s",    ev: 0 + 1 / 3,   code:  12401 },
-            { name: "1/100s",   ev: 0 + 2 / 3,   code:  9843 },
-            { name: "1/125s",   ev: 1,           code:  7812 },
-            { name: "1/160s",   ev: 1 + 1 / 3,   code:  6200 },
-            { name: "1/200s",   ev: 1 + 2 / 3,   code:  4921 },
-            { name: "1/250s",   ev: 2,           code:  3906 },
-            { name: "1/320s",   ev: 2 + 1 / 3,   code:  3100 },
-            { name: "1/400s",   ev: 2 + 2 / 3,   code:  2460 },
-            { name: "1/500s",   ev: 3,           code:  1953 },
-            { name: "1/640s",   ev: 3 + 1 / 3,   code:  1550 },
-            { name: "1/800s",   ev: 3 + 2 / 3,   code:  1230 },
-            { name: "1/1000s",  ev: 4,           code:  976 },
-            { name: "1/1250s",  ev: 4 + 2 / 3,   code:  775 },
-            { name: "1/1600s",  ev: 5,           code:  615 },
-            { name: "1/2000s",  ev: 5 + 1 / 3,   code:  488 },
-            { name: "1/2500s",  ev: 5 + 2 / 3,   code:  387 },
-            { name: "1/3200s",  ev: 6,           code:  307 },
-            { name: "1/4000s",  ev: 6 + 1 / 3,   code:  244 },
-            { name: "1/5000s",  ev: 6 + 2 / 3,   code:  193 },
-            { name: "1/6400s",  ev: 7,           code:  153 },
-            { name: "1/8000s",  ev: 7 + 1 / 3,   code:  122 },
-            { name: "1/10000s", ev: 7 + 2 / 3,   code:  96 },
-            { name: "1/13000s", ev: 8,           code:  76 },
-            { name: "1/16000s", ev: 8 + 1 / 3,   code:  61 },
-            { name: "1/20000s", ev: 8 + 2 / 3,   code:  48 },
-            { name: "1/25000s", ev: 9,           code:  38 },
-            { name: "1/32000s", ev: 9 + 1 / 3,   code:  30 }
+            { name: "15m",     ev: -15,         code:  64000120 },
+            { name: "8m",      ev: -14,         code:  64000090 },
+            { name: "4m",      ev: -13,         code:  64000060 },
+            { name: "2m",      ev: -12,         code:  64000030 },
+            { name: "60s",     ev: -11,         code:  64000000 },
+            { name: "50s",     ev: -11 - 2 / 3, code:  50796833 },
+            { name: "40s",     ev: -11 - 1 / 3, code:  40317473 },
+            { name: "30s",     ev: -11,         code:  32000000 },
+            { name: "25s",     ev: -10 - 2 / 3, code:  25398416 },
+            { name: "20s",     ev: -10 - 1 / 3, code:  20158736 },
+            { name: "15s",     ev: -10,         code:  16000000 },
+            { name: "13s",     ev: -9 - 3 / 3,  code:  12699208 },
+            { name: "10s",     ev: -9 - 1 / 3,  code:  10079368 },
+            { name: "8s",      ev: -9,          code:  8000000 },
+            { name: "6s",      ev: -8 - 2 / 3,  code:  6349604 },
+            { name: "5s",      ev: -8 - 1 / 3,  code:  5039684 },
+            { name: "4s",      ev: -8,          code:  4000000 },
+            { name: "3s",      ev: -7 - 2 / 3,  code:  3174802 },
+            { name: "2.5s",    ev: -7 - 1 / 3,  code:  2519842 },
+            { name: "2s",      ev: -7,          code:  2000000 },
+            { name: "1.6s",    ev: -6 - 2 / 3,  code:  1587401 },
+            { name: "1.3s",    ev: -6 - 1 / 3,  code:  1259921 },
+            { name: "1s",      ev: -6,          code:  1000000 },
+            { name: "0.8s",    ev: -5 - 2 / 3,  code:  793700 },
+            { name: "0.6s",    ev: -5 - 1 / 3,  code:  629960 },
+            { name: "1/2",     ev: -5,          code:  500000 },
+            { name: "0.4s",    ev: -4 - 2 / 3,  code:  396850 },
+            { name: "1/3",     ev: -4 - 1 / 3,  code:  314980 },
+            { name: "1/4",     ev: -4,          code:  250000 },
+            { name: "1/5",     ev: -3 - 2 / 3,  code:  198425 },
+            { name: "1/6",     ev: -3 - 1 / 3,  code:  157490 },
+            { name: "1/8",     ev: -3,          code:  125000 },
+            { name: "1/10",    ev: -2 - 2 / 3,  code:  99212 },
+            { name: "1/13",    ev: -2 - 1 / 3,  code:  78745 },
+            { name: "1/15",    ev: -2,          code:  62500 },
+            { name: "1/20",    ev: -1 - 2 / 3,  code:  49606 },
+            { name: "1/25",    ev: -1 - 1 / 3,  code:  39372 },
+            { name: "1/30",    ev: -1,          code:  31250 },
+            { name: "1/40",    ev: 0 - 2 / 3,   code:  24803 },
+            { name: "1/50",    ev: 0 - 1 / 3,   code:  19686 },
+            { name: "1/60",    ev: 0,           code:  15625 },
+            { name: "1/80",    ev: 0 + 1 / 3,   code:  12401 },
+            { name: "1/100",   ev: 0 + 2 / 3,   code:  9843 },
+            { name: "1/125",   ev: 1,           code:  7812 },
+            { name: "1/160",   ev: 1 + 1 / 3,   code:  6200 },
+            { name: "1/200",   ev: 1 + 2 / 3,   code:  4921 },
+            { name: "1/250",   ev: 2,           code:  3906 },
+            { name: "1/320",   ev: 2 + 1 / 3,   code:  3100 },
+            { name: "1/400",   ev: 2 + 2 / 3,   code:  2460 },
+            { name: "1/500",   ev: 3,           code:  1953 },
+            { name: "1/640",   ev: 3 + 1 / 3,   code:  1550 },
+            { name: "1/800",   ev: 3 + 2 / 3,   code:  1230 },
+            { name: "1/1000",  ev: 4,           code:  976 },
+            { name: "1/1250",  ev: 4 + 2 / 3,   code:  775 },
+            { name: "1/1600",  ev: 5,           code:  615 },
+            { name: "1/2000",  ev: 5 + 1 / 3,   code:  488 },
+            { name: "1/2500",  ev: 5 + 2 / 3,   code:  387 },
+            { name: "1/3200",  ev: 6,           code:  307 },
+            { name: "1/4000",  ev: 6 + 1 / 3,   code:  244 },
+            { name: "1/5000",  ev: 6 + 2 / 3,   code:  193 },
+            { name: "1/6400",  ev: 7,           code:  153 },
+            { name: "1/8000",  ev: 7 + 1 / 3,   code:  122 },
+            { name: "1/10000", ev: 7 + 2 / 3,   code:  96 },
+            { name: "1/13000", ev: 8,           code:  76 },
+            { name: "1/16000", ev: 8 + 1 / 3,   code:  61 },
+            { name: "1/20000", ev: 8 + 2 / 3,   code:  48 },
+            { name: "1/25000", ev: 9,           code:  38 },
+            { name: "1/32000", ev: 9 + 1 / 3,   code:  30 }
         ]
     },
     'aperture': {
@@ -244,7 +244,7 @@ driver.refresh = function(camera, callback) {
     var fetchNextProperty = function() {
         var key = keys.pop();
         if(key) {
-            ptp.listProp(camera._dev, properties[key].code, function(err, current, list) {
+            properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list) {
                 //_logD(key, current, list);
                 if(!camera[properties[key].category]) camera[properties[key].category] = {};
                 if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
@@ -274,9 +274,10 @@ driver.init = function(camera, callback) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
+            function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
+            var shutterEv = callback.exposure.shutter.ev; 
             var capture = function() {
-
 
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
                     if(err) {
@@ -284,10 +285,16 @@ driver.init = function(camera, callback) {
                     } else {
                         _logD("captured image:", filename);
                     }
-                    var delay = 1000;
+                    var delay = 1500;
                     if(err == 0x2019) delay = 50; 
                     setTimeout(function() {
-                        capture();
+                        shutterEv++;
+                        var set = function() {
+                            driver.set(camera, 'shutter', shutterEv, function(err) {
+                                if(err == 0x2019) return setTimeout(set, 100);
+                                capture();
+                            });
+                        }
                     }, delay);
                 });
             }
@@ -311,6 +318,53 @@ function mapPropertyItem(cameraValue, list) {
 }
 
 driver.set = function(camera, param, value, callback) {
+    if(properties[param] && properties[param].setFunction) {
+        var cameraValue = null;
+        if(properties[param].ev && typeof value == "number") {
+            for(var i = 0; i < properties[key].values.length; i++) {
+                if(properties[key].values[i].ev == value) {
+                    cameraValue = properties[key].values[i].code;
+                    break;
+                }
+            }
+        } else {
+            for(var i = 0; i < properties[key].values.length; i++) {
+                if(properties[key].values[i].name == value) {
+                    cameraValue = properties[key].values[i].code;
+                    break;
+                }
+            }
+        }
+        if(cameraValue !== null) {
+            properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                if(!err) {
+                    camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
+                    return callback && callback(err, camera[properties[key].category][key].current);
+                } else {
+                    return callback && callback(err);
+                }
+            });
+        } else {
+            return callback && callback("unknown value");
+        }
+    } else {
+        return callback && callback("unknown param");
+    }
+}
+
+driver.get = function(camera, param, callback) {
+    if(properties[param] && properties[param].getFunction) {
+        properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
+            if(!err) {
+                camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
+                return callback && callback(err, camera[properties[key].category][key].current);
+            } else {
+                return callback && callback(err);
+            }
+        });
+    } else {
+        return callback && callback("unknown param");
+    }
 }
 
 function getImage(camera, timeout, callback) {
@@ -331,6 +385,9 @@ function getImage(camera, timeout, callback) {
             //console.log("data:", data);
             if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
                 var getHandles = function() {
+                    if(Date.now() - startTime > timeout) {
+                        return callback && callback("timeout", results);
+                    }
                     ptp.getObjectHandles(camera._dev, function(err, handles) {
                         if(handles.length > 0) {
                             var objectId = handles[0];
@@ -429,8 +486,5 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 
 }
 
-driver.get = function(camera, param, value, callback) {
-
-}
 
 module.exports = driver;
