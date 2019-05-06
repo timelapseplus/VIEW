@@ -215,7 +215,7 @@ function ensurePrimary() {
 		}
 		api.cameras[i].primary = false; // ensure there's only one
 	}
-	if(api.camera.length > 0) {
+	if(api.cameras.length > 0) {
 		if(primaryIndex == -1) {
 			primaryIndex = 0;
 			api.cameras[primaryIndex].primary = true;	
@@ -233,11 +233,11 @@ function getPrimary() {
 	}
 }
 
-api.setPrimaryCamera = function(camera) {
+api.setPrimaryCamera = function(cameraIndex) {
 	for(var i = 0; i < api.cameras.length; i++) {
 		api.cameras[i].primary = false;
 	}
-	camera.primary = true;
+	api.cameras[cameraIndex].primary = true;
 	ensurePrimary();
 }
 
