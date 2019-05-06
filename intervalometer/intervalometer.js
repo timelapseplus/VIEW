@@ -39,7 +39,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             }
         case 'camera.ptp.supports.destination':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.camera.supports.destination;
+                return camera.ptp.new.supports.destination;
             } else {
                 return camera.ptp.supports.destination;
             }
