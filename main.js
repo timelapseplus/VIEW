@@ -4262,7 +4262,7 @@ if (VIEW_HARDWARE) {
             action: captureMenu,
             help: help.captureMenu,
             condition: function() {
-                return core.cameraSupports.liveview && !core.intervalometerStatus.running;
+                return core.cameraSupports && core.cameraSupports.liveview && !core.intervalometerStatus.running;
             }
         }, {
             name: "Time-lapse Clips",
