@@ -158,12 +158,13 @@ camera.setEv = function(ev, options, cb) {
         var isoList = settings.lists ? settings.lists.iso : settings.iso.list;
 
         //console.log("options: ", options);
+        console.log("isoList: ", isoList);
 
         if(shutterList) shutterList = lists.cleanEvCopy(shutterList);
         if(apertureList) apertureList = lists.cleanEvCopy(apertureList);
         if(isoList) isoList = lists.cleanEvCopy(isoList);
 
-        console.log("isoList: ", isoList);
+        console.log("isoList2: ", isoList);
 
         if (shutterList && options && options.maxShutterLengthMs) {
             var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
