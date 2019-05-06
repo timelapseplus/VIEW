@@ -97,7 +97,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                 return {
                     shutter: base.shutter.current,
                     aperture: base.aperture.current,
-                    iso: base.iso.current
+                    iso: base.iso.current,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
                 }
             } else {
                 return camera.ptp.settings;
@@ -108,7 +113,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                 return {
                     shutter: base.shutter.current,
                     aperture: base.aperture.current,
-                    iso: base.iso.current
+                    iso: base.iso.current,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
                 }
             } else {
                 return camera.ptp.settings.details;
