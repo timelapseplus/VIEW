@@ -72,8 +72,8 @@ usb.on('detach', function(device) {
 			if(cam && cam.ep && cam.ep.evt) {
 				cam.ep.evt.stopPoll();
 			}
-			cam.iface.release();
-			cam.device.close();
+			if(cam) cam.iface.release();
+			if(cam) cam.device.close();
 			api.emit('disconnected', api.cameras[i].name); // had been connected
 		}
 	}	
