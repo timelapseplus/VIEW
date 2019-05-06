@@ -457,7 +457,7 @@ function sendCameraUpdate() {
     data = {
       connected: true,
       model: camera.ptp.new.model,
-      count: camera.ptp.new.camera.length,
+      count: camera.ptp.new.cameras.length,
       supports: camera.ptp.new.supports
     };
   } else {
