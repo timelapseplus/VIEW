@@ -69,7 +69,7 @@ usb.on('detach', function(device) {
 		if(api.cameras[i].camera._port == port) {
 			camIndex = i;
 			var cam = api.cameras[i]._dev;
-			if(cam.ep.evt) {
+			if(cam && cam.ep && cam.ep.evt) {
 				cam.ep.evt.stopPoll();
 			}
 			cam.iface.release();
