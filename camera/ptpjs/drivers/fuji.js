@@ -133,21 +133,21 @@ var properties = {
             { name: "1/640",   ev: 3 + 1 / 3,   code:  1550 },
             { name: "1/800",   ev: 3 + 2 / 3,   code:  1230 },
             { name: "1/1000",  ev: 4,           code:  976 },
-            { name: "1/1250",  ev: 4 + 2 / 3,   code:  775 },
-            { name: "1/1600",  ev: 5,           code:  615 },
-            { name: "1/2000",  ev: 5 + 1 / 3,   code:  488 },
-            { name: "1/2500",  ev: 5 + 2 / 3,   code:  387 },
-            { name: "1/3200",  ev: 6,           code:  307 },
-            { name: "1/4000",  ev: 6 + 1 / 3,   code:  244 },
-            { name: "1/5000",  ev: 6 + 2 / 3,   code:  193 },
-            { name: "1/6400",  ev: 7,           code:  153 },
-            { name: "1/8000",  ev: 7 + 1 / 3,   code:  122 },
-            { name: "1/10000", ev: 7 + 2 / 3,   code:  96 },
-            { name: "1/13000", ev: 8,           code:  76 },
-            { name: "1/16000", ev: 8 + 1 / 3,   code:  61 },
-            { name: "1/20000", ev: 8 + 2 / 3,   code:  48 },
-            { name: "1/25000", ev: 9,           code:  38 },
-            { name: "1/32000", ev: 9 + 1 / 3,   code:  30 }
+            { name: "1/1250",  ev: 4 + 1 / 3,   code:  775 },
+            { name: "1/1600",  ev: 4 + 2 / 3,   code:  615 },
+            { name: "1/2000",  ev: 5,           code:  488 },
+            { name: "1/2500",  ev: 5 + 1 / 3,   code:  387 },
+            { name: "1/3200",  ev: 5 + 2 / 3,   code:  307 },
+            { name: "1/4000",  ev: 6,           code:  244 },
+            { name: "1/5000",  ev: 6 + 1 / 3,   code:  193 },
+            { name: "1/6400",  ev: 6 + 2 / 3,   code:  153 },
+            { name: "1/8000",  ev: 7,           code:  122 },
+            { name: "1/10000", ev: 7 + 1 / 3,   code:  96 },
+            { name: "1/13000", ev: 7 + 2 / 3,   code:  76 },
+            { name: "1/16000", ev: 8,           code:  61 },
+            { name: "1/20000", ev: 8 + 1 / 3,   code:  48 },
+            { name: "1/25000", ev: 8 + 2 / 3,   code:  38 },
+            { name: "1/32000", ev: 9,           code:  30 }
         ]
     },
     'aperture': {
@@ -159,6 +159,8 @@ var properties = {
         code: 0x5007,
         ev: true,
         values: [
+            { name: "1.0",      ev: -8,          code: 100  },
+            { name: "1.1",      ev: -7 - 2 / 3,  code: 110  },
             { name: "1.2",      ev: -7 - 1 / 3,  code: 120  },
             { name: "1.4",      ev: -7,          code: 140  },
             { name: "1.6",      ev: -6 - 2 / 3,  code: 160  },
@@ -182,9 +184,18 @@ var properties = {
             { name: "13",       ev:  0 - 2 / 3,  code: 1300  },
             { name: "14",       ev:  0 - 1 / 3,  code: 1400  },
             { name: "16",       ev:  0,          code: 1600  },
-            { name: "18",       ev:  0 + 2 / 3,  code: 1800  },
-            { name: "20",       ev:  0 + 1 / 3,  code: 2000  },
-            { name: "22",       ev:  1,          code: 2200  }
+            { name: "18",       ev:  0 + 1 / 3,  code: 1800  },
+            { name: "20",       ev:  0 + 2 / 3,  code: 2000  },
+            { name: "22",       ev:  1,          code: 2200  },
+            { name: "25",       ev:  2 + 1 / 3,  code: 2500  },
+            { name: "29",       ev:  2 + 2 / 3,  code: 2900  },
+            { name: "32",       ev:  3,          code: 3200  },
+            { name: "36",       ev:  3 + 1 / 3,  code: 3600  },
+            { name: "42",       ev:  3 + 2 / 3,  code: 4200  },
+            { name: "45",       ev:  4,          code: 4500  },
+            { name: "50",       ev:  4 + 1 / 3,  code: 5000  },
+            { name: "57",       ev:  4 + 2 / 3,  code: 5700  },
+            { name: "64",       ev:  5,          code: 6400  }
         ]
     },
     'iso': {
@@ -244,8 +255,8 @@ driver.refresh = function(camera, callback) {
     var fetchNextProperty = function() {
         var key = keys.pop();
         if(key) {
-            properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list) {
-                //_logD(key, current, list);
+            properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
+                _logD(key, "type is", type);
                 if(!camera[properties[key].category]) camera[properties[key].category] = {};
                 if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                 camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);

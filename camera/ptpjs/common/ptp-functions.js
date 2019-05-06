@@ -144,6 +144,7 @@ exports.listProp = function(cam, prop, callback) {
 		var writeable = null;
 		var itemSize = 0;
 		var itemFunction = 'readUInt8';
+		var typeName = "unknown";
 
 		var error = (err || responseCode == 0x2001 ? null : responseCode);
 		//console.log("data", data);
@@ -154,41 +155,49 @@ exports.listProp = function(cam, prop, callback) {
 				case 1: {
 					itemSize = 1;
 					itemFunction = 'readInt8';
+					typeName = "int8";
 					break;
 				}
 				case 2: {
 					itemSize = 1;
 					itemFunction = 'readUInt8';
+					typeName = "uint8";
 					break;
 				}
 				case 3: {
 					itemSize = 2;
 					itemFunction = 'readInt16LE';
+					typeName = "int16";
 					break;
 				}
 				case 4: {
 					itemSize = 2;
 					itemFunction = 'readUInt16LE';
+					typeName = "uint16";
 					break;
 				}
 				case 5: {
 					itemSize = 4;
 					itemFunction = 'readInt32LE';
+					typeName = "int32";
 					break;
 				}
 				case 6: {
 					itemSize = 4;
 					itemFunction = 'readUInt32LE';
+					typeName = "uint32";
 					break;
 				}
 				case 7: {
 					itemSize = 8;
 					itemFunction = 'readInt64LE';
+					typeName = "int64";
 					break;
 				}
 				case 8: {
 					itemSize = 8;
 					itemFunction = 'readUInt64LE';
+					typeName = "uint64";
 					break;
 				}
 				default: {
@@ -212,7 +221,7 @@ exports.listProp = function(cam, prop, callback) {
 					}
 				}
 			}
-			callback && callback(error, current, list);
+			callback && callback(error, current, list, typeName);
 		} else {
 			callback && callback(error, null);
 		}
