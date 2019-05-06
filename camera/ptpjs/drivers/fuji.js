@@ -292,6 +292,7 @@ driver.init = function(camera, callback) {
                         var set = function() {
                             driver.set(camera, 'shutter', shutterEv, function(err) {
                                 if(err == 0x2019) return setTimeout(set, 100);
+                                if(err) _logD("set error:", err);
                                 capture();
                             });
                         }
