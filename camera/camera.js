@@ -44,6 +44,141 @@ function sum(arr) {
     return sum;
 }
 
+function remap(method) { // remaps camera.ptp methods to use new driver if possible
+    switch(method) {
+        case 'camera.ptp.settings.format':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.cameras[0].camera.config.format;
+            } else {
+                return camera.ptp.settings.format;
+            }
+        case 'camera.ptp.model':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.model;
+            } else {
+                return camera.ptp.model;
+            }
+        case 'camera.ptp.supports.destination':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.supports.destination;
+            } else {
+                return camera.ptp.supports.destination;
+            }
+        case 'camera.ptp.connected':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.available;
+            } else {
+                return camera.ptp.connected;
+            }
+        case 'camera.ptp.getSettings':
+            if(camera.ptp.new.available) {
+                return function(callback) {callback && callback()};
+            } else {
+                return camera.ptp.getSettings;
+            }
+        case 'camera.ptp.capture':
+            if(camera.ptp.new.available) {
+                return function(captureOptions, callback) {
+                    var options = {
+                        destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
+                    }
+                    return camera.ptp.new.capture(options, function(err, thumb, image, filename) {
+                        if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
+                            var file = captureOptions.saveRaw + filename.slice(-4);
+                            var cameraIndex = 1;
+                            fs.writeFile(file, image, function(err) {
+                                var photoRes = {
+                                    file: filename,
+                                    cameraCount: 1,
+                                    cameraResults: [],
+                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                    ev: null
+                                }
+                                if(captureOptions.calculateEv) {
+                                    image.exposureValue(thumb, function(err, ev, histogram) {
+                                        photoRes.ev = ev;
+                                        photoRes.histogram = histogram;
+                                        callback && callback(photoRes);
+                                    });
+                                } else {
+                                    callback && callback(photoRes);
+                                }
+
+                            });
+                            saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                        }
+                    });
+                }
+            } else {
+                return camera.ptp.capture;
+            }
+        case 'camera.ptp.settings':
+            if(camera.ptp.new.available) {
+                var base = camera.ptp.new.cameras[0].camera.exposure;
+                return {
+                    shutter: base.shutter.current,
+                    aperture: base.aperture.current,
+                    iso: base.iso.current,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
+                }
+            } else {
+                return camera.ptp.settings;
+            }
+        case 'camera.ptp.settings.details':
+            if(camera.ptp.new.available) {
+                var base = camera.ptp.new.cameras[0].camera.exposure;
+                return {
+                    shutter: base.shutter.current,
+                    aperture: base.aperture.current,
+                    iso: base.iso.current,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
+                }
+            } else {
+                return camera.ptp.settings.details;
+            }
+        case 'camera.ptp.settings.focusPos':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.cameras[0].camera.status.focusPos || 0;
+            } else {
+                return camera.ptp.settings.focusPos;
+            }
+        case 'camera.ptp.focus':
+            if(camera.ptp.new.available) {
+                return function(dir, steps, callback) {
+                    camera.ptp.new.moveFocus(dir * steps, 1, callback);
+                }
+            } else {
+                return camera.ptp.focus;
+            }
+        case 'camera.ptp.lvOff':
+            if(camera.ptp.new.available) {
+                return function(callback) {
+                    return camera.ptp.new.liveviewMode(false, callback);
+                }
+            } else {
+                return camera.ptp.lvOff;
+            }
+        case 'camera.ptp.preview':
+            if(camera.ptp.new.available) {
+                return function(callback) {
+                    return camera.ptp.new.liveviewMode(true, callback);
+                }
+            } else {
+                return camera.ptp.preview;
+            }
+    }
+}
+
+
+
 camera.testBulb = function() {
     var options = {
         preFocusMs: 500,
@@ -111,8 +246,8 @@ camera.testBulb = function() {
 }
 
 camera.getEv = function(callback) {
-    camera.ptp.getSettings(function() {
-        var settings = camera.ptp.settings.details;
+    remap('camera.ptp.getSettings')(function() {
+        var settings = remap('camera.ptp.settings.details');
         var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : lists.fixedApertureEv;
 
         if (callback) {
@@ -284,7 +419,7 @@ camera.setEv = function(ev, options, cb) {
             set = queue.pop();
             if (set) {
                 console.log("setEv: setting ", set.name);
-                camera.ptp.set(set.name, set.val, function() {
+                remap('camera.ptp.set')(set.name, set.val, function() {
                     setTimeout(function() {
                         runQueue(queue, callback)
                     });
@@ -307,15 +442,15 @@ camera.setEv = function(ev, options, cb) {
 
         var setQueue = [];
 
-        if (shutter.ev != settings.details.shutter.ev) setQueue.push({
+        if (shutter.ev != (settings.details ? settings.details.shutter.ev : settings.shutter.ev)) setQueue.push({
             name: 'shutter',
             val: shutter.cameraName || shutter.name
         });
-        if (apertureEnabled && aperture.ev != settings.details.aperture.ev) setQueue.push({
+        if (apertureEnabled && aperture.ev != (settings.details ? settings.details.aperture.ev : settings.aperture.ev)) setQueue.push({
             name: 'aperture',
             val: aperture.cameraName || aperture.name
         });
-        if (iso.ev != settings.details.iso.ev) setQueue.push({
+        if (iso.ev != (settings.details ? settings.details.iso.ev : settings.iso.ev)) setQueue.push({
             name: 'iso',
             val: iso.cameraName || iso.name
         });
@@ -336,9 +471,9 @@ camera.setEv = function(ev, options, cb) {
         console.log("setEv: using provided settings");
         doSet(options.cameraSettings);
     } else {
-        camera.ptp.getSettings(function() {
+        remap('camera.ptp.getSettings')(function() {
             console.log("setEv: retreived settings from camera");
-            var settings = camera.ptp.settings;
+            var settings = remap('camera.ptp.settings');
             doSet(settings);
         });
     }
