@@ -286,7 +286,7 @@ driver.refresh = function(camera, callback) {
                         fetchNextProperty();
                     });
                 } else {
-                    console.log(camera.exposure);
+                    //console.log(camera.exposure);
                     cb();
                 }
             }
@@ -307,6 +307,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
+            
             var shutterEv = camera.exposure.shutter.current.ev; 
             var capture = function() {
 
@@ -331,7 +332,7 @@ driver.init = function(camera, callback) {
                     }, delay);
                 });
             }
-            capture();
+            //capture();
             //driver.refresh(camera);
 
             //ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
@@ -443,7 +444,7 @@ function getImage(camera, timeout, callback) {
         }
         ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
             //console.log("data:", data);
-            if(data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
+            if(!err && data && data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
                 var getHandles = function() {
                     if(Date.now() - startTime > timeout) {
                         return callback && callback("timeout", results);

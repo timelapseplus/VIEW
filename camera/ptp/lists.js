@@ -373,7 +373,7 @@ lists.evStats = function(settings, options) {
 }
 
 lists.getEvFromSettings = function(cameraSettings) {
-    var settings = cameraSettings.details;
+    var settings = cameraSettings.details ? cameraSettings.details : cameraSettings;
     var av = (settings && settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : lists.fixedApertureEv;
 
     if(settings && settings.shutter && settings.iso) {

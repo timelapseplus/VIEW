@@ -174,7 +174,8 @@ function matchDriver(device) {
 			if(DRIVERS[i].supportedCameras[id]) {
 				return {
 					driver: DRIVERS[i],
-					name: DRIVERS[i].supportedCameras[id].name
+					name: DRIVERS[i].supportedCameras[id].name,
+					supports: DRIVERS[i].supportedCameras[id].supports
 				}
 			}
 		}
@@ -193,6 +194,7 @@ function tryConnectDevice(device) {
 	if(found) {
 		console.log("camera connected:", found.name);
 		var camera = connectCamera(found.driver, device);
+		camera.supports = found.supports;
 		camera.init(function(err) {
 			api.cameras.push({
 				model: found.name,
@@ -222,6 +224,7 @@ function ensurePrimary() {
 		}
 		api.available = true;
 		api.model = api.cameras[primaryIndex].model;
+		api.supports = api.cameras[primaryIndex].camera.supports;
 	} else {
 		api.available = false;
 	}
