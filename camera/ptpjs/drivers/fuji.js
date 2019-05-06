@@ -238,6 +238,22 @@ var properties = {
             { name: "err-2",    ev: null,        code: -2  },
             { name: "err-3",    ev: null,        code: -3  }
         ]
+    },
+    'format': {
+        name: 'format',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD018,
+        ev: false,
+        values: [
+            { name: "RAW",               code: 1  },
+            { name: "JPEG Fine",         code: 2  },
+            { name: "JPEG Normal",       code: 3  },
+            { name: "RAW + JPEG Fine",   code: 4  },
+            { name: "RAW + JPEG Normal", code: 5  }
+        ]
     }
 }
 

@@ -25,11 +25,41 @@ var HOTSHOE_IN = 34;
 
 function remap(method) { // remaps camera.ptp methods to use new driver if possible
     switch(method) {
+        case 'camera.ptp.settings.format':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.config.format;
+            } else {
+                return camera.ptp.settings.format;
+            }
+        case 'camera.ptp.model':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.model;
+            } else {
+                return camera.ptp.model;
+            }
+        case 'camera.ptp.supports.destination':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.camera.supports.destination;
+            } else {
+                return camera.ptp.supports.destination;
+            }
+        case 'camera.ptp.connected':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.available;
+            } else {
+                return camera.ptp.connected;
+            }
+        case 'camera.ptp.getSettings':
+            if(camera.ptp.new.available) {
+                return function(callback) {callback && callback()};
+            } else {
+                return camera.ptp.getSettings;
+            }
         case 'camera.ptp.capture':
             if(camera.ptp.new.available) {
                 return function(captureOptions, callback) {
                     var options = {
-                        destination: intervalometer.currentProgram.destination == 'sd' ? 'sd' : 'camera',
+                        destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
                     return camera.ptp.new.capture(options, function(err, thumb, image, filename) {
                         if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
@@ -863,7 +893,7 @@ function setupExposure(cb) {
     if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && diff != 0) { // speed HDR performance by not refreshing settings from camera
         doSetup();
     } else {
-        camera.ptp.getSettings(doSetup);
+        remap('camera.ptp.getSettings')(doSetup);
     }
 }
 
@@ -1110,7 +1140,7 @@ function runPhoto(isRetry) {
     }
     if(busyPhoto || busyExposure) pendingPhoto = true; else pendingPhoto = false;
     busyPhoto = true;
-    if (camera.ptp.connected) {
+    if (remap('camera.ptp.connected')) {
         //console.trace("Starting Photo...");
         if(intervalometer.status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
         if(!(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) || intervalometer.status.hdrIndex == 1) {
@@ -1177,7 +1207,7 @@ function runPhoto(isRetry) {
             });
         } else {
             if (intervalometer.status.rampEv === null) {
-                intervalometer.status.cameraEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                intervalometer.status.cameraEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings')); 
                 intervalometer.status.rampEv = intervalometer.status.cameraEv;
             }
             captureOptions.exposureCompensation = intervalometer.status.evDiff || 0;
@@ -1214,7 +1244,7 @@ function runPhoto(isRetry) {
             var shutterEv;
             if(remap('camera.ptp.settings.details') && remap('camera.ptp.settings.details').shutter) shutterEv = remap('camera.ptp.settings.details').shutter.ev; else shutterEv = 0;
 
-            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0 && intervalometer.status.rampEv + intervalometer.status.hdrMax >= camera.maxEv(camera.ptp.settings, getEvOptions())) {
+            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0 && intervalometer.status.rampEv + intervalometer.status.hdrMax >= camera.maxEv(remap('camera.ptp.settings'), getEvOptions())) {
                 intervalometer.status.hdrIndex = 0; // disable HDR is the exposure is at the maximum
             }
             if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0 && intervalometer.status.hdrIndex > 0) {
@@ -1260,7 +1290,7 @@ function runPhoto(isRetry) {
                     if(camera.ptp.model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
 
                     if(intervalometer.status.rampMode == "auto") {
-                        intervalometer.status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, intervalometer.status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()));
+                        intervalometer.status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, intervalometer.status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()));
                         intervalometer.status.rampRate = exp.status.rate;
                     } else if(intervalometer.status.rampMode == "fixed") {
                         intervalometer.status.rampRate = 0;
@@ -1341,8 +1371,8 @@ function autoSetExposure(offset, callback) {
                 intervalometer.status.message = "checking/setting exposure...";
                 intervalometer.emit("intervalometer.status", intervalometer.status);
                 var evChange = res.ev - offset;
-                camera.ptp.getSettings(function() {
-                    var currentEv = camera.lists.getEvFromSettings(camera.ptp.settings);
+                remap('camera.ptp.getSettings')(function() {
+                    var currentEv = camera.lists.getEvFromSettings(remap(camera.ptp.settings));
                     camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
                         if(Math.abs(evChange) < 2) {
                             callback && callback(null);
@@ -1378,9 +1408,9 @@ intervalometer.validate = function(program) {
         }        
     }
 
-    if(!camera.ptp.supports.destination && (program.destination != 'sd' || !camera.ptp.sdPresent)) {
+    if(!remap('camera.ptp.supports.destination') && (program.destination != 'sd' || !camera.ptp.sdPresent)) {
         console.log("VAL: Error: SD card required");
-        results.errors.push({param:false, reason: "SD card required. The connected camera (" + camera.ptp.model + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
+        results.errors.push({param:false, reason: "SD card required. The connected camera (" + remap('camera.ptp.model') + ") does not support saving images to the camera.  Please insert an SD card into the VIEW and set the Destination to 'SD Card' so images can be saved to the card."});
     }
 
     var settingsDetails = remap('camera.ptp.settings.details');
@@ -1400,8 +1430,8 @@ intervalometer.validate = function(program) {
             results.errors.push({param:false, reason: "invalid shutter setting on camera."});
         }
 
-        if(camera.ptp.settings && camera.ptp.settings.format != 'RAW' && program.destination == 'sd' && camera.ptp.sdPresent) {
-            if(camera.ptp.model == 'SonyWifi') {
+        if(remap('camera.ptp.settings') && remap('camera.ptp.settings.format') != 'RAW' && program.destination == 'sd' && camera.ptp.sdPresent) {
+            if(remap('camera.ptp.model') == 'SonyWifi') {
                 console.log("VAL: Error: SonyWifi doesn't support Destination='SD'");
                 results.errors.push({param:false, reason: "Destination must be set to 'Camera' when connected to Sony cameras via Wifi"});
             } else {
@@ -1451,7 +1481,7 @@ intervalometer.cancel = function(reason, callback) {
         intervalometer.emit("intervalometer.status", intervalometer.status);
         camera.ptp.completeWrites(function() {
             if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
-                camera.ptp.getSettings(function() {
+                remap('camera.ptp.getSettings')(function() {
                     var options = getEvOptions();
                     camera.setEv(intervalometer.status.rampEv, options);
                 });
@@ -1533,8 +1563,8 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
     if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
 
-    if (camera.ptp.connected) {
-        camera.ptp.getSettings(function(){
+    if (remap('camera.ptp.connected')) {
+        remap('camera.ptp.getSettings')(function(){
             var validationResults = intervalometer.validate(program);
             if (validationResults.errors.length == 0) {
                 db.getTimelapseIndex(function(err, tlIndex){
@@ -1571,7 +1601,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     intervalometer.status.startTime = new Date() / 1000;
                     intervalometer.status.rampEv = null;
                     intervalometer.status.bufferSeconds = 0;
-                    intervalometer.status.cameraSettings = camera.ptp.settings;
+                    intervalometer.status.cameraSettings = remap('camera.ptp.settings');
                     intervalometer.status.hdrSet = [];
                     intervalometer.status.hdrIndex = 0;
                     intervalometer.status.currentPlanIndex = null;
@@ -1614,7 +1644,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                             altitude: sunmoon.moonpos.alt,
                         }
                     }
-                    exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), program.nightCompensation, program.highlightProtection);
+                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), program.nightCompensation, program.highlightProtection);
                     intervalometer.status.running = true;
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     console.log("program:", "starting", program);
@@ -1900,12 +1930,12 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'rampMode':
                 if(newValue == 'auto' && intervalometer.status.rampMode != 'auto') { // restart ramping based on current exposure
                     intervalometer.status.rampMode = 'auto';
-                    intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings);
-                    exp.init(camera.minEv(camera.ptp.settings, getEvOptions()), camera.maxEv(camera.ptp.settings, getEvOptions()), intervalometer.currentProgram.nightCompensation, intervalometer.currentProgram.highlightProtection);
+                    intervalometer.status.rampEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings'));
+                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), intervalometer.currentProgram.nightCompensation, intervalometer.currentProgram.highlightProtection);
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                 }
                 if(newValue == 'fixed') {
-                    if(intervalometer.status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(camera.ptp.settings); 
+                    if(intervalometer.status.rampEv == null) intervalometer.status.rampEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings')); 
                     intervalometer.status.rampMode = 'fixed';
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                 }
