@@ -133,9 +133,9 @@ var lastParam = null;
 camera.setEv = function(ev, options, cb) {
     if (!options) options = {};
     var doSet = function(settings) {
-        var shutter = settings.details.shutter;
-        var aperture = settings.details.aperture;
-        var iso = settings.details.iso;
+        var shutter = settings.details ? settings.details.shutter : settings.shutter;
+        var aperture = settings.details ? settings.details.aperture : settings.sperture;
+        var iso = settings.details ? settings.details.iso : settings.iso;
 
         var apertureEnabled = false;
         //var shutterEnabled = true; //to be added
@@ -153,9 +153,9 @@ camera.setEv = function(ev, options, cb) {
         //console.log("current aperture", aperture);
         //console.log("current iso", iso);
 
-        var shutterList = settings.lists.shutter;
-        var apertureList = settings.lists.aperture;
-        var isoList = settings.lists.iso;
+        var shutterList = settings.lists ? settings.lists.shutter : settings.shutter.list;
+        var apertureList = settings.lists ? settings.lists.aperture : settings.aperture.list;
+        var isoList = settings.lists ? settings.lists.iso : settings.iso.list;
 
         //console.log("options: ", options);
 

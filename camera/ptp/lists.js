@@ -293,8 +293,12 @@ function filterList(list, evMultiple) {
 lists.evStats = function(settings, options) {
     var res = {};
     if(settings.lists === undefined) return {ev:null};
-    var slists = settings.lists;
-    settings = settings.details;
+    var slists = settings.lists ? settings.lists : {
+        aperture: settings.aperture ? settings.aperture.list : [],
+        shutter: settings.shutter ? settings.shutter.list : [],
+        iso: settings.iso ? settings.iso.list : [],
+    };
+    settings = settings.details ? settings.details : settings;
 
 
     var apertureEnabled = false;
