@@ -62,6 +62,12 @@ function _logD() {
     console.log.apply(console, arguments);
 }
 
+exports.uint32buf = function(uint32) {
+	var buf = new Buffer(4);
+	buf.writeUInt32LE(uint32, 0);
+	return buf;
+}
+
 exports.uint16buf = function(uint16) {
 	var buf = new Buffer(2);
 	buf.writeUInt16LE(uint16, 0);
@@ -115,6 +121,18 @@ exports.setPropU16 = function(cam, prop, value, callback) {
 exports.getPropU16 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
+	});
+}
+
+exports.setPropU32 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.uint32buf(value), function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
+	});
+}
+
+exports.getPropU32 = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt32LE && data.readUInt16LE(0));
 	});
 }
 

@@ -74,8 +74,8 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
         code: 0x500D,
         ev: true,
