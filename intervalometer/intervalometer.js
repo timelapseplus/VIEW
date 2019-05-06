@@ -27,7 +27,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
     switch(method) {
         case 'camera.ptp.settings.format':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.config.format;
+                return camera.ptp.new.cameras[0].config.format;
             } else {
                 return camera.ptp.settings.format;
             }
@@ -93,19 +93,19 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             }
         case 'camera.ptp.settings':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.exposure;
+                return camera.ptp.new.cameras[0].exposure;
             } else {
                 return camera.ptp.settings;
             }
         case 'camera.ptp.settings.details':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.exposure;
+                return camera.ptp.new.cameras[0].exposure;
             } else {
                 return camera.ptp.settings.details;
             }
         case 'camera.ptp.settings.focusPos':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.status.focusPos || 0;
+                return camera.ptp.new.cameras[0].status.focusPos || 0;
             } else {
                 return camera.ptp.settings.focusPos;
             }
