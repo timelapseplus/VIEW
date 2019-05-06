@@ -201,8 +201,8 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        setFunction: ptp.setProp32,
+        getFunction: ptp.getProp32,
         listFunction: ptp.listProp,
         code: 0x500F,
         ev: true,
@@ -296,7 +296,7 @@ driver.init = function(camera, callback) {
                     } else {
                         _logD("captured image:", filename);
                     }
-                    var delay = 1500;
+                    var delay = 1000;
                     if(err == 0x2019) delay = 50; 
                     setTimeout(function() {
                         shutterEv++;

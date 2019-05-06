@@ -68,15 +68,33 @@ exports.uint32buf = function(uint32) {
 	return buf;
 }
 
+exports.int32buf = function(int32) {
+	var buf = new Buffer(4);
+	buf.writeInt32LE(int32, 0);
+	return buf;
+}
+
 exports.uint16buf = function(uint16) {
 	var buf = new Buffer(2);
 	buf.writeUInt16LE(uint16, 0);
 	return buf;
 }
 
+exports.int16buf = function(int16) {
+	var buf = new Buffer(2);
+	buf.writeInt16LE(int16, 0);
+	return buf;
+}
+
 exports.uint8buf = function(uint8) {
 	var buf = new Buffer(1);
 	buf.writeUInt8(uint8, 0);
+	return buf;
+}
+
+exports.int8buf = function(int8) {
+	var buf = new Buffer(1);
+	buf.writeInt8(int8, 0);
 	return buf;
 }
 
@@ -124,6 +142,18 @@ exports.getPropU16 = function(cam, prop, callback) {
 	});
 }
 
+exports.setProp16 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.int16buf(value), function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
+	});
+}
+
+exports.getProp16 = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt16LE && data.readInt16LE(0));
+	});
+}
+
 exports.setPropU32 = function(cam, prop, value, callback) {
 	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.uint32buf(value), function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
@@ -132,7 +162,19 @@ exports.setPropU32 = function(cam, prop, value, callback) {
 
 exports.getPropU32 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt32LE && data.readUInt16LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt32LE && data.readUInt32LE(0));
+	});
+}
+
+exports.setProp32 = function(cam, prop, value, callback) {
+	exports.transaction(cam, exports.PTP_OC_SetDevicePropValue, [prop], exports.int32buf(value), function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode);
+	});
+}
+
+exports.getProp32 = function(cam, prop, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt32LE && data.readInt32LE(0));
 	});
 }
 
