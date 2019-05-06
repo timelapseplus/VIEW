@@ -12,6 +12,9 @@ var usb = require('usb');
 
 var api = new EventEmitter();
 
+api.enabled = true;
+api.available = false;
+
 var DRIVERS = [];
 DRIVERS.push(require('./drivers/fuji.js'));
 
@@ -22,20 +25,17 @@ function CameraAPI(driver) {
 		shutter: null,
 		aperture: null,
 		iso: null,
-		shutterList: [],
-		apertureList: [],
-		isoList: []
 	}
 	this.status = { // read only
-		busy: null,
-		recording: null,
-		remaining: null,
-		battery: null,
-		focusPos: null
+		busy: false, 		// bool
+		recording: false, 	// bool
+		remaining: null, 	// int
+		battery: null, 		// float
+		focusPos: null, 	// int
+		liveviewMode: false	// bool
 	}
 	this.config = { // can be set via CameraAPI.set()
 		format: null,
-		liveview: null,
 		lvZoom: null,
 		lvCenter: null,
 		mode: null,
@@ -58,11 +58,11 @@ util.inherits(CameraAPI, EventEmitter);
 
 usb.on('attach', function(device) { 
 	//console.log("device attached", device);
-	tryConnectDevice(device);
+	if(api.enabled) tryConnectDevice(device);
 });
 
 usb.on('detach', function(device) { 
-	console.log("DETACHED:", device);
+	//console.log("DETACHED:", device);
 	var port = device.busNumber + ':' + device.deviceAddress;
 	var camIndex = null;
 	for(var i = 0; i < api.cameras.length; i++) {
@@ -78,6 +78,7 @@ usb.on('detach', function(device) {
 		}
 	}	
 	api.cameras.splice(camIndex, 1);
+	ensurePrimary();
 	console.log("cameras connected: ", api.cameras.length);
 });
 
@@ -194,17 +195,127 @@ function tryConnectDevice(device) {
 		var camera = connectCamera(found.driver, device);
 		camera.init(function(err) {
 			api.cameras.push({
-				name: found.name,
+				model: found.name,
 				camera: camera
 			});
+			ensurePrimary();
 			api.emit('connected', found.name);
 		});
+	} else {
+		api.emit('unsupported', device);
 	}
 }
 
-var devices = usb.getDeviceList();
-for(var i = 0; i < devices.length; i++) {
-	tryConnectDevice(devices[i]);
+function ensurePrimary() {
+	var primaryIndex= -1;
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary && primaryIndex == -1) {
+			primaryIndex = i;
+			continue;
+		}
+		api.cameras[i].primary = false; // ensure there's only one
+	}
+	if(api.camera.length > 0) {
+		if(primaryIndex == -1) {
+			primaryIndex = 0;
+			api.cameras[primaryIndex].primary = true;	
+		}
+		api.available = true;
+		api.model = api.cameras[primaryIndex].model;
+	} else {
+		api.available = false;
+	}
+}
+
+function getPrimary() {
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) return api.cameras[i];
+	}
+}
+
+api.setPrimaryCamera = function(camera) {
+	for(var i = 0; i < api.cameras.length; i++) {
+		api.cameras[i].primary = false;
+	}
+	camera.primary = true;
+	ensurePrimary();
+}
+
+api.set = function(parameter, value, callback) {
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.set(api.cameras[i].camera, parameter, value, callback);
+		} else {
+			api.cameras[i].camera.set(api.cameras[i].camera, parameter, value);
+		}
+	}
+}
+
+api.capture = function(target, options, callback) {
+	if(typeof options == 'function' && callback == undefined) {
+		callback = options;
+		options = {};
+	}
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, callback);
+		} else {
+			api.cameras[i].camera.capture(api.cameras[i].camera, target, options);
+		}
+	}
+}
+
+api.captureHDR = function(target, options, frames, stops, darkerOnly, callback) {
+	if(typeof options == 'function' && callback == undefined) {
+		callback = options;
+		options = {};
+	}
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, frames, stops, darkerOnly, callback);
+		} else {
+			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, frames, stops, darkerOnly);
+		}
+	}
+}
+
+api.liveviewMode = function(enable, callback) {
+	if(!this.supports.liveview) return callback && callback("not supported");
+	if(this.status.liveview === enable) return callback && callback();
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.liveviewMode(api.cameras[i].camera, enable, callback);
+		}
+	}
+}
+
+api.liveviewImage = function(callback) {
+	if(!this.supports.liveview) return callback && callback("not supported");
+	if(!this.config.liveview) return callback && callback("not enabled");
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.liveviewMode(api.cameras[i].camera, callback);
+		}
+	}
+}
+
+api.moveFocus = function(steps, resolution, callback) {
+	if(!this.supports.focus) return callback && callback("not supported");
+	for(var i = 0; i < api.cameras.length; i++) {
+		if(api.cameras[i].primary) {
+			api.cameras[i].camera.moveFocus(api.cameras[i].camera, steps, resolution, callback);
+		} else {
+			api.cameras[i].camera.moveFocus(api.cameras[i].camera, steps, resolution);
+		}
+	}
+}
+
+
+if(api.enabled) {
+	var devices = usb.getDeviceList();
+	for(var i = 0; i < devices.length; i++) {
+		tryConnectDevice(devices[i]);
+	}
 }
 
 console.log("ready");

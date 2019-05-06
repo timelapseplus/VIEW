@@ -6,6 +6,7 @@ var cluster = require('cluster');
 var async = require('async');
 var _ = require('underscore');
 var workers = [];
+var ptp = require('../ptpjs/api.js');
 
 var cameraConnected = false;
 
@@ -16,6 +17,8 @@ cluster.setupMaster({
 var EventEmitter = require("events").EventEmitter;
 
 var camera = new EventEmitter();
+
+camera.new = ptp;
 
 camera.sdPresent = false;
 camera.connected = false;
@@ -373,9 +376,19 @@ function updateCameraCounts() {
     }
 }
 
+ptp.on('unsupported', function(device) {
+    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM) {
+        var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
+        var index = getWorkerIndex(port);
+        if(index === false) {
+            startWorker(port);
+        }
+    }    
+});
+
 monitor.on('add', function(device) {
     //console.log("device added:", device);
-    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM) {
+    if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM && !ptp.enabled) {
         var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
         var index = getWorkerIndex(port);
         if(index === false) {
@@ -1270,6 +1283,9 @@ function getSendMulti() {
 
 var blockPreviewTimer = null;
 camera.set = function(item, value, callback, _worker) {
+    //if(ptp.available) {
+    //    return ptp.set(item, value, callback);
+    //}
     camera.blockPreview = true;
     if(blockPreviewTimer) {
         clearTimeout(blockPreviewTimer);
@@ -1317,6 +1333,10 @@ camera.set = function(item, value, callback, _worker) {
     }
 }
 camera.getSettings = function(callback, useCache) {
+    //if(ptp.available) {
+    //    // re-map settings to old style here
+    //    return;
+    //}
     console.log("retreiving settings from camera");
     //console.trace();
     var worker = getPrimaryWorker();

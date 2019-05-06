@@ -260,7 +260,11 @@ function runCommand(type, args, callback, client) {
       camera.ptp.connectSonyWifi(callback);
       break;
     case 'camera.ptp.lvOff':
-      camera.ptp.lvOff(cameraCallback);
+      if(camera.ptp.new.available) {
+        camera.ptp.new.liveviewMode(false, cameraCallback);
+      } else {
+        camera.ptp.lvOff(cameraCallback);
+      }
       break;
     case 'camera.ptp.zoom':
       camera.ptp.zoom(args.x, args.y, callback);
@@ -272,10 +276,30 @@ function runCommand(type, args, callback, client) {
       camera.setEv(args.ev, args.options, cameraCallback);
       break;
     case 'camera.ptp.preview':
-      camera.ptp.preview(cameraCallback);
+      if(camera.ptp.new.available) {
+        if(!camera.ptp.new.status.liveview) {
+          camera.ptp.new.liveviewMode(true, function(){
+            camera.ptp.new.liveviewImage(cameraCallback);
+          });
+        } else {
+          camera.ptp.new.liveviewImage(cameraCallback);
+        }
+      } else {
+        camera.ptp.preview(cameraCallback);
+      }
       break;
     case 'camera.ptp.previewFull':
-      camera.ptp.previewFull(cameraCallback);
+      if(camera.ptp.new.available) {
+        if(!camera.ptp.new.status.liveview) {
+          camera.ptp.new.liveviewMode(true, function(){
+            camera.ptp.new.liveviewImage(cameraCallback);
+          });
+        } else {
+          camera.ptp.new.liveviewImage(cameraCallback);
+        }
+      } else {
+        camera.ptp.previewFull(cameraCallback);
+      }
       break;
     case 'camera.ptp.getSettings':
       camera.ptp.getSettings(function(err, data){
@@ -299,7 +323,11 @@ function runCommand(type, args, callback, client) {
       camera.ptp.runSupportTest(callback);
       break;
     case 'camera.ptp.set':
-      camera.ptp.set(args.key, args.val, cameraCallback);
+      if(camera.ptp.new.available) {
+        camera.ptp.new.set(args.key, args.val, cameraCallback);
+      } else {
+        camera.ptp.set(args.key, args.val, cameraCallback);
+      }
       break;
     case 'camera.ptp.mountSd':
       camera.ptp.mountSd(callback);
@@ -424,13 +452,23 @@ intervalometer.on('intervalometer.currentProgram', function(data) {
 });
 
 function sendCameraUpdate() {
-  var data = {
-    connected: camera.ptp.connected,
-    model: camera.ptp.model,
-    count: camera.ptp.count,
-    supports: camera.ptp.supports
-  };
-  sendEvent(camera.ptp.connected ? 'camera.connected' : 'camera.exiting', data);
+  var data;
+  if(camera.ptp.new.available) {
+    data = {
+      connected: true,
+      model: camera.ptp.new.model,
+      count: camera.ptp.new.camera.length,
+      supports: camera.ptp.new.supports
+    };
+  } else {
+    data = {
+      connected: camera.ptp.connected,
+      model: camera.ptp.model,
+      count: camera.ptp.count,
+      supports: camera.ptp.supports
+    };
+  }
+  sendEvent(data.connected ? 'camera.connected' : 'camera.exiting', data);
 }
 
 camera.ptp.on('media', function(data) {
@@ -466,7 +504,16 @@ camera.ptp.on('connected', function(model) {
   sendCameraUpdate();
   if(camera.ptp.count == 1) intervalometer.resume();
 });
+camera.ptp.new.on('connected', function(model) {
+  console.log("CORE: camera connected", model);
+  sendCameraUpdate();
+  if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
+});
 camera.ptp.on('exiting', function(model) {
+  console.log("CORE: camera disconnected");
+  sendCameraUpdate();
+});
+camera.ptp.new.on('disconnect', function(model) {
   console.log("CORE: camera disconnected");
   sendCameraUpdate();
 });

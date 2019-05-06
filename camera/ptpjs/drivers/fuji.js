@@ -23,6 +23,13 @@ function _logD() {
     console.log.apply(console, arguments);
 }
 
+function _logE() {
+    if(arguments.length > 0) {
+        arguments[0] = "PTP-FUJI: " + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
+
 driver.supportedCameras = {
     '04cb:02cb': {
             name: "Fuji X-Pro2",
@@ -252,32 +259,45 @@ driver.refresh = function(camera, callback) {
     for(var key in properties) {
         keys.push(key);
     }
-    var fetchNextProperty = function() {
-        var key = keys.pop();
-        if(key) {
-            properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
-                _logD(key, "type is", type);
-                if(!camera[properties[key].category]) camera[properties[key].category] = {};
-                if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
-                var mappedList = [];
-                for(var i = 0; i < list.length; i++) {
-                    var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                    if(!mappedItem) {
-                        _logD(key, "list item not found:", list[i]);
-                    } else {
-                        mappedList.push(mappedItem);
-                    }
+    var lvMode = camera.status.liveview;
+    async.series([
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
+        },
+        function(cb){
+            var fetchNextProperty = function() {
+                var key = keys.pop();
+                if(key) {
+                    properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
+                        _logD(key, "type is", type);
+                        if(!camera[properties[key].category]) camera[properties[key].category] = {};
+                        if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
+                        camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
+                        var mappedList = [];
+                        for(var i = 0; i < list.length; i++) {
+                            var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                            if(!mappedItem) {
+                                _logE(key, "list item not found:", list[i]);
+                            } else {
+                                mappedList.push(mappedItem);
+                            }
+                        }
+                        camera[properties[key].category][key].list = mappedList;
+                        fetchNextProperty();
+                    });
+                } else {
+                    console.log(camera.exposure);
+                    cb();
                 }
-                camera[properties[key].category][key].list = mappedList;
-                fetchNextProperty();
-            });
-        } else {
-            console.log(camera.exposure);
-            callback && callback();
-        }
-    }
-    fetchNextProperty();
+            }
+            fetchNextProperty();
+        },
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
+        },
+    ], function(err) {
+        return callback && callback(err);
+    });
 }
 
 driver.init = function(camera, callback) {
@@ -331,54 +351,80 @@ function mapPropertyItem(cameraValue, list) {
 }
 
 driver.set = function(camera, param, value, callback) {
-    if(properties[param] && properties[param].setFunction) {
-        var cameraValue = null;
-        if(properties[param].ev && typeof value == "number") {
-            for(var i = 0; i < properties[param].values.length; i++) {
-                if(properties[param].values[i].ev == value) {
-                    cameraValue = properties[param].values[i].code;
-                    break;
-                }
-            }
-        } else {
-            for(var i = 0; i < properties[param].values.length; i++) {
-                if(properties[param].values[i].name == value) {
-                    cameraValue = properties[param].values[i].code;
-                    break;
-                }
-            }
-        }
-        if(cameraValue !== null) {
-            _logD("setting", ptp.hex(properties[param].code), "to", ptp.hex(cameraValue));
-            properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
-                if(!err) {
-                    camera[properties[param].category][param].current = mapPropertyItem(cameraValue, properties[param].values);
-                    return callback && callback(err, camera[properties[param].category][param].current);
+    var lvMode = camera.status.liveview;
+    async.series([
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
+        },
+        function(cb){
+            if(properties[param] && properties[param].setFunction) {
+                var cameraValue = null;
+                if(properties[param].ev && typeof value == "number") {
+                    for(var i = 0; i < properties[param].values.length; i++) {
+                        if(properties[param].values[i].ev == value) {
+                            cameraValue = properties[param].values[i].code;
+                            break;
+                        }
+                    }
                 } else {
-                    return callback && callback(err);
+                    for(var i = 0; i < properties[param].values.length; i++) {
+                        if(properties[param].values[i].name == value) {
+                            cameraValue = properties[param].values[i].code;
+                            break;
+                        }
+                    }
                 }
-            });
-        } else {
-            return callback && callback("unknown value");
-        }
-    } else {
-        return callback && callback("unknown param");
-    }
+                if(cameraValue !== null) {
+                    _//logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
+                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                        if(!err) {
+                            camera[properties[param].category][param].current = mapPropertyItem(cameraValue, properties[param].values);
+                            return cb(err);
+                        } else {
+                            return cb(err);
+                        }
+                    });
+                } else {
+                    return cb("unknown value");
+                }
+            } else {
+                return cb("unknown param");
+            }
+        },
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
+        },
+    ], function(err) {
+        return callback && callback(err);
+    });
 }
 
 driver.get = function(camera, param, callback) {
-    if(properties[param] && properties[param].getFunction) {
-        properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
-            if(!err) {
-                camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
-                return callback && callback(err, camera[properties[key].category][key].current);
+    var lvMode = camera.status.liveview;
+    async.series([
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
+        },
+        function(cb){
+            if(properties[param] && properties[param].getFunction) {
+                properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
+                    if(!err) {
+                        camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
+                        return cb(err);
+                    } else {
+                        return cb(err);
+                    }
+                });
             } else {
-                return callback && callback(err);
+                return cb("unknown param");
             }
-        });
-    } else {
-        return callback && callback("unknown param");
-    }
+        },
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
+        },
+    ], function(err) {
+        return callback && callback(err, camera[properties[key].category][key].current);
+    });
 }
 
 function getImage(camera, timeout, callback) {
@@ -425,7 +471,7 @@ function getImage(camera, timeout, callback) {
                                             callback && callback(err, results);
                                             deleteRemaining();
                                         });
-                                    })
+                                    });
                                 } else {
                                     ptp.getObject(camera._dev, objectId, function(err, image) {
                                         ptp.deleteObject(camera._dev, objectId, function() {
@@ -434,7 +480,7 @@ function getImage(camera, timeout, callback) {
                                             callback && callback(err, results);
                                             deleteRemaining();
                                         });
-                                    })
+                                    });
                                 }
                             });
                         } else {
@@ -455,7 +501,11 @@ driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
     var results = {};
+    var lvMode = camera.status.liveview;
     async.series([
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
+        },
         function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
@@ -479,6 +529,9 @@ driver.capture = function(camera, target, options, callback, tries) {
                 cb(err);
             });
         },
+        function(cb){
+            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
+        },
     ], function(err) {
         callback && callback(err, results.thumb, results.filename, results.rawImage);
     });
@@ -489,11 +542,40 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
 }
 
 driver.liveviewMode = function(camera, enable, callback) {
-
+    if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
+    if(camera.status.liveview != !!enable) {
+        if(enable) {
+            camera._dev._lvTimer = setTimeout(function(){
+                driver.liveviewMode(camera, false);
+            }, 5000);
+            ptp.initiateOpenCapture(camera._dev, function(err) {
+                if(!err) camera.status.liveview = true;
+                callback && callback(err);
+            });
+        } else {
+            ptp.terminateOpenCapture(camera._dev, function(err) {
+                if(!err) camera.status.liveview = false;
+                callback && callback(err);
+            });
+        }
+    } else {
+        callback && callback();
+    }
 }
 
-driver.liveviewImage = function(camera, nable, callback) {
-
+driver.liveviewImage = function(camera, callback) {
+    if(camera.status.liveview) {
+        if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
+        camera._dev._lvTimer = setTimeout(function(){
+            driver.liveviewMode(camera, false);
+        }, 5000);
+        ptp.getObject(camera._dev, 0x80000001, function(err, image) {
+            ptp.deleteObject(camera._dev, 0x80000001);
+            callback && callback(err, image);
+        });
+    } else {
+        callback && callback("not enabled");
+    }
 }
 
 driver.moveFocus = function(camera, steps, resolution, callback) {

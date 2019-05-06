@@ -316,7 +316,24 @@ exports.getObjectHandles = function(cam, callback) {
 
 exports.ptpCapture = function(cam, params, callback) {
 	exports.transaction(cam, exports.PTP_OC_InitiateCapture, params, null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
+	});
+}
+
+exports.initiateOpenCapture = function(cam, callback) {
+	exports.transaction(cam, exports.PTP_OC_InitiateOpenCapture, [0x00000000, 0x00000000], null, function(err, responseCode, data) {
+		var error = err || responseCode == 0x2001 ? null : responseCode;
+		if(!error) cam._openCaptureTransactionId = cam.transactionId;
+		callback && callback(error, data);
+	});
+}
+
+exports.terminateOpenCapture = function(cam, callback) {
+	if(!cam._openCaptureTransactionId) cam._openCaptureTransactionId = 0;
+	exports.transaction(cam, exports.PTP_OC_TerminateOpenCapture, [cam._openCaptureTransactionId], null, function(err, responseCode, data) {
+		var error = err || responseCode == 0x2001 ? null : responseCode;
+		if(!error) cam._openCaptureTransactionId = 0;
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
 	});
 }
 
