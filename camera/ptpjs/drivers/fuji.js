@@ -273,7 +273,7 @@ driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
-            function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);}  // USB control
+            function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             var shutterEv = callback.exposure.shutter.ev; 
