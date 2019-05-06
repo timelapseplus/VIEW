@@ -149,9 +149,9 @@ camera.setEv = function(ev, options, cb) {
             };
         }
 
-        //console.log("current shutter", shutter);
-        //console.log("current aperture", aperture);
-        //console.log("current iso", iso);
+        console.log("current shutter", shutter);
+        console.log("current aperture", aperture);
+        console.log("current iso", iso);
 
         var shutterList = settings.lists ? settings.lists.shutter : settings.shutter.list;
         var apertureList = settings.lists ? settings.lists.aperture : settings.aperture.list;
@@ -163,7 +163,7 @@ camera.setEv = function(ev, options, cb) {
         if(apertureList) apertureList = lists.cleanEvCopy(apertureList);
         if(isoList) isoList = lists.cleanEvCopy(isoList);
 
-        //console.log("isoList2: ", isoList);
+        console.log("isoList: ", isoList);
 
         if (shutterList && options && options.maxShutterLengthMs) {
             var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
