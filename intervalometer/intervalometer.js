@@ -1691,7 +1691,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                 start3();
                             //}
                         } else {
-                            if(camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
+                            if(camera.ptp.model && camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
                                 remap('camera.ptp.capture')({mode:"test"}, start3);
                             } else {
                                 start3();
