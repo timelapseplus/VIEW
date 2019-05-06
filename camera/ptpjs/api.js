@@ -66,7 +66,7 @@ usb.on('detach', function(device) {
 	var port = device.busNumber + ':' + device.deviceAddress;
 	var camIndex = null;
 	for(var i = 0; i < api.cameras.length; i++) {
-		if(api.cameras[i]._port == port) {
+		if(api.cameras[i].camera._port == port) {
 			camIndex = i;
 			var cam = api.cameras[i]._dev;
 			if(cam.ep.evt) {
@@ -188,7 +188,7 @@ api.cameras = [];
 function tryConnectDevice(device) {
 	var port = device.busNumber + ':' + device.deviceAddress;
 	for(var i = 0; i < api.cameras.length; i++) {
-		if(api.cameras[i]._port == port) return; // already connected
+		if(api.cameras[i].camera._port == port) return; // already connected
 	}
 	var found = matchDriver(device);
 	if(found) {
@@ -201,7 +201,7 @@ function tryConnectDevice(device) {
 				camera: camera
 			});
 			ensurePrimary();
-			api.emit('connected', found.name);
+			api.emit('connected', found.name, camera.exposure);
 		});
 	} else {
 		api.emit('unsupported', device);
