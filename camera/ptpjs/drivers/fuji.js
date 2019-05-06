@@ -338,6 +338,7 @@ driver.set = function(camera, param, value, callback) {
             }
         }
         if(cameraValue !== null) {
+            _logD("setting", ptp.hex(properties[param].code), "to", ptp.hex(cameraValue));
             properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                 if(!err) {
                     camera[properties[param].category][param].current = mapPropertyItem(cameraValue, properties[param].values);
