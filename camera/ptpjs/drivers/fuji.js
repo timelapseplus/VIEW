@@ -276,7 +276,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
-            var shutterEv = callback.exposure.shutter.ev; 
+            var shutterEv = camera.exposure.shutter.current.ev; 
             var capture = function() {
 
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
