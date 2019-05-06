@@ -38,7 +38,7 @@ driver.supportedCameras = {
                 aperture: true,
                 iso: true,
                 liveview: true,
-                target: true,
+                destination: true,
                 focus: true,
             }
         },
@@ -49,7 +49,7 @@ driver.supportedCameras = {
                 aperture: true,
                 iso: true,
                 liveview: true,
-                target: true,
+                destination: true,
                 focus: true,
             }
         },
@@ -60,7 +60,7 @@ driver.supportedCameras = {
                 aperture: true,
                 iso: true,
                 liveview: true,
-                target: true,
+                destination: true,
                 focus: true,
             }
         },
@@ -71,7 +71,7 @@ driver.supportedCameras = {
                 aperture: true,
                 iso: true,
                 liveview: true,
-                target: true,
+                destination: true,
                 focus: true,
             }
         },
