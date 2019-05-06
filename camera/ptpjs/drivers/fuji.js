@@ -322,16 +322,16 @@ driver.set = function(camera, param, value, callback) {
     if(properties[param] && properties[param].setFunction) {
         var cameraValue = null;
         if(properties[param].ev && typeof value == "number") {
-            for(var i = 0; i < properties[key].values.length; i++) {
-                if(properties[key].values[i].ev == value) {
-                    cameraValue = properties[key].values[i].code;
+            for(var i = 0; i < properties[param].values.length; i++) {
+                if(properties[param].values[i].ev == value) {
+                    cameraValue = properties[param].values[i].code;
                     break;
                 }
             }
         } else {
-            for(var i = 0; i < properties[key].values.length; i++) {
-                if(properties[key].values[i].name == value) {
-                    cameraValue = properties[key].values[i].code;
+            for(var i = 0; i < properties[param].values.length; i++) {
+                if(properties[param].values[i].name == value) {
+                    cameraValue = properties[param].values[i].code;
                     break;
                 }
             }
@@ -339,8 +339,8 @@ driver.set = function(camera, param, value, callback) {
         if(cameraValue !== null) {
             properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                 if(!err) {
-                    camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
-                    return callback && callback(err, camera[properties[key].category][key].current);
+                    camera[properties[param].category][param].current = mapPropertyItem(cameraValue, properties[param].values);
+                    return callback && callback(err, camera[properties[param].category][param].current);
                 } else {
                     return callback && callback(err);
                 }
