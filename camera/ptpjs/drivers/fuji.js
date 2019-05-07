@@ -402,9 +402,11 @@ driver.set = function(camera, param, value, callback) {
                         }
                     });
                 } else {
+                    _logE("set: unknown value", value, "for", param);
                     return cb("unknown value");
                 }
             } else {
+                _logE("set: unknown param", param);
                 return cb("unknown param");
             }
         },
