@@ -61,7 +61,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     var options = {
                         destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
-                    return camera.ptp.new.capture(options, function(err, thumb, image, filename) {
+                    return camera.ptp.new.capture(options, function(err, thumb, filename, raw) {
                         saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                         var completeCapture = function() {
                             var photoRes = {
@@ -81,10 +81,10 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 callback && callback(err, photoRes);
                             }
                         }
-                        if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
+                        if(options.destination == 'sd' && captureOptions.saveRaw && raw && filename) {
                             var file = captureOptions.saveRaw + filename.slice(-4);
                             var cameraIndex = 1;
-                            fs.writeFile(file, image, function(err) {
+                            fs.writeFile(file, raw, function(err) {
                                 completeCapture();
                             });
                         } else {
