@@ -288,7 +288,8 @@ driver.refresh = function(camera, callback) {
                         _logD(key, "type is", type);
                         if(!camera[properties[key].category]) camera[properties[key].category] = {};
                         if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                        camera[properties[key].category][key].current = mapPropertyItem(current, properties[key].values);
+                        var current = mapPropertyItem(current, properties[key].values);
+                        camera[properties[key].category][key] = current || {};
                         var mappedList = [];
                         for(var i = 0; i < list.length; i++) {
                             var mappedItem = mapPropertyItem(list[i], properties[key].values);
@@ -324,7 +325,7 @@ driver.init = function(camera, callback) {
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             
-            var shutterEv = camera.exposure.shutter.current.ev; 
+            var shutterEv = camera.exposure.shutter.ev; 
             var capture = function() {
 
                 driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
@@ -395,7 +396,10 @@ driver.set = function(camera, param, value, callback) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                         if(!err) {
-                            camera[properties[param].category][param].current = mapPropertyItem(cameraValue, properties[param].values);
+                            var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                            for(var k in newItem) {
+                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                            }
                             return cb(err);
                         } else {
                             return cb(err);
@@ -428,7 +432,17 @@ driver.get = function(camera, param, callback) {
             if(properties[param] && properties[param].getFunction) {
                 properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
                     if(!err) {
-                        camera[properties[key].category][key].current = mapPropertyItem(data, properties[key].values);
+                        var newItem =  mapPropertyItem(data, properties[param].values);
+                        if(newItem) {
+                            for(var k in newItem) {
+                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                            }
+                        } else {
+                            var list = camera[properties[param].category][param].list;
+                            camera[properties[param].category][param] = {
+                                list: list
+                            }
+                        }
                         return cb(err);
                     } else {
                         return cb(err);
@@ -442,7 +456,7 @@ driver.get = function(camera, param, callback) {
             if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err) {
-        return callback && callback(err, camera[properties[key].category][key].current);
+        return callback && callback(err, camera[properties[key].category][key]);
     });
 }
 

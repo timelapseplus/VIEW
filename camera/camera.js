@@ -122,9 +122,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             if(camera.ptp.new.available) {
                 var base = camera.ptp.new.cameras[0].camera.exposure;
                 return {
-                    shutter: base.shutter.current,
-                    aperture: base.aperture.current,
-                    iso: base.iso.current,
+                    shutter: base.shutter,
+                    aperture: base.aperture,
+                    iso: base.iso,
                     lists: {
                         shutter: base.shutter.list,
                         aperture: base.aperture.list,
@@ -138,9 +138,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             if(camera.ptp.new.available) {
                 var base = camera.ptp.new.cameras[0].camera.exposure;
                 return {
-                    shutter: base.shutter.current,
-                    aperture: base.aperture.current,
-                    iso: base.iso.current,
+                    shutter: base.shutter,
+                    aperture: base.aperture,
+                    iso: base.iso,
                     lists: {
                         shutter: base.shutter.list,
                         aperture: base.aperture.list,
