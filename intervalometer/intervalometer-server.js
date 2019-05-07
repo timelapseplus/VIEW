@@ -434,7 +434,7 @@ function runCommand(type, args, callback, client) {
 
 intervalometer.on('intervalometer.status', function(data) {
   data.autoSettings = intervalometer.autoSettings;
-  if(!data.running && camera.ptp.model.match(/nikon/i)) camera.ptp.set("controlmode", 0, function(){});
+  if(!data.running && camera.ptp.model && camera.ptp.model.match(/nikon/i)) camera.ptp.set("controlmode", 0, function(){});
   sendEvent('intervalometer.status', data);
   intervalometerStatus = data;
 
