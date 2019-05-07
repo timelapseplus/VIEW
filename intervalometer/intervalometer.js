@@ -25,6 +25,12 @@ var HOTSHOE_IN = 34;
 
 function remap(method) { // remaps camera.ptp methods to use new driver if possible
     switch(method) {
+        case 'camera.setEv':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.setEv;
+            } else {
+                return camera.setEv;
+            }
         case 'camera.ptp.settings.format':
             if(camera.ptp.new.available) {
                 return camera.ptp.new.cameras[0].camera.config.format;
@@ -557,7 +563,7 @@ function processKeyframes(setupFirst, callback) {
                 });
             } else if(m == 'ev') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', null, function(ev) {
-                    //if (ev != null && camera.settings.ev != ev) camera.setEv(ev);
+                    //if (ev != null && camera.settings.ev != ev) remap('camera.setEv')(ev);
                     checkDone('ev');
                 });
             } else if(m == 'interval') {
@@ -900,7 +906,7 @@ function setupExposure(cb) {
             if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
                 var options = getEvOptions();
                 options.doNotSet = true;
-                camera.setEv(intervalometer.status.rampEv + intervalometer.status.hdrMax, options, function(err, res) {
+                remap('camera.setEv')(intervalometer.status.rampEv + intervalometer.status.hdrMax, options, function(err, res) {
                     if(intervalometer.status.stopping) return cb && cb();
                     camera.setExposure(res.shutter.ev + diff - intervalometer.status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
                         if(ev != null) {
@@ -916,7 +922,7 @@ function setupExposure(cb) {
                     });
                 });
             } else {
-                camera.setEv(intervalometer.status.rampEv + diff, getEvOptions(), function(err, res) {
+                remap('camera.setEv')(intervalometer.status.rampEv + diff, getEvOptions(), function(err, res) {
                     if(res.ev != null) {
                         intervalometer.status.cameraEv = res.ev;
                     } 
@@ -1418,7 +1424,7 @@ function autoSetExposure(offset, callback) {
                 var evChange = res.ev - offset;
                 remap('camera.ptp.getSettings')(function() {
                     var currentEv = camera.lists.getEvFromSettings(remap(camera.ptp.settings));
-                    camera.setEv(currentEv + evChange, getEvOptions(), function(err, res) {
+                    remap('camera.setEv')(currentEv + evChange, getEvOptions(), function(err, res) {
                         if(Math.abs(evChange) < 2) {
                             callback && callback(null);
                         } else {
@@ -1528,7 +1534,7 @@ intervalometer.cancel = function(reason, callback) {
             if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
                 remap('camera.ptp.getSettings')(function() {
                     var options = getEvOptions();
-                    camera.setEv(intervalometer.status.rampEv, options);
+                    remap('camera.setEv')(intervalometer.status.rampEv, options);
                 });
             }
             busyPhoto = false;
