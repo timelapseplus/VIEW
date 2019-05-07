@@ -30,6 +30,15 @@ function _logE() {
     console.log.apply(console, arguments);
 }
 
+function objCopy(sourceObj, destObj) {
+    if(!destObj) destObj = {};
+    if(!sourceObj) return destObj;
+    for(var k in sourceObj) {
+        if(sourceObj.hasOwnProperty(k)) destObj[k] = sourceObj[k];
+    }
+    return destObj;
+}
+
 driver.supportedCameras = {
     '04cb:02cb': {
             name: "Fuji X-Pro2",
@@ -289,7 +298,7 @@ driver.refresh = function(camera, callback) {
                         if(!camera[properties[key].category]) camera[properties[key].category] = {};
                         if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                         var currentMapped = mapPropertyItem(current, properties[key].values);
-                        camera[properties[key].category][key] = currentMapped || {};
+                        camera[properties[key].category][key] = objCopy(currentMapped, {});
                         var mappedList = [];
                         for(var i = 0; i < list.length; i++) {
                             var mappedItem = mapPropertyItem(list[i], properties[key].values);
@@ -303,7 +312,7 @@ driver.refresh = function(camera, callback) {
                         fetchNextProperty();
                     });
                 } else {
-                    console.log(camera.exposure);
+                    //console.log(camera.exposure);
                     cb();
                 }
             }
