@@ -5578,7 +5578,7 @@ core.on('intervalometer.status', function(msg) {
         intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
-        shutterSeconds: msg.cameraSettings.details.shutter ? lists.getSecondsFromEv(msg.cameraSettings.details.shutter.ev) : 0,
+        shutterSeconds: ((msg.cameraSettings.shutter && msg.cameraSettings.shutter.ev) || msg.cameraSettings.details.shutter) ? lists.getSecondsFromEv(msg.cameraSettings.details ? msg.cameraSettings.details.shutter.ev : msg.cameraSettings.shutter.ev) : 0,
         durationSeconds: (new Date() / 1000) - msg.startTime,
         captureStartTime: msg.captureStartTime,
         running: msg.running
