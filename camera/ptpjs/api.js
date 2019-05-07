@@ -361,7 +361,7 @@ api.setEv = function(ev, options, callback) {
     if(ev == null) return callback && callback("invalid ev", returnData);
     if(api.cameras.length == 0) return callback && callback("camera not connected", returnData);
 
-    var exposure = api.cameras[0].exposure;
+    var exposure = api.cameras[0].camera.exposure;
 
     var shutterEv = exposure.shutter ? exposure.shutter.ev : null;
     var apertureEv = exposure.aperture ? exposure.aperture.ev : null;
