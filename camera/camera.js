@@ -424,7 +424,7 @@ camera.setEv = function(ev, options, cb) {
         function runQueue(queue, callback) {
             set = queue.pop();
             if (set) {
-                console.log("setEv: setting ", set.name);
+                console.log("setEv: setting", set.name, "to", set.val);
                 remap('camera.ptp.set')(set.name, set.val, function() {
                     setTimeout(function() {
                         runQueue(queue, callback)
