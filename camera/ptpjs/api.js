@@ -245,6 +245,7 @@ api.setPrimaryCamera = function(cameraIndex) {
 }
 
 api.set = function(parameter, value, callback) {
+	console.log("API: setting", parameter, "to", value);
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
 			api.cameras[i].camera.set(api.cameras[i].camera, parameter, value, callback);
