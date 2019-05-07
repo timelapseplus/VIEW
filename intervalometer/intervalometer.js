@@ -177,7 +177,6 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
         image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
             if (!err && jpgBuf) {
                 fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function() {
-                    console.log("WORKER: completed saveThumbnail", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
                 });
             }
         });
@@ -185,7 +184,6 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
         image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 320, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
             if (!err && jpgBuf) {
                 fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, true), jpgBuf, function() {
-                    console.log("WORKER: completed saveThumbnail (HQ) ", index, "in", (new Date() / 1000) - thumbnailStartTime, "seconds");
                 });
             }
         });
