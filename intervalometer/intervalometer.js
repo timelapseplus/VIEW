@@ -62,29 +62,33 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                         destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
                     return camera.ptp.new.capture(options, function(err, thumb, image, filename) {
+                        saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                        var completeCapture = function() {
+                            var photoRes = {
+                                file: filename,
+                                cameraCount: 1,
+                                cameraResults: [],
+                                thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                ev: null
+                            }
+                            if(captureOptions.calculateEv) {
+                                image.exposureValue(thumb, function(err, ev, histogram) {
+                                    photoRes.ev = ev;
+                                    photoRes.histogram = histogram;
+                                    callback && callback(err, photoRes);
+                                });
+                            } else {
+                                callback && callback(err, photoRes);
+                            }
+                        }
                         if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
                             var file = captureOptions.saveRaw + filename.slice(-4);
                             var cameraIndex = 1;
                             fs.writeFile(file, image, function(err) {
-                                var photoRes = {
-                                    file: filename,
-                                    cameraCount: 1,
-                                    cameraResults: [],
-                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
-                                    ev: null
-                                }
-                                if(captureOptions.calculateEv) {
-                                    image.exposureValue(thumb, function(err, ev, histogram) {
-                                        photoRes.ev = ev;
-                                        photoRes.histogram = histogram;
-                                        callback && callback(photoRes);
-                                    });
-                                } else {
-                                    callback && callback(photoRes);
-                                }
-
+                                completeCapture();
                             });
-                            saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                        } else {
+                            completeCapture();
                         }
                     });
                 }
