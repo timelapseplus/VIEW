@@ -496,6 +496,22 @@ camera.ptp.on('photo', function() {
 camera.ptp.on('histogram', function(data) {
   sendEvent('camera.histogram', data);
 });
+intervalometer.on('photo', function() {
+  var obj = {};
+  for(var i in camera.ptp.photo) {
+    if(camera.ptp.photo.hasOwnProperty(i)) {
+      if(i == 'jpeg') {
+        obj.base64 = new Buffer(camera.ptp.photo.jpeg).toString('base64');
+      } else {
+        obj[i] = camera.ptp.photo[i];
+      }
+    }
+  }
+  sendEvent('camera.photo', obj);
+});
+intervalometer.on('histogram', function(data) {
+  sendEvent('camera.histogram', data);
+});
 camera.ptp.on('settings', function(data) {
   sendEvent('camera.settings', camera.ptp.settings);
 });
