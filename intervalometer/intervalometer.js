@@ -172,7 +172,7 @@ function thumbnailFileFromIndex(index, cameraIndex, hqVersion) {
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     var indexStr = (index + 1).toString();
-    fs.writeFile(thumbnailPath + "/count.txt", indexStr, function() {
+    fs.writeFile(intervalometer.timelapseFolder + "/count.txt", indexStr, function() {
 
         image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
             if (!err && jpgBuf) {
