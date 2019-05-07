@@ -288,8 +288,8 @@ driver.refresh = function(camera, callback) {
                         _logD(key, "type is", type);
                         if(!camera[properties[key].category]) camera[properties[key].category] = {};
                         if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                        var current = mapPropertyItem(current, properties[key].values);
-                        camera[properties[key].category][key] = current || {};
+                        var currentMapped = mapPropertyItem(current, properties[key].values);
+                        camera[properties[key].category][key] = currentMapped || {};
                         var mappedList = [];
                         for(var i = 0; i < list.length; i++) {
                             var mappedItem = mapPropertyItem(list[i], properties[key].values);
@@ -303,7 +303,7 @@ driver.refresh = function(camera, callback) {
                         fetchNextProperty();
                     });
                 } else {
-                    //console.log(camera.exposure);
+                    console.log(camera.exposure);
                     cb();
                 }
             }
