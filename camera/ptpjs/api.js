@@ -248,9 +248,9 @@ api.set = function(parameter, value, callback) {
 	console.log("API: setting", parameter, "to", value);
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.set(api.cameras[i].camera, parameter, value, callback);
+			api.cameras[i].camera.set(parameter, value, callback);
 		} else {
-			api.cameras[i].camera.set(api.cameras[i].camera, parameter, value);
+			api.cameras[i].camera.set(parameter, value);
 		}
 	}
 }
@@ -262,9 +262,9 @@ api.capture = function(target, options, callback) {
 	}
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, callback);
+			api.cameras[i].camera.capture(target, options, callback);
 		} else {
-			api.cameras[i].camera.capture(api.cameras[i].camera, target, options);
+			api.cameras[i].camera.capture(target, options);
 		}
 	}
 }
@@ -276,9 +276,9 @@ api.captureHDR = function(target, options, frames, stops, darkerOnly, callback) 
 	}
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, frames, stops, darkerOnly, callback);
+			api.cameras[i].camera.capture(target, options, frames, stops, darkerOnly, callback);
 		} else {
-			api.cameras[i].camera.capture(api.cameras[i].camera, target, options, frames, stops, darkerOnly);
+			api.cameras[i].camera.capture(target, options, frames, stops, darkerOnly);
 		}
 	}
 }
@@ -288,7 +288,7 @@ api.liveviewMode = function(enable, callback) {
 	if(this.status.liveview === enable) return callback && callback();
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.liveviewMode(api.cameras[i].camera, enable, callback);
+			api.cameras[i].camera.liveviewMode(enable, callback);
 		}
 	}
 }
@@ -298,7 +298,7 @@ api.liveviewImage = function(callback) {
 	if(!this.config.liveview) return callback && callback("not enabled");
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.liveviewMode(api.cameras[i].camera, callback);
+			api.cameras[i].camera.liveviewMode(callback);
 		}
 	}
 }
@@ -307,9 +307,9 @@ api.moveFocus = function(steps, resolution, callback) {
 	if(!this.supports.focus) return callback && callback("not supported");
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.moveFocus(api.cameras[i].camera, steps, resolution, callback);
+			api.cameras[i].camera.moveFocus(steps, resolution, callback);
 		} else {
-			api.cameras[i].camera.moveFocus(api.cameras[i].camera, steps, resolution);
+			api.cameras[i].camera.moveFocus(steps, resolution);
 		}
 	}
 }
