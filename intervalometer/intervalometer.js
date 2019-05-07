@@ -222,7 +222,7 @@ function log() {
     console.log.apply(console, arguments);
 }
 
-function loglogErr() {
+function logErr() {
     if(arguments.length > 0) {
         arguments[0] = "INTERVALOMETER: (error)" + arguments[0];
     }
