@@ -329,9 +329,9 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 }
 
 function incEv(ev, evList) {
+	console.log("incEv: index", i, "ev", ev, "list", evList);
 	if(!evList) return null;
 	var i = evList.indexOf(ev);
-	console.log("incEv: index", i, "ev", ev);
 	if(i != -1 && i < evList.length - 1 && evList[i + 1] != null) return evList[i + 1];
 	return ev;
 }
@@ -344,7 +344,8 @@ function decEv(ev, evList) {
 }
 
 function equalEv(ev1, ev2) {
-	return Math.abs(ev1 - ev2) < 0.1;
+	if(ev1 == null || ev2 == null) return true; // equal means ignore
+	return Math.abs(ev1 - ev2) < 0.25;
 }
 
 api.getEv = function(shutterEv, apertureEv, isoEv) {
