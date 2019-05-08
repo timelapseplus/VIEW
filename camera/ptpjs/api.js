@@ -472,7 +472,7 @@ api.setEv = function(ev, options, callback) {
     }
 
 
-    console.log("API setEv: current:", origEv, "new:", currentEv);
+    console.log("API setEv: current:", origEv, "target:", ev, "new:", currentEv);
 
     function runQueue(queue, callback) {
         set = queue.pop();
