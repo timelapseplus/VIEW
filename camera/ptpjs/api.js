@@ -342,6 +342,10 @@ function decEv(ev, evList) {
 	return ev;
 }
 
+function equalEv(ev1, ev2) {
+	return Math.abs(ev1 - ev2) < 0.1;
+}
+
 api.getEv = function(shutterEv, apertureEv, isoEv) {
     if(shutterEv == null) shutterEv = api.cameras.length > 0 && api.cameras[0].exposure.shutter ? api.cameras[0].exposure.shutter.ev : null;
     if(apertureEv == null) apertureEv = api.cameras.length > 0 && api.cameras[0].exposure.aperture ? api.cameras[0].exposure.aperture.ev : null;
@@ -390,7 +394,7 @@ api.setEv = function(ev, options, callback) {
 
     var origEv = currentEv;
 
-    if(ev == currentEv) {
+    if(equalEv(ev, currentEv)) {
         return callback && callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},
@@ -420,13 +424,13 @@ api.setEv = function(ev, options, callback) {
             if (apertureEnabled) var a = decEv(apertureEv, apertureList);
             var i = decEv(isoEv, isoList);
 
-            if (shutterEv != s && lastParam != 's') {
+            if (!equalEv(shutterEv, s) && lastParam != 's') {
                 shutterEv = s;
                 if(options.blendParams) lastParam = 's';
-            } else if (apertureEnabled && apertureEv != a && lastParam != 'a') {
+            } else if (apertureEnabled && !equalEv(apertureEv, a) && lastParam != 'a') {
                 apertureEv = a;
                 if(options.blendParams) lastParam = 'a';
-            } else if (isoEv != i && lastParam != 'i') {
+            } else if (!equalEv(isoEv, i) && lastParam != 'i') {
                 isoEv = i;
                 if(options.blendParams) lastParam = 'i';
             } else {
@@ -444,13 +448,13 @@ api.setEv = function(ev, options, callback) {
             if (apertureEnabled) var a = incEv(apertureEv, apertureList);
             var i = incEv(isoEv, isoList);
 
-            if (isoEv != i && lastParam != 'i') {
+            if (!equalEv(isoEv, i) && lastParam != 'i') {
                 isoEv = i;
                 if(options.blendParams) lastParam = 'i';
-            } else if (apertureEnabled && apertureEv != a && lastParam != 'a') {
+            } else if (apertureEnabled && !equalEv(apertureEv, a) && lastParam != 'a') {
                 apertureEv = a;
                 if(options.blendParams) lastParam = 'a';
-            } else if (shutterEv != s && lastParam != 's') {
+            } else if (!equalEv(shutterEv, s) && lastParam != 's') {
                 shutterEv = s;
                 if(options.blendParams) lastParam = 's';
             } else {
