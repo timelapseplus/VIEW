@@ -314,7 +314,7 @@ var DATAU32 = 0x0006;
 var RANGE = 1;
 var LIST = 2;
 
-function sonyReadProperties(callback)
+function sonyReadProperties(camera, callback)
 {
     ptp.transaction(camera._cam, 0x9209, [], null, function(err, data) {
         var i = 0;
@@ -416,7 +416,7 @@ function sonyReadProperties(callback)
 
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
-        sonyReadProperties(function(err){
+        sonyReadProperties(camera, function(err){
             console.log("sonyReadProperties err", err);
             callback && callback(err);
         });
