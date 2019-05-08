@@ -315,7 +315,7 @@ api.moveFocus = function(steps, resolution, callback) {
 }
 
 function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a camera available list
-	var base = api.cameras[0].exposure;
+	var base = api.cameras[0].camera.exposure;
 	console.log("API:", param, "base", base);
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
@@ -351,9 +351,9 @@ function equalEv(ev1, ev2) {
 }
 
 api.getEv = function(shutterEv, apertureEv, isoEv) {
-    if(shutterEv == null) shutterEv = api.cameras.length > 0 && api.cameras[0].exposure.shutter ? api.cameras[0].exposure.shutter.ev : null;
-    if(apertureEv == null) apertureEv = api.cameras.length > 0 && api.cameras[0].exposure.aperture ? api.cameras[0].exposure.aperture.ev : null;
-    if(isoEv == null) isoEv = api.cameras.length > 0 && api.cameras[0].exposure.iso ? api.cameras[0].exposure.iso.ev : null;
+    if(shutterEv == null) shutterEv = api.cameras.length > 0 && api.cameras[0].camera.exposure.shutter ? api.cameras[0].camera.exposure.shutter.ev : null;
+    if(apertureEv == null) apertureEv = api.cameras.length > 0 && api.cameras[0].camera.exposure.aperture ? api.cameras[0].camera.exposure.aperture.ev : null;
+    if(isoEv == null) isoEv = api.cameras.length > 0 && api.cameras[0].camera.exposure.iso ? api.cameras[0].camera.exposure.iso.ev : null;
     if(shutterEv == null || apertureEv == null || isoEv == null) return null;
     return shutterEv + 6 + apertureEv + 8 + isoEv;
 }
