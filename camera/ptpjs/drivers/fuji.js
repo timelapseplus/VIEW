@@ -565,7 +565,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
         },
         function(cb){
-            if(camera.config.destination == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
+            if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},

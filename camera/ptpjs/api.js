@@ -390,6 +390,15 @@ api.setEv = function(ev, options, callback) {
 
     var origEv = currentEv;
 
+    if(ev == currentEv) {
+        return callback && callback(null, {
+            ev: currentEv,
+            shutter: {ev: shutterEv},
+            aperture: {ev: apertureEv},
+            iso: {ev: isoEv}
+        });
+    }
+
     var shutterList = 	listEvs('shutter', 		null, 					options.shutterMax);
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
     var isoList = 		listEvs('iso', 			options.isoMin, 		options.isoMax);
