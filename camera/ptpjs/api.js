@@ -329,12 +329,14 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 }
 
 function incEv(ev, evList) {
+	if(!evList) return null;
 	var i = evList.indexOf(ev);
 	if(i != -1 && i < evList.length - 1) return evList[i + 1];
 	return ev;
 }
 
 function decEv(ev, evList) {
+	if(!evList) return null;
 	var i = evList.indexOf(ev);
 	if(i > 0) return evList[i - 1];
 	return ev;
@@ -385,6 +387,8 @@ api.setEv = function(ev, options, callback) {
         currentEv = api.getEv(shutterEv, apertureEv, isoEv);
     }
     if(currentEv == null) return callback && callback("insufficient settings available", returnData);
+
+    var origEv = currentEv;
 
     var shutterList = 	listEvs('shutter', 		null, 					options.shutterMax);
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
@@ -454,7 +458,7 @@ api.setEv = function(ev, options, callback) {
     }
 
 
-    console.log("setEv: finalEv: ", currentEv);
+    console.log("API setEv: current:", origEv, "new:", currentEv);
 
     function runQueue(queue, callback) {
         set = queue.pop();
