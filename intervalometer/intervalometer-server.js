@@ -277,7 +277,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.preview':
       if(camera.ptp.new.available) {
-        if(!camera.ptp.new.status.liveview) {
+        if(!camera.ptp.new.cameras[0].status.liveview) {
           camera.ptp.new.liveviewMode(true, function(){
             camera.ptp.new.liveviewImage(cameraCallback);
           });
@@ -290,7 +290,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.previewFull':
       if(camera.ptp.new.available) {
-        if(!camera.ptp.new.status.liveview) {
+        if(!camera.ptp.new.cameras[0].status.liveview) {
           camera.ptp.new.liveviewMode(true, function(){
             camera.ptp.new.liveviewImage(cameraCallback);
           });

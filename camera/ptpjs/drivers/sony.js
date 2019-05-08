@@ -14,18 +14,18 @@ var fs = require('fs');
 
 var driver = new EventEmitter();
 
-driver.name = "Fujifilm";
+driver.name = "Sony Alpha";
 
 function _logD() {
     if(arguments.length > 0) {
-        arguments[0] = "PTP-FUJI: " + arguments[0];
+        arguments[0] = "PTP-SONY: " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
 
 function _logE() {
     if(arguments.length > 0) {
-        arguments[0] = "PTP-FUJI: " + arguments[0];
+        arguments[0] = "PTP-SONY: " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
@@ -40,8 +40,8 @@ function objCopy(sourceObj, destObj) {
 }
 
 driver.supportedCameras = {
-    '04cb:02cb': {
-            name: "Fuji X-Pro2",
+    '054c:0994': {
+            name: "Sony A7III",
             supports: {
                 shutter: true,
                 aperture: true,
@@ -51,30 +51,8 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
-    '04cb:02cd': {
-            name: "Fuji X-T2",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '04cb:02d7': {
-            name: "Fuji X-H1",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '04cb:02dd': {
-            name: "Fuji X-T3",
+    '054c:0c34': {
+            name: "Sony A7III",
             supports: {
                 shutter: true,
                 aperture: true,
@@ -575,9 +553,6 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err) {
-        if(err == 0x2019 && tries < 3) {
-            return driver.capture(camera, target, options, callback, tries + 1);
-        }
         callback && callback(err, results.thumb, results.filename, results.rawImage);
     });
 }
