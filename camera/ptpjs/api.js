@@ -472,7 +472,7 @@ api.setEv = function(ev, options, callback) {
 
     if(options.doNotSet) {
         console.log("API setEv: done, not applying changes.");
-        if (cb) return cb(null, {
+        if (callback) return callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},
             aperture: {ev: apertureEv},
@@ -497,7 +497,7 @@ api.setEv = function(ev, options, callback) {
 
     runQueue(setQueue, function() {
         console.log("API setEv: done.");
-        if (cb) cb(null, {
+        if (callback) callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},
             aperture: {ev: apertureEv},
