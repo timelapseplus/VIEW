@@ -446,10 +446,10 @@ api.setEv = function(ev, options, callback) {
                 if(options.blendParams) lastParam = 's';
             } else {
                 lastParam = null;
-                currentEv = getEv(shutterEv, apertureEv, isoEv);
+                currentEv = api.getEv(shutterEv, apertureEv, isoEv);
                 break;
             }
-            currentEv = getEv(shutterEv, apertureEv, isoEv);
+            currentEv = api.getEv(shutterEv, apertureEv, isoEv);
             //console.log(" update: ", currentEv);
         }
 
