@@ -327,6 +327,7 @@ function sonyReadProperties(camera, callback)
 
         var data_size;
 
+        if(err) return err;
 
         while(i < data.length) {
             property_code = data.readUInt16LE(i);
@@ -412,52 +413,48 @@ function sonyReadProperties(camera, callback)
     });
 }
 
+// connect:
+// C_PTP (ptp_sony_9280(params, 0x4, 2,2,0,0, 0x01,0x01));
+// C_PTP (ptp_sony_9281(params, 0x4));
 
+// disconnect:
+// C_PTP (ptp_sony_9280(params, 0x4,0,5,0,0,0,0));
+
+function ptp_sony_9280 (camera, param1, additional, data2, data3, data4, x, y, callback)
+{
+    if(additional != 2) additional = 0;
+
+    var buf = new Buffer(16 + additional);
+
+    buf.writeUInt32LE(0, additional);
+    buf.writeUInt32LE(4, data2);
+    buf.writeUInt32LE(8, data3);
+    buf.writeUInt32LE(12, data4);
+
+    /* only sent in the case where additional is 2 */
+    if(additional == 2) {
+        buf.writeUInt8(16, x);
+        buf.writeUInt8(17, y);
+    }
+
+    return ptp.transaction(camera._dev, 0x9280, [param1], buf, callback);
+}
+
+ptp_sony_9281 (PTPParams* params, uint32_t param1) {
+    return ptp.transaction(camera._dev, 0x9281, [param1], buf, callback);
+}
 
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
-        sonyReadProperties(camera, function(err){
-            console.log("sonyReadProperties err", err);
-            callback && callback(err);
+        async.series([
+            function(cb){ptp_sony_9280(params, 0x4, 2,2,0,0, 0x01,0x01, cb);}, // PC mode
+            function(cb){ptp_sony_9281(params, 0x4, cb);},  // ?
+        ], function(err) {
+            sonyReadProperties(camera, function(err){
+                console.log("sonyReadProperties err", err);
+                callback && callback(err);
+            });
         });
-        //async.series([
-        //    function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
-        //    function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
-        //    function(cb){driver.refresh(camera, cb);}  // get settings
-        //], function(err) {
-        //    
-        //    var shutterEv = camera.exposure.shutter.ev; 
-        //    var capture = function() {
-//
-        //        driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-        //            if(err) {
-        //                if(err != 0x2019) _logD("capture err result:", ptp.hex(err));
-        //            } else {
-        //                _logD("captured image:", filename);
-        //            }
-        //            var delay = 1000;
-        //            if(err == 0x2019) delay = 50; 
-        //            setTimeout(function() {
-        //                shutterEv++;
-        //                var set = function() {
-        //                    driver.set(camera, 'shutter', shutterEv, function(err) {
-        //                        if(err == 0x2019) return setTimeout(set, 100);
-        //                        if(err) _logD("set error:", err);
-        //                        capture();
-        //                    });
-        //                }
-        //                set();
-        //            }, delay);
-        //        });
-        //    }
-        //    //capture();
-        //    //driver.refresh(camera);
-//
-        //    //ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
-        //    //    _logD("0x500D", current, list);
-        //    //});
-//
-        //});
     });
 }
 

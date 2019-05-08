@@ -161,7 +161,6 @@ CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
 }
 
 function connectCamera(driver, device) {
-	var camera = new CameraAPI(driver);
 	device.open();
 	var iface = device.interfaces[0];
 	iface.claim();
@@ -182,6 +181,8 @@ function connectCamera(driver, device) {
 		if(ep.transferType == 2 && ep.direction == 'out') cam.ep.out = ep;
 		if(ep.transferType == 3 && ep.direction == 'in') cam.ep.evt = ep;
 	}
+	if(!cam.ep.in || !cam.ep.out) return null;
+	var camera = new CameraAPI(driver);
 	camera._dev = cam;
 	if(cam.ep.evt) {
 		cam.ep.evt.startPoll();
@@ -231,15 +232,19 @@ function tryConnectDevice(device) {
 	if(found) {
 		console.log("camera connected:", found.name);
 		var camera = connectCamera(found.driver, device);
-		camera.supports = found.supports;
-		camera.init(function(err) {
-			api.cameras.push({
-				model: found.name,
-				camera: camera
+		if(camera) {
+			camera.supports = found.supports;
+			camera.init(function(err) {
+				api.cameras.push({
+					model: found.name,
+					camera: camera
+				});
+				ensurePrimary();
+				api.emit('connected', found.name, camera.exposure);
 			});
-			ensurePrimary();
-			api.emit('connected', found.name, camera.exposure);
-		});
+		} else {
+			console.log("USB device doesn't seem available, giving up");
+		}
 	} else {
 		console.log("USB device not supported by new driver:", port);
 		api.emit('unsupported', device);
