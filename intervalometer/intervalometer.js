@@ -68,8 +68,14 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                         destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
                     return camera.ptp.new.capture(options, function(err, thumb, filename, raw) {
+                        if(err) {
+                            logErr("capture failed:", err);
+                            callback && callback(err);
+                        }
+                        logEvent("capture complete, processing image...");
                         saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                         var completeCapture = function() {
+                            intervalometer.emit("photo", thumb);
                             var photoRes = {
                                 file: filename,
                                 cameraCount: 1,
@@ -81,9 +87,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 image.exposureValue(thumb, function(err, ev, histogram) {
                                     photoRes.ev = ev;
                                     photoRes.histogram = histogram;
+                                    logEvent("...processing complete, image ev", ev);
+                                    intervalometer.emit("histogram", histogram);
                                     callback && callback(err, photoRes);
                                 });
                             } else {
+                                logEvent("...processing complete.", ev);
                                 callback && callback(err, photoRes);
                             }
                         }
@@ -223,7 +232,7 @@ intervalometer.enableLogging = false;
 function log() {
     if(!intervalometer.enableLogging) return;
     if(arguments.length > 0) {
-        arguments[0] = "INTERVALOMETER: " + arguments[0];
+        arguments[0] = "INTERVALOMETER: (trace) " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
@@ -231,6 +240,13 @@ function log() {
 function logErr() {
     if(arguments.length > 0) {
         arguments[0] = "INTERVALOMETER: (error)" + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
+
+function logEvent() {
+    if(arguments.length > 0) {
+        arguments[0] = "INTERVALOMETER:" + arguments[0];
     }
     console.log.apply(console, arguments);
 }

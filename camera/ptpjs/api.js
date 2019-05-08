@@ -74,10 +74,10 @@ usb.on('detach', function(device) {
 			}
 			if(cam) cam.iface.release();
 			if(cam) cam.device.close();
-			api.cameras.splice(camIndex, 1);
 			ensurePrimary();
 			console.log("cameras connected: ", api.cameras.length);
 			api.emit('disconnect', api.cameras[i].name); // had been connected
+			api.cameras.splice(camIndex, 1);
 			break;
 		}
 	}	
@@ -343,7 +343,7 @@ api.getEv = function(shutterEv, apertureEv, isoEv) {
     if(shutterEv == null) shutterEv = api.cameras.length > 0 && api.cameras[0].exposure.shutter ? api.cameras[0].exposure.shutter.ev : null;
     if(apertureEv == null) apertureEv = api.cameras.length > 0 && api.cameras[0].exposure.aperture ? api.cameras[0].exposure.aperture.ev : null;
     if(isoEv == null) isoEv = api.cameras.length > 0 && api.cameras[0].iso.shutter ? api.cameras[0].exposure.iso.ev : null;
-    if(shutterEv == null || apertureEv == null || isoEv == null)
+    if(shutterEv == null || apertureEv == null || isoEv == null) return null;
     return shutterEv + 6 + apertureEv + 8 + isoEv;
 }
 
