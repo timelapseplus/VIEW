@@ -206,10 +206,10 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
    logEvent("saving thumbnails...");
     fs.writeFile(intervalometer.timelapseFolder + "/count.txt", indexStr, function() {
 
-        image.downsizeJpeg(new Buffer(jpgBuffer), {x: 320, q: 80}, null, function(err1, jpgHQBuf) {
+        image.downsizeJpeg(jpgBuffer, {x: 320, q: 80}, null, function(err1, jpgHQBuf) {
             if (!err1 && jpgHQBuf) {
         
-                image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err2, jpgBuf) {
+                image.downsizeJpegSharp(jpgHQBuf, {x: 160, q: 80}, null, exposureCompensation, function(err2, jpgBuf) {
                     if (!err2 && jpgBuf) {
                         fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function() {
                            logEvent("...completed save thumbnails.");
