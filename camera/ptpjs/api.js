@@ -53,6 +53,39 @@ function CameraAPI(driver) {
 	}
 }
 
+bulbList = [];
+
+var start = 1000000 / 64; // 1/60
+var ev = 0;
+var us = start;
+
+while (us < 1000000 * 60 * 10) {
+    var tus = us;
+    for (var thirds = 0; thirds < 3; thirds++) {
+        if (thirds) tus *= 1.25992104989;
+        var name = null;
+//        for (var i = 0; i < lists.shutter.length; i++) {
+//            if (lists.shutter[i].ev != null && Math.ceil(lists.shutter[i].ev * 10) === Math.ceil(-(ev + thirds / 3) * 10)) {
+//                name = lists.shutter[i].name;
+//                break;
+//            }
+//        }
+        if (!name) {
+            name = Math.ceil(tus / 1000000).toString() + 's';
+        }
+        var item = {
+                name: name,
+                ev: -(ev + thirds / 3),
+                us: tus,
+            }
+            //console.log(item);
+        bulbList.unshift(item);
+    }
+    ev++;
+    us *= 2;
+}
+
+
 util.inherits(CameraAPI, EventEmitter);
 
 
@@ -316,10 +349,10 @@ api.moveFocus = function(steps, resolution, callback) {
 
 function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a camera available list
 	var base = api.cameras[0].camera.exposure;
-	console.log("API:", param, "base", base);
+	//console.log("API:", param, "base", base);
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
-	console.log("API:", param, "base list", list);
+	//console.log("API:", param, "base list", list);
 	return list.map(function(item) {
 		return item.ev;
 	}).filter(function(ev) {
@@ -331,7 +364,7 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 }
 
 function incEv(ev, evList) {
-	console.log("incEv: index", i, "ev", ev, "list", evList);
+	//console.log("incEv: index", i, "ev", ev, "list", evList);
 	if(!evList) return null;
 	var i = evList.indexOf(ev);
 	if(i != -1 && i < evList.length - 1 && evList[i + 1] != null) return evList[i + 1];
@@ -356,6 +389,15 @@ api.getEv = function(shutterEv, apertureEv, isoEv) {
     if(isoEv == null) isoEv = api.cameras.length > 0 && api.cameras[0].camera.exposure.iso ? api.cameras[0].camera.exposure.iso.ev : null;
     if(shutterEv == null || apertureEv == null || isoEv == null) return null;
     return shutterEv + 6 + apertureEv + 8 + isoEv;
+}
+
+api.getSecondsFromEv = function(ev) { // only accurate to 1/3 stop
+    for (var i = 0; i < bulbList.length; i++) {
+        if (bulbList[i].ev >= ev) {
+            return bulbList[i].us / 1000000;
+        }
+    }
+    return 0.1;
 }
 
 var lastParam = null;
@@ -415,7 +457,7 @@ api.setEv = function(ev, options, callback) {
         var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
         if(maxSeconds < 1) maxSeconds = 1;
         shutterList = shutterList.filter(function(ev) {
-            return lists.getSecondsFromEv(ev) <= maxSeconds;
+            return api.getSecondsFromEv(ev) <= maxSeconds;
         });
     }
 
