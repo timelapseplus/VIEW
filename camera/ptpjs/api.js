@@ -17,6 +17,7 @@ api.available = false;
 
 var DRIVERS = [];
 DRIVERS.push(require('./drivers/fuji.js'));
+DRIVERS.push(require('./drivers/sony.js'));
 
 function CameraAPI(driver) {
 	this._driver = driver;
@@ -239,6 +240,7 @@ function tryConnectDevice(device) {
 			api.emit('connected', found.name, camera.exposure);
 		});
 	} else {
+		console.log("USB device not supported by new driver:", port);
 		api.emit('unsupported', device);
 	}
 }
