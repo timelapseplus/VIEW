@@ -263,6 +263,19 @@ var properties = {
             { name: "RAW + JPEG Fine",   code: 4  },
             { name: "RAW + JPEG Normal", code: 5  }
         ]
+    },
+    'destination': {
+        name: 'destination',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD20C,
+        ev: false,
+        values: [
+            { name: "camera",            code: 2  },
+            { name: "VIEW",              code: 4  },
+        ]
     }
 }
 
