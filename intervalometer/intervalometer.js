@@ -70,7 +70,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     return camera.ptp.new.capture(options, function(err, thumb, filename, raw) {
                         if(err) {
                             logErr("capture failed:", err);
-                            callback && callback(err);
+                            return callback && callback(err);
                         }
                         logEvent("capture complete, downsizing image...");
                         saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
