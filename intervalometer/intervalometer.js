@@ -203,18 +203,21 @@ function thumbnailFileFromIndex(index, cameraIndex, hqVersion) {
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     var indexStr = (index + 1).toString();
+   logEvent("saving thumbnails...");
     fs.writeFile(intervalometer.timelapseFolder + "/count.txt", indexStr, function() {
 
-        image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
-            if (!err && jpgBuf) {
-                fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function() {
+        image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 320, q: 80}, null, exposureCompensation, function(err1, jpgHQBuf) {
+            if (!err1 && jpgHQBuf) {
+        
+                image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 160, q: 80}, null, exposureCompensation, function(err2, jpgBuf) {
+                    if (!err2 && jpgBuf) {
+                        fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function() {
+                           logEvent("...completed save thumbnails.");
+                        });
+                    }
                 });
-            }
-        });
 
-        image.downsizeJpegSharp(new Buffer(jpgBuffer), {x: 320, q: 80}, null, exposureCompensation, function(err, jpgBuf) {
-            if (!err && jpgBuf) {
-                fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, true), jpgBuf, function() {
+                fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, true), jpgHQBuf, function() {
                 });
             }
         });
@@ -255,14 +258,14 @@ function log() {
 
 function logErr() {
     if(arguments.length > 0) {
-        arguments[0] = "INTERVALOMETER: (error)" + arguments[0];
+        arguments[0] = "INTERVALOMETER: (error) " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
 
 function logEvent() {
     if(arguments.length > 0) {
-        arguments[0] = "INTERVALOMETER:" + arguments[0];
+        arguments[0] = "INTERVALOMETER: " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
