@@ -147,9 +147,9 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
-        listFunction: ptp.listProp,
+        setFunction: driver.setPropU16,
+        getFunction: driver.getPropU16,
+        listFunction: driver.listProp,
         code: 0x5007,
         ev: true,
         values: [
@@ -195,9 +195,9 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: ptp.setProp32,
-        getFunction: ptp.getProp32,
-        listFunction: ptp.listProp,
+        setFunction: driver.setProp32,
+        getFunction: driver.getProp32,
+        listFunction: driver.listProp,
         code: 0x500F,
         ev: true,
         values: [
