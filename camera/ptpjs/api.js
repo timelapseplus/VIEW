@@ -316,8 +316,10 @@ api.moveFocus = function(steps, resolution, callback) {
 
 function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a camera available list
 	var base = api.cameras[0].exposure;
+	console.log("API:", param, "base", base);
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
+	console.log("API:", param, "base list", list);
 	return list.map(function(item) {
 		return item.ev;
 	}).filter(function(ev) {
