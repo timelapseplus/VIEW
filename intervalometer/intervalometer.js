@@ -72,11 +72,11 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             logErr("capture failed:", err);
                             callback && callback(err);
                         }
-                        logEvent("capture complete, processing image...");
+                        logEvent("capture complete, downsizing image...");
                         saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                         var completeCapture = function() {
                             var size = {
-                                x: 160,
+                                x: 120,
                                 q: 80
                             }
                             image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
@@ -96,6 +96,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     ev: null
                                 }
                                 if(captureOptions.calculateEv) {
+                                    logEvent("capture complete, analyzing image...");
                                     image.exposureValue(img, function(err, ev, histogram) {
                                         photoRes.ev = ev;
                                         photoRes.histogram = histogram;
