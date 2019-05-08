@@ -273,7 +273,9 @@ var properties = {
         code: 0xD20C,
         ev: false,
         values: [
+            { name: "UNKNOWN1",          code: 1  },
             { name: "camera",            code: 2  },
+            { name: "UNKNOWN2",          code: 3  },
             { name: "VIEW",              code: 4  },
         ]
     }
@@ -311,6 +313,7 @@ driver.refresh = function(camera, callback) {
                         if(!camera[properties[key].category]) camera[properties[key].category] = {};
                         if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                         var currentMapped = mapPropertyItem(current, properties[key].values);
+                        if(currentMapped)_logD(key, "=", currentMapped.name);
                         camera[properties[key].category][key] = objCopy(currentMapped, {});
                         var mappedList = [];
                         for(var i = 0; i < list.length; i++) {
@@ -553,7 +556,7 @@ function getImage(camera, timeout, callback) {
 }
 
 driver.capture = function(camera, target, options, callback, tries) {
-    var targetValue = (!target || target == "camera") ? 2 : 4;
+    var targetValue = (!target || target == "camera") ? "camera" : "VIEW";
     camera.thumbnail = true;
     var results = {};
     var lvMode = camera.status.liveview;
@@ -561,7 +564,9 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){
             if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
         },
-        function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
+        function(cb){
+            if(camera.config.destination == targetValue) cb(); else driver.set(cammera, "destination", targetValue, cb);
+        },
         function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
         function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){

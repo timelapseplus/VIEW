@@ -75,7 +75,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                         logEvent("capture complete, downsizing image...");
                         setTimeout(function() {
                             saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
-                        }, 500);
+                        }, 10);
                         var completeCapture = function() {
                             var size = {
                                 x: 120,
