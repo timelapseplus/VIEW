@@ -264,8 +264,7 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	if(!_currentTimelapseClipFrames[cameraNumber]) _currentTimelapseClipFrames[cameraNumber] = [];
 	_currentTimelapseClipFrames[cameraNumber].push(thumbnail);
 
-
-	dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
+	setTimeout(function(){ dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
 		if(err || !data) {
 			callback && callback(err);
 		} else {
@@ -273,16 +272,18 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 			if(data.frames) frames = parseInt(data.frames);
 			frames++;
 			_currentTimelapsePrimaryCamera = data.primary_camera;
-			if((!data.thumbnail || data.thumbnail == "null") && thumbnail && data.primary_camera == cameraNumber) {
-				console.log("setting clip thumbnail to:", thumbnail);
-				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
-			} else {
-				dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
-			}
+			setTimeout(function(){ 
+				if((!data.thumbnail || data.thumbnail == "null") && thumbnail && data.primary_camera == cameraNumber) {
+					console.log("setting clip thumbnail to:", thumbnail);
+					dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "', `thumbnail` = '" + thumbnail + "' WHERE id = '" + clipId + "'");
+				} else {
+					dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
+				}
+			});
 			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail, " clip thumbnail:'" + data.thumbnail + "'");
-			dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);
+			setTimeout(function(){ dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);});
 		}
-	});
+	});});
 }
 
 exports.currentTimelapseFrames = function(cameraNumber) {
