@@ -74,10 +74,11 @@ usb.on('detach', function(device) {
 			}
 			if(cam) cam.iface.release();
 			if(cam) cam.device.close();
+			var name = api.cameras[i].name;
+			api.cameras.splice(camIndex, 1);
 			ensurePrimary();
 			console.log("cameras connected: ", api.cameras.length);
-			api.emit('disconnect', api.cameras[i].name); // had been connected
-			api.cameras.splice(camIndex, 1);
+			api.emit('disconnect', name); // had been connected
 			break;
 		}
 	}	
