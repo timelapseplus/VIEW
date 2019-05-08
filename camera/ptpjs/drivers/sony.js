@@ -447,8 +447,8 @@ function ptp_sony_9281 (camera, param1) {
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
-            function(cb){ptp_sony_9280(params, 0x4, 2,2,0,0, 0x01,0x01, cb);}, // PC mode
-            function(cb){ptp_sony_9281(params, 0x4, cb);},  // ?
+            function(cb){ptp_sony_9280(camera, 0x4, 2,2,0,0, 0x01,0x01, cb);}, // PC mode
+            function(cb){ptp_sony_9281(camera, 0x4, cb);},  // ?
         ], function(err) {
             sonyReadProperties(camera, function(err){
                 console.log("sonyReadProperties err", err);
