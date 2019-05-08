@@ -314,7 +314,7 @@ var DATAU32 = 0x0006;
 var RANGE = 1;
 var LIST = 2;
 
-sonyReadProperties(callback)
+function sonyReadProperties(callback)
 {
     ptp.transaction(camera._cam, 0x9209, [], null, function(err, data) {
         var i = 0;
