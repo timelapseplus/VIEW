@@ -496,12 +496,14 @@ camera.ptp.on('photo', function() {
 camera.ptp.on('histogram', function(data) {
   sendEvent('camera.histogram', data);
 });
-intervalometer.on('photo', function(jpeg) {
-  var obj = {
-    base64: new Buffer(jpeg).toString('base64'),
-    type: 'thumbnail'
-  };
-  sendEvent('camera.photo', obj);
+intervalometer.on('photo', function() {
+  setTimeout(function() {
+    var obj = {
+      base64: new Buffer(intervalometer.lastImage).toString('base64'),
+      type: 'thumbnail'
+    };
+    sendEvent('camera.photo', obj);
+  });
 });
 intervalometer.on('histogram', function(data) {
   sendEvent('camera.histogram', data);

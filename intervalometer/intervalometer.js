@@ -86,8 +86,8 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 } else {
                                     img = thumb;
                                 }
-
-                                intervalometer.emit("photo", img);
+                                intervalometer.lastImage = img;
+                                intervalometer.emit("photo");
                                 var photoRes = {
                                     file: filename,
                                     cameraCount: 1,
