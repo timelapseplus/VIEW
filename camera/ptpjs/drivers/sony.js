@@ -316,7 +316,7 @@ var LIST = 2;
 
 function sonyReadProperties(camera, callback)
 {
-    ptp.transaction(camera._cam, 0x9209, [], null, function(err, data) {
+    ptp.transaction(camera._dev, 0x9209, [], null, function(err, data) {
         var i = 0;
         var data_current;//, data_default;
 
