@@ -67,6 +67,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     var options = {
                         destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
+                    logEvent("initiating capture...");
                     return camera.ptp.new.capture(options.destination, {}, function(err, thumb, filename, raw) {
                         if(err) {
                             logErr("capture failed:", err);

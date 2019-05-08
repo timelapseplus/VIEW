@@ -449,9 +449,9 @@ api.setEv = function(ev, options, callback) {
         });
     }
 
-    var shutterList = 	listEvs('shutter', 		null, 					options.shutterMax);
+    var shutterList = 	listEvs('shutter', 		options.shutterMax,		null);
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
-    var isoList = 		listEvs('iso', 			options.isoMin, 		options.isoMax);
+    var isoList = 		listEvs('iso', 			options.isoMax, 		options.isoMin);
 
     console.log("API: setEv: shutterList", shutterList);
     console.log("API: setEv: apertureList", apertureList);
