@@ -331,6 +331,7 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 function incEv(ev, evList) {
 	if(!evList) return null;
 	var i = evList.indexOf(ev);
+	console.log("incEv: index", i, "ev", ev);
 	if(i != -1 && i < evList.length - 1 && evList[i + 1] != null) return evList[i + 1];
 	return ev;
 }
