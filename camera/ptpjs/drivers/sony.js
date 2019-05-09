@@ -201,7 +201,7 @@ var properties = {
         code: 0xD21E,
         ev: true,
         values: [
-            { name: "AUTO",     ev: null,        code: 65535 },
+            { name: "AUTO",     ev: null,        code: 16777215 },
             { name: "25",       ev: -2 / 3,      code: 25 },
             { name: "50",       ev: -2 / 3,      code: 50 },
             { name: "64",       ev: -2 / 3,      code: 64 },
@@ -465,7 +465,7 @@ function sonyReadProperties(camera, callback)
             }
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
-                    console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", list);
+                    console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                 }
             }
         }
