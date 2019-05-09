@@ -52,7 +52,7 @@ exports.PTP_EC_StorageInfoChanged	 = 0x400C
 exports.PTP_EC_CaptureComplete		 = 0x400D
 exports.PTP_EC_UnreportedStatus		 = 0x400E 
 
-var LOG_LEVEL = 1;
+var LOG_LEVEL = 0;
 
 function _logD() {
 	if(LOG_LEVEL > 0) return;
