@@ -68,7 +68,7 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: driver.setDeviceControlValueB,
+        setFunction: setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -136,7 +136,7 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: driver.setDeviceControlValueB,
+        setFunction: setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -186,7 +186,7 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: driver.setDeviceControlValueB,
+        setFunction: setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
         listWorks: true,
@@ -654,11 +654,11 @@ driver.capture = function(camera, target, options, callback, tries) {
     camera.thumbnail = true;
     var results = {};
     async.series([
-        function(cb){driver.setDeviceControlValueB(camera, 0xD2C1, 2, 4, cb);}, // activate half-press
-        function(cb){driver.setDeviceControlValueB(camera, 0xD2C2, 2, 4, cb);}, // activate full-press
+        function(cb){setDeviceControlValueB(camera, 0xD2C1, 2, 4, cb);}, // activate half-press
+        function(cb){setDeviceControlValueB(camera, 0xD2C2, 2, 4, cb);}, // activate full-press
         function(cb){ setTimeout(cb, 10); },
-        function(cb){driver.setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
-        function(cb){driver.setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
+        function(cb){setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
+        function(cb){setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
         function(cb){
             var check = function() {
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
