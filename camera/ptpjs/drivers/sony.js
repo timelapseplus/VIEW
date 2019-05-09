@@ -259,7 +259,11 @@ driver._event = function(camera, data) { // events received
             _logD("object added:", param1);
         }
         if(event == SONY_EVENT_CHANGE) {
-            sonyReadProperties(camera);
+            if(camera._eventTimer) clearTimeout(camera._eventTimer);
+            camera._eventTimer = setTimeout(function() {
+                camera._eventTimer = null;
+                sonyReadProperties(camera);
+            }, 20);
         }
     });
 };
