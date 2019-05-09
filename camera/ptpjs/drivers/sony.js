@@ -328,6 +328,8 @@ function sonyReadProperties(camera, callback)
 
         var data_size;
 
+        var list = [];
+
         if(err) return err;
 
         while(i < data.length) {
