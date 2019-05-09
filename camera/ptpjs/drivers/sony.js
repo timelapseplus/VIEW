@@ -336,7 +336,7 @@ function sonyReadProperties(camera, callback)
             data_type = data.readUInt16LE(i);
             i += 2;
             i += 2; // skip an unknown uint16
-    
+            console.log("SONY: data type", data_type);
             switch(data_type)
             {
                 case DATA8:
