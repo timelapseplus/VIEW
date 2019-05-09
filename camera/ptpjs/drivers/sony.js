@@ -269,7 +269,7 @@ var properties = {
         typeCode: 2,
         ev: false,
         values: [
-            { name: "none",       value: 0,        code: 0x8000  },
+            { name: "none",       value: 0,        code: 0x0000  },
             { name: "1",          value: 1,        code: 0x8001  },
             { name: "2",          value: 2,        code: 0x8002  },
             { name: "3",          value: 3,        code: 0x8003  },
