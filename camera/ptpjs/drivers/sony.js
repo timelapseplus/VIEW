@@ -320,7 +320,7 @@ var LIST = 2;
 
 driver.refresh = function(camera, callback) {
     ptp.transaction(camera._dev, 0x9209, [], null, function(err, responseCode, data) {
-        console.log("0x9209 data.length", data.length,  "err", err);
+        //console.log("0x9209 data.length", data.length,  "err", err);
         var i = 8;
         var data_current;//, data_default;
 
@@ -331,7 +331,7 @@ driver.refresh = function(camera, callback) {
 
         var data_size;
 
-        if(err) return err;
+        if(err || !data) return callback && callback(err || "no data received");
 
         while(i < data.length) {
             var list = [];
@@ -460,6 +460,7 @@ driver.refresh = function(camera, callback) {
                 }
             }
         }
+        callback && callback();
     });
 }
 
