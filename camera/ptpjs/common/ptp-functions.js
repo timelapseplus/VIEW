@@ -621,6 +621,7 @@ exports.transaction = function(cam, opcode, params, data, callback) {
 
 exports.parseUnicodeString = function(buf, offset) {
 	var end = offset;
+	if(!buf) return "";
 	for(var i = offset; i < buf.length; i += 2) {
 		if(buf.readUInt16LE(i) == 0) {
 			end = i;

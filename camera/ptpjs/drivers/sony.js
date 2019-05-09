@@ -447,7 +447,7 @@ driver.refresh = function(camera, callback) {
                             camera[p.category][p.name].list = [];
                             for(var x = 0; x < list.length; x++) {
                                 var item =  mapPropertyItem(list[x], p.values);
-                                camera[p.category][p.name].list.push(item);
+                                if(item) camera[p.category][p.name].list.push(item);
                             }
                         } else {
                             camera[p.category][p.name].list = p.values;
