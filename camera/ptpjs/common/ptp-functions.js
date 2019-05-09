@@ -178,6 +178,75 @@ exports.getProp32 = function(cam, prop, callback) {
 	});
 }
 
+exports.getTypeInfo = function(type) {
+	var itemSize = 0;
+	var itemReadFunction = null;
+	var itemWriteFunction = null;
+	var typeName = "";
+
+	switch(type) {
+		case 1: {
+			itemSize = 1;
+			itemReadFunction = 'readInt8';
+			itemWriteFunction = 'writeInt8';
+			typeName = "int8";
+			break;
+		}
+		case 2: {
+			itemSize = 1;
+			itemReadFunction = 'readUInt8';
+			typeName = "uint8";
+			break;
+		}
+		case 3: {
+			itemSize = 2;
+			itemReadFunction = 'readInt16LE';
+			typeName = "int16";
+			break;
+		}
+		case 4: {
+			itemSize = 2;
+			itemReadFunction = 'readUInt16LE';
+			typeName = "uint16";
+			break;
+		}
+		case 5: {
+			itemSize = 4;
+			itemReadFunction = 'readInt32LE';
+			typeName = "int32";
+			break;
+		}
+		case 6: {
+			itemSize = 4;
+			itemReadFunction = 'readUInt32LE';
+			typeName = "uint32";
+			break;
+		}
+		case 7: {
+			itemSize = 8;
+			itemReadFunction = 'readInt64LE';
+			typeName = "int64";
+			break;
+		}
+		case 8: {
+			itemSize = 8;
+			itemReadFunction = 'readUInt64LE';
+			typeName = "uint64";
+			break;
+		}
+		default: {
+			itemSize = 0;
+			break;
+		}
+	}
+	return {
+		size: itemSize,
+		readFunction: itemReadFunction,
+		writeFunction: itemWriteFunction,
+		name: typeName
+	}
+}
+
 exports.listProp = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropDesc, [prop], null, function(err, responseCode, data) {
 		var current = null;
@@ -193,77 +262,24 @@ exports.listProp = function(cam, prop, callback) {
 		if(!error && data && data.length >= 4) {
 			type = data.readUInt16LE(2);
 			writeable = data.readUInt8(4);
-			switch(type) {
-				case 1: {
-					itemSize = 1;
-					itemFunction = 'readInt8';
-					typeName = "int8";
-					break;
-				}
-				case 2: {
-					itemSize = 1;
-					itemFunction = 'readUInt8';
-					typeName = "uint8";
-					break;
-				}
-				case 3: {
-					itemSize = 2;
-					itemFunction = 'readInt16LE';
-					typeName = "int16";
-					break;
-				}
-				case 4: {
-					itemSize = 2;
-					itemFunction = 'readUInt16LE';
-					typeName = "uint16";
-					break;
-				}
-				case 5: {
-					itemSize = 4;
-					itemFunction = 'readInt32LE';
-					typeName = "int32";
-					break;
-				}
-				case 6: {
-					itemSize = 4;
-					itemFunction = 'readUInt32LE';
-					typeName = "uint32";
-					break;
-				}
-				case 7: {
-					itemSize = 8;
-					itemFunction = 'readInt64LE';
-					typeName = "int64";
-					break;
-				}
-				case 8: {
-					itemSize = 8;
-					itemFunction = 'readUInt64LE';
-					typeName = "uint64";
-					break;
-				}
-				default: {
-					itemSize = 0;
-					break;
-				}
-			}
-			if(itemSize) {
-				var index = 5 + itemSize;
-				if(data.length >= index + itemSize) {
-					current = data[itemFunction](index);
-					index += itemSize;
+			var typeInfo = exports.getTypeInfo(type);
+			if(typeInfo.size) {
+				var index = 5 + typeInfo.size;
+				if(data.length >= index + typeInfo.size) {
+					current = data[typeInfo.readFunction](index);
+					index += typeInfo.size;
 				}
 				index += 3; // skip form type and length
 				for(;;) {
-					if(data.length >= index + itemSize) {
-						list.push(data[itemFunction](index));
-						index += itemSize;
+					if(data.length >= index + typeInfo.size) {
+						list.push(data[typeInfo.readFunction](index));
+						index += typeInfo.size;
 					} else {
 						break;
 					}
 				}
 			}
-			callback && callback(error, current, list, typeName);
+			callback && callback(error, current, list, typeInfo.name);
 		} else {
 			callback && callback(error, null);
 		}

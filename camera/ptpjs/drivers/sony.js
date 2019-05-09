@@ -68,10 +68,11 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: ptp.setPropU32,
-        getFunction: ptp.getPropU32,
+        setFunction: driver.setDeviceControlValueB,
+        getFunction: null,
         listFunction: null,
         code: 0xD20D,
+        typeCode: 6,
         ev: true,
         values: [
             { name: "15m",     ev: -15,         code:  64000120 },
@@ -147,10 +148,11 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: driver.setPropU16,
-        getFunction: driver.getPropU16,
+        setFunction: driver.setDeviceControlValueB,
+        getFunction: null,
         listFunction: null,
         code: 0x5007,
+        typeCode: 4,
         ev: true,
         values: [
             { name: "1.0",      ev: -8,          code: 100  },
@@ -195,9 +197,10 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: driver.setProp32,
-        getFunction: driver.getProp32,
+        setFunction: driver.setDeviceControlValueB,
+        getFunction: null,
         listFunction: null,
+        typeCode: 6,
         code: 0xD21E,
         ev: true,
         values: [
@@ -249,9 +252,9 @@ var properties = {
         name: 'format',
         category: 'config',
         setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
-        listFunction: ptp.listProp,
-        code: 0xD018,
+        getFunction: null,
+        listFunction: null,
+        code: 0x5004,
         ev: false,
         values: [
             { name: "RAW",               code: 1  },
@@ -281,58 +284,11 @@ driver._event = function(camera, data) { // events received
             if(camera._eventTimer) clearTimeout(camera._eventTimer);
             camera._eventTimer = setTimeout(function() {
                 camera._eventTimer = null;
-                sonyReadProperties(camera);
-            }, 100);
+                driver.refresh(camera);
+            }, 200);
         }
     });
 };
-
-driver.refresh = function(camera, callback) {
-    var keys = [];
-    for(var key in properties) {
-        keys.push(key);
-    }
-    var lvMode = camera.status.liveview;
-    async.series([
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
-        },
-        function(cb){
-            var fetchNextProperty = function() {
-                var key = keys.pop();
-                if(key) {
-                    properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
-                        _logD(key, "type is", type);
-                        if(!camera[properties[key].category]) camera[properties[key].category] = {};
-                        if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                        var currentMapped = mapPropertyItem(current, properties[key].values);
-                        camera[properties[key].category][key] = objCopy(currentMapped, {});
-                        var mappedList = [];
-                        for(var i = 0; i < list.length; i++) {
-                            var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                            if(!mappedItem) {
-                                _logE(key, "list item not found:", list[i]);
-                            } else {
-                                mappedList.push(mappedItem);
-                            }
-                        }
-                        camera[properties[key].category][key].list = mappedList;
-                        fetchNextProperty();
-                    });
-                } else {
-                    //console.log(camera.exposure);
-                    cb();
-                }
-            }
-            fetchNextProperty();
-        },
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
-        },
-    ], function(err) {
-        return callback && callback(err);
-    });
-}
 
 var DATA8 = 0x0001;
 var DATAU8 = 0x0002;
@@ -344,7 +300,7 @@ var DATAU32 = 0x0006;
 var RANGE = 1;
 var LIST = 2;
 
-function sonyReadProperties(camera, callback)
+driver.refresh = function(camera, callback) {
 {
     ptp.transaction(camera._dev, 0x9209, [], null, function(err, responseCode, data) {
         console.log("0x9209 data.length", data.length,  "err", err);
@@ -512,9 +468,9 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9202, [0xC8], null, cb);}, // Receive events
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
         ], function(err) {
-            if(err) console.log("init err", err);
-            sonyReadProperties(camera, function(err){
-                console.log("sonyReadProperties err", err);
+            if(err) return callback && callback(err);
+            driver.refresh(camera, function(err){
+                if(err) console.log("driver.refresh err", err);
                 callback && callback(err);
             });
         });
@@ -528,12 +484,22 @@ function mapPropertyItem(cameraValue, list) {
     return null;
 }
 
+function setDeviceControlValueA (camera, propcode, value, datatype, callback) {
+    var typeInfo = ptp.getTypeInfo(datatype);
+    var buf = new Array(typeInfo.size);
+    buf[typeInfo.writeFunction](value, 0);
+    return ptp.transaction(camera._dev, 0x9205, [propcode], buf, callback);
+}
+
+function setDeviceControlValueB (camera, propcode, value, datatype, callback) {
+    var typeInfo = ptp.getTypeInfo(datatype);
+    var buf = new Array(typeInfo.size);
+    buf[typeInfo.writeFunction](value, 0);
+    return ptp.transaction(camera._dev, 0x9207, [propcode], buf, callback);
+}
+
 driver.set = function(camera, param, value, callback) {
-    var lvMode = camera.status.liveview;
     async.series([
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
-        },
         function(cb){
             if(properties[param] && properties[param].setFunction) {
                 var cameraValue = null;
@@ -554,7 +520,7 @@ driver.set = function(camera, param, value, callback) {
                 }
                 if(cameraValue !== null) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].typeCode, function(err) {
                         if(!err) {
                             var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                             for(var k in newItem) {
@@ -574,50 +540,17 @@ driver.set = function(camera, param, value, callback) {
                 return cb("unknown param");
             }
         },
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
-        },
     ], function(err) {
         return callback && callback(err);
     });
 }
 
 driver.get = function(camera, param, callback) {
-    var lvMode = camera.status.liveview;
-    async.series([
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
-        },
-        function(cb){
-            if(properties[param] && properties[param].getFunction) {
-                properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
-                    if(!err) {
-                        var newItem =  mapPropertyItem(data, properties[param].values);
-                        if(newItem) {
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
-                            }
-                        } else {
-                            var list = camera[properties[param].category][param].list;
-                            camera[properties[param].category][param] = {
-                                list: list
-                            }
-                        }
-                        return cb(err);
-                    } else {
-                        return cb(err);
-                    }
-                });
-            } else {
-                return cb("unknown param");
-            }
-        },
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
-        },
-    ], function(err) {
-        return callback && callback(err, camera[properties[key].category][key]);
-    });
+    if(properties[param] && camera[properties[param].category][param]) {
+        return callback && callback(null, camera[properties[param].category][param]);
+    } else {
+        return callback && callback("unknown param", null);
+    }
 }
 
 function getImage(camera, timeout, callback) {
