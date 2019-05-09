@@ -282,7 +282,7 @@ driver._event = function(camera, data) { // events received
             camera._eventTimer = setTimeout(function() {
                 camera._eventTimer = null;
                 sonyReadProperties(camera);
-            }, 50);
+            }, 100);
         }
     });
 };
