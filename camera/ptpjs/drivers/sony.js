@@ -426,15 +426,15 @@ function ptp_sony_9280 (camera, param1, additional, data2, data3, data4, x, y, c
 
     var buf = new Buffer(16 + additional);
 
-    buf.writeUInt32LE(0, additional);
-    buf.writeUInt32LE(4, data2);
-    buf.writeUInt32LE(8, data3);
-    buf.writeUInt32LE(12, data4);
+    buf.writeUInt32LE(additional, 0);
+    buf.writeUInt32LE(data2, 4);
+    buf.writeUInt32LE(data3, 8);
+    buf.writeUInt32LE(data4, 12);
 
     /* only sent in the case where additional is 2 */
     if(additional == 2) {
-        buf.writeUInt8(16, x);
-        buf.writeUInt8(17, y);
+        buf.writeUInt8(x, 16);
+        buf.writeUInt8(y, 17);
     }
 
     return ptp.transaction(camera._dev, 0x9280, [param1], buf, callback);
@@ -450,6 +450,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp_sony_9280(camera, 0x4, 2,2,0,0, 0x01,0x01, cb);}, // PC mode
             function(cb){ptp_sony_9281(camera, 0x4, cb);},  // ?
         ], function(err) {
+            if(err) console.log("ptp_sony_9280 err", err);
             sonyReadProperties(camera, function(err){
                 console.log("sonyReadProperties err", err);
                 callback && callback(err);

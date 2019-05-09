@@ -569,7 +569,8 @@ function runTransaction(cam, opcode, params, data, callback) {
 	}
 
 	send(buf, function(err) {
-		receive(callback);
+		if(err) return callback && callback(err);
+		return receive(callback);
 	});
 
 }
