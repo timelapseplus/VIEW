@@ -410,7 +410,7 @@ function sonyReadProperties(camera, callback)
                 list.push(data_list_item);
                 count--;
             }
-            console.log("prop", property_code, "current", data_current, "type", data_type, "list", list);
+            console.log("prop", ptp.hex(property_code), "current", data_current, "type", data_type, "list", list);
         }
     });
 }

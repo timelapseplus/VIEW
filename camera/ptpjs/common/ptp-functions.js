@@ -57,7 +57,7 @@ var LOG_LEVEL = 0;
 function _logD() {
 	if(LOG_LEVEL > 0) return;
     if(arguments.length > 0) {
-        arguments[0] = "PTP-FUJI: " + arguments[0];
+        arguments[0] = "PTP-USB: " + arguments[0];
     }
     console.log.apply(console, arguments);
 }
