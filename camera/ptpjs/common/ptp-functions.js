@@ -178,6 +178,15 @@ exports.getProp32 = function(cam, prop, callback) {
 	});
 }
 
+exports.objCopy = function(sourceObj, destObj) {
+    if(!destObj) destObj = {};
+    if(!sourceObj) return destObj;
+    for(var k in sourceObj) {
+        if(sourceObj.hasOwnProperty(k)) destObj[k] = sourceObj[k];
+    }
+    return destObj;
+}
+
 exports.getTypeInfo = function(type) {
 	var itemSize = 0;
 	var itemReadFunction = null;

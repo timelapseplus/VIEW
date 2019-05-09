@@ -439,10 +439,10 @@ driver.refresh = function(camera, callback) {
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
                     var p = properties[prop];
-                    var current =  mapPropertyItem(data_current, p.values);
+                    var current = mapPropertyItem(data_current, p.values);
                     if(current) {
                         if(!camera[p.category]) camera[p.category] = {};
-                        camera[p.category][p.name] = current;
+                        camera[p.category][p.name] = ptp.objCopy(current, {});
                         if(p.listWorks) {
                             camera[p.category][p.name].list = [];
                             for(var x = 0; x < list.length; x++) {
