@@ -201,29 +201,48 @@ var properties = {
         code: 0xD21E,
         ev: true,
         values: [
-            { name: "160",      ev: -2 / 3,      code: 160  },
-            { name: "200",      ev: -1,          code: 200  },
-            { name: "250",      ev: -1 - 1 / 3,  code: 250  },
-            { name: "320",      ev: -1 - 2 / 3,  code: 320  },
-            { name: "400",      ev: -2,          code: 400  },
-            { name: "500",      ev: -2 - 1 / 3,  code: 500  },
-            { name: "640",      ev: -2 - 2 / 3,  code: 640  },
-            { name: "800",      ev: -3,          code: 800  },
-            { name: "1000",     ev: -3 - 1 / 3,  code: 1000  },
-            { name: "1250",     ev: -3 - 2 / 3,  code: 1250  },
-            { name: "1600",     ev: -4,          code: 1600  },
-            { name: "2000",     ev: -4 - 1 / 3,  code: 2000  },
-            { name: "2500",     ev: -4 - 2 / 3,  code: 2500  },
-            { name: "3200",     ev: -5,          code: 3200  },
-            { name: "4000",     ev: -5 - 1 / 3,  code: 4000  },
-            { name: "5000",     ev: -5 - 2 / 3,  code: 5000  },
-            { name: "6400",     ev: -6,          code: 6400  },
-            { name: "8000",     ev: -6 - 1 / 3,  code: 8000  },
-            { name: "10000",    ev: -6 - 2 / 3,  code: 10000  },
-            { name: "12800",    ev: -7,          code: 12800  },
-            { name: "err-1",    ev: null,        code: -1  },
-            { name: "err-2",    ev: null,        code: -2  },
-            { name: "err-3",    ev: null,        code: -3  }
+            { name: "AUTO",     ev: null,        code: 65535 },
+            { name: "25",       ev: -2 / 3,      code: 25 },
+            { name: "50",       ev: -2 / 3,      code: 50 },
+            { name: "64",       ev: -2 / 3,      code: 64 },
+            { name: "80",       ev: -2 / 3,      code: 80 },
+            { name: "100",      ev: -2 / 3,      code: 100 },
+            { name: "125",      ev: -2 / 3,      code: 125 },
+            { name: "160",      ev: -2 / 3,      code: 160 },
+            { name: "200",      ev: -1,          code: 200 },
+            { name: "250",      ev: -1 - 1 / 3,  code: 250 },
+            { name: "320",      ev: -1 - 2 / 3,  code: 320 },
+            { name: "400",      ev: -2,          code: 400 },
+            { name: "500",      ev: -2 - 1 / 3,  code: 500 },
+            { name: "640",      ev: -2 - 2 / 3,  code: 640 },
+            { name: "800",      ev: -3,          code: 800 },
+            { name: "1000",     ev: -3 - 1 / 3,  code: 1000 },
+            { name: "1250",     ev: -3 - 2 / 3,  code: 1250 },
+            { name: "1600",     ev: -4,          code: 1600 },
+            { name: "2000",     ev: -4 - 1 / 3,  code: 2000 },
+            { name: "2500",     ev: -4 - 2 / 3,  code: 2500 },
+            { name: "3200",     ev: -5,          code: 3200 },
+            { name: "4000",     ev: -5 - 1 / 3,  code: 4000 },
+            { name: "5000",     ev: -5 - 2 / 3,  code: 5000 },
+            { name: "6400",     ev: -6,          code: 6400 },
+            { name: "8000",     ev: -6 - 1 / 3,  code: 8000 },
+            { name: "10000",    ev: -6 - 2 / 3,  code: 10000 },
+            { name: "12800",    ev: -7,          code: 12800 },
+            { name: "16000",    ev: -7 - 1 / 3,  code: 16000 },
+            { name: "20000",    ev: -7 - 2 / 3,  code: 20000 },
+            { name: "25600",    ev: -8,          code: 25600 },
+            { name: "32000",    ev: -8 - 1 / 3,  code: 32000 },
+            { name: "40000",    ev: -8 - 2 / 3,  code: 40000 },
+            { name: "51200",    ev: -9,          code: 51200 },
+            { name: "64000",    ev: -9 - 1 / 3,  code: 64000 },
+            { name: "80000",    ev: -9 - 2 / 3,  code: 80000 },
+            { name: "102400",   ev: -10,         code: 102400 },
+            { name: "128000",   ev: -10 - 1 / 3, code: 128000 },
+            { name: "160000",   ev: -10 - 2 / 3, code: 160000 },
+            { name: "204800",   ev: -11,         code: 204800 },
+            { name: "256000",   ev: -11 - 1 / 3, code: 256000 },
+            { name: "320000",   ev: -11 - 2 / 3, code: 320000 },
+            { name: "409600",   ev: -12,         code: 409600 }
         ]
     },
     'format': {
@@ -263,7 +282,7 @@ driver._event = function(camera, data) { // events received
             camera._eventTimer = setTimeout(function() {
                 camera._eventTimer = null;
                 sonyReadProperties(camera);
-            }, 20);
+            }, 50);
         }
     });
 };
@@ -368,7 +387,30 @@ function sonyReadProperties(camera, callback)
                     return callback && callback("invalid data (1)");
             }
             i += data_size;
-            data_current = data.readUInt16LE(i);
+            switch(data_type)
+            {
+                case DATA8:
+                    data_current = data.readInt8(i);
+                    break;
+                case DATAU8:
+                    data_current = data.readUInt8(i);
+                    break;
+                case DATA16:
+                    data_current = data.readInt16LE(i);
+                    break;
+                case DATAU16:
+                    data_current = data.readUInt16LE(i);
+                    break;
+                case DATA32:
+                    data_current = data.readInt32LE(i);
+                    break;
+                case DATAU32:
+                    data_current = data.readUInt32LE(i);
+                    break;
+                default:
+                    //error invalid data type
+                    return callback && callback("invalid data (4)");
+            }
             i += data_size;
     
             list_type = data.readUInt8(i);
