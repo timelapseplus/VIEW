@@ -255,6 +255,7 @@ var properties = {
         getFunction: null,
         listFunction: null,
         code: 0x5004,
+        typeCode: 4,
         ev: false,
         values: [
             { name: "RAW",               code: 1  },
@@ -301,7 +302,6 @@ var RANGE = 1;
 var LIST = 2;
 
 driver.refresh = function(camera, callback) {
-{
     ptp.transaction(camera._dev, 0x9209, [], null, function(err, responseCode, data) {
         console.log("0x9209 data.length", data.length,  "err", err);
         var i = 8;
