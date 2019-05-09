@@ -70,8 +70,8 @@ var properties = {
         category: 'exposure',
         setFunction: ptp.setPropU32,
         getFunction: ptp.getPropU32,
-        listFunction: ptp.listProp,
-        code: 0x500D,
+        listFunction: null,
+        code: 0xD20D,
         ev: true,
         values: [
             { name: "15m",     ev: -15,         code:  64000120 },
@@ -149,7 +149,7 @@ var properties = {
         category: 'exposure',
         setFunction: driver.setPropU16,
         getFunction: driver.getPropU16,
-        listFunction: driver.listProp,
+        listFunction: null,
         code: 0x5007,
         ev: true,
         values: [
@@ -197,8 +197,8 @@ var properties = {
         category: 'exposure',
         setFunction: driver.setProp32,
         getFunction: driver.getProp32,
-        listFunction: driver.listProp,
-        code: 0x500F,
+        listFunction: null,
+        code: 0xD21E,
         ev: true,
         values: [
             { name: "160",      ev: -2 / 3,      code: 160  },
@@ -248,11 +248,18 @@ driver._error = function(camera, error) { // events received
     _logD("ERROR:", error);
 };
 
+var SONY_EVENT_CAPTURE = 0xC201
+var SONY_EVENT_OBJECT_CREATED = 0xC202
+var SONY_EVENT_CHANGE = 0xC203
+
 driver._event = function(camera, data) { // events received
     _logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
-        if(event == ptp.PTP_EC_ObjectAdded) {
+        if(event == SONY_EVENT_OBJECT_CREATED) {
             _logD("object added:", param1);
+        }
+        if(event == SONY_EVENT_CHANGE) {
+            sonyReadProperties(camera);
         }
     });
 };
@@ -370,11 +377,11 @@ function sonyReadProperties(camera, callback)
                 case LIST:
                     count = data.readUInt8(i);
                     i += 2;
-                    if(count > 64) return callback && callback("invalid data (2)");
+                    if(count > 128) return callback && callback("invalid data (2)");
                     break;
                 default:
                     // error invalid data mode
-                    return callback && callback("invalid data (3)");
+                    return callback && callback("invalid list type", list_type);
                     break;
             }
             var data_list_item;
@@ -410,7 +417,11 @@ function sonyReadProperties(camera, callback)
                 list.push(data_list_item);
                 count--;
             }
-            console.log("prop", ptp.hex(property_code), "current", data_current, "type", data_type, "list", list);
+            for(var prop in properties) {
+                if(properties[prop].code == property_code) {
+                    console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", list);
+                }
+            }
         }
     });
 }
