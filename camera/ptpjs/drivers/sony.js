@@ -467,6 +467,8 @@ driver.refresh = function(camera, callback) {
                         }
                         console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
                         //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
+                    } else {
+                        console.log("SONY:", prop, "item not found:", data_current);
                     }
                 }
             }
