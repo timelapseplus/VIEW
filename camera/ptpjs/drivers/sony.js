@@ -71,6 +71,7 @@ var properties = {
         setFunction: driver.setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
+        listWorks: false,
         code: 0xD20D,
         typeCode: 6,
         ev: true,
@@ -151,6 +152,7 @@ var properties = {
         setFunction: driver.setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
+        listWorks: false,
         code: 0x5007,
         typeCode: 4,
         ev: true,
@@ -200,6 +202,7 @@ var properties = {
         setFunction: driver.setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
+        listWorks: true,
         typeCode: 6,
         code: 0xD21E,
         ev: true,
@@ -251,18 +254,45 @@ var properties = {
     'format': {
         name: 'format',
         category: 'config',
-        setFunction: ptp.setPropU16,
+        setFunction: ptp.setPropU8,
         getFunction: null,
         listFunction: null,
+        listWorks: true,
         code: 0x5004,
-        typeCode: 4,
+        typeCode: 2,
         ev: false,
         values: [
-            { name: "RAW",               code: 1  },
-            { name: "JPEG Fine",         code: 2  },
-            { name: "JPEG Normal",       code: 3  },
-            { name: "RAW + JPEG Fine",   code: 4  },
-            { name: "RAW + JPEG Normal", code: 5  }
+            { name: "JPEG Standard",       value: null,        code: 2  },
+            { name: "JPEG Fine",           value: null,        code: 3  },
+            { name: "JPEG Extra Fine",     value: null,        code: 4  },
+            { name: "RAW",                 value: 'raw',       code: 16  },
+            { name: "RAW+JPEG Standard",   value: 'raw+jpeg',  code: 18  },
+            { name: "RAW+JPEG Fine",       value: null,        code: 19  },
+            { name: "RAW+JPEG Extra Fine", value: null,        code: 20  }
+        ]
+    },
+    'objectsAvailable': {
+        name: 'objectsAvailable',
+        category: 'status',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0xD215,
+        typeCode: 2,
+        ev: false,
+        values: [
+            { name: "none",       value: 0,        code: 0x8000  },
+            { name: "1",          value: 1,        code: 0x8001  },
+            { name: "2",          value: 2,        code: 0x8002  },
+            { name: "3",          value: 3,        code: 0x8003  },
+            { name: "4",          value: 4,        code: 0x8004  },
+            { name: "5",          value: 5,        code: 0x8005  },
+            { name: "6",          value: 6,        code: 0x8006  },
+            { name: "7",          value: 7,        code: 0x8007  },
+            { name: "8",          value: 8,        code: 0x8008  },
+            { name: "9",          value: 9,        code: 0x8009  },
+            { name: "10",         value: 10,       code: 0x8010  },
         ]
     }
 }
@@ -286,7 +316,7 @@ driver._event = function(camera, data) { // events received
             camera._eventTimer = setTimeout(function() {
                 camera._eventTimer = null;
                 driver.refresh(camera);
-            }, 200);
+            }, 500);
         }
     });
 };
@@ -421,6 +451,18 @@ driver.refresh = function(camera, callback) {
             }
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
+                    var p = properties[prop];
+                    var newItem =  mapPropertyItem(cameraValue, p.values);
+                    camera[p.category][p.name] = newItem;
+                    if(p.listWorks) {
+                        camera[p.category][p.name].list = [];
+                        for(var i = 0; i < list.length; i++) {
+                            var newItem =  mapPropertyItem(list[i], p.values);
+                            camera[p.category][p.name].list.push(newItem);
+                        }
+                    } else {
+                        camera[p.category][p.name].list = p.values;
+                    }
                     console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                 }
             }
@@ -546,11 +588,24 @@ driver.set = function(camera, param, value, callback) {
 }
 
 driver.get = function(camera, param, callback) {
-    if(properties[param] && camera[properties[param].category][param]) {
-        return callback && callback(null, camera[properties[param].category][param]);
-    } else {
-        return callback && callback("unknown param", null);
+    var get = function() {
+        if(properties[param] && camera[properties[param].category][param]) {
+            return callback && callback(null, camera[properties[param].category][param]);
+        } else {
+            return callback && callback("unknown param", null);
+        }
     }
+
+    if(camera._eventTimer) {
+        clearTimeout(camera._eventTimer);
+        camera._eventTimer = null;
+        driver.refresh(camera, function() {
+            get();
+        });
+    } else {
+        get();
+    }
+
 }
 
 function getImage(camera, timeout, callback) {
@@ -563,100 +618,70 @@ function getImage(camera, timeout, callback) {
 
     var startTime = Date.now();
 
-    var check = function() {
-        if(Date.now() - startTime > timeout) {
-            return callback && callback("timeout", results);
-        }
-        ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
-            //console.log("data:", data);
-            if(!err && data && data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
-                var getHandles = function() {
-                    if(Date.now() - startTime > timeout) {
-                        return callback && callback("timeout", results);
-                    }
-                    ptp.getObjectHandles(camera._dev, function(err, handles) {
-                        if(handles.length > 0) {
-                            var objectId = handles[0];
-                            var deleteRemaining = function() {
-                                if(handles.length > 1) {
-                                    var id = handles.pop();
-                                    ptp.deleteObject(camera._dev, id, function(err) {
-                                        deleteRemaining();
-                                    });
-                                }
-                            }
-                            ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                                //console.log(oi);
-                                var image = null;
-                                results.filename = oi.filename;
-                                results.indexNumber = objectId;
-                                if(camera.thumbnail) {
-                                    ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                                        ptp.deleteObject(camera._dev, objectId, function() {
-                                            results.thumb = jpeg;
-                                            callback && callback(err, results);
-                                            deleteRemaining();
-                                        });
-                                    });
-                                } else {
-                                    ptp.getObject(camera._dev, objectId, function(err, image) {
-                                        ptp.deleteObject(camera._dev, objectId, function() {
-                                            results.thumb = ptp.extractJpeg(image);
-                                            results.rawImage = image;
-                                            callback && callback(err, results);
-                                            deleteRemaining();
-                                        });
-                                    });
-                                }
-                            });
-                        } else {
-                            setTimeout(getHandles, 50);
-                        }
-                    });
+    async.series([
+        function(cb){
+            var check = function() {
+                if(Date.now() - startTime > timeout) {
+                    return cb && cb("timeout");
                 }
-                getHandles();
-            } else {
-                setTimeout(check, 50);
+                driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
+                    if(err || data > 0) {
+                        results.indexNumber = res;
+                        return cb(err);
+                    } else {
+                        return setTimeout(check, 50);
+                    }
+                });
             }
-        });
-    }
-    check();
+            check();
+        },
+        function(cb){
+            ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
+                results.filename = oi.filename;
+                cb(err);
+            });
+        },
+        function(cb){
+            ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
+                ptp.deleteObject(camera._dev, 0xffffc001, function() {
+                    results.thumb = ptp.extractJpeg(image);
+                    results.rawImage = image;
+                    cb(err);
+                });
+            });
+        },
+    ], function(err) {
+        callback && callback(err, results.thumb, results.filename, results.rawImage);
+    });
 }
 
 driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
     var results = {};
-    var lvMode = camera.status.liveview;
     async.series([
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
-        },
-        function(cb){ptp.setPropU16(camera._dev, 0xd20c, targetValue, cb);}, // set target
-        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
-        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
+        function(cb){driver.setDeviceControlValueB(camera, 0xD2C1, 2, 4, cb);}, // activate half-press
+        function(cb){driver.setDeviceControlValueB(camera, 0xD2C2, 2, 4, cb);}, // activate full-press
+        function(cb){ setTimeout(cb, 10); },
+        function(cb){driver.setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
+        function(cb){driver.setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
         function(cb){
             var check = function() {
-                ptp.getPropU16(camera._dev, 0xd209, function(err, data) { // wait if busy
-                    if(data == 0x0001) {
-                        check();
-                    } else {
+                driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
+                    if(err || data > 0) {
                         cb(err);
+                    } else {
+                        setTimeout(check, 50);
                     }
                 });
             }
             check();
         },
-        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
-        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
             getImage(camera, 60000, function(err, imageResults) {
                 results = imageResults;
                 cb(err);
             });
-        },
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err) {
         callback && callback(err, results.thumb, results.filename, results.rawImage);

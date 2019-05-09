@@ -257,11 +257,11 @@ var properties = {
         code: 0xD018,
         ev: false,
         values: [
-            { name: "RAW",               code: 1  },
-            { name: "JPEG Fine",         code: 2  },
-            { name: "JPEG Normal",       code: 3  },
-            { name: "RAW + JPEG Fine",   code: 4  },
-            { name: "RAW + JPEG Normal", code: 5  }
+            { name: "RAW",               key: 'raw',      code: 1  },
+            { name: "JPEG Fine",         key: null,       code: 2  },
+            { name: "JPEG Normal",       key: null,       code: 3  },
+            { name: "RAW + JPEG Fine",   key: null,       code: 4  },
+            { name: "RAW + JPEG Normal", key: 'raw+jpeg', code: 5  }
         ]
     },
     'destination': {
@@ -573,7 +573,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             var check = function() {
                 ptp.getPropU16(camera._dev, 0xd209, function(err, data) { // wait if busy
                     if(data == 0x0001) {
-                        check();
+                        setTimeout(check, 50);
                     } else {
                         cb(err);
                     }
