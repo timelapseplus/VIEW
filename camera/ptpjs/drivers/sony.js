@@ -444,13 +444,16 @@ function ptp_sony_9281 (camera, param1, callback) {
     return ptp.transaction(camera._dev, 0x9281, [param1], buf, callback);
 }
 
+
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
-            function(cb){ptp_sony_9280(camera, 0x4, 2,2,0,0, 0x01,0x01, cb);}, // PC mode
-            function(cb){ptp_sony_9281(camera, 0x4, cb);},  // ?
+            function(cb){ptp.transaction(camera._dev, 0x9201, [0x1, 0x0, 0x0], null, cb);}, // PC mode
+            function(cb){ptp.transaction(camera._dev, 0x9201, [0x2, 0x0, 0x0], null, cb);}, // PC mode
+            function(cb){ptp.transaction(camera._dev, 0x9202, [0xC8], null, cb);}, // Receive events
+            function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
         ], function(err) {
-            if(err) console.log("ptp_sony_9280 err", err);
+            if(err) console.log("init err", err);
             sonyReadProperties(camera, function(err){
                 console.log("sonyReadProperties err", err);
                 callback && callback(err);
