@@ -452,18 +452,22 @@ driver.refresh = function(camera, callback) {
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
                     var p = properties[prop];
-                    var newItem =  mapPropertyItem(data_current, p.values);
-                    camera[p.category][p.name] = newItem;
-                    if(p.listWorks) {
-                        camera[p.category][p.name].list = [];
-                        for(var i = 0; i < list.length; i++) {
-                            var newItem =  mapPropertyItem(list[i], p.values);
-                            camera[p.category][p.name].list.push(newItem);
+                    var current =  mapPropertyItem(data_current, p.values);
+                    if(current) {
+                        if(!camera[p.category]) camera[p.category] = {};
+                        camera[p.category][p.name] = current;
+                        if(p.listWorks) {
+                            camera[p.category][p.name].list = [];
+                            for(var i = 0; i < list.length; i++) {
+                                var item =  mapPropertyItem(list[i], p.values);
+                                camera[p.category][p.name].list.push(item);
+                            }
+                        } else {
+                            camera[p.category][p.name].list = p.values;
                         }
-                    } else {
-                        camera[p.category][p.name].list = p.values;
+                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
-                    console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                 }
             }
         }
