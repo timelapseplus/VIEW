@@ -440,7 +440,7 @@ function ptp_sony_9280 (camera, param1, additional, data2, data3, data4, x, y, c
     return ptp.transaction(camera._dev, 0x9280, [param1], buf, callback);
 }
 
-function ptp_sony_9281 (camera, param1) {
+function ptp_sony_9281 (camera, param1, callback) {
     return ptp.transaction(camera._dev, 0x9281, [param1], buf, callback);
 }
 

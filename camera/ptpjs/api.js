@@ -174,7 +174,7 @@ function connectCamera(driver, device) {
 		},
 		transactionId: 0
 	};
-	console.log("iface.endpoints[i]", iface.endpoints[i]);
+	//console.log("iface.endpoints", iface.endpoints);
 	for(var i = 0; i < iface.endpoints.length; i++) {
 		var ep = iface.endpoints[i];
 		if(ep.transferType == 2 && ep.direction == 'in') cam.ep.in = ep;
