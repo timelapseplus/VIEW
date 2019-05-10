@@ -197,6 +197,8 @@ function connectCamera(driver, device) {
 		if(ep.transferType == 3 && ep.direction == 'in') cam.ep.evt = ep;
 	}
 	if(!cam.ep.in || !cam.ep.out) return null;
+	cam.ep.in.timeout = 1000;
+	cam.ep.out.timeout = 1000;
 	var camera = new CameraAPI(driver);
 	camera._dev = cam;
 	if(cam.ep.evt) {
