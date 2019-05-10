@@ -522,14 +522,14 @@ function mapPropertyItem(cameraValue, list) {
 
 function setDeviceControlValueA (camera, propcode, value, datatype, callback) {
     var typeInfo = ptp.getTypeInfo(datatype);
-    var buf = new Array(typeInfo.size);
+    var buf = new Buffer(typeInfo.size);
     buf[typeInfo.writeFunction](value, 0);
     return ptp.transaction(camera._dev, 0x9205, [propcode], buf, callback);
 }
 
 function setDeviceControlValueB (camera, propcode, value, datatype, callback) {
     var typeInfo = ptp.getTypeInfo(datatype);
-    var buf = new Array(typeInfo.size);
+    var buf = new Buffer(typeInfo.size);
     buf[typeInfo.writeFunction](value, 0);
     return ptp.transaction(camera._dev, 0x9207, [propcode], buf, callback);
 }
