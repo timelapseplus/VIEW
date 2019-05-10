@@ -379,6 +379,10 @@ exports.hex = function(val) {
 }
 
 exports.extractJpeg = function(data) {
+    if(!data) {
+    	_logD("no data");
+    	return null;
+    }
 	var maxSearch = data.length;
 	//if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
 
