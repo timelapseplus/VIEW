@@ -168,8 +168,8 @@ var properties = {
             { name: "9",        ev: -1 - 2 / 3,  code: 900  },
             { name: "10",       ev: -1 - 1 / 3,  code: 1000  },
             { name: "11",       ev: -1,          code: 1100  },
-            { name: "13",       ev:  0 - 2 / 3,  code: 1300  },
-            { name: "14",       ev:  0 - 1 / 3,  code: 1400  },
+            { name: "13",       ev: -0 - 2 / 3,  code: 1300  },
+            { name: "14",       ev: -0 - 1 / 3,  code: 1400  },
             { name: "16",       ev:  0,          code: 1600  },
             { name: "18",       ev:  0 + 1 / 3,  code: 1800  },
             { name: "20",       ev:  0 + 2 / 3,  code: 2000  },
@@ -296,7 +296,7 @@ var SONY_EVENT_OBJECT_CREATED = 0xC202
 var SONY_EVENT_CHANGE = 0xC203
 
 driver._event = function(camera, data) { // events received
-    _logD("EVENT:", data);
+    //_logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == SONY_EVENT_OBJECT_CREATED) {
             _logD("object added:", param1);
@@ -306,7 +306,7 @@ driver._event = function(camera, data) { // events received
             camera._eventTimer = setTimeout(function() {
                 camera._eventTimer = null;
                 driver.refresh(camera);
-            }, 500);
+            }, 800);
         }
     });
 };
