@@ -666,11 +666,11 @@ driver.capture = function(camera, target, options, callback, tries) {
     var filename = null;
     var rawImage = null;
     async.series([
-        function(cb){setDeviceControlValueB(camera, 0xD2C1, 2, 4, cb);}, // activate half-press
-        function(cb){setDeviceControlValueB(camera, 0xD2C2, 2, 4, cb);}, // activate full-press
+        function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
+        function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 2, 4, cb);}, // activate full-press
         function(cb){ setTimeout(cb, 10); },
-        function(cb){setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
-        function(cb){setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
+        function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 1, 4, cb);}, // release full-press
+        function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 1, 4, cb);}, // release half-press
         function(cb){
             getImage(camera, 60000, function(err, th, fn, rw) {
                 thumb = th;
