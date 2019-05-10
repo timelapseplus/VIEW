@@ -620,6 +620,7 @@ function getImage(camera, timeout, callback) {
                     return cb && cb("timeout");
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
+                    console.log("err", err, "res", res);
                     if(err || res > 0) {
                         console.log("found object");
                         results.indexNumber = res;
