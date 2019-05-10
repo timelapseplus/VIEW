@@ -515,7 +515,7 @@ driver.init = function(camera, callback) {
                     function(cb){setTimeout(function(){driver.get(camera, 'shutter', function(err, val) {
                         console.log("shutter max:", val.name);
                         cb(err);
-                    });}, 500);},
+                    });}, 1500);},
                     function(cb){driver.get(camera, 'aperture', function(err, val) {
                         console.log("aperture max:", val.name);
                         cb(err);
@@ -532,7 +532,7 @@ driver.init = function(camera, callback) {
                     function(cb){setTimeout(function(){driver.get(camera, 'shutter', function(err, val) {
                         console.log("shutter min:", val.name);
                         cb(err);
-                    });}, 500);},
+                    });}, 1500);},
                     function(cb){driver.get(camera, 'aperture', function(err, val) {
                         console.log("aperture min:", val.name);
                         cb(err);
