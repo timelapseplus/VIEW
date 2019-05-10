@@ -303,11 +303,18 @@ driver._event = function(camera, data) { // events received
             _logD("object added:", param1);
         }
         if(event == SONY_EVENT_CHANGE) {
-            if(camera._eventTimer) clearTimeout(camera._eventTimer);
-            camera._eventTimer = setTimeout(function() {
-                camera._eventTimer = null;
-                driver.refresh(camera);
-            }, 800);
+            var check = function() {
+                if(camera._eventTimer) clearTimeout(camera._eventTimer);            
+                camera._eventTimer = setTimeout(function() {
+                    camera._eventTimer = null;
+                    if(!camera._blockEvents) {
+                        driver.refresh(camera);
+                    } else {
+                        camera._eventTimer = setTimeout(check, 500);
+                    }
+                }, 800);
+            }
+            check();
         }
     });
 };
@@ -753,6 +760,7 @@ function getImage(camera, timeout, callback) {
             check();
         },
         function(cb){
+            camera._blockEvents = true;
             console.log("getting object info");
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
@@ -777,6 +785,7 @@ function getImage(camera, timeout, callback) {
             });
         },
     ], function(err) {
+        camera._blockEvents = false;
         callback && callback(err, results.thumb, results.filename, results.rawImage);
     });
 }
