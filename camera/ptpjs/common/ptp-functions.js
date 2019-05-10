@@ -552,7 +552,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 	var receive = function(cb, rbuf) {
 		_logD("reading 12 bytes...");
 		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
-			if(!err && data) {
+			if(!err && data && data.length >= 12) {
 				var rlen = data.readUInt32LE(0);
 				var rtype = data.readUInt16LE(4);
 				_logD("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
