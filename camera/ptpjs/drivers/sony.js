@@ -621,6 +621,7 @@ function getImage(camera, timeout, callback) {
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
                     if(err || res > 0) {
+                        console.log("found object");
                         results.indexNumber = res;
                         return cb(err);
                     } else {
@@ -631,12 +632,14 @@ function getImage(camera, timeout, callback) {
             check();
         },
         function(cb){
+            console.log("getting object info");
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 results.filename = oi.filename;
                 cb(err);
             });
         },
         function(cb){
+            console.log("getting object");
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 ptp.deleteObject(camera._dev, 0xffffc001, function() {
                     results.thumb = ptp.extractJpeg(image);
