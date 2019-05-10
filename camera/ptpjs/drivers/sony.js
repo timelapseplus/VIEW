@@ -653,7 +653,9 @@ function getImage(camera, timeout, callback) {
 driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
-    var results = {};
+    var thumb = null;
+    var filename = null;
+    var rawImage = null;
     async.series([
         function(cb){setDeviceControlValueB(camera, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){setDeviceControlValueB(camera, 0xD2C2, 2, 4, cb);}, // activate full-press
@@ -661,13 +663,15 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
         function(cb){setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
         function(cb){
-            getImage(camera, 60000, function(err, imageResults) {
-                results = imageResults;
+            getImage(camera, 60000, function(err, th, fn, rw) {
+                thumb = th;
+                filename = fn;
+                rawImage = rw;
                 cb(err);
             });
         },
     ], function(err) {
-        callback && callback(err, results.thumb, results.filename, results.rawImage);
+        callback && callback(err, thumb, filename, rawImage);
     });
 }
 
