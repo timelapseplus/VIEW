@@ -52,7 +52,7 @@ exports.PTP_EC_StorageInfoChanged	 = 0x400C
 exports.PTP_EC_CaptureComplete		 = 0x400D
 exports.PTP_EC_UnreportedStatus		 = 0x400E 
 
-var LOG_LEVEL = 1;
+var LOG_LEVEL = 0;
 
 function _logD() {
 	if(LOG_LEVEL > 0) return;
@@ -61,6 +61,16 @@ function _logD() {
     }
     console.log.apply(console, arguments);
 }
+
+function _logUSB(dir, data) {
+	if(false) return;
+	var d = "<--";
+	if(dir == 'out') {
+		d = "-->";
+	}
+    console.log('PTP-USB', d, data);
+}
+
 
 exports.uint32buf = function(uint32) {
 	var buf = new Buffer(4);
@@ -528,7 +538,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 
 	var send = function(buf, cb) {
 		cam.ep.out.transfer(buf, function(err)  {
-			_logD("sent", buf);
+			_logUSB('out', buf);
 			if(data) {
 				buf.writeUInt32LE(12 + data.length, 0); // overwrite length
 				buf.writeUInt16LE(2, 4); // update type to 2 (data)
@@ -565,7 +575,8 @@ function runTransaction(cam, opcode, params, data, callback) {
 					_logD("completed transaction, response code", exports.hex(responseCode));
 					if(rbuf) {
 						rbuf = rbuf.slice(12); // strip header from data returned
-						_logD("-> received", rbuf.length, "bytes: ", rbuf, "with err:", err);
+						_logD("-> received", rbuf.length, "byte with err:", err);
+						_logUSB("in", rbuf);
 					}
 					cb && cb(err, responseCode, rbuf);
 				} else {
