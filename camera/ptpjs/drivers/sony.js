@@ -555,6 +555,7 @@ driver.set = function(camera, param, value, callback) {
                     }
                 }
                 if(cameraValue !== null) {
+                    if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].typeCode, function(err) {
                         if(!err) {

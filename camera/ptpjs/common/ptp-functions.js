@@ -204,42 +204,49 @@ exports.getTypeInfo = function(type) {
 		case 2: {
 			itemSize = 1;
 			itemReadFunction = 'readUInt8';
+			itemWriteFunction = 'writeUInt8';
 			typeName = "uint8";
 			break;
 		}
 		case 3: {
 			itemSize = 2;
 			itemReadFunction = 'readInt16LE';
+			itemWriteFunction = 'writeInt16LE';
 			typeName = "int16";
 			break;
 		}
 		case 4: {
 			itemSize = 2;
 			itemReadFunction = 'readUInt16LE';
+			itemWriteFunction = 'writeUInt16LE';
 			typeName = "uint16";
 			break;
 		}
 		case 5: {
 			itemSize = 4;
 			itemReadFunction = 'readInt32LE';
+			itemWriteFunction = 'writeInt32LE';
 			typeName = "int32";
 			break;
 		}
 		case 6: {
 			itemSize = 4;
 			itemReadFunction = 'readUInt32LE';
+			itemWriteFunction = 'writeUInt32LE';
 			typeName = "uint32";
 			break;
 		}
 		case 7: {
 			itemSize = 8;
 			itemReadFunction = 'readInt64LE';
+			itemWriteFunction = 'writeInt64LE';
 			typeName = "int64";
 			break;
 		}
 		case 8: {
 			itemSize = 8;
 			itemReadFunction = 'readUInt64LE';
+			itemWriteFunction = 'writeUInt64LE';
 			typeName = "uint64";
 			break;
 		}
