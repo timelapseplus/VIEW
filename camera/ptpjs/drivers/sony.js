@@ -273,6 +273,7 @@ var properties = {
         ev: false,
         values: [
             { name: "none",       value: 0,        code: 0x0000  },
+            { name: "folder",     value: 0,        code: 0x0001  },
             { name: "1",          value: 1,        code: 0x8001  },
             { name: "2",          value: 2,        code: 0x8002  },
             { name: "3",          value: 3,        code: 0x8003  },
@@ -724,7 +725,7 @@ function getImage(camera, timeout, callback) {
                     return cb && cb("timeout");
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
-                    if(err || res.value > 0) {
+                    if(err || (res && res.value > 0)) {
                         results.indexNumber = res;
                         return cb(err);
                     } else {

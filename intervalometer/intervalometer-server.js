@@ -521,6 +521,18 @@ camera.ptp.new.on('connected', function(model) {
   sendCameraUpdate();
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
+camera.ptp.new.on('settings', function(settings) {
+  sendEvent('camera.settings', {
+        shutter: settings.shutter,
+        aperture: settings.aperture,
+        iso: settings.iso,
+        lists: {
+            shutter: settings.shutter.list,
+            aperture: settings.aperture.list,
+            iso: settings.iso.list
+        }
+  });
+});
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
   sendCameraUpdate();
