@@ -530,6 +530,16 @@ camera.ptp.new.on('settings', function(settings) {
             shutter: settings.shutter.list,
             aperture: settings.aperture.list,
             iso: settings.iso.list
+        }, 
+        details: {
+          shutter: settings.shutter,
+          aperture: settings.aperture,
+          iso: settings.iso,
+          lists: {
+              shutter: settings.shutter.list,
+              aperture: settings.aperture.list,
+              iso: settings.iso.list
+          }
         }
   });
 });
