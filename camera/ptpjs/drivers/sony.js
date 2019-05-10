@@ -508,6 +508,16 @@ driver.init = function(camera, callback) {
             driver.refresh(camera, function(err){
                 if(err) console.log("driver.refresh err", err);
                 callback && callback(err);
+                setTimeout(function(){
+                    shiftProperty(camera._dev, 0x5007, 127, function(err) {
+                        console.log("move prop err:", err);
+                    });
+                }, 5000);
+                setTimeout(function(){
+                    shiftProperty(camera._dev, 0x5007, -127, function(err) {
+                        console.log("move prop err:", err);
+                    });
+                }, 10000);
             });
         });
     });
@@ -532,6 +542,12 @@ function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
     var buf = new Buffer(typeInfo.size);
     buf[typeInfo.writeFunction](value, 0);
     return ptp.transaction(_dev, 0x9207, [propcode], buf, callback);
+}
+
+function shiftProperty(_dev, propcode, move, callback) {
+    if(move > 127) move = 127;
+    if(move < -127) move = -127;    
+    setDeviceControlValueB (_dev, propcode, move, 1, callback);
 }
 
 driver.set = function(camera, param, value, callback) {
