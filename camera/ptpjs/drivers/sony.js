@@ -644,7 +644,7 @@ function getImage(camera, timeout, callback) {
             console.log("getting object");
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 //ptp.deleteObject(camera._dev, 0xffffc001, function() {
-                    if(results.filename && results.filename.slice(-3) == 'jpg') {
+                    if(results.filename && results.filename.slice(-3).toLowerCase() == 'jpg') {
                         results.thumb = image;
                     } else {
                         results.thumb = ptp.extractJpeg(image);
