@@ -512,7 +512,7 @@ driver.init = function(camera, callback) {
                     function(cb){shiftProperty(camera._dev, 0x5007, 127, cb);}, // get max aperture
                     function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
                  
-                    function(cb){
+                    function(cb2){
                         async.parallel([
                             function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
                                 console.log("shutter max:", val.name);
@@ -526,14 +526,14 @@ driver.init = function(camera, callback) {
                                 console.log("iso max:", val.name);
                                 cb();
                             });},
-                        ], cb);
+                        ], cb2);
                     },
                  
                     function(cb){shiftProperty(camera._dev, 0xD20D, -127, cb);}, // get min shutter
                     function(cb){shiftProperty(camera._dev, 0x5007, -127, cb);}, // get min aperture
                     function(cb){shiftProperty(camera._dev, 0xD21E, -127, cb);}, // get max iso
                  
-                    function(cb){
+                    function(cb2){
                         async.parallel([
                             function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
                                 console.log("shutter min:", val.name);
@@ -547,7 +547,7 @@ driver.init = function(camera, callback) {
                                 console.log("iso min:", val.name);
                                 cb();
                             });},
-                        ], cb);
+                        ], cb2);
                     },
 
                 ], function(err) {
