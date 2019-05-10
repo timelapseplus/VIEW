@@ -512,35 +512,37 @@ driver.init = function(camera, callback) {
                     function(cb){shiftProperty(camera._dev, 0x5007, 127, cb);}, // get max aperture
                     function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
                  
-                    function(cb){setTimeout(function(){driver.get(camera, 'shutter', function(err, val) {
-                        console.log("shutter max:", val.name);
-                        cb(err);
-                    });}, 1500);},
-                    function(cb){driver.get(camera, 'aperture', function(err, val) {
-                        console.log("aperture max:", val.name);
-                        cb(err);
-                    });},
-                    function(cb){driver.get(camera, 'iso', function(err, val) {
-                        console.log("iso max:", val.name);
-                        cb(err);
-                    });},
+                    function(cb){
+                        async.parallel([
+                            function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
+                                console.log("shutter max:", val.name);
+                            }},
+                            function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
+                                console.log("aperture max:", val.name);
+                            }},
+                            function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
+                                console.log("iso max:", val.name);
+                            }},
+                        ], cb);
+                    },
                  
                     function(cb){shiftProperty(camera._dev, 0xD20D, -127, cb);}, // get min shutter
                     function(cb){shiftProperty(camera._dev, 0x5007, -127, cb);}, // get min aperture
                     function(cb){shiftProperty(camera._dev, 0xD21E, -127, cb);}, // get max iso
                  
-                    function(cb){setTimeout(function(){driver.get(camera, 'shutter', function(err, val) {
-                        console.log("shutter min:", val.name);
-                        cb(err);
-                    });}, 1500);},
-                    function(cb){driver.get(camera, 'aperture', function(err, val) {
-                        console.log("aperture min:", val.name);
-                        cb(err);
-                    });},
-                    function(cb){driver.get(camera, 'iso', function(err, val) {
-                        console.log("iso min:", val.name);
-                        cb(err);
-                    });},
+                    function(cb){
+                        async.parallel([
+                            function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
+                                console.log("shutter min:", val.name);
+                            }},
+                            function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
+                                console.log("aperture min:", val.name);
+                            }},
+                            function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
+                                console.log("iso min:", val.name);
+                            }},
+                        ], cb);
+                    },
 
                 ], function(err) {
                     return callback && callback(err);
@@ -550,6 +552,29 @@ driver.init = function(camera, callback) {
         });
     });
 }
+
+function waitValueChange(camera, param, timeout, callback) {
+    var firstValue = null;
+    var startTime = Date.now();
+    var update = function() {
+        if(Date.now() - startTime > timeout) {
+            return callback && callback("timeout");
+        }
+        driver.get(camera, 'param', function(err, val) {
+            if(err || val == null) {
+                return callback && callback(err);
+            } else if(firstValue == null) {
+                firstValue = val.code;
+                setTimeout(update, 50);
+            } else if(firstValue != val.code) {
+                return callback && callback(null, val);
+            } else {
+                setTimeout(update, 50);
+            }
+        });
+    }
+}
+
 
 function mapPropertyItem(cameraValue, list) {
     for(var i = 0; i < list.length; i++) {
