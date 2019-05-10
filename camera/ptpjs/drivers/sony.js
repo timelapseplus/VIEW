@@ -620,7 +620,7 @@ function getImage(camera, timeout, callback) {
                     return cb && cb("timeout");
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
-                    if(err || data > 0) {
+                    if(err || res > 0) {
                         results.indexNumber = res;
                         return cb(err);
                     } else {
@@ -660,18 +660,6 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){ setTimeout(cb, 10); },
         function(cb){setDeviceControlValueB(camera, 0xD2C2, 1, 4, cb);}, // release full-press
         function(cb){setDeviceControlValueB(camera, 0xD2C1, 1, 4, cb);}, // release half-press
-        function(cb){
-            var check = function() {
-                driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
-                    if(err || data > 0) {
-                        cb(err);
-                    } else {
-                        setTimeout(check, 50);
-                    }
-                });
-            }
-            check();
-        },
         function(cb){
             getImage(camera, 60000, function(err, imageResults) {
                 results = imageResults;
