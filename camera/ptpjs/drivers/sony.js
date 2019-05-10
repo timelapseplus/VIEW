@@ -513,16 +513,18 @@ driver.init = function(camera, callback) {
                     function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
                  
                     function(cb){
-                        console.log("*** running parallel group");
                         async.parallel([
                             function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
                                 console.log("shutter max:", val.name);
+                                cb();
                             });},
                             function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
                                 console.log("aperture max:", val.name);
+                                cb();
                             });},
                             function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
                                 console.log("iso max:", val.name);
+                                cb();
                             });},
                         ], cb);
                     },
@@ -535,12 +537,15 @@ driver.init = function(camera, callback) {
                         async.parallel([
                             function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
                                 console.log("shutter min:", val.name);
+                                cb();
                             });},
                             function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
                                 console.log("aperture min:", val.name);
+                                cb();
                             });},
                             function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
                                 console.log("iso min:", val.name);
+                                cb();
                             });},
                         ], cb);
                     },
