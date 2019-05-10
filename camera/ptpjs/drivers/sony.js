@@ -71,6 +71,7 @@ var properties = {
         setFunction: setDeviceControlValueB,
         getFunction: null,
         listFunction: null,
+        sonyShift: true,
         listWorks: false,
         code: 0xD20D,
         typeCode: 6,
@@ -140,6 +141,7 @@ var properties = {
         getFunction: null,
         listFunction: null,
         listWorks: false,
+        sonyShift: true,
         code: 0x5007,
         typeCode: 4,
         ev: true,
@@ -190,6 +192,7 @@ var properties = {
         getFunction: null,
         listFunction: null,
         listWorks: true,
+        sonyShift: true,
         typeCode: 6,
         code: 0xD21E,
         ev: true,
@@ -505,57 +508,57 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
         ], function(err) {
             if(err) return callback && callback(err);
-            setTimeout(function() {
-                async.series([
-                    function(cb){driver.refresh(camera, cb);}, // update settings
-                    function(cb){shiftProperty(camera._dev, 0xD20D, 127, cb);}, // get max shutter
-                    function(cb){shiftProperty(camera._dev, 0x5007, 127, cb);}, // get max aperture
-                    function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
-                 
-                    function(cb2){
-                        async.parallel([
-                            function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
-                                console.log("shutter max:", val.name);
-                                cb();
-                            });},
-                            function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
-                                console.log("aperture max:", val.name);
-                                cb();
-                            });},
-                            function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
-                                console.log("iso max:", val.name);
-                                cb();
-                            });},
-                        ], cb2);
-                    },
-                 
-                    function(cb){shiftProperty(camera._dev, 0xD20D, -127, cb);}, // get min shutter
-                    function(cb){shiftProperty(camera._dev, 0x5007, -127, cb);}, // get min aperture
-                    function(cb){shiftProperty(camera._dev, 0xD21E, -127, cb);}, // get max iso
-                 
-                    function(cb2){
-                        async.parallel([
-                            function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
-                                console.log("shutter min:", val.name);
-                                cb();
-                            });},
-                            function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
-                                console.log("aperture min:", val.name);
-                                cb();
-                            });},
-                            function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
-                                console.log("iso min:", val.name);
-                                cb();
-                            });},
-                        ], cb2);
-                    },
-
-                ], function(err) {
-                    return callback && callback(err);
-                });
-
-            }, 100);
         });
+    });
+}
+
+function findLimits(camera, callback) {
+    async.series([
+        function(cb){driver.refresh(camera, cb);}, // update settings
+        function(cb){shiftProperty(camera._dev, 0xD20D, 127, cb);}, // get max shutter
+        function(cb){shiftProperty(camera._dev, 0x5007, 127, cb);}, // get max aperture
+        function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
+     
+        function(cb2){
+            async.parallel([
+                function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
+                    console.log("shutter max:", val.name);
+                    cb();
+                });},
+                function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
+                    console.log("aperture max:", val.name);
+                    cb();
+                });},
+                function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
+                    console.log("iso max:", val.name);
+                    cb();
+                });},
+            ], cb2);
+        },
+     
+        function(cb){shiftProperty(camera._dev, 0xD20D, -127, cb);}, // get min shutter
+        function(cb){shiftProperty(camera._dev, 0x5007, -127, cb);}, // get min aperture
+        function(cb){shiftProperty(camera._dev, 0xD21E, -127, cb);}, // get max iso
+     
+        function(cb2){
+            async.parallel([
+                function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
+                    console.log("shutter min:", val.name);
+                    cb();
+                });},
+                function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
+                    console.log("aperture min:", val.name);
+                    cb();
+                });},
+                function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
+                    console.log("iso min:", val.name);
+                    cb();
+                });},
+            ], cb2);
+        },
+
+    ], function(err) {
+        return callback && callback(err);
     });
 }
 
@@ -615,10 +618,20 @@ driver.set = function(camera, param, value, callback) {
         function(cb){
             if(properties[param] && properties[param].setFunction) {
                 var cameraValue = null;
+                var currentValueCode = camera[properties[param].category][param].code;
+                var currentIndex = null;
+                var targetIndex = null;
+                for(var i = 0; i < properties[param].values.length; i++) {
+                    if(properties[param].values[i].code == currentValueCode) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
                 if(properties[param].ev && typeof value == "number") {
                     for(var i = 0; i < properties[param].values.length; i++) {
                         if(properties[param].values[i].ev == value) {
                             cameraValue = properties[param].values[i].code;
+                            targetIndex = i;
                             break;
                         }
                     }
@@ -626,24 +639,39 @@ driver.set = function(camera, param, value, callback) {
                     for(var i = 0; i < properties[param].values.length; i++) {
                         if(properties[param].values[i].name == value) {
                             cameraValue = properties[param].values[i].code;
+                            targetIndex = i;
                             break;
                         }
                     }
                 }
-                if(cameraValue !== null) {
+                if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
                     if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].typeCode, function(err) {
-                        if(!err) {
-                            var newItem =  mapPropertyItem(cameraValue, properties[param].values);
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                    if(properties[param].sonyShift) {
+                        properties[param].setFunction(camera._dev, properties[param].code, currentIndex - targetIndex, properties[param].typeCode, function(err) {
+                            if(!err) {
+                                var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                                for(var k in newItem) {
+                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                }
+                                return cb(err);
+                            } else {
+                                return cb(err);
                             }
-                            return cb(err);
-                        } else {
-                            return cb(err);
-                        }
-                    });
+                        });
+                    } else {
+                        properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                            if(!err) {
+                                var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                                for(var k in newItem) {
+                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                }
+                                return cb(err);
+                            } else {
+                                return cb(err);
+                            }
+                        });
+                    }
                 } else {
                     _logE("set: unknown value", value, "for", param);
                     return cb("unknown value");
