@@ -643,7 +643,7 @@ function getImage(camera, timeout, callback) {
         function(cb){
             console.log("getting object");
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
-                ptp.deleteObject(camera._dev, 0xffffc001, function() {
+                //ptp.deleteObject(camera._dev, 0xffffc001, function() {
                     if(results.filename && results.filename.slice(-3) == 'jpg') {
                         results.thumb = image;
                     } else {
@@ -651,7 +651,7 @@ function getImage(camera, timeout, callback) {
                         results.rawImage = image;
                     }
                     cb(err);
-                });
+                //});
             });
         },
     ], function(err) {
