@@ -518,6 +518,11 @@ driver.init = function(camera, callback) {
                         console.log("move prop err:", err);
                     });
                 }, 10000);
+                setTimeout(function(){
+                    setDeviceControlValueA (camera._dev, 0x5007, 560, 4, function(err) {
+                        console.log("setDeviceControlValueA err:", err);
+                    });
+                }, 15000);
             });
         });
     });
