@@ -478,9 +478,9 @@ api.setEv = function(ev, options, callback) {
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
     var isoList = 		listEvs('iso', 			options.isoMax, 		options.isoMin);
 
-    //console.log("API: setEv: shutterList", shutterList);
-    //console.log("API: setEv: apertureList", apertureList);
-    //console.log("API: setEv: isoList", isoList);
+    console.log("API: setEv: shutterList", shutterList);
+    console.log("API: setEv: apertureList", apertureList);
+    console.log("API: setEv: isoList", isoList);
 
     if (shutterList && options && options.maxShutterLengthMs) {
         var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
