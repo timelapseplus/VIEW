@@ -726,6 +726,7 @@ function getImage(camera, timeout, callback) {
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
                     if(err || (res && res.value > 0)) {
+                        console.log("OBJECTS AVAILABLE:", res && res.value, err);
                         results.indexNumber = res;
                         return cb(err);
                     } else {
