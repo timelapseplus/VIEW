@@ -103,10 +103,14 @@ exports.init = function(cam, callback) {
 		_logD("session open", err, exports.hex(responseCode), data);
 		exports.transaction(cam, exports.PTP_OC_GetDeviceInfo, [], null, function(err, responseCode, data) {
 			_logD("init complete", err, exports.hex(responseCode), data);
-			var di = exports.parseDeviceInfo(data);
-			_logD("device info:", di);
-			//_logD("entering olympus pc mode...");
-			callback && callback(err, di);
+			if(!err && data) {
+				var di = exports.parseDeviceInfo(data);
+				_logD("device info:", di);
+				//_logD("entering olympus pc mode...");
+				callback && callback(err, di);
+			} else {
+				callback && callback(err);
+			}
 			//exports.transaction(cam, 0x1016, [0xD052], exports.uint16buf(1), function(err, responseCode, data) {
 			//	_logD("olympus pc mode", err, responseCode);
 			//	exports.transaction(cam, 0x9481, [0x3], null, function(err, responseCode, data)  {
