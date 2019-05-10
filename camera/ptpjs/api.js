@@ -240,6 +240,17 @@ function tryConnectDevice(device) {
 					camera: camera
 				});
 				ensurePrimary();
+				camera.on('settings', function(exposure) {
+					for(var i = 0; i < api.cameras.length; i++) {
+						if(api.cameras[i].camera._port == this.port) {
+							console.log("SETTINGS event: camera index is", i);
+							if(api.cameras[i].primary) {
+								api.emit('settings', exposure);
+							}
+							break;
+						}
+					}
+				});
 				api.emit('connected', found.name, camera.exposure);
 			});
 		} else {

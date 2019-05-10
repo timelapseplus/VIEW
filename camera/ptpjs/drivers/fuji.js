@@ -30,6 +30,20 @@ function _logE() {
     console.log.apply(console, arguments);
 }
 
+function exposureEvent(camera) {
+    if(!camera._expCache) camera._expCache = {};
+    var update = false;
+    for(var k in camera.exposure) {
+        if(camera.exposure[k].ev != camera._expCache[k]) {
+           camera._expCache[k] = camera.exposure[k].ev;
+           update = true; 
+        }
+    }
+    if(update) {
+        camera.emit('settings', camera.exposure);
+    }
+}
+
 driver.supportedCameras = {
     '04cb:02cb': {
             name: "Fuji X-Pro2",
@@ -321,6 +335,7 @@ driver.refresh = function(camera, callback) {
                 } else {
                     //console.log(camera.exposure);
                     cb();
+                    exposureEvent(camera);
                 }
             }
             fetchNextProperty();
@@ -416,7 +431,8 @@ driver.set = function(camera, param, value, callback) {
                             for(var k in newItem) {
                                 if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                             }
-                            return cb(err);
+                            cb(err);
+                            exposureEvent(camera);
                         } else {
                             return cb(err);
                         }

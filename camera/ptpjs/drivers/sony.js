@@ -465,6 +465,7 @@ driver.refresh = function(camera, callback) {
             }
         }
         callback && callback();
+        exposureEvent(camera);
     });
 }
 
@@ -708,6 +709,20 @@ driver.get = function(camera, param, callback) {
 
 }
 
+function exposureEvent(camera) {
+    if(!camera._expCache) camera._expCache = {};
+    var update = false;
+    for(var k in camera.exposure) {
+        if(camera.exposure[k].ev != camera._expCache[k]) {
+           camera._expCache[k] = camera.exposure[k].ev;
+           update = true; 
+        }
+    }
+    if(update) {
+        camera.emit('settings', camera.exposure);
+    }
+}
+
 function getImage(camera, timeout, callback) {
     var results = {
         thumb: null,
@@ -727,6 +742,7 @@ function getImage(camera, timeout, callback) {
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
                     if(err || (res && res.value > 0)) {
                         console.log("OBJECTS AVAILABLE:", res && res.value, err);
+                        camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].list[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = res;
                         return cb(err);
                     } else {
