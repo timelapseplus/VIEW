@@ -68,7 +68,7 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: setDeviceControlValueB,
+        setFunction: shiftProperty,
         getFunction: null,
         listFunction: null,
         sonyShift: true,
@@ -137,7 +137,7 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: setDeviceControlValueB,
+        setFunction: shiftProperty,
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -188,7 +188,7 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: setDeviceControlValueB,
+        setFunction: shiftProperty,
         getFunction: null,
         listFunction: null,
         listWorks: true,
@@ -609,7 +609,7 @@ function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
 
 function shiftProperty(_dev, propcode, move, callback) {
     if(move > 127) move = 127;
-    if(move < -127) move = -127;    
+    if(move < -127) move = -127;
     setDeviceControlValueB (_dev, propcode, move, 1, callback);
 }
 
@@ -648,7 +648,7 @@ driver.set = function(camera, param, value, callback) {
                     if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     if(properties[param].sonyShift) {
-                        properties[param].setFunction(camera._dev, properties[param].code, targetIndex - currentIndex, properties[param].typeCode, function(err) {
+                        properties[param].setFunction(camera._dev, properties[param].code, targetIndex - currentIndex, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
