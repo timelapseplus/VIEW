@@ -507,7 +507,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9202, [0xC8], null, cb);}, // Receive events
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
         ], function(err) {
-            if(err) return callback && callback(err);
+            return callback && callback(err);
         });
     });
 }
