@@ -742,7 +742,7 @@ function getImage(camera, timeout, callback) {
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
                     if(err || (res && res.value > 0)) {
                         console.log("OBJECTS AVAILABLE:", res && res.value, err);
-                        camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].list[0]; // reset to 0 in case it's not updated before the next frame
+                        camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = res;
                         return cb(err);
                     } else {
