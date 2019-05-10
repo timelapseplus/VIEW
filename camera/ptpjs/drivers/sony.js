@@ -505,25 +505,44 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
         ], function(err) {
             if(err) return callback && callback(err);
-            driver.refresh(camera, function(err){
-                if(err) console.log("driver.refresh err", err);
-                callback && callback(err);
-                setTimeout(function(){
-                    shiftProperty(camera._dev, 0x5007, 127, function(err) {
-                        console.log("move prop err:", err);
-                    });
-                }, 5000);
-                setTimeout(function(){
-                    shiftProperty(camera._dev, 0x5007, -127, function(err) {
-                        console.log("move prop err:", err);
-                    });
-                }, 10000);
-                setTimeout(function(){
-                    setDeviceControlValueA (camera._dev, 0x5007, 560, 4, function(err) {
-                        console.log("setDeviceControlValueA err:", err);
-                    });
-                }, 15000);
-            });
+            setTimeout(function() {
+                async.series([
+                    function(cb){driver.refresh(camera, cb);}, // update settings
+                    function(cb){shiftProperty(camera._dev, 0x5007, 127, cb);}, // get max aperture
+                    function(cb){driver.get(camera, 'aperture', function(err, val) {
+                        console.log("aperture max:", val);
+                        cb();
+                    });},
+                    function(cb){shiftProperty(camera._dev, 0x5007, -127, cb);}, // get min aperture
+                    function(cb){driver.get(camera, 'aperture', function(err, val) {
+                        console.log("aperture min:", val);
+                        cb();
+                    });},
+                    function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max aperture
+                    function(cb){driver.get(camera, 'iso', function(err, val) {
+                        console.log("aperture max:", val);
+                        cb();
+                    });},
+                    function(cb){shiftProperty(camera._dev, 0xD21E, -127, cb);}, // get min aperture
+                    function(cb){driver.get(camera, 'iso', function(err, val) {
+                        console.log("aperture min:", val);
+                        cb();
+                    });},
+                    function(cb){shiftProperty(camera._dev, 0xD20D, 127, cb);}, // get max aperture
+                    function(cb){driver.get(camera, 'shutter', function(err, val) {
+                        console.log("aperture max:", val);
+                        cb();
+                    });},
+                    function(cb){shiftProperty(camera._dev, 0xD20D, -127, cb);}, // get min aperture
+                    function(cb){driver.get(camera, 'shutter', function(err, val) {
+                        console.log("aperture min:", val);
+                        cb();
+                    });},
+                ], function(err) {
+                    return callback && callback(err);
+                });
+
+            }, 100);
         });
     });
 }
