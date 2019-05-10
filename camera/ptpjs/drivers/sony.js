@@ -719,7 +719,7 @@ function exposureEvent(camera) {
         }
     }
     if(update) {
-        camera.emit('settings', camera.exposure);
+        driver.emit('settings', camera);
     }
 }
 

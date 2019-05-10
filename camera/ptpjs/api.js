@@ -56,6 +56,21 @@ function CameraAPI(driver) {
 
 bulbList = [];
 
+for(var i = 0; i < DRIVERS.length; i++) {
+	DRIVERS[i].on('settings', function(camera) {
+		console.log("SETTINGS event: checking index...");
+		for(var j = 0; j < api.cameras.length; j++) {
+			if(api.cameras[j].camera._port == camera._port) {
+				console.log("SETTINGS event: camera index is", j);
+				if(api.cameras[j].primary) {
+					api.emit('settings', camera.exposure);
+				}
+				break;
+			}
+		}
+	});
+}
+
 var start = 1000000 / 64; // 1/60
 var ev = 0;
 var us = start;
@@ -240,17 +255,6 @@ function tryConnectDevice(device) {
 					camera: camera
 				});
 				ensurePrimary();
-				camera.on('settings', function(exposure) {
-					for(var i = 0; i < api.cameras.length; i++) {
-						if(api.cameras[i].camera._port == this.port) {
-							console.log("SETTINGS event: camera index is", i);
-							if(api.cameras[i].primary) {
-								api.emit('settings', exposure);
-							}
-							break;
-						}
-					}
-				});
 				api.emit('connected', found.name, camera.exposure);
 			});
 		} else {
