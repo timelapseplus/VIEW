@@ -513,6 +513,7 @@ driver.init = function(camera, callback) {
                     function(cb){shiftProperty(camera._dev, 0xD21E, 127, cb);}, // get max iso
                  
                     function(cb){
+                        console.log("*** running parallel group");
                         async.parallel([
                             function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
                                 console.log("shutter max:", val.name);
