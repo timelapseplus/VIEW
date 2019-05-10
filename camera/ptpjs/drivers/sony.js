@@ -562,6 +562,7 @@ function waitValueChange(camera, param, timeout, callback) {
         }
         driver.get(camera, 'param', function(err, val) {
             if(err || val == null) {
+                console.log("error reading values!", err)
                 return callback && callback(err);
             } else if(firstValue == null) {
                 firstValue = val.code;
