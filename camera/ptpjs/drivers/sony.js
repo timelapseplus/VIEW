@@ -520,18 +520,18 @@ function mapPropertyItem(cameraValue, list) {
     return null;
 }
 
-function setDeviceControlValueA (camera, propcode, value, datatype, callback) {
+function setDeviceControlValueA (_dev, propcode, value, datatype, callback) {
     var typeInfo = ptp.getTypeInfo(datatype);
     var buf = new Buffer(typeInfo.size);
     buf[typeInfo.writeFunction](value, 0);
-    return ptp.transaction(camera._dev, 0x9205, [propcode], buf, callback);
+    return ptp.transaction(_dev, 0x9205, [propcode], buf, callback);
 }
 
-function setDeviceControlValueB (camera, propcode, value, datatype, callback) {
+function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
     var typeInfo = ptp.getTypeInfo(datatype);
     var buf = new Buffer(typeInfo.size);
     buf[typeInfo.writeFunction](value, 0);
-    return ptp.transaction(camera._dev, 0x9207, [propcode], buf, callback);
+    return ptp.transaction(_dev, 0x9207, [propcode], buf, callback);
 }
 
 driver.set = function(camera, param, value, callback) {
