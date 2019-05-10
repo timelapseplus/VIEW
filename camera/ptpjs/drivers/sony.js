@@ -648,7 +648,7 @@ driver.set = function(camera, param, value, callback) {
                     if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     if(properties[param].sonyShift) {
-                        properties[param].setFunction(camera._dev, properties[param].code, currentIndex - targetIndex, properties[param].typeCode, function(err) {
+                        properties[param].setFunction(camera._dev, properties[param].code, targetIndex - currentIndex, properties[param].typeCode, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
@@ -799,15 +799,11 @@ driver.liveviewMode = function(camera, enable, callback) {
             camera._dev._lvTimer = setTimeout(function(){
                 driver.liveviewMode(camera, false);
             }, 5000);
-            ptp.initiateOpenCapture(camera._dev, function(err) {
-                if(!err) camera.status.liveview = true;
-                callback && callback(err);
-            });
+            if(!err) camera.status.liveview = true;
+            callback && callback(err);
         } else {
-            ptp.terminateOpenCapture(camera._dev, function(err) {
-                if(!err) camera.status.liveview = false;
-                callback && callback(err);
-            });
+            if(!err) camera.status.liveview = false;
+            callback && callback(err);
         }
     } else {
         callback && callback();
@@ -820,8 +816,7 @@ driver.liveviewImage = function(camera, callback) {
         camera._dev._lvTimer = setTimeout(function(){
             driver.liveviewMode(camera, false);
         }, 5000);
-        ptp.getObject(camera._dev, 0x80000001, function(err, image) {
-            ptp.deleteObject(camera._dev, 0x80000001);
+        ptp.getObject(camera._dev, 0xffffc002, function(err, image) {
             callback && callback(err, image);
         });
     } else {
