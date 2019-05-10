@@ -157,7 +157,7 @@ var properties = {
             { name: "2.5",      ev: -5 - 1 / 3,  code: 250  },
             { name: "2.8",      ev: -5,          code: 280  },
             { name: "3.2",      ev: -4 - 2 / 3,  code: 320  },
-            { name: "3.6",      ev: -4 - 1 / 3,  code: 360  },
+            { name: "3.5",      ev: -4 - 1 / 3,  code: 350  },
             { name: "4.0",      ev: -4,          code: 400  },
             { name: "4.5",      ev: -3 - 2 / 3,  code: 450  },
             { name: "5.0",      ev: -3 - 1 / 3,  code: 500  },
