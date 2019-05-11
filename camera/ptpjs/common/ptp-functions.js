@@ -563,6 +563,8 @@ function runTransaction(cam, opcode, params, data, callback) {
 		}
 	}
 
+	var receiveErrorCount = 0;
+
 	var receive = function(cb, rbuf) {
 		_logD("reading 12 bytes...");
 		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
@@ -613,8 +615,18 @@ function runTransaction(cam, opcode, params, data, callback) {
 					}
 				}
 			} else {
-				_logD("error reading:", err);
-				cb && cb(err || "no data read");
+				if(err) {
+					_logD("error reading:", err);
+				} else {
+					_logD("error reading, data length", data && data.length);
+				}
+				if(receiveErrorCount < 3) {
+					_logD("error reading:", err);
+					receiveErrorCount++;
+					receive(cb, rbuf);
+				} else {
+					cb && cb(err || "no data read");
+				}
 			}
 		});
 	}
