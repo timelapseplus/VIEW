@@ -159,14 +159,14 @@ CameraAPI.prototype.captureHDR = function(target, options, frames, stops, darker
 }
 
 CameraAPI.prototype.liveviewMode = function(enable, callback) {
-	if(!this.supports.liveview) return callback && callback("not supported");
-	if(this.config.liveview === enable) return callback && callback();
+	//if(!this.supports.liveview) return callback && callback("not supported");
+	//if(this.config.liveview === enable) return callback && callback();
 	return this._driver.liveviewMode(this, enable, callback);
 }
 
 CameraAPI.prototype.liveviewImage = function(enable, callback) {
-	if(!this.supports.liveview) return callback && callback("not supported");
-	if(!this.config.liveview) return callback && callback("not enabled");
+	//if(!this.supports.liveview) return callback && callback("not supported");
+	//if(!this.config.liveview) return callback && callback("not enabled");
 	return this._driver.liveviewImage(this, callback);
 }
 
