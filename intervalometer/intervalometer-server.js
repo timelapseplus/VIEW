@@ -102,6 +102,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
         case 'camera.ptp.capture':
             if(camera.ptp.new.available) {
                 return function(captureOptions, callback) {
+                    if(!captureOptions) captureOptions = {};
                     var options = {
                         destination: (captureOptions.saveRaw && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
@@ -490,7 +491,9 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.getSettings':
       if(camera.ptp.new.available) {
-        sendNewSettings(camera.ptp.new.cameras[0].camera.exposure);
+        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure);
+        sendEvent('camera.settings', newSettings);
+          cameraCallback(null, newSettings);
       } else {
         camera.ptp.getSettings(function(err, data){
           sendEvent('camera.settings', camera.ptp.settings);
@@ -623,15 +626,15 @@ function runCommand(type, args, callback, client) {
   }
 }
 
-function sendNewSettings(settings) {
-  sendEvent('camera.settings', {
+function getNewSettings(settings) {
+  return {
         shutter: settings.shutter && settings.shutter.name,
         aperture: settings.aperture && settings.aperture.name,
         iso: settings.iso && settings.iso.name,
         lists: {
-          shutter: settings.shutter.list,
-          aperture: settings.aperture.list,
-          iso: settings.iso.list
+          shutter: settings.shutter && settings.shutter.list,
+          aperture: settings.aperture && settings.aperture.list,
+          iso: settings.iso && settings.iso.list
         }, 
         details: {
           shutter: settings.shutter,
@@ -643,7 +646,7 @@ function sendNewSettings(settings) {
             iso: settings.iso && settings.iso.list && settings.iso.list.map(function(item) { item.cameraName = item.name; return item; }),
           }
         }
-  });
+  }
 }
 
 intervalometer.on('intervalometer.status', function(data) {
@@ -736,7 +739,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
-  sendNewSettings(settings);
+ sendEvent('camera.settings', getNewSettings(settings));
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
