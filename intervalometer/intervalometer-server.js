@@ -123,7 +123,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 }
                                 var photoRes = {
                                     base64: new Buffer(img).toString('base64'),
-                                    type: 'thumbnail'
+                                    type: 'thumbnail',
                                     file: filename,
                                     cameraCount: 1,
                                     cameraResults: [],
