@@ -289,6 +289,8 @@ function runCommand(type, args, callback, client) {
                   type: 'preview'
                 };
                 sendEvent('camera.photo', obj);
+              } else {
+                console.log("PREVIEW: err:", err);
               }
             });
           });
@@ -302,6 +304,8 @@ function runCommand(type, args, callback, client) {
                 type: 'preview'
               };
               sendEvent('camera.photo', obj);
+            } else {
+              console.log("PREVIEW: err:", err);
             }
           });
         }
