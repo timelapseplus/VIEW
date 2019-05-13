@@ -827,10 +827,10 @@ driver.liveviewMode = function(camera, enable, callback) {
                 driver.liveviewMode(camera, false);
             }, 5000);
             camera.status.liveview = true;
-            callback && callback(err);
+            callback && callback();
         } else {
             camera.status.liveview = false;
-            callback && callback(err);
+            callback && callback();
         }
     } else {
         callback && callback();
