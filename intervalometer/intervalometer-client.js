@@ -46,6 +46,7 @@ function errorCallbacks(err, port) {
 core.cameraSettings = {};
 core.cameraConnected = false;
 core.cameraModel = "";
+core.cameraDriver = "";
 core.cameraCount = 0;
 core.cameraSupports = {};
 core.intervalometerStatus = {};
@@ -117,6 +118,7 @@ function connect() {
                 } else if(data.type == 'camera.connected') {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
+                    core.cameraDriver = data.data.driver;
                     core.cameraCount = data.data.count;
                     core.cameraSupports = data.data.supports;
                     console.log("CORE: camera count: ", core.cameraCount);
@@ -125,6 +127,7 @@ function connect() {
                 } else if(data.type == 'camera.exiting') {
                     core.cameraConnected = data.data.connected;
                     core.cameraModel = data.data.model;
+                    core.cameraDriver = data.data.driver;
                     core.cameraCount = data.data.count;
                     core.cameraSupports = data.data.supports;
                     console.log("CORE: camera count: ", core.cameraCount);
@@ -192,6 +195,11 @@ function call(method, args, callback) {
         id: cbId
     });
     if(client.ready) client.write(payload+'\0');
+}
+
+core.enableNewDriver = function(enable, callback) {
+    core.newCameraDriver = enable;
+    call('camera.enableNewDriver', {enable: enable}, callback);
 }
 
 core.connectSonyWifi = function(callback) {

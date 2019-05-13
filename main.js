@@ -3508,6 +3508,30 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    var newDriverMenu = {
+        name: "Camera Driver",
+        type: "options",
+        items: [{
+            name: "Use new if possible",
+            value: "new",
+            help: help.enableNewDriver,
+            action: ui.set(core, 'newCameraDriver', true, function(cb){
+                db.set('enableNewDriver', "yes");
+                core.enableNewDriver(en != "no");
+                cb && cb();
+            })
+        }, {
+            name: "Use libgphoto2 (old)",
+            value: "old",
+            help: help.enableNewDriver,
+            action: ui.set(core, 'newCameraDriver', true, function(cb){
+                db.set('enableOldDriver', "no");
+                core.enableNewDriver(en != "no");
+                cb && cb();
+            })
+        }]
+    }
+
 
     var createErrorReportReasonMenu = function(tlName) {
         ui.back();
@@ -3928,6 +3952,32 @@ if (VIEW_HARDWARE) {
         });
     }
 
+    var cameraInfo = function() {
+        var info = "";
+        if(core.cameraConnected) {
+            var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
+            var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
+            var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
+
+            info += core.cameraModel + "\t";
+            info += "Driver: " + core.cameraDriver + "\t";
+            info += "Exposure: " + "\t";
+            info += "  Shutter: " + shutterText + "\t";
+            info += "  Aperture: " + apertureText + "\t";
+            info += "  ISO: " + isoText + "\t";
+            info += "Supports: " + "\t";
+            info += "  Capture: " + 'yes' + "\t";
+            info += "  Liveview: " + core.cameraSupports.liveview ? 'yes' : 'no' + "\t";
+            info += "  Destination: " + core.cameraSupports.destination ? 'yes' : 'no' + "\t";
+            info += "  Focus: " + core.cameraSupports.focus ? 'yes' : 'no' + "\t";
+        } else {
+            info += "camera not connected.";
+        }
+
+        return callback && callback(null, info);
+    }
+
+
     var registrationEmail = false;
     db.get('registrationEmail', function(err, email) {
         if(!err && email) registrationEmail = email;
@@ -4162,6 +4212,10 @@ if (VIEW_HARDWARE) {
             help: help.setTimezone,
             action: setTimezoneMenu
         }, {
+            name: "Camera Driver",
+            action: newDriverMenu,
+            help: help.enableNewDriver
+        }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
@@ -4210,6 +4264,16 @@ if (VIEW_HARDWARE) {
                 });
             },
             help: help.systemInfo
+        }, {
+            name: "Camera Info",
+            action: function(){
+                ui.back();
+                ui.alert('Camera Info', cameraInfo);
+            },
+            condition: function() {
+                return core.cameraConnected;
+            },
+            help: help.cameraInfo
         }, {
             name: "Registration & App",
             action: function(){
@@ -4744,6 +4808,10 @@ db.get('developerMode', function(err, en) {
     if(!err) {
         updates.developerMode = (en == "yes");
     }
+});
+
+db.get('enableNewDriver', function(err, en) {
+    core.enableNewDriver(en != "no");
 });
 
 db.get('autoOffMinutes', function(err, minutes) {

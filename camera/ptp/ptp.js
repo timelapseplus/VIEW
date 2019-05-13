@@ -311,6 +311,15 @@ setTimeout(function() {
     if(!ptp.enabled) startWorker();
 });
 
+var firstTime = true;
+camera.enableNewDriver = function(enable, callback) {
+    if(ptp.enabled) = enable;
+    if(!enable && firstTime) {
+        setTimeout(startWorker);
+    }
+    firstTime = false;
+    callback && callback;
+}
 
 var blockDevices = fs.readdirSync("/sys/class/block/");
 if(blockDevices.indexOf('mmcblk1p1') !== -1) {

@@ -186,3 +186,8 @@ exports.auxPulseInvert = "Configures whether the shield-tip connection on AUX2 i
 
 exports.setTimezone = "Sets local time-zone for time/date display.  Not essential for operation otherwise.";
 
+exports.enableNewDriver = "Select to use a new high-performance driver written by Timelapse+, falling back to the older libgphoto2 for cameras not yet supported by the new driver.";
+
+exports.enableOldDriver = "Select to disable the new driver and continue using the older libgphoto2 camera driver.";
+
+exports.cameraInfo = "Info about the currently connected primary camera";

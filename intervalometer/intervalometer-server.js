@@ -406,6 +406,9 @@ function runCommand(type, args, callback, client) {
       motion.info(callback);
       break;
 */
+    case 'camera.enableNewDriver':
+      camera.ptp.enableNewDriver(args.enable, callback);
+      break;
     case 'intervalometer.load':
       intervalometer.load(args.program, callback);
       break;
@@ -674,6 +677,7 @@ function sendCameraUpdate() {
     data = {
       connected: true,
       model: camera.ptp.new.model,
+      driver: 'Timelapse+',
       count: camera.ptp.new.cameras.length,
       supports: camera.ptp.new.supports
     };
@@ -681,6 +685,7 @@ function sendCameraUpdate() {
     data = {
       connected: camera.ptp.connected,
       model: camera.ptp.model,
+      driver: camera.ptp.model == 'SonyWifi' ? 'SonyWifi' : 'libgphoto2',
       count: camera.ptp.count,
       supports: camera.ptp.supports
     };
