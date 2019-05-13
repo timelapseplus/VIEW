@@ -307,7 +307,10 @@ var startWorker = function(port) {
         });
     }
 }
-startWorker();
+setTimeout(function() {
+    if(!ptp.enabled) startWorker();
+});
+
 
 var blockDevices = fs.readdirSync("/sys/class/block/");
 if(blockDevices.indexOf('mmcblk1p1') !== -1) {
