@@ -845,6 +845,7 @@ driver.liveviewImage = function(camera, callback) {
             driver.liveviewMode(camera, false);
         }, 5000);
         ptp.getObject(camera._dev, 0xffffc002, function(err, image) {
+            if(!err && image) image = ptp.extractJpeg(image);
             callback && callback(err, image);
         });
     } else {

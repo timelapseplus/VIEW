@@ -61,6 +61,168 @@ if(installs.indexOf('current') !== -1) {
   console.log("current version:", current);
 }
 
+function remap(method) { // remaps camera.ptp methods to use new driver if possible
+    switch(method) {
+        case 'camera.setEv':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.setEv;
+            } else {
+                return camera.setEv;
+            }
+        case 'camera.ptp.settings.format':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.cameras[0].camera.config.format;
+            } else {
+                return camera.ptp.settings.format;
+            }
+        case 'camera.ptp.model':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.model;
+            } else {
+                return camera.ptp.model;
+            }
+        case 'camera.ptp.supports.destination':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.supports.destination;
+            } else {
+                return camera.ptp.supports.destination;
+            }
+        case 'camera.ptp.connected':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.available;
+            } else {
+                return camera.ptp.connected;
+            }
+        case 'camera.ptp.getSettings':
+            if(camera.ptp.new.available) {
+                return function(callback) {callback && callback()};
+            } else {
+                return camera.ptp.getSettings;
+            }
+        case 'camera.ptp.capture':
+            if(camera.ptp.new.available) {
+                return function(captureOptions, callback) {
+                    var options = {
+                        destination: (captureOptions.saveRaw && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
+                    }
+                    return camera.ptp.new.capture(options.destination, {}, function(err, thumb, filename, raw) {
+                        if(err) {
+                            return callback && callback(err);
+                        }
+                        var completeCapture = function() {
+                            var size = {
+                                x: 120,
+                                q: 80
+                            }
+                            image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
+                                var img;
+                                if (!err && lowResJpg) {
+                                    img = lowResJpg;
+                                } else {
+                                    img = thumb;
+                                }
+                                var photoRes = {
+                                    base64: new Buffer(img).toString('base64'),
+                                    type: 'thumbnail'
+                                    file: filename,
+                                    cameraCount: 1,
+                                    cameraResults: [],
+                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                    ev: null
+                                }
+                                if(captureOptions.calculateEv) {
+                                    image.exposureValue(img, function(err, ev, histogram) {
+                                        photoRes.ev = ev;
+                                        photoRes.histogram = histogram;
+                                        sendEvent('camera.photo', photoRes);
+                                        callback && callback(err, photoRes);
+                                    });
+                                } else {
+                                    sendEvent('camera.photo', photoRes);
+                                    callback && callback(err, photoRes);
+                                }
+                            });
+                        }
+                        if(options.destination == 'sd' && captureOptions.saveRaw && raw && filename) {
+                            var file = captureOptions.saveRaw + filename.slice(-4);
+                            var cameraIndex = 1;
+                            fs.writeFile(file, raw, function(err) {
+                                completeCapture();
+                            });
+                        } else {
+                            completeCapture();
+                        }
+                    });
+                }
+            } else {
+                return camera.ptp.capture;
+            }
+        case 'camera.ptp.settings':
+            if(camera.ptp.new.available) {
+                var base = camera.ptp.new.cameras[0].camera.exposure;
+                return {
+                    shutter: base.shutter,
+                    aperture: base.aperture,
+                    iso: base.iso,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
+                }
+            } else {
+                return camera.ptp.settings;
+            }
+        case 'camera.ptp.settings.details':
+            if(camera.ptp.new.available) {
+                var base = camera.ptp.new.cameras[0].camera.exposure;
+                return {
+                    shutter: base.shutter,
+                    aperture: base.aperture,
+                    iso: base.iso,
+                    lists: {
+                        shutter: base.shutter.list,
+                        aperture: base.aperture.list,
+                        iso: base.iso.list
+                    }
+                }
+            } else {
+                return camera.ptp.settings.details;
+            }
+        case 'camera.ptp.settings.focusPos':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.cameras[0].camera.status.focusPos || 0;
+            } else {
+                return camera.ptp.settings.focusPos;
+            }
+        case 'camera.ptp.focus':
+            if(camera.ptp.new.available) {
+                return function(dir, steps, callback) {
+                    camera.ptp.new.moveFocus(dir * steps, 1, callback);
+                }
+            } else {
+                return camera.ptp.focus;
+            }
+        case 'camera.ptp.lvOff':
+            if(camera.ptp.new.available) {
+                return function(callback) {
+                    return camera.ptp.new.liveviewMode(false, callback);
+                }
+            } else {
+                return camera.ptp.lvOff;
+            }
+        case 'camera.ptp.preview':
+            if(camera.ptp.new.available) {
+                return function(callback) {
+                    return camera.ptp.new.liveviewMode(true, callback);
+                }
+            } else {
+                return camera.ptp.preview;
+            }
+    }
+}
+
+
 var server = net.createServer(function(c) {
   // 'connection' listener
   console.log('client connected');
@@ -273,7 +435,7 @@ function runCommand(type, args, callback, client) {
       camera.ptp.focus(args.step, args.repeat, callback);
       break;
     case 'camera.setEv':
-      camera.setEv(args.ev, args.options, cameraCallback);
+      remap('camera.setEv')(args.ev, args.options, cameraCallback);
       break;
     case 'camera.ptp.preview':
       if(camera.ptp.new.available) {
@@ -343,10 +505,10 @@ function runCommand(type, args, callback, client) {
       camera.ptp.switchPrimary(args.cameraObject, callback);
       break;
     case 'camera.ptp.capture':
-      camera.ptp.capture(args.options, cameraCallback);
+      remap('camera.ptp.capture')(args.options, cameraCallback);
       break;
     case 'camera.ptp.capture-test':
-      camera.ptp.capture({mode:'test'}, cameraCallback);
+      remap('camera.ptp.capture')({mode:'test'}, cameraCallback);
       break;
     case 'camera.ptp.runSupportTest':
       camera.ptp.runSupportTest(callback);
