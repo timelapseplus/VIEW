@@ -438,9 +438,9 @@ function runCommand(type, args, callback, client) {
 
 function sendNewSettings(settings) {
   sendEvent('camera.settings', {
-        shutter: settings.shutter && settings.shutter.ev,
-        aperture: settings.aperture && settings.aperture.ev,
-        iso: settings.iso && settings.iso.ev,
+        shutter: settings.shutter && settings.shutter.name,
+        aperture: settings.aperture && settings.aperture.name,
+        iso: settings.iso && settings.iso.name,
         lists: {
           shutter: settings.shutter.list,
           aperture: settings.aperture.list,
@@ -451,9 +451,9 @@ function sendNewSettings(settings) {
           aperture: settings.aperture,
           iso: settings.iso,
           lists: {
-            shutter: settings.shutter && settings.shutter.list && settings.shutter.list.map(function(item) { item.value = item.ev; return item; }),
-            aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.value = item.ev; return item; }),
-            iso: settings.iso && settings.iso.list && settings.iso.list.map(function(item) { item.value = item.ev; return item; }),
+            shutter: settings.shutter && settings.shutter.list && settings.shutter.list.map(function(item) { item.cameraName = item.name; return item; }),
+            aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.cameraName = item.name; return item; }),
+            iso: settings.iso && settings.iso.list && settings.iso.list.map(function(item) { item.cameraName = item.name; return item; }),
           }
         }
   });
