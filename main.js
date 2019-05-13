@@ -3952,7 +3952,7 @@ if (VIEW_HARDWARE) {
         });
     }
 
-    var cameraInfo = function() {
+    var cameraInfo = function(callback) {
         var info = "";
         if(core.cameraConnected) {
             var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
