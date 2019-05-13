@@ -689,7 +689,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                 for(var k in newItem) {
                                     if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                                 }
-                                return cb(err);
+                                //return cb(err);
                             } else {
                                 return cb(err);
                             }
