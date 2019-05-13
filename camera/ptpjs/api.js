@@ -355,7 +355,7 @@ api.liveviewImage = function(callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
 	if(!primaryCamera.camera.supports.liveview) return callback && callback("not supported");
-	if(!primaryCamera.camera.config.liveview) return callback && callback("not enabled");
+	if(!primaryCamera.camera.status.liveview) return callback && callback("not enabled");
 	primaryCamera.camera.liveviewImage(callback);
 }
 
