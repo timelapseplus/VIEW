@@ -625,7 +625,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 					_logD("error reading:", err);
 					receiveErrorCount++;
 					if(receiveErrorCount == 3) {
-						if(cam.ep && cam.ep.in) {
+						if(cam.ep && cam.ep.in && cam.ep.in.clearHalt) {
 							cam.ep.in.clearHalt(function(error){
 								if(error) console.log("Error clearing endpoint stall:", error);
 								receive(cb, rbuf);

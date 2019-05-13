@@ -144,7 +144,7 @@ var properties = {
         sonyShift: true,
         code: 0x5007,
         typeCode: 4,
-        stepMultiplier: 2,
+        stepDivider: 20,
         ev: true,
         values: [
             { name: "1.0",      ev: -8,          code: 100  },
@@ -661,7 +661,11 @@ driver.set = function(camera, param, value, callback) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
                     if(properties[param].sonyShift) {
                         var delta = targetIndex - currentIndex;
-                        if(properties[param].stepMultiplier) delta *= properties[param].stepMultiplier;
+                        var abs = Math.abs(delta);
+                        var sign = delta < 0 ? -1 : 1;
+                        if(abs > 4) {
+                            delta += ((abs - 4) * 2) * sign;
+                        }
                         properties[param].setFunction(camera._dev, properties[param].code, delta, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
