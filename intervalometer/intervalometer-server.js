@@ -285,7 +285,7 @@ function runCommand(type, args, callback, client) {
             camera.ptp.new.liveviewImage(function(err, image) {
               setTimeout(function() {
                 var obj = {
-                  base64: new Buffer(intervalometer.lastImage).toString('base64'),
+                  base64: new Buffer(image).toString('base64'),
                   type: 'preview'
                 };
                 sendEvent('camera.photo', obj);
@@ -298,7 +298,7 @@ function runCommand(type, args, callback, client) {
           camera.ptp.new.liveviewImage(function(err, image) {
             setTimeout(function() {
               var obj = {
-                base64: new Buffer(intervalometer.lastImage).toString('base64'),
+                base64: new Buffer(image).toString('base64'),
                 type: 'preview'
               };
               sendEvent('camera.photo', obj);
