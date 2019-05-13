@@ -619,7 +619,7 @@ function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
 function shiftProperty(_dev, propcode, move, callback) {
     if(move > 127) move = 127;
     if(move < -127) move = -127;
-    setDeviceControlValueB (_dev, propcode, move, 1, callback);
+    setDeviceControlValueB (_dev, propcode, move, 3, callback);
 }
 
 driver.set = function(camera, param, value, callback) {
