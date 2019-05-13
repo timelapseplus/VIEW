@@ -826,10 +826,10 @@ driver.liveviewMode = function(camera, enable, callback) {
             camera._dev._lvTimer = setTimeout(function(){
                 driver.liveviewMode(camera, false);
             }, 5000);
-            if(!err) camera.status.liveview = true;
+            camera.status.liveview = true;
             callback && callback(err);
         } else {
-            if(!err) camera.status.liveview = false;
+            camera.status.liveview = false;
             callback && callback(err);
         }
     } else {
