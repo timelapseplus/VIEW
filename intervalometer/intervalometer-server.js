@@ -452,7 +452,7 @@ function sendNewSettings() {
           iso: settings.iso,
           lists: {
             shutter: settings.shutter && settings.shutter.list && settings.shutter.list.map(function(item) { item.value = item.ev; return item; }),
-            aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.value = item.ev; return item; }),,
+            aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.value = item.ev; return item; }),
             iso: settings.iso && settings.iso.list && settings.iso.list.map(function(item) { item.value = item.ev; return item; }),
           }
         }
