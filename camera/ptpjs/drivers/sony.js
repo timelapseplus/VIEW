@@ -337,6 +337,7 @@ driver.refresh = function(camera, callback) {
 
         var property_code;
         var data_type;
+        var step_size;
         var count;
         var list_type;
 
@@ -350,6 +351,7 @@ driver.refresh = function(camera, callback) {
             i += 2;
             data_type = data.readUInt16LE(i);
             i += 2;
+            step_size = data.readUInt16LE(i);
             i += 2; // skip an unknown uint16
             //console.log("SONY: data type", data_type);
             switch(data_type)
@@ -463,7 +465,7 @@ driver.refresh = function(camera, callback) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length, 'step', step_size);
                         //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     } else {
                         console.log("SONY:", prop, "item not found:", data_current);
