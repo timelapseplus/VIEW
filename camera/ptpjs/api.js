@@ -356,7 +356,7 @@ api.liveviewImage = function(callback) {
 	if(!primaryCamera) return callback && callback("camera not connected");
 	if(!primaryCamera.camera.supports.liveview) return callback && callback("not supported");
 	if(!primaryCamera.camera.config.liveview) return callback && callback("not enabled");
-	primaryCamera.camera.liveviewMode(callback);
+	primaryCamera.camera.liveviewImage(callback);
 }
 
 api.moveFocus = function(steps, resolution, callback) {

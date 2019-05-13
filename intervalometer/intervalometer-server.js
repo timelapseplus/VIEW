@@ -283,22 +283,26 @@ function runCommand(type, args, callback, client) {
           camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
             camera.ptp.new.liveviewImage(function(err, image) {
+              if(!err && image) {
+                var obj = {
+                  base64: new Buffer(image).toString('base64'),
+                  type: 'preview'
+                };
+                sendEvent('camera.photo', obj);
+              }
+            });
+          });
+        } else {
+          console.log("PREVIEW: fetching image...");
+          camera.ptp.new.liveviewImage(function(err, image) {
+            cameraCallback(err);
+            if(!err && image) {
               var obj = {
                 base64: new Buffer(image).toString('base64'),
                 type: 'preview'
               };
               sendEvent('camera.photo', obj);
-            });
-          });
-        } else {
-          console.log("PREVIEW: fetching image...");
-          cameraCallback(err);
-          camera.ptp.new.liveviewImage(function(err, image) {
-            var obj = {
-              base64: new Buffer(image).toString('base64'),
-              type: 'preview'
-            };
-            sendEvent('camera.photo', obj);
+            }
           });
         }
       } else {
