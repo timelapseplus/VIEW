@@ -673,7 +673,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                     var updated = driver.get(camera, param, function() {
                                         if(!updated) {
                                             setTimeout(refresh, 50);
-                                        } else if(camera[properties[param].category][param].code == cameraValue || tries > 3) {
+                                        } else if(camera[properties[param].category][param].code == cameraValue || tries > 4) {
                                             return cb(err);
                                         } else {
                                             return setTimeout(function(){
