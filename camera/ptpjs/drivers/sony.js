@@ -673,7 +673,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                     var updated = driver.get(camera, param, function() {
                                         if(!updated) {
                                             setTimeout(refresh, 50);
-                                        } else if(camera[properties[param].category][param].code == cameraValue || tries > 4) {
+                                        } else if(camera[properties[param].category][param].code == cameraValue || tries > 10) {
                                             return cb(err);
                                         } else {
                                             return setTimeout(function(){
@@ -684,7 +684,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                         }
                                     }, true);
                                 }
-                                setTimeout(refresh, 100 + 30 * delta);
+                                setTimeout(refresh, 100 + 40 * delta);
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
                                     if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
