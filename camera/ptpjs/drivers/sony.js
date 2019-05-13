@@ -236,9 +236,9 @@ var properties = {
             { name: "128000",   ev: -10 - 1 / 3, code: 128000 },
             { name: "160000",   ev: -10 - 2 / 3, code: 160000 },
             { name: "204800",   ev: -11,         code: 204800 },
-            { name: "256000",   ev: -11 - 1 / 3, code: 256000 },
-            { name: "320000",   ev: -11 - 2 / 3, code: 320000 },
-            { name: "409600",   ev: -12,         code: 409600 }
+            //{ name: "256000",   ev: -11 - 1 / 3, code: 256000 },
+            //{ name: "320000",   ev: -11 - 2 / 3, code: 320000 },
+            //{ name: "409600",   ev: -12,         code: 409600 }
         ]
     },
     'format': {
@@ -619,12 +619,14 @@ function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
 }
 
 function shiftProperty(_dev, propcode, move, callback) {
-    //if(move > 127) move = 127;
-    //if(move < -127) move = -127;
-    setDeviceControlValueB (_dev, propcode, move, 3, callback);
+    if(move > 127) move = 127;
+    if(move < -127) move = -127;
+    setDeviceControlValueB (_dev, propcode, move, 1, callback);
 }
 
-driver.set = function(camera, param, value, callback) {
+driver.set = function(camera, param, value, callback, tries) {
+    if(!tries) tries = 0;
+    tries++;
     async.series([
         function(cb){
             if(properties[param] && properties[param].setFunction) {
@@ -665,21 +667,24 @@ driver.set = function(camera, param, value, callback) {
                         //if(abs > 4) {
                         //    delta += ((abs - 4) * 2) * sign;
                         //}
-                        //camera[properties[param].category][param].code = null;
                         properties[param].setFunction(camera._dev, properties[param].code, delta, function(err) {
                             if(!err) {
-                                //var refresh = function() {
-                                //    driver.refresh(camera, function() {
-                                //        if(camera[properties[param].category][param].code == null) {
-                                //            setTimeout(refresh, 50);
-                                //        } else if(camera[properties[param].category][param].code == cameraValue) {
-                                //            return cb(err);
-                                //        } else {
-                                //            return driver.set(camera, param, value, callback);
-                                //        }
-                                //    }, true);
-                                //}
-                                //setTimeout(refresh, 100);
+                                var refresh = function() {
+                                    var updated = driver.get(camera, param, function() {
+                                        if(!updated) {
+                                            setTimeout(refresh, 50);
+                                        } else if(camera[properties[param].category][param].code == cameraValue || tries > 3) {
+                                            return cb(err);
+                                        } else {
+                                            return setTimeout(function(){
+                                                driver.refresh(camera, function(){
+                                                    driver.set(camera, param, value, callback, tries);
+                                                }, true);
+                                            }, 100);
+                                        }
+                                    }, true);
+                                }
+                                setTimeout(refresh, 100);
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
                                     if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
@@ -731,8 +736,10 @@ driver.get = function(camera, param, callback) {
         driver.refresh(camera, function() {
             get();
         });
+        return true; // updating
     } else {
         get();
+        return false; // not updated
     }
 
 }
