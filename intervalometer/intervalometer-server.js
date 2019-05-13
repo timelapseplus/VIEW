@@ -302,10 +302,14 @@ function runCommand(type, args, callback, client) {
       }
       break;
     case 'camera.ptp.getSettings':
-      camera.ptp.getSettings(function(err, data){
-        sendEvent('camera.settings', camera.ptp.settings);
-        cameraCallback(err, camera.ptp.settings);
-      });
+      if(camera.ptp.new.available) {
+        sendNewSettings();
+      } else {
+        camera.ptp.getSettings(function(err, data){
+          sendEvent('camera.settings', camera.ptp.settings);
+          cameraCallback(err, camera.ptp.settings);
+        });
+      }
       break;
     case 'camera.ptp.cameraList':
       camera.ptp.cameraList(callback);
@@ -432,6 +436,29 @@ function runCommand(type, args, callback, client) {
   }
 }
 
+function sendNewSettings() {
+  sendEvent('camera.settings', {
+        shutter: settings.shutter && settings.shutter.ev,
+        aperture: settings.aperture && settings.aperture.ev,
+        iso: settings.iso && settings.iso.ev,
+        lists: {
+          shutter: settings.shutter.list,
+          aperture: settings.aperture.list,
+          iso: settings.iso.list
+        }, 
+        details: {
+          shutter: settings.shutter,
+          aperture: settings.aperture,
+          iso: settings.iso,
+          lists: {
+            shutter: settings.shutter && settings.shutter.list && settings.shutter.list.map(function(item) { item.value = item.ev; return item; }),
+            aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.value = item.ev; return item; }),,
+            iso: settings.iso && settings.iso.list && settings.iso.list.map(function(item) { item.value = item.ev; return item; }),
+          }
+        }
+  });
+}
+
 intervalometer.on('intervalometer.status', function(data) {
   data.autoSettings = intervalometer.autoSettings;
   if(!data.running && camera.ptp.model && camera.ptp.model.match(/nikon/i)) camera.ptp.set("controlmode", 0, function(){});
@@ -522,26 +549,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
-  sendEvent('camera.settings', {
-        shutter: settings.shutter,
-        aperture: settings.aperture,
-        iso: settings.iso,
-        lists: {
-            shutter: settings.shutter.list,
-            aperture: settings.aperture.list,
-            iso: settings.iso.list
-        }, 
-        details: {
-          shutter: settings.shutter,
-          aperture: settings.aperture,
-          iso: settings.iso,
-          lists: {
-              shutter: settings.shutter.list,
-              aperture: settings.aperture.list,
-              iso: settings.iso.list
-          }
-        }
-  });
+  sendNewSettings();
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
