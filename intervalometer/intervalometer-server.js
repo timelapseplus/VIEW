@@ -303,7 +303,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.getSettings':
       if(camera.ptp.new.available) {
-        sendNewSettings();
+        sendNewSettings(camera.ptp.new.cameras[0].camera.exposure);
       } else {
         camera.ptp.getSettings(function(err, data){
           sendEvent('camera.settings', camera.ptp.settings);
@@ -436,7 +436,7 @@ function runCommand(type, args, callback, client) {
   }
 }
 
-function sendNewSettings() {
+function sendNewSettings(settings) {
   sendEvent('camera.settings', {
         shutter: settings.shutter && settings.shutter.ev,
         aperture: settings.aperture && settings.aperture.ev,
@@ -549,7 +549,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
-  sendNewSettings();
+  sendNewSettings(settings);
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
