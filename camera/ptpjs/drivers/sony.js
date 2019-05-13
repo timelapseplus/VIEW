@@ -465,7 +465,9 @@ driver.refresh = function(camera, callback) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length, 'step', step_size);
+                        step_size = 1;
+                        if(list_type == RANGE) console.log(list);                        
+                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length, list_type == LIST ? "list" : "range", "count", 'step', step_size);
                         //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     } else {
                         console.log("SONY:", prop, "item not found:", data_current);
