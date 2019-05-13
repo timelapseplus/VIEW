@@ -144,6 +144,7 @@ var properties = {
         sonyShift: true,
         code: 0x5007,
         typeCode: 4,
+        stepMultiplier: 2,
         ev: true,
         values: [
             { name: "1.0",      ev: -8,          code: 100  },
@@ -465,9 +466,7 @@ driver.refresh = function(camera, callback) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        step_size = 1;
-                        if(list_type == RANGE) console.log(list);                        
-                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length, list_type == LIST ? "list" : "range", "count", 'step', step_size);
+                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
                         //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     } else {
                         console.log("SONY:", prop, "item not found:", data_current);
@@ -621,8 +620,8 @@ function setDeviceControlValueB (_dev, propcode, value, datatype, callback) {
 }
 
 function shiftProperty(_dev, propcode, move, callback) {
-    if(move > 127) move = 127;
-    if(move < -127) move = -127;
+    //if(move > 127) move = 127;
+    //if(move < -127) move = -127;
     setDeviceControlValueB (_dev, propcode, move, 3, callback);
 }
 
@@ -661,7 +660,9 @@ driver.set = function(camera, param, value, callback) {
                     if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
                     if(properties[param].sonyShift) {
-                        properties[param].setFunction(camera._dev, properties[param].code, targetIndex - currentIndex, function(err) {
+                        var delta = targetIndex - currentIndex;
+                        if(properties[param].stepMultiplier) delta *= properties[param].stepMultiplier;
+                        properties[param].setFunction(camera._dev, properties[param].code, delta, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
