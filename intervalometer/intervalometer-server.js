@@ -277,12 +277,33 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.preview':
       if(camera.ptp.new.available) {
+        console.log("PREVIEW: using new driver...");
         if(!camera.ptp.new.cameras[0].camera.status.liveview) {
+          console.log("PREVIEW: enabling...");
           camera.ptp.new.liveviewMode(true, function(){
-            camera.ptp.new.liveviewImage(cameraCallback);
+            cameraCallback(err);
+            camera.ptp.new.liveviewImage(function(err, image) {
+              setTimeout(function() {
+                var obj = {
+                  base64: new Buffer(intervalometer.lastImage).toString('base64'),
+                  type: 'preview'
+                };
+                sendEvent('camera.photo', obj);
+              });
+            });
           });
         } else {
-          camera.ptp.new.liveviewImage(cameraCallback);
+          console.log("PREVIEW: fetching image...");
+          cameraCallback(err);
+          camera.ptp.new.liveviewImage(function(err, image) {
+            setTimeout(function() {
+              var obj = {
+                base64: new Buffer(intervalometer.lastImage).toString('base64'),
+                type: 'preview'
+              };
+              sendEvent('camera.photo', obj);
+            });
+          });
         }
       } else {
         camera.ptp.preview(cameraCallback);

@@ -53,6 +53,7 @@ exports.PTP_EC_CaptureComplete		 = 0x400D
 exports.PTP_EC_UnreportedStatus		 = 0x400E 
 
 var LOG_LEVEL = 0;
+var LOG_USB = false;
 
 function _logD() {
 	if(LOG_LEVEL > 0) return;
@@ -63,7 +64,7 @@ function _logD() {
 }
 
 function _logUSB(dir, data) {
-	if(false) return;
+	if(!LOG_USB) return;
 	var d = "<--";
 	if(dir == 'out') {
 		d = "-->";

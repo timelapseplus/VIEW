@@ -162,7 +162,7 @@ var properties = {
             { name: "4.5",      ev: -3 - 2 / 3,  code: 450  },
             { name: "5.0",      ev: -3 - 1 / 3,  code: 500  },
             { name: "5.6",      ev: -3,          code: 560  },
-            { name: "6.3",      ev: -2 - 2 / 3,  code: 640  },
+            { name: "6.3",      ev: -2 - 2 / 3,  code: 630  },
             { name: "7.1",      ev: -2 - 1 / 3,  code: 710  },
             { name: "8",        ev: -2,          code: 800  },
             { name: "9",        ev: -1 - 2 / 3,  code: 900  },
@@ -655,7 +655,7 @@ driver.set = function(camera, param, value, callback) {
                 }
                 if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
                     if(!properties[param].setFunction) return cb("unable to write");
-                    _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
+                    _logD("setting", ptp.hex(properties[param].code), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
                     if(properties[param].sonyShift) {
                         properties[param].setFunction(camera._dev, properties[param].code, targetIndex - currentIndex, function(err) {
                             if(!err) {
