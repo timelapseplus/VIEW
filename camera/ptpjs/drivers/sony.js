@@ -841,6 +841,7 @@ driver.liveviewImage = function(camera, callback) {
     if(camera.status.liveview) {
         if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
         camera._dev._lvTimer = setTimeout(function(){
+            _logD("automatically disabling liveview");
             driver.liveviewMode(camera, false);
         }, 5000);
         ptp.getObject(camera._dev, 0xffffc002, function(err, image) {

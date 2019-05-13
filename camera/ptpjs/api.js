@@ -164,7 +164,7 @@ CameraAPI.prototype.liveviewMode = function(enable, callback) {
 	return this._driver.liveviewMode(this, enable, callback);
 }
 
-CameraAPI.prototype.liveviewImage = function(enable, callback) {
+CameraAPI.prototype.liveviewImage = function(callback) {
 	if(!this.supports.liveview) return callback && callback("not supported");
 	if(!this.config.liveview) return callback && callback("not enabled");
 	return this._driver.liveviewImage(this, callback);
