@@ -684,7 +684,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                         }
                                     }, true);
                                 }
-                                setTimeout(refresh, 100);
+                                setTimeout(refresh, 100 + 30 * delta);
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
                                     if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
