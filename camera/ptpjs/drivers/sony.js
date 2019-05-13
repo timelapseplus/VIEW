@@ -669,7 +669,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         //}
                         properties[param].setFunction(camera._dev, properties[param].code, delta, function(err) {
                             if(!err) {
-                                if(delta > 2) {
+                                if(delta > 1) {
                                     var refresh = function() {
                                         var updated = driver.get(camera, param, function() {
                                             if(!updated) {
