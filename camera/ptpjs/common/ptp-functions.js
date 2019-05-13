@@ -625,10 +625,14 @@ function runTransaction(cam, opcode, params, data, callback) {
 					_logD("error reading:", err);
 					receiveErrorCount++;
 					if(receiveErrorCount == 3) {
-						cam.ep.in.clearHalt(function(error){
-							if(error) console.log("Error clearing endpoint stall:", error);
-							receive(cb, rbuf);
-						});
+						if(cam.ep && cam.ep.in) {
+							cam.ep.in.clearHalt(function(error){
+								if(error) console.log("Error clearing endpoint stall:", error);
+								receive(cb, rbuf);
+							});
+						} else {
+							return callback && callback("not connected");
+						}
 					} else {
 						receive(cb, rbuf);
 					}
