@@ -280,7 +280,7 @@ function runCommand(type, args, callback, client) {
         console.log("PREVIEW: using new driver...");
         if(!camera.ptp.new.cameras[0].camera.status.liveview) {
           console.log("PREVIEW: enabling...");
-          camera.ptp.new.liveviewMode(true, function(){
+          camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
             camera.ptp.new.liveviewImage(function(err, image) {
               setTimeout(function() {
