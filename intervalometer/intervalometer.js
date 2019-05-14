@@ -117,11 +117,17 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             if(raw && filename) {
                                 var file = captureOptions.saveRaw + filename.slice(-4);
                                 var cameraIndex = 1;
-                                logEvent("Writing to SD card...");
-                                fs.writeFile(file, raw, function(err) {
-                                    logEvent("...write completed.");
-                                    completeCapture();
-                                });
+                                var writeSD = function() {
+                                    if(intervalometer.status.writing) return setTimeout(writeSD, 100);
+                                    logEvent("Writing to SD card...");                                
+                                    intervalometer.status.writing = true;
+                                    fs.writeFile(file, raw, function(err) {
+                                        intervalometer.status.writing = false;
+                                        logEvent("...write completed.");
+                                        completeCapture();
+                                    });
+                                }
+                                writeSD();
                             } else {
                                 logErr("Unable to write to SD card!", filename, raw && raw.length);
                             }
@@ -1590,21 +1596,27 @@ intervalometer.cancel = function(reason, callback) {
         intervalometer.status.framesRemaining = 0;
         intervalometer.emit("intervalometer.status", intervalometer.status);
         camera.ptp.completeWrites(function() {
-            if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
-                remap('camera.ptp.getSettings')(function() {
-                    var options = getEvOptions();
-                    remap('camera.setEv')(intervalometer.status.rampEv, options);
-                });
+            var finalize = function() {
+                if(intervalometer.status.writing) {
+                    return setTimeout(finalize, 100);
+                }
+                if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+                    remap('camera.ptp.getSettings')(function() {
+                        var options = getEvOptions();
+                        remap('camera.setEv')(intervalometer.status.rampEv, options);
+                    });
+                }
+                busyPhoto = false;
+                intervalometer.status.running = false;
+                intervalometer.status.stopping = false;
+                intervalometer.timelapseFolder = false;
+                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                camera.ptp.unmountSd();
+                intervalometer.emit("intervalometer.status", intervalometer.status);
+                log("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
+                callback && callback();
             }
-            busyPhoto = false;
-            intervalometer.status.running = false;
-            intervalometer.status.stopping = false;
-            intervalometer.timelapseFolder = false;
-            camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-            camera.ptp.unmountSd();
-            intervalometer.emit("intervalometer.status", intervalometer.status);
-            log("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
-            callback && callback();
+            finalize();
         });
     }    
 }
