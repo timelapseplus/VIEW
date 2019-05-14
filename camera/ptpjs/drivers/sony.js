@@ -939,30 +939,12 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
 }
 
 driver.liveviewMode = function(camera, enable, callback) {
-    if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
-    if(camera.status.liveview != !!enable) {
-        if(enable) {
-            camera._dev._lvTimer = setTimeout(function(){
-                driver.liveviewMode(camera, false);
-            }, 5000);
-            camera.status.liveview = true;
-            callback && callback();
-        } else {
-            camera.status.liveview = false;
-            callback && callback();
-        }
-    } else {
-        callback && callback();
-    }
+    camera.status.liveview = enable;
+    callback && callback();
 }
 
 driver.liveviewImage = function(camera, callback) {
     if(camera.status.liveview) {
-        if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
-        camera._dev._lvTimer = setTimeout(function(){
-            _logD("automatically disabling liveview");
-            driver.liveviewMode(camera, false);
-        }, 5000);
         ptp.getObject(camera._dev, 0xffffc002, function(err, image) {
             if(!err && image) image = ptp.extractJpeg(image);
             callback && callback(err, image);

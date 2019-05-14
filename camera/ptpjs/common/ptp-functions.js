@@ -391,7 +391,7 @@ exports.hex = function(val) {
 
 exports.extractJpeg = function(data, startIndex, jpegsArray) {
     if(!data) {
-    	console.log("   no data");
+    	_logD("no data");
     	return null;
     }
 
@@ -412,7 +412,7 @@ exports.extractJpeg = function(data, startIndex, jpegsArray) {
 		    var jpegBuf = new Buffer(jpegEnd - jpegStart);
 		    data.copy(jpegBuf, 0, jpegStart, jpegEnd);
 		    if(data[jpegEnd] == 0x00) {
-			    console.log("   found jpeg at", jpegStart, "size:", jpegBuf.length, "data", data[jpegStart+3].toString(16), data[jpegEnd].toString(16));
+			    _logD("found jpeg at", jpegStart, "size:", jpegBuf.length, "data", data[jpegStart+3].toString(16), data[jpegEnd].toString(16));
 			    jpegsArray.push({
 			    	data: jpegBuf,
 			    	size: jpegBuf.length,
