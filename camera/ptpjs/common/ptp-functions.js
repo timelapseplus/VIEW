@@ -453,7 +453,7 @@ exports.extractJpeg = function(data, startIndex, jpegsArray) {
 }
 
 
-exports.extractJpegOld = function(data) {
+exports.extractJpegSimple = function(data) {
     if(!data) {
     	_logD("no data");
     	return null;
@@ -486,18 +486,10 @@ exports.extractJpegOld = function(data) {
     	return null;
     }
 
-
-	var depth = 0;
     for(var i = jpegStart + 3; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
     		jpegEnd = i + 2;
-    		//if(depth <= 0)
-    			break; // just get the innermost for now
-    		depth--;
-    	}
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
-    		jpegStart = i;
-    		depth++;
+			break;
     	}
     }
 
