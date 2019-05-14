@@ -143,6 +143,17 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             } else {
                 return camera.ptp.settings;
             }
+        case 'camera.ptp.settings-camera':
+            if(camera.ptp.new.available) {
+                var base = camera.ptp.new.cameras[0].camera.exposure;
+                return {
+                    shutter: base.shutter && base.shutter.name,
+                    aperture: base.aperture && base.shutter.name,
+                    iso: base.iso && base.shutter.name,
+                }
+            } else {
+                return camera.ptp.settings;
+            }
         case 'camera.ptp.settings.details':
             if(camera.ptp.new.available) {
                 var base = camera.ptp.new.cameras[0].camera.exposure;
@@ -931,7 +942,7 @@ function setupExposure(cb) {
                 if(ev != null) {
                     intervalometer.status.cameraEv = ev;
                 } 
-                intervalometer.status.cameraSettings = remap('camera.ptp.settings');
+                intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                 intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                 log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                 busyExposure = false;
@@ -949,7 +960,7 @@ function setupExposure(cb) {
                         if(ev != null) {
                             intervalometer.status.cameraEv = ev;
                         } 
-                        intervalometer.status.cameraSettings = remap('camera.ptp.settings');
+                        intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                         intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                         log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                         busyExposure = false;
@@ -963,7 +974,7 @@ function setupExposure(cb) {
                     if(res.ev != null) {
                         intervalometer.status.cameraEv = res.ev;
                     } 
-                    intervalometer.status.cameraSettings = remap('camera.ptp.settings');
+                    intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                     intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                     log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
                     busyExposure = false;
@@ -1689,7 +1700,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     intervalometer.status.startTime = new Date() / 1000;
                     intervalometer.status.rampEv = null;
                     intervalometer.status.bufferSeconds = 0;
-                    intervalometer.status.cameraSettings = remap('camera.ptp.settings');
+                    intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                     intervalometer.status.hdrSet = [];
                     intervalometer.status.hdrIndex = 0;
                     intervalometer.status.currentPlanIndex = null;
