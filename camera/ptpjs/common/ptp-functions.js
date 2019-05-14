@@ -405,12 +405,12 @@ exports.extractJpeg = function(data) {
     var jpegDetails = {};
 
     var startIndex = 0;
-    for(var i = startIndex; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xE1) {
-    		startIndex = i;
-    		break;
-    	}
-    }
+    //for(var i = startIndex; i < maxSearch; i++) {
+    //	if(data[i + 0] == 0xFF && data[i + 1] == 0xE1) {
+    //		startIndex = i;
+    //		break;
+    //	}
+    //}
 
     for(var i = startIndex; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
@@ -428,11 +428,12 @@ exports.extractJpeg = function(data) {
     for(var i = jpegStart + 3; i < maxSearch; i++) {
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
     		jpegEnd = i + 2;
-    		if(depth <= 0) break;
+    		//if(depth <= 0)
+    			break; // just get the innermost for now
     		depth--;
     	}
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
-    		//jpegStart = i;
+    		jpegStart = i;
     		depth++;
     	}
     }
