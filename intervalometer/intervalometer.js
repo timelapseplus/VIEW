@@ -119,8 +119,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 var cameraIndex = 1;
                                 var writeSD = function() {
                                     if(intervalometer.status.writing) return setTimeout(writeSD, 100);
-                                    logEvent("Writing", raw ? raw.length : -1, "bytes to SD card...");                                
+                                    if(!intervalometer.running) return;
                                     intervalometer.status.writing = true;
+                                    logEvent("Writing", raw ? raw.length : -1, "bytes to SD card...");                                
                                     fs.writeFile(file, raw, function(err) {
                                         raw = null;
                                         intervalometer.status.writing = false;
