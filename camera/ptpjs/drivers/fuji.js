@@ -564,7 +564,7 @@ function getImage(camera, timeout, callback) {
 
 driver.capture = function(camera, target, options, callback, tries) {
     var targetValue = (!target || target == "camera") ? "camera" : "VIEW";
-    camera.thumbnail = true;
+    camera.thumbnail = targetValue == 'camera';
     var results = {};
     var lvMode = camera.status.liveview;
     async.series([

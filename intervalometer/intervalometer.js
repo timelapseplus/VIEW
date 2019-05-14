@@ -113,14 +113,18 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 }
                             });
                         }
-                        if(options.destination == 'sd' && captureOptions.saveRaw && raw && filename) {
-                            var file = captureOptions.saveRaw + filename.slice(-4);
-                            var cameraIndex = 1;
-                            logEvent("Writing to SD card...");
-                            fs.writeFile(file, raw, function(err) {
-                                logEvent("...write completed.");
-                                completeCapture();
-                            });
+                        if(options.destination == 'sd' && captureOptions.saveRaw) {
+                            if(raw && filename) {
+                                var file = captureOptions.saveRaw + filename.slice(-4);
+                                var cameraIndex = 1;
+                                logEvent("Writing to SD card...");
+                                fs.writeFile(file, raw, function(err) {
+                                    logEvent("...write completed.");
+                                    completeCapture();
+                                });
+                            } else {
+                                logErr("Unable to write to SD card!", filename, raw && raw.length);
+                            }
                         } else {
                             completeCapture();
                         }
