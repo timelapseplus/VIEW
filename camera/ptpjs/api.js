@@ -248,7 +248,13 @@ function tryConnectDevice(device) {
 	var found = matchDriver(device);
 	if(found) {
 		console.log("camera connected:", found.name);
-		var camera = connectCamera(found.driver, device);
+		var camera = null;
+		try {
+			camera = connectCamera(found.driver, device);
+		} catch(e) {
+			camera = null;
+			console.log("failed to connect to", found.name, ", err", e);
+		}
 		if(camera) {
 			camera.supports = found.supports;
 			camera.init(function(err) {

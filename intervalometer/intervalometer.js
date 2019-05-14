@@ -122,8 +122,15 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     logEvent("Writing", raw ? raw.length : -1, "bytes to SD card...");                                
                                     intervalometer.status.writing = true;
                                     fs.writeFile(file, raw, function(err) {
+                                        raw = null;
                                         intervalometer.status.writing = false;
-                                        logEvent("...write completed.");
+                                        if(err) {
+                                            logErr("Error writing to SD:", err);
+                                            intervalometer.cancel('err');
+                                            error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.\nSystem message: " + err);
+                                        } else {
+                                            logEvent("...write completed.");
+                                        }
                                     });
                                     completeCapture();
                                 }
