@@ -3517,7 +3517,7 @@ if (VIEW_HARDWARE) {
             help: help.enableNewDriver,
             action: ui.set(core, 'newCameraDriver', true, function(cb){
                 db.set('enableNewDriver', "yes");
-                core.enableNewDriver(en != "no");
+                core.enableNewDriver(true);
                 cb && cb();
             })
         }, {
@@ -3526,7 +3526,7 @@ if (VIEW_HARDWARE) {
             help: help.enableNewDriver,
             action: ui.set(core, 'newCameraDriver', true, function(cb){
                 db.set('enableOldDriver', "no");
-                core.enableNewDriver(en != "no");
+                core.enableNewDriver(false);
                 cb && cb();
             })
         }]
@@ -3962,14 +3962,14 @@ if (VIEW_HARDWARE) {
             info += core.cameraModel + "\t";
             info += "Driver: " + core.cameraDriver + "\t";
             info += "Exposure: " + "\t";
-            info += "  Shutter: " + shutterText + "\t";
-            info += "  Aperture: " + apertureText + "\t";
-            info += "  ISO: " + isoText + "\t";
+            info += "- Shutter: " + shutterText + "\t";
+            info += "- Aperture: " + apertureText + "\t";
+            info += "- ISO: " + isoText + "\t";
             info += "Supports: " + "\t";
-            info += "  Capture: " + 'yes' + "\t";
-            info += "  Liveview: " + core.cameraSupports.liveview ? 'yes' : 'no' + "\t";
-            info += "  Destination: " + core.cameraSupports.destination ? 'yes' : 'no' + "\t";
-            info += "  Focus: " + core.cameraSupports.focus ? 'yes' : 'no' + "\t";
+            info += "- Capture: " + 'yes' + "\t";
+            info += "- Liveview: " + (core.cameraSupports.liveview ? 'yes' : 'no') + "\t";
+            info += "- Destination: " + (core.cameraSupports.destination ? 'yes' : 'no') + "\t";
+            info += "- Focus: " + (core.cameraSupports.focus ? 'yes' : 'no') + "\t";
         } else {
             info += "camera not connected.";
         }
