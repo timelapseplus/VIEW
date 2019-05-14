@@ -414,41 +414,41 @@ exports.extractJpeg = function(data) {
     	return null;
     }
 
-//    var off = jpegStart;
-//    while(off < maxSearch) {
-//        while(data[off] == 0xff) off++;
-//        var mrkr = data[off];  off++;
-//
-//        if(mrkr == 0xd8 && data[off - 2] == 0xFF) {
-//        	_logD("found start marker");
-//        	jpegStart = off - 2;
-//        	continue;    // SOI
-//        }
-//        if(mrkr == 0xd9 && data[off - 2] == 0xFF) {
-//        	_logD("found end marker");
-//        	jpegEnd = off;
-//        	break;       // EOI
-//        }
-//        if(0xd0 <= mrkr && mrkr <= 0xd7) continue;
-//        if(mrkr == 0x01) continue;    // TEM
-//
-//        var len = (data[off]<<8) | data[off+1];  off+=2;  
-//
-//        if(mrkr == 0xc0) {
-//        	var details = {
-//	            bpc : data[off],     // precission (bits per channel)
-//	            w   : (data[off+1]<<8) | data[off+2],
-//	            h   : (data[off+3]<<8) | data[off+4],
-//	            cps : data[off+5]    // number of color components
-//	        }
-//        	_logD("jpeg details:", details);
-//	        if(details.bpc = 8 && details.cps == 3) {
-//	        	jpegDetails = details;
-//	        	break;
-//	        }
-//	    }
-//        off += len - 2;
-//    }
+}
+
+exports.extractJpegOld = function(data) {
+    if(!data) {
+    	_logD("no data");
+    	return null;
+    }
+	var maxSearch = data.length;
+	//if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
+
+    _logD("searching for jpeg...", maxSearch);
+    var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
+    var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
+
+    var jpegDetails = {};
+
+    var startIndex = 0;
+    for(var i = startIndex; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xE1) {
+    		startIndex = i;
+    		break;
+    	}
+    }
+
+    for(var i = startIndex; i < maxSearch; i++) {
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
+    		jpegStart = i;
+    		break;
+    	}
+    }
+    if(jpegStart === null) {
+    	_logD("no jpeg found.");
+    	return null;
+    }
+
 
 	var depth = 0;
     for(var i = jpegStart + 3; i < maxSearch; i++) {
