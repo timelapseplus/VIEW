@@ -62,6 +62,94 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '054c:0c33': {
+            name: "Sony A7RIII",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
+    '054c:0c2a': {
+            name: "Sony A9",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
+    '054c:094c': {
+            name: "Sony A7",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: false,
+                destination: false,
+                focus: false,
+            }
+        },
+    '054c:0954': {
+            name: "Sony A7S",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: false,
+                destination: false,
+                focus: false,
+            }
+        },
+    '054c:094d': {
+            name: "Sony A7R",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: false,
+                destination: false,
+                focus: false,
+            }
+        },
+    '054c:0a6a': {
+            name: "Sony A7II",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: false,
+                focus: false,
+            }
+        },
+    '054c:0a71': {
+            name: "Sony A7SII",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: false,
+                focus: false,
+            }
+        },
+    '054c:0a6b': {
+            name: "Sony A7RII",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: false,
+                focus: false,
+            }
+        },
 }
 
 var properties = {
