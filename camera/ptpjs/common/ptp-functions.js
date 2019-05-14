@@ -389,34 +389,8 @@ exports.hex = function(val) {
 	return "0x" + val.toString(16);
 }
 
+
 exports.extractJpeg = function(data) {
-    if(!data) {
-    	_logD("no data");
-    	return null;
-    }
-	var maxSearch = data.length;
-	//if(maxSearch > 6000000) maxSearch = 6000000; // limit to first 6MB
-
-    _logD("searching for jpeg...", maxSearch);
-    var jpegStart = null;//data.indexOf("FFD8FF", 0, "hex");
-    var jpegEnd = maxSearch;//data.indexOf("FFD9", jpegStart, "hex");
-
-    var jpegDetails = {};
-
-    for(var i = 0; i < maxSearch; i++) {
-    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
-    		jpegStart = i;
-    		break;
-    	}
-    }
-    if(jpegStart === null) {
-    	_logD("no jpeg found.");
-    	return null;
-    }
-
-}
-
-exports.extractJpegOld = function(data) {
     if(!data) {
     	_logD("no data");
     	return null;
