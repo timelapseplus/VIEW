@@ -262,11 +262,11 @@ var properties = {
         code: 0xD018,
         ev: false,
         values: [
-            { name: "RAW",               key: 'raw',      code: 1  },
-            { name: "JPEG Fine",         key: null,       code: 2  },
-            { name: "JPEG Normal",       key: null,       code: 3  },
-            { name: "RAW + JPEG Fine",   key: null,       code: 4  },
-            { name: "RAW + JPEG Normal", key: 'raw+jpeg', code: 5  }
+            { name: "RAW",               value: 'raw',      code: 1  },
+            { name: "JPEG Fine",         value: null,       code: 2  },
+            { name: "JPEG Normal",       value: null,       code: 3  },
+            { name: "RAW + JPEG Fine",   value: null,       code: 4  },
+            { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 5  }
         ]
     },
     'destination': {
