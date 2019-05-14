@@ -1611,27 +1611,32 @@ intervalometer.cancel = function(reason, callback) {
         camera.ptp.completeWrites(function() {
             var finalize = function() {
                 if(intervalometer.status.writing) {
+                    console.log("INTERVALOMETER: writing...");
                     return setTimeout(finalize, 100);
                 }
-                if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
-                    remap('camera.ptp.getSettings')(function() {
-                        var options = getEvOptions();
-                        remap('camera.setEv')(intervalometer.status.rampEv, options);
-                    });
-                }
-                busyPhoto = false;
-                intervalometer.status.running = false;
-                intervalometer.status.stopping = false;
-                intervalometer.timelapseFolder = false;
-                camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
-                camera.ptp.unmountSd();
-                intervalometer.emit("intervalometer.status", intervalometer.status);
-                log("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
-                callback && callback();
+                setTimeout(function(){
+                    if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
+                        remap('camera.ptp.getSettings')(function() {
+                            var options = getEvOptions();
+                            remap('camera.setEv')(intervalometer.status.rampEv, options);
+                        });
+                    }
+                    busyPhoto = false;
+                    intervalometer.status.running = false;
+                    intervalometer.status.stopping = false;
+                    intervalometer.timelapseFolder = false;
+                    camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
+                    camera.ptp.unmountSd();
+                    intervalometer.emit("intervalometer.status", intervalometer.status);
+                    logEvent("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
+                    callback && callback();
+                }, 100);
             }
             finalize();
         });
-    }    
+    } else {
+        intervalometer.emit("intervalometer.status", intervalometer.status);
+    }   
 }
 
 intervalometer.resume = function() {
