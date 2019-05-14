@@ -3952,7 +3952,7 @@ if (VIEW_HARDWARE) {
         });
     }
 
-    var cameraInfo = function(callback) {
+    var cameraInfo = function() {
         var info = "";
         if(core.cameraConnected) {
             var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
@@ -3974,7 +3974,7 @@ if (VIEW_HARDWARE) {
             info += "camera not connected.";
         }
 
-        return callback && callback(null, info);
+        return info;
     }
 
 
