@@ -33,7 +33,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             }
         case 'camera.ptp.settings.format':
             if(camera.ptp.new.available) {
-                return camera.ptp.new.cameras[0].camera.config.format;
+                return camera.ptp.new.cameras[0].camera.config.format && camera.ptp.new.cameras[0].camera.config.format.value && camera.ptp.new.cameras[0].camera.config.format.value.toUpperCase();
             } else {
                 return camera.ptp.settings.format;
             }
