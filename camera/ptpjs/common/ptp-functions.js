@@ -389,8 +389,71 @@ exports.hex = function(val) {
 	return "0x" + val.toString(16);
 }
 
+exports.extractJpeg = function(data, startIndex, jpegsArray) {
+    if(!data) {
+    	console.log("   no data");
+    	return null;
+    }
 
-exports.extractJpeg = function(data) {
+    if(!jpegsArray) jpegsArray = [];
+
+	var maxSearch = 6 * 1024 * 1024; // limit to first 6MB
+	if(maxSearch > data.length) maxSearch = data.length;
+
+    //console.log("   searching for jpeg...", maxSearch);
+    var jpegStart = null;
+    var jpegEnd = maxSearch;  
+
+    var i = startIndex || 0;
+    while(i < maxSearch) {
+
+      	if(jpegStart !== null && data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+    		jpegEnd = i + 2;
+		    var jpegBuf = new Buffer(jpegEnd - jpegStart);
+		    data.copy(jpegBuf, 0, jpegStart, jpegEnd);
+		    if(data[jpegEnd] == 0x00) {
+			    console.log("   found jpeg at", jpegStart, "size:", jpegBuf.length, "data", data[jpegStart+3].toString(16), data[jpegEnd].toString(16));
+			    jpegsArray.push({
+			    	data: jpegBuf,
+			    	size: jpegBuf.length,
+			    });
+			    if(jpegsArray.length > 1) break;
+		    }
+		    jpegStart = null;
+		    if(startIndex != null) return jpegEnd;
+    	}
+
+    	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
+    		if(jpegStart === null) {
+	    		jpegStart = i;
+    		} else {
+    			i += extractr(data, i, jpegsArray);
+			    if(jpegsArray.length > 1) break;
+    		}
+    	}
+		i++;
+    }
+
+    if(startIndex == null) {
+    	var biggestIndex = null;
+    	for(var i = 0; i < jpegsArray.length; i++) {
+			if(biggestIndex == null) {
+				biggestIndex = i;
+				continue;
+			}
+			if(jpegsArray[i].size > jpegsArray[biggestIndex].size) {
+				biggestIndex = i;
+				continue;
+			}
+    	}
+    	return biggestIndex == null ? null : jpegsArray[biggestIndex].data;
+    } else {
+	    return (jpegEnd || 0);
+    }
+}
+
+
+exports.extractJpegOld = function(data) {
     if(!data) {
     	_logD("no data");
     	return null;
