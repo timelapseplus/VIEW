@@ -172,7 +172,7 @@ CameraAPI.prototype.liveviewImage = function(callback) {
 
 CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
 	if(!this.supports.focus) return callback && callback("not supported");
-	return this._driver.moveFocus(this, enable, callback);
+	return this._driver.moveFocus(this, steps, resolution, callback);
 }
 
 function connectCamera(driver, device) {
