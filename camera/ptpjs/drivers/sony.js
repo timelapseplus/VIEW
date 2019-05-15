@@ -373,6 +373,18 @@ var properties = {
             { name: "9",          value: 9,        code: 0x8009  },
             { name: "10",         value: 10,       code: 0x8010  },
         ]
+    },
+    'focusPos': {
+        name: 'focusPos',
+        category: 'status',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        noList: true,
+        code: 0xD2D1,
+        typeCode: 3,
+        ev: false,
     }
 }
 
@@ -540,23 +552,28 @@ driver.refresh = function(camera, callback, noEvent) {
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
                     var p = properties[prop];
-                    var current = mapPropertyItem(data_current, p.values);
-                    if(current) {
+                    if(p.noList) {
                         if(!camera[p.category]) camera[p.category] = {};
                         camera[p.category][p.name] = ptp.objCopy(current, {});
-                        if(p.listWorks) {
-                            camera[p.category][p.name].list = [];
-                            for(var x = 0; x < list.length; x++) {
-                                var item =  mapPropertyItem(list[x], p.values);
-                                if(item) camera[p.category][p.name].list.push(item);
-                            }
-                        } else {
-                            camera[p.category][p.name].list = p.values;
-                        }
-                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
-                        //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     } else {
-                        console.log("SONY:", prop, "item not found:", data_current);
+                        var current = mapPropertyItem(data_current, p.values);
+                        if(current) {
+                            if(!camera[p.category]) camera[p.category] = {};
+                            camera[p.category][p.name] = ptp.objCopy(current, {});
+                            if(p.listWorks) {
+                                camera[p.category][p.name].list = [];
+                                for(var x = 0; x < list.length; x++) {
+                                    var item =  mapPropertyItem(list[x], p.values);
+                                    if(item) camera[p.category][p.name].list.push(item);
+                                }
+                            } else {
+                                camera[p.category][p.name].list = p.values;
+                            }
+                            console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                            //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
+                        } else {
+                            console.log("SONY:", prop, "item not found:", data_current);
+                        }
                     }
                 }
             }
@@ -955,7 +972,22 @@ driver.liveviewImage = function(camera, callback) {
 }
 
 driver.moveFocus = function(camera, steps, resolution, callback) {
+    if(!steps) return callback && callback();
 
+    var dir = steps < 0 ? -1 : 1;
+    resolution = Math.round(Math.abs(resolution));
+    if(resolution > 7) resolution = 7;
+    resolution *= dir;
+    steps = Math.abs(steps);
+
+    var doStep = function() {
+        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
+            if(err) return callback && callback(err);
+            steps--;
+            if(steps > 0) setTimeout(doStep, 50);
+        });
+    }
+    doStep();
 }
 
 
