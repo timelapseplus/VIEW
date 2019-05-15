@@ -554,7 +554,8 @@ driver.refresh = function(camera, callback, noEvent) {
                     var p = properties[prop];
                     if(p.noList) {
                         if(!camera[p.category]) camera[p.category] = {};
-                        camera[p.category][p.name] = ptp.objCopy(current, {});
+                        camera[p.category][p.name] = data_current;
+                        console.log("SONY:", prop, "=", data_current);
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
                         if(current) {
