@@ -387,8 +387,8 @@ function updateCameraCounts() {
 
 ptp.on('unsupported', function(device) {
     console.log("using old driver:", device);
-    var bus = device.busNumber;
-    var dev = device.deviceAddress;
+    var bus = device.busNumber.toString();
+    var dev = device.deviceAddress.toString();
     while(bus && bus.length < 3) bus = '0' + bus;
     while(dev && dev.length < 3) dev = '0' + dev;
     var port = 'usb:' + bus + ',' + dev;
