@@ -436,7 +436,7 @@ function runCommand(type, args, callback, client) {
       camera.ptp.zoom(args.x, args.y, callback);
       break;
     case 'camera.ptp.focus':
-      camera.ptp.focus(args.step, args.repeat, callback);
+      remap('camera.ptp.focus')(args.step, args.repeat, callback);
       break;
     case 'camera.setEv':
       remap('camera.setEv')(args.ev, args.options, cameraCallback);
