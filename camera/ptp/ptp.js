@@ -386,6 +386,7 @@ function updateCameraCounts() {
 }
 
 ptp.on('unsupported', function(device) {
+    console.log("using old driver:", device);
     if (device.SUBSYSTEM == 'usb' && device.GPHOTO2_DRIVER && device.BUSNUM && device.DEVNUM) {
         var port = 'usb:' + device.BUSNUM + ',' + device.DEVNUM;
         var index = getWorkerIndex(port);
