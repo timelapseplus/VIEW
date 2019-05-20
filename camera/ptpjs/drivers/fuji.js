@@ -318,7 +318,16 @@ driver.refresh = function(camera, callback) {
                         if(!camera[properties[key].category]) camera[properties[key].category] = {};
                         if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                         var currentMapped = mapPropertyItem(current, properties[key].values);
-                        if(currentMapped)_logD(key, "=", currentMapped.name);
+                        if(!currentMapped) {
+                            console.log("FUJI:", prop, "item not found:", data_current);
+                            currentMapped = {
+                                name: "UNKNOWN",
+                                ev: null,
+                                value: null,
+                                code: data_current
+                            }
+                        }                        }
+                        _logD(key, "=", currentMapped.name);
                         camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
                         var mappedList = [];
                         for(var i = 0; i < list.length; i++) {
