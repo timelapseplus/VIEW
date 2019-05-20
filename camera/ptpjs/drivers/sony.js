@@ -558,23 +558,28 @@ driver.refresh = function(camera, callback, noEvent) {
                         console.log("SONY:", prop, "=", data_current);
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
-                        if(current) {
-                            if(!camera[p.category]) camera[p.category] = {};
-                            camera[p.category][p.name] = ptp.objCopy(current, {});
-                            if(p.listWorks) {
-                                camera[p.category][p.name].list = [];
-                                for(var x = 0; x < list.length; x++) {
-                                    var item =  mapPropertyItem(list[x], p.values);
-                                    if(item) camera[p.category][p.name].list.push(item);
-                                }
-                            } else {
-                                camera[p.category][p.name].list = p.values;
-                            }
-                            console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
-                            //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
-                        } else {
+                        if(!current) {
                             console.log("SONY:", prop, "item not found:", data_current);
+                            current = {
+                                name: "UNKNOWN",
+                                ev: null,
+                                value: null,
+                                code: data_current
+                            }
                         }
+                        if(!camera[p.category]) camera[p.category] = {};
+                        camera[p.category][p.name] = ptp.objCopy(current, {});
+                        if(p.listWorks) {
+                            camera[p.category][p.name].list = [];
+                            for(var x = 0; x < list.length; x++) {
+                                var item =  mapPropertyItem(list[x], p.values);
+                                if(item) camera[p.category][p.name].list.push(item);
+                            }
+                        } else {
+                            camera[p.category][p.name].list = p.values;
+                        }
+                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
                 }
             }
@@ -857,8 +862,8 @@ function exposureEvent(camera) {
     if(!camera._expCache) camera._expCache = {};
     var update = false;
     for(var k in camera.exposure) {
-        if(camera.exposure[k].ev != camera._expCache[k]) {
-           camera._expCache[k] = camera.exposure[k].ev;
+        if((camera.exposure[k] && camera.exposure[k].ev) != camera._expCache[k]) {
+           camera._expCache[k] = camera.exposure[k] && camera.exposure[k].ev;
            update = true; 
         }
     }
