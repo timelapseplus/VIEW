@@ -108,7 +108,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                         callback && callback(err, photoRes);
                                     });
                                 } else {
-                                    logEvent("...processing complete.", ev);
+                                    logEvent("...processing complete.");
                                     callback && callback(err, photoRes);
                                 }
                             });
