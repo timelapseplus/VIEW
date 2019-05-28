@@ -80,7 +80,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             if(camera.ptp.new.available) {
                 return camera.ptp.new.set;
             } else {
-                return camera.ptp.focus;
+                return camera.ptp.set;
             }
         case 'camera.ptp.capture':
             if(camera.ptp.new.available) {
