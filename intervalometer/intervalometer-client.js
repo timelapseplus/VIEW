@@ -428,6 +428,19 @@ core.loadProgram = function(program, callback) {
             program.exposurePlans = [];
         }
     }
+    if(program.savedExposurePlans) { // arrays come back as object in the VIEW db
+        var plans = [];
+        for(var key in program.savedExposurePlans) {
+            if(program.savedExposurePlans.hasOwnProperty(key)) {
+                plans.push(program.savedExposurePlans[key]);
+            }
+        }
+        if(plans.length > 0) {
+            program.savedExposurePlans = plans;
+        } else if(!program.savedExposurePlans.length) {
+            program.savedExposurePlans = [];
+        }
+    }
 
     core.currentProgram = _.extendOwn(defaultProgram, core.currentProgram, program);
     callback && callback();

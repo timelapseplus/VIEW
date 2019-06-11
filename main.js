@@ -356,16 +356,18 @@ if (VIEW_HARDWARE) {
 
     var reconfigureProgram = function(program) {
         if(!program.exposurePlans) program.exposurePlans = [];
+        if(!program.savedExposurePlans) program.savedExposurePlans = [];
         if(program.rampMode == 'sunset' || program.rampMode == 'sunrise') {
             program.lrtDirection = program.rampMode;
             program.rampMode = 'auto';
         }
         if(program.rampMode == 'auto') {
+            program.savedExposurePlans = program.exposurePlans;
             program.exposurePlans = [];
         } else if(program.rampMode == 'eclipse') {
             var coords = mcu.validCoordinates();
-
             program.exposurePlans = [];
+            var exposurePlans = [];
             var data = getEclipseData();
             program.eclipseInfo = "";
             if(data != null) {
@@ -373,18 +375,31 @@ if (VIEW_HARDWARE) {
                 program.utcOffset = mcu.timezoneOffset();
                 program.eclipseFirstContact = data.c1_timestamp;
                 if(data.c1_timestamp > new Date()) {
-                    program.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
+                    exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
                 }
                 if(data.c2_timestamp && data.c3_timestamp) { // total eclipse
-                    program.exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
-                    program.exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 20000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
-                    program.exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 10, shutter: -3, iso: -1, aperture: -4});
-                    program.exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp - 12000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
-                    program.exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 8000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                    exposurePlans.push({name: 'Partial (C1-C2)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                    exposurePlans.push({name: 'Baily\'s Beads (C2)', start: data.c2_timestamp - 20000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                    exposurePlans.push({name: 'Totality (C2-C3)', start: data.c2_timestamp, mode: 'preset', hdrCount: 3, hdrStops: 2, intervalMode: 'fixed', interval: 10, shutter: -3, iso: -1, aperture: -4});
+                    exposurePlans.push({name: 'Baily\'s Beads (C3)', start: data.c3_timestamp - 12000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 2, shutter: 5, iso: 0, aperture: -3});
+                    exposurePlans.push({name: 'Partial (C3-C4)', start: data.c3_timestamp + 8000, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
                 } else {
-                    program.exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
+                    exposurePlans.push({name: 'Partial (C1-C4)', start: data.c1_timestamp, mode: 'preset', hdrCount: 0, intervalMode: 'fixed', interval: 12, shutter: 6, iso: 0, aperture: -3});
                 }
-                program.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
+                exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
+
+                for(var i = 0; i < exposurePlans.length; i++) {
+                    var plan = exposurePlans[i];
+                    for(var j = 0; j < program.savedExposurePlans.length; j++) {
+                        if(plan.name == program.savedExposurePlans[j].name) {
+                            plan = program.savedExposurePlans[j];
+                            plan.start = program.savedExposurePlans[j].start; // only update date
+                            break;
+                        }
+                    }
+                    program.exposurePlans.push(plan);
+                }
+
             } else {
                 ui.alert('error', "Unable to calculate eclipse data\nMake sure GPS is enabled and has a fix or manually enter coodinates and date/time.");
                 app.send('error', {
