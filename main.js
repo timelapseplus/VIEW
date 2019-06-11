@@ -4061,6 +4061,7 @@ if (VIEW_HARDWARE) {
         var info = "";
         var coords = mcu.validCoordinates();
         if(coords) {
+            var currentLocation = "(" + coords.lat + ", " + coords.lon + ")";
             if(!data) data = getEclipseData();
             if(data != null) {
                 console.log("eclipse data:", data);
@@ -4073,16 +4074,16 @@ if (VIEW_HARDWARE) {
                 if(!noRelative) info += "\t(" + c1.fromNow() + ")\n"; else info += ".\n";
 
                 if(c2 && c3) {
-                    info += "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
+                    info += "This is a total eclipse, observable from the current location " + currentLocation + ".  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
                 } else if(data.eclipseType == "T") {
-                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observable at the current location.";
+                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observable at the current location " + currentLocation + ".";
                 } else if(data.eclipseType == "A") {
-                    info += "This is a annular eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
+                    info += "This is a annular eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
                 } else {
-                    info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location.";
+                    info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
                 }
             } else {
-                info += "No upcoming eclipses were found for the current location";                
+                info += "No upcoming eclipses were found for the current location " + currentLocation + ".";                
             }
         } else {
            info = "GPS position info unavailable\t";
