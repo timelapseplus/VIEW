@@ -393,7 +393,7 @@ if (VIEW_HARDWARE) {
                     for(var j = 0; j < program.savedExposurePlans.length; j++) {
                         if(plan.name == program.savedExposurePlans[j].name) {
                             plan = program.savedExposurePlans[j];
-                            plan.start = program.savedExposurePlans[j].start; // only update date
+                            plan.start = exposurePlans[i].start; // only update date
                             break;
                         }
                     }
