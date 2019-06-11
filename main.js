@@ -364,6 +364,7 @@ if (VIEW_HARDWARE) {
             program.exposurePlans = [];
         } else if(program.rampMode == 'eclipse') {
             var coords = mcu.validCoordinates();
+
             program.exposurePlans = [];
             var data = getEclipseData();
             if(data != null) {
@@ -381,9 +382,9 @@ if (VIEW_HARDWARE) {
                 }
                 program.exposurePlans.push({name: 'Post-eclipse', start: data.c4_timestamp, mode: 'auto', hdrCount: 0, intervalMode: 'auto', dayInterval: 12, nightInterval: 36});
             } else {
-                ui.alert('error', "Unable to calculate eclipse data");
+                ui.alert('error', "Unable to calculate eclipse data\nMake sure GPS is enabled and has a fix or manually enter coodinates and date/time.");
                 app.send('error', {
-                    error: "Unable to calculate eclipse data"
+                    error: "Unable to calculate eclipse data\nMake sure GPS is enabled and has a fix or manually enter coodinates and date/time."
                 });
             }
         } else {
@@ -4046,6 +4047,7 @@ if (VIEW_HARDWARE) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
                 console.log("Eclipse data:", data);
             }
+            if(eclipse.error) console.log("Eclipse error:", eclipse.error);
             return data;
         }
         return null;

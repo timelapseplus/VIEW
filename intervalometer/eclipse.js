@@ -3525,7 +3525,7 @@ exports.calculate = function(inputsObject, callback) {
       }
       inputs.eclipse_index = eclipseEvent.index;
       calculate();
-      //console.log("searching for eclipse:", inputs.eclipse_index, outputs.c1_timestamp);
+      console.log("searching for eclipse:", inputs.eclipse_index, outputs.c1_timestamp);
       if(outputs.c1_timestamp) {
         found = true;
         break;

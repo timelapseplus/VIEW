@@ -409,7 +409,11 @@ core.loadProgram = function(program, callback) {
                 kfs.push(program.keyframes[key]);
             }
         }
-        if(kfs.length > 0) program.keyframes = kfs;
+        if(kfs.length > 0) {
+            program.keyframes = kfs;
+        } else if(!program.keyframes.length) {
+            program.keyframes = [];            
+        }
     }
     if(program.exposurePlans) { // arrays come back as object in the VIEW db
         var plans = [];
@@ -418,7 +422,11 @@ core.loadProgram = function(program, callback) {
                 plans.push(program.exposurePlans[key]);
             }
         }
-        if(plans.length > 0) program.exposurePlans = plans;
+        if(plans.length > 0) {
+            program.exposurePlans = plans;
+        } else if(!program.exposurePlans.length) {
+            program.exposurePlans = [];
+        }
     }
 
     core.currentProgram = _.extendOwn(defaultProgram, core.currentProgram, program);
