@@ -362,7 +362,7 @@ if (VIEW_HARDWARE) {
             program.rampMode = 'auto';
         }
         if(program.rampMode == 'auto') {
-            program.savedExposurePlans = program.exposurePlans;
+            if(program.exposurePlans.length) program.savedExposurePlans = program.exposurePlans;
             program.exposurePlans = [];
         } else if(program.rampMode == 'eclipse') {
             var coords = mcu.validCoordinates();
@@ -407,7 +407,7 @@ if (VIEW_HARDWARE) {
                 });
             }
         } else {
-            program.savedExposurePlans = program.exposurePlans;
+            if(program.exposurePlans.length) program.savedExposurePlans = program.exposurePlans;
             program.exposurePlans = [];
         }
         return program;
