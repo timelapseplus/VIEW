@@ -367,7 +367,9 @@ if (VIEW_HARDWARE) {
 
             program.exposurePlans = [];
             var data = getEclipseData();
+            program.eclipseInfo = "";
             if(data != null) {
+                program.eclipseInfo = eclipseInfo(data, true);
                 if(data.c1_timestamp > new Date()) {
                     program.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
                 }
@@ -4045,7 +4047,7 @@ if (VIEW_HARDWARE) {
             var data = eclipse.data;
             if(!data || data.lat != coords.lat || data.lon != coords.lon) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
-                console.log("Eclipse data:", data);
+                //console.log("Eclipse data:", data);
             }
             if(eclipse.error) console.log("Eclipse error:", eclipse.error);
             return data;
@@ -4053,11 +4055,11 @@ if (VIEW_HARDWARE) {
         return null;
     }
 
-    var eclipseInfo = function() {
+    var eclipseInfo = function(data, noRelative) {
         var info = "";
         var coords = mcu.validCoordinates();
         if(coords) {
-            var data = getEclipseData();
+            if(!data) data = getEclipseData();
             if(data != null) {
                 console.log("eclipse data:", data);
                 var now = mcu.now();
@@ -4066,7 +4068,8 @@ if (VIEW_HARDWARE) {
                 var c3 = data.c3_timestamp ? moment(data.c3_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 var c4 = data.c4_timestamp ? moment(data.c4_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "\t";
-                info += "(" + c1.fromNow() + ")\n";
+                if(!noRelative) info += "(" + c1.fromNow() + ")\n"; else info += "\n";
+
                 if(c2 && c3) {
                     info += "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
                 } else if(data.eclipseType == "T") {

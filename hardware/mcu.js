@@ -80,7 +80,7 @@ mcu.validCoordinates = function() {
 		lon = gps.state.lon;
 		alt = gps.state.alt || 0;
 		src = 'gps';
-	} else if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null) {
+	} else if((power.gpsEnabled == 'disabled' || !mcu.gpsAvailable) && (mcu.lastGpsFix && !mcu.lastGpsFix.fromDb && mcu.lastGpsFix.lat !== null && mcu.lastGpsFix.lon !== null)) {
 		lat = mcu.lastGpsFix.lat;
 		lon = mcu.lastGpsFix.lon;
 		alt = mcu.lastGpsFix.alt || 0;
