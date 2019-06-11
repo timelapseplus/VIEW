@@ -407,6 +407,7 @@ if (VIEW_HARDWARE) {
                 });
             }
         } else {
+            program.savedExposurePlans = program.exposurePlans;
             program.exposurePlans = [];
         }
         return program;
