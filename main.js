@@ -370,6 +370,8 @@ if (VIEW_HARDWARE) {
             program.eclipseInfo = "";
             if(data != null) {
                 program.eclipseInfo = eclipseInfo(data, true);
+                program.utcOffset = mcu.timezoneOffset();
+                program.eclipseFirstContact = data.c1_timestamp;
                 if(data.c1_timestamp > new Date()) {
                     program.exposurePlans.push({name: 'Pre-eclipse', start: new Date(), mode: 'locked', hdrCount: 0, intervalMode: 'fixed', interval: 12});
                 }
@@ -4067,8 +4069,8 @@ if (VIEW_HARDWARE) {
                 var c2 = data.c2_timestamp ? moment(data.c2_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 var c3 = data.c3_timestamp ? moment(data.c3_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 var c4 = data.c4_timestamp ? moment(data.c4_timestamp).utcOffset(mcu.timezoneOffset()) : null;
-                info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "\t";
-                if(!noRelative) info += "(" + c1.fromNow() + ")\n"; else info += "\n";
+                info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "";
+                if(!noRelative) info += "\t(" + c1.fromNow() + ")\n"; else info += ".\n";
 
                 if(c2 && c3) {
                     info += "This is a total eclipse, observable from the current location.  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
