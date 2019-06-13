@@ -18,6 +18,7 @@ api.available = false;
 var DRIVERS = [];
 DRIVERS.push(require('./drivers/fuji.js'));
 DRIVERS.push(require('./drivers/sony.js'));
+DRIVERS.push(require('./drivers/nikon.js'));
 
 function CameraAPI(driver) {
 	this._driver = driver;
