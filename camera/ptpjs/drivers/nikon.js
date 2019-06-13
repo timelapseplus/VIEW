@@ -334,7 +334,6 @@ driver.refresh = function(camera, callback) {
                     }
                     fetchNextProperty();
                 } else {
-                    if()
                     //console.log(camera.exposure);
                     cb();
                     exposureEvent(camera);
