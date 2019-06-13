@@ -261,7 +261,7 @@ driver._event = function(camera, data) { // events received
         if(event == ptp.PTP_EC_ObjectAdded) {
             _logD("object added:", param1);
         } else if(event == ptp.PTP_EC_DevicePropChanged) {
-            camera.refresh();
+            driver.refresh(camera);
         } else {
             _logD("EVENT:", data);
         }
