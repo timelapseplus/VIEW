@@ -558,7 +558,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
         function(cb){
-            let check = function() {
+            var check = function() {
                 checkReady(camera, function(err, ready) {
                     if(err) return cb(err);
                     if(ready) return cb();
