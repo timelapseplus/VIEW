@@ -228,7 +228,7 @@ var properties = {
         code: 0x5004,
         ev: false,
         values: [
-            { name: "RAW",               value: 'raw',      code: 0  },
+            { name: "RAW",               value: 'raw',      code: 4  },
             { name: "JPEG Fine",         value: null,       code: 0  },
             { name: "JPEG Normal",       value: null,       code: 0  },
             { name: "RAW + JPEG Fine",   value: null,       code: 0  },
@@ -257,10 +257,13 @@ driver._error = function(camera, error) { // events received
 };
 
 driver._event = function(camera, data) { // events received
-    _logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
             _logD("object added:", param1);
+        } else if(event == ptp.PTP_EC_DevicePropChanged) {
+            this.refresh();
+        } else {
+            _logD("EVENT:", data);
         }
     });
 };
