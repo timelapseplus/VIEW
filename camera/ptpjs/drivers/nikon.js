@@ -305,8 +305,8 @@ driver.refresh = function(camera, callback) {
                                 }
                             }
                             camera[properties[key].category][key].list = mappedList;
-                            fetchNextProperty();
                         }
+                        fetchNextProperty();
                     });
                 } else {
                     //console.log(camera.exposure);
