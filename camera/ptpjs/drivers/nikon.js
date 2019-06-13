@@ -256,7 +256,14 @@ driver._error = function(camera, error) { // events received
 };
 
 driver._event = function(camera, data) { // events received
-    ptp.parseEvent(data, function(type, event, param1, param2, param3) {
+    if(!camera._eventData) {
+        camera._eventData = data;
+    } else {
+        camera._eventData = Buffer.concat([camera._eventData, data]);
+    }
+    
+    ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
+        camera._eventData = null;
         if(event == ptp.PTP_EC_ObjectAdded) {
             _logD("object added:", ptp.hex(param1));
             camera._objectsAdded.push(param1);
