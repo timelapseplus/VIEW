@@ -314,32 +314,36 @@ driver.refresh = function(camera, callback) {
                 var key = keys.pop();
                 if(key) {
                     properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
-                        _logD(key, "type is", type);
-                        if(!camera[properties[key].category]) camera[properties[key].category] = {};
-                        if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                        var currentMapped = mapPropertyItem(current, properties[key].values);
-                        if(!currentMapped) {
-                            _logD("FUJI:", key, "item not found:", current);
-                            currentMapped = {
-                                name: "UNKNOWN",
-                                ev: null,
-                                value: null,
-                                code: current
+                        if(err) {
+                            _logE("failed to list", key, ", err:", err);
+                        } else {
+                            _logD(key, "type is", type);
+                            if(!camera[properties[key].category]) camera[properties[key].category] = {};
+                            if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
+                            var currentMapped = mapPropertyItem(current, properties[key].values);
+                            if(!currentMapped) {
+                                _logE(key, "item not found:", current);
+                                currentMapped = {
+                                    name: "UNKNOWN",
+                                    ev: null,
+                                    value: null,
+                                    code: current
+                                }
                             }
-                        }
-                        _logD(key, "=", currentMapped.name);
-                        camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
-                        var mappedList = [];
-                        for(var i = 0; i < list.length; i++) {
-                            var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                            if(!mappedItem) {
-                                _logE(key, "list item not found:", list[i]);
-                            } else {
-                                mappedList.push(mappedItem);
+                            _logD(key, "=", currentMapped.name);
+                            camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
+                            var mappedList = [];
+                            for(var i = 0; i < list.length; i++) {
+                                var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                                if(!mappedItem) {
+                                    _logE(key, "list item not found:", list[i]);
+                                } else {
+                                    mappedList.push(mappedItem);
+                                }
                             }
+                            camera[properties[key].category][key].list = mappedList;
+                            fetchNextProperty();
                         }
-                        camera[properties[key].category][key].list = mappedList;
-                        fetchNextProperty();
                     });
                 } else {
                     //console.log(camera.exposure);
