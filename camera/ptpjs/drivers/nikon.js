@@ -526,7 +526,6 @@ function getImage(camera, timeout, callback) {
                             ptp.deleteObject(camera._dev, objectId, function() {
                                 results.thumb = jpeg;
                                 callback && callback(err, results);
-                                deleteRemaining();
                             });
                         });
                     } else {
@@ -535,7 +534,6 @@ function getImage(camera, timeout, callback) {
                                 results.thumb = ptp.extractJpeg(image);
                                 results.rawImage = image;
                                 callback && callback(err, results);
-                                deleteRemaining();
                             });
                         });
                     }
