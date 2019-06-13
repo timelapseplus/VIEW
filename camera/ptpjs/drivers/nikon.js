@@ -261,7 +261,7 @@ driver._event = function(camera, data) { // events received
     } else {
         camera._eventData = Buffer.concat([camera._eventData, data]);
     }
-    
+    if(camera._eventData.length < 12) return;
     ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
         camera._eventData = null;
         if(event == ptp.PTP_EC_ObjectAdded) {
