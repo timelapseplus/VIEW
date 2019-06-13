@@ -440,7 +440,7 @@ driver.set = function(camera, param, value, callback) {
                 for(var k in newItem) {
                     if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                 }
-                cb(err);
+                cb();
                 exposureEvent(camera);
             } else {
                 _logE("set: unknown param", param);
@@ -560,35 +560,24 @@ driver.capture = function(camera, target, options, callback, tries) {
     var lvMode = camera.status.liveview;
     async.series([
         function(cb){
-            if(lvMode) driver.liveviewMode(camera, false, cb); else cb();
-        },
-        function(cb){
             if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
-        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0200, cb);},
-        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
-            var check = function() {
-                ptp.getPropU16(camera._dev, 0xd209, function(err, data) { // wait if busy
-                    if(data == 0x0001) {
-                        setTimeout(check, 50);
-                    } else {
-                        cb(err);
-                    }
-                });
+            ptp.transaction(camera._dev, 0x9207, [0xffffffff, camera.config.destination.code || 0], null, function(err, responseCode) {
+                if(err) {
+                    return cb(err);
+                } else if(responseCode != 0x2001) {
+                    return cb(responseCode);
+                } else {
+                    return cb();
+                }
             }
-            check();
         },
-        function(cb){ptp.setPropU16(camera._dev, 0xd208, 0x0304, cb);},
-        function(cb){ptp.ptpCapture(camera._dev, [0x0, 0x0], cb);},
         function(cb){
             getImage(camera, 60000, function(err, imageResults) {
                 results = imageResults;
                 cb(err);
             });
-        },
-        function(cb){
-            if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err, res) {
         if(err) _logE("capture error", ptp.hex(res), "at item", res.length);
