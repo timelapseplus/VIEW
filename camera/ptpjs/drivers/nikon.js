@@ -259,6 +259,7 @@ driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
             _logD("object added:", ptp.hex(param1));
+            camera._objectsAdded.push(param1);
         } else if(event == ptp.PTP_EC_DevicePropChanged) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
@@ -347,6 +348,7 @@ driver.refresh = function(camera, callback) {
 }
 
 driver.init = function(camera, callback) {
+    camera._objectsAdded = [];
     ptp.init(camera._dev, function(err, di) {
         async.series([
             //function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
@@ -493,64 +495,57 @@ function getImage(camera, timeout, callback) {
 
     var startTime = Date.now();
 
+    camera._objectsAdded = []; // clear queue
+
     var check = function() {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
-        ptp.getPropData(camera._dev, 0xd212, function(err, data) { // wait if busy
+        if(camera._objectsAdded.length == 0) {
+            return setTimeout(check, 50);
+        }
+        checkReady(camera, function(err, ready) { // wait if busy
             //console.log("data:", data);
-            if(!err && data && data.length >= 4 && data.readUInt16LE(2) == 0xD20E) {
-                var getHandles = function() {
-                    if(Date.now() - startTime > timeout) {
-                        return callback && callback("timeout", results);
-                    }
-                    ptp.getObjectHandles(camera._dev, function(err, handles) {
-                        if(handles.length > 0) {
-                            var objectId = handles[0];
-                            var deleteRemaining = function() {
-                                if(handles.length > 1) {
-                                    var id = handles.pop();
-                                    ptp.deleteObject(camera._dev, id, function(err) {
-                                        deleteRemaining();
-                                    });
-                                }
-                            }
-                            ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                                //console.log(oi);
-                                var image = null;
-                                results.filename = oi.filename;
-                                results.indexNumber = objectId;
-                                if(camera.thumbnail) {
-                                    ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                                        ptp.deleteObject(camera._dev, objectId, function() {
-                                            results.thumb = jpeg;
-                                            callback && callback(err, results);
-                                            deleteRemaining();
-                                        });
-                                    });
-                                } else {
-                                    ptp.getObject(camera._dev, objectId, function(err, image) {
-                                        ptp.deleteObject(camera._dev, objectId, function() {
-                                            results.thumb = ptp.extractJpeg(image);
-                                            results.rawImage = image;
-                                            callback && callback(err, results);
-                                            deleteRemaining();
-                                        });
-                                    });
-                                }
+            if(!err && ready) {
+                var objectId = camera._objectsAdded.shift();
+                ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
+                    //console.log(oi);
+                    if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
+                    var image = null;
+                    results.filename = oi.filename;
+                    results.indexNumber = objectId;
+                    if(camera.thumbnail) {
+                        ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
+                            ptp.deleteObject(camera._dev, objectId, function() {
+                                results.thumb = jpeg;
+                                callback && callback(err, results);
+                                deleteRemaining();
                             });
-                        } else {
-                            setTimeout(getHandles, 50);
-                        }
-                    });
-                }
-                getHandles();
+                        });
+                    } else {
+                        ptp.getObject(camera._dev, objectId, function(err, image) {
+                            ptp.deleteObject(camera._dev, objectId, function() {
+                                results.thumb = ptp.extractJpeg(image);
+                                results.rawImage = image;
+                                callback && callback(err, results);
+                                deleteRemaining();
+                            });
+                        });
+                    }
+                });
             } else {
                 setTimeout(check, 50);
             }
         });
     }
     check();
+}
+
+function checkReady(camera, callback) {
+    ptp.transaction(camera._dev, 0x90C8, [], null, function(err, responseCode) {
+        if(err || (responseCode != 0x2001 || responseCode != 0x2019)) return callback && callback(err || responseCode);
+        return callback && callback(null, responseCode == 0x2001);
+    });
 }
 
 driver.capture = function(camera, target, options, callback, tries) {
@@ -563,6 +558,16 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
         function(cb){
+            let check = function() {
+                checkReady(camera, function(err, ready) {
+                    if(err) return cb(err);
+                    if(ready) return cb();
+                    setTimeout(check, 50);
+                });
+            }
+            check();
+        },
+        function(cb){
             ptp.transaction(camera._dev, 0x9207, [0xffffffff, camera.config.destination.code || 0], null, function(err, responseCode) {
                 if(err) {
                     return cb(err);
@@ -571,7 +576,7 @@ driver.capture = function(camera, target, options, callback, tries) {
                 } else {
                     return cb();
                 }
-            }
+            });
         },
         function(cb){
             getImage(camera, 60000, function(err, imageResults) {
