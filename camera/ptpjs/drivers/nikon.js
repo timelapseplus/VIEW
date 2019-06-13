@@ -543,7 +543,7 @@ function getImage(camera, timeout, callback) {
 
 function checkReady(camera, callback) {
     ptp.transaction(camera._dev, 0x90C8, [], null, function(err, responseCode) {
-        if(err || (responseCode != 0x2001 || responseCode != 0x2019)) return callback && callback(err || responseCode);
+        if(err || (responseCode != 0x2001 && responseCode != 0x2019)) return callback && callback(err || responseCode);
         return callback && callback(null, responseCode == 0x2001);
     });
 }
@@ -585,7 +585,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             });
         },
     ], function(err, res) {
-        if(err) _logE("capture error", ptp.hex(res), "at item", res.length);
+        if(err) _logE("capture error", ptp.hex(err), "at item", res.length);
         if(err == 0x2019 && tries < 3) {
             return driver.capture(camera, target, options, callback, tries + 1);
         }

@@ -613,7 +613,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err, res) {
-        if(err) _logE("capture error", ptp.hex(res), "at item", res.length);
+        if(err) _logE("capture error", ptp.hex(err), "at item", res.length);
         if(err == 0x2019 && tries < 3) {
             return driver.capture(camera, target, options, callback, tries + 1);
         }
