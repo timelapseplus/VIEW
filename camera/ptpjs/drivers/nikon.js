@@ -229,13 +229,13 @@ var properties = {
         ev: false,
         values: [
             { name: "RAW",               value: 'raw',      code: 4  },
-            { name: "JPEG Fine",         value: null,       code: 0  },
-            { name: "JPEG Normal",       value: null,       code: 0  },
-            { name: "RAW + JPEG Fine",   value: null,       code: 0  },
-            { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 0  }
+            { name: "JPEG Normal",       value: null,       code: 1  },
+            { name: "JPEG Fine",         value: null,       code: 2  },
+            { name: "JPEG Basic",         value: null,      code: 0  },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7  },
         ]
     },
-    'destination': {
+    /*'destination': {
         name: 'destination',
         category: 'config',
         setFunction: ptp.setPropU16,
@@ -249,7 +249,7 @@ var properties = {
             { name: "UNKNOWN2",          code: 0  },
             { name: "VIEW",              code: 0  },
         ]
-    }
+    }*/
 }
 
 driver._error = function(camera, error) { // events received
@@ -259,9 +259,21 @@ driver._error = function(camera, error) { // events received
 driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == ptp.PTP_EC_ObjectAdded) {
-            _logD("object added:", param1);
+            _logD("object added:", ptp.hex(param1));
         } else if(event == ptp.PTP_EC_DevicePropChanged) {
-            driver.refresh(camera);
+            _logD("param changed:", ptp.hex(param1));
+            var check = function() {
+                if(camera._eventTimer) clearTimeout(camera._eventTimer);            
+                camera._eventTimer = setTimeout(function() {
+                    camera._eventTimer = null;
+                    if(!camera._blockEvents) {
+                        driver.refresh(camera);
+                    } else {
+                        camera._eventTimer = setTimeout(check, 500);
+                    }
+                }, 500);
+            }
+            check();
         } else {
             _logD("EVENT:", data);
         }
