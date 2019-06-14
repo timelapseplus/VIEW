@@ -19,8 +19,8 @@ api.enabled = true;
 api.available = false;
 
 var DRIVERS = [];
-console.log("drivers path", path.resolve(process.cwd(), './drivers/'));
-fs.readdir(path.resolve(process.cwd(), '/drivers/'), function(err, files) {
+console.log("drivers path", path.resolve(__dirname, './drivers/'));
+fs.readdir(path.resolve(__dirname, './drivers/'), function(err, files) {
 	for(var i = 0; i < files.length; i++) {
 		if(files[i].substring(-3) == '.js') {
 			console.log("Camera API: adding driver:", files[i]);
