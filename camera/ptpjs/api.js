@@ -11,6 +11,7 @@ var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 var fs = require('fs');
 var path = require('path');
+var test = require('test');
 
 var api = new EventEmitter();
 
@@ -18,7 +19,7 @@ api.enabled = true;
 api.available = false;
 
 var DRIVERS = [];
-console.log("drivers path", path.resolve(process.cwd(), '/drivers/'));
+console.log("drivers path", path.resolve(process.cwd(), './drivers/'));
 fs.readdir(path.resolve(process.cwd(), '/drivers/'), function(err, files) {
 	for(var i = 0; i < files.length; i++) {
 		if(files[i].substring(-3) == '.js') {
