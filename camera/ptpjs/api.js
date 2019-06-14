@@ -10,6 +10,7 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 var fs = require('fs');
+var path = require('path');
 
 var api = new EventEmitter();
 
@@ -17,7 +18,8 @@ api.enabled = true;
 api.available = false;
 
 var DRIVERS = [];
-fs.readdir(__dirname + '/drivers/', function(err, files) {
+console.log("drivers path", path.resolve(__dirname, '/drivers/'));
+fs.readdir(path.resolve(__dirname, '/drivers/'), function(err, files) {
 	for(var i = 0; i < files.length; i++) {
 		if(files[i].substring(-3) == '.js') {
 			console.log("Camera API: adding driver:", files[i]);
@@ -37,6 +39,13 @@ fs.readdir(__dirname + '/drivers/', function(err, files) {
 				}
 			}
 		});
+	}
+
+	if(api.enabled) {
+		var devices = usb.getDeviceList();
+		for(var i = 0; i < devices.length; i++) {
+			tryConnectDevice(devices[i]);
+		}
 	}
 });
 
@@ -634,13 +643,6 @@ api.setEv = function(ev, options, callback) {
 }
 
 
-
-if(api.enabled) {
-	var devices = usb.getDeviceList();
-	for(var i = 0; i < devices.length; i++) {
-		tryConnectDevice(devices[i]);
-	}
-}
 
 console.log("ready");
 
