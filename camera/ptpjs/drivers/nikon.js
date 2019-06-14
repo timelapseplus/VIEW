@@ -609,14 +609,14 @@ driver.liveviewMode = function(camera, enable, callback) {
             camera._dev._lvTimer = setTimeout(function(){
                 driver.liveviewMode(camera, false);
             }, 5000);
-            ptp.initiateOpenCapture(camera._dev, function(err) {
-                if(!err) camera.status.liveview = true;
-                callback && callback(err);
+            ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
+                if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+                return callback && callback(null, responseCode == 0x2001);
             });
         } else {
-            ptp.terminateOpenCapture(camera._dev, function(err) {
-                if(!err) camera.status.liveview = false;
-                callback && callback(err);
+            ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
+                if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+                return callback && callback(null, responseCode == 0x2001);
             });
         }
     } else {
@@ -624,16 +624,33 @@ driver.liveviewMode = function(camera, enable, callback) {
     }
 }
 
-driver.liveviewImage = function(camera, callback) {
+driver.liveviewImage = function(camera, callback, _tries) {
     if(camera.status.liveview) {
         if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
         camera._dev._lvTimer = setTimeout(function(){
             _logD("automatically disabling liveview");
             driver.liveviewMode(camera, false);
         }, 5000);
-        ptp.getObject(camera._dev, 0x80000001, function(err, image) {
-            ptp.deleteObject(camera._dev, 0x80000001);
-            callback && callback(err, image);
+
+        ptp.transaction(camera._dev, 0x9203, [], null, function(err, responseCode, data) {
+            if(err) return callback && callback(err);
+            if(responseCode != 0x2001 && _tries > 10) return callback && callback(responseCode);
+            if(responseCode == 0x2001) {
+                var image = ptp.extractJpegSimple(data);
+                if(image) {
+                    return callback && callback(null, image);
+                } else {
+                    driver.liveviewImage(camera, callback, _tries + 1);
+                }
+            } else if(responseCode == 0xA00B) { // not in liveview mode
+                driver.liveviewMode(camera, true, function() {
+                    driver.liveviewImage(camera, callback, _tries + 1);
+                });
+            } else {
+                setTimeout(function(){
+                    driver.liveviewImage(camera, callback, _tries + 1);
+                }, 50);
+            }
         });
     } else {
         callback && callback("not enabled");
