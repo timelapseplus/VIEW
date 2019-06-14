@@ -627,6 +627,7 @@ driver.liveviewMode = function(camera, enable, callback) {
 }
 
 driver.liveviewImage = function(camera, callback, _tries) {
+    if(!_tries) _tries = 1;
     if(camera.status.liveview) {
         if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
         camera._dev._lvTimer = setTimeout(function(){
