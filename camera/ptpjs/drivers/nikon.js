@@ -523,18 +523,26 @@ function getImage(camera, timeout, callback) {
                     results.indexNumber = objectId;
                     if(camera.thumbnail) {
                         ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                            ptp.deleteObject(camera._dev, objectId, function() {
-                                results.thumb = jpeg;
+                            results.thumb = jpeg;
+                            if(camera.config.destination.name == 'VIEW') {
+                                ptp.deleteObject(camera._dev, objectId, function() {
+                                    callback && callback(err, results);
+                                });
+                            } else {
                                 callback && callback(err, results);
-                            });
+                            }
                         });
                     } else {
                         ptp.getObject(camera._dev, objectId, function(err, image) {
-                            ptp.deleteObject(camera._dev, objectId, function() {
-                                results.thumb = ptp.extractJpeg(image);
-                                results.rawImage = image;
+                            results.thumb = ptp.extractJpeg(image);
+                            results.rawImage = image;
+                            if(camera.config.destination.name == 'VIEW') {
+                                ptp.deleteObject(camera._dev, objectId, function() {
+                                    callback && callback(err, results);
+                                });
+                            } else {
                                 callback && callback(err, results);
-                            });
+                            }
                         });
                     }
                 });
