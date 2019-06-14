@@ -11,7 +11,7 @@ var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 var fs = require('fs');
 var path = require('path');
-var test = require('test');
+var test = require('./test');
 
 var api = new EventEmitter();
 
