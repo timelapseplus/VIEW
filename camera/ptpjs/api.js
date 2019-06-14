@@ -28,6 +28,7 @@ fs.readdir(path.resolve(process.cwd(), '/drivers/'), function(err, files) {
 		}
 	}
 	for(var i = 0; i < DRIVERS.length; i++) {
+		test.driver(DRIVERS[i]);
 		DRIVERS[i].on('settings', function(camera) {
 			console.log("SETTINGS event: checking index...");
 			for(var j = 0; j < api.cameras.length; j++) {
