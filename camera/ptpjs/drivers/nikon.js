@@ -611,11 +611,13 @@ driver.liveviewMode = function(camera, enable, callback) {
             }, 5000);
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+                camera.status.liveview = true;
                 return callback && callback(null, responseCode == 0x2001);
             });
         } else {
             ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+                camera.status.liveview = false;
                 return callback && callback(null, responseCode == 0x2001);
             });
         }
