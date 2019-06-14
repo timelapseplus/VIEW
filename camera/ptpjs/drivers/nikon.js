@@ -73,7 +73,7 @@ var properties = {
             { name: "25s",     ev: -10 - 2 / 3, code:  250000 },
             { name: "20s",     ev: -10 - 1 / 3, code:  200000 },
             { name: "15s",     ev: -10,         code:  150000 },
-            { name: "13s",     ev: -9 - 3 / 3,  code:  130000 },
+            { name: "13s",     ev: -9 - 2 / 3,  code:  130000 },
             { name: "10s",     ev: -9 - 1 / 3,  code:  100000 },
             { name: "8s",      ev: -9,          code:  80000 },
             { name: "6s",      ev: -8 - 2 / 3,  code:  60000 },

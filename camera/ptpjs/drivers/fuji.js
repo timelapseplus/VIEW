@@ -112,7 +112,7 @@ var properties = {
             { name: "25s",     ev: -10 - 2 / 3, code:  25398416 },
             { name: "20s",     ev: -10 - 1 / 3, code:  20158736 },
             { name: "15s",     ev: -10,         code:  16000000 },
-            { name: "13s",     ev: -9 - 3 / 3,  code:  12699208 },
+            { name: "13s",     ev: -9 - 2 / 3,  code:  12699208 },
             { name: "10s",     ev: -9 - 1 / 3,  code:  10079368 },
             { name: "8s",      ev: -9,          code:  8000000 },
             { name: "6s",      ev: -8 - 2 / 3,  code:  6349604 },

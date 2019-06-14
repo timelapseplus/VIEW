@@ -9,6 +9,7 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
+var fs = require('fs');
 
 var api = new EventEmitter();
 
@@ -16,9 +17,28 @@ api.enabled = true;
 api.available = false;
 
 var DRIVERS = [];
-DRIVERS.push(require('./drivers/fuji.js'));
-DRIVERS.push(require('./drivers/sony.js'));
-DRIVERS.push(require('./drivers/nikon.js'));
+fs.readdir('./drivers/', function(err, files) {
+	for(var i = 0; i < files.length; i++) {
+		if(files[i].substring(-3) == '.js') {
+			console.log("Camera API: adding driver:", files[i]);
+			DRIVERS.push(require('./drivers/' + files[i]));
+		}
+	}
+	for(var i = 0; i < DRIVERS.length; i++) {
+		DRIVERS[i].on('settings', function(camera) {
+			console.log("SETTINGS event: checking index...");
+			for(var j = 0; j < api.cameras.length; j++) {
+				if(api.cameras[j].camera._port == camera._port) {
+					console.log("SETTINGS event: camera index is", j);
+					if(api.cameras[j].primary) {
+						api.emit('settings', camera.exposure);
+					}
+					break;
+				}
+			}
+		});
+	}
+});
 
 function CameraAPI(driver) {
 	this._driver = driver;
@@ -56,21 +76,6 @@ function CameraAPI(driver) {
 }
 
 bulbList = [];
-
-for(var i = 0; i < DRIVERS.length; i++) {
-	DRIVERS[i].on('settings', function(camera) {
-		console.log("SETTINGS event: checking index...");
-		for(var j = 0; j < api.cameras.length; j++) {
-			if(api.cameras[j].camera._port == camera._port) {
-				console.log("SETTINGS event: camera index is", j);
-				if(api.cameras[j].primary) {
-					api.emit('settings', camera.exposure);
-				}
-				break;
-			}
-		}
-	});
-}
 
 var start = 1000000 / 64; // 1/60
 var ev = 0;
@@ -385,27 +390,47 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
 	//console.log("API:", param, "base list", list);
+	var distinctEv = function(value, index) {
+		return
+	}
+
 	return list.map(function(item) {
 		return item.ev;
-	}).filter(function(ev) {
+	}).filter(function(ev, index, self) {
 		if(ev == null) return false;
 		if(minEv != null && ev < minEv) return false;
 		if(maxEv != null && ev > maxEv) return false;
-		return true;
+		return self.indexOf(ev) === index; // ensure unique
 	}).sort(function(a, b){return a-b});
+}
+
+function evIndexOf(ev, evList) {
+	var i = evList.indexOf(ev);
+	if(i != -1) return i;
+	for(i = 0; i < evList.length; i++) {
+		if(ev <= evList[i]) {
+			if(i == 0) return i;
+			if(Math.abs(ev - evList[i]) > Math.abs(ev - evList[i - 1])) {
+				return i - 1;
+			} else {
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 function incEv(ev, evList) {
 	//console.log("incEv: index", i, "ev", ev, "list", evList);
 	if(!evList) return null;
-	var i = evList.indexOf(ev);
+	var i = evIndexOf(ev, evList);
 	if(i != -1 && i < evList.length - 1 && evList[i + 1] != null) return evList[i + 1];
 	return ev;
 }
 
 function decEv(ev, evList) {
 	if(!evList) return null;
-	var i = evList.indexOf(ev);
+	var i = evIndexOf(ev, evList);
 	if(i > 0 && evList[i - 1] != null) return evList[i - 1];
 	return ev;
 }
