@@ -259,7 +259,7 @@ var properties = {
         filter: {
             by: 'type',
             fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
-        }
+        },
         ev: false,
         values: [
             { name: "RAW",               value: 'raw',      code: 4 , type: 0 },
