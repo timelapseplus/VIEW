@@ -45,17 +45,41 @@ function exposureEvent(camera) {
 }
 
 driver.supportedCameras = {
-    '04b0:042c': {
-            name: "Nikon D3200",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
+    '04b0:0420': { name: "Nikon D3x",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0421': { name: "Nikon D90",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0422': { name: "Nikon D700",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0423': { name: "Nikon D5000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0424': { name: "Nikon D3000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0425': { name: "Nikon D300s", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0426': { name: "Nikon D3s",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0427': { name: "Nikon D3100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0428': { name: "Nikon D7000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0429': { name: "Nikon D5100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:042a': { name: "Nikon D800",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:042b': { name: "Nikon D4",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:042c': { name: "Nikon D3200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:042d': { name: "Nikon D600",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:042e': { name: "Nikon D800E", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:042f': { name: "Nikon D5200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0430': { name: "Nikon D7100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0431': { name: "Nikon D5300", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0432': { name: "Nikon DF",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0433': { name: "Nikon D3300", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0434': { name: "Nikon D610",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0435': { name: "Nikon D4s",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0436': { name: "Nikon D810",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:0437': { name: "Nikon D750",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0438': { name: "Nikon D5500", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0439': { name: "Nikon D7200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:043a': { name: "Nikon D5",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043b': { name: "Nikon D810a", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043c': { name: "Nikon D500",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043d': { name: "Nikon D3400", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:043f': { name: "Nikon D5600", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:0440': { name: "Nikon D7500", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:0441': { name: "Nikon D850",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:0442': { name: "Nikon Z 7",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0443': { name: "Nikon Z 6",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
