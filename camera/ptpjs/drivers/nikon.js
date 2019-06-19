@@ -93,6 +93,7 @@ var properties = {
         ev: true,
         values: [
             { name: "bulb",    ev: null,        code:  4294967295 },
+            { name: "---",     ev: null,        code:  4294967293 },
             { name: "30s",     ev: -11,         code:  300000 },
             { name: "25s",     ev: -10 - 2 / 3, code:  250000 },
             { name: "20s",     ev: -10 - 1 / 3, code:  200000 },
@@ -145,6 +146,7 @@ var properties = {
             { name: "1/2500",  ev: 5 + 1 / 3,   code:  4 },
             { name: "1/3200",  ev: 5 + 2 / 3,   code:  3 },
             { name: "1/4000",  ev: 6,           code:  2 },
+            { name: "1/8000",  ev: 7,           code:  1 },
         ]
     },
     'aperture': {
@@ -167,11 +169,13 @@ var properties = {
             { name: "2.5",      ev: -5 - 1 / 3,  code: 250  },
             { name: "2.8",      ev: -5,          code: 280  },
             { name: "3.2",      ev: -4 - 2 / 3,  code: 320  },
+            { name: "3.5",      ev: -4 - 1 / 3,  code: 350  },
             { name: "3.6",      ev: -4 - 1 / 3,  code: 360  },
             { name: "4.0",      ev: -4,          code: 400  },
             { name: "4.5",      ev: -3 - 2 / 3,  code: 450  },
             { name: "5.0",      ev: -3 - 1 / 3,  code: 500  },
             { name: "5.6",      ev: -3,          code: 560  },
+            { name: "6.3",      ev: -2 - 2 / 3,  code: 630  },
             { name: "6.3",      ev: -2 - 2 / 3,  code: 640  },
             { name: "7.1",      ev: -2 - 1 / 3,  code: 710  },
             { name: "8",        ev: -2,          code: 800  },
@@ -204,6 +208,8 @@ var properties = {
         code: 0x500F,
         ev: true,
         values: [
+            { name: "32",       ev:  1 + 2 / 3,  code: 32 },
+            { name: "40",       ev:  1 + 1 / 3,  code: 40 },
             { name: "50",       ev:  1,          code: 50 },
             { name: "64",       ev:  0 + 2 / 3,  code: 64 },
             { name: "80",       ev:  0 + 1 / 3,  code: 80 },
@@ -246,17 +252,36 @@ var properties = {
     'format': {
         name: 'format',
         category: 'config',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
         listFunction: ptp.listProp,
         code: 0x5004,
+        filter: {
+            by: 'type',
+            fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
+        }
         ev: false,
         values: [
-            { name: "RAW",               value: 'raw',      code: 4  },
-            { name: "JPEG Normal",       value: null,       code: 1  },
-            { name: "JPEG Fine",         value: null,       code: 2  },
-            { name: "JPEG Basic",         value: null,      code: 0  },
-            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7  },
+            { name: "RAW",               value: 'raw',      code: 4 , type: 0 },
+            { name: "JPEG Normal",       value: null,       code: 1 , type: 0 },
+            { name: "JPEG Fine",         value: null,       code: 2 , type: 0 },
+            { name: "JPEG Basic",        value: null,       code: 0 , type: 0 },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7 , type: 0 },
+
+            { name: "JPEG Basic",        value: null,       code: 0 , type: 1 },
+            { name: "JPEG Basic*",       value: null,       code: 1 , type: 1 },
+            { name: "JPEG Normal",       value: null,       code: 2 , type: 1 },
+            { name: "JPEG Normal*",      value: null,       code: 3 , type: 1 },
+            { name: "JPEG Fine",         value: null,       code: 4 , type: 1 },
+            { name: "JPEG Fine*",        value: null,       code: 5 , type: 1 },
+            { name: "TIFF",              value: null,       code: 6 , type: 1 },
+            { name: "RAW",               value: 'raw',      code: 7 , type: 1 },
+            { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8 , type: 1 },
+            { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9 , type: 1 },
+            { name: "RAW + JPEG Norm",   value: 'raw+jpeg', code: 10, type: 1 },
+            { name: "RAW + JPEG Norm*",  value: 'raw+jpeg', code: 11, type: 1 },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 12, type: 1 },
+            { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13, type: 1 },
         ]
     },
     'destination': {
@@ -327,8 +352,15 @@ driver.refresh = function(camera, callback) {
                             if(err) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
+                                var propertyListValues = properties[key].values;
+                                if(properties[key].filter) {
+                                    var val = properties[key].filter.fn(list);
+                                    propertyListValues = propertyListValues.filter(function(item) {
+                                        return item[properties[key].filter.by] == val;
+                                    });
+                                }
                                 _logD(key, "type is", type);
-                                var currentMapped = mapPropertyItem(current, properties[key].values);
+                                var currentMapped = mapPropertyItem(current, propertyListValues);
                                 if(!currentMapped) {
                                     _logE(key, "item not found:", current);
                                     currentMapped = {
@@ -342,7 +374,7 @@ driver.refresh = function(camera, callback) {
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
                                 var mappedList = [];
                                 for(var i = 0; i < list.length; i++) {
-                                    var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                                    var mappedItem = mapPropertyItem(list[i], propertyListValues);
                                     if(!mappedItem) {
                                         _logE(key, "list item not found:", list[i]);
                                     } else {
