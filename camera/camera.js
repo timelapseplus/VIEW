@@ -86,32 +86,43 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             if(camera.ptp.new.available) {
                 return function(captureOptions, callback) {
                     var options = {
-                        destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
+                        destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'VIEW' : 'camera',
+                    }
+                    if(captureOptions && captureOptions.mode == 'test') {
+                        options.destination = "VIEW";
                     }
                     return camera.ptp.new.capture(options, function(err, thumb, image, filename) {
-                        if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
-                            var file = captureOptions.saveRaw + filename.slice(-4);
-                            var cameraIndex = 1;
-                            fs.writeFile(file, image, function(err) {
-                                var photoRes = {
-                                    file: filename,
-                                    cameraCount: 1,
-                                    cameraResults: [],
-                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
-                                    ev: null
-                                }
-                                if(captureOptions.calculateEv) {
-                                    image.exposureValue(thumb, function(err, ev, histogram) {
-                                        photoRes.ev = ev;
-                                        photoRes.histogram = histogram;
-                                        callback && callback(photoRes);
-                                    });
-                                } else {
-                                    callback && callback(photoRes);
-                                }
-
+                        if(captureOptions && captureOptions.mode == "test") {
+                            image.exposureValue(thumb, function(err, ev, histogram) {
+                                photoRes.ev = ev;
+                                photoRes.histogram = histogram;
+                                callback && callback(photoRes);
                             });
-                            saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                        } else {
+                            if(options.destination == 'sd' && captureOptions.saveRaw && image && filename) {
+                                var file = captureOptions.saveRaw + filename.slice(-4);
+                                var cameraIndex = 1;
+                                fs.writeFile(file, image, function(err) {
+                                    var photoRes = {
+                                        file: filename,
+                                        cameraCount: 1,
+                                        cameraResults: [],
+                                        thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                        ev: null
+                                    }
+                                    if(captureOptions.calculateEv) {
+                                        image.exposureValue(thumb, function(err, ev, histogram) {
+                                            photoRes.ev = ev;
+                                            photoRes.histogram = histogram;
+                                            callback && callback(photoRes);
+                                        });
+                                    } else {
+                                        callback && callback(photoRes);
+                                    }
+
+                                });
+                                saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                            }
                         }
                     });
                 }

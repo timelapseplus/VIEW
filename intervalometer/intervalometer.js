@@ -67,80 +67,94 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     var options = {
                         destination: (intervalometer.currentProgram.destination == 'sd' && camera.ptp.sdPresent && camera.ptp.sdMounted) ? 'sd' : 'camera',
                     }
+                    if(captureOptions && captureOptions.mode == 'test') {
+                        options.destination = "VIEW";
+                    }
                     logEvent("initiating capture...");
                     return camera.ptp.new.capture(options.destination, {}, function(err, thumb, filename, raw) {
                         if(err) {
                             logErr("capture failed:", err);
                             return callback && callback(err);
                         }
-                        logEvent("capture complete, downsizing image...");
-                        setTimeout(function() {
-                            saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
-                        }, 10);
-                        var completeCapture = function() {
-                            var size = {
-                                x: 120,
-                                q: 80
-                            }
-                            image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
-                                var img;
-                                if (!err && lowResJpg) {
-                                    img = lowResJpg;
-                                } else {
-                                    img = thumb;
-                                }
-                                intervalometer.lastImage = img;
-                                intervalometer.emit("photo");
-                                var photoRes = {
-                                    file: filename,
-                                    cameraCount: 1,
-                                    cameraResults: [],
-                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
-                                    ev: null
-                                }
-                                if(captureOptions.calculateEv) {
-                                    logEvent("capture complete, analyzing image...");
-                                    image.exposureValue(img, function(err, ev, histogram) {
-                                        photoRes.ev = ev;
-                                        photoRes.histogram = histogram;
-                                        logEvent("...processing complete, image ev", ev);
-                                        intervalometer.emit("histogram", histogram);
-                                        callback && callback(err, photoRes);
-                                    });
-                                } else {
-                                    logEvent("...processing complete.");
-                                    callback && callback(err, photoRes);
-                                }
+                        if(captureOptions && captureOptions.mode == "test") {
+                            logEvent("capture complete, analyzing image...");
+                            image.exposureValue(img, function(err, ev, histogram) {
+                                photoRes.ev = ev;
+                                photoRes.histogram = histogram;
+                                logEvent("...processing complete, image ev", ev);
+                                intervalometer.emit("histogram", histogram);
+                                callback && callback(err, photoRes);
                             });
-                        }
-                        if(options.destination == 'sd' && captureOptions.saveRaw) {
-                            if(raw && filename) {
-                                var file = captureOptions.saveRaw + filename.slice(-4);
-                                var cameraIndex = 1;
-                                var writeSD = function() {
-                                    if(intervalometer.status.writing) return setTimeout(writeSD, 100);
-                                    if(!intervalometer.status.running) return;
-                                    intervalometer.status.writing = true;
-                                    logEvent("Writing", raw ? raw.length : -1, "bytes to SD card...");                                
-                                    fs.writeFile(file, raw, function(err) {
-                                        raw = null;
-                                        intervalometer.status.writing = false;
-                                        if(err) {
-                                            logErr("Error writing to SD:", err);
-                                            intervalometer.cancel('err');
-                                            error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.\nSystem message: " + err);
-                                        } else {
-                                            logEvent("...write completed.");
-                                        }
-                                    });
-                                    completeCapture();
-                                }
-                                writeSD();
-                            } else {
-                                logErr("Unable to write to SD card!", filename, raw && raw.length);
-                            }
                         } else {
-                            completeCapture();
+                            logEvent("capture complete, downsizing image...");
+                            setTimeout(function() {
+                                saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                            }, 10);
+                            var completeCapture = function() {
+                                var size = {
+                                    x: 120,
+                                    q: 80
+                                }
+                                image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
+                                    var img;
+                                    if (!err && lowResJpg) {
+                                        img = lowResJpg;
+                                    } else {
+                                        img = thumb;
+                                    }
+                                    intervalometer.lastImage = img;
+                                    intervalometer.emit("photo");
+                                    var photoRes = {
+                                        file: filename,
+                                        cameraCount: 1,
+                                        cameraResults: [],
+                                        thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                        ev: null
+                                    }
+                                    if(captureOptions.calculateEv) {
+                                        logEvent("capture complete, analyzing image...");
+                                        image.exposureValue(img, function(err, ev, histogram) {
+                                            photoRes.ev = ev;
+                                            photoRes.histogram = histogram;
+                                            logEvent("...processing complete, image ev", ev);
+                                            intervalometer.emit("histogram", histogram);
+                                            callback && callback(err, photoRes);
+                                        });
+                                    } else {
+                                        logEvent("...processing complete.");
+                                        callback && callback(err, photoRes);
+                                    }
+                                });
+                            }
+                            if(options.destination == 'sd' && captureOptions.saveRaw) {
+                                if(raw && filename) {
+                                    var file = captureOptions.saveRaw + filename.slice(-4);
+                                    var cameraIndex = 1;
+                                    var writeSD = function() {
+                                        if(intervalometer.status.writing) return setTimeout(writeSD, 100);
+                                        if(!intervalometer.status.running) return;
+                                        intervalometer.status.writing = true;
+                                        logEvent("Writing", raw ? raw.length : -1, "bytes to SD card...");                                
+                                        fs.writeFile(file, raw, function(err) {
+                                            raw = null;
+                                            intervalometer.status.writing = false;
+                                            if(err) {
+                                                logErr("Error writing to SD:", err);
+                                                intervalometer.cancel('err');
+                                                error("Failed to save RAW image to SD card!\nTime-lapse has been stopped.\nPlease verify that the camera is set to RAW (not RAW+JPEG) and that the SD card is formatted and fully inserted into the VIEW.\nSystem message: " + err);
+                                            } else {
+                                                logEvent("...write completed.");
+                                            }
+                                        });
+                                        completeCapture();
+                                    }
+                                    writeSD();
+                                } else {
+                                    logErr("Unable to write to SD card!", filename, raw && raw.length);
+                                }
+                            } else {
+                                completeCapture();
+                            }
                         }
                     });
                 }
