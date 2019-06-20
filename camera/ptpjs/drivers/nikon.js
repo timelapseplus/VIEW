@@ -312,8 +312,8 @@ var properties = {
         name: 'battery',
         category: 'status',
         setFunction: null,
-        getFunction: ptp.getProp16,
-        listFunction: ptp.listProp,
+        getFunction: ptp.getProp8,
+        listFunction: null,
         code: 0x5001,
         ev: false,
     }
@@ -403,6 +403,11 @@ driver.refresh = function(camera, callback) {
                                 }
                                 camera[properties[key].category][key].list = mappedList;
                             }
+                            fetchNextProperty();
+                        });
+                    } else if(properties[key].getFunction) {
+                        driver.get(camera, key, function(){
+                            fetchNextProperty();
                         });
                     } else {
                         if(properties[key].default != null) {
@@ -420,8 +425,8 @@ driver.refresh = function(camera, callback) {
                                 camera[properties[key].category][key] = properties[key].default;
                             }
                         }
+                        fetchNextProperty();
                     }
-                    fetchNextProperty();
                 } else {
                     //console.log(camera.exposure);
                     cb();
