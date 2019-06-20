@@ -297,7 +297,7 @@ var properties = {
             { name: "camera",            code: 0  },
             { name: "VIEW",              code: 1  },
         ]
-    }
+    },
     'focusPos': {
         name: 'focusPos',
         category: 'status',
@@ -307,7 +307,7 @@ var properties = {
         code: null,
         ev: false,
         default: 0,
-    }
+    },
     'battery': {
         name: 'battery',
         category: 'status',
