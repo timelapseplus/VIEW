@@ -576,7 +576,7 @@ driver.get = function(camera, param, callback) {
                                 }
                             }
                         } else {
-                            camera[properties[key].category][key] = data;                   
+                            camera[properties[param].category][param] = data;                   
                         }
                         return cb(err);
                     } else {
