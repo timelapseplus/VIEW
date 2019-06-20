@@ -406,7 +406,8 @@ driver.refresh = function(camera, callback) {
                             fetchNextProperty();
                         });
                     } else if(properties[key].getFunction) {
-                        driver.get(camera, key, function(){
+                        driver.get(camera, key, function(err, val){
+                            _logD(key, "=", val);
                             fetchNextProperty();
                         });
                     } else {
