@@ -312,7 +312,7 @@ var properties = {
         name: 'battery',
         category: 'status',
         setFunction: null,
-        getFunction: ptp.getProp8,
+        getFunction: ptp.getPropU8,
         listFunction: null,
         code: 0x5001,
         ev: false,
