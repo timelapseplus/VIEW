@@ -406,14 +406,19 @@ driver.refresh = function(camera, callback) {
                         });
                     } else {
                         if(properties[key].default != null) {
-                            if(!camera[properties[key].category][key])
-                            var currentMapped = mapPropertyItem(properties[key].default, properties[key].values);
-                            camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
-                            var mappedList = [];
-                            for(var i = 0; i < properties[key].values.length; i++) {
-                                mappedList.push(properties[key].values[i]);
+                            if(properties[key].values) {
+                                if(!camera[properties[key].category][key]) {
+                                    var currentMapped = mapPropertyItem(properties[key].default, properties[key].values);
+                                    camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
+                                    var mappedList = [];
+                                    for(var i = 0; i < properties[key].values.length; i++) {
+                                        mappedList.push(properties[key].values[i]);
+                                    }
+                                    camera[properties[key].category][key].list = mappedList;
+                                }
+                            } else {
+                                camera[properties[key].category][key] = properties[key].default;
                             }
-                            camera[properties[key].category][key].list = mappedList;
                         }
                     }
                     fetchNextProperty();
@@ -531,10 +536,7 @@ driver.set = function(camera, param, value, callback) {
                         if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                     }
                 } else {
-                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = {
-                        name: cameraValue.toString(),
-                        value: cameraValue
-                    };
+                    camera[properties[param].category][param][k] = cameraValue;
                 }
                 cb();
                 exposureEvent(camera);
@@ -567,10 +569,7 @@ driver.get = function(camera, param, callback) {
                                 }
                             }
                         } else {
-                            camera[properties[key].category][key] = {
-                                name: data.toString(),
-                                value: data
-                            }                      
+                            camera[properties[key].category][key] = data;                   
                         }
                         return cb(err);
                     } else {
@@ -578,7 +577,11 @@ driver.get = function(camera, param, callback) {
                     }
                 });
             } else {
-                return cb("unknown param");
+                if(properties[param] && properties[param].default) {
+                    return cb();
+                } else {
+                    return cb("unknown param");
+                }
             }
         },
     ], function(err) {
