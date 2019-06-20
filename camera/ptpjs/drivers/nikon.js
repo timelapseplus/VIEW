@@ -481,6 +481,7 @@ driver.init = function(camera, callback) {
 }
 
 function mapPropertyItem(cameraValue, list) {
+    if(list == null) return cameraValue;
     for(var i = 0; i < list.length; i++) {
         if(cameraValue == list[i].code) return list[i];
     }
