@@ -45,41 +45,41 @@ function exposureEvent(camera) {
 }
 
 driver.supportedCameras = {
-    '04b0:0420': { name: "Nikon D3x",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0421': { name: "Nikon D90",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0422': { name: "Nikon D700",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0423': { name: "Nikon D5000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0424': { name: "Nikon D3000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0425': { name: "Nikon D300s", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0426': { name: "Nikon D3s",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0427': { name: "Nikon D3100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0428': { name: "Nikon D7000", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0429': { name: "Nikon D5100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:042a': { name: "Nikon D800",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:042b': { name: "Nikon D4",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:042c': { name: "Nikon D3200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:042d': { name: "Nikon D600",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:042e': { name: "Nikon D800E", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:042f': { name: "Nikon D5200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0430': { name: "Nikon D7100", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0431': { name: "Nikon D5300", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0432': { name: "Nikon DF",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0433': { name: "Nikon D3300", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0434': { name: "Nikon D610",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0435': { name: "Nikon D4s",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04b0:0436': { name: "Nikon D810",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:0437': { name: "Nikon D750",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0438': { name: "Nikon D5500", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:0439': { name: "Nikon D7200", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
-    '04b0:043a': { name: "Nikon D5",    supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:043b': { name: "Nikon D810a", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:043c': { name: "Nikon D500",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:043d': { name: "Nikon D3400", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
-    '04b0:043f': { name: "Nikon D5600", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
-    '04b0:0440': { name: "Nikon D7500", supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
-    '04b0:0441': { name: "Nikon D850",  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
-    '04b0:0442': { name: "Nikon Z 7",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '04b0:0443': { name: "Nikon Z 6",   supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0420': { name: "Nikon D3x",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0421': { name: "Nikon D90",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0422': { name: "Nikon D700",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0423': { name: "Nikon D5000", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0424': { name: "Nikon D3000", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0425': { name: "Nikon D300s", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0426': { name: "Nikon D3s",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0427': { name: "Nikon D3100", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0428': { name: "Nikon D7000", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0429': { name: "Nikon D5100", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:042a': { name: "Nikon D800",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:042b': { name: "Nikon D4",    status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:042c': { name: "Nikon D3200", status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:042d': { name: "Nikon D600",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:042e': { name: "Nikon D800E", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:042f': { name: "Nikon D5200", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0430': { name: "Nikon D7100", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0431': { name: "Nikon D5300", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0432': { name: "Nikon DF",    status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0433': { name: "Nikon D3300", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0434': { name: "Nikon D610",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0435': { name: "Nikon D4s",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04b0:0436': { name: "Nikon D810",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:0437': { name: "Nikon D750",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0438': { name: "Nikon D5500", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:0439': { name: "Nikon D7200", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: '8-pin USB' },
+    '04b0:043a': { name: "Nikon D5",    status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043b': { name: "Nikon D810a", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043c': { name: "Nikon D500",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:043d': { name: "Nikon D3400", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:043f': { name: "Nikon D5600", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:0440': { name: "Nikon D7500", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
+    '04b0:0441': { name: "Nikon D850",  status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
+    '04b0:0442': { name: "Nikon Z 7",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0443': { name: "Nikon Z 6",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
@@ -263,18 +263,18 @@ var properties = {
         ev: false,
         values: [
             { name: "RAW",               value: 'raw',      code: 4 , type: 0 },
-            { name: "JPEG Normal",       value: null,       code: 1 , type: 0 },
-            { name: "JPEG Fine",         value: null,       code: 2 , type: 0 },
-            { name: "JPEG Basic",        value: null,       code: 0 , type: 0 },
+            { name: "JPEG Normal",       value: 'jpeg',     code: 1 , type: 0 },
+            { name: "JPEG Fine",         value: 'jpeg',     code: 2 , type: 0 },
+            { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 0 },
             { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7 , type: 0 },
 
-            { name: "JPEG Basic",        value: null,       code: 0 , type: 1 },
-            { name: "JPEG Basic*",       value: null,       code: 1 , type: 1 },
-            { name: "JPEG Normal",       value: null,       code: 2 , type: 1 },
-            { name: "JPEG Normal*",      value: null,       code: 3 , type: 1 },
-            { name: "JPEG Fine",         value: null,       code: 4 , type: 1 },
-            { name: "JPEG Fine*",        value: null,       code: 5 , type: 1 },
-            { name: "TIFF",              value: null,       code: 6 , type: 1 },
+            { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 1 },
+            { name: "JPEG Basic*",       value: 'jpeg',     code: 1 , type: 1 },
+            { name: "JPEG Normal",       value: 'jpeg',     code: 2 , type: 1 },
+            { name: "JPEG Normal*",      value: 'jpeg',     code: 3 , type: 1 },
+            { name: "JPEG Fine",         value: 'jpeg',     code: 4 , type: 1 },
+            { name: "JPEG Fine*",        value: 'jpeg',     code: 5 , type: 1 },
+            { name: "TIFF",              value: 'tiff',     code: 6 , type: 1 },
             { name: "RAW",               value: 'raw',      code: 7 , type: 1 },
             { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8 , type: 1 },
             { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9 , type: 1 },
@@ -297,6 +297,25 @@ var properties = {
             { name: "camera",            code: 0  },
             { name: "VIEW",              code: 1  },
         ]
+    }
+    'focusPos': {
+        name: 'focusPos',
+        category: 'status',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        code: null,
+        ev: false,
+        default: 0,
+    }
+    'battery': {
+        name: 'battery',
+        category: 'status',
+        setFunction: null,
+        getFunction: ptp.getProp16,
+        listFunction: ptp.listProp,
+        code: 0x5001,
+        ev: false,
     }
 }
 
@@ -328,6 +347,7 @@ driver._event = function(camera, data) { // events received
                     }
                 }, 500);
             }
+            _logD("property changed:", ptp.hex(param1));
             check();
         } else {
             _logD("EVENT:", data);
@@ -465,8 +485,8 @@ function mapPropertyItem(cameraValue, list) {
 driver.set = function(camera, param, value, callback) {
     async.series([
         function(cb){
-            if(properties[param] && properties[param].setFunction) {
-                var cameraValue = null;
+            var cameraValue = null;
+            if(properties[param].values) {
                 if(properties[param].ev && typeof value == "number") {
                     for(var i = 0; i < properties[param].values.length; i++) {
                         if(properties[param].values[i].ev == value) {
@@ -482,6 +502,10 @@ driver.set = function(camera, param, value, callback) {
                         }
                     }
                 }
+            } else {
+                cameraValue = value;            
+            }
+            if(properties[param] && properties[param].setFunction) {
                 if(cameraValue !== null) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
@@ -501,9 +525,16 @@ driver.set = function(camera, param, value, callback) {
                     return cb("unknown value");
                 }
             } else if(properties[param] && properties[param].default != null) {
-                var newItem =  mapPropertyItem(cameraValue, properties[param].values);
-                for(var k in newItem) {
-                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                if(properties[param].values) {
+                    var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                    for(var k in newItem) {
+                        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                    }
+                } else {
+                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = {
+                        name: cameraValue.toString(),
+                        value: cameraValue
+                    };
                 }
                 cb();
                 exposureEvent(camera);
@@ -523,16 +554,23 @@ driver.get = function(camera, param, callback) {
             if(properties[param] && properties[param].getFunction) {
                 properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
                     if(!err) {
-                        var newItem =  mapPropertyItem(data, properties[param].values);
-                        if(newItem) {
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                        if(properties[param].values) {
+                            var newItem =  mapPropertyItem(data, properties[param].values);
+                            if(newItem) {
+                                for(var k in newItem) {
+                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                }
+                            } else {
+                                var list = camera[properties[param].category][param].list;
+                                camera[properties[param].category][param] = {
+                                    list: list
+                                }
                             }
                         } else {
-                            var list = camera[properties[param].category][param].list;
-                            camera[properties[param].category][param] = {
-                                list: list
-                            }
+                            camera[properties[key].category][key] = {
+                                name: data.toString(),
+                                value: data
+                            }                      
                         }
                         return cb(err);
                     } else {
@@ -658,6 +696,12 @@ driver.capture = function(camera, target, options, callback, tries) {
         if(err == 0x2019 && tries < 3) {
             return driver.capture(camera, target, options, callback, tries + 1);
         }
+        if(err == ptp.PTP_RC_StoreFull || ptp.PTP_RC_StoreNotAvailable) {
+            err = "camera card full or unavailable";
+        } 
+        if(err == ptp.PTP_RC_StoreReadOnly) {
+            err = "camera card is read-only";
+        } 
         callback && callback(err, results.thumb, results.filename, results.rawImage);
     });
 }
@@ -725,6 +769,20 @@ driver.liveviewImage = function(camera, callback, _tries) {
 }
 
 driver.moveFocus = function(camera, steps, resolution, callback) {
+    var dir = 2;
+    if(steps < 0) {
+        dir = 1;
+        steps = 0 - steps;
+    }
+    if(!steps) return callback && callback(null, camera.status.focusPos);
+    if(!resolution) resolution = 1;
+    steps *= resolution;
+
+    ptp.transaction(camera._dev, 0x9204, [dir, steps], null, function(err, responseCode, data) {
+        if(err) return callback && callback(err);
+        camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
+        callback && callback(null, camera.status.focusPos);
+    });
 
 }
 
