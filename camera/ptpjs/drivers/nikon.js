@@ -592,7 +592,7 @@ driver.get = function(camera, param, callback) {
             }
         },
     ], function(err) {
-        return callback && callback(err, camera[properties[key].category][key]);
+        return callback && callback(err, camera[properties[param].category][param]);
     });
 }
 
