@@ -316,7 +316,110 @@ var properties = {
         listFunction: null,
         code: 0x5001,
         ev: false,
-    }
+    },
+    'bracketing': {
+        name: 'bracketing',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD0C0,
+        ev: false,
+        values: [
+            { name: "disabled",  value: 0, code: 0 },
+            { name: "enabled",   value: 1, code: 1 },
+        ]
+    },
+    'bracketingStops': {
+        name: 'bracketingStops',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD0C1,
+        ev: false,
+        values: [
+            { name: "1/3 stop",  value: 1/3, code: 0 },
+            { name: "2/3 stop",  value: 2/3, code: 1 },
+            { name: "1 stop",    value: 1,   code: 2 },
+            { name: "2 stop",    value: 2,   code: 3 },
+            { name: "3 stop",    value: 3,   code: 4 },
+        ]
+    },
+    'bracketingProgram': {
+        name: 'bracketingProgram',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD0C2,
+        ev: false,
+        values: [
+            { name: "2, minus side",  value: 2,    code: 0 },
+            { name: "2, plus side",   value: null, code: 1 },
+            { name: "3, minus side",  value: -3,   code: 2 },
+            { name: "3, plus side",   value: null, code: 3 },
+            { name: "3, both sides",  value: 3,    code: 4 },
+            { name: "5, both sides",  value: 5,    code: 5 },
+            { name: "7, both sides",  value: 7,    code: 6 },
+            { name: "9, both sides",  value: 9,    code: 7 },
+        ]
+    },
+    'bracketingCount': {
+        name: 'bracketingCount',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD0C3,
+        ev: false,
+        values: [
+            { name: "UNKNOWN",  value: 0, code: 0 },
+        ]
+    },
+    'bracketingOrder': {
+        name: 'bracketingOrder',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD07A,
+        ev: false,
+        values: [
+            { name: "Center first",  value: 'center', code: 0 },
+            { name: "Under first",   value: 'under',  code: 1 },
+        ]
+    },
+    'bracketingParams': {
+        name: 'bracketingParams',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD079,
+        ev: false,
+        values: [
+            { name: "Shutter",            value: 's',   code: 0 },
+            { name: "Shutter/Aperture",   value: 's+a', code: 1 },
+            { name: "Aperture",           value: 'a',   code: 2 },
+            { name: "Flash only",         value: 'f',   code: 3 },
+        ]
+    },
+    'bracketingMode': {
+        name: 'bracketingMode',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0xD078,
+        ev: false,
+        values: [
+            { name: "AE & Flash",         value: 'flash',   code: 0 },
+            { name: "AE only",            value: 'default', code: 1 },
+            { name: "Flash only",         value: null,      code: 2 },
+            { name: "ADL Bracketing",     value: null,      code: 3 },
+        ]
+    },
 }
 
 driver._error = function(camera, error) { // events received
@@ -716,6 +819,11 @@ driver.capture = function(camera, target, options, callback, tries) {
     });
 }
 
+/*
+    enableBracketing = 0xD0C0 (8-bit, 1=enabled, 0=disabled)
+    
+
+*/
 driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback) {
 
 }
