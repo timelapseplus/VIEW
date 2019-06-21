@@ -480,7 +480,7 @@ driver.refresh = function(camera, callback) {
                     if(!camera[properties[key].category]) camera[properties[key].category] = {};
                     if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                     if(properties[key].listFunction) {
-                        properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
+                        properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type, listType) {
                             if(err) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
@@ -491,7 +491,7 @@ driver.refresh = function(camera, callback) {
                                         return item[properties[key].filter.by] == val;
                                     });
                                 }
-                                _logD(key, "type is", type);
+                                _logD(key, "type is", type, "listType", listType);
                                 var currentMapped = mapPropertyItem(current, propertyListValues);
                                 if(!currentMapped) {
                                     _logE(key, "item not found:", current);

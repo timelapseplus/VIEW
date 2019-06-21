@@ -347,7 +347,7 @@ exports.listProp = function(cam, prop, callback) {
 					}
 				}
 			}
-			callback && callback(error, current, list, typeInfo.name);
+			callback && callback(error, current, list, typeInfo.name, type);
 		} else {
 			callback && callback(error, null);
 		}
