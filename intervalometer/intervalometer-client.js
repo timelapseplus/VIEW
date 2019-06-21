@@ -58,9 +58,12 @@ var restartProgram = null;
 function checkRestart() {
     console.log("SERVER CRASHED: checking time-lapse if restart needed");
     if(core.intervalometerStatus.running && core.currentProgram.scheduled) {
+        console.log("SERVER CRASHED: resuming time-lapse");
         restartProgram = _.extendOwn({}, core.currentProgram);
         restartProgram._timeOffsetSeconds = core.intervalometerStatus.timeOffsetSeconds;
         restartProgram._exposureReferenceEv = core.intervalometerStatus.exposureReferenceEv;
+    } else {
+        core.intervalometerStatus.running = false;
     }
 }
 

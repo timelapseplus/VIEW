@@ -1615,9 +1615,10 @@ intervalometer.cancel = function(reason, callback) {
         callback = reason;
         reason = null;
     }
+    log("Cancelling time-lapse, reason =", reason);
     if(!reason) reason = 'stopped';
     if(intervalometer.internal.polarTrackIntervalHandle) {
-        log("Intervalometer: polar: stopping tracking motion");
+        log("polar: stopping tracking motion");
         clearInterval(intervalometer.internal.polarTrackIntervalHandle);
         intervalometer.internal.polarTrackIntervalHandle = null;
         motion.joystick(intervalometer.internal.polarMotorBacklash.driver, intervalometer.internal.polarMotorBacklash.motor, 0);
