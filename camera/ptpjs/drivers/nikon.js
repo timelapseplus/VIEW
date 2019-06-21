@@ -492,6 +492,7 @@ driver.refresh = function(camera, callback) {
                                     });
                                 }
                                 _logD(key, "type is", type, "listType", listType);
+                                if(listType == 1) _logD(key, "list", list);
                                 var currentMapped = mapPropertyItem(current, propertyListValues);
                                 if(!currentMapped) {
                                     _logE(key, "item not found:", current);
