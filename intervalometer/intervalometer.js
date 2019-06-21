@@ -31,6 +31,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             } else {
                 return camera.setEv;
             }
+        case 'camera.setExposure':
+            if(camera.ptp.new.available) {
+                return camera.ptp.new.setExposure;
+            } else {
+                return camera.setExposure;
+            }
         case 'camera.ptp.settings.format':
             if(camera.ptp.new.available) {
                 return camera.ptp.new.cameras[0].camera.config.format && camera.ptp.new.cameras[0].camera.config.format.value && camera.ptp.new.cameras[0].camera.config.format.value.toUpperCase();
@@ -987,7 +993,7 @@ function setupExposure(cb) {
         }
         dynamicChangeUpdate();
         if(intervalometer.status.rampMode == 'preset') {
-            camera.setExposure(intervalometer.status.shutterPreset + diff, intervalometer.status.aperturePreset, intervalometer.status.isoPreset, function(err, ev) {
+            remap('camera.setExposure')(intervalometer.status.shutterPreset + diff, intervalometer.status.aperturePreset, intervalometer.status.isoPreset, function(err, ev) {
                 if(ev != null) {
                     intervalometer.status.cameraEv = ev;
                 } 
@@ -1005,7 +1011,7 @@ function setupExposure(cb) {
                 options.doNotSet = true;
                 remap('camera.setEv')(intervalometer.status.rampEv + intervalometer.status.hdrMax, options, function(err, res) {
                     if(intervalometer.status.stopping) return cb && cb();
-                    camera.setExposure(res.shutter.ev + diff - intervalometer.status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
+                    remap('camera.setExposure')(res.shutter.ev + diff - intervalometer.status.hdrMax, res.aperture.ev, res.iso.ev, function(err, ev) {
                         if(ev != null) {
                             intervalometer.status.cameraEv = ev;
                         } 

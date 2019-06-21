@@ -11,6 +11,7 @@ var EventEmitter = require('events').EventEmitter;
 var usb = require('usb');
 var fs = require('fs');
 var path = require('path');
+var async = require('async');
 var test = require('./test');
 
 var api = new EventEmitter();
@@ -336,6 +337,29 @@ api.set = function(parameter, value, callback) {
 		} else {
 			api.cameras[i].camera.set(parameter, value);
 		}
+	}
+}
+
+api.setExposure = function(shutterEv, apertureEv, isoEv, callback) {
+	var set = function(index) {
+	    async.series([
+	        function(cb) {
+				if(api.cameras[index].camera.exposure.shutter.ev != shutterEv) api.cameras[index].camera.set('shutter', shutterEv, cb); else cb();
+	        },
+	        function(cb) {
+				if(api.cameras[index].camera.exposure.aperture && api.cameras[index].camera.exposure.aperture.ev != null && api.cameras[index].camera.exposure.aperture.ev != apertureEv) api.cameras[index].camera.set('aperture', apertureEv, cb); else cb();
+	        },
+	        function(cb) {
+				if(api.cameras[index].camera.exposure.iso.ev != isoEv) api.cameras[index].camera.set('iso', isoEv, cb); else cb();
+	        },
+	    ], function(err, res) {
+			if(api.cameras[index].primary) {
+		        callback && callback(err);
+			}
+	    });
+	}
+	for(var i = 0; i < api.cameras.length; i++) {
+		set(i);
 	}
 }
 
