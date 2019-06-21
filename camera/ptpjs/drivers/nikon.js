@@ -734,13 +734,24 @@ function getImage(camera, timeout, callback) {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
-        if(camera._objectsAdded.length == 0) {
-            return setTimeout(check, 50);
+        if(camera.thumbnail) { // saved to camera
+            if(camera._objectsAdded.length == 0) {
+                return setTimeout(check, 50);
+            }
         }
         checkReady(camera, function(err, ready) { // wait if busy
             //console.log("data:", data);
             if(!err && ready) {
                 var objectId = camera._objectsAdded.shift();
+                if(!camera.thumbnail && !objectId) { // saving to ram
+                    return ptp.transaction(camera._dev, 0x941C, [], null, function(err, responseCode, data) {
+                        if(!err && responseCode == 0x2001 && data && data.length >= 20) {
+                            camera._objectsAdded.push(data.readUInt32LE(16));
+                            return setTimeout(check);
+                        }
+                        return setTimeout(check, 50);
+                    });
+                }
                 ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
                     //console.log(oi);
                     if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
