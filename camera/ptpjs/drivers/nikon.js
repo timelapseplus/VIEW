@@ -895,7 +895,7 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
         if(err == 0x2019 && tries < 3) {
             return driver.captureHDR(camera, target, options, frames, stops, darkerOnly, callback, tries + 1);
         }
-        if(err == "not supported" || (err == "unsupported configuration") {
+        if(err == "not supported" || err == "unsupported configuration") {
             callback && callback(err); // fixme -- should manually run HDR
         } else if(err) {            
             callback && callback(err);
