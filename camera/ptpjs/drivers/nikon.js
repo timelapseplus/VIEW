@@ -620,7 +620,7 @@ driver.set = function(camera, param, value, callback) {
                     }
                 } else {
                     for(var i = 0; i < properties[param].values.length; i++) {
-                        if(properties[param].values[i].name == value) {
+                        if(properties[param].values[i].name == value || properties[param].values[i].value == value) {
                             cameraValue = properties[param].values[i].code;
                             break;
                         }
