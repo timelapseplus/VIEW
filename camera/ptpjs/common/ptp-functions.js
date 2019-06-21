@@ -338,7 +338,8 @@ exports.listProp = function(cam, prop, callback) {
 					index += typeInfo.size;
 				}
 				formType = data.readUInt8(index);
-				index += 3; // skip form type and length
+				index += 1; // skip form type
+				if(formType == 2) index += 2; // skip length for list type
 				for(;;) {
 					if(data.length >= index + typeInfo.size) {
 						list.push(data[typeInfo.readFunction](index));
