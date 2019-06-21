@@ -129,7 +129,6 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     file: filename,
                                     cameraCount: 1,
                                     cameraResults: [],
-                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
                                     ev: null
                                 }
                                 if(captureOptions.calculateEv) {
