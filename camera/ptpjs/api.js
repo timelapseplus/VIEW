@@ -165,6 +165,7 @@ CameraAPI.prototype.capture = function(target, options, callback) {
 		callback = options;
 		options = {};
 	}
+	console.log("running capture for camera", this);
 	return this._driver.capture(this, target, options, callback);
 }
 
@@ -349,6 +350,7 @@ api.capture = function(target, options, callback) {
 			if(options.hdrCount && options.hdrCount > 1) {
 				api.cameras[i].camera.captureHDR(target, options, options.hdrCount, options.hdrStops, false, callback);
 			} else {
+				console.log("running capture for index", i);
 				api.cameras[i].camera.capture(target, options, callback);
 			}
 		} else {
