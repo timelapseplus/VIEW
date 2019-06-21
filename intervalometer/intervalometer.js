@@ -1783,6 +1783,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                     intervalometer.status.hdrSet = [];
                     intervalometer.status.hdrIndex = 0;
+                    intervalometer.status.hdrCount = 0;
                     intervalometer.status.currentPlanIndex = null;
                     intervalometer.status.panDiffNew = 0;
                     intervalometer.status.tiltDiffNew = 0;
