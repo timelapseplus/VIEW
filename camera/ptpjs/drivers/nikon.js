@@ -745,11 +745,24 @@ function getImage(camera, timeout, callback) {
                 var objectId = camera._objectsAdded.shift();
                 if(!camera.thumbnail && !objectId) { // saving to ram
                     return ptp.transaction(camera._dev, 0x941C, [], null, function(err, responseCode, data) {
-                        if(!err && responseCode == 0x2001 && data && data.length >= 20) {
-                            var newObject = data.readUInt32LE(16);
-                            _logD("new object:", ptp.hex(newObject), "data:", data);
-                            camera._objectsAdded.push(newObject);
-                            return setTimeout(check);
+                        if(!err && responseCode == 0x2001 && data && data.length > 4) {
+                            var dataIndex = 0;
+                            var eventCount = data.readUInt32LE(dataIndex);
+                            dataIndex += 4;
+                            var eventCode = null;
+                            for(var i = 0; i < eventCount; i++) {
+                                eventCode = data.readUInt16LE(dataIndex);
+                                dataIndex += 2;
+                                eventParamsCount = data.readUInt16LE(dataIndex);
+                                dataIndex += 2;
+                                if(eventCode == 0xC101) {
+                                    var newObject = data.readUInt32LE(dataIndex);
+                                    _logD("new object:", ptp.hex(newObject), "data:", data);
+                                    camera._objectsAdded.push(newObject);
+                                    return setTimeout(check);
+                                }
+                                dataIndex += eventParamsCount * 4;
+                            }
                         }
                         return setTimeout(check, 50);
                     });
