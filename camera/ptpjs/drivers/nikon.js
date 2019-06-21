@@ -827,7 +827,7 @@ driver.capture = function(camera, target, options, callback, noImage, noChangeBr
         if(err == 0x2019 && tries < 3) {
             return driver.capture(camera, target, options, callback, noImage, noChangeBracketing, tries + 1);
         }
-        if(err == ptp.PTP_RC_StoreFull || ptp.PTP_RC_StoreNotAvailable) {
+        if(err == ptp.PTP_RC_StoreFull || err == ptp.PTP_RC_StoreNotAvailable) {
             err = "camera card full or unavailable";
         } 
         if(err == ptp.PTP_RC_StoreReadOnly) {
