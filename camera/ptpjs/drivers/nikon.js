@@ -862,12 +862,13 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
         },
         function(cb){ // set bracketing stops
             if(camera.config.bracketingStops)  {
+                if(Math.round(camera.config.bracketingStops.value * 3) == Math.round(stops * 3)) return cb();
                 for(var i = 0; i < camera.config.bracketingStops.list.length; i++) {
                     if(Math.round(camera.config.bracketingStops.list[i].value * 3) == Math.round(stops * 3)) {
                         return driver.set(camera, "bracketingStops", camera.config.bracketingStops.list[i].name, cb);
                     }
                 }
-                cb && cb("not supported");
+                cb && cb("unsupported configuration");
             } else {
                 cb && cb("not supported");
             }
@@ -875,12 +876,13 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
         function(cb){ // set bracketing frames / program
             if(camera.config.bracketingProgram)  {
                 var bracketingFrames = frames * (darkerOnly ? -1 : 1);
+                if(camera.config.bracketingProgram.value == bracketingFrames) return cb();
                 for(var i = 0; i < camera.config.bracketingProgram.list.length; i++) {
                     if(camera.config.bracketingProgram.list[i].value == bracketingFrames) {
                         return driver.set(camera, "bracketingProgram", camera.config.bracketingProgram.list[i].value, cb);
                     }
                 }
-                cb && cb("not supported");
+                cb && cb("unsupported configuration");
             } else {
                 cb && cb("not supported");
             }
@@ -893,7 +895,7 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
         if(err == 0x2019 && tries < 3) {
             return driver.captureHDR(camera, target, options, frames, stops, darkerOnly, callback, tries + 1);
         }
-        if(err == "not supported") {
+        if(err == "not supported" || (err == "unsupported configuration") {
             callback && callback(err); // fixme -- should manually run HDR
         } else if(err) {            
             callback && callback(err);
