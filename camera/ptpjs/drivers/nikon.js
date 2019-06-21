@@ -495,7 +495,7 @@ driver.refresh = function(camera, callback) {
                                 if(listType == 1 && list.length == 3) { // convert range to list
                                     _logD(key, "list", list);
                                     var newList = [];
-                                    for(var val = list[0]; val < list[1]; val += list[2]) newList.push(val);
+                                    for(var val = list[0]; val <= list[1]; val += list[2]) newList.push(val);
                                     list = newList;
                                 }
                                 var currentMapped = mapPropertyItem(current, propertyListValues);
@@ -870,7 +870,6 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
             if(camera.config.bracketingStops)  {
                 if(Math.round(camera.config.bracketingStops.value * 3) == Math.round(stops * 3)) return cb();
                 for(var i = 0; i < camera.config.bracketingStops.list.length; i++) {
-                    console.log("comparing brackingStops", Math.round(camera.config.bracketingStops.list[i].value * 3), "==", Math.round(stops * 3));
                     if(Math.round(camera.config.bracketingStops.list[i].value * 3) == Math.round(stops * 3)) {
                         return driver.set(camera, "bracketingStops", camera.config.bracketingStops.list[i].name, cb);
                     }
@@ -885,6 +884,7 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
                 var bracketingFrames = frames * (darkerOnly ? -1 : 1);
                 if(camera.config.bracketingProgram.value == bracketingFrames) return cb();
                 for(var i = 0; i < camera.config.bracketingProgram.list.length; i++) {
+                    console.log("comparing bracketingFrames", camera.config.bracketingProgram.list[i].value, "==", bracketingFrames);
                     if(camera.config.bracketingProgram.list[i].value == bracketingFrames) {
                         return driver.set(camera, "bracketingProgram", camera.config.bracketingProgram.list[i].value, cb);
                     }
