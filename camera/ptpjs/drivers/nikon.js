@@ -864,6 +864,7 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
             if(camera.config.bracketingStops)  {
                 if(Math.round(camera.config.bracketingStops.value * 3) == Math.round(stops * 3)) return cb();
                 for(var i = 0; i < camera.config.bracketingStops.list.length; i++) {
+                    console.log("comparing brackingStops", Math.round(camera.config.bracketingStops.list[i].value * 3), "==", Math.round(stops * 3));
                     if(Math.round(camera.config.bracketingStops.list[i].value * 3) == Math.round(stops * 3)) {
                         return driver.set(camera, "bracketingStops", camera.config.bracketingStops.list[i].name, cb);
                     }
