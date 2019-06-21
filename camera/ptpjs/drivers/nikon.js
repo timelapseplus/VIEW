@@ -495,7 +495,7 @@ driver.refresh = function(camera, callback) {
                                 if(listType == 1 && list.length == 3) { // convert range to list
                                     _logD(key, "list", list);
                                     var newList = [];
-                                    for(var val = list[0], val < list[1]; val += list[2]) newList.push(val);
+                                    for(var val = list[0]; val < list[1]; val += list[2]) newList.push(val);
                                     list = newList;
                                 }
                                 var currentMapped = mapPropertyItem(current, propertyListValues);
