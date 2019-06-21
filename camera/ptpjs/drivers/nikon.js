@@ -666,7 +666,7 @@ driver.set = function(camera, param, value, callback) {
         },
     ], function(err) {
         if(!properties[param].ev) {
-            driver.refresh(callback);
+            driver.refresh(camera, callback);
         } else {
             return callback && callback(err);
         }

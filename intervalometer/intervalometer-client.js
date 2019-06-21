@@ -146,7 +146,7 @@ function connect() {
                     core.sdPresent = false;
                 } else if(data.type == 'intervalometer.status') {
                     core.intervalometerStatus = data.data;
-                    console.log("intervalometer.status UPDATED:", core.intervalometerStatus);
+                    //console.log("intervalometer.status UPDATED:", core.intervalometerStatus);
                     if(core.intervalometerStatus && core.intervalometerStatus.running == false) {
                         power.performance('low');
                     }
@@ -453,7 +453,11 @@ core.loadProgram(defaultProgram);
 
 
 core.stopIntervalometer = function(callback) {
-    call('intervalometer.cancel', {}, callback);
+    if(!client || !client.ready) {
+        core.intervalometerStatus.running = false;
+    } else {
+        call('intervalometer.cancel', {}, callback);
+    }
 }
 core.startIntervalometer = function(program, date, timeOffsetSeconds, exposureReferenceEv, callback) {
     if(typeof date == 'function') {
