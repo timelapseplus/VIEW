@@ -1756,7 +1756,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     } while(list.indexOf(name) !== -1);
 
                     intervalometer.status.tlName = "tl-" + tlIndex;
-                    log("==========> TIMELAPSE START", intervalometer.status.tlName);
+                    logEvent("==========> TIMELAPSE START", intervalometer.status.tlName);
                     intervalometer.timelapseFolder = TLROOT + "/" + intervalometer.status.tlName;
                     fs.mkdirSync(intervalometer.timelapseFolder);
                     camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
@@ -1820,7 +1820,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), program.nightCompensation, program.highlightProtection);
                     intervalometer.status.running = true;
                     intervalometer.emit("intervalometer.status", intervalometer.status);
-                    log("program:", "starting", program);
+                    logEvent("program:", "starting", program);
 
                     //function start() {
                     //    if(camera.ptp.settings.autofocus && camera.ptp.settings.autofocus == "on") {

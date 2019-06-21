@@ -852,13 +852,13 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
     async.series([ // try to setup native
         function(cb){ // enable bracketing
             if(!camera.config.bracketing) return cb("not supported");
-            if(camera.config.bracketing.value) driver.set(camera, "bracketing", 1, cb); else cb();
+            if(!camera.config.bracketing.value) driver.set(camera, "bracketing", 1, cb); else cb();
         },
         function(cb){ // set mode to default
-            if(camera.config.bracketingMode) driver.set(camera, "bracketingMode", 'default', cb); else cb();
+            if(camera.config.bracketingMode && camera.config.bracketingMode.value != 'default') driver.set(camera, "bracketingMode", 'default', cb); else cb();
         },
         function(cb){ // set params to shutter only
-            if(camera.config.bracketingParams) driver.set(camera, "bracketingParams", 's', cb); else cb();
+            if(camera.config.bracketingParams && camera.config.bracketingParams.value != 's') driver.set(camera, "bracketingParams", 's', cb); else cb();
         },
         function(cb){ // set bracketing stops
             if(camera.config.bracketingStops)  {
