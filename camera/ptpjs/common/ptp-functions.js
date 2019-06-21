@@ -337,6 +337,7 @@ exports.listProp = function(cam, prop, callback) {
 					current = data[typeInfo.readFunction](index);
 					index += typeInfo.size;
 				}
+				formType = data.readUInt8(index);
 				index += 3; // skip form type and length
 				for(;;) {
 					if(data.length >= index + typeInfo.size) {
@@ -347,7 +348,7 @@ exports.listProp = function(cam, prop, callback) {
 					}
 				}
 			}
-			callback && callback(error, current, list, typeInfo.name, type);
+			callback && callback(error, current, list, typeInfo.name, formType);
 		} else {
 			callback && callback(error, null);
 		}
