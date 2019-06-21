@@ -5645,10 +5645,10 @@ core.on('intervalometer.status', function(msg) {
     //console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
-    if(msg.running) {
+    if(msg && msg.running) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
-    } else if(cache.intervalometerStatus.running) {
+    } else if(msg && cache.intervalometerStatus.running) {
         power.enableAutoOff();
         mcu.disableGpsTimeUpdate = false;
     }

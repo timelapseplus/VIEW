@@ -146,6 +146,7 @@ function connect() {
                     core.sdPresent = false;
                 } else if(data.type == 'intervalometer.status') {
                     core.intervalometerStatus = data.data;
+                    console.log("intervalometer.status UPDATED:", core.intervalometerStatus);
                     if(core.intervalometerStatus && core.intervalometerStatus.running == false) {
                         power.performance('low');
                     }
