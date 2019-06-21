@@ -317,6 +317,15 @@ var properties = {
         code: 0x5001,
         ev: false,
     },
+    'burst': {
+        name: 'burst',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: null,
+        code: 0x5018,
+        ev: false,
+    },
     'bracketing': {
         name: 'bracketing',
         category: 'config',
@@ -355,8 +364,8 @@ var properties = {
         code: 0xD0C2,
         ev: false,
         values: [
-            { name: "2, minus side",  value: 2,    code: 0 },
-            { name: "2, plus side",   value: null, code: 1 },
+            { name: "2, minus side",  value: -2,   code: 0 },
+            { name: "2, plus side",   value: 2,    code: 1 },
             { name: "3, minus side",  value: -3,   code: 2 },
             { name: "3, plus side",   value: null, code: 3 },
             { name: "3, both sides",  value: 3,    code: 4 },
@@ -365,18 +374,18 @@ var properties = {
             { name: "9, both sides",  value: 9,    code: 7 },
         ]
     },
-    'bracketingCount': {
-        name: 'bracketingCount',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD0C3,
-        ev: false,
-        values: [
-            { name: "UNKNOWN",  value: 0, code: 0 },
-        ]
-    },
+    //'bracketingCount': {
+    //    name: 'bracketingCount',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD0C3,
+    //    ev: false,
+    //    values: [
+    //        { name: "UNKNOWN",  value: 0, code: 1 },
+    //    ]
+    //},
     'bracketingOrder': {
         name: 'bracketingOrder',
         category: 'config',
@@ -656,7 +665,11 @@ driver.set = function(camera, param, value, callback) {
             }
         },
     ], function(err) {
-        return callback && callback(err);
+        if(!properties[param].ev) {
+            driver.refresh(callback);
+        } else {
+            return callback && callback(err);
+        }
     });
 }
 
@@ -768,16 +781,21 @@ function checkReady(camera, callback) {
     });
 }
 
-driver.capture = function(camera, target, options, callback, tries) {
+driver.capture = function(camera, target, options, callback, noImage, noChangeBracketing, tries) {
     var targetValue = (!target || target == "camera") ? "camera" : "VIEW";
     camera.thumbnail = targetValue == 'camera';
     var results = {};
-    var lvMode = camera.status.liveview;
     async.series([
-        function(cb){
+        function(cb){ // disable bracketing 
+            if(!noChangeBracketing && camera.config.bracketing && camera.config.bracketing.value) driver.set(camera, "bracketing", 0, cb); else cb();
+        },
+        function(cb){ // set burst to 1 
+            if(!noChangeBracketing && camera.config.burst > 1) driver.set(camera, "burst", 1, cb); else cb();
+        },
+        function(cb){ // set destination
             if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
-        function(cb){
+        function(cb){ // wait for ready
             var check = function() {
                 checkReady(camera, function(err, ready) {
                     if(err) return cb(err);
@@ -787,7 +805,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             }
             check();
         },
-        function(cb){
+        function(cb){ // trigger capture
             ptp.transaction(camera._dev, 0x9207, [0xffffffff, camera.config.destination.code || 0], null, function(err, responseCode) {
                 if(err) {
                     return cb(err);
@@ -798,7 +816,7 @@ driver.capture = function(camera, target, options, callback, tries) {
                 }
             });
         },
-        function(cb){
+        function(cb){ // retrieve captured image
             getImage(camera, 60000, function(err, imageResults) {
                 results = imageResults;
                 cb(err);
@@ -807,7 +825,7 @@ driver.capture = function(camera, target, options, callback, tries) {
     ], function(err, res) {
         if(err) _logE("capture error", ptp.hex(err), "at item", res.length);
         if(err == 0x2019 && tries < 3) {
-            return driver.capture(camera, target, options, callback, tries + 1);
+            return driver.capture(camera, target, options, callback, noImage, noChangeBracketing, tries + 1);
         }
         if(err == ptp.PTP_RC_StoreFull || ptp.PTP_RC_StoreNotAvailable) {
             err = "camera card full or unavailable";
@@ -824,8 +842,65 @@ driver.capture = function(camera, target, options, callback, tries) {
     
 
 */
-driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback) {
+driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback, tries) {
+    if(target != 'camera') return callback && callback("save to VIEW HDR not supported, set destination to camera instead");
 
+    var targetValue = "camera";
+    camera.thumbnail = true;
+    var results = {};
+
+    async.series([ // try to setup native
+        function(cb){ // enable bracketing
+            if(!camera.config.bracketing) return cb("not supported");
+            if(camera.config.bracketing.value) driver.set(camera, "bracketing", 1, cb); else cb();
+        },
+        function(cb){ // set mode to default
+            if(camera.config.bracketingMode) driver.set(camera, "bracketingMode", 'default', cb); else cb();
+        },
+        function(cb){ // set params to shutter only
+            if(camera.config.bracketingParams) driver.set(camera, "bracketingParams", 's', cb); else cb();
+        },
+        function(cb){ // set bracketing stops
+            if(camera.config.bracketingStops)  {
+                for(var i = 0; i < camera.config.bracketingStops.list.length; i++) {
+                    if(Math.round(camera.config.bracketingStops.list[i].value * 3) == Math.round(stops * 3)) {
+                        return driver.set(camera, "bracketingStops", camera.config.bracketingStops.list[i].name, cb);
+                    }
+                }
+                cb && cb("not supported");
+            } else {
+                cb && cb("not supported");
+            }
+        },
+        function(cb){ // set bracketing frames / program
+            if(camera.config.bracketingProgram)  {
+                var bracketingFrames = frames * (darkerOnly ? -1 : 1);
+                for(var i = 0; i < camera.config.bracketingProgram.list.length; i++) {
+                    if(camera.config.bracketingProgram.list[i].value == bracketingFrames) {
+                        return driver.set(camera, "bracketingProgram", camera.config.bracketingProgram.list[i].value, cb);
+                    }
+                }
+                cb && cb("not supported");
+            } else {
+                cb && cb("not supported");
+            }
+        },
+        function(cb){ // set burst
+            if(camera.config.burst != frames) driver.set(camera, "burst", frames, cb); else cb();
+        },
+    ], function(err, res) {
+        if(err) _logE("HDR native setup error", ptp.hex(err), "at item", res.length);
+        if(err == 0x2019 && tries < 3) {
+            return driver.captureHDR(camera, target, options, frames, stops, darkerOnly, callback, tries + 1);
+        }
+        if(err == "not supported") {
+            callback && callback(err); // fixme -- should manually run HDR
+        } else if(err) {            
+            callback && callback(err);
+        } else { // native setup worked, trigger capture
+            driver.capture(camera, 'camera', options, callback, false, true);
+        }
+    });
 }
 
 driver.liveviewMode = function(camera, enable, callback) {

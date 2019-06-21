@@ -346,9 +346,17 @@ api.capture = function(target, options, callback) {
 	}
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.capture(target, options, callback);
+			if(options.hdrCount && options.hdrCount > 1) {
+				api.cameras[i].camera.captureHDR(target, options, options.hdrCount, options.hdrStops, false, callback);
+			} else {
+				api.cameras[i].camera.capture(target, options, callback);
+			}
 		} else {
-			api.cameras[i].camera.capture(target, options);
+			if(options.hdrCount && options.hdrCount > 1) {
+				api.cameras[i].camera.captureHDR(target, options, options.hdrCount, options.hdrStops, false);
+			} else {
+				api.cameras[i].camera.capture(target, options);
+			}
 		}
 	}
 }
@@ -360,9 +368,9 @@ api.captureHDR = function(target, options, frames, stops, darkerOnly, callback) 
 	}
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
-			api.cameras[i].camera.capture(target, options, frames, stops, darkerOnly, callback);
+			api.cameras[i].camera.captureHDR(target, options, frames, stops, darkerOnly, callback);
 		} else {
-			api.cameras[i].camera.capture(target, options, frames, stops, darkerOnly);
+			api.cameras[i].camera.captureHDR(target, options, frames, stops, darkerOnly);
 		}
 	}
 }

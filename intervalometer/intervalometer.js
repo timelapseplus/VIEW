@@ -70,8 +70,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     if(captureOptions && captureOptions.mode == 'test') {
                         options.destination = "VIEW";
                     }
+                    if(captureOptions && captureOptions.hdrCount && captureOptions.hdrCount > 1 && captureOptions.hdrStops > 0) {
+                        options.hdrStops = captureOptions.hdrStops;
+                        options.hdrCount = captureOptions.hdrCount;
+                    }
                     logEvent("initiating capture...");
-                    return camera.ptp.new.capture(options.destination, {}, function(err, thumb, filename, raw) {
+                    return camera.ptp.new.capture(options.destination, options, function(err, thumb, filename, raw) {
                         if(err) {
                             logErr("capture failed:", err);
                             return callback && callback(err);
@@ -1057,12 +1061,17 @@ function planHdr(hdrCount, hdrStops) {
     intervalometer.status.hdrIndex = 0;
     intervalometer.status.hdrSet = [];
     intervalometer.status.hdrMax = overHdr;
+
+    intervalometer.status.hdrCount = hdrCount > 1 ? hdrCount : 0;
+    intervalometer.status.hdrStops = hdrCount > 1 ? hdrStops : 0;
     
-    while(overSet.length || underSet.length) {
-        if(overSet.length) intervalometer.status.hdrSet.push(overSet.shift());
-        if(underSet.length) intervalometer.status.hdrSet.push(underSet.shift());
+    if(!camera.ptp.new.available) {
+        while(overSet.length || underSet.length) {
+            if(overSet.length) intervalometer.status.hdrSet.push(overSet.shift());
+            if(underSet.length) intervalometer.status.hdrSet.push(underSet.shift());
+        }
+        log("planHdr:", intervalometer.status.hdrSet)
     }
-    log("planHdr:", intervalometer.status.hdrSet)
 }
 
 function checkCurrentPlan(restart) {
@@ -1311,6 +1320,10 @@ function runPhoto(isRetry) {
             setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(remap('camera.ptp.settings.details').shutter.ev) * 1000 + 1500);
             captureOptions.calculateEv = false;
             intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
+            if(intervalometer.status.hdrCount && intervalometer.status.hdrCount > 1 && intervalometer.status.hdrStops > 0) {
+                captureOptions.hdrCount = intervalometer.status.hdrCount;
+                captureOptions.hdrStops = intervalometer.status.hdrStops;
+            }
             remap('camera.ptp.capture')(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
                     intervalometer.status.path = photoRes.file;
@@ -1407,6 +1420,10 @@ function runPhoto(isRetry) {
                 var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
                 setTimeout(motionSyncPulse, msDelayPulse);
                 intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
+            }
+            if(intervalometer.status.hdrCount && intervalometer.status.hdrCount > 1 && intervalometer.status.hdrStops > 0) {
+                captureOptions.hdrCount = intervalometer.status.hdrCount;
+                captureOptions.hdrStops = intervalometer.status.hdrStops;
             }
             remap('camera.ptp.capture')(captureOptions, function(err, photoRes) {
                 if (!err && photoRes) {
