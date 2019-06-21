@@ -492,7 +492,12 @@ driver.refresh = function(camera, callback) {
                                     });
                                 }
                                 _logD(key, "type is", type, "listType", listType);
-                                if(listType == 1) _logD(key, "list", list);
+                                if(listType == 1 && list.length == 3) { // convert range to list
+                                    _logD(key, "list", list);
+                                    var newList = [];
+                                    for(var val = list[0], val < list[1]; val += list[2]) newList.push(val);
+                                    list = newList;
+                                }
                                 var currentMapped = mapPropertyItem(current, propertyListValues);
                                 if(!currentMapped) {
                                     _logE(key, "item not found:", current);
