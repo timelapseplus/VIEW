@@ -38,6 +38,7 @@ event                  payload
 
 require('rootpath')();
 var camera = require('camera/camera.js');
+var image = require('camera/image/image.js');
 var motion = require('motion/motion.js');
 var noble = require('noble');
 var intervalometer = require('intervalometer/intervalometer.js');
