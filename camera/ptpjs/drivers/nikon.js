@@ -746,7 +746,9 @@ function getImage(camera, timeout, callback) {
                 if(!camera.thumbnail && !objectId) { // saving to ram
                     return ptp.transaction(camera._dev, 0x941C, [], null, function(err, responseCode, data) {
                         if(!err && responseCode == 0x2001 && data && data.length >= 20) {
-                            camera._objectsAdded.push(data.readUInt32LE(16));
+                            var newObject = data.readUInt32LE(16);
+                            _logD("new object:", ptp.hex(newObject));
+                            camera._objectsAdded.push(newObject);
                             return setTimeout(check);
                         }
                         return setTimeout(check, 50);
