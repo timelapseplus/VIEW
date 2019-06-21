@@ -750,6 +750,7 @@ function getImage(camera, timeout, callback) {
                             var eventCount = data.readUInt32LE(dataIndex);
                             dataIndex += 4;
                             var eventCode = null;
+                            _logD("data:", data);
                             for(var i = 0; i < eventCount; i++) {
                                 eventCode = data.readUInt16LE(dataIndex);
                                 dataIndex += 2;
