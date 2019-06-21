@@ -171,7 +171,7 @@ function connect() {
       setTimeout(connect, 2000);
     });
     client.on('error', function(err) {
-        if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT')) {
+        if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT' || err.code == 'ECONNRESET')) {
             console.log("Error: server not ready");
             setTimeout(connect, 1000);
         } else {
@@ -455,6 +455,8 @@ core.loadProgram(defaultProgram);
 core.stopIntervalometer = function(callback) {
     if(!client || !client.ready) {
         core.intervalometerStatus.running = false;
+        restartProgram = null;
+        core.emit('intervalometer.status', core.intervalometerStatus);
     } else {
         call('intervalometer.cancel', {}, callback);
     }
