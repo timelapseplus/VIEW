@@ -949,7 +949,9 @@ driver.liveviewMode = function(camera, enable, callback) {
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
                 camera.status.liveview = true;
-                return callback && callback(null, responseCode == 0x2001);
+                setTimeout(function(){ 
+                    return callback && callback(null, responseCode == 0x2001);
+                }, 50);
             });
         } else {
             ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
@@ -986,7 +988,9 @@ driver.liveviewImage = function(camera, callback, _tries) {
                 camera.status.liveview = false;
                 _logD("liveview not enabled, retrying...");
                 driver.liveviewMode(camera, true, function() {
-                    driver.liveviewImage(camera, callback, _tries + 1);
+                    setTimeout(function(){ 
+                        driver.liveviewImage(camera, callback, _tries + 1);
+                    }, 200);
                 });
             } else {
                 setTimeout(function(){
