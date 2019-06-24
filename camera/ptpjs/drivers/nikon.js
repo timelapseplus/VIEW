@@ -481,7 +481,7 @@ driver.refresh = function(camera, callback) {
                     if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                     if(properties[key].listFunction) {
                         properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type, listType) {
-                            if(err) {
+                            if(err || !list) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
                                 var propertyListValues = properties[key].values;
@@ -983,6 +983,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }
             } else if(responseCode == 0xA00B) { // not in liveview mode
+                camera.status.liveview = false;
                 driver.liveviewMode(camera, true, function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 });
@@ -1009,7 +1010,9 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 
     ptp.transaction(camera._dev, 0x9204, [dir, steps], null, function(err, responseCode, data) {
         if(err) return callback && callback(err);
-        camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
+        if(responseCode != 0xA00C) { // reached end
+            camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
+        }
         callback && callback(null, camera.status.focusPos);
     });
 
