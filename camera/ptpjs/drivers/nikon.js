@@ -997,13 +997,17 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }
             } else if(responseCode == 0xA00B) { // not in liveview mode
-                camera.status.liveview = false;
-                _logD("liveview not enabled, retrying...");
-                driver.liveviewMode(camera, true, function() {
-                    setTimeout(function(){ 
-                        driver.liveviewImage(camera, callback, _tries + 1);
-                    }, 200);
-                });
+                if(camera.status.liveview) {
+                    camera.status.liveview = false;
+                    _logD("liveview not enabled, retrying...");
+                    driver.liveviewMode(camera, true, function() {
+                        setTimeout(function(){ 
+                            driver.liveviewImage(camera, callback, _tries + 1);
+                        }, 100);
+                    });
+                } else {
+                    callback && callback("not enabled");
+                }
             } else {
                 setTimeout(function(){
                     driver.liveviewImage(camera, callback, _tries + 1);
@@ -1027,10 +1031,14 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 
     ptp.transaction(camera._dev, 0x9204, [dir, steps], null, function(err, responseCode, data) {
         if(err) return callback && callback(err);
-        if(responseCode != 0xA00C) { // reached end
+        if(responseCode == 0xA00C) { // reached end
+            _logD("focus end reached, not updating pos");
+        } else if(responseCode == 0x2001) {
             camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
+        } else {
+            err = ptp.hex(responseCode);
         }
-        callback && callback(null, camera.status.focusPos);
+        callback && callback(err, camera.status.focusPos);
     });
 
 }
