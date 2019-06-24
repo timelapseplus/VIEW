@@ -1029,7 +1029,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!resolution) resolution = 1;
     steps *= resolution;
 
-    ptp.transaction(camera._dev, 0x9204, [dir, steps], null, function(err, responseCode, data) {
+    ptp.transaction(camera._dev, 0x9204, [dir, steps * 50], null, function(err, responseCode, data) {
         if(err) return callback && callback(err);
         if(responseCode == 0xA00C) { // reached end
             _logD("focus end reached, not updating pos");
