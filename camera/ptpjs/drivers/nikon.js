@@ -1037,6 +1037,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
         } else {
             err = ptp.hex(responseCode);
+            _logD("focus error:", err);
         }
         callback && callback(err, camera.status.focusPos);
     });
