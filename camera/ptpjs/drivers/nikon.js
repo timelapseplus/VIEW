@@ -939,7 +939,8 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
     });
 }
 
-driver.liveviewMode = function(camera, enable, callback) {
+driver.liveviewMode = function(camera, enable, callback, _tries) {
+    if(!_tries) _tries = 0;
     if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
     if(camera.status.liveview != !!enable) {
         if(enable) {
@@ -947,6 +948,14 @@ driver.liveviewMode = function(camera, enable, callback) {
                 driver.liveviewMode(camera, false);
             }, 5000);
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
+                if(responseCode == 0x2019) {
+                    _tries++;
+                    if(_tries < 10) {
+                        setTimeout(function(){
+                            driver.liveviewMode(camera, enable, callback, _tries);
+                        }, 50);
+                    }
+                }
                 if(err || responseCode != 0x2001) {
                     _logD("error enabling liveview:", err, "code:", ptp.hex(responseCode));
                     return callback && callback(err || responseCode);
