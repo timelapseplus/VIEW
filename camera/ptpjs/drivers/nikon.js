@@ -947,7 +947,10 @@ driver.liveviewMode = function(camera, enable, callback) {
                 driver.liveviewMode(camera, false);
             }, 5000);
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
-                if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+                if(err || responseCode != 0x2001) {
+                    _logD("error enabling liveview:", err, "code:", ptp.hex(responseCode));
+                    return callback && callback(err || responseCode);
+                }
                 camera.status.liveview = true;
                 setTimeout(function(){ 
                     return callback && callback(null, responseCode == 0x2001);
