@@ -448,10 +448,10 @@ function runCommand(type, args, callback, client) {
           console.log("PREVIEW: enabling...");
           camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
-            camera.ptp.new.liveviewImage(function(err, image) {
-              if(!err && image) {
+            camera.ptp.new.liveviewImage(function(err, img) {
+              if(!err && img) {
                 var obj = {
-                  base64: new Buffer(image).toString('base64'),
+                  base64: new Buffer(img).toString('base64'),
                   type: 'preview'
                 };
                 sendEvent('camera.photo', obj);
@@ -462,11 +462,11 @@ function runCommand(type, args, callback, client) {
           });
         } else {
           console.log("PREVIEW: fetching image...");
-          camera.ptp.new.liveviewImage(function(err, image) {
+          camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
-            if(!err && image) {
+            if(!err && img) {
               var obj = {
-                base64: new Buffer(image).toString('base64'),
+                base64: new Buffer(img).toString('base64'),
                 type: 'preview'
               };
               sendEvent('camera.photo', obj);

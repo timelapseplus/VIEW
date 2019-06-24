@@ -984,6 +984,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                 }
             } else if(responseCode == 0xA00B) { // not in liveview mode
                 camera.status.liveview = false;
+                _logD("liveview not enabled, retrying...");
                 driver.liveviewMode(camera, true, function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 });
