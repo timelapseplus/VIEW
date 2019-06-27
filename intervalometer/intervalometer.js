@@ -1539,7 +1539,7 @@ function autoSetExposure(offset, callback) {
                 intervalometer.emit("intervalometer.status", intervalometer.status);
                 var evChange = res.ev - offset;
                 remap('camera.ptp.getSettings')(function() {
-                    var currentEv = camera.lists.getEvFromSettings(remap(camera.ptp.settings));
+                    var currentEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings'));
                     remap('camera.setEv')(currentEv + evChange, getEvOptions(), function(err, res) {
                         if(Math.abs(evChange) < 2) {
                             callback && callback(null);

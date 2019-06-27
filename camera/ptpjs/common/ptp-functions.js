@@ -442,31 +442,38 @@ exports.extractJpeg = function(data, startIndex, jpegsArray) {
     //console.log("   searching for jpeg...", maxSearch);
     var jpegStart = null;
     var jpegEnd = maxSearch;  
+    var hasExif = false;
 
     var i = startIndex || 0;
     while(i < maxSearch) {
 
-      	if(jpegStart !== null && data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
-    		jpegEnd = i + 2;
-		    var jpegBuf = new Buffer(jpegEnd - jpegStart);
-		    data.copy(jpegBuf, 0, jpegStart, jpegEnd);
-		    if(data[jpegEnd] == 0x00) {
-			    _logD("found jpeg at", jpegStart, "size:", jpegBuf.length, "data", data[jpegStart+3].toString(16), data[jpegEnd].toString(16));
-			    jpegsArray.push({
-			    	data: jpegBuf,
-			    	size: jpegBuf.length,
-			    });
-			    if(jpegsArray.length > 1) break;
-		    }
-		    jpegStart = null;
-		    if(startIndex != null) return jpegEnd;
-    	}
+      	if(jpegStart !== null) {
+	      	if(data[i + 0] == 0xFF && data[i + 1] == 0xD9) {
+	    		jpegEnd = i + 2;
+			    var jpegBuf = new Buffer(jpegEnd - jpegStart);
+			    data.copy(jpegBuf, 0, jpegStart, jpegEnd);
+			    if(data[jpegEnd] == 0x00) {
+				    _logD("found jpeg at", jpegStart, "size:", jpegBuf.length, "data", data[jpegStart+3].toString(16), data[jpegEnd].toString(16));
+				    jpegsArray.push({
+				    	data: jpegBuf,
+				    	size: jpegBuf.length,
+				    	hasExif: hasExif
+				    });
+				    hasExif = false;
+				    if(jpegsArray.length > 1 && i > 64 * 1024) break;
+			    }
+			    jpegStart = null;
+			    if(startIndex != null) return jpegEnd;
+	    	} else if(!hasExif && data[i + 0] == 45 && data[i + 1] == 78 && data[i + 1] == 69 && data[i + 1] == 66) { // has exif
+	    		hasExif = true;
+	    	}
+	    }
 
     	if(data[i + 0] == 0xFF && data[i + 1] == 0xD8 && data[i + 2] == 0xFF) {
     		if(jpegStart === null) {
 	    		jpegStart = i;
     		} else {
-    			i += extractr(data, i, jpegsArray);
+    			i += exports.extractJpeg(data, i, jpegsArray);
 			    if(jpegsArray.length > 1) break;
     		}
     	}
@@ -480,7 +487,7 @@ exports.extractJpeg = function(data, startIndex, jpegsArray) {
 				biggestIndex = i;
 				continue;
 			}
-			if(jpegsArray[i].size > jpegsArray[biggestIndex].size) {
+			if(jpegsArray[i].hasExif || jpegsArray[i].size > jpegsArray[biggestIndex].size) {
 				biggestIndex = i;
 				continue;
 			}

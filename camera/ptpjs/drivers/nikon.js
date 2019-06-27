@@ -1029,17 +1029,28 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!resolution) resolution = 1;
     steps *= resolution;
 
-    ptp.transaction(camera._dev, 0x9204, [dir, steps * 50], null, function(err, responseCode, data) {
-        if(err) return callback && callback(err);
+    ptp.transaction(camera._dev, 0x9204, [dir, resolution * 20], null, function(err, responseCode, data) {
+        if(err) {
+            return callback && callback(err, camera.status.focusPos);
+        }
         if(responseCode == 0xA00C) { // reached end
             _logD("focus end reached, not updating pos");
+            return callback && callback(err, camera.status.focusPos);
         } else if(responseCode == 0x2001) {
-            camera.status.focusPos += steps * (dir == 1) ? -1 : 1;
+            camera.status.focusPos += (dir == 1) ? -1 : 1;
+            steps--;
+            if(steps > 0) {
+                return setTimeout(function() {
+                    driver.moveFocus(camera, steps, resolution, callback);
+                }, 10);
+            } else {
+                return callback && callback(err, camera.status.focusPos);
+            }
         } else {
             err = ptp.hex(responseCode);
             _logD("focus error:", err);
+            callback && callback(err, camera.status.focusPos);
         }
-        callback && callback(err, camera.status.focusPos);
     });
 
 }

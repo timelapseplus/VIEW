@@ -903,7 +903,7 @@ function getImage(camera, timeout, callback) {
         },
         function(cb){
             camera._blockEvents = true;
-            console.log("getting object info");
+            //console.log("getting object info");
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
                     results.filename = oi.filename;
@@ -913,7 +913,7 @@ function getImage(camera, timeout, callback) {
             });
         },
         function(cb){
-            console.log("getting object");
+            //console.log("getting object");
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 //ptp.deleteObject(camera._dev, 0xffffc001, function() {
                     if(results.filename && results.filename.slice(-3).toLowerCase() == 'jpg') {
