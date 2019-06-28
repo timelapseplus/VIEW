@@ -593,7 +593,7 @@ function getImage(camera, timeout, callback) {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
-        camera.refresh(camera, function(err) { // check events
+        driver.refresh(camera, function(err) { // check events
             if(camera._objectsAdded.length == 0) {
                 return setTimeout(check, 50);
             }
