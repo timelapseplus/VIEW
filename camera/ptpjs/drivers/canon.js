@@ -349,7 +349,7 @@ driver.refresh = function(camera, callback, noEvent) {
             var event_value = data.readUInt32LE(i + 4 * 3);
 
 
-            _logD("event", ptp.hex(event_type), "size", ptp.hex(event_size), "code", ptp.hex(event_item), "value", ptp.hex(event_value));
+            //_logD("event", ptp.hex(event_type), "size", ptp.hex(event_size), "code", ptp.hex(event_item), "value", ptp.hex(event_value));
 
             if(event_type == EOS_EC_PROPERTY_CHANGE)
             {
@@ -398,7 +398,7 @@ driver.refresh = function(camera, callback, noEvent) {
                         for(x = 0; x < event_size / 4 - 5; x++)
                         {
                             var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
-                            var newItem = mapPropertyItem(cameraValue, properties[param].list);
+                            var newItem = mapPropertyItem(cameraValue, properties[param].values);
                             if(!newItem) {
                                 _logE(param, "list item", ptp.hex(cameraValue), "not found");
                             } else {
