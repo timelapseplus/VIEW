@@ -344,9 +344,9 @@ driver.refresh = function(camera, callback, noEvent) {
                 return callback && callback("incomplete data for event parsing");
             }
 
-            var event_type = data.readUInt32LE(i + 8 * 1);
-            var event_item = data.readUInt32LE(i + 8 * 2);
-            var event_value = data.readUInt32LE(i + 8 * 3);
+            var event_type = data.readUInt32LE(i + 4 * 1);
+            var event_item = data.readUInt32LE(i + 4 * 2);
+            var event_value = data.readUInt32LE(i + 4 * 3);
 
 
             _logD("event", ptp.hex(event_type), "size", ptp.hex(event_size), "code", ptp.hex(event_item), "value", ptp.hex(event_value));
@@ -395,9 +395,9 @@ driver.refresh = function(camera, callback, noEvent) {
                             }
                         }
                         camera[properties[param].category][param].list = [];
-                        for(x = 0; x < event_size / 8 - 5; x++)
+                        for(x = 0; x < event_size / 4 - 5; x++)
                         {
-                            var cameraValue = data.readUInt32LE(i + (x + 5) * 8);
+                            var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
                             var newItem = mapPropertyItem(cameraValue, properties[param].list);
                             if(!newItem) {
                                 _logE(param, "list item", ptp.hex(cameraValue), "not found");
@@ -416,7 +416,7 @@ driver.refresh = function(camera, callback, noEvent) {
             else if(event_type == EOS_EC_OBJECT_CREATED)
             {
                 camera._busy = false;
-                camera._objectsAdded.push(data.readUInt32LE(i + 8 * 2));
+                camera._objectsAdded.push(data.readUInt32LE(i + 4 * 2));
             }
             else if(event_type == EOS_EC_WillShutdownSoon)
             {
