@@ -455,6 +455,7 @@ driver.refresh = function(camera, callback, noEvent) {
 }
 
 driver.init = function(camera, callback) {
+    camera._objectsAdded = [];
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},   // pc mode
