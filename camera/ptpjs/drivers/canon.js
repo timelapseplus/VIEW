@@ -448,6 +448,8 @@ driver.init = function(camera, callback) {
         async.series([
             function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},  // pc mode
             function(cb){ptp.transaction(camera._dev, 0x9115, [1], null, cb);},  // event mode
+            function(cb){setTimeout(cb, 500);}  // wait
+            function(cb){driver.refresh(camera, cb);}  // get settings
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
