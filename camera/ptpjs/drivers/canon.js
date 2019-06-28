@@ -244,20 +244,7 @@ var properties = {
         code: 0xD11B,
         typeCode: 2,
         ev: false,
-        values: [
-            { name: "none",       value: 0,        code: 0x0000  },
-            { name: "folder",     value: 0,        code: 0x0001  },
-            { name: "1",          value: 1,        code: 0x8001  },
-            { name: "2",          value: 2,        code: 0x8002  },
-            { name: "3",          value: 3,        code: 0x8003  },
-            { name: "4",          value: 4,        code: 0x8004  },
-            { name: "5",          value: 5,        code: 0x8005  },
-            { name: "6",          value: 6,        code: 0x8006  },
-            { name: "7",          value: 7,        code: 0x8007  },
-            { name: "8",          value: 8,        code: 0x8008  },
-            { name: "9",          value: 9,        code: 0x8009  },
-            { name: "10",         value: 10,       code: 0x8010  },
-        ]
+        values: null
     },
     'destination': {
         name: 'destination',
@@ -332,7 +319,7 @@ driver.refresh = function(camera, callback, noEvent) {
 
         while(i < data.length)
         {
-            if(i + 32 >= data.length)
+            if(i + 16 >= data.length)
             {
                 _logE("incomplete data for event parsing: length =", data.length, "response code:", ptp.hex(responseCode));
                 return callback && callback("incomplete data for event parsing");
@@ -424,7 +411,7 @@ driver.refresh = function(camera, callback, noEvent) {
             {
                 camera._busy = false;
                 var newObject = data.readUInt32LE(i + 4 * 2);
-                camera._objectsAdded.push();
+                camera._objectsAdded.push(newObject);
                 _logD("object added:", ptp.hex(newObject));
             }
             else if(event_type == EOS_EC_WillShutdownSoon)
