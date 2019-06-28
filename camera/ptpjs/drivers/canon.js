@@ -249,15 +249,15 @@ var properties = {
     'destination': {
         name: 'destination',
         category: 'config',
-        setFunction: null,
-        getFunction: null,
-        listFunction: null,
-        code: null,
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listPropU16,
+        code: 0xD029,
         ev: false,
         default: 0,
         values: [
-            { name: "camera",            code: 0  },
-            { name: "VIEW",              code: 1  },
+            { name: "camera",            code: 8  },
+            { name: "VIEW",              code: 2  },
         ]
     },
     'focusPos': {
@@ -319,7 +319,7 @@ driver.refresh = function(camera, callback, noEvent) {
 
         while(i < data.length)
         {
-            if(i + 16 >= data.length)
+            if(i + 16 > data.length)
             {
                 _logE("incomplete data for event parsing: length =", data.length, "response code:", ptp.hex(responseCode));
                 return callback && callback("incomplete data for event parsing");
