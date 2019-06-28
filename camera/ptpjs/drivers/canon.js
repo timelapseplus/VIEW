@@ -593,74 +593,44 @@ function getImage(camera, timeout, callback) {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
-        if(camera.thumbnail) { // saved to camera
+        camera.refresh(camera, function(err) { // check events
             if(camera._objectsAdded.length == 0) {
                 return setTimeout(check, 50);
             }
-        }
-        checkReady(camera, function(err, ready) { // wait if busy
             //console.log("data:", data);
-            if(!err && ready) {
-                var objectId = camera._objectsAdded.shift();
-                if(!camera.thumbnail && !objectId) { // saving to ram
-                    return ptp.transaction(camera._dev, 0x941C, [], null, function(err, responseCode, data) {
-                        if(!err && responseCode == 0x2001 && data && data.length > 4) {
-                            var dataIndex = 0;
-                            var eventCount = data.readUInt32LE(dataIndex);
-                            dataIndex += 4;
-                            var eventCode = null;
-                            _logD("data:", data);
-                            for(var i = 0; i < eventCount; i++) {
-                                eventCode = data.readUInt16LE(dataIndex);
-                                dataIndex += 2;
-                                eventParamsCount = data.readUInt16LE(dataIndex);
-                                dataIndex += 2;
-                                if(eventCode == 0xC101) {
-                                    var newObject = data.readUInt32LE(dataIndex);
-                                    _logD("new object:", ptp.hex(newObject), "data:", data);
-                                    camera._objectsAdded.push(newObject);
-                                    return setTimeout(check);
-                                }
-                                dataIndex += eventParamsCount * 4;
-                            }
+            var objectId = camera._objectsAdded.shift();
+
+            ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
+                //console.log(oi);
+                if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
+                var image = null;
+                results.filename = oi.filename;
+                results.indexNumber = objectId;
+                if(camera.thumbnail) {
+                    ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
+                        results.thumb = jpeg;
+                        if(camera.config.destination.name == 'VIEW') {
+                            ptp.deleteObject(camera._dev, objectId, function() {
+                                callback && callback(err, results);
+                            });
+                        } else {
+                            callback && callback(err, results);
                         }
-                        return setTimeout(check, 50);
+                    });
+                } else {
+                    ptp.getObject(camera._dev, objectId, function(err, image) {
+                        results.thumb = ptp.extractJpeg(image);
+                        results.rawImage = image;
+                        if(camera.config.destination.name == 'VIEW') {
+                            ptp.deleteObject(camera._dev, objectId, function() {
+                                callback && callback(err, results);
+                            });
+                        } else {
+                            callback && callback(err, results);
+                        }
                     });
                 }
-                ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
-                    //console.log(oi);
-                    if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
-                    var image = null;
-                    results.filename = oi.filename;
-                    results.indexNumber = objectId;
-                    if(camera.thumbnail) {
-                        ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                            results.thumb = jpeg;
-                            if(camera.config.destination.name == 'VIEW') {
-                                ptp.deleteObject(camera._dev, objectId, function() {
-                                    callback && callback(err, results);
-                                });
-                            } else {
-                                callback && callback(err, results);
-                            }
-                        });
-                    } else {
-                        ptp.getObject(camera._dev, objectId, function(err, image) {
-                            results.thumb = ptp.extractJpeg(image);
-                            results.rawImage = image;
-                            if(camera.config.destination.name == 'VIEW') {
-                                ptp.deleteObject(camera._dev, objectId, function() {
-                                    callback && callback(err, results);
-                                });
-                            } else {
-                                callback && callback(err, results);
-                            }
-                        });
-                    }
-                });
-            } else {
-                setTimeout(check, 50);
-            }
+            });
         });
     }
     check();
