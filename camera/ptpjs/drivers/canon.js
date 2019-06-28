@@ -335,7 +335,7 @@ driver.refresh = function(camera, callback, noEvent) {
         {
             if(i + 32 >= data.length)
             {
-                _logE("incomplete data for event parsing");
+                _logE("incomplete data for event parsing: length =", data.length, "response code:", ptp.hex(responseCode));
                 return callback && callback("incomplete data for event parsing");
             }
             var event_size = data.readUInt32LE(i);
@@ -449,7 +449,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},  // pc mode
             function(cb){ptp.transaction(camera._dev, 0x9115, [1], null, cb);},  // event mode
             function(cb){setTimeout(cb, 500);}  // wait
-            function(cb){driver.refresh(camera, cb);}  // get settings
+            function(cb){driver.refresh(camera, cb);},  // get settings
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
