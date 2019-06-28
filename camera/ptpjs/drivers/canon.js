@@ -446,8 +446,8 @@ driver.refresh = function(camera, callback, noEvent) {
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
-            function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb},  // pc mode
-            function(cb){ptp.transaction(camera._dev, 0x9115, [1], null, cb},  // event mode
+            function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},  // pc mode
+            function(cb){ptp.transaction(camera._dev, 0x9115, [1], null, cb);},  // event mode
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
