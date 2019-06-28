@@ -43,7 +43,6 @@ driver.supportedCameras = {
     '04a9:319a': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
 }
 
-
 var properties = {
     'shutter': {
         name: 'shutter',
@@ -349,6 +348,9 @@ driver.refresh = function(camera, callback, noEvent) {
             var event_item = data.readUInt32LE(i + 8 * 2);
             var event_value = data.readUInt32LE(i + 8 * 3);
 
+
+            _logD("event", ptp.hex(event_type), "code", ptp.hex(event_item), "value", ptp.hex(event_value));
+
             if(event_type == EOS_EC_PROPERTY_CHANGE)
             {
                 var found = false;
@@ -446,9 +448,9 @@ driver.refresh = function(camera, callback, noEvent) {
 driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
-            function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},  // pc mode
+            function(cb){ptp.transaction(camera._dev, 0x9114, [1], null, cb);},   // pc mode
             function(cb){ptp.transaction(camera._dev, 0x9115, [1], null, cb);},  // event mode
-            function(cb){setTimeout(cb, 500);},  // wait
+            function(cb){setTimeout(cb, 500);},          // wait
             function(cb){driver.refresh(camera, cb);},  // get settings
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
