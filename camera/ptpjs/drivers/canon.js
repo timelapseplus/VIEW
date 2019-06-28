@@ -357,10 +357,18 @@ driver.refresh = function(camera, callback, noEvent) {
                 for(var param in properties) {
                     if(properties[param].code == event_item) {
                         if(!camera[properties[param].category]) camera[properties[param].category] = {};
-                        var newItem = mapPropertyItem(event_value, properties[param].values);
-                        if(!newItem) {
-                            _logE(param, "current value", ptp.hex(event_value), "not found");
-                            break;
+                        var newItem = {};
+                        if(properties[param].values) {
+                            var newItem = mapPropertyItem(event_value, properties[param].values);
+                            if(!newItem) {
+                                _logE(param, "current value", ptp.hex(event_value), "not found");
+                                break;
+                            }
+                        } else {
+                            newItem = {
+                                name: event_value.toString(),
+                                value: event_value
+                            }
                         }
                         if(!camera[properties[param].category][param]) {
                             newItem.list = [];
@@ -409,13 +417,15 @@ driver.refresh = function(camera, callback, noEvent) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown event list", ptp.hex(event_type));
+                    _logD("unknown event list", ptp.hex(event_item));
                 }
             }
             else if(event_type == EOS_EC_OBJECT_CREATED)
             {
                 camera._busy = false;
-                camera._objectsAdded.push(data.readUInt32LE(i + 4 * 2));
+                var newObject = data.readUInt32LE(i + 4 * 2);
+                camera._objectsAdded.push();
+                _logD("object added:", ptp.hex(newObject));
             }
             else if(event_type == EOS_EC_WillShutdownSoon)
             {
@@ -664,7 +674,7 @@ driver.capture = function(camera, target, options, callback, tries) {
     var filename = null;
     var rawImage = null;
     async.series([
-        function(cb){ptp.transaction(_dev, 0x910F, [], null, cb);},
+        function(cb){ptp.transaction(camera._dev, 0x910F, [], null, cb);},
         function(cb){
             getImage(camera, 60000, function(err, th, fn, rw) {
                 thumb = th;
