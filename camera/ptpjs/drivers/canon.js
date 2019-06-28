@@ -357,7 +357,7 @@ driver.refresh = function(camera, callback, noEvent) {
                 for(var param in properties) {
                     if(properties[param].code == event_item) {
                         if(!camera[properties[param].category]) camera[properties[param].category] = {};
-                        var newItem = mapPropertyItem(event_value, properties[param].list);
+                        var newItem = mapPropertyItem(event_value, properties[param].values);
                         if(!newItem) {
                             _logE(param, "current value", ptp.hex(event_value), "not found");
                             break;
@@ -376,7 +376,7 @@ driver.refresh = function(camera, callback, noEvent) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown event change", ptp.hex(event_type), " = ", ptp.hex(event_value));
+                    _logD("unknown event change", ptp.hex(event_item), " = ", ptp.hex(event_value));
                 }
             }
             else if(event_type == EOS_EC_PROPERTY_VALUES)
