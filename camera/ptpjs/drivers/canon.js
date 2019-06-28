@@ -48,7 +48,7 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: shiftProperty,
+        setFunction: setProperty,
         getFunction: null,
         listFunction: null,
         code: 0xD102,
@@ -115,7 +115,7 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: shiftProperty,
+        setFunction: setProperty,
         getFunction: null,
         listFunction: null,
         code: 0xD101,
@@ -164,7 +164,7 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: shiftProperty,
+        setFunction: setProperty,
         getFunction: null,
         listFunction: null,
         typeCode: 6,
@@ -462,7 +462,7 @@ function mapPropertyItem(cameraValue, list) {
     return null;
 }
 
-function setProperty(_dev, propcode, value, datatype, callback) {
+function setProperty(_dev, propcode, value, callback) {
     return ptp.transaction(_dev, 0x9110, [0x0000000C, propcode, value], null, callback);
 }
 
