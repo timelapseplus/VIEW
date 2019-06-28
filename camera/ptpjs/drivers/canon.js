@@ -364,11 +364,10 @@ driver.refresh = function(camera, callback, noEvent) {
                         }
                         if(!camera[properties[param].category][param]) {
                             newItem.list = [];
-                            camera[properties[param].category][param] = newItem;
-                        } else {
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
-                            }
+                            camera[properties[param].category][param] = {};
+                        }
+                        for(var k in newItem) {
+                            if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                         }
                         _logD(param, "=", newItem.name);
                         found = true;
