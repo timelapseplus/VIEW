@@ -967,7 +967,7 @@ driver.capture = function(camera, target, options, callback, tries) {
 }
 
 driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback) {
-    return driver.capture = function(camera, target, options, callback); // needs implemenation
+    return driver.capture(camera, target, options, callback); // needs implemenation
 }
 
 driver.liveviewMode = function(camera, enable, callback) {
