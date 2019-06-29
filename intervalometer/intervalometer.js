@@ -982,7 +982,7 @@ function setupExposure(cb) {
         } else {
             intervalometer.status.hdrIndex = 0;
         }
-        log("HDR adjustment:", diff, intervalometer.status.hdrIndex);
+        logEvent("HDR adjustment:", diff, intervalometer.status.hdrIndex);
     }
 
     var doSetup = function() {
