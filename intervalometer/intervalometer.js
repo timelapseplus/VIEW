@@ -76,7 +76,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     if(captureOptions && captureOptions.mode == 'test') {
                         options.destination = "VIEW";
                     }
-                    if(captureOptions && captureOptions.hdrCount && captureOptions.hdrCount > 1 && captureOptions.hdrStops > 0) {
+                    if(camera.ptp.new.cameras[0].camera.supportsNativeHDR && captureOptions && captureOptions.hdrCount && captureOptions.hdrCount > 1 && captureOptions.hdrStops > 0) {
                         options.hdrStops = captureOptions.hdrStops;
                         options.hdrCount = captureOptions.hdrCount;
                     }
@@ -1071,7 +1071,7 @@ function planHdr(hdrCount, hdrStops) {
     intervalometer.status.hdrCount = hdrCount > 1 ? hdrCount : 0;
     intervalometer.status.hdrStops = hdrCount > 1 ? hdrStops : 0;
     
-    if(!camera.ptp.new.available) {
+    if(!camera.ptp.new.available || !(camera.ptp.new.cameras && camera.ptp.new.cameras[0] && camera.ptp.new.cameras[0].camera && camera.ptp.new.cameras[0].camera.supportsNativeHDR)) {
         while(overSet.length || underSet.length) {
             if(overSet.length) intervalometer.status.hdrSet.push(overSet.shift());
             if(underSet.length) intervalometer.status.hdrSet.push(underSet.shift());

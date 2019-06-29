@@ -39,6 +39,8 @@ function objCopy(sourceObj, destObj) {
     return destObj;
 }
 
+driver.supportsNativeHDR = false;
+
 driver.supportedCameras = {
     '054c:0994': {
             name: "Sony A7III",
@@ -622,6 +624,7 @@ function ptp_sony_9281 (camera, param1, callback) {
 
 
 driver.init = function(camera, callback) {
+    camera.supportsNativeHDR = driver.supportsNativeHDR;
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x1, 0x0, 0x0], null, cb);}, // PC mode
@@ -933,6 +936,7 @@ function getImage(camera, timeout, callback) {
 }
 
 driver.capture = function(camera, target, options, callback, tries) {
+    _logD("triggering capture...");
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
     var thumb = null;
@@ -953,12 +957,17 @@ driver.capture = function(camera, target, options, callback, tries) {
             });
         },
     ], function(err) {
+        if(err) {
+            _logE("error during capture:", err);
+        } else {
+            _logD("capture complete:", filename);
+        }
         callback && callback(err, thumb, filename, rawImage);
     });
 }
 
 driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly, callback) {
-
+    return driver.capture = function(camera, target, options, callback); // needs implemenation
 }
 
 driver.liveviewMode = function(camera, enable, callback) {

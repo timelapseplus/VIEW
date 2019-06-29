@@ -39,8 +39,11 @@ function objCopy(sourceObj, destObj) {
     return destObj;
 }
 
+driver.supportsNativeHDR = false;
+
 driver.supportedCameras = {
-    '04a9:319a': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    //'04a9:319a': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:0000': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
 }
 
 var properties = {
@@ -436,12 +439,24 @@ driver.refresh = function(camera, callback, noEvent) {
             i += event_size;
         }
 
+        //series = [];
+        //for(var param in properties) {
+        //    if(properties[param].listFunction) {
+        //        series.push(function(cb){
+        //            properties[param].listFunction();
+        //        });
+        //    } else if(properties[param].getFunction) {
+//
+        //    }
+        //}
+
         callback && callback();
         if(!noEvent) exposureEvent(camera);
     });
 }
 
 driver.init = function(camera, callback) {
+    camera.supportsNativeHDR = driver.supportsNativeHDR;
     camera._objectsAdded = [];
     ptp.init(camera._dev, function(err, di) {
         async.series([

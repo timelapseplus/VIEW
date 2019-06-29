@@ -44,6 +44,8 @@ function exposureEvent(camera) {
     }
 }
 
+driver.supportsNativeHDR = false;
+
 driver.supportedCameras = {
     '04cb:02cb': {
             name: "Fuji X-Pro2",
@@ -362,6 +364,7 @@ driver.refresh = function(camera, callback) {
 }
 
 driver.init = function(camera, callback) {
+    camera.supportsNativeHDR = driver.supportsNativeHDR;
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
