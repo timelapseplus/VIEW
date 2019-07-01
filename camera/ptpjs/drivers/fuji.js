@@ -598,7 +598,7 @@ driver.capture = function(camera, target, options, callback, tries) {
         },
     ], function(err, res) {
         if(err) _logE("capture error", ptp.hex(err), "at item", res.length);
-        if(err == 0x2019 && tries < 5) {
+        if((err == 0x2019 || err == 0x2002) && tries < 5) {
             return driver.capture(camera, target, options, callback, tries + 1);
         }
         callback && callback(err, results.thumb, results.filename, results.rawImage);
