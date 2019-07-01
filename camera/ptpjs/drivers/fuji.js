@@ -383,7 +383,8 @@ function mapPropertyItem(cameraValue, list) {
     return null;
 }
 
-driver.set = function(camera, param, value, callback) {
+driver.set = function(camera, param, value, callback, tries) {
+    if(!tries) tries = 0;
     var lvMode = camera.status.liveview;
     async.series([
         function(cb){
@@ -434,7 +435,13 @@ driver.set = function(camera, param, value, callback) {
             if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err) {
-        return callback && callback(err);
+        if(err == 0x2019 && tries < 5) {
+            setTimeout(function(){
+                driver.set(camera, param, value, callback, tries + 1);
+            }, 100);
+        } else {
+            return callback && callback(err);
+        }
     });
 }
 
@@ -585,7 +592,7 @@ driver.capture = function(camera, target, options, callback, tries) {
         },
     ], function(err, res) {
         if(err) _logE("capture error", ptp.hex(err), "at item", res.length);
-        if(err == 0x2019 && tries < 3) {
+        if(err == 0x2019 && tries < 5) {
             return driver.capture(camera, target, options, callback, tries + 1);
         }
         callback && callback(err, results.thumb, results.filename, results.rawImage);
