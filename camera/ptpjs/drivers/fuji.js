@@ -382,6 +382,12 @@ function mapPropertyItem(cameraValue, list) {
     }
     return null;
 }
+function equalEv(ev1, ev2) {
+    if(ev1 == null || ev2 == null) {
+        return ev1 == ev2;
+    }
+    return Math.abs(ev1 - ev2) < 0.15;
+}
 
 driver.set = function(camera, param, value, callback, tries) {
     if(!tries) tries = 0;
@@ -395,7 +401,7 @@ driver.set = function(camera, param, value, callback, tries) {
                 var cameraValue = null;
                 if(properties[param].ev && typeof value == "number") {
                     for(var i = 0; i < properties[param].values.length; i++) {
-                        if(properties[param].values[i].ev == value) {
+                        if(equalEv(properties[param].values[i].ev, value)) {
                             cameraValue = properties[param].values[i].code;
                             break;
                         }

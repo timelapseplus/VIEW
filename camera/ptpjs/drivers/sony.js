@@ -737,7 +737,12 @@ function shiftProperty(_dev, propcode, move, callback) {
     if(move < -127) move = -127;
     setDeviceControlValueB (_dev, propcode, move, 1, callback);
 }
-
+function equalEv(ev1, ev2) {
+    if(ev1 == null || ev2 == null) {
+        return ev1 == ev2;
+    }
+    return Math.abs(ev1 - ev2) < 0.15;
+}
 driver.set = function(camera, param, value, callback, tries) {
     if(!tries) tries = 0;
     tries++;
@@ -756,7 +761,7 @@ driver.set = function(camera, param, value, callback, tries) {
                 }
                 if(properties[param].ev && typeof value == "number") {
                     for(var i = 0; i < properties[param].values.length; i++) {
-                        if(properties[param].values[i].ev == value) {
+                        if(equalEv(properties[param].values[i].ev, value)) {
                             cameraValue = properties[param].values[i].code;
                             targetIndex = i;
                             break;
