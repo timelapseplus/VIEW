@@ -100,7 +100,19 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             setTimeout(function() {
                                 saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                             }, 10);
+
                             var completeCapture = function() {
+                                var photoRes = {
+                                    file: filename,
+                                    cameraCount: 1,
+                                    cameraResults: [],
+                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                    ev: null
+                                }
+                                if(captureOptions.noDownload) {
+                                    logEvent("...capture complete.");
+                                    callback && callback(err, photoRes);
+                                }
                                 var size = {
                                     x: 120,
                                     q: 80
@@ -114,13 +126,6 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     }
                                     intervalometer.lastImage = img;
                                     intervalometer.emit("photo");
-                                    var photoRes = {
-                                        file: filename,
-                                        cameraCount: 1,
-                                        cameraResults: [],
-                                        thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
-                                        ev: null
-                                    }
                                     if(captureOptions.calculateEv) {
                                         logEvent("capture complete, analyzing image...");
                                         image.exposureValue(img, function(err, ev, histogram) {
