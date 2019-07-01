@@ -105,7 +105,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             }
                             if(captureOptions.noDownload) {
                                 logEvent("...capture complete.");
-                                callback && callback(err, photoRes);
+                                return callback && callback(err, photoRes);
                             }
                             logEvent("capture complete, downsizing image...");
                             setTimeout(function() {
@@ -166,6 +166,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     writeSD();
                                 } else {
                                     logErr("Unable to write to SD card!", filename, raw && raw.length);
+                                    completeCapture();
                                 }
                             } else {
                                 completeCapture();
