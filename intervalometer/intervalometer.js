@@ -96,23 +96,23 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 callback && callback(err, photoRes);
                             });
                         } else {
+                            var photoRes = {
+                                file: filename,
+                                cameraCount: 1,
+                                cameraResults: [],
+                                thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                ev: null
+                            }
+                            if(captureOptions.noDownload) {
+                                logEvent("...capture complete.");
+                                callback && callback(err, photoRes);
+                            }
                             logEvent("capture complete, downsizing image...");
                             setTimeout(function() {
                                 saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                             }, 10);
 
                             var completeCapture = function() {
-                                var photoRes = {
-                                    file: filename,
-                                    cameraCount: 1,
-                                    cameraResults: [],
-                                    thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
-                                    ev: null
-                                }
-                                if(captureOptions.noDownload) {
-                                    logEvent("...capture complete.");
-                                    callback && callback(err, photoRes);
-                                }
                                 var size = {
                                     x: 120,
                                     q: 80
@@ -1417,15 +1417,20 @@ function runPhoto(isRetry) {
                     busyPhoto = false;
                     return;
                 }
-                var nextHDRms = 100 + camera.lists.getSecondsFromEv(shutterEv) * 1000;
-                log("running next in HDR sequence", intervalometer.status.hdrIndex, nextHDRms);
-                remap('camera.ptp.capture')(captureOptions);
-                setTimeout(function(){
+                //var nextHDRms = 100 + camera.lists.getSecondsFromEv(shutterEv) * 1000;
+                //log("running next in HDR sequence", intervalometer.status.hdrIndex, nextHDRms);
+                remap('camera.ptp.capture')(captureOptions, function(err, res) {
                     setupExposure(function(){
                         busyPhoto = false;
                         runPhoto()
                     });
-                }, nextHDRms);
+                });
+                //setTimeout(function(){
+                //    setupExposure(function(){
+                //        busyPhoto = false;
+                //        runPhoto()
+                //    });
+                //}, nextHDRms);
                 return;
             } else {
                 var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
