@@ -481,12 +481,37 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.previewFull':
       if(camera.ptp.new.available) {
+        console.log("PREVIEW: using new driver...");
         if(!camera.ptp.new.cameras[0].camera.status.liveview) {
-          camera.ptp.new.liveviewMode(true, function(){
-            camera.ptp.new.liveviewImage(cameraCallback);
+          console.log("PREVIEW: enabling...");
+          camera.ptp.new.liveviewMode(true, function(err){
+            cameraCallback(err);
+            camera.ptp.new.liveviewImage(function(err, img) {
+              if(!err && img) {
+                var obj = {
+                  base64: new Buffer(img).toString('base64'),
+                  type: 'preview'
+                };
+                sendEvent('camera.photo', obj);
+              } else {
+                console.log("PREVIEW: err:", err);
+              }
+            });
           });
         } else {
-          camera.ptp.new.liveviewImage(cameraCallback);
+          console.log("PREVIEW: fetching image...");
+          camera.ptp.new.liveviewImage(function(err, img) {
+            cameraCallback(err);
+            if(!err && img) {
+              var obj = {
+                base64: new Buffer(img).toString('base64'),
+                type: 'preview'
+              };
+              sendEvent('camera.photo', obj);
+            } else {
+              console.log("PREVIEW: err:", err);
+            }
+          });
         }
       } else {
         camera.ptp.previewFull(cameraCallback);

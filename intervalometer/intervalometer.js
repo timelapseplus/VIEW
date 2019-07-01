@@ -767,8 +767,8 @@ function processKeyframes(setupFirst, callback) {
                         intervalometer.status.panDiff = intervalometer.status.panDiffNew;
                     }
                     panDegrees += intervalometer.status.panDiff;
+                    intervalometer.status.trackingPanEnabled = true;
                     if(panDegrees != 0) {
-                        intervalometer.status.trackingPanEnabled = true;
                         var panSteps = panDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             panSteps = Math.round(panSteps);
@@ -791,8 +791,8 @@ function processKeyframes(setupFirst, callback) {
                         intervalometer.status.tiltDiff = intervalometer.status.tiltDiffNew;
                     }
                     tiltDegrees += intervalometer.status.tiltDiff;
+                    intervalometer.status.trackingTiltEnabled = true;
                     if(tiltDegrees != 0 && axis.orientation == 'tilt') {
-                        intervalometer.status.trackingTiltEnabled = true;
                         var tiltSteps = tiltDegrees * motor.stepsPerDegree;
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
