@@ -324,47 +324,17 @@ if (VIEW_HARDWARE) {
         }]
     }
 
-    var lrtDirection = {
-        name: "timelapse mode",
-        type: "options",
-        items: [{
-            name: "Ramp Direction",
-            value: "Auto Ramping",
-            help: help.lrtDirection,
-            action: ui.set(core.currentProgram, 'rampMode', 'auto', function(){
-                core.currentProgram = reconfigureProgram(core.currentProgram);
-                ui.back();
-            })
-        }, {
-            name: "Ramp Direction",
-            value: "Auto Sunset",
-            help: help.lrtDirection,
-            action: ui.set(core.currentProgram, 'rampMode', 'sunset', function(){
-                core.currentProgram = reconfigureProgram(core.currentProgram);
-                ui.back();
-            })
-        }, {
-            name: "Ramp Direction",
-            value: "Auto Sunrise",
-            help: help.lrtDirection,
-            action: ui.set(core.currentProgram, 'rampMode', 'sunrise', function(){
-                core.currentProgram = reconfigureProgram(core.currentProgram);
-                ui.back();
-            }),
-        }]
-    }
 
-    var reconfigureProgram = function(program) {
+    var reconfigureProgram = function(program, updateTimeOnly) {
+        if(core.intervalometerStatus.running) return program; // don't do anything if it's running
+
         if(!program.exposurePlans) program.exposurePlans = [];
         if(!program.savedExposurePlans) program.savedExposurePlans = [];
-        if(program.rampMode == 'sunset' || program.rampMode == 'sunrise') {
-            program.lrtDirection = program.rampMode;
-            program.rampMode = 'auto';
-        }
         if(program.rampMode == 'auto') {
             if(program.exposurePlans.length) program.savedExposurePlans = program.exposurePlans;
             program.exposurePlans = [];
         } else if(program.rampMode == 'eclipse') {
+            if(updateTimeOnly) program.savedExposurePlans = program.exposurePlans;
             var coords = mcu.validCoordinates();
             program.exposurePlans = [];
             var exposurePlans = [];
@@ -1951,13 +1921,6 @@ if (VIEW_HARDWARE) {
             name: valueDisplay("Timelapse Mode", core.currentProgram, 'rampMode'),
             help: help.rampingOptions,
             action: rampingOptions
-        /*}, {
-            name: valueDisplay("Ramp Direction", core.currentProgram, 'lrtDirection'),
-            help: help.lrtDirection,
-            action: lrtDirection,
-            condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lrt' && core.currentProgram.rampMode == 'auto';
-            }*/
         }, {
             name: valueDisplay("Interval Mode", core.currentProgram, 'intervalMode'),
             help: help.intervalOptions,
@@ -2098,6 +2061,7 @@ if (VIEW_HARDWARE) {
                         core.currentProgram.tracking = 'none';
                     }
                     oled.timelapseStatus = null;
+                    core.currentProgram = reconfigureProgram(core.currentProgram, true);
 
 
                     if(core.currentProgram.tracking != 'none') {
@@ -3467,6 +3431,7 @@ if (VIEW_HARDWARE) {
             action: ui.set(power, 'gpsEnabled', 'enabled', function(cb){
                 db.set('gpsEnabled', "yes");
                 power.gps(true);
+                core.currentProgram = reconfigureProgram(core.currentProgram, true);
                 cb && cb();
             })
         }, {
@@ -3476,6 +3441,7 @@ if (VIEW_HARDWARE) {
             action: ui.set(power, 'gpsEnabled', 'disabled', function(cb){
                 db.set('gpsEnabled', "no");
                 power.gps(false);
+                core.currentProgram = reconfigureProgram(core.currentProgram, true);
                 cb && cb();
             })
         }]
@@ -4118,6 +4084,7 @@ if (VIEW_HARDWARE) {
                 onSave: function(result) {
                     db.set('custom-latitude', result);
                     console.log("MAIN: setting custom latitude to", result);
+                    core.currentProgram = reconfigureProgram(core.currentProgram, true);
                     mcu.customLatitude = result;
                 }
             });
@@ -4135,6 +4102,7 @@ if (VIEW_HARDWARE) {
                 onSave: function(result) {
                     db.set('custom-longitude', result);
                     console.log("MAIN: setting custom longitude to", result);
+                    core.currentProgram = reconfigureProgram(core.currentProgram, true);
                     mcu.customLongitude = result;
                 }
             });
@@ -4861,6 +4829,7 @@ db.get('timezone', function(err, tz) {
 
 mcu.on('gps', function(index) {
     oled.setIcon('gps', index == 2);
+    core.currentProgram = reconfigureProgram(core.currentProgram, true);
     ui.reload();
 });
 
@@ -5103,6 +5072,7 @@ app.on('message', function(msg) {
             case 'run':
                 if(!msg.program.coords || msg.program.coords.src != 'app') msg.program.coords = mcu.validCoordinates();
                 core.loadProgram(msg.program);
+                core.currentProgram = reconfigureProgram(core.currentProgram, true);
                 core.startIntervalometer(msg.program, msg.date);
                 break;
 

@@ -822,6 +822,24 @@ function checkReady(camera, callback) {
     });
 }
 
+function waitReady(camera, timeout, callback) {
+    var startTime = Date.now();
+    var check = function() {
+        if(Date.now() - startTime > timeout) {
+            return callback && callback("timeout");
+        }
+        checkReady(camera, function(err, ready) { // wait if busy
+            //console.log("data:", data);
+            if(!err && ready) {
+                return callback && callback();
+            } else if(err) {
+                setTimeout(check, 50);
+            }
+        }
+    }
+    check();
+}
+
 driver.capture = function(camera, target, options, callback, noImage, noChangeBracketing, tries) {
     var targetValue = (!target || target == "camera") ? "camera" : "VIEW";
     camera.thumbnail = targetValue == 'camera';
@@ -958,7 +976,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {
                 if(responseCode == 0x2019) {
                     _tries++;
-                    if(_tries < 10) {
+                    if(_tries < 15) {
                         setTimeout(function(){
                             driver.liveviewMode(camera, enable, callback, _tries);
                         }, 50);
@@ -969,15 +987,13 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                     return callback && callback(err || responseCode);
                 }
                 camera.status.liveview = true;
-                setTimeout(function(){ 
-                    return callback && callback(null, responseCode == 0x2001);
-                }, 50);
+                return waitReady(camera, 2000, callback);
             });
         } else {
             ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
                 camera.status.liveview = false;
-                return callback && callback(null, responseCode == 0x2001);
+                return waitReady(camera, 2000, callback);
             });
         }
     } else {

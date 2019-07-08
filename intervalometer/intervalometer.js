@@ -107,7 +107,6 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 logEvent("...capture complete.");
                                 return callback && callback(err, photoRes);
                             }
-                            logEvent("capture complete, downsizing image...");
                             setTimeout(function() {
                                 saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                             }, 10);
@@ -117,6 +116,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                     x: 120,
                                     q: 80
                                 }
+                                logEvent("capture complete, downsizing image...");
                                 image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
                                     var img;
                                     if (!err && lowResJpg) {

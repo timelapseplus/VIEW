@@ -245,6 +245,7 @@ exports.getTimelapseFrames = function(tlId, cameraNumber, callback) {
 var _currentTimelapseClipId = null;
 var _currentTimelapseClipFrames = {};
 var _currentTimelapsePrimaryCamera = 0;
+var _maxCurrentFrames = 600;
 
 exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber, thumbnail, callback) {
 	if(closed) return callback && callback(true);
@@ -262,6 +263,9 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	}
 
 	if(!_currentTimelapseClipFrames[cameraNumber]) _currentTimelapseClipFrames[cameraNumber] = [];
+	if(_currentTimelapseClipFrames[cameraNumber].length > _maxCurrentFrames) {
+		_currentTimelapseClipFrames[cameraNumber].shift(); // drop first frame
+	}
 	_currentTimelapseClipFrames[cameraNumber].push(thumbnail);
 
 	setTimeout(function(){ dbTl.get("SELECT frames, thumbnail, primary_camera FROM clips WHERE id = '" + clipId + "'", function(err, data){
