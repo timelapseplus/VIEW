@@ -796,9 +796,10 @@ function getImage(camera, timeout, callback) {
                                     var eventCode = null;
                                     _logD("data:", data);
                                     for(var i = 0; i < eventCount; i++) {
-                                    if(data.length < dataIndex + 8) return setTimeout(check);
+                                    if(data.length < dataIndex + 6) return setTimeout(check);
                                         eventCode = data.readUInt16LE(dataIndex);
                                         dataIndex += 2;
+                                        _logD("event code:", eventCode)
                                         if(eventCode == 0xC101) {
                                             var newObject = data.readUInt32LE(dataIndex);
                                             _logD("new object:", ptp.hex(newObject), "data:", data);
