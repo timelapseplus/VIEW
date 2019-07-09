@@ -57,7 +57,8 @@ CORELOGFILE="/var/log/view-core-$DATE.txt"
 cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 prepend_date() { while read line; do echo $(date +%Y%m%d-%H%M%S) $line; done }
-forever main.js 2>&1 | prepend_date >> $UILOGFILE &
-forever start -c "node --max_old_space_size=512" intervalometer/intervalometer-server.js 2>&1 | prepend_date >> $CORELOGFILE &
-
+forever start -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOGFILE &
+sleep(20)
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
+forever start -c "node --max_old_space_size=320" intervalometer/intervalometer-server.js 2>&1 | prepend_date >> $CORELOGFILE &
+
