@@ -433,6 +433,15 @@ var properties = {
     },
 }
 
+function propMapped(propCode) {
+    for(name in properties) {
+        if(properties.hasOwnProperty(name)) {
+            if(propCode === properties[name].code) return true;
+        }
+    }
+    return false;
+}
+
 driver._error = function(camera, error) { // events received
     _logE(error);
 };
@@ -462,7 +471,12 @@ driver._event = function(camera, data) { // events received
                 }, 500);
             }
             _logD("property changed:", ptp.hex(param1));
-            check();
+            if(propMapped(param1)) {
+                _logD("property changed:", ptp.hex(param1), "(mapped)");
+                check();
+            } else {
+                _logD("property changed:", ptp.hex(param1), "(not mapped)");
+            }
         } else {
             _logD("EVENT:", data);
         }

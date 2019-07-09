@@ -448,6 +448,7 @@ function runCommand(type, args, callback, client) {
           console.log("PREVIEW: enabling...");
           camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
+            console.log("PREVIEW: enabled, fetching image...");
             camera.ptp.new.liveviewImage(function(err, img) {
               if(!err && img) {
                 var obj = {
