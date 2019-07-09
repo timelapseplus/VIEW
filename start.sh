@@ -45,6 +45,8 @@ else
 	if [ "$0" != "/home/view/current/start.sh" ]
 	then
         echo "running recovery version...";
+    else
+        echo "running installed version...";
     fi
 fi
 
@@ -57,9 +59,6 @@ cd /home/view/current;
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
 CORELOGFILE="/var/log/view-core-$DATE.txt"
-echo $CORELOGFILE
-echo $CORELOGFILE
-
 cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 prepend_date() { while read line; do echo $(date +%Y%m%d-%H%M%S) $line; done }
