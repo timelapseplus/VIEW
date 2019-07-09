@@ -2487,9 +2487,10 @@ if (VIEW_HARDWARE) {
             core.preview(function(err) {
                 if(err) {
                     exiting = true;
+                    oled.unblock();
                     liveviewOn = false;
-                    blockInputs = false;
                     core.lvOff();
+                    blockInputs = false;
                     console.log("(capture) lv error, disabling handlers...");
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
