@@ -835,7 +835,7 @@ function waitReady(camera, timeout, callback) {
             } else if(err) {
                 setTimeout(check, 50);
             }
-        }
+        });
     }
     check();
 }
