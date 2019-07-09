@@ -1549,7 +1549,19 @@ if (VIEW_HARDWARE) {
 
             liveviewOn = true;
             liveviewOnApp = false;
-            core.preview();
+            core.preview(function(err) {
+                if(err) {
+                    exiting = true;
+                    liveviewOn = false;
+                    blockInputs = false;
+                    core.lvOff();
+                    console.log("(exposure) lv error, disabling handlers...");
+                    inputs.removeListener('B', captureButtonHandler);
+                    inputs.removeListener('D', captureDialHandler);
+                    setTimeout(cb, 500);
+                    ui.status("liveview error");
+                }
+            });
             console.log("(exposure) started liveview, getting settings...");
             inputs.on('B', captureButtonHandler);
             core.getSettings(function() {
@@ -2472,7 +2484,19 @@ if (VIEW_HARDWARE) {
                 if(exiting) return;
                 inputs.on('D', captureDialHandler);
             });
-            core.preview();
+            core.preview(function(err) {
+                if(err) {
+                    exiting = true;
+                    liveviewOn = false;
+                    blockInputs = false;
+                    core.lvOff();
+                    console.log("(capture) lv error, disabling handlers...");
+                    inputs.removeListener('B', captureButtonHandler);
+                    inputs.removeListener('D', captureDialHandler);
+                    setTimeout(cb, 500);
+                    ui.status("liveview error");
+                }
+            });
         }
     }
 

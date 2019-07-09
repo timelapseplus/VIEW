@@ -443,7 +443,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.preview':
       if(camera.ptp.new.available) {
-        console.log("PREVIEW: using new driver...");
+        //console.log("PREVIEW: using new driver...");
         if(!camera.ptp.new.cameras[0].camera.status.liveview) {
           console.log("PREVIEW: enabling...");
           camera.ptp.new.liveviewMode(true, function(err){
@@ -462,7 +462,7 @@ function runCommand(type, args, callback, client) {
             });
           });
         } else {
-          console.log("PREVIEW: fetching image...");
+          //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
             if(!err && img) {
@@ -482,7 +482,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.previewFull':
       if(camera.ptp.new.available) {
-        console.log("PREVIEW: using new driver...");
+        //console.log("PREVIEW: using new driver...");
         if(!camera.ptp.new.cameras[0].camera.status.liveview) {
           console.log("PREVIEW: enabling...");
           camera.ptp.new.liveviewMode(true, function(err){
@@ -500,7 +500,7 @@ function runCommand(type, args, callback, client) {
             });
           });
         } else {
-          console.log("PREVIEW: fetching image...");
+          //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
             if(!err && img) {
