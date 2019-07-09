@@ -799,15 +799,13 @@ function getImage(camera, timeout, callback) {
                                     if(data.length < dataIndex + 8) return setTimeout(check);
                                         eventCode = data.readUInt16LE(dataIndex);
                                         dataIndex += 2;
-                                        eventParamsCount = data.readUInt16LE(dataIndex);
-                                        dataIndex += 2;
                                         if(eventCode == 0xC101) {
                                             var newObject = data.readUInt32LE(dataIndex);
                                             _logD("new object:", ptp.hex(newObject), "data:", data);
                                             camera._objectsAdded.push(newObject);
                                             return setTimeout(check);
                                         }
-                                        dataIndex += eventParamsCount * 4;
+                                        dataIndex += 4;
                                     }
                                 }
                                 return setTimeout(check, 50);
