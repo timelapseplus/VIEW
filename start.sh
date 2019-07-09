@@ -39,7 +39,8 @@ echo "current script=$0"
 if [ "$0" != "/home/view/current/start.sh" ] && [ -e /home/view/current/start.sh ]
 then
         echo "starting installed version...";
-        sh /home/view/current/start.sh && exit;
+        sh /home/view/current/start.sh;
+        exit;
 else
 	if [ "$0" != "/home/view/current/start.sh" ]
 	then
