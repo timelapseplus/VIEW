@@ -791,8 +791,8 @@ function getImage(camera, timeout, callback) {
                             return ptp.transaction(camera._dev, 0x90C7, [], null, function(err, responseCode, data) {
                                 if(!err && responseCode == 0x2001 && data && data.length > 4) {
                                     var dataIndex = 0;
-                                    var eventCount = data.readUInt8(dataIndex);
-                                    dataIndex += 1;
+                                    var eventCount = data.readUInt16LE(dataIndex);
+                                    dataIndex += 2;
                                     var eventCode = null;
                                     _logD("data:", data);
                                     for(var i = 0; i < eventCount; i++) {
