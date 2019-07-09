@@ -470,7 +470,6 @@ driver._event = function(camera, data) { // events received
                     }
                 }, 500);
             }
-            _logD("property changed:", ptp.hex(param1));
             if(propMapped(param1)) {
                 _logD("property changed:", ptp.hex(param1), "(mapped)");
                 check();
@@ -741,6 +740,7 @@ driver.get = function(camera, param, callback) {
 }
 
 function getImage(camera, timeout, callback) {
+
     var results = {
         thumb: null,
         filename: null,
@@ -991,7 +991,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                 if(responseCode == 0x2019) {
                     _tries++;
                     if(_tries < 15) {
-                        setTimeout(function(){
+                        return setTimeout(function(){
                             driver.liveviewMode(camera, enable, callback, _tries);
                         }, 50);
                     }
@@ -1001,13 +1001,13 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                     return callback && callback(err || responseCode);
                 }
                 camera.status.liveview = true;
-                return waitReady(camera, 2000, callback);
+                return waitReady(camera, 3000, callback);
             });
         } else {
             ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
                 camera.status.liveview = false;
-                return waitReady(camera, 2000, callback);
+                return waitReady(camera, 3000, callback);
             });
         }
     } else {
