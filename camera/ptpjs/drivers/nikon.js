@@ -844,9 +844,11 @@ function waitReady(camera, timeout, callback) {
         }
         checkReady(camera, function(err, ready) { // wait if busy
             //console.log("data:", data);
-            if(!err && ready) {
+            if(ready) {
                 return callback && callback();
             } else if(err) {
+                return callback && callback(err);
+            } else {
                 setTimeout(check, 50);
             }
         });
@@ -1001,14 +1003,14 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                     return callback && callback(err || responseCode);
                 }
                 camera.status.liveview = true;
-                logD("LV enabled");
+                _logD("LV enabled");
                 return waitReady(camera, 3000, callback);
             });
         } else {
             ptp.transaction(camera._dev, 0x9202, [], null, function(err, responseCode) {
                 if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
                 camera.status.liveview = false;
-                logD("LV disabled");
+                _logD("LV disabled");
                 return waitReady(camera, 3000, callback);
             });
         }
