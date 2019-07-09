@@ -786,6 +786,30 @@ function getImage(camera, timeout, callback) {
                                 }
                                 dataIndex += eventParamsCount * 4;
                             }
+                        } else {
+                            return ptp.transaction(camera._dev, 0x90C7, [], null, function(err, responseCode, data) {
+                                if(!err && responseCode == 0x2001 && data && data.length > 4) {
+                                    var dataIndex = 0;
+                                    var eventCount = data.readUInt32LE(dataIndex);
+                                    dataIndex += 4;
+                                    var eventCode = null;
+                                    _logD("data:", data);
+                                    for(var i = 0; i < eventCount; i++) {
+                                        eventCode = data.readUInt16LE(dataIndex);
+                                        dataIndex += 2;
+                                        eventParamsCount = data.readUInt16LE(dataIndex);
+                                        dataIndex += 2;
+                                        if(eventCode == 0xC101) {
+                                            var newObject = data.readUInt32LE(dataIndex);
+                                            _logD("new object:", ptp.hex(newObject), "data:", data);
+                                            camera._objectsAdded.push(newObject);
+                                            return setTimeout(check);
+                                        }
+                                        dataIndex += eventParamsCount * 4;
+                                    }
+                                }
+                                return setTimeout(check, 50);
+                            });
                         }
                         return setTimeout(check, 50);
                     });
