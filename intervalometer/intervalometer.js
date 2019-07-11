@@ -970,7 +970,7 @@ var busyExposure = false;
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings && camera.ptp.settings.viewfinder == "off";
-    var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.new.available && !camera.ptp.new.cameras[0].camera.status.liveview;
+    var newDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.new.available && !camera.ptp.new.cameras[0].camera.status.liveview;
     if(oldDriverEnableLv) {
         log("\n\nEXP: setupExposure (enabling LV)");
         busyExposure = true;
