@@ -1029,7 +1029,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
     if(enable) {
         camera._dev._lvTimer = setTimeout(function(){
             driver.liveviewMode(camera, false);
-        }, 60000);
+        }, 60000*10);
     }
     if(camera.status.liveview != !!enable) {
         if(enable) {

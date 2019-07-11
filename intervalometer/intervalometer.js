@@ -970,7 +970,7 @@ var busyExposure = false;
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings && camera.ptp.settings.viewfinder == "off";
-    var newDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.new.available && !camera.ptp.new.cameras[0].camera.status.liveview;
+    var newDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.new.available;
     if(oldDriverEnableLv) {
         log("\n\nEXP: setupExposure (enabling LV)");
         busyExposure = true;
@@ -1687,6 +1687,7 @@ intervalometer.cancel = function(reason, callback) {
                     intervalometer.timelapseFolder = false;
                     camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                     camera.ptp.unmountSd();
+                    if(intervalometer.status.useLiveview) remap('camera.ptp.lvOff');
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
                     callback && callback();
