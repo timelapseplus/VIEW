@@ -431,6 +431,23 @@ var properties = {
             { name: "ADL Bracketing",     value: null,      code: 3 },
         ]
     },
+    'focusMode': {
+        name: 'focusMode',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0x500A,
+        ev: false,
+        values: [
+            { name: "MF",         value: 'mf',       code: 0x0001 },
+            { name: "AF",         value: 'af',       code: 0x0002 },
+            { name: "AF Macro",   value: null,       code: 0x0003 },
+            { name: "AF-S",       value: null,       code: 0x8010 },
+            { name: "AF-C",       value: null,       code: 0x8011 },
+            { name: "AF-A",       value: null,       code: 0x8012 },
+        ]
+    },
 }
 
 function propMapped(propCode) {
@@ -799,7 +816,7 @@ function getImage(camera, timeout, callback) {
                                     if(data.length < dataIndex + 6) return setTimeout(check);
                                         eventCode = data.readUInt16LE(dataIndex);
                                         dataIndex += 2;
-                                        _logD("event code:", eventCode)
+                                        //_logD("event code:", eventCode)
                                         if(eventCode == 0xC101) {
                                             var newObject = data.readUInt32LE(dataIndex);
                                             _logD("new object:", ptp.hex(newObject), "data:", data);

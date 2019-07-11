@@ -969,10 +969,19 @@ var busyExposure = false;
 
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
-    if(intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings && camera.ptp.settings.viewfinder == "off") {
+    var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings && camera.ptp.settings.viewfinder == "off";
+    var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.new.available && !camera.ptp.new.cameras[0].camera.status.liveview;
+    if(oldDriverEnableLv) {
         log("\n\nEXP: setupExposure (enabling LV)");
         busyExposure = true;
         return camera.ptp.liveview(function(){
+            setupExposure(cb);
+        });
+    }
+    if(newDriverEnableLv) {
+        log("\n\nEXP: setupExposure (enabling LV)");
+        busyExposure = true;
+        return camera.ptp.new.liveviewMode(true, function(){
             setupExposure(cb);
         });
     }
@@ -1303,7 +1312,8 @@ function runPhoto(isRetry) {
     busyPhoto = true;
     if (remap('camera.ptp.connected')) {
         //console.trace("Starting Photo...");
-        if(intervalometer.status.useLiveview && !camera.ptp.lvOn) camera.ptp.liveview();
+        if(intervalometer.status.useLiveview && !camera.ptp.new.available && !camera.ptp.lvOn) camera.ptp.liveview();
+        if(intervalometer.status.useLiveview && camera.ptp.new.available && !camera.ptp.new.cameras[0].camera.status.liveview) camera.ptp.new.liveviewMode(true);
         if(!(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) || intervalometer.status.hdrIndex == 1) {
             intervalometer.status.captureStartTime = new Date() / 1000;
         }
@@ -1852,9 +1862,20 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                     function start() {
                         intervalometer.emit("intervalometer.currentProgram", intervalometer.currentProgram);
                         intervalometer.status.useLiveview = false;
-                        if((camera.ptp.model && camera.ptp.model.match(/nikon/i) && !camera.ptp.model.match(/ Z /i)) && (((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual" || camera.ptp.model.match(/D850/i))) || (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"))) {
+                        var oldDriverUseLiveview = (camera.ptp.model && camera.ptp.model.match(/nikon/i) && 
+                                                                        !camera.ptp.model.match(/ Z /i)) && 
+                                        (((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual" || camera.ptp.model.match(/D850/i))) || 
+                                            (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"));
+                        var newDriverUseLiveview = (camera.ptp.new.available && camera.ptp.new.model && camera.ptp.new.model.match(/nikon/i) && !camera.ptp.new.model.match(/ Z /i)) && 
+                                            (((camera.ptp.new.cameras[0].camera.config.focusMode && camera.ptp.new.cameras[0].camera.config.focusMode.value != "mf" || camera.ptp.new.model.match(/D850/i))) || 
+                                                (!camera.ptp.new.cameras[0].camera.status.liveview));
+                        if(oldDriverUseLiveview || newDriverUseLiveview) {
                             log("Intervalometer: using Nikon liveview for capture");
-                            camera.ptp.liveview(start2);
+                            if(oldDriverUseLiveview) {
+                                camera.ptp.liveview(start2);
+                            } else {
+                                camera.ptp.new.liveviewMode(true, start2);
+                            }
                             intervalometer.status.useLiveview = true;
                             //camera.ptp.set("afmode", "manual", start2); // doesn't work because focusmode is read-only on Nikon
                         } else {
