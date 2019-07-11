@@ -43,7 +43,7 @@ driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
     //'04a9:319a': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:319a': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:0000': { name: "Canon EOS 7D",   status: 'tested', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
 }
 
 var properties = {
