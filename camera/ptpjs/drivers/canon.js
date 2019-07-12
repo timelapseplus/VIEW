@@ -437,7 +437,7 @@ function pollEvents(camera, callback) {
 
         while(i < data.length)
         {
-            if(i + 16 > data.length)
+            if(i + 8 > data.length)
             {
                 _logE("incomplete data for event parsing: length =", data.length, " i =", i, "response code:", ptp.hex(responseCode));
                 return callback && callback("incomplete data for event parsing");
@@ -450,6 +450,11 @@ function pollEvents(camera, callback) {
             }
 
             var event_type = data.readUInt32LE(i + 4 * 1);
+
+            if(i + 4 * 4 > data.length) {
+                return callback && callback();
+            }
+
             var event_item = data.readUInt32LE(i + 4 * 2);
             var event_value = data.readUInt32LE(i + 4 * 3);
 
@@ -731,6 +736,9 @@ function getImage(camera, timeout, callback) {
                 if(camera.thumbnail) {
                     ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
                         results.thumb = jpeg;
+                        if(err) {
+                            _logE("error fetching thumbnail:", ptp.hex(err));
+                        }
                         if(camera.config.destination.name == 'VIEW') {
                             ptp.deleteObject(camera._dev, objectId, function() {
                                 callback && callback(err, results);
