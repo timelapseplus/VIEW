@@ -598,7 +598,12 @@ function mapPropertyItem(cameraValue, list) {
 }
 
 function setProperty(_dev, propcode, value, callback) {
-    return ptp.transaction(_dev, 0x9110, [0x0000000C, propcode, value], null, callback);
+    var size = 12;
+    var buf = new Buffer(size);
+    buf.writeUInt32LE(0, size);
+    buf.writeUInt32LE(4, propcode);
+    buf.writeUInt32LE(8, value);
+    return ptp.transaction(_dev, 0x9110, [], buf, callback);
 }
 function equalEv(ev1, ev2) {
     if(ev1 == null || ev2 == null) {
@@ -641,7 +646,7 @@ driver.set = function(camera, param, value, callback, tries) {
                 }
                 if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
                     if(!properties[param].setFunction) return cb("unable to write");
-                    _logD("setting", ptp.hex(properties[param].code), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
+                    _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                         if(!err) {
                             var newItem =  mapPropertyItem(cameraValue, properties[param].values);
