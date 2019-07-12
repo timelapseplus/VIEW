@@ -735,11 +735,11 @@ function getImage(camera, timeout, callback) {
                 results.indexNumber = objectId;
                 if(camera.thumbnail) {
                     ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                        results.thumb = ptp.extractJpegSimple(jpeg);
+                        results.thumb = jpeg;
                         if(err) {
                             _logE("error fetching thumbnail:", ptp.hex(err));
                         }
-                        fs.writeFile("thm.jpg", jpeg);
+                        //fs.writeFile("thm.jpg", jpeg);
                         if(camera.config.destination.name == 'VIEW') {
                             ptp.deleteObject(camera._dev, objectId, function() {
                                 callback && callback(err, results);
@@ -750,6 +750,9 @@ function getImage(camera, timeout, callback) {
                     });
                 } else {
                     ptp.getObject(camera._dev, objectId, function(err, image) {
+                        if(err) {
+                            _logE("error fetching image:", ptp.hex(err));
+                        }
                         results.thumb = ptp.extractJpeg(image);
                         results.rawImage = image;
                         if(camera.config.destination.name == 'VIEW') {
@@ -777,10 +780,10 @@ driver.capture = function(camera, target, options, callback, tries) {
     async.series([
         function(cb){ptp.transaction(camera._dev, 0x910F, [], null, cb);},
         function(cb){
-            getImage(camera, 60000, function(err, th, fn, rw) {
-                thumb = th;
-                filename = fn;
-                rawImage = rw;
+            getImage(camera, 60000, function(err, results) {
+                thumb = results.thumb;
+                filename = results.filename;
+                rawImage = results.rawImage;
                 cb(err);
             });
         },
