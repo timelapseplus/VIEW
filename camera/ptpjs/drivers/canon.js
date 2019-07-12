@@ -281,6 +281,32 @@ var properties = {
         code: 0x5001,
         ev: false,
     },
+    'evf': {
+        name: 'evf',
+        category: 'status',
+        setFunction: setProperty,
+        getFunction: null,
+        listFunction: null,
+        code: 0xD1B1,
+        values: [
+            { name: "enabled",    value: "off",        code: 0  },
+            { name: "disabled",   value: "on",         code: 1  },
+        ]
+        ev: false,
+    },
+    'evfout': {
+        name: 'evfout',
+        category: 'status',
+        setFunction: setProperty,
+        getFunction: null,
+        listFunction: null,
+        code: 0xD1B0,
+        values: [
+            { name: "TFT",   value: "tft",         code: 1  },
+            { name: "PC",    value: "pc",          code: 2  },
+        ]
+        ev: false,
+    },
 }
 
 driver._error = function(camera, error) { // events received
@@ -802,15 +828,43 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
 }
 
 driver.liveviewMode = function(camera, enable, callback) {
-    camera.status.liveview = enable;
-    callback && callback();
+    if(camera.status.liveview != enable) {
+        async.series([
+            function(cb){
+                driver.set(camera, "evf", enable ? "on" : "off", function(err) {
+                    cb(err);
+                });
+            },
+            function(cb){
+                driver.set(camera, "evfout", enable ? "pc" : "tft", function(err) {
+                    cb(err);
+                });
+            },
+        ], function(err) {
+            if(!err) {
+                camera.status.liveview = !!enable;
+            }
+            callback && callback(err);
+        });
+    } else {
+        callback && callback();
+    }
 }
 
-driver.liveviewImage = function(camera, callback) {
+driver.liveviewImage = function(camera, callback, _tries) {
+    if(!_tries) _tries = 0;
     if(camera.status.liveview) {
-        ptp.getObject(camera._dev, 0xffffc002, function(err, image) {
-            if(!err && image) image = ptp.extractJpegSimple(image);
-            callback && callback(err, image);
+        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, data) {
+            if(!err && image) {
+                image = ptp.extractJpegSimple(image);
+                callback && callback(err, image);
+            } else if(err == 0x2019 || err == 0xA102 && _tries < 10) {
+                setTimeout(function() {
+                    driver.liveviewImage(camera, callback, _tries + 1);
+                }, 100);
+            } else {
+                callback && callback(err || "timeout");
+            }
         });
     } else {
         callback && callback("not enabled");
