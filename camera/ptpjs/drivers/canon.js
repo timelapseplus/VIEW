@@ -252,11 +252,11 @@ var properties = {
         name: 'destination',
         category: 'config',
         setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        getFunction: dummyGet,
         listFunction: null,
         code: 0xD029,
         ev: false,
-        default: 0,
+        default: 13,
         values: [
             { name: "camera",            code: 13  },
             { name: "VIEW",              code: 3  },
@@ -312,6 +312,27 @@ var EOS_DPC_Video = 0xD1B8;
 //3=live view show / stop record
 //0=video stop / live view stop showing
 var EOS_DPC_PhotosRemaining = 0xD11B;
+
+function dummyGet(camera, propcode) {
+    for(var key in properties) {
+        if(properties[key].code == propcode) {
+            if(camera[properties[key].category] && camera[properties[key].category][key]) {
+                if(camera[properties[key].category][key].code) {
+                    return callback && callback(null, camera[properties[key].category][key].code);
+                } else {
+                    return callback && callback(null, camera[properties[key].category][key]);
+                }
+            } else {
+                if(properties[key].default == null) {
+                    return callback && callback("no default set", null);
+                } else {
+                    return callback && callback(null, properties[key].default);
+                }
+            }
+        }
+    }
+    return callback && callback("no parameter found", null);
+}
 
 driver.refresh = function(camera, callback, noEvent) {
     var keys = [];
