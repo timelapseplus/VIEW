@@ -253,7 +253,7 @@ var properties = {
         category: 'config',
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
-        listFunction: ptp.listPropU16,
+        listFunction: null,
         code: 0xD029,
         ev: false,
         default: 0,
@@ -327,7 +327,7 @@ driver.refresh = function(camera, callback, noEvent) {
                 if(properties[key].listFunction) {
                     properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
                         if(err) {
-                            _logE("failed to list", key, ", err:", err);
+                            _logE("failed to list", key, ", err:", ptp.hex(err));
                         } else {
                             _logD(key, "type is", type);
                             if(!camera[properties[key].category]) camera[properties[key].category] = {};
@@ -360,7 +360,7 @@ driver.refresh = function(camera, callback, noEvent) {
                 } else if(properties[key].getFunction) {
                     properties[key].getFunction(camera._dev, properties[key].code, function(err, current) {
                         if(err) {
-                            _logE("failed to get", key, ", err:", err);
+                            _logE("failed to get", key, ", err:", ptp.hex(err));
                         } else {
                             if(!camera[properties[key].category]) camera[properties[key].category] = {};
                             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
@@ -418,7 +418,7 @@ function pollEvents(camera, callback) {
         {
             if(i + 16 > data.length)
             {
-                _logE("incomplete data for event parsing: length =", data.length, "response code:", ptp.hex(responseCode));
+                _logE("incomplete data for event parsing: length =", data.length, " i =", i, "response code:", ptp.hex(responseCode));
                 return callback && callback("incomplete data for event parsing");
             }
             var event_size = data.readUInt32LE(i);
