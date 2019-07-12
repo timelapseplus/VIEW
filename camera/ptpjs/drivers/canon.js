@@ -408,7 +408,7 @@ driver.refresh = function(camera, callback, noEvent) {
     });
 }
 
-function pollEvents = function(camera, callback) {
+function pollEvents(camera, callback) {
     ptp.transaction(camera._dev, 0x9116, [], null, function(err, responseCode, data) {
         if(!data || err) return callback && callback(err);
         var i = 0;
