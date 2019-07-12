@@ -735,10 +735,11 @@ function getImage(camera, timeout, callback) {
                 results.indexNumber = objectId;
                 if(camera.thumbnail) {
                     ptp.getThumb(camera._dev, objectId, function(err, jpeg) {
-                        results.thumb = jpeg;
+                        results.thumb = ptp.extractJpegSimple(jpeg);
                         if(err) {
                             _logE("error fetching thumbnail:", ptp.hex(err));
                         }
+                        fs.writeFile("thm.jpg", jpeg);
                         if(camera.config.destination.name == 'VIEW') {
                             ptp.deleteObject(camera._dev, objectId, function() {
                                 callback && callback(err, results);
