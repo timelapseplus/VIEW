@@ -291,7 +291,7 @@ var properties = {
         values: [
             { name: "enabled",    value: "off",        code: 0  },
             { name: "disabled",   value: "on",         code: 1  },
-        ]
+        ],
         ev: false,
     },
     'evfout': {
@@ -304,7 +304,7 @@ var properties = {
         values: [
             { name: "TFT",   value: "tft",         code: 1  },
             { name: "PC",    value: "pc",          code: 2  },
-        ]
+        ],
         ev: false,
     },
 }
