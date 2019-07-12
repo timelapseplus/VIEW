@@ -323,7 +323,7 @@ driver.refresh = function(camera, callback, noEvent) {
         function(cb){
             var fetchNextProperty = function() {
                 var key = keys.pop();
-                if(!key) cb();
+                if(!key) return cb();
                 if(properties[key].listFunction) {
                     properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
                         if(err) {
