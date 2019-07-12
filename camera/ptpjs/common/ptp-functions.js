@@ -89,8 +89,8 @@ exports.PTP_RC_SessionAlreadyOpened     = 0x201E;
 exports.PTP_RC_TransactionCanceled      = 0x201F;
 exports.PTP_RC_SpecificationOfDestinationUnsupported = 0x2020;
 
-var LOG_LEVEL = 1;
-var LOG_USB = false;
+var LOG_LEVEL = 0;
+var LOG_USB = true;
 
 function _logD() {
 	if(LOG_LEVEL > 0) return;
