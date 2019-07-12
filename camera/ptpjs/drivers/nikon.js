@@ -1026,11 +1026,11 @@ driver.captureHDR = function(camera, target, options, frames, stops, darkerOnly,
 driver.liveviewMode = function(camera, enable, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
-    if(enable) {
-        camera._dev._lvTimer = setTimeout(function(){
-            driver.liveviewMode(camera, false);
-        }, 60000*10);
-    }
+    //if(enable) {
+    //    camera._dev._lvTimer = setTimeout(function(){
+    //        driver.liveviewMode(camera, false);
+    //    }, 60000*10);
+    //}
     if(camera.status.liveview != !!enable) {
         if(enable) {
             ptp.transaction(camera._dev, 0x9201, [], null, function(err, responseCode) {

@@ -276,7 +276,7 @@ var properties = {
         name: 'battery',
         category: 'status',
         setFunction: null,
-        getFunction: ptp.getPropU8,
+        getFunction: null,
         listFunction: null,
         code: 0x5001,
         ev: false,
@@ -323,7 +323,8 @@ driver.refresh = function(camera, callback, noEvent) {
         function(cb){
             var fetchNextProperty = function() {
                 var key = keys.pop();
-                if(key && properties[key].listFunction) {
+                if(!key) cb();
+                if(properties[key].listFunction) {
                     properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type) {
                         if(err) {
                             _logE("failed to list", key, ", err:", err);
@@ -356,7 +357,7 @@ driver.refresh = function(camera, callback, noEvent) {
                         }
                         fetchNextProperty();
                     });
-                } else if(key && properties[key].getFunction) {
+                } else if(properties[key].getFunction) {
                     properties[key].getFunction(camera._dev, properties[key].code, function(err, current) {
                         if(err) {
                             _logE("failed to get", key, ", err:", err);
@@ -388,14 +389,13 @@ driver.refresh = function(camera, callback, noEvent) {
                                 camera[properties[key].category][key].list = mappedList;
                             } else {
                                 camera[properties[key].category][key] = value;
+                                _logD(key, "=", value);
                             }
                         }
                         fetchNextProperty();
                     });
                 } else {
-                    //console.log(camera.exposure);
-                    cb();
-                    if(!noEvent) exposureEvent(camera);
+                    fetchNextProperty();
                 }
             }
             fetchNextProperty();
@@ -404,6 +404,7 @@ driver.refresh = function(camera, callback, noEvent) {
             pollEvents(camera, cb);
         },
     ], function(err) {
+        if(!noEvent) exposureEvent(camera);
         return callback && callback(err);
     });
 }
