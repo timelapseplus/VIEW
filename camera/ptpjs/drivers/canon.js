@@ -379,9 +379,9 @@ driver.refresh = function(camera, callback, noEvent) {
                                 var mappedList = [];
                                 for(var i = 0; i < properties[key].values.length; i++) {
                                     var mappedItem = {
-                                        name: properties[key].values[i].name;
-                                        code: properties[key].values[i].code;
-                                        value: properties[key].values[i].value || properties[key].values[i].name;
+                                        name: properties[key].values[i].name,
+                                        code: properties[key].values[i].code,
+                                        value: properties[key].values[i].value || properties[key].values[i].name
                                     }
                                     mappedList.push(mappedItem);
                                 }
