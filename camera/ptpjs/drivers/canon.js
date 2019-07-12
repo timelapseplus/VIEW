@@ -313,7 +313,7 @@ var EOS_DPC_Video = 0xD1B8;
 //0=video stop / live view stop showing
 var EOS_DPC_PhotosRemaining = 0xD11B;
 
-function dummyGet(camera, propcode) {
+function dummyGet(camera, propcode, callback) {
     for(var key in properties) {
         if(properties[key].code == propcode) {
             if(camera[properties[key].category] && camera[properties[key].category][key]) {
