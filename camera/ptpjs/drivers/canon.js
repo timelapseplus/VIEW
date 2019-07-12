@@ -600,9 +600,9 @@ function mapPropertyItem(cameraValue, list) {
 function setProperty(_dev, propcode, value, callback) {
     var size = 12;
     var buf = new Buffer(size);
-    buf.writeUInt32LE(0, size);
-    buf.writeUInt32LE(4, propcode);
-    buf.writeUInt32LE(8, value);
+    buf.writeUInt32LE(size, 0);
+    buf.writeUInt32LE(propcode, 4);
+    buf.writeUInt32LE(value, 8);
     return ptp.transaction(_dev, 0x9110, [], buf, callback);
 }
 function equalEv(ev1, ev2) {
