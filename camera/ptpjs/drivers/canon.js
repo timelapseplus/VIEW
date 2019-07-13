@@ -854,7 +854,7 @@ driver.liveviewMode = function(camera, enable, callback) {
 driver.liveviewImage = function(camera, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera.status.liveview) {
-        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, data) {
+        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, image) {
             if(!err && image) {
                 image = ptp.extractJpegSimple(image);
                 callback && callback(err, image);
