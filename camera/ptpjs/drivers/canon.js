@@ -302,8 +302,8 @@ var properties = {
         listFunction: null,
         code: 0xD1B0,
         values: [
-            { name: "TFT",   value: "tft",         code: 1  },
-            { name: "PC",    value: "pc",          code: 2  },
+            { name: "TFT",   value: "tft",         code: 0  },
+            { name: "PC",    value: "pc",          code: 4  },
         ],
         ev: false,
     },
