@@ -289,8 +289,8 @@ var properties = {
         listFunction: null,
         code: 0xD1B1,
         values: [
-            { name: "enabled",    value: "off",        code: 0  },
-            { name: "disabled",   value: "on",         code: 1  },
+            { name: "disabled",    value: "off",        code: 0  },
+            { name: "enabled",     value: "on",         code: 1  },
         ],
         ev: false,
     },
@@ -860,7 +860,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             if(!err && image) {
                 image = ptp.extractJpegSimple(image);
                 callback && callback(err, image);
-            } else if(err == 0x2019 || err == 0xA102 && _tries < 10) {
+            } else if(err == 0x2019 || err == 0xA102 && _tries < 30) {
                 setTimeout(function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }, 100);
