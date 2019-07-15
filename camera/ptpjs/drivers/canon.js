@@ -910,7 +910,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                         driver.liveviewImage(camera, callback, _tries + 1);
                     }, 100);
                 } else {
-                    callback && callback("timeout");
+                    callback && callback("timeout (2)");
                 }
 
             } else if(err == 0x2019 || err == 0xA102 && _tries < 30) {
@@ -918,7 +918,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }, 100);
             } else {
-                callback && callback(err || "timeout");
+                callback && callback(err || "timeout (1)");
             }
         });
     } else {
