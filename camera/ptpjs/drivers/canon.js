@@ -856,10 +856,63 @@ driver.liveviewMode = function(camera, enable, callback) {
 driver.liveviewImage = function(camera, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera.status.liveview) {
-        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, image) {
+        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, data) {
             if(!err && image) {
                 image = ptp.extractJpegSimple(image);
-                callback && callback(err, image);
+
+
+                var index = 0;
+                GP_LOG_D ("total data.length: len=%d", data.length);
+                while (index < data.length) {
+                    var len  = data.readUInt32LE(index);
+                    var type = data.readUInt32LE(index + 4);
+
+                    /* 4 byte len of jpeg data, 4 byte type */
+                    /* JPEG blob */
+                    /* stuff */
+                    _logD("get_viewfinder_image header: len = ", len, " type =", type);
+                    switch (type) {
+                    default:
+                        if (len > (data.length-index)) {
+                            len = data.length;
+                            _logE("len =", len, "larger than rest data.length", (data.length - index));
+                        }
+                        index += len;
+                        continue;
+                    case 9:
+                    case 1:
+                    case 11:
+                        if (len > (data.length-index)) {
+                            len = data.length;
+                            _logE("len =", len, "larger than rest data.length", (data.length - index));
+                            break;
+                        }
+                        var image = new Buffer(jpegEnd - jpegStart);
+                        data.copy(image, 0, index+8, len-8);
+                        return callback && callback(err, image);
+
+                        ///* dump the rest of the blobs */
+                        //index += len;
+                        //while (index < data.length) {
+                        //    len  = dtoh32a(xdata);
+                        //    type = dtoh32a(xdata+4);
+                        //    if (len > (data.length-index)) {
+                        //        len = data.length;
+                        //        _logE("len =", len, "larger than rest data.length", (data.length - index));
+                        //        break;
+                        //    }
+                        //    index += len;
+                        //}
+                    }
+                }
+                if(_tries < 30) {
+                    setTimeout(function() {
+                        driver.liveviewImage(camera, callback, _tries + 1);
+                    }, 100);
+                } else {
+                    callback && callback("timeout");
+                }
+
             } else if(err == 0x2019 || err == 0xA102 && _tries < 30) {
                 setTimeout(function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
