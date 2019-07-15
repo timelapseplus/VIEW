@@ -863,10 +863,6 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     var len  = data.readUInt32LE(index);
                     var type = data.readUInt32LE(index + 4);
 
-                    /* 4 byte len of jpeg data, 4 byte type */
-                    /* JPEG blob */
-                    /* stuff */
-                    _logD("get_viewfinder_image header: len = ", len, " type =", type);
                     switch (type) {
                     default:
                         if (len > (data.length-index)) {
@@ -886,19 +882,6 @@ driver.liveviewImage = function(camera, callback, _tries) {
                         var image = new Buffer(len-8);
                         data.copy(image, 0, index+8, index+8 + len-8);
                         return callback && callback(err, image);
-
-                        ///* dump the rest of the blobs */
-                        //index += len;
-                        //while (index < data.length) {
-                        //    len  = dtoh32a(xdata);
-                        //    type = dtoh32a(xdata+4);
-                        //    if (len > (data.length-index)) {
-                        //        len = data.length;
-                        //        _logE("len =", len, "larger than rest data.length", (data.length - index));
-                        //        break;
-                        //    }
-                        //    index += len;
-                        //}
                     }
                 }
                 if(_tries < 30) {
@@ -927,14 +910,18 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 
     var dir = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution));
-    if(resolution > 7) resolution = 7;
-    resolution *= dir;
+    if(resolution > 3) resolution = 3;
+    if(resolution < 1) resolution = 1;
     steps = Math.abs(steps);
 
+    var param1 = resolution;
+    if(dir < 0) param1 |= 0x8000;
+
     var doStep = function() {
-        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
+        ptp.transaction(camera._dev, 0x9155, [param1], null, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
+            camera.status.focusPos += dir;
             if(steps > 0) {
                 setTimeout(doStep, 50);
             } else {
