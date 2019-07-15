@@ -909,7 +909,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     callback && callback("timeout (2)");
                 }
 
-            } else if((err == 0x2019 || err == 0xA102) && _tries < 30) {
+            } else if((err == 0x2019 || err == 0xA102 || (!err && !image)) && _tries < 30) {
                 setTimeout(function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }, 100);
