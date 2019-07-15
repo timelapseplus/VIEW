@@ -883,8 +883,8 @@ driver.liveviewImage = function(camera, callback, _tries) {
                             _logE("len =", len, "larger than rest data.length", (data.length - index));
                             break;
                         }
-                        var image = new Buffer(jpegEnd - jpegStart);
-                        data.copy(image, 0, index+8, len-8);
+                        var image = new Buffer(len-8);
+                        data.copy(image, 0, index+8, index+8 + len-8);
                         return callback && callback(err, image);
 
                         ///* dump the rest of the blobs */
