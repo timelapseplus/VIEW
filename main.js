@@ -3536,7 +3536,7 @@ if (VIEW_HARDWARE) {
             name: "Use libgphoto2 (old)",
             value: "old",
             help: help.enableNewDriver,
-            action: ui.set(core, 'newCameraDriver', true, function(cb){
+            action: ui.set(core, 'newCameraDriver', false, function(cb){
                 db.set('enableOldDriver', "no");
                 core.enableNewDriver(false);
                 cb && cb();
