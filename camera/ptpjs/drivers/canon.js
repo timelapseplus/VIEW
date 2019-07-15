@@ -856,7 +856,7 @@ driver.liveviewMode = function(camera, enable, callback) {
 driver.liveviewImage = function(camera, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera.status.liveview) {
-        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, data) {
+        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, responseCode, data) {
             if(!err && data) {
                 var index = 0;
                 while (index < data.length) {
@@ -906,15 +906,15 @@ driver.liveviewImage = function(camera, callback, _tries) {
                         driver.liveviewImage(camera, callback, _tries + 1);
                     }, 100);
                 } else {
-                    callback && callback("timeout (2)");
+                    callback && callback("timeout (2)", err ? ptp.hex(err) : "");
                 }
 
-            } else if((err == 0x2019 || err == 0xA102 || (!err && !data)) && _tries < 30) {
+            } else if((responseCode == 0x2019 || responseCode == 0xA102 || (!err && !data)) && _tries < 30) {
                 setTimeout(function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }, 100);
             } else {
-                callback && callback(err || "timeout (1)");
+                callback && callback(err || "timeout (1)", err ? ptp.hex(err) : "");
             }
         });
     } else {
