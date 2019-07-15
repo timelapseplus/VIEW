@@ -857,7 +857,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera.status.liveview) {
         ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, data) {
-            if(!err && image) {
+            if(!err && data) {
                 var index = 0;
                 while (index < data.length) {
                     var len  = data.readUInt32LE(index);
@@ -909,7 +909,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
                     callback && callback("timeout (2)");
                 }
 
-            } else if((err == 0x2019 || err == 0xA102 || (!err && !image)) && _tries < 30) {
+            } else if((err == 0x2019 || err == 0xA102 || (!err && !data)) && _tries < 30) {
                 setTimeout(function() {
                     driver.liveviewImage(camera, callback, _tries + 1);
                 }, 100);
