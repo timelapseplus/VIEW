@@ -599,8 +599,8 @@ driver.refresh = function(camera, callback) {
                                 var mappedList = [];
                                 for(var i = 0; i < list.length; i++) {
                                     var mappedItem = mapPropertyItem(list[i], propertyListValues);
-                                    if(!mappedItem && key != "aperture") {
-                                        _logE(key, "list item not found:", list[i]);
+                                    if(!mappedItem) {
+                                        if(key != "aperture") _logE(key, "list item not found:", list[i]);
                                     } else {
                                         mappedList.push(mappedItem);
                                     }
