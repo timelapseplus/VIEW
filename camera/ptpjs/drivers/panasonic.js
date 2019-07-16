@@ -457,7 +457,7 @@ driver._event = function(camera, data) { // events received
         if(event == 0xC108) {
             _logD("object added:", ptp.hex(param1));
             camera._objectsAdded.push(param1);
-        } else if(event == ptp.PTP_EC_DevicePropChanged) {
+        } else if(event == 12345) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
@@ -476,7 +476,7 @@ driver._event = function(camera, data) { // events received
                 _logD("property changed:", ptp.hex(param1), "(not mapped)");
             }
         } else {
-            _logD("EVENT:", ptp.hex(type), (param1 == null) ? ptp.hex(param1) : "(null)", (param2 == null) ? ptp.hex(param2) : "(null)", (param3 == null) ? ptp.hex(param3) : "(null)");
+            _logD("EVENT:", ptp.hex(event), data);
         }
     });
 };
