@@ -70,8 +70,8 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: ptp.setPropU32,
-        getFunction: ptp.getPropU32,
+        setFunction: setProperty,
+        getFunction: getProperty,
         listFunction: listProperty,
         code: 0x2000030,
         ev: true,
@@ -143,8 +143,8 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        setFunction: setProperty,
+        getFunction: getProperty,
         listFunction: listProperty,
         code: 0x2000040,
         ev: true,
@@ -193,8 +193,8 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: ptp.setProp32,
-        getFunction: ptp.getProp32,
+        setFunction: setProperty,
+        getFunction: getProperty,
         listFunction: listProperty,
         code: 0x2000020,
         ev: true,
@@ -276,20 +276,20 @@ var properties = {
     //        { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13, type: 1 },
     //    ]
     //},
-    //'destination': {
-    //    name: 'destination',
-    //    category: 'config',
-    //    setFunction: null,
-    //    getFunction: null,
-    //    listFunction: null,
-    //    code: null,
-    //    ev: false,
-    //    default: 0,
-    //    values: [
-    //        { name: "camera",            code: 0  },
-    //        { name: "VIEW",              code: 1  },
-    //    ]
-    //},
+    'destination': {
+        name: 'destination',
+        category: 'config',
+        setFunction: setDestination,
+        getFunction: null,
+        listFunction: null,
+        code: 0,
+        ev: false,
+        default: 0,
+        values: [
+            { name: "camera",            code: 0  },
+            { name: "VIEW",              code: 1  },
+        ]
+    },
     //'focusPos': {
     //    name: 'focusPos',
     //    category: 'status',
@@ -490,7 +490,6 @@ function listProperty(_dev, propCode, callback) {
 }
 
 function getProperty(_dev, propCode, callback) {
-
     ptp.transaction(_dev, PTP_OC_PANASONIC_GetProperty, [propCode], null, function(err, responseCode, data) {
         if(err || responseCode != 0x2001 || !data || data.length < 8) return callback && callback(err || responseCode);
 
@@ -508,10 +507,38 @@ function getProperty(_dev, propCode, callback) {
             return callback && callback("invalid data length");
         }
 
-        callback && callback(null, currentValue, valueSize)
+        callback && callback(null, currentValue, valueSize);
     });
 }
 
+function setProperty(_dev, propCode, newValue, valueSize, callback) {
+    var buf = new Buffer(8 + valueSize);
+    buf.writeUInt32LE(propCode, 0);
+    buf.writeUInt32LE(valueSize, 4);
+    if(valueSize == 1) {
+        buf.writeUInt16LE(newValue, 8);
+    } else if(valueSize == 2) {
+        buf.writeUInt16LE(newValue, 8);
+    } else if(valueSize == 4) {
+        buf.writeUInt32LE(newValue, 8);
+    }
+
+    ptp.transaction(_dev, PTP_OC_PANASONIC_SetProperty, [propCode], buf, function(err, responseCode) {
+        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+        callback && callback();
+    });
+}
+
+function setDestination(_dev, propCode, newValue, valueSize, callback) {
+    var buf = new Buffer(10);
+    buf.writeUInt32LE(0x08000091, 0);
+    buf.writeUInt32LE(0x00000002, 4);
+    buf.writeUInt16LE(newValue,   8); //  1 == RAM, 0 == SD
+    ptp.transaction(_dev, PTP_OC_PANASONIC_SetCaptureTarget, [0x00000000], buf, function(err, responseCode) {
+        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+        callback && callback();
+    });
+}
 
 driver._error = function(camera, error) { // events received
     _logE(error);
@@ -566,11 +593,12 @@ driver.refresh = function(camera, callback) {
                     if(!camera[properties[key].category]) camera[properties[key].category] = {};
                     if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                     if(properties[key].listFunction) {
-                        properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, type, listType) {
+                        properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, valueSize, listType) {
                             if(err || !list) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
                                 var propertyListValues = properties[key].values;
+                                properties[key].size = valueSize; // save for setting value
                                 if(properties[key].filter) {
                                     var val = properties[key].filter.fn(list);
                                     propertyListValues = propertyListValues.filter(function(item) {
@@ -730,7 +758,7 @@ driver.set = function(camera, param, value, callback) {
             if(properties[param] && properties[param].setFunction) {
                 if(cameraValue !== null) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].size, function(err) {
                         if(!err) {
                             var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                             for(var k in newItem) {
@@ -775,8 +803,9 @@ driver.get = function(camera, param, callback) {
     async.series([
         function(cb){
             if(properties[param] && properties[param].getFunction) {
-                properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
+                properties[param].getFunction(camera._dev, properties[param].code, function(err, data, size) {
                     if(!err) {
+                        properties[param].size = size;
                         if(properties[param].values) {
                             var newItem =  mapPropertyItem(data, properties[param].values);
                             if(newItem) {
@@ -1071,6 +1100,8 @@ driver.liveviewImage = function(camera, callback, _tries) {
     }
 }
 
+
+
 driver.moveFocus = function(camera, steps, resolution, callback) {
     var dir = 2;
     if(steps < 0) {
@@ -1080,6 +1111,18 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback(null, camera.status.focusPos);
     if(!resolution) resolution = 1;
     steps *= resolution;
+
+
+//    var buf = new Buffer(10);
+//    buf.writeUInt32LE(0x08000091, 0);
+//    buf.writeUInt32LE(0x00000002, 4);
+//    buf.writeUInt16LE(newValue,   8); //  1 == RAM, 0 == SD
+//    ptp.transaction(_dev, PTP_OC_PANASONIC_SetCaptureTarget, [0x00000000], buf, function(err, responseCode) {
+//        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+//        callback && callback();
+//    });
+
+
 
     ptp.transaction(camera._dev, 0x9204, [dir, resolution * 20], null, function(err, responseCode, data) {
         if(err) {
