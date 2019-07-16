@@ -73,7 +73,7 @@ var properties = {
         setFunction: ptp.setPropU32,
         getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
-        code: 0x500D,
+        code: 0x2000030,
         ev: true,
         values: [
             { name: "bulb",    ev: null,        code:  4294967295 },
@@ -139,7 +139,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0x5007,
+        code: 0x2000040,
         ev: true,
         values: [
             { name: "1.0",      ev: -8,          code: 100  },
@@ -189,7 +189,7 @@ var properties = {
         setFunction: ptp.setProp32,
         getFunction: ptp.getProp32,
         listFunction: ptp.listProp,
-        code: 0x500F,
+        code: 0x2000020,
         ev: true,
         values: [
             { name: "32",       ev:  1 + 2 / 3,  code: 32 },
@@ -441,6 +441,70 @@ function propMapped(propCode) {
     return false;
 }
 
+function listProperty(_dev, propCode, callback) {
+    getProperty(_dev, propCode, function(err, currentValue, valueSize) {
+        ptp.transaction(_dev, PTP_OC_PANASONIC_ListProperty, [propCode], null, function(err, responseCode, data) {
+            if(err || responseCode != 0x2001 || !data || data.length < 4 + 6 * 4) return callback && callback(err || responseCode);
+
+            var cv = null;
+            var list = [];
+            var type = 0;
+
+            var headerLength = data.readUInt32LE(4);
+            if(data.length < headerLength * 4 + 2 * 4) return callback && callback("incomplete data");
+            var propertyCode = data.readUInt32LE(4 + 6 * 4);
+            if(valueSize == 1) {
+                cv = data.readUInt8(headerLength * 4 + 2 * 4);
+            } else if(valueSize == 2) {
+                cv = data.readUInt16LE(headerLength * 4 + 2 * 4);
+            } else if(valueSize == 4) {
+                cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
+            } else {
+                return callback && callback("invalid data length");
+            }
+            if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
+            var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
+            if(data.length < headerLength * 4 + 3 * 4 + valueSize + (propertyValueListLength) * valueSize) return callback && callback("incomplete data");
+
+            for(var i = 0; i < propertyValueListLength; i++) {
+                if(valueSize == 1) {
+                    list.push(data.readUInt8(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
+                } else if(valueSize == 2) {
+                    list.push(data.readUInt16LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
+                } else if(valueSize == 4) {
+                    list.push(data.readUInt32LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
+                }
+            }
+
+            return callback && callback(null, currentValue, list, valueSize, 2);
+        });
+    });
+}
+
+function getProperty(_dev, propCode, callback) {
+
+    ptp.transaction(_dev, PTP_OC_PANASONIC_GetProperty, [propCode], null, function(err, responseCode, data) {
+        if(err || responseCode != 0x2001 || !data || data.length < 8) return callback && callback(err || responseCode);
+
+        var valueSize = data.readUInt32LE(4);
+        if(data.length < 8 + valueSize) return callback && callback("incomplete data");
+
+        var currentValue = null;
+        if(valueSize == 1) {
+            currentValue = data.readUInt8(8);
+        } else if(valueSize == 2) {
+            currentValue = data.readUInt16LE(8);
+        } else if(valueSize == 4) {
+            currentValue = data.readUInt32LE(8);
+        } else {
+            return callback && callback("invalid data length");
+        }
+
+        callback && callback(null, currentValue, valueSize)
+    });
+}
+
+
 driver._error = function(camera, error) { // events received
     _logE(error);
 };
@@ -457,7 +521,7 @@ driver._event = function(camera, data) { // events received
         if(event == 0xC108) {
             _logD("object added:", ptp.hex(param1));
             camera._objectsAdded.push(param1);
-        } else if(event == 12345) {
+        } else if(event == 0xC102) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
