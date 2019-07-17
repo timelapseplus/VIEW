@@ -490,7 +490,8 @@ function listProperty(_dev, propCode, callback) {
             } else if(valueSize == 4) {
                 cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
             } else {
-                cv = data.copy(headerLength * 4 + 2 * 4, headerLength * 4 + 2 * 4 + valueSize);
+                cv = new Buffer(valueSize);
+                data.copy(cv, 0, headerLength * 4 + 2 * 4, headerLength * 4 + 2 * 4 + valueSize);
             }
             if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
             var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
@@ -504,7 +505,9 @@ function listProperty(_dev, propCode, callback) {
                 } else if(valueSize == 4) {
                     list.push(data.readUInt32LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
                 } else {
-                    list.push(data.copy(headerLength * 4 + 3 * 4 + valueSize + i * valueSize, headerLength * 4 + 3 * 4 + valueSize + i * valueSize + valueSize));
+                    var buf = new Buffer(valueSize);
+                    data.copy(buf, 0, headerLength * 4 + 3 * 4 + valueSize + i * valueSize, headerLength * 4 + 3 * 4 + valueSize + i * valueSize + valueSize)
+                    list.push(buf);
                 }
             }
 
@@ -528,7 +531,8 @@ function getProperty(_dev, propCode, callback) {
         } else if(valueSize == 4) {
             currentValue = data.readUInt32LE(8);
         } else {
-            currentValue = data.copy(8, 8 + valueSize);
+            currentValue = new Buffer(valueSize);
+            currentValue = data.copy(currentValue, 0, 8, 8 + valueSize);
         }
 
         callback && callback(null, currentValue, valueSize);
