@@ -241,41 +241,27 @@ var properties = {
             { name: "204800",   ev: -11,         code: 204800 },
         ]
     },
-    //'format': {
-    //    name: 'format',
-    //    category: 'config',
-    //    setFunction: ptp.setPropU8,
-    //    getFunction: ptp.getPropU8,
-    //    listFunction: ptp.listProp,
-    //    code: 0x5004,
-    //    filter: {
-    //        by: 'type',
-    //        fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
-    //    },
-    //    ev: false,
-    //    values: [
-    //        { name: "RAW",               value: 'raw',      code: 4 , type: 0 },
-    //        { name: "JPEG Normal",       value: 'jpeg',     code: 1 , type: 0 },
-    //        { name: "JPEG Fine",         value: 'jpeg',     code: 2 , type: 0 },
-    //        { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 0 },
-    //        { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7 , type: 0 },
-//
-    //        { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 1 },
-    //        { name: "JPEG Basic*",       value: 'jpeg',     code: 1 , type: 1 },
-    //        { name: "JPEG Normal",       value: 'jpeg',     code: 2 , type: 1 },
-    //        { name: "JPEG Normal*",      value: 'jpeg',     code: 3 , type: 1 },
-    //        { name: "JPEG Fine",         value: 'jpeg',     code: 4 , type: 1 },
-    //        { name: "JPEG Fine*",        value: 'jpeg',     code: 5 , type: 1 },
-    //        { name: "TIFF",              value: 'tiff',     code: 6 , type: 1 },
-    //        { name: "RAW",               value: 'raw',      code: 7 , type: 1 },
-    //        { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8 , type: 1 },
-    //        { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9 , type: 1 },
-    //        { name: "RAW + JPEG Norm",   value: 'raw+jpeg', code: 10, type: 1 },
-    //        { name: "RAW + JPEG Norm*",  value: 'raw+jpeg', code: 11, type: 1 },
-    //        { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 12, type: 1 },
-    //        { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13, type: 1 },
-    //    ]
-    //},
+    'format': {
+        name: 'format',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: ptp.getPropU8,
+        listFunction: ptp.listProp,
+        code: 0x20000A0,
+        filter: {
+            by: 'type',
+            fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
+        },
+        ev: false,
+        values: [
+            { name: "RAW",               value: 'raw',      code: 255 },
+            { name: "JPEG Normal",       value: 'jpeg',     code: 255 },
+            { name: "JPEG Fine",         value: 'jpeg',     code: 255 },
+            { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 255 },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 255 },
+
+        ]
+    },
     'destination': {
         name: 'destination',
         category: 'config',
@@ -421,23 +407,20 @@ var properties = {
     //        { name: "ADL Bracketing",     value: null,      code: 3 },
     //    ]
     //},
-    //'focusMode': {
-    //    name: 'focusMode',
-    //    category: 'config',
-    //    setFunction: ptp.setPropU16,
-    //    getFunction: ptp.getPropU16,
-    //    listFunction: ptp.listProp,
-    //    code: 0x500A,
-    //    ev: false,
-    //    values: [
-    //        { name: "MF",         value: 'mf',       code: 0x0001 },
-    //        { name: "AF",         value: 'af',       code: 0x0002 },
-    //        { name: "AF Macro",   value: null,       code: 0x0003 },
-    //        { name: "AF-S",       value: null,       code: 0x8010 },
-    //        { name: "AF-C",       value: null,       code: 0x8011 },
-    //        { name: "AF-A",       value: null,       code: 0x8012 },
-    //    ]
-    //},
+    'focusMode': {
+        name: 'focusMode',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0x2000070,
+        ev: false,
+        values: [
+            { name: "MF",         value: 'mf',       code: 0xFF },
+            { name: "AFC",        value: 'af',       code: 0xFF },
+            { name: "AFS/AFF",    value: null,       code: 0xFF },
+        ]
+    },
 }
 
 function propMapped(propCode) {
