@@ -295,6 +295,7 @@ var properties = {
         getFunction: getProperty,
         listFunction: null,
         code: 0x20001d2,
+        parser: parseFocusPoint
         ev: false,
         values: null
     },
@@ -564,6 +565,16 @@ function setDestination(_dev, propCode, newValue, valueSize, callback) {
         if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
         callback && callback();
     });
+}
+
+function parseFocusPoint(data) {
+    if(!data || data.length < 6) return data;
+    return {
+        x: data.readInt16LE(0),
+        y: data.readInt16LE(2),
+        s: data.readUInt16LE(4),
+        buf: data
+    }
 }
 
 driver._error = function(camera, error) { // events received
@@ -845,6 +856,9 @@ driver.get = function(camera, param, callback) {
                                 }
                             }
                         } else {
+                            if(properties[param].parser) {
+                                data = properties[param].parser(data);
+                            }
                             camera[properties[param].category][param] = data;                   
                         }
                         return cb(err);
