@@ -526,7 +526,7 @@ function getProperty(_dev, propCode, callback) {
         } else if(valueSize == 4) {
             currentValue = data.readUInt32LE(8);
         } else {
-            return callback && callback("invalid data length of " + currentValue);
+            return callback && callback("invalid data length of " + valueSize);
         }
 
         callback && callback(null, currentValue, valueSize);
