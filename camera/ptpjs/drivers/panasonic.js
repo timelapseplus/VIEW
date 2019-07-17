@@ -244,9 +244,9 @@ var properties = {
     'format': {
         name: 'format',
         category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
         code: 0x20000A0,
         filter: {
             by: 'type',
@@ -410,9 +410,9 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
-        listFunction: ptp.listProp,
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
         code: 0x2000070,
         ev: false,
         values: [
