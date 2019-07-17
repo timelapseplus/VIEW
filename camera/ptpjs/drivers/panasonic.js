@@ -247,7 +247,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20000A0,
+        code: 0x20000A2,
         filter: {
             by: 'type',
             fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
@@ -844,6 +844,7 @@ function getImage(camera, timeout, callback) {
                 return setTimeout(check, 50);
             }
         }
+        var objectId = camera._objectsAdded.shift();
         ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
             //console.log(oi);
             if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
