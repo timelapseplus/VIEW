@@ -489,7 +489,7 @@ function listProperty(_dev, propCode, callback) {
             } else if(valueSize == 4) {
                 cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
             } else {
-                return callback && callback("invalid data length of", valueSize);
+                return callback && callback("invalid data length of" + valueSize);
             }
             if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
             var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
