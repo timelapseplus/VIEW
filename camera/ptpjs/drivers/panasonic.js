@@ -530,7 +530,7 @@ function getProperty(_dev, propCode, callback) {
             currentValue = data.readUInt32LE(8);
         } else {
             currentValue = new Buffer(valueSize);
-            currentValue = data.copy(currentValue, 0, 8, 8 + valueSize);
+            data.copy(currentValue, 0, 8, 8 + valueSize);
         }
 
         callback && callback(null, currentValue, valueSize);
