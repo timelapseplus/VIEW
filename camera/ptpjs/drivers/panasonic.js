@@ -294,7 +294,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20001d2,
+        code: 0x20001d0,
         ev: false,
         values: [
             { name: "Center",            value: 'c',     code: 0 },
@@ -526,7 +526,7 @@ function getProperty(_dev, propCode, callback) {
         } else if(valueSize == 4) {
             currentValue = data.readUInt32LE(8);
         } else {
-            return callback && callback("invalid data length");
+            return callback && callback("invalid data length of " + currentValue);
         }
 
         callback && callback(null, currentValue, valueSize);
