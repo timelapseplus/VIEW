@@ -288,6 +288,18 @@ var properties = {
             { name: "Auto Program",      value: 'p',     code: 0 },
         ]
     },
+    'focusPoint': {
+        name: 'cameraMode',
+        category: 'config',
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
+        code: 0x20001d0,
+        ev: false,
+        values: [
+            { name: "Center",            value: 'c',     code: 0 },
+        ]
+    },
     'destination': {
         name: 'destination',
         category: 'config',
