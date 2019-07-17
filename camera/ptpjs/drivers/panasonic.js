@@ -1054,7 +1054,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     buf.writeUInt16LE(mode,       8);
 
     var doStep = function() {
-        ptp.transaction(_dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03010011], buf, function(err, responseCode) {
+        ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03010011], buf, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
             camera.status.focusPos += dir;
