@@ -293,7 +293,7 @@ var properties = {
         category: 'config',
         setFunction: setProperty,
         getFunction: getProperty,
-        listFunction: listProperty,
+        listFunction: null,
         code: 0x20001d0,
         ev: false,
         values: [
