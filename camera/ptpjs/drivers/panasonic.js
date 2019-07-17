@@ -247,18 +247,15 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20000A2,
-        filter: {
-            by: 'type',
-            fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
-        },
+        code: 0x20000A0,
         ev: false,
         values: [
-            { name: "RAW",               value: 'raw',      code: 255 },
-            { name: "JPEG Normal",       value: 'jpeg',     code: 255 },
-            { name: "JPEG Fine",         value: 'jpeg',     code: 255 },
-            { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 255 },
-            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 255 },
+            { name: "JPEG Fine",         value: 'jpeg',     code: 0 },
+            { name: "JPEG Normal",       value: 'jpeg',     code: 1 },
+            { name: "unknown",           value: null,       code: 2 },
+            { name: "RAW",               value: 'raw',      code: 3 },
+            { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 5 },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 4 },
 
         ]
     },
@@ -416,9 +413,9 @@ var properties = {
         code: 0x2000070,
         ev: false,
         values: [
-            { name: "MF",         value: 'mf',       code: 0xFF },
-            { name: "AFC",        value: 'af',       code: 0xFF },
-            { name: "AFS/AFF",    value: null,       code: 0xFF },
+            { name: "MF",         value: 'mf',       code: 0x3 },
+            { name: "AFS/AFF",    value: 'af',       code: 0x4 },
+            { name: "AFC",        value: 'af',       code: 0x5 },
         ]
     },
 }
@@ -506,7 +503,7 @@ function setProperty(_dev, propCode, newValue, valueSize, callback) {
         buf.writeUInt32LE(newValue, 8);
     }
 
-    ptp.transaction(_dev, PTP_OC_PANASONIC_SetProperty, [propCode], buf, function(err, responseCode) {
+    ptp.transaction(_dev, PTP_OC_PANASONIC_SetProperty, [propCode+1], buf, function(err, responseCode) {
         if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
         callback && callback();
     });
