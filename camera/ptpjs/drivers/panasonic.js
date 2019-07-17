@@ -1025,55 +1025,47 @@ driver.liveviewImage = function(camera, callback, _tries) {
     }
 }
 
-
-
 driver.moveFocus = function(camera, steps, resolution, callback) {
-    var dir = 2;
-    if(steps < 0) {
-        dir = 1;
-        steps = 0 - steps;
-    }
-    if(!steps) return callback && callback(null, camera.status.focusPos);
-    if(!resolution) resolution = 1;
-    steps *= resolution;
+    if(!steps) return callback && callback();
 
+    var dir = steps < 0 ? -1 : 1;
+    resolution = Math.round(Math.abs(resolution));
+    if(resolution > 2) resolution = 2;
+    if(resolution < 1) resolution = 1;
+    steps = Math.abs(steps);
 
-//    var buf = new Buffer(10);
-//    buf.writeUInt32LE(0x08000091, 0);
-//    buf.writeUInt32LE(0x00000002, 4);
-//    buf.writeUInt16LE(newValue,   8); //  1 == RAM, 0 == SD
-//    ptp.transaction(_dev, PTP_OC_PANASONIC_SetCaptureTarget, [0x00000000], buf, function(err, responseCode) {
-//        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
-//        callback && callback();
-//    });
-
-
-
-    ptp.transaction(camera._dev, 0x9204, [dir, resolution * 20], null, function(err, responseCode, data) {
-        if(err) {
-            return callback && callback(err, camera.status.focusPos);
-        }
-        if(responseCode == 0xA00C) { // reached end
-            _logD("focus end reached, not updating pos");
-            return callback && callback(err, camera.status.focusPos);
-        } else if(responseCode == 0x2001) {
-            camera.status.focusPos += (dir == 1) ? -1 : 1;
-            steps--;
-            if(steps > 0) {
-                return setTimeout(function() {
-                    driver.moveFocus(camera, steps, resolution, callback);
-                }, 10);
-            } else {
-                return callback && callback(err, camera.status.focusPos);
-            }
+    if(dir < 0) {
+        if(resolution == 1) {
+            mode = 0x02;
         } else {
-            err = ptp.hex(responseCode);
-            _logD("focus error:", err);
-            callback && callback(err, camera.status.focusPos);
+            mode = 0x01;
         }
-    });
+    } else {
+        if(resolution == 1) {
+            mode = 0x03;
+        } else {
+            mode = 0x04;
+        }
+    }
 
+    var buf = new Buffer(10);
+    buf.writeUInt32LE(0x03010011, 0);
+    buf.writeUInt32LE(0x00000002, 4);
+    buf.writeUInt16LE(mode,       8);
+
+    var doStep = function() {
+        ptp.transaction(_dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03010011], buf, function(err, responseCode) {
+            if(err) return callback && callback(err);
+            steps--;
+            camera.status.focusPos += dir;
+            if(steps > 0) {
+                setTimeout(doStep, 50);
+            } else {
+                callback && callback();
+            }
+        });
+    }
+    doStep();
 }
-
 
 module.exports = driver;
