@@ -295,7 +295,7 @@ var properties = {
         getFunction: getProperty,
         listFunction: null,
         code: 0x20001d2,
-        parser: parseFocusPoint
+        parser: parseFocusPoint,
         ev: false,
         values: null
     },
