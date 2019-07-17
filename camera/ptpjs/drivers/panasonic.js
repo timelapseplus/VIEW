@@ -247,7 +247,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20000B0,
+        code: 0x20000A2,
         ev: false,
         values: [
             { name: "JPEG Fine",         value: 'jpeg',     code: 0 },
@@ -279,7 +279,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x2000080,
+        code: 0x2000082,
         ev: false,
         values: [
             { name: "Manual",            value: 'm',     code: 0 },
