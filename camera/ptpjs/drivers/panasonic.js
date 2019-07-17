@@ -282,9 +282,9 @@ var properties = {
         code: 0x2000082,
         ev: false,
         values: [
-            { name: "Manual",            value: 'm',     code: 0 },
-            { name: "Shutter Priority",  value: 's',     code: 0 },
-            { name: "Aperture Priority", value: 'a',     code: 0 },
+            { name: "Manual",            value: 'm',     code: 3 },
+            { name: "Shutter Priority",  value: 's',     code: 2 },
+            { name: "Aperture Priority", value: 'a',     code: 1 },
             { name: "Auto Program",      value: 'p',     code: 0 },
         ]
     },
@@ -452,7 +452,7 @@ var properties = {
 function propMapped(propCode) {
     for(name in properties) {
         if(properties.hasOwnProperty(name)) {
-            if(propCode === properties[name].code) return true;
+            if(propCode === (properties[name].code & 0xFFFFFFF0)) return true;
         }
     }
     return false;
