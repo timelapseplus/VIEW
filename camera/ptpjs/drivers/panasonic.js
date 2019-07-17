@@ -294,7 +294,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: null,
-        code: 0x20001d0,
+        code: 0x20001d2,
         ev: false,
         values: null
     },
