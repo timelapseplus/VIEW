@@ -490,7 +490,7 @@ function listProperty(_dev, propCode, callback) {
             } else if(valueSize == 4) {
                 cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
             } else {
-                return callback && callback("invalid data length of " + valueSize);
+                cv = data.copy(headerLength * 4 + 2 * 4, headerLength * 4 + 2 * 4 + valueSize);
             }
             if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
             var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
@@ -503,6 +503,8 @@ function listProperty(_dev, propCode, callback) {
                     list.push(data.readUInt16LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
                 } else if(valueSize == 4) {
                     list.push(data.readUInt32LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
+                } else {
+                    list.push(data.copy(headerLength * 4 + 3 * 4 + valueSize + i * valueSize, headerLength * 4 + 3 * 4 + valueSize + i * valueSize + valueSize));
                 }
             }
 
@@ -526,7 +528,7 @@ function getProperty(_dev, propCode, callback) {
         } else if(valueSize == 4) {
             currentValue = data.readUInt32LE(8);
         } else {
-            return callback && callback("invalid data length of " + valueSize);
+            currentValue = data.copy(8, 8 + valueSize);
         }
 
         callback && callback(null, currentValue, valueSize);
