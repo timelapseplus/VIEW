@@ -294,7 +294,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20001d0,
+        code: 0x20001d2,
         ev: false,
         values: [
             { name: "Center",            value: 'c',     code: 0 },
@@ -472,6 +472,7 @@ function propMapped(propCode) {
 
 function listProperty(_dev, propCode, callback) {
     getProperty(_dev, propCode, function(err, currentValue, valueSize) {
+        if(err) console.log(ptp.hex(propCode), "propcode get error", ptp.hex(err));
         ptp.transaction(_dev, PTP_OC_PANASONIC_ListProperty, [propCode], null, function(err, responseCode, data) {
             if(err || responseCode != 0x2001 || !data || data.length < 4 + 6 * 4) return callback && callback(err || responseCode);
 
@@ -489,7 +490,7 @@ function listProperty(_dev, propCode, callback) {
             } else if(valueSize == 4) {
                 cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
             } else {
-                return callback && callback("invalid data length of" + valueSize);
+                return callback && callback("invalid data length of " + valueSize);
             }
             if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
             var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
