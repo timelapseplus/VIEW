@@ -247,7 +247,7 @@ var properties = {
         setFunction: setProperty,
         getFunction: getProperty,
         listFunction: listProperty,
-        code: 0x20000A0,
+        code: 0x20000B0,
         ev: false,
         values: [
             { name: "JPEG Fine",         value: 'jpeg',     code: 0 },
@@ -257,6 +257,35 @@ var properties = {
             { name: "RAW + JPEG Normal", value: 'raw+jpeg', code: 5 },
             { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 4 },
 
+        ]
+    },
+    'imageSize': {
+        name: 'imageSize',
+        category: 'config',
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
+        code: 0x20000A0,
+        ev: false,
+        values: [
+            { name: "Large",         value: 'l',     code: 4097 },
+            { name: "Medium",        value: 'm',     code: 4353 },
+            { name: "Small",         value: 's',     code: 4609 },
+        ]
+    },
+    'cameraMode': {
+        name: 'cameraMode',
+        category: 'config',
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
+        code: 0x2000080,
+        ev: false,
+        values: [
+            { name: "Manual",            value: 'm',     code: 0 },
+            { name: "Shutter Priority",  value: 's',     code: 0 },
+            { name: "Aperture Priority", value: 'a',     code: 0 },
+            { name: "Auto Program",      value: 'p',     code: 0 },
         ]
     },
     'destination': {
