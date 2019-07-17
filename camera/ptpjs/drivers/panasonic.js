@@ -296,9 +296,7 @@ var properties = {
         listFunction: null,
         code: 0x20001d0,
         ev: false,
-        values: [
-            { name: "Center",            value: 'c',     code: 0 },
-        ]
+        values: null
     },
     'destination': {
         name: 'destination',
