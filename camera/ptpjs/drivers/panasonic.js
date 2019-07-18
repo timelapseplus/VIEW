@@ -540,10 +540,10 @@ function getProperty(_dev, propCode, callback) {
 
 function setProperty(_dev, propCode, newValue, valueSize, callback) {
     var buf = new Buffer(8 + valueSize);
-    buf.writeUInt32LE(propCode, 0);
+    buf.writeUInt32LE(propCode+1, 0);
     buf.writeUInt32LE(valueSize, 4);
     if(valueSize == 1) {
-        buf.writeUInt16LE(newValue, 8);
+        buf.writeUInt8(newValue, 8);
     } else if(valueSize == 2) {
         buf.writeUInt16LE(newValue, 8);
     } else if(valueSize == 4) {
@@ -743,38 +743,6 @@ driver.init = function(camera, callback) {
             //function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
-            
-            var shutterEv = camera.exposure.shutter.ev; 
-            var capture = function() {
-
-                driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                    if(err) {
-                        if(err != 0x2019) _logD("capture err result:", ptp.hex(err));
-                    } else {
-                        _logD("captured image:", filename);
-                    }
-                    var delay = 1000;
-                    if(err == 0x2019) delay = 50; 
-                    setTimeout(function() {
-                        shutterEv++;
-                        var set = function() {
-                            driver.set(camera, 'shutter', shutterEv, function(err) {
-                                if(err == 0x2019) return setTimeout(set, 100);
-                                if(err) _logD("set error:", err);
-                                capture();
-                            });
-                        }
-                        set();
-                    }, delay);
-                });
-            }
-            //capture();
-            //driver.refresh(camera);
-
-            //ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
-            //    _logD("0x500D", current, list);
-            //});
-
             callback && callback(err);
         });
     });
