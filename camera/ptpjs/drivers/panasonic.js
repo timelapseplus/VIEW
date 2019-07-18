@@ -579,7 +579,7 @@ function parseFocusPoint(data) {
 }
 
 function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
-    if(!newValue || !newValue._buf) return callback && callback("value must be read first");
+    if(!newValue || !newValue._buf || newValue._buf.length < 32) return callback && callback("value must be read first");
     var buf = new Buffer(newValue._buf.length);
     newValue._buf.copy(buf);
 
