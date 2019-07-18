@@ -587,18 +587,18 @@ function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
 
     buf.writeInt16LE(newValue.x * 1000, 0);
     buf.writeInt16LE(newValue.y * 1000, 2);
-    buf.writeInt16LE(newValue.s * 1000, 4);
-    buf.writeInt16LE(newValue.s * 1000, 6);
-    buf.writeUInt16LE(newValue.mode,    8);
+    //buf.writeInt16LE(newValue.s * 1000, 4);
+    //buf.writeInt16LE(newValue.s * 1000, 6);
+    //buf.writeUInt16LE(newValue.mode,    8);
 
     buf.writeInt16LE(newValue.x * 1000, 24);
     buf.writeInt16LE(newValue.y * 1000, 26);
-    buf.writeInt16LE(newValue.s * 1000, 28);
-    buf.writeInt16LE(newValue.s * 1000, 30);
+    //buf.writeInt16LE(newValue.s * 1000, 28);
+    //buf.writeInt16LE(newValue.s * 1000, 30);
 
     _logD("setting focusPoint", buf);
 
-    return setProperty(_dev, propCode, buf, buf.length, callback);
+    return setProperty(_dev, propCode-1, buf, buf.length, callback);
 }
 
 driver._error = function(camera, error) { // events received
