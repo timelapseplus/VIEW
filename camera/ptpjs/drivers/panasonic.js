@@ -598,7 +598,7 @@ function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
 
     _logD("setting focusPoint", buf);
 
-    return setProperty(_dev, propCode+1, buf, buf.length, callback);
+    return setProperty(_dev, propCode, buf, buf.length, callback);
 }
 
 driver._error = function(camera, error) { // events received
