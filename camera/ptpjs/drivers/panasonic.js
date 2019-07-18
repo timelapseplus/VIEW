@@ -817,9 +817,13 @@ driver.set = function(camera, param, value, callback) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].size, function(err) {
                         if(!err) {
-                            var newItem =  mapPropertyItem(cameraValue, properties[param].values);
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                            if(properties[param].values) {
+                                var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                                for(var k in newItem) {
+                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                }
+                            } else {
+                                camera[properties[param].category][param][k] = cameraValue;
                             }
                             cb(err);
                             exposureEvent(camera);
@@ -1119,7 +1123,10 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     var focusPoint = camera.config.focusPoint;
     focusPoint.x = 0.5;
     focusPoint.y = 0.5;
-    driver.set(camera, 'focusPoint', focusPoint, doStep);
+    driver.set(camera, 'focusPoint', focusPoint, function(err) {
+        if(err) _logE("focusPoint set err", err);
+        doStep();
+    });
     //doStep();
 }
 
