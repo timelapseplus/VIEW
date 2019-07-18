@@ -594,6 +594,8 @@ function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
     buf.writeInt16LE(newValue.s * 1000, 28);
     buf.writeInt16LE(newValue.s * 1000, 30);
 
+    _logD("setting focusPoint", buf);
+
     return setProperty(_dev, propCode, buf, buf.length, callback);
 }
 
