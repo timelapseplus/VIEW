@@ -291,7 +291,7 @@ var properties = {
     'focusPoint': {
         name: 'cameraMode',
         category: 'config',
-        setFunction: setProperty,
+        setFunction: setFocusPoint,
         getFunction: getProperty,
         listFunction: null,
         code: 0x20001d2,
