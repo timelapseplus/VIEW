@@ -568,7 +568,7 @@ function setDestination(_dev, propCode, newValue, valueSize, callback) {
 }
 
 function parseFocusPoint(data) {
-    if(!data || data.length < 6) return data;
+    if(!data || data.length < 10) return data;
     return {
         x: data.readInt16LE(0) / 1000,
         y: data.readInt16LE(2) / 1000,
@@ -583,11 +583,13 @@ function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
     var buf = new Buffer(newValue._buf.length);
     newValue._buf.copy(buf);
 
+    _logD("setting focusPoint", buf);
+
     buf.writeInt16LE(newValue.x * 1000, 0);
     buf.writeInt16LE(newValue.y * 1000, 2);
     buf.writeInt16LE(newValue.s * 1000, 4);
     buf.writeInt16LE(newValue.s * 1000, 6);
-    buf.writeInt16LE(newValue.mode,     8);
+    buf.writeUInt16LE(newValue.mode,    8);
 
     buf.writeInt16LE(newValue.x * 1000, 24);
     buf.writeInt16LE(newValue.y * 1000, 26);
