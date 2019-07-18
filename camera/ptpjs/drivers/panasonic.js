@@ -570,11 +570,31 @@ function setDestination(_dev, propCode, newValue, valueSize, callback) {
 function parseFocusPoint(data) {
     if(!data || data.length < 6) return data;
     return {
-        x: data.readInt16LE(0),
-        y: data.readInt16LE(2),
-        s: data.readUInt16LE(4),
-        buf: data
+        x: data.readInt16LE(0) / 1000,
+        y: data.readInt16LE(2) / 1000,
+        s: data.readUInt16LE(4) / 1000,
+        mode: data.readUInt16LE(8),
+        _buf: data
     }
+}
+
+function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
+    if(!newValue || !newValue._buf) return callback && callback("value must be read first");
+    var buf = new Buffer(newValue._buf.length);
+    newValue._buf.copy(buf);
+
+    buf.writeInt16LE(newValue.x * 1000, 0);
+    buf.writeInt16LE(newValue.y * 1000, 2);
+    buf.writeInt16LE(newValue.s * 1000, 4);
+    buf.writeInt16LE(newValue.s * 1000, 6);
+    buf.writeInt16LE(newValue.mode,     8);
+
+    buf.writeInt16LE(newValue.x * 1000, 24);
+    buf.writeInt16LE(newValue.y * 1000, 26);
+    buf.writeInt16LE(newValue.s * 1000, 28);
+    buf.writeInt16LE(newValue.s * 1000, 30);
+
+    return setProperty(_dev, propCode, buf, buf.length, callback);
 }
 
 driver._error = function(camera, error) { // events received
@@ -1096,7 +1116,11 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             }
         });
     }
-    doStep();
+    var focusPoint = camera.config.focusPoint;
+    focusPoint.x = 0.5;
+    focusPoint.y = 0.5;
+    driver.set(camera, 'focusPoint', focusPoint, doStep);
+    //doStep();
 }
 
 module.exports = driver;
