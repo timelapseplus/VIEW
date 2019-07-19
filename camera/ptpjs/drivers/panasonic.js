@@ -601,7 +601,7 @@ function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
     buf.writeUInt16LE(Math.round(newValue.x * 1000), 8);
     buf.writeUInt16LE(Math.round(newValue.y * 1000), 10);
 
-    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000051], buf, callback);
+    ptp.transaction(_dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000051], buf, callback);
 }
 
 driver._error = function(camera, error) { // events received
