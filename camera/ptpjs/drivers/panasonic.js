@@ -593,24 +593,15 @@ function parseFocusPoint(data) {
 }
 
 function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
-    if(!newValue || !newValue._buf || newValue._buf.length < 32) return callback && callback("value must be read first");
+    if(!newValue || !newValue._buf) return callback && callback("value must be read first");
 
     var buf = new Buffer(12);
     buf.writeUInt32LE(0x03000051, 0);
     buf.writeUInt32LE(0x00000004, 4);
-    buf.writeUInt16LE(newValue.x, 8);
-    buf.writeUInt16LE(newValue.y, 10);
+    buf.writeUInt16LE(Math.round(newValue.x * 1000), 8);
+    buf.writeUInt16LE(Math.round(newValue.y * 1000), 10);
 
-    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000051], buf, function(err, responseCode) {
-        if(err) return callback && callback(err);
-        steps--;
-        camera.status.focusPos += dir;
-        if(steps > 0) {
-            setTimeout(doStep, 50);
-        } else {
-            callback && callback();
-        }
-    });
+    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000051], buf, callback);
 }
 
 driver._error = function(camera, error) { // events received
