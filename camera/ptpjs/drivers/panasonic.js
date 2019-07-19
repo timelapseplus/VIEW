@@ -1108,10 +1108,10 @@ driver.setFocusPoint = function(camera, x, y, callback) {
 
 driver.af = function(camera, callback) {
     var buf = new Buffer(8);
-    buf.writeUInt32LE(0x03000054, 0); // might also be 0x03000055
+    buf.writeUInt32LE(0x03000055, 0); // might also be 0x03000055
     buf.writeUInt32LE(0x00000000, 4);
 
-    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000054], buf, callback);
+    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000055], buf, callback);
 }
 
 
