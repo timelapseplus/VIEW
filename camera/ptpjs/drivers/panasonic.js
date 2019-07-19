@@ -458,6 +458,20 @@ var properties = {
             { name: "AFC",        value: 'af',       code: 0x5 },
         ]
     },
+    'previewExposure': {
+        name: 'previewExposure',
+        category: 'config',
+        setFunction: setProperty,
+        getFunction: getProperty,
+        listFunction: listProperty,
+        code: 0x2000172,
+        ev: false,
+        values: [
+            { name: "None",                 value: false,       code: 0x0 },
+            { name: "Aperture",             value: false,       code: 0x1 },
+            { name: "Shutter + Aperture",   value: true,        code: 0x2 },
+        ]
+    },
 }
 
 function propMapped(propCode) {
@@ -580,25 +594,23 @@ function parseFocusPoint(data) {
 
 function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
     if(!newValue || !newValue._buf || newValue._buf.length < 32) return callback && callback("value must be read first");
-    var buf = new Buffer(newValue._buf.length);
-    newValue._buf.copy(buf);
 
-    _logD("setting focusPoint", buf);
+    var buf = new Buffer(10);
+    buf.writeUInt32LE(0x03000051, 0);
+    buf.writeUInt32LE(0x00000004, 4);
+    buf.writeUInt16LE(newValue.x, 8);
+    buf.writeUInt16LE(newValue.y, 8);
 
-    buf.writeInt16LE(newValue.x * 1000, 0);
-    buf.writeInt16LE(newValue.y * 1000, 2);
-    //buf.writeInt16LE(newValue.s * 1000, 4);
-    //buf.writeInt16LE(newValue.s * 1000, 6);
-    //buf.writeUInt16LE(newValue.mode,    8);
-
-    buf.writeInt16LE(newValue.x * 1000, 24);
-    buf.writeInt16LE(newValue.y * 1000, 26);
-    //buf.writeInt16LE(newValue.s * 1000, 28);
-    //buf.writeInt16LE(newValue.s * 1000, 30);
-
-    _logD("setting focusPoint", buf);
-
-    return setProperty(_dev, propCode, buf, buf.length, callback);
+    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000051], buf, function(err, responseCode) {
+        if(err) return callback && callback(err);
+        steps--;
+        camera.status.focusPos += dir;
+        if(steps > 0) {
+            setTimeout(doStep, 50);
+        } else {
+            callback && callback();
+        }
+    });
 }
 
 driver._error = function(camera, error) { // events received
