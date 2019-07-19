@@ -1111,7 +1111,7 @@ driver.af = function(camera, callback) {
     buf.writeUInt32LE(0x03000054, 0); // might also be 0x03000055
     buf.writeUInt32LE(0x00000000, 4);
 
-    ptp.transaction(_dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000054], buf, callback);
+    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000054], buf, callback);
 }
 
 
