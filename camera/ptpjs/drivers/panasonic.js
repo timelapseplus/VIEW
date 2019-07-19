@@ -1096,7 +1096,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
         });
     }
     //doStep();
-    driver.af(callback);
+    driver.af(camera, callback);
 }
 
 driver.setFocusPoint = function(camera, x, y, callback) {
