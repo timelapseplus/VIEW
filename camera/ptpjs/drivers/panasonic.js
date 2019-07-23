@@ -474,6 +474,8 @@ var properties = {
     },
 }
 
+driver.properties = properties;
+
 function propMapped(propCode) {
     for(name in properties) {
         if(properties.hasOwnProperty(name)) {
@@ -1095,14 +1097,13 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             }
         });
     }
-    //doStep();
-    driver.af(camera, callback);
+    doStep();
 }
 
 driver.setFocusPoint = function(camera, x, y, callback) {
     var focusPoint = camera.config.focusPoint;
-    focusPoint.x = 0.5;
-    focusPoint.y = 0.5;
+    focusPoint.x = x;
+    focusPoint.y = y;
     driver.set(camera, 'focusPoint', focusPoint, callback);
 }
 

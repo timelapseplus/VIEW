@@ -288,6 +288,8 @@ var properties = {
     }
 }
 
+driver.properties = properties;
+
 driver._error = function(camera, error) { // events received
     _logD("ERROR:", error);
 };

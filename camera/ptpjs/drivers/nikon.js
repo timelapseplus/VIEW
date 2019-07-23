@@ -450,6 +450,8 @@ var properties = {
     },
 }
 
+driver.properties = properties;
+
 function propMapped(propCode) {
     for(name in properties) {
         if(properties.hasOwnProperty(name)) {

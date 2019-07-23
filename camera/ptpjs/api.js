@@ -170,6 +170,7 @@ CameraAPI.prototype.capture = function(target, options, callback) {
 }
 
 CameraAPI.prototype.captureHDR = function(target, options, frames, stops, darkerOnly, callback) {
+	if(!this._driver.captureHDR) return callback && callback("not supported");
 	if(typeof options == 'function' && callback == undefined) {
 		callback = options;
 		options = {};
@@ -178,20 +179,30 @@ CameraAPI.prototype.captureHDR = function(target, options, frames, stops, darker
 }
 
 CameraAPI.prototype.liveviewMode = function(enable, callback) {
-	if(!this.supports.liveview) return callback && callback("not supported");
+	if(!this.supports.liveview || !this._driver.liveviewMode) return callback && callback("not supported");
 	if(this.status.liveview === enable) return callback && callback();
 	return this._driver.liveviewMode(this, enable, callback);
 }
 
 CameraAPI.prototype.liveviewImage = function(callback) {
-	if(!this.supports.liveview) return callback && callback("not supported");
+	if(!this.supports.liveview || !this._driver.liveviewImage) return callback && callback("not supported");
 	if(!this.status.liveview) return callback && callback("not enabled");
 	return this._driver.liveviewImage(this, callback);
 }
 
 CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
-	if(!this.supports.focus) return callback && callback("not supported");
+	if(!this.supports.focus || !this._driver.moveFocus) return callback && callback("not supported");
 	return this._driver.moveFocus(this, steps, resolution, callback);
+}
+
+CameraAPI.prototype.setFocusPoint = function(steps, resolution, callback) {
+	if(!this._driver.setFocusPoint) return callback && callback("not supported");
+	return this._driver.setFocusPoint(this, x, y, callback);
+}
+
+CameraAPI.prototype.af = function(steps, resolution, callback) {
+	if(!this._driver.af) return callback && callback("not supported");
+	return this._driver.af(this, callback);
 }
 
 function connectCamera(driver, device) {
@@ -402,7 +413,6 @@ api.captureHDR = function(target, options, frames, stops, darkerOnly, callback) 
 api.liveviewMode = function(enable, callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
-	if(!primaryCamera.camera.supports.liveview) return callback && callback("not supported");
 	if(primaryCamera.camera.status.liveview === enable) return callback && callback();
 	primaryCamera.camera.liveviewMode(enable, callback);
 }
@@ -410,7 +420,6 @@ api.liveviewMode = function(enable, callback) {
 api.liveviewImage = function(callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
-	if(!primaryCamera.camera.supports.liveview) return callback && callback("not supported");
 	if(!primaryCamera.camera.status.liveview) return callback && callback("not enabled");
 	primaryCamera.camera.liveviewImage(callback);
 }
@@ -418,7 +427,6 @@ api.liveviewImage = function(callback) {
 api.moveFocus = function(steps, resolution, callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
-	if(!primaryCamera.camera.supports.focus) return callback && callback("not supported");
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
 			api.cameras[i].camera.moveFocus(steps, resolution, callback);
@@ -426,6 +434,18 @@ api.moveFocus = function(steps, resolution, callback) {
 			api.cameras[i].camera.moveFocus(steps, resolution);
 		}
 	}
+}
+
+api.setFocusPoint = function(x, y, callback) {
+	var primaryCamera = getPrimary();
+	if(!primaryCamera) return callback && callback("camera not connected");
+	primaryCamera.camera.setFocusPoint(camera, x, y, callback);
+}
+
+api.af = function(callback) {
+	var primaryCamera = getPrimary();
+	if(!primaryCamera) return callback && callback("camera not connected");
+	primaryCamera.camera.af(camera, callback);
 }
 
 function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a camera available list
