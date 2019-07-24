@@ -257,6 +257,7 @@ var properties = {
             { name: "RAW + JPEG Large",       value: 'raw+jpeg', code: 290  },
             { name: "RAW + JPEG Medium",      value: 'raw+jpeg', code: 291  },
             { name: "RAW + JPEG Small",       value: 'raw+jpeg', code: 292  },
+        ]
     },
     'destination': {
         name: 'destination',
