@@ -150,7 +150,7 @@ exports.driver = function(driver) {
 				for(j = 0; j < requiredExposureSettings[i].values.length; j++) {
 					var testVal = requiredExposureSettings[i].values[j];
 					var foundVal = null;
-					for(var k = 0; k < settings.values; k++) {
+					for(var k = 0; k < setting.values; k++) {
 						if(testVal.name == setting.values[k].name) {
 							foundVal = setting.values[k];
 							break;
