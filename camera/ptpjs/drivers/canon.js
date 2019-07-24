@@ -269,7 +269,7 @@ var properties = {
         getFunction: null,
         listFunction: null,
         code: 0xD120,
-        typeCode: 2,
+        typeCode: 6,
         ev: false,
         values: [
             { name: "JPEG Standard",       value: null,        code: 0x00  },
