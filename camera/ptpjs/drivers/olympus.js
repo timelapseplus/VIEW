@@ -744,9 +744,9 @@ driver.init = function(camera, callback) {
     camera._objectsAdded = [];
     ptp.init(camera._dev, function(err, di) {
         async.series([
-            function(cb){ ptp.transaction(_dev, 0x1016, [0xD052], ptp.uint16buf(0x0001), cb); },
-            function(cb){ ptp.transaction(_dev, 0x9481, [0x0003], null, cb); },
-            function(cb){ ptp.transaction(_dev, 0x9481, [0x0006], null, cb); },
+            function(cb){ ptp.transaction(camera._dev, 0x1016, [0xD052], ptp.uint16buf(0x0001), cb); },
+            function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0003], null, cb); },
+            function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0006], null, cb); },
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
