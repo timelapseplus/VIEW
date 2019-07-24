@@ -268,7 +268,7 @@ var properties = {
         setFunction: ptp.setPropU8,
         getFunction: null,
         listFunction: null,
-        code: 0x5004,
+        code: 0xD120,
         typeCode: 2,
         ev: false,
         values: [

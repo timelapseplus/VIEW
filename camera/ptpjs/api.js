@@ -22,7 +22,7 @@ api.available = false;
 var DRIVERS = [];
 console.log("drivers path", path.resolve(__dirname, './drivers/'));
 fs.readdir(path.resolve(__dirname, './drivers/'), function(err, files) {
-	console.log("Camera API: drivers found:", files);
+	//console.log("Camera API: drivers found:", files);
 	for(var i = 0; i < files.length; i++) {
 		if(files[i].substring(files[i].length - 3) == '.js') {
 			console.log("Camera API: adding driver:", files[i]);
@@ -32,10 +32,10 @@ fs.readdir(path.resolve(__dirname, './drivers/'), function(err, files) {
 	for(var i = 0; i < DRIVERS.length; i++) {
 		test.driver(DRIVERS[i]);
 		DRIVERS[i].on('settings', function(camera) {
-			console.log("SETTINGS event: checking index...");
+			//console.log("SETTINGS event: checking index...");
 			for(var j = 0; j < api.cameras.length; j++) {
 				if(api.cameras[j].camera._port == camera._port) {
-					console.log("SETTINGS event: camera index is", j);
+					//console.log("SETTINGS event: camera index is", j);
 					if(api.cameras[j].primary) {
 						api.emit('settings', camera.exposure);
 					}
