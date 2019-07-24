@@ -244,33 +244,23 @@ var properties = {
         setFunction: ptp.setPropU8,
         getFunction: ptp.getPropU8,
         listFunction: ptp.listProp,
-        code: 0x5004,
-        filter: {
-            by: 'type',
-            fn: function(values) { return (values && values.length > 8) ? 1 : 0; }
-        },
+        code: 0xd00d,
         ev: false,
         values: [
-            { name: "RAW",               value: 'raw',      code: 4 , type: 0 },
-            { name: "JPEG Normal",       value: 'jpeg',     code: 1 , type: 0 },
-            { name: "JPEG Fine",         value: 'jpeg',     code: 2 , type: 0 },
-            { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 0 },
-            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 7 , type: 0 },
-
-            { name: "JPEG Basic",        value: 'jpeg',     code: 0 , type: 1 },
-            { name: "JPEG Basic*",       value: 'jpeg',     code: 1 , type: 1 },
-            { name: "JPEG Normal",       value: 'jpeg',     code: 2 , type: 1 },
-            { name: "JPEG Normal*",      value: 'jpeg',     code: 3 , type: 1 },
-            { name: "JPEG Fine",         value: 'jpeg',     code: 4 , type: 1 },
-            { name: "JPEG Fine*",        value: 'jpeg',     code: 5 , type: 1 },
-            { name: "TIFF",              value: 'tiff',     code: 6 , type: 1 },
-            { name: "RAW",               value: 'raw',      code: 7 , type: 1 },
-            { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8 , type: 1 },
-            { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9 , type: 1 },
-            { name: "RAW + JPEG Norm",   value: 'raw+jpeg', code: 10, type: 1 },
-            { name: "RAW + JPEG Norm*",  value: 'raw+jpeg', code: 11, type: 1 },
-            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 12, type: 1 },
-            { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13, type: 1 },
+            { name: "JPEG Basic",        value: 'jpeg',     code: 0  },
+            { name: "JPEG Basic*",       value: 'jpeg',     code: 1  },
+            { name: "JPEG Normal",       value: 'jpeg',     code: 2  },
+            { name: "JPEG Normal*",      value: 'jpeg',     code: 3  },
+            { name: "JPEG Fine",         value: 'jpeg',     code: 4  },
+            { name: "JPEG Fine*",        value: 'jpeg',     code: 5  },
+            { name: "TIFF",              value: 'tiff',     code: 6  },
+            { name: "RAW",               value: 'raw',      code: 7  },
+            { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8  },
+            { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9  },
+            { name: "RAW + JPEG Norm",   value: 'raw+jpeg', code: 10 },
+            { name: "RAW + JPEG Norm*",  value: 'raw+jpeg', code: 11 },
+            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 12 },
+            { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13 },
         ]
     },
     'destination': {
@@ -442,7 +432,7 @@ driver.properties = properties;
 function propMapped(propCode) {
     for(name in properties) {
         if(properties.hasOwnProperty(name)) {
-            if(propCode === (properties[name].code & 0xFFFFFFF0)) return true;
+            if(propCode === properties[name].code) return true;
         }
     }
     return false;
