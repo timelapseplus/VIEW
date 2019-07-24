@@ -433,7 +433,7 @@ var properties = {
             { name: "enabled",         value: true,        code: 67109632 },
             { name: "enabled",         value: false,       code: 0 },
         ]
-    },0xD06D
+    },
 }
 
 driver.properties = properties;
