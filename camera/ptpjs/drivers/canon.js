@@ -619,17 +619,21 @@ function pollEvents(camera, callback) {
                             }
                         }
                         camera[properties[param].category][param].list = [];
+                        var cameraList = []
                         for(x = 0; x < event_size / 4 - 5; x++)
                         {
                             var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
-                            var newItem = mapPropertyItem(cameraValue, properties[param].values);
+                            cameraList.push(cameraValue);
+                        }
+                        if(properties[param].listParser) cameraList = properties[param].listParser(cameraList); 
+                        for(var x = 0; i < cameraList.lengthl x++) {
+                            var newItem = mapPropertyItem(cameraList[x], properties[param].values);
                             if(!newItem) {
-                                _logE(param, "list item", ptp.hex(cameraValue), "not found");
+                                _logE(param, "list item", ptp.hex(cameraList[x]), "not found");
                             } else {
                                 camera[properties[param].category][param].list.push(newItem);
                             }
                         }
-                        if(properties[param].listParser) camera[properties[param].category][param].list = properties[param].listParser(camera[properties[param].category][param].list);
                         found = true;
                         break;
                     }
