@@ -76,8 +76,9 @@ var properties = {
         code: 0xD01C,
         ev: true,
         values: [
-            { name: "bulb",    ev: null,        code:  4294967292 },
-            { name: "---",     ev: null,        code:  4294967290 },
+            { name: "LIVETIME", ev: null,        code:  4294967293 },
+            { name: "bulb",     ev: null,        code:  4294967292 },
+            { name: "LIVECOMP", ev: null,        code:  4294967290 },
             { name: "60s",     ev: -11,         code:  39321610  },
             { name: "50s",     ev: -11,         code:  32768010  },
             { name: "40s",     ev: -11,         code:  26214410  },
@@ -247,21 +248,15 @@ var properties = {
         code: 0xd00d,
         ev: false,
         values: [
-            { name: "JPEG Basic",        value: 'jpeg',     code: 0  },
-            { name: "JPEG Basic*",       value: 'jpeg',     code: 1  },
-            { name: "JPEG Normal",       value: 'jpeg',     code: 2  },
-            { name: "JPEG Normal*",      value: 'jpeg',     code: 3  },
-            { name: "JPEG Fine",         value: 'jpeg',     code: 4  },
-            { name: "JPEG Fine*",        value: 'jpeg',     code: 5  },
-            { name: "TIFF",              value: 'tiff',     code: 6  },
-            { name: "RAW",               value: 'raw',      code: 7  },
-            { name: "RAW + JPEG Basic",  value: 'raw+jpeg', code: 8  },
-            { name: "RAW + JPEG Basic*", value: 'raw+jpeg', code: 9  },
-            { name: "RAW + JPEG Norm",   value: 'raw+jpeg', code: 10 },
-            { name: "RAW + JPEG Norm*",  value: 'raw+jpeg', code: 11 },
-            { name: "RAW + JPEG Fine",   value: 'raw+jpeg', code: 12 },
-            { name: "RAW + JPEG Fine*",  value: 'raw+jpeg', code: 13 },
-        ]
+            { name: "RAW",               value: 'raw',      code: 35   },
+            { name: "Large JPEG Fine",   value: 'jpeg',     code: 257  },
+            { name: "Large JPEG",        value: 'jpeg',     code: 258  },
+            { name: "Medium JPEG",       value: 'jpeg',     code: 259  },
+            { name: "Small JPEG",        value: 'jpeg',     code: 260  },
+            { name: "RAW + JPEG Large Fine",  value: 'raw+jpeg', code: 289  },
+            { name: "RAW + JPEG Large",       value: 'raw+jpeg', code: 290  },
+            { name: "RAW + JPEG Medium",      value: 'raw+jpeg', code: 291  },
+            { name: "RAW + JPEG Small",       value: 'raw+jpeg', code: 292  },
     },
     'destination': {
         name: 'destination',
@@ -425,6 +420,19 @@ var properties = {
             { name: "AF-A",       value: null,       code: 0x8012 },
         ]
     },
+    'liveviewMode': {
+        name: 'liveviewMode',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD06D,
+        ev: false,
+        values: [
+            { name: "enabled",         value: true,        code: 67109632 },
+            { name: "enabled",         value: false,       code: 0 },
+        ]
+    },0xD06D
 }
 
 driver.properties = properties;
@@ -573,7 +581,8 @@ driver._event = function(camera, data) { // events received
     ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
         camera._eventData = null;
         if(event == 0xC102) {
-            _logD("0xC102 event:", ptp.hex(param1));
+            _logD("object added:", ptp.hex(param1));
+            camera._objectsAdded.push(param1);
         } else if(event == 0xC108) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
@@ -939,8 +948,8 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
     //}
     if(camera.status.liveview != !!enable) {
         if(enable) {
-            ptp.transaction(camera._dev, PTP_OC_PANASONIC_Liveview, [0xD000010], null, function(err, responseCode) {
-                if(responseCode == 0x2019) {
+            driver.set(camera, 'liveview', true, function(err) {
+                if(err == 0x2019) {
                     _tries++;
                     if(_tries < 15) {
                         return setTimeout(function(){
@@ -948,17 +957,17 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                         }, 50);
                     }
                 }
-                if(err || responseCode != 0x2001) {
-                    _logD("error enabling liveview:", err, "code:", ptp.hex(responseCode));
-                    return callback && callback(err || responseCode);
+                if(err) {
+                    _logD("error enabling liveview:", err);
+                    return callback && callback(err);
                 }
                 camera.status.liveview = true;
                 _logD("LV enabled");
                 return callback && callback();
             });
         } else {
-            ptp.transaction(camera._dev, PTP_OC_PANASONIC_Liveview, [0xD000011], null, function(err, responseCode) {
-                if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
+            driver.set(camera, 'liveview', false, function(err) {
+                if(err) return callback && callback(err);
                 camera.status.liveview = false;
                 _logD("LV disabled");
                 return callback && callback();
@@ -978,7 +987,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             driver.liveviewMode(camera, false);
         }, 5000);
 
-        ptp.transaction(camera._dev, PTP_OC_PANASONIC_LiveviewImage, [], null, function(err, responseCode, data) {
+        ptp.transaction(camera._dev, 0x9484, [0x00000001], null, function(err, responseCode, data) {
             if(err) return callback && callback(err);
             if(responseCode != 0x2001 && _tries > 10) return callback && callback(responseCode);
             if(responseCode == 0x2001) {
