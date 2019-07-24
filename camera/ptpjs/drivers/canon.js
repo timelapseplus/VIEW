@@ -262,50 +262,19 @@ var properties = {
             //{ name: "409600",   ev: -12,         code: 409600 }
         ]
     },
-    'jpegQuality': {
-        name: 'jpegQuality',
+    'format': {
+        name: 'format',
         category: 'config',
-        setFunction: ptp.setPropU8,
+        setFunction: setFormat,
         getFunction: null,
         listFunction: null,
         code: 0xD120,
         typeCode: 6,
+        valueParser: parseFormatValue,
+        listParser: parseFormatList,
         ev: false,
         values: [
             { name: "--",                   value: null,        code: 0x01  },
-            { name: "JPEG Large Fine",      value: null,        code: 0x02  },
-            { name: "JPEG Large",           value: null,        code: 0x03  },
-            { name: "JPEG Medium Fine",     value: null,        code: 0x04  },
-            { name: "JPEG Medium",          value: null,        code: 0x05  },
-            { name: "JPEG Small Fine",      value: null,        code: 0x06  },
-            { name: "JPEG Small",           value: null,        code: 0x07  },
-        ]
-    },
-    'rawQuality': {
-        name: 'rawQuality',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: null,
-        listFunction: null,
-        code: 0xD006,
-        typeCode: 6,
-        ev: false,
-        values: [
-            { name: "--",             value: null,        code: 0x01  },
-            { name: "RAW",            value: null,        code: 0x02  },
-            { name: "MRAW",           value: null,        code: 0x03  },
-            { name: "SRAW",           value: null,        code: 0x04  },
-        ]
-    },
-    'format': {
-        name: 'format',
-        category: 'config',
-        setFunction: null,
-        getFunction: null,
-        listFunction: null,
-        ev: false,
-        values: [
-            { name: "RAW",                  value: null,        code: 0x01  },
             { name: "JPEG Large Fine",      value: null,        code: 0x02  },
             { name: "JPEG Large",           value: null,        code: 0x03  },
             { name: "JPEG Medium Fine",     value: null,        code: 0x04  },
@@ -419,6 +388,34 @@ var EOS_DPC_Video = 0xD1B8;
 //3=live view show / stop record
 //0=video stop / live view stop showing
 var EOS_DPC_PhotosRemaining = 0xD11B;
+
+function hexByte(b) {
+    if(!b) b = 0;
+    b &= 0xFF;
+    var s = b.toString(16);
+    if(s.length < 2) s = '0' + s;
+    return s;
+}
+
+function parseFormatValue(data, offset) {
+    var value = '';
+    if(data && data.length > 4 * 5) {
+        for(var i = 0; i < 5; i++) {
+            value += hexByte(data.readUInt32LE(offset + i * 4));
+        }
+    }
+    return value;
+}
+
+function parseFormatList(cameraList) {
+    if(!cameraList) return [];
+    var newList = [];
+    for(var i = 0; i < cameraList.length; i += 5) {
+        if(cameraList.length - i - 5 < 0) break;
+        newList = hexByte(cameraList[i + 0]) + hexByte(cameraList[i + 1]) + hexByte(cameraList[i + 2]) + hexByte(cameraList[i + 3]) + hexByte(cameraList[i + 4]);
+    }
+    return newList;
+}
 
 function dummyGet(camera, propcode, callback) {
     for(var key in properties) {
@@ -573,6 +570,9 @@ function pollEvents(camera, callback) {
                 var found = false;
                 for(var param in properties) {
                     if(properties[param].code == event_item) {
+                        if(properties[param].valueParser) {
+                            event_value = properties[param].valueParser(data, i + 4 * 3);
+                        }
                         if(!camera[properties[param].category]) camera[properties[param].category] = {};
                         var newItem = {};
                         if(properties[param].values) {
@@ -629,6 +629,7 @@ function pollEvents(camera, callback) {
                                 camera[properties[param].category][param].list.push(newItem);
                             }
                         }
+                        if(properties[param].listParser) camera[properties[param].category][param].list = properties[param].listParser(camera[properties[param].category][param].list);
                         found = true;
                         break;
                     }
