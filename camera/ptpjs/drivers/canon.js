@@ -692,6 +692,18 @@ driver.init = function(camera, callback) {
             function(cb){driver.refresh(camera, cb);},  // get settings
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
+            var setupPoll = function() {
+                setTimeout(function() {
+                    if(camera && camera._dev && camera._dev.connected) {
+                        if(camera.busy) {
+                            setupPoll();
+                        } else {
+                            pollEvents(camera, setupPoll);
+                        }
+                    }
+                }, 1000);
+            }
+            setupPoll();
             callback && callback(err);
         });
     });
@@ -889,6 +901,7 @@ driver.capture = function(camera, target, options, callback, tries) {
     var thumb = null;
     var filename = null;
     var rawImage = null;
+    camera.busy = true;
     async.series([
         function(cb){ptp.transaction(camera._dev, 0x910F, [], null, cb);},
         function(cb){
@@ -900,6 +913,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             });
         },
     ], function(err) {
+        camera.busy = false;
         callback && callback(err, thumb, filename, rawImage);
     });
 }
