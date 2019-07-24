@@ -582,10 +582,9 @@ driver._event = function(camera, data) { // events received
     if(camera._eventData.length < 12) return;
     ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
         camera._eventData = null;
-        if(event == 0xC108) {
-            _logD("object added:", ptp.hex(param1));
-            camera._objectsAdded.push(param1);
-        } else if(event == 0xC102) {
+        if(event == 0xC102) {
+            _logD("0xC102 event:", ptp.hex(param1));
+        } else if(event == 0xC108) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
