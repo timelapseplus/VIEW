@@ -626,7 +626,7 @@ function pollEvents(camera, callback) {
                             cameraList.push(cameraValue);
                         }
                         if(properties[param].listParser) cameraList = properties[param].listParser(cameraList); 
-                        for(var x = 0; i < cameraList.lengthl x++) {
+                        for(var x = 0; i < cameraList.length; x++) {
                             var newItem = mapPropertyItem(cameraList[x], properties[param].values);
                             if(!newItem) {
                                 _logE(param, "list item", ptp.hex(cameraList[x]), "not found");
