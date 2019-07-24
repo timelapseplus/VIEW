@@ -262,8 +262,8 @@ var properties = {
             //{ name: "409600",   ev: -12,         code: 409600 }
         ]
     },
-    'format': {
-        name: 'format',
+    'jpegQuality': {
+        name: 'jpegQuality',
         category: 'config',
         setFunction: ptp.setPropU8,
         getFunction: null,
@@ -272,13 +272,46 @@ var properties = {
         typeCode: 6,
         ev: false,
         values: [
-            { name: "JPEG Standard",       value: null,        code: 0x00  },
-            { name: "JPEG Fine",           value: null,        code: 0x00  },
-            { name: "JPEG Extra Fine",     value: null,        code: 0x00  },
-            { name: "RAW",                 value: 'raw',       code: 0x00  },
-            { name: "RAW+JPEG Standard",   value: 'raw+jpeg',  code: 0x00  },
-            { name: "RAW+JPEG Fine",       value: null,        code: 0x00  },
-            { name: "RAW+JPEG Extra Fine", value: null,        code: 0x00  }
+            { name: "--",                   value: null,        code: 0x01  },
+            { name: "JPEG Large Fine",      value: null,        code: 0x02  },
+            { name: "JPEG Large",           value: null,        code: 0x03  },
+            { name: "JPEG Medium Fine",     value: null,        code: 0x04  },
+            { name: "JPEG Medium",          value: null,        code: 0x05  },
+            { name: "JPEG Small Fine",      value: null,        code: 0x06  },
+            { name: "JPEG Small",           value: null,        code: 0x07  },
+        ]
+    },
+    'rawQuality': {
+        name: 'rawQuality',
+        category: 'config',
+        setFunction: ptp.setPropU8,
+        getFunction: null,
+        listFunction: null,
+        code: 0xD006,
+        typeCode: 6,
+        ev: false,
+        values: [
+            { name: "--",             value: null,        code: 0x01  },
+            { name: "RAW",            value: null,        code: 0x02  },
+            { name: "MRAW",           value: null,        code: 0x03  },
+            { name: "SRAW",           value: null,        code: 0x04  },
+        ]
+    },
+    'format': {
+        name: 'format',
+        category: 'config',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        ev: false,
+        values: [
+            { name: "RAW",                  value: null,        code: 0x01  },
+            { name: "JPEG Large Fine",      value: null,        code: 0x02  },
+            { name: "JPEG Large",           value: null,        code: 0x03  },
+            { name: "JPEG Medium Fine",     value: null,        code: 0x04  },
+            { name: "JPEG Medium",          value: null,        code: 0x05  },
+            { name: "JPEG Small Fine",      value: null,        code: 0x06  },
+            { name: "JPEG Small",           value: null,        code: 0x07  },
         ]
     },
     'framesRemaining': {
