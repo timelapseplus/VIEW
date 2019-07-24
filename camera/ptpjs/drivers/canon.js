@@ -265,7 +265,7 @@ var properties = {
     'format': {
         name: 'format',
         category: 'config',
-        setFunction: setFormat,
+        setFunction: null,
         getFunction: null,
         listFunction: null,
         code: 0xD120,
