@@ -590,140 +590,144 @@ exports.parseEvent = function(data, callback) {
 }
 
 function runTransaction(cam, opcode, params, data, callback) {
-	if(!params) params = [];
-	cam.transactionId++
-	var length = 12 + 4 * params.length;
-	var type = 1; // command
-	var maxPacket = cam.ep.in.descriptor.wMaxPacketSize;
-	var CHUNK_LIMIT = 6000000;
+	try {
+		if(!params) params = [];
+		cam.transactionId++
+		var length = 12 + 4 * params.length;
+		var type = 1; // command
+		var maxPacket = cam.ep.in.descriptor.wMaxPacketSize;
+		var CHUNK_LIMIT = 6000000;
 
-	// uint32 length (4) 0
-	// uint16 type (2) 4
-	// uint16 opcode (2) 6
-	// uint32 transactionId (4) 8
-	// uint32[4] params (optional) or data 12
+		// uint32 length (4) 0
+		// uint16 type (2) 4
+		// uint16 opcode (2) 6
+		// uint32 transactionId (4) 8
+		// uint32[4] params (optional) or data 12
 
-	var buf = new Buffer(length);
+		var buf = new Buffer(length);
 
-	buf.writeUInt32LE(length, 0);
-	buf.writeUInt16LE(type, 4);
-	buf.writeUInt16LE(opcode, 6);
-	buf.writeUInt32LE(cam.transactionId, 8);
-	for(var i = 0; i < params.length; i++) {
-		buf.writeUInt32LE(params[i], 12 + i * 4);
-	}
-
-	var send = function(buf, cb) {
-		cam.ep.out.transfer(buf, function(err)  {
-			_logUSB('out', buf);
-			if(data) {
-				buf.writeUInt32LE(12 + data.length, 0); // overwrite length
-				buf.writeUInt16LE(2, 4); // update type to 2 (data)
-				var dbuf = Buffer.concat([buf.slice(0, 12), data]);
-				data = null;
-				send(dbuf, cb);
-			} else {
-				cb && cb(err);
-			}
-		});
-	}
-
-	var packetSize = function(ep, bytes) {
-		return Math.ceil(bytes / maxPacket) * maxPacket;
-	}
-
-	var parseResponse = function(buf) {
-		if(buf && buf.length == 12) {
-			return buf.readUInt16LE(6);
-		} else {
-			return null;
+		buf.writeUInt32LE(length, 0);
+		buf.writeUInt16LE(type, 4);
+		buf.writeUInt16LE(opcode, 6);
+		buf.writeUInt32LE(cam.transactionId, 8);
+		for(var i = 0; i < params.length; i++) {
+			buf.writeUInt32LE(params[i], 12 + i * 4);
 		}
-	}
 
-	var receiveErrorCount = 0;
-
-	var receive = function(cb, rbuf) {
-		_logD("reading 12 bytes...");
-		cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
-			if(!err && data && data.length >= 12) {
-				var rlen = data.readUInt32LE(0);
-				var rtype = data.readUInt16LE(4);
-				_logD("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
-				if(rtype == 3) {
-					var responseCode = parseResponse(data);
-					_logD("completed transaction, response code", exports.hex(responseCode));
-					if(rbuf) {
-						rbuf = rbuf.slice(12); // strip header from data returned
-						_logD("-> received", rbuf.length, "byte with err:", err);
-						_logUSB("in", rbuf);
-					}
-					cb && cb(err, responseCode, rbuf);
+		var send = function(buf, cb) {
+			cam.ep.out.transfer(buf, function(err)  {
+				_logUSB('out', buf);
+				if(data) {
+					buf.writeUInt32LE(12 + data.length, 0); // overwrite length
+					buf.writeUInt16LE(2, 4); // update type to 2 (data)
+					var dbuf = Buffer.concat([buf.slice(0, 12), data]);
+					data = null;
+					send(dbuf, cb);
 				} else {
-					if(rlen > data.length) {
-						var remainingBytes = rlen - data.length;
-						var receivedIndex = 0;
-						var bigData = new Buffer(rlen);
-						data.copy(bigData, receivedIndex);
-						receivedIndex += data.length;
-						_logD("requesting more data:", remainingBytes);
-
-						var fetchMore = function() {
-							var chunk = rlen - receivedIndex;
-							if(chunk > CHUNK_LIMIT) chunk = CHUNK_LIMIT;
-							cam.ep.in.transfer(packetSize(cam.ep.in, chunk), function(err, data2) {
-								if(!err && data2) {
-									data2.copy(bigData, receivedIndex);
-									receivedIndex += data2.length;
-									_logD("received", data2.length, "bytes additional");
-									if(receivedIndex < rlen) {
-										fetchMore();
-									} else {
-										receive(cb, bigData);
-									}
-								} else {
-									_logD("ERROR", err);
-									receive(cb, data);
-								}
-							});
-						}
-						fetchMore();
-					} else {
-						receive(cb, data);
-					}
+					cb && cb(err);
 				}
+			});
+		}
+
+		var packetSize = function(ep, bytes) {
+			return Math.ceil(bytes / maxPacket) * maxPacket;
+		}
+
+		var parseResponse = function(buf) {
+			if(buf && buf.length == 12) {
+				return buf.readUInt16LE(6);
 			} else {
-				if(err) {
-					_logD("error reading:", err);
-				} else {
-					_logD("error reading, data length", data && data.length);
-				}
-				if(receiveErrorCount < 3) {
-					_logD("error reading:", err);
-					receiveErrorCount++;
-					if(receiveErrorCount == 3) {
-						if(cam.ep && cam.ep.in && cam.ep.in.clearHalt) {
-							cam.ep.in.clearHalt(function(error){
-								if(error) console.log("Error clearing endpoint stall:", error);
-								receive(cb, rbuf);
-							});
-						} else {
-							return callback && callback("not connected");
+				return null;
+			}
+		}
+
+		var receiveErrorCount = 0;
+
+		var receive = function(cb, rbuf) {
+			_logD("reading 12 bytes...");
+			cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
+				if(!err && data && data.length >= 12) {
+					var rlen = data.readUInt32LE(0);
+					var rtype = data.readUInt16LE(4);
+					_logD("received packet type #", rtype, "total size:", rlen, "data length received:", data.length);
+					if(rtype == 3) {
+						var responseCode = parseResponse(data);
+						_logD("completed transaction, response code", exports.hex(responseCode));
+						if(rbuf) {
+							rbuf = rbuf.slice(12); // strip header from data returned
+							_logD("-> received", rbuf.length, "byte with err:", err);
+							_logUSB("in", rbuf);
 						}
+						cb && cb(err, responseCode, rbuf);
 					} else {
-						receive(cb, rbuf);
+						if(rlen > data.length) {
+							var remainingBytes = rlen - data.length;
+							var receivedIndex = 0;
+							var bigData = new Buffer(rlen);
+							data.copy(bigData, receivedIndex);
+							receivedIndex += data.length;
+							_logD("requesting more data:", remainingBytes);
+
+							var fetchMore = function() {
+								var chunk = rlen - receivedIndex;
+								if(chunk > CHUNK_LIMIT) chunk = CHUNK_LIMIT;
+								cam.ep.in.transfer(packetSize(cam.ep.in, chunk), function(err, data2) {
+									if(!err && data2) {
+										data2.copy(bigData, receivedIndex);
+										receivedIndex += data2.length;
+										_logD("received", data2.length, "bytes additional");
+										if(receivedIndex < rlen) {
+											fetchMore();
+										} else {
+											receive(cb, bigData);
+										}
+									} else {
+										_logD("ERROR", err);
+										receive(cb, data);
+									}
+								});
+							}
+							fetchMore();
+						} else {
+							receive(cb, data);
+						}
 					}
 				} else {
-					cb && cb(err || "no data read");
+					if(err) {
+						_logD("error reading:", err);
+					} else {
+						_logD("error reading, data length", data && data.length);
+					}
+					if(receiveErrorCount < 3) {
+						_logD("error reading:", err);
+						receiveErrorCount++;
+						if(receiveErrorCount == 3) {
+							if(cam.ep && cam.ep.in && cam.ep.in.clearHalt) {
+								cam.ep.in.clearHalt(function(error){
+									if(error) console.log("Error clearing endpoint stall:", error);
+									receive(cb, rbuf);
+								});
+							} else {
+								return callback && callback("not connected");
+							}
+						} else {
+							receive(cb, rbuf);
+						}
+					} else {
+						cb && cb(err || "no data read");
+					}
 				}
-			}
+			});
+		}
+
+		send(buf, function(err) {
+			if(err) return callback && callback(err);
+			return receive(callback);
 		});
+	} catch(e) {
+		_logE("ERROR during transaction! Opcode:", exports.hex(opcode), "error:", e);
+		return callback && callback("transaction error for", exports.hex(opcode));
 	}
-
-	send(buf, function(err) {
-		if(err) return callback && callback(err);
-		return receive(callback);
-	});
-
 }
 
 function nextTransaction(cam) {
