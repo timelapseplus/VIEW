@@ -996,7 +996,9 @@ driver.liveviewImage = function(camera, callback, _tries) {
                 if(image) {
                     return callback && callback(null, image);
                 } else {
-                    driver.liveviewImage(camera, callback, _tries + 1);
+                    setTimeout(function(){
+                        driver.liveviewImage(camera, callback, _tries + 1);
+                    }, 50);
                 }
             } else {
                 setTimeout(function(){
