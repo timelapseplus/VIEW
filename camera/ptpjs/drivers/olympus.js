@@ -854,7 +854,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
 
         ptp.transaction(camera._dev, 0x9484, [0x00000001], null, function(err, responseCode, data) {
             if(err) return callback && callback(err);
-            _logD("preview data:", data);
+            //_logD("preview data:", data);
             if((!data || data.length < 1024) && _tries > 25) return callback && callback(responseCode);
             if(data && data.length >= 1024) {
                 var image = ptp.extractJpegSimple(data);
@@ -879,33 +879,15 @@ driver.liveviewImage = function(camera, callback, _tries) {
 driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
 
-    var dir = steps < 0 ? -1 : 1;
+    var dir = steps < 0 ? 0x02 : 0x01;
     resolution = Math.round(Math.abs(resolution));
-    if(resolution > 2) resolution = 2;
-    if(resolution < 1) resolution = 1;
+    if(resolution > 3) resolution = 0x3c;
+    if(resolution == 2) resolution = 0x0e;
+    if(resolution < 1) resolution = 0x03;
     steps = Math.abs(steps);
 
-    if(dir < 0) {
-        if(resolution == 1) {
-            mode = 0x02;
-        } else {
-            mode = 0x01;
-        }
-    } else {
-        if(resolution == 1) {
-            mode = 0x03;
-        } else {
-            mode = 0x04;
-        }
-    }
-
-    var buf = new Buffer(10);
-    buf.writeUInt32LE(0x03010011, 0);
-    buf.writeUInt32LE(0x00000002, 4);
-    buf.writeUInt16LE(mode,       8);
-
     var doStep = function() {
-        ptp.transaction(camera._dev, 0x9416, [0x03010011], buf, function(err, responseCode) {
+        ptp.transaction(camera._dev, 0x9487, [dir, resolution], null, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
             camera.status.focusPos += dir;
