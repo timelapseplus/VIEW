@@ -767,7 +767,26 @@ function getImage(camera, timeout, callback) {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
-        if(camera.thumbnail) { // saved to camera
+        if(camera.thumbnail) {
+            ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
+                if(err) return callback && callback(err);
+                //_logD("preview data:", data);
+                if(!data && _tries > 25) return callback && callback(responseCode, results);
+                if(data) {
+                    var image = ptp.extractJpegSimple(data);
+                    if(image) {
+                        results.filename = "preview.jpg";
+                        results.indexNumber = 1;
+                        results.thumb = image;
+                        return callback && callback(null, results);
+                    } else {
+                        return setTimeout(check, 50);
+                    }
+                } else {
+                    return setTimeout(check, 50);
+                }
+            });
+        } else {
             if(camera._objectsAdded.length == 0) {
                 return setTimeout(check, 50);
             }
@@ -897,7 +916,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             driver.liveviewMode(camera, false);
         }, 5000);
 
-        ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
+        ptp.transaction(camera._dev, 0x9484, [0x00000001], null, function(err, responseCode, data) {
             if(err) return callback && callback(err);
             //_logD("preview data:", data);
             if((!data || data.length < 1024) && _tries > 25) return callback && callback(responseCode);
