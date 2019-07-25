@@ -463,8 +463,8 @@ function parseFocusPoints(list, current, previousMapped) {
     }
     if(obj.xyMax > 0) {
         current--;
-        obj.x = (current % obj.xyMax) + 1;
-        obj.y = Math.floor(current / obj.xyMax) + 1;
+        obj.x = (current % obj.xyMax) / obj.xyMax;
+        obj.y = Math.floor(current / obj.xyMax) / obj.xyMax;
     } else {
         obj = null;
     }
@@ -897,7 +897,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             driver.liveviewMode(camera, false);
         }, 5000);
 
-        ptp.transaction(camera._dev, 0x9484, [0x00000001], null, function(err, responseCode, data) {
+        ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
             if(err) return callback && callback(err);
             //_logD("preview data:", data);
             if((!data || data.length < 1024) && _tries > 25) return callback && callback(responseCode);
