@@ -462,6 +462,7 @@ function parseFocusPoints(list, current, previousMapped) {
         obj.xyMax = previousMapped.xyMax;
     }
     if(obj.xyMax > 0) {
+        current--;
         obj.x = (current % obj.xyMax) + 1;
         obj.y = Math.floor(current / obj.xyMax) + 1;
     } else {
