@@ -568,9 +568,9 @@ driver.refresh = function(camera, callback) {
                                         code: current
                                     }
                                 }
-                                currentMapped.list = mappedList;
                                 _logD(key, "=", currentMapped.name || currentMapped);
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
+                                camera[properties[key].category][key].list = mappedList;
                             }
                             fetchNextProperty();
                         });
