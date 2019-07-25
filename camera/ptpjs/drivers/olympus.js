@@ -128,6 +128,7 @@ var properties = {
             { name: "1/20000", ev: 8 + 1 / 3,   code:  85536  },
             { name: "1/25600", ev: 8 + 2 / 3,   code:  91136  },
             { name: "1/32000", ev: 9,           code:  97536  },
+        ]
     },
     'aperture': {
         name: 'aperture',
