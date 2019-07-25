@@ -990,8 +990,8 @@ driver.liveviewImage = function(camera, callback, _tries) {
 
         ptp.transaction(camera._dev, 0x9484, [0x00000001], null, function(err, responseCode, data) {
             if(err) return callback && callback(err);
-            if(responseCode != 0x2001 && _tries > 10) return callback && callback(responseCode);
-            if(responseCode == 0x2001) {
+            if((responseCode != 0x2001 || !data || data.length < 1024) && _tries > 10) return callback && callback(responseCode);
+            if(responseCode == 0x2001 && data && data.length >= 1024) {
                 var image = ptp.extractJpegSimple(data);
                 if(image) {
                     return callback && callback(null, image);
