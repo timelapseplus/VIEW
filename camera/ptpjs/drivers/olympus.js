@@ -333,14 +333,14 @@ var properties = {
         code: 0xD0AD,
         ev: false,
         values: [
-            { name: "0"  value: -2,   code: 0 },
-            { name: "1"  value: 2,    code: 1 },
-            { name: "2"  value: -3,   code: 2 },
-            { name: "3"  value: null, code: 3 },
-            { name: "4"  value: 3,    code: 4 },
-            { name: "5"  value: 5,    code: 5 },
-            { name: "6"  value: 7,    code: 6 },
-            { name: "7"  value: 9,    code: 7 },
+            { name: "0",  value: -2,   code: 0 },
+            { name: "1",  value: 2,    code: 1 },
+            { name: "2",  value: -3,   code: 2 },
+            { name: "3",  value: null, code: 3 },
+            { name: "4",  value: 3,    code: 4 },
+            { name: "5",  value: 5,    code: 5 },
+            { name: "6",  value: 7,    code: 6 },
+            { name: "7",  value: 9,    code: 7 },
         ]
     },
     //'bracketingCount': {
