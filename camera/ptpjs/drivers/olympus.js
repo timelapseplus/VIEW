@@ -762,6 +762,7 @@ function getImage(camera, timeout, callback) {
     var startTime = Date.now();
 
     camera._objectsAdded = []; // clear queue
+    var _tries = 0;
 
     var check = function() {
         if(Date.now() - startTime > timeout) {
@@ -769,6 +770,7 @@ function getImage(camera, timeout, callback) {
         }
         if(camera.thumbnail) {
             ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
+                _tries++;
                 if(err) return callback && callback(err);
                 //_logD("preview data:", data);
                 if(!data && _tries > 25) return callback && callback(responseCode, results);

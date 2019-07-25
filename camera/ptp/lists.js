@@ -300,7 +300,7 @@ lists.evStats = function(settings, options) {
     };
     settings = settings.details ? settings.details : settings;
 
-    console.log("lists.evStats: slists", slists, "settings", settings);
+    //console.log("lists.evStats: slists", slists, "settings", settings);
 
     var apertureEnabled = false;
 
