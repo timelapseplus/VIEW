@@ -395,7 +395,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0x500A,
+        code: 0xD003,
         ev: false,
         values: [
             { name: "MF",         value: 'mf',       code: 0x0001 },
@@ -914,9 +914,9 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     var sign = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution));
 
-    if(resolution > 3) resolution = 0x3c;
+    if(resolution >= 3) resolution = 0x3c;
     if(resolution == 2) resolution = 0x0e;
-    if(resolution < 1) resolution = 0x03;
+    if(resolution <= 1) resolution = 0x03;
     steps = Math.round(Math.abs(steps));
 
     var doStep = function() {
