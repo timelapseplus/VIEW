@@ -324,25 +324,25 @@ var properties = {
     //        { name: "3 stop",    value: 3,   code: 4 },
     //    ]
     //},
-    //'bracketingProgram': {
-    //    name: 'bracketingProgram',
-    //    category: 'config',
-    //    setFunction: ptp.setPropU8,
-    //    getFunction: ptp.getPropU8,
-    //    listFunction: ptp.listProp,
-    //    code: 0xD0C2,
-    //    ev: false,
-    //    values: [
-    //        { name: "2, minus side",  value: -2,   code: 0 },
-    //        { name: "2, plus side",   value: 2,    code: 1 },
-    //        { name: "3, minus side",  value: -3,   code: 2 },
-    //        { name: "3, plus side",   value: null, code: 3 },
-    //        { name: "3, both sides",  value: 3,    code: 4 },
-    //        { name: "5, both sides",  value: 5,    code: 5 },
-    //        { name: "7, both sides",  value: 7,    code: 6 },
-    //        { name: "9, both sides",  value: 9,    code: 7 },
-    //    ]
-    //},
+    'bracketingProgram': {
+        name: 'bracketingProgram',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD0AD,
+        ev: false,
+        values: [
+            { name: "0"  value: -2,   code: 0 },
+            { name: "1"  value: 2,    code: 1 },
+            { name: "2"  value: -3,   code: 2 },
+            { name: "3"  value: null, code: 3 },
+            { name: "4"  value: 3,    code: 4 },
+            { name: "5"  value: 5,    code: 5 },
+            { name: "6"  value: 7,    code: 6 },
+            { name: "7"  value: 9,    code: 7 },
+        ]
+    },
     //'bracketingCount': {
     //    name: 'bracketingCount',
     //    category: 'config',
@@ -463,8 +463,8 @@ function parseFocusPoints(list, current, previousMapped) {
         obj.xyMax = previousMapped.xyMax;
     }
     if(obj.xyMax > 0) {
-        obj.x = (current % obj.xyMax) / obj.xyMax;
-        obj.y = Math.floor(current / obj.xyMax) / obj.xyMax;
+        obj.x = (current % obj.xyMax);
+        obj.y = Math.floor(current / obj.xyMax);
     } else {
         obj = null;
     }
