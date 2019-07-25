@@ -122,7 +122,12 @@ var properties = {
             { name: "1/5000",  ev: 6 + 1 / 3,   code:  70536  },
             { name: "1/6400",  ev: 6 + 2 / 3,   code:  71936  },
             { name: "1/8000",  ev: 7,           code:  73536  },
-        ]
+            { name: "1/10000", ev: 7 + 1 / 3,   code:  75536  },
+            { name: "1/12800", ev: 7 + 2 / 3,   code:  78336  },
+            { name: "1/16000", ev: 8,           code:  81536  },
+            { name: "1/20000", ev: 8 + 1 / 3,   code:  85536  },
+            { name: "1/25600", ev: 8 + 2 / 3,   code:  91136  },
+            { name: "1/32000", ev: 9,           code:  97536  },
     },
     'aperture': {
         name: 'aperture',
@@ -462,7 +467,7 @@ function parseFocusPoints(list, current, previousMapped) {
     } else {
         obj = null;
     }
-    _logD("focusPoints: ", obj);
+    //_logD("focusPoints: ", obj);
     return obj;
 }
 
