@@ -289,7 +289,7 @@ var properties = {
         ]
     },
     'focusPoint': {
-        name: 'cameraMode',
+        name: 'focusPoint',
         category: 'config',
         setFunction: setFocusPoint,
         getFunction: getProperty,

@@ -419,6 +419,18 @@ var properties = {
             { name: "disabled",        value: 'off',       code: 0 },
         ]
     },
+    'focusPoint': {
+        name: 'focusPoint',
+        category: 'config',
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
+        listFunction: ptp.listProp,
+        code: 0xD051,
+        ev: false,
+        values: [
+            { name: "unknown",         value: 'on',        code: 0 },
+        ]
+    },
 }
 
 driver.properties = properties;
@@ -880,17 +892,19 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
 
     var dir = steps < 0 ? 0x02 : 0x01;
+    var sign = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution));
+
     if(resolution > 3) resolution = 0x3c;
     if(resolution == 2) resolution = 0x0e;
     if(resolution < 1) resolution = 0x03;
-    steps = Math.abs(steps);
+    steps = Math.round(Math.abs(steps));
 
     var doStep = function() {
         ptp.transaction(camera._dev, 0x9487, [dir, resolution], null, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
-            camera.status.focusPos += dir;
+            camera.status.focusPos += sign;
             if(steps > 0) {
                 setTimeout(doStep, 50);
             } else {
