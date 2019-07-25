@@ -444,6 +444,7 @@ function propMapped(propCode) {
 
 function parseFocusPoints(list, current, previousMapped) {
     var obj = {};
+    _logD("focusPoints: list", list, "current", current);
     if(list && list.length > 0) {
         obj.xyMax = Math.sqrt(Math.max(list));
     } else if(previous) {
@@ -910,7 +911,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
 driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
 
-    var dir = steps < 0 ? 0x02 : 0x01;
+    var dir = steps < 0 ? 0x01 : 0x02;
     var sign = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution));
 
@@ -920,7 +921,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     steps = Math.round(Math.abs(steps));
 
     var doStep = function() {
-        _logD("focus move: dir", ptp.hex(dir), "resolution", ptp.hex(resolution));
+        //_logD("focus move: dir", ptp.hex(dir), "resolution", ptp.hex(resolution));
         ptp.transaction(camera._dev, 0x9487, [dir, resolution], null, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
@@ -936,10 +937,15 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 }
 
 driver.setFocusPoint = function(camera, x, y, callback) {
-    var focusPoint = camera.config.focusPoint;
-    focusPoint.x = x;
-    focusPoint.y = y;
-    driver.set(camera, 'focusPoint', focusPoint, callback);
+    var focusPointObj = camera.config.focusPoint;
+    if(focusPointObj) {
+        focusPointObj.x = x;
+        focusPointObj.y = y;
+        var newPoint = y * focusPointObj.xyMax + y;
+        driver.set(camera, 'focusPoint', newPoint, callback);
+    } else {
+        callback && callback("must be read first");
+    }
 }
 
 driver.af = function(camera, callback) {
