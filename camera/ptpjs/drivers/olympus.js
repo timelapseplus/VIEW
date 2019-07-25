@@ -753,7 +753,7 @@ driver.set = function(camera, param, value, callback) {
             if(properties[param] && properties[param].setFunction) {
                 if(cameraValue !== null) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, properties[param].size, function(err) {
+                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                         if(!err) {
                             if(properties[param].values) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
