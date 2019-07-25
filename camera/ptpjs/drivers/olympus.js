@@ -485,7 +485,9 @@ driver._event = function(camera, data) { // events received
     if(camera._eventData.length < 12) return;
     ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
         camera._eventData = null;
-        if(event == 0xC102) {
+        if(event == 0xC101) {
+            camera._previewReady = true;
+        } else if(event == 0xC102) {
             _logD("object added:", ptp.hex(param1));
             camera._objectsAdded.push(param1);
         } else if(event == 0xC108) {
@@ -762,6 +764,7 @@ function getImage(camera, timeout, callback) {
     var startTime = Date.now();
 
     camera._objectsAdded = []; // clear queue
+    camera._previewReady = false; // clear queue
     var _tries = 0;
 
     var check = function() {
@@ -769,6 +772,7 @@ function getImage(camera, timeout, callback) {
             return callback && callback("timeout", results);
         }
         if(camera.thumbnail) {
+            if(!camera._previewReady) return setTimeout(check, 50);
             ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
                 _tries++;
                 if(err) return callback && callback(err);
