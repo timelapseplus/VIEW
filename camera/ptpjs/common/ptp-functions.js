@@ -100,6 +100,14 @@ function _logD() {
     console.log.apply(console, arguments);
 }
 
+function _logE() {
+	if(LOG_LEVEL > 0) return;
+    if(arguments.length > 0) {
+        arguments[0] = "PTP-USB: ERROR:" + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
+
 function _logUSB(dir, data) {
 	if(!LOG_USB) return;
 	var d = "<--";
