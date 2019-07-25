@@ -444,16 +444,15 @@ function propMapped(propCode) {
 
 function parseFocusPoints(list, current, previousMapped) {
     var obj = {};
-    //_logD("focusPoints: list", list, "current", current);
+    current += 1; // start at 1, not 0
     if(list && list.length > 0) {
-        obj.xyMax = Math.sqrt( list.reduce(function(a, b) {return Math.max(a, b);}) );
+        obj.xyMax = Math.round(Math.sqrt( list.reduce(function(a, b) {return Math.max(a, b);}) ));
     } else if(previous) {
         obj.xyMax = previousMapped.xyMax;
     }
-    _logD("focusPoints: ", obj);
     if(obj.xyMax > 0) {
-        obj.x = current % obj.xyMax;
-        obj.y = Math.floor(current / obj.xyMax);
+        obj.x = (current % obj.xyMax) / obj.xyMax;
+        obj.y = Math.floor(current / obj.xyMax) / obj.xyMax;
     } else {
         obj = null;
     }
@@ -558,7 +557,7 @@ driver.refresh = function(camera, callback) {
                                         code: current
                                     }
                                 }
-                                _logD(key, "=", currentMapped.name);
+                                _logD(key, "=", currentMapped.name || currentMapped);
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
                             }
                             fetchNextProperty();
@@ -943,7 +942,7 @@ driver.setFocusPoint = function(camera, x, y, callback) {
     if(focusPointObj) {
         focusPointObj.x = x;
         focusPointObj.y = y;
-        var newPoint = y * focusPointObj.xyMax + y;
+        var newPoint = Math.round(y * focusPointObj.xyMax) * focusPointObj.xyMax + Math.round(y * focusPointObj.xyMax);
         driver.set(camera, 'focusPoint', newPoint, callback);
     } else {
         callback && callback("must be read first");
