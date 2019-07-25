@@ -530,6 +530,7 @@ driver.refresh = function(camera, callback) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
                                 var currentMapped = null;
+                                var mappedList = [];
                                 if(properties[key].values && properties[key].values.length > 0) {
                                     var propertyListValues = properties[key].values;
                                     properties[key].size = valueSize; // save for setting value
@@ -547,7 +548,6 @@ driver.refresh = function(camera, callback) {
                                         list = newList;
                                     }
                                     currentMapped = mapPropertyItem(current, propertyListValues);
-                                    var mappedList = [];
                                     for(var i = 0; i < list.length; i++) {
                                         var mappedItem = mapPropertyItem(list[i], propertyListValues);
                                         if(!mappedItem) {
@@ -556,7 +556,6 @@ driver.refresh = function(camera, callback) {
                                             mappedList.push(mappedItem);
                                         }
                                     }
-                                    camera[properties[key].category][key].list = mappedList;
                                 } else if(properties[key].mapFunction) {
                                     currentMapped = properties[key].mapFunction(list, current, camera[properties[key].category][key]);
                                 }
@@ -569,6 +568,7 @@ driver.refresh = function(camera, callback) {
                                         code: current
                                     }
                                 }
+                                currentMapped.list = mappedList;
                                 _logD(key, "=", currentMapped.name || currentMapped);
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
                             }
