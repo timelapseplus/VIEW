@@ -167,11 +167,14 @@ var properties = {
             { name: "29",       ev:  2 + 2 / 3,  code: 290  },
             { name: "32",       ev:  3,          code: 320  },
             { name: "36",       ev:  3 + 1 / 3,  code: 360  },
-            { name: "42",       ev:  3 + 2 / 3,  code: 420  },
+            { name: "40",       ev:  3 + 2 / 3,  code: 400  },
             { name: "45",       ev:  4,          code: 450  },
-            { name: "50",       ev:  4 + 1 / 3,  code: 500  },
+            { name: "51",       ev:  4 + 1 / 3,  code: 510  },
             { name: "57",       ev:  4 + 2 / 3,  code: 570  },
-            { name: "64",       ev:  5,          code: 640  }
+            { name: "64",       ev:  5,          code: 640  },
+            { name: "72",       ev:  5 + 1 / 3,  code: 720  },
+            { name: "81",       ev:  5 + 2 / 3,  code: 810  },
+            { name: "91",       ev:  6,          code: 910  }
         ]
     },
     'iso': {
@@ -233,7 +236,7 @@ var properties = {
         code: 0xd00d,
         ev: false,
         values: [
-            { name: "RAW",               value: 'raw',      code: 35   },
+            { name: "RAW",               value: 'raw',      code: 32   },
             { name: "Large JPEG Fine",   value: 'jpeg',     code: 257  },
             { name: "Large JPEG",        value: 'jpeg',     code: 258  },
             { name: "Medium JPEG",       value: 'jpeg',     code: 259  },
@@ -398,12 +401,11 @@ var properties = {
         code: 0xD003,
         ev: false,
         values: [
-            { name: "MF",         value: 'mf',       code: 0x0001 },
-            { name: "AF",         value: 'af',       code: 0x0002 },
-            { name: "AF Macro",   value: null,       code: 0x0003 },
-            { name: "AF-S",       value: null,       code: 0x8010 },
-            { name: "AF-C",       value: null,       code: 0x8011 },
-            { name: "AF-A",       value: null,       code: 0x8012 },
+            { name: "MF",           value: 'mf',     code: 0x0001 },
+            { name: "S-AF",         value: 'af',     code: 0x0002 },
+            { name: "AF Macro",     value: null,     code: 0x0003 },
+            { name: "C-AF",         value: null,     code: 0x8002 },
+            { name: "Preset MF",    value: null,     code: 0x8004 },
         ]
     },
     'liveviewMode': {
@@ -417,6 +419,10 @@ var properties = {
         values: [
             { name: "enabled",         value: 'on',        code: 67109632 },
             { name: "disabled",        value: 'off',       code: 0 },
+            { name: "unknown",         value: null,        code: 52429400 },
+            { name: "unknown",         value: null,        code: 83887040 },
+            { name: "unknown",         value: null,        code: 20971760 },
+            { name: "unknown",         value: null,        code: 41943520 },
         ]
     },
     'focusPoint': {
