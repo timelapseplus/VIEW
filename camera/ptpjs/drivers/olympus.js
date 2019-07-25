@@ -424,14 +424,14 @@ var properties = {
     'liveviewMode': {
         name: 'liveviewMode',
         category: 'config',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
         code: 0xD06D,
         ev: false,
         values: [
-            { name: "enabled",         value: true,        code: 67109632 },
-            { name: "enabled",         value: false,       code: 0 },
+            { name: "enabled",         value: 'on',        code: 67109632 },
+            { name: "enabled",         value: 'off',       code: 0 },
         ]
     },
 }
@@ -949,7 +949,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
     //}
     if(camera.status.liveview != !!enable) {
         if(enable) {
-            driver.set(camera, 'liveviewMode', true, function(err) {
+            driver.set(camera, 'liveviewMode', 'on', function(err) {
                 if(err == 0x2019) {
                     _tries++;
                     if(_tries < 15) {
@@ -967,7 +967,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                 return callback && callback();
             });
         } else {
-            driver.set(camera, 'liveviewMode', false, function(err) {
+            driver.set(camera, 'liveviewMode', 'off', function(err) {
                 if(err) return callback && callback(err);
                 camera.status.liveview = false;
                 _logD("LV disabled");
