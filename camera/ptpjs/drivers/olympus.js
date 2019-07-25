@@ -949,7 +949,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
     //}
     if(camera.status.liveview != !!enable) {
         if(enable) {
-            driver.set(camera, 'liveview', true, function(err) {
+            driver.set(camera, 'liveviewMode', true, function(err) {
                 if(err == 0x2019) {
                     _tries++;
                     if(_tries < 15) {
@@ -967,7 +967,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                 return callback && callback();
             });
         } else {
-            driver.set(camera, 'liveview', false, function(err) {
+            driver.set(camera, 'liveviewMode', false, function(err) {
                 if(err) return callback && callback(err);
                 camera.status.liveview = false;
                 _logD("LV disabled");
