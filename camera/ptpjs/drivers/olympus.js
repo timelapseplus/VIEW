@@ -333,14 +333,14 @@ var properties = {
         code: 0xD0AD,
         ev: false,
         values: [
-            { name: "0",  value: -2,   code: 0 },
-            { name: "1",  value: 2,    code: 1 },
-            { name: "2",  value: -3,   code: 2 },
-            { name: "3",  value: null, code: 3 },
-            { name: "4",  value: 3,    code: 4 },
-            { name: "5",  value: 5,    code: 5 },
-            { name: "6",  value: 7,    code: 6 },
-            { name: "7",  value: 9,    code: 7 },
+            { name: "Off",   value: null, code: 1 },
+            { name: "HDR1",  value: null, code: 2 },
+            { name: "HDR2",  value: null, code: 3 },
+            { name: "3f 2.0EV",  value: '3*2',    code: 4 },
+            { name: "5f 2.0EV",  value: '5*2',    code: 5 },
+            { name: "7f 2.0EV",  value: '7*2',    code: 6 },
+            { name: "3f 3.0EV",  value: '3*3',    code: 7 },
+            { name: "5f 3.0EV",  value: '5*3',    code: 8 },
         ]
     },
     //'bracketingCount': {
@@ -456,15 +456,14 @@ function propMapped(propCode) {
 
 function parseFocusPoints(list, current, previousMapped) {
     var obj = {};
-    current += 1; // start at 1, not 0
     if(list && list.length > 0) {
         obj.xyMax = Math.round(Math.sqrt( list.reduce(function(a, b) {return Math.max(a, b);}) ));
     } else if(previous) {
         obj.xyMax = previousMapped.xyMax;
     }
     if(obj.xyMax > 0) {
-        obj.x = (current % obj.xyMax);
-        obj.y = Math.floor(current / obj.xyMax);
+        obj.x = (current % obj.xyMax) + 1;
+        obj.y = Math.floor(current / obj.xyMax) + 1;
     } else {
         obj = null;
     }
