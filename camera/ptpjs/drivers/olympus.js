@@ -444,9 +444,9 @@ function propMapped(propCode) {
 
 function parseFocusPoints(list, current, previousMapped) {
     var obj = {};
-    _logD("focusPoints: list", list, "current", current);
+    //_logD("focusPoints: list", list, "current", current);
     if(list && list.length > 0) {
-        obj.xyMax = Math.sqrt(Math.max(list));
+        obj.xyMax = Math.sqrt(list.reduce(function(a, b) {return Math.max(a, b);});
     } else if(previous) {
         obj.xyMax = previousMapped.xyMax;
     }
@@ -456,7 +456,7 @@ function parseFocusPoints(list, current, previousMapped) {
     } else {
         obj = null;
     }
-    _logD("focusPoints: ", obj);
+    //_logD("focusPoints: ", obj);
     return obj;
 }
 
