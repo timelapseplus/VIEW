@@ -455,7 +455,7 @@ function parseFocusPoints(list, current, previousMapped) {
     } else {
         return null;
     }
-
+    return obj;
 }
 
 driver._error = function(camera, error) { // events received
@@ -516,8 +516,8 @@ driver.refresh = function(camera, callback) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
                                 var currentMapped = null;
-                                var propertyListValues = properties[key].values;
-                                if(propertyListValues) {
+                                if(properties[key].values && properties[key].values.length > 0) {
+                                    var propertyListValues = properties[key].values;
                                     properties[key].size = valueSize; // save for setting value
                                     if(properties[key].filter) {
                                         var val = properties[key].filter.fn(list);
@@ -537,7 +537,7 @@ driver.refresh = function(camera, callback) {
                                     for(var i = 0; i < list.length; i++) {
                                         var mappedItem = mapPropertyItem(list[i], propertyListValues);
                                         if(!mappedItem) {
-                                            if(key != "aperture") _logE(key, "list item not found:", list[i]);
+                                            _logE(key, "list item not found:", list[i]);
                                         } else {
                                             mappedList.push(mappedItem);
                                         }
