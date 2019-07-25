@@ -422,14 +422,12 @@ var properties = {
     'focusPoint': {
         name: 'focusPoint',
         category: 'config',
-        setFunction: ptp.setPropU32,
-        getFunction: ptp.getPropU32,
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
         code: 0xD051,
         ev: false,
-        values: [
-            { name: "unknown",         value: 'on',        code: 0 },
-        ]
+        mapFunction: parseFocusPoints
     },
 }
 
@@ -442,6 +440,22 @@ function propMapped(propCode) {
         }
     }
     return false;
+}
+
+function parseFocusPoints(list, current, previousMapped) {
+    var obj = {};
+    if(list && list.length > 0) {
+        obj.xyMax = Math.sqrt(Math.max(list));
+    } else if(previous) {
+        obj.xyMax = previousMapped.xyMax;
+    }
+    if(obj.xyMax > 0) {
+        obj.x = current % obj.xyMax;
+        obj.y = Math.floor(current / obj.xyMax);
+    } else {
+        return null;
+    }
+
 }
 
 driver._error = function(camera, error) { // events received
@@ -501,22 +515,37 @@ driver.refresh = function(camera, callback) {
                             if(err || !list) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
+                                var currentMapped = null;
                                 var propertyListValues = properties[key].values;
-                                properties[key].size = valueSize; // save for setting value
-                                if(properties[key].filter) {
-                                    var val = properties[key].filter.fn(list);
-                                    propertyListValues = propertyListValues.filter(function(item) {
-                                        return item[properties[key].filter.by] == val;
-                                    });
+                                if(propertyListValues) {
+                                    properties[key].size = valueSize; // save for setting value
+                                    if(properties[key].filter) {
+                                        var val = properties[key].filter.fn(list);
+                                        propertyListValues = propertyListValues.filter(function(item) {
+                                            return item[properties[key].filter.by] == val;
+                                        });
+                                    }
+                                    _logD(key, "size is", valueSize, "listType", listType);
+                                    if(listType == 1 && list.length == 3) { // convert range to list
+                                        _logD(key, "list", list);
+                                        var newList = [];
+                                        for(var val = list[0]; val <= list[1]; val += list[2]) newList.push(val);
+                                        list = newList;
+                                    }
+                                    currentMapped = mapPropertyItem(current, propertyListValues);
+                                    var mappedList = [];
+                                    for(var i = 0; i < list.length; i++) {
+                                        var mappedItem = mapPropertyItem(list[i], propertyListValues);
+                                        if(!mappedItem) {
+                                            if(key != "aperture") _logE(key, "list item not found:", list[i]);
+                                        } else {
+                                            mappedList.push(mappedItem);
+                                        }
+                                    }
+                                    camera[properties[key].category][key].list = mappedList;
+                                } else if(properties[key].mapFunction) {
+                                    currentMapped = properties[key].mapFunction(list, current, camera[properties[key].category][key]);
                                 }
-                                _logD(key, "size is", valueSize, "listType", listType);
-                                if(listType == 1 && list.length == 3) { // convert range to list
-                                    _logD(key, "list", list);
-                                    var newList = [];
-                                    for(var val = list[0]; val <= list[1]; val += list[2]) newList.push(val);
-                                    list = newList;
-                                }
-                                var currentMapped = mapPropertyItem(current, propertyListValues);
                                 if(!currentMapped) {
                                     _logE(key, "item not found:", current);
                                     currentMapped = {
@@ -528,16 +557,6 @@ driver.refresh = function(camera, callback) {
                                 }
                                 _logD(key, "=", currentMapped.name);
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
-                                var mappedList = [];
-                                for(var i = 0; i < list.length; i++) {
-                                    var mappedItem = mapPropertyItem(list[i], propertyListValues);
-                                    if(!mappedItem) {
-                                        if(key != "aperture") _logE(key, "list item not found:", list[i]);
-                                    } else {
-                                        mappedList.push(mappedItem);
-                                    }
-                                }
-                                camera[properties[key].category][key].list = mappedList;
                             }
                             fetchNextProperty();
                         });
@@ -694,8 +713,8 @@ driver.get = function(camera, param, callback) {
                                 }
                             }
                         } else {
-                            if(properties[param].parser) {
-                                data = properties[param].parser(data);
+                            if(properties[param].mapFunction) {
+                                data = properties[param].parser(null, data, camera[properties[key].category][key]);
                             }
                             camera[properties[param].category][param] = data;                   
                         }
@@ -901,6 +920,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     steps = Math.round(Math.abs(steps));
 
     var doStep = function() {
+        _logD("focus move: dir", ptp.hex(dir), "resolution", ptp.hex(resolution));
         ptp.transaction(camera._dev, 0x9487, [dir, resolution], null, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
