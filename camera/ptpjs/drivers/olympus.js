@@ -44,21 +44,6 @@ function exposureEvent(camera) {
     }
 }
 
-var PTP_OC_PANASONIC_GetProperty      =  0x9402;
-var PTP_OC_PANASONIC_SetProperty      =  0x9403;
-var PTP_OC_PANASONIC_ListProperty     =  0x9108;
-var PTP_OC_PANASONIC_9401             =  0x9401;
-var PTP_OC_PANASONIC_InitiateCapture  =  0x9404;
-var PTP_OC_PANASONIC_9101             =  0x9101;
-var PTP_OC_PANASONIC_9102             =  0x9102;
-var PTP_OC_PANASONIC_9107             =  0x9107;
-var PTP_OC_PANASONIC_Liveview         =  0x9412;
-var PTP_OC_PANASONIC_LiveviewImage    =  0x9706;
-var PTP_OC_PANASONIC_PollEvents       =  0x9414;
-var PTP_OC_PANASONIC_ManualFocusDrive =  0x9416;
-var PTP_OC_PANASONIC_SetCaptureTarget =  0x940B;
-
-
 
 driver.supportsNativeHDR = true;
 
@@ -301,54 +286,54 @@ var properties = {
         code: 0x5018,
         ev: false,
     },
-    'bracketing': {
-        name: 'bracketing',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD0C0,
-        ev: false,
-        values: [
-            { name: "disabled",  value: 0, code: 0 },
-            { name: "enabled",   value: 1, code: 1 },
-        ]
-    },
-    'bracketingStops': {
-        name: 'bracketingStops',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD0C1,
-        ev: false,
-        values: [
-            { name: "1/3 stop",  value: 1/3, code: 0 },
-            { name: "2/3 stop",  value: 2/3, code: 1 },
-            { name: "1 stop",    value: 1,   code: 2 },
-            { name: "2 stop",    value: 2,   code: 3 },
-            { name: "3 stop",    value: 3,   code: 4 },
-        ]
-    },
-    'bracketingProgram': {
-        name: 'bracketingProgram',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD0C2,
-        ev: false,
-        values: [
-            { name: "2, minus side",  value: -2,   code: 0 },
-            { name: "2, plus side",   value: 2,    code: 1 },
-            { name: "3, minus side",  value: -3,   code: 2 },
-            { name: "3, plus side",   value: null, code: 3 },
-            { name: "3, both sides",  value: 3,    code: 4 },
-            { name: "5, both sides",  value: 5,    code: 5 },
-            { name: "7, both sides",  value: 7,    code: 6 },
-            { name: "9, both sides",  value: 9,    code: 7 },
-        ]
-    },
+    //'bracketing': {
+    //    name: 'bracketing',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD0C0,
+    //    ev: false,
+    //    values: [
+    //        { name: "disabled",  value: 0, code: 0 },
+    //        { name: "enabled",   value: 1, code: 1 },
+    //    ]
+    //},
+    //'bracketingStops': {
+    //    name: 'bracketingStops',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD0C1,
+    //    ev: false,
+    //    values: [
+    //        { name: "1/3 stop",  value: 1/3, code: 0 },
+    //        { name: "2/3 stop",  value: 2/3, code: 1 },
+    //        { name: "1 stop",    value: 1,   code: 2 },
+    //        { name: "2 stop",    value: 2,   code: 3 },
+    //        { name: "3 stop",    value: 3,   code: 4 },
+    //    ]
+    //},
+    //'bracketingProgram': {
+    //    name: 'bracketingProgram',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD0C2,
+    //    ev: false,
+    //    values: [
+    //        { name: "2, minus side",  value: -2,   code: 0 },
+    //        { name: "2, plus side",   value: 2,    code: 1 },
+    //        { name: "3, minus side",  value: -3,   code: 2 },
+    //        { name: "3, plus side",   value: null, code: 3 },
+    //        { name: "3, both sides",  value: 3,    code: 4 },
+    //        { name: "5, both sides",  value: 5,    code: 5 },
+    //        { name: "7, both sides",  value: 7,    code: 6 },
+    //        { name: "9, both sides",  value: 9,    code: 7 },
+    //    ]
+    //},
     //'bracketingCount': {
     //    name: 'bracketingCount',
     //    category: 'config',
@@ -361,49 +346,49 @@ var properties = {
     //        { name: "UNKNOWN",  value: 0, code: 1 },
     //    ]
     //},
-    'bracketingOrder': {
-        name: 'bracketingOrder',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD07A,
-        ev: false,
-        values: [
-            { name: "Center first",  value: 'center', code: 0 },
-            { name: "Under first",   value: 'under',  code: 1 },
-        ]
-    },
-    'bracketingParams': {
-        name: 'bracketingParams',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD079,
-        ev: false,
-        values: [
-            { name: "Shutter",            value: 's',   code: 0 },
-            { name: "Shutter/Aperture",   value: 's+a', code: 1 },
-            { name: "Aperture",           value: 'a',   code: 2 },
-            { name: "Flash only",         value: 'f',   code: 3 },
-        ]
-    },
-    'bracketingMode': {
-        name: 'bracketingMode',
-        category: 'config',
-        setFunction: ptp.setPropU8,
-        getFunction: ptp.getPropU8,
-        listFunction: ptp.listProp,
-        code: 0xD078,
-        ev: false,
-        values: [
-            { name: "AE & Flash",         value: 'flash',   code: 0 },
-            { name: "AE only",            value: 'default', code: 1 },
-            { name: "Flash only",         value: null,      code: 2 },
-            { name: "ADL Bracketing",     value: null,      code: 3 },
-        ]
-    },
+    //'bracketingOrder': {
+    //    name: 'bracketingOrder',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD07A,
+    //    ev: false,
+    //    values: [
+    //        { name: "Center first",  value: 'center', code: 0 },
+    //        { name: "Under first",   value: 'under',  code: 1 },
+    //    ]
+    //},
+    //'bracketingParams': {
+    //    name: 'bracketingParams',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD079,
+    //    ev: false,
+    //    values: [
+    //        { name: "Shutter",            value: 's',   code: 0 },
+    //        { name: "Shutter/Aperture",   value: 's+a', code: 1 },
+    //        { name: "Aperture",           value: 'a',   code: 2 },
+    //        { name: "Flash only",         value: 'f',   code: 3 },
+    //    ]
+    //},
+    //'bracketingMode': {
+    //    name: 'bracketingMode',
+    //    category: 'config',
+    //    setFunction: ptp.setPropU8,
+    //    getFunction: ptp.getPropU8,
+    //    listFunction: ptp.listProp,
+    //    code: 0xD078,
+    //    ev: false,
+    //    values: [
+    //        { name: "AE & Flash",         value: 'flash',   code: 0 },
+    //        { name: "AE only",            value: 'default', code: 1 },
+    //        { name: "Flash only",         value: null,      code: 2 },
+    //        { name: "ADL Bracketing",     value: null,      code: 3 },
+    //    ]
+    //},
     'focusMode': {
         name: 'focusMode',
         category: 'config',
@@ -431,7 +416,7 @@ var properties = {
         ev: false,
         values: [
             { name: "enabled",         value: 'on',        code: 67109632 },
-            { name: "enabled",         value: 'off',       code: 0 },
+            { name: "disabled",        value: 'off',       code: 0 },
         ]
     },
 }
@@ -445,127 +430,6 @@ function propMapped(propCode) {
         }
     }
     return false;
-}
-
-function listProperty(_dev, propCode, callback) {
-    getProperty(_dev, propCode, function(err, currentValue, valueSize) {
-        if(err) console.log(ptp.hex(propCode), "propcode get error", ptp.hex(err));
-        ptp.transaction(_dev, PTP_OC_PANASONIC_ListProperty, [propCode], null, function(err, responseCode, data) {
-            if(err || responseCode != 0x2001 || !data || data.length < 4 + 6 * 4) return callback && callback(err || responseCode);
-
-            var cv = null;
-            var list = [];
-            var type = 0;
-
-            var headerLength = data.readUInt32LE(4);
-            if(data.length < headerLength * 4 + 2 * 4) return callback && callback("incomplete data");
-            var propertyCode = data.readUInt32LE(4 + 6 * 4);
-            if(valueSize == 1) {
-                cv = data.readUInt8(headerLength * 4 + 2 * 4);
-            } else if(valueSize == 2) {
-                cv = data.readUInt16LE(headerLength * 4 + 2 * 4);
-            } else if(valueSize == 4) {
-                cv = data.readUInt32LE(headerLength * 4 + 2 * 4);
-            } else {
-                cv = new Buffer(valueSize);
-                data.copy(cv, 0, headerLength * 4 + 2 * 4, headerLength * 4 + 2 * 4 + valueSize);
-            }
-            if(data.length < headerLength * 4 + 2 * 4 + valueSize) return callback && callback("incomplete data");
-            var propertyValueListLength = data.readUInt32LE(headerLength * 4 + 2 * 4 + valueSize);
-            if(data.length < headerLength * 4 + 3 * 4 + valueSize + (propertyValueListLength) * valueSize) return callback && callback("incomplete data");
-
-            for(var i = 0; i < propertyValueListLength; i++) {
-                if(valueSize == 1) {
-                    list.push(data.readUInt8(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
-                } else if(valueSize == 2) {
-                    list.push(data.readUInt16LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
-                } else if(valueSize == 4) {
-                    list.push(data.readUInt32LE(headerLength * 4 + 3 * 4 + valueSize + i * valueSize));
-                } else {
-                    var buf = new Buffer(valueSize);
-                    data.copy(buf, 0, headerLength * 4 + 3 * 4 + valueSize + i * valueSize, headerLength * 4 + 3 * 4 + valueSize + i * valueSize + valueSize)
-                    list.push(buf);
-                }
-            }
-
-            return callback && callback(null, currentValue, list, valueSize, 2);
-        });
-    });
-}
-
-function getProperty(_dev, propCode, callback) {
-    ptp.transaction(_dev, PTP_OC_PANASONIC_GetProperty, [propCode], null, function(err, responseCode, data) {
-        if(err || responseCode != 0x2001 || !data || data.length < 8) return callback && callback(err || responseCode);
-
-        var valueSize = data.readUInt32LE(4);
-        if(data.length < 8 + valueSize) return callback && callback("incomplete data");
-
-        var currentValue = null;
-        if(valueSize == 1) {
-            currentValue = data.readUInt8(8);
-        } else if(valueSize == 2) {
-            currentValue = data.readUInt16LE(8);
-        } else if(valueSize == 4) {
-            currentValue = data.readUInt32LE(8);
-        } else {
-            currentValue = new Buffer(valueSize);
-            data.copy(currentValue, 0, 8, 8 + valueSize);
-        }
-
-        callback && callback(null, currentValue, valueSize);
-    });
-}
-
-function setProperty(_dev, propCode, newValue, valueSize, callback) {
-    var buf = new Buffer(8 + valueSize);
-    buf.writeUInt32LE(propCode+1, 0);
-    buf.writeUInt32LE(valueSize, 4);
-    if(valueSize == 1) {
-        buf.writeUInt8(newValue, 8);
-    } else if(valueSize == 2) {
-        buf.writeUInt16LE(newValue, 8);
-    } else if(valueSize == 4) {
-        buf.writeUInt32LE(newValue, 8);
-    }
-
-    ptp.transaction(_dev, PTP_OC_PANASONIC_SetProperty, [propCode+1], buf, function(err, responseCode) {
-        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
-        callback && callback();
-    });
-}
-
-function setDestination(_dev, propCode, newValue, valueSize, callback) {
-    var buf = new Buffer(10);
-    buf.writeUInt32LE(0x08000091, 0);
-    buf.writeUInt32LE(0x00000002, 4);
-    buf.writeUInt16LE(newValue,   8); //  1 == RAM, 0 == SD
-    ptp.transaction(_dev, PTP_OC_PANASONIC_SetCaptureTarget, [0x00000000], buf, function(err, responseCode) {
-        if(err || responseCode != 0x2001) return callback && callback(err || responseCode);
-        callback && callback();
-    });
-}
-
-function parseFocusPoint(data) {
-    if(!data || data.length < 10) return data;
-    return {
-        x: data.readInt16LE(0) / 1000,
-        y: data.readInt16LE(2) / 1000,
-        s: data.readUInt16LE(4) / 1000,
-        mode: data.readUInt16LE(8),
-        _buf: data
-    }
-}
-
-function setFocusPoint(_dev, propCode, newValue, valueSize, callback) {
-    if(!newValue || !newValue._buf) return callback && callback("value must be read first");
-
-    var buf = new Buffer(12);
-    buf.writeUInt32LE(0x03000053, 0);
-    buf.writeUInt32LE(0x00000004, 4);
-    buf.writeUInt16LE(Math.round(newValue.x * 1000), 8);
-    buf.writeUInt16LE(Math.round(newValue.y * 1000), 10);
-
-    ptp.transaction(_dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000053], buf, callback);
 }
 
 driver._error = function(camera, error) { // events received
@@ -992,6 +856,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             if(err) return callback && callback(err);
             if((responseCode != 0x2001 || !data || data.length < 1024) && _tries > 25) return callback && callback(responseCode);
             if(responseCode == 0x2001 && data && data.length >= 1024) {
+                _logD("preview data:", data);
                 var image = ptp.extractJpegSimple(data);
                 if(image) {
                     return callback && callback(null, image);
@@ -1040,7 +905,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     buf.writeUInt16LE(mode,       8);
 
     var doStep = function() {
-        ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03010011], buf, function(err, responseCode) {
+        ptp.transaction(camera._dev, 0x9416, [0x03010011], buf, function(err, responseCode) {
             if(err) return callback && callback(err);
             steps--;
             camera.status.focusPos += dir;
@@ -1066,7 +931,7 @@ driver.af = function(camera, callback) {
     buf.writeUInt32LE(0x03000055, 0); // might also be 0x03000055
     buf.writeUInt32LE(0x00000000, 4);
 
-    ptp.transaction(camera._dev, PTP_OC_PANASONIC_ManualFocusDrive, [0x03000055], buf, callback);
+    ptp.transaction(camera._dev, 0x9416, [0x03000055], buf, callback);
 }
 
 
