@@ -506,18 +506,17 @@ driver._event = function(camera, data) { // events received
                 _logD("property changed:", ptp.hex(param1), "(mapped)");
                 check();
             } else {
-                if(param1 == 0xD084) { // shutter position
-                    ptp.getPropU16(camera._dev, 0xD084, function(err, data, size) {
-                        if(!err) {
-                            if(!camera.status) camera.status = {};
-                            camera.status.shutterOpen = (data != 7);
-                            camera.status._shutter = data;
-                        }
-                    });
-
-                } else {
+                //if(param1 == 0xD084) { // shutter position
+                //    ptp.getPropU16(camera._dev, 0xD084, function(err, data, size) {
+                //        if(!err) {
+                //            if(!camera.status) camera.status = {};
+                //            camera.status.shutterOpen = (data != 7);
+                //            camera.status._shutter = data;
+                //        }
+                //    });
+                //} else {
                     _logD("property changed:", ptp.hex(param1), "(not mapped)");
-                }
+                //}
             }
         } else {
             _logD("EVENT:", ptp.hex(event), data);
@@ -784,28 +783,31 @@ function getImage(camera, timeout, callback) {
             return callback && callback("timeout", results);
         }
         if(camera.thumbnail) {
-            if(camera.status._shutter != waitShutter) return setTimeout(check, 50);
-            waitShutter = 7; // wait for shutter to open
-            if(camera.status._shutter != 7) return setTimeout(check, 50);
-            _logD("checking for image...");
-            return ptp.transaction(camera._dev, 0x9485, [0x00000007], null, function(err, responseCode, data) {
-                if(err) return callback && callback(err, results);
-                //_logD("preview data:", data);
-                if(data) {
-                    var image = ptp.extractJpegSimple(data);
-                    if(image) {
-                        results.filename = "preview001.jpg";
-                        results.indexNumber = 1;
-                        results.thumb = image;
-                        _logD("image preview downloaded.");
-                        return callback && callback(null, results);
+            return ptp.getPropU16(camera._dev, 0xD084, function(err, shutter) { // check shutter position for close (7)
+                if(err) return setTimeout(check, 50);
+                if(shutter != waitShutter) return setTimeout(check, 50);
+                waitShutter = 7; // wait for shutter to open
+                if(shutter != 7) return setTimeout(check, 50);
+                _logD("checking for image...");
+                return ptp.transaction(camera._dev, 0x9485, [0x00000007], null, function(err, responseCode, data) {
+                    if(err) return callback && callback(err, results);
+                    //_logD("preview data:", data);
+                    if(data) {
+                        var image = ptp.extractJpegSimple(data);
+                        if(image) {
+                            results.filename = "preview001.jpg";
+                            results.indexNumber = 1;
+                            results.thumb = image;
+                            _logD("image preview downloaded.");
+                            return callback && callback(null, results);
+                        } else {
+                            _logD("image not found, trying again...");
+                            return setTimeout(check, 50);
+                        }
                     } else {
-                        _logD("image not found, trying again...");
                         return setTimeout(check, 50);
                     }
-                } else {
-                    return setTimeout(check, 50);
-                }
+                });
             });
         } else {
             if(camera._objectsAdded.length == 0) {
