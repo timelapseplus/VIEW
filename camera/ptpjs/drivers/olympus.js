@@ -779,18 +779,17 @@ function getImage(camera, timeout, callback) {
                 _tries++;
                 if(err) return callback && callback(err);
                 //_logD("preview data:", data);
-                if(data) {
+                if(responseCode == 0x2001 && data && data.length > 512) {
                     var image = ptp.extractJpegSimple(data);
                     if(image) {
                         results.filename = "preview001.jpg";
                         results.indexNumber = 1;
                         results.thumb = image;
+                        _logD("image preview downloaded.");
                         return callback && callback(null, results);
                     } else {
                         return setTimeout(check, 50);
                     }
-                } else if(_tries > 25) {
-                    return callback && callback(responseCode, results);
                 } else {
                     return setTimeout(check, 50);
                 }
