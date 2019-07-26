@@ -777,7 +777,7 @@ function getImage(camera, timeout, callback) {
             return ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
                 if(err) return callback && callback(err, results);
                 //_logD("preview data:", data);
-                if(responseCode == 0x2001 && data) {
+                if(data) {
                     var image = ptp.extractJpegSimple(data);
                     if(image) {
                         results.filename = "preview001.jpg";
