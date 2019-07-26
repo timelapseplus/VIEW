@@ -773,22 +773,24 @@ function getImage(camera, timeout, callback) {
             return callback && callback("timeout", results);
         }
         if(camera.thumbnail) {
-            if(!camera._previewReady) return setTimeout(check, 50);
+            //if(!camera._previewReady) return setTimeout(check, 50);
+            _logD("checking for image...");
             return ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
                 _tries++;
                 if(err) return callback && callback(err);
                 //_logD("preview data:", data);
-                if(!data && _tries > 25) return callback && callback(responseCode, results);
                 if(data) {
                     var image = ptp.extractJpegSimple(data);
                     if(image) {
-                        results.filename = "preview.jpg";
+                        results.filename = "preview001.jpg";
                         results.indexNumber = 1;
                         results.thumb = image;
                         return callback && callback(null, results);
                     } else {
                         return setTimeout(check, 50);
                     }
+                } else if(_tries > 25) {
+                    return callback && callback(responseCode, results);
                 } else {
                     return setTimeout(check, 50);
                 }
