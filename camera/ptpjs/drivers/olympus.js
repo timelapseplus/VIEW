@@ -618,6 +618,7 @@ driver.init = function(camera, callback) {
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ ptp.transaction(camera._dev, 0x1016, [0xD052], ptp.uint16buf(0x0001), cb); },
+            function(cb){setTimeout(cb, 500);}, 
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
@@ -773,7 +774,7 @@ function getImage(camera, timeout, callback) {
         }
         if(camera.thumbnail) {
             if(!camera._previewReady) return setTimeout(check, 50);
-            ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
+            return ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
                 _tries++;
                 if(err) return callback && callback(err);
                 //_logD("preview data:", data);
@@ -800,7 +801,7 @@ function getImage(camera, timeout, callback) {
         var objectId = camera._objectsAdded.shift();
         ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
             //console.log(oi);
-            if(oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
+            if(!oi || oi.objectFormat == ptp.PTP_OFC_Association) return setTimeout(check, 50); // folder added, keep waiting for image
             var image = null;
             results.filename = oi.filename;
             results.indexNumber = objectId;
