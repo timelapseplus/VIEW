@@ -441,15 +441,6 @@ var properties = {
         ev: false,
         mapFunction: parseFocusPoints
     },
-    'shutterPos': {
-        name: 'shutterPos',
-        category: 'status',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
-        listFunction: ptp.listProp,
-        code: 0xD084,
-        ev: false,
-    },
 }
 
 driver.properties = properties;
@@ -515,7 +506,18 @@ driver._event = function(camera, data) { // events received
                 _logD("property changed:", ptp.hex(param1), "(mapped)");
                 check();
             } else {
-                _logD("property changed:", ptp.hex(param1), "(not mapped)");
+                if(param1 == 0xD084) { // shutter position
+                    ptp.getPropU16(camera._dev, 0xD084, function(err, data, size) {
+                        if(!err) {
+                            if(!camera.status) camera.status = {};
+                            camera.status.shutterOpen = (data != 7);
+                            camera.status._shutter = data;
+                        }
+                    });
+
+                } else {
+                    _logD("property changed:", ptp.hex(param1), "(not mapped)");
+                }
             }
         } else {
             _logD("EVENT:", ptp.hex(event), data);
@@ -774,16 +776,19 @@ function getImage(camera, timeout, callback) {
     var startTime = Date.now();
 
     camera._objectsAdded = []; // clear queue
-    camera._previewReady = false; // clear queue
+
+    var waitShutter = 4;
 
     var check = function() {
         if(Date.now() - startTime > timeout) {
             return callback && callback("timeout", results);
         }
         if(camera.thumbnail) {
-            //if(!camera._previewReady) return setTimeout(check, 50);
+            if(camera.status._shutter != waitShutter) return setTimeout(check, 50);
+            waitShutter = 7; // wait for shutter to open
+            if(camera.status._shutter != 7) return setTimeout(check, 50);
             _logD("checking for image...");
-            return ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
+            return ptp.transaction(camera._dev, 0x9485, [0x00000007], null, function(err, responseCode, data) {
                 if(err) return callback && callback(err, results);
                 //_logD("preview data:", data);
                 if(data) {
