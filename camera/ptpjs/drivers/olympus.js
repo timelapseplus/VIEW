@@ -766,7 +766,6 @@ function getImage(camera, timeout, callback) {
 
     camera._objectsAdded = []; // clear queue
     camera._previewReady = false; // clear queue
-    var _tries = 0;
 
     var check = function() {
         if(Date.now() - startTime > timeout) {
@@ -776,10 +775,9 @@ function getImage(camera, timeout, callback) {
             //if(!camera._previewReady) return setTimeout(check, 50);
             _logD("checking for image...");
             return ptp.transaction(camera._dev, 0x9485, [0x00000001], null, function(err, responseCode, data) {
-                _tries++;
                 if(err) return callback && callback(err);
                 //_logD("preview data:", data);
-                if(responseCode == 0x2001 && data && data.length > 512) {
+                if(responseCode == 0x2001 && data) {
                     var image = ptp.extractJpegSimple(data);
                     if(image) {
                         results.filename = "preview001.jpg";
@@ -788,6 +786,7 @@ function getImage(camera, timeout, callback) {
                         _logD("image preview downloaded.");
                         return callback && callback(null, results);
                     } else {
+                        _logD("image not found, trying again...");
                         return setTimeout(check, 50);
                     }
                 } else {
