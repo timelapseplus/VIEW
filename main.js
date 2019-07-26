@@ -833,7 +833,7 @@ if (VIEW_HARDWARE) {
         type: "options",
         items: []
     }
-    for (var i = 1.8; i < 5; i += 0.2) {
+    for (var i = 1.5; i < 5; i += 0.1) {
         i = Math.floor(i * 10) / 10;
         interval.items.push({
             name: "Interval",
