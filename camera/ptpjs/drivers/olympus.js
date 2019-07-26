@@ -485,8 +485,8 @@ driver._event = function(camera, data) { // events received
     if(camera._eventData.length < 12) return;
     ptp.parseEvent(camera._eventData, function(type, event, param1, param2, param3) {
         camera._eventData = null;
+        camera._previewReady = true;
         if(event == 0xC101) {
-            camera._previewReady = true;
         } else if(event == 0xC102) {
             _logD("object added:", ptp.hex(param1));
             camera._objectsAdded.push(param1);
