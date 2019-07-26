@@ -834,12 +834,12 @@ if (VIEW_HARDWARE) {
         items: []
     }
     for (var i = 1.5; i < 5; i += 0.1) {
-        i = Math.floor(i * 10) / 10;
+        var n = Math.floor(i * 10) / 10;
         interval.items.push({
             name: "Interval",
             help: help.interval,
-            value: i + " seconds",
-            action: ui.set(core.currentProgram, 'interval', i)
+            value: n + " seconds",
+            action: ui.set(core.currentProgram, 'interval', n)
         });
     }
     for (var i = 5; i < 12; i += 0.5) interval.items.push({
