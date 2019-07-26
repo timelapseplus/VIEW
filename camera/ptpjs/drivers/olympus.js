@@ -441,6 +441,15 @@ var properties = {
         ev: false,
         mapFunction: parseFocusPoints
     },
+    'shutterPos': {
+        name: 'shutterPos',
+        category: 'status',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD084,
+        ev: false,
+    },
 }
 
 driver.properties = properties;
