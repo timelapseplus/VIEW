@@ -776,7 +776,7 @@ function getImage(camera, timeout, callback) {
 
     camera._objectsAdded = []; // clear queue
 
-    var waitShutter = 4;
+    //var waitShutter = (camera.exposure && camera.exposure.shutter && camera.exposure.shutter.ev) ? 4;
 
     var check = function() {
         if(Date.now() - startTime > timeout) {
@@ -785,8 +785,8 @@ function getImage(camera, timeout, callback) {
         if(camera.thumbnail) {
             return ptp.getPropU16(camera._dev, 0xD084, function(err, shutter) { // check shutter position for close (7)
                 if(err) return setTimeout(check, 50);
-                if(shutter != waitShutter) return setTimeout(check, 50);
-                waitShutter = 7; // wait for shutter to open
+                //if(shutter != waitShutter) return setTimeout(check, 50);
+                //waitShutter = 7; // wait for shutter to open
                 if(shutter != 7) return setTimeout(check, 50);
                 _logD("checking for image...");
                 return ptp.transaction(camera._dev, 0x9485, [0x00000007], null, function(err, responseCode, data) {
@@ -847,7 +847,7 @@ function getImage(camera, timeout, callback) {
             }
         });
     }
-    check();
+    setTimeout(check, 100);
 }
 
 driver.capture = function(camera, target, options, callback, noImage, noChangeBracketing, _tries) {
