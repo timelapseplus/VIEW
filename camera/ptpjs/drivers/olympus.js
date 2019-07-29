@@ -480,7 +480,7 @@ function propMapped(propCode) {
     return false;
 }
 
-function parseLiveviewSize(list, current, previousMapped) {
+function parseFocusPoints(list, current, previousMapped) {
     var obj = {};
     if(list && list.length > 0) {
         obj.xyMax = Math.round(Math.sqrt( list.reduce(function(a, b) {return Math.max(a, b);}) ));
@@ -498,7 +498,7 @@ function parseLiveviewSize(list, current, previousMapped) {
     return obj;
 }
 
-function parseFocusPoints(list, current, previousMapped) {
+function parseLiveviewSize(list, current, previousMapped) {
     var obj = {};
     obj.y = current && 0xFFFF;
     current /= 2^16;
