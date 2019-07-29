@@ -431,31 +431,31 @@ var properties = {
             { name: "unknown",         value: null,        code: 41943520 },
         ]
     },
-    'liveviewSize': {
-        name: 'liveviewSize',
-        category: 'config',
-        setFunction: ptp.setPropU32,
-        getFunction: ptp.getPropU32,
-        listFunction: ptp.listProp,
-        code: 0xD0D6,
-        ev: false,
-        values: [
-            { name: "320x240",         value: 'small',        code: 0x014000F0 },
-        ]
-    },
-    'liveviewZoom': {
-        name: 'liveviewZoom',
-        category: 'config',
-        setFunction: ptp.setPropU16,
-        getFunction: ptp.getPropU16,
-        listFunction: ptp.listProp,
-        code: 0xD04B,
-        ev: false,
-        values: [
-            { name: "full",         value: 'full',        code: 0x0000 },
-            { name: "zoom",         value: 'zoom',        code: 0x0001 },
-        ]
-    },
+ //   'liveviewSize': {
+ //       name: 'liveviewSize',
+ //       category: 'config',
+ //       setFunction: ptp.setPropU32,
+ //       getFunction: ptp.getPropU32,
+ //       listFunction: ptp.listProp,
+ //       code: 0xD0D6,
+ //       ev: false,
+ //       values: [
+ //           { name: "320x240",         value: 'small',        code: 0x014000F0 },
+ //       ]
+ //   },
+ //   'liveviewZoom': {
+ //       name: 'liveviewZoom',
+ //       category: 'config',
+ //       setFunction: ptp.setPropU16,
+ //       getFunction: ptp.getPropU16,
+ //       listFunction: ptp.listProp,
+ //       code: 0xD04B,
+ //       ev: false,
+ //       values: [
+ //           { name: "full",         value: 'full',        code: 0x0000 },
+ //           { name: "zoom",         value: 'zoom',        code: 0x0001 },
+ //       ]
+ //   },
     'focusPoint': {
         name: 'focusPoint',
         category: 'config',
@@ -702,6 +702,8 @@ driver.set = function(camera, param, value, callback) {
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                         if(!err) {
+                            if(!camera[properties[param].category]) camera[properties[param].category] = {};
+                            if(!camera[properties[param].category][param]) camera[properties[param].category][param] = {};
                             if(properties[param].values) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
@@ -721,6 +723,8 @@ driver.set = function(camera, param, value, callback) {
                     return cb("unknown value");
                 }
             } else if(properties[param] && properties[param].default != null) {
+                if(!camera[properties[param].category]) camera[properties[param].category] = {};
+                if(!camera[properties[param].category][param]) camera[properties[param].category][param] = {};
                 if(properties[param].values) {
                     var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                     for(var k in newItem) {
