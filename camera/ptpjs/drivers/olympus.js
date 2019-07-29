@@ -431,31 +431,31 @@ var properties = {
             { name: "unknown",         value: null,        code: 41943520 },
         ]
     },
- //   'liveviewSize': {
- //       name: 'liveviewSize',
- //       category: 'config',
- //       setFunction: ptp.setPropU32,
- //       getFunction: ptp.getPropU32,
- //       listFunction: ptp.listProp,
- //       code: 0xD0D6,
- //       ev: false,
- //       values: [
- //           { name: "320x240",         value: 'small',        code: 0x014000F0 },
- //       ]
- //   },
- //   'liveviewZoom': {
- //       name: 'liveviewZoom',
- //       category: 'config',
- //       setFunction: ptp.setPropU16,
- //       getFunction: ptp.getPropU16,
- //       listFunction: ptp.listProp,
- //       code: 0xD04B,
- //       ev: false,
- //       values: [
- //           { name: "full",         value: 'full',        code: 0x0000 },
- //           { name: "zoom",         value: 'zoom',        code: 0x0001 },
- //       ]
- //   },
+    'liveviewSize': {
+        name: 'liveviewSize',
+        category: 'config',
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
+        listFunction: ptp.listProp,
+        code: 0xD0D6,
+        ev: false,
+        values: [
+            { name: "320x240",         value: 'small',        code: 0x014000F0 },
+        ]
+    },
+    'liveviewZoom': {
+        name: 'liveviewZoom',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD04B,
+        ev: false,
+        values: [
+            { name: "full",         value: 'full',        code: 0x0000 },
+            { name: "zoom",         value: 'zoom',        code: 0x0001 },
+        ]
+    },
     'focusPoint': {
         name: 'focusPoint',
         category: 'config',
@@ -650,10 +650,13 @@ driver.refresh = function(camera, callback) {
 driver.init = function(camera, callback) {
     camera.supportsNativeHDR = driver.supportsNativeHDR;
     camera._objectsAdded = [];
+    _logD("initializing camera...");
     ptp.init(camera._dev, function(err, di) {
+        if(err) _logE("error initializing:", err);
         async.series([
             function(cb){ ptp.transaction(camera._dev, 0x1016, [0xD052], ptp.uint16buf(0x0001), cb); },
             function(cb){setTimeout(cb, 500);}, 
+            function(cb){driver.refresh(camera, cb);}  // get settings
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
             callback && callback(err);
