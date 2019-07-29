@@ -14,6 +14,7 @@ var optionalMethods = [
 	'setFocusPoint',
 	'captureHDR',
 	'moveFocus',
+	'lvZoom',
 ]
 
 var requiredObjects = [

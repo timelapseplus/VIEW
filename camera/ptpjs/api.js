@@ -205,6 +205,11 @@ CameraAPI.prototype.af = function(steps, resolution, callback) {
 	return this._driver.af(this, callback);
 }
 
+CameraAPI.prototype.lvZoom = function(zoom, callback) {
+	if(!this._driver.lvZoom) return callback && callback("not supported");
+	return this._driver.lvZoom(this, callback);
+}
+
 function connectCamera(driver, device) {
 	device.open();
 	var iface = device.interfaces[0];
@@ -439,13 +444,19 @@ api.moveFocus = function(steps, resolution, callback) {
 api.setFocusPoint = function(x, y, callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
-	primaryCamera.camera.setFocusPoint(camera, x, y, callback);
+	primaryCamera.camera.setFocusPoint(x, y, callback);
 }
 
 api.af = function(callback) {
 	var primaryCamera = getPrimary();
 	if(!primaryCamera) return callback && callback("camera not connected");
-	primaryCamera.camera.af(camera, callback);
+	primaryCamera.camera.af(callback);
+}
+
+api.lvZoom = function(zoom, callback) {
+	var primaryCamera = getPrimary();
+	if(!primaryCamera) return callback && callback("camera not connected");
+	primaryCamera.camera.lvZoom(zoom, callback);
 }
 
 function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a camera available list

@@ -431,6 +431,31 @@ var properties = {
             { name: "unknown",         value: null,        code: 41943520 },
         ]
     },
+    'liveviewSize': {
+        name: 'liveviewSize',
+        category: 'config',
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
+        listFunction: ptp.listProp,
+        code: 0xD0D6,
+        ev: false,
+        values: [
+            { name: "320x240",         value: 'small',        code: 0x014000F0 },
+        ]
+    },
+    'liveviewZoom': {
+        name: 'liveviewZoom',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0xD04B,
+        ev: false,
+        values: [
+            { name: "full",         value: 'full',        code: 0x0000 },
+            { name: "zoom",         value: 'zoom',        code: 0x0001 },
+        ]
+    },
     'focusPoint': {
         name: 'focusPoint',
         category: 'config',
@@ -856,7 +881,10 @@ driver.capture = function(camera, target, options, callback, noImage, noChangeBr
     var results = {};
     async.series([
         function(cb){ // set destination
-            if(camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
+            if(camera.config && camera.config.destination.name && camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
+        },
+        function(cb){ // set focusMode
+            if(camera.config && camera.config.focusMode && camera.config.focusMode.value == 'mf') cb(); else driver.set(camera, "focusMode", 'mf', cb);
         },
         function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0003], null, cb); }, // press shutter
         function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0006], null, cb); }, // release shutter
@@ -1003,12 +1031,21 @@ driver.setFocusPoint = function(camera, x, y, callback) {
     }
 }
 
-driver.af = function(camera, callback) {
-    var buf = new Buffer(8);
-    buf.writeUInt32LE(0x03000055, 0); // might also be 0x03000055
-    buf.writeUInt32LE(0x00000000, 4);
+driver.lvZoom = function(camera, zoom, callback) {
+    driver.set(camera, 'liveviewZoom', zoom ? 'zoom' : 'full', callback);
+}
 
-    ptp.transaction(camera._dev, 0x9416, [0x03000055], buf, callback);
+driver.af = function(camera, callback) {
+    var doAf = function() {
+        ptp.transaction(camera._dev, 0x9481, [0x0003], null, function(err) {
+            callback && callback(err);
+        });
+    }
+    if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'mf') {
+        driver.set(camera, 'focusMode', 'af', doAf);
+    } else {
+        doAf();
+    }
 }
 
 
