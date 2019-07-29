@@ -368,7 +368,7 @@ function parseData(data, client) {
   }
 }
 
-
+var zoomed = false;
 function runCommand(type, args, callback, client) {
   var cameraCallback = function(err, res) {
     if(!intervalometer.status.running && !camera.ptp.lvOn && camera.ptp.model && camera.ptp.model.match(/nikon/i)) {
@@ -433,7 +433,24 @@ function runCommand(type, args, callback, client) {
       }
       break;
     case 'camera.ptp.zoom':
-      camera.ptp.zoom(args.x, args.y, callback);
+      if(camera.ptp.new.available) {
+        camera.ptp.new.setFocusPoint(x, y, function() {
+          zoomed = !zoomed;
+          if(x == null || y == null) zoomed = false;
+          camera.ptp.new.lvZoom(zoomed, function(err) {
+            callback && callback(err, {zoomed: zoomed});
+          });
+        });
+      } else {
+        camera.ptp.zoom(args.x, args.y, callback);
+      }
+      break;
+    case 'camera.ptp.af':
+      if(camera.ptp.new.available) {
+        camera.ptp.new.af(callback);
+      } else {
+        callback && callback("not supported");
+      }
       break;
     case 'camera.ptp.focus':
       remap('camera.ptp.focus')(args.step, args.repeat, callback);

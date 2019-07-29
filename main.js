@@ -838,7 +838,7 @@ if (VIEW_HARDWARE) {
         interval.items.push({
             name: "Interval",
             help: help.interval,
-            value: n + " seconds",
+            value: n + " seconds",zoom
             action: ui.set(core.currentProgram, 'interval', n)
         });
     }
@@ -5339,6 +5339,10 @@ app.on('message', function(msg) {
                 } else {
                     core.zoom();
                 }
+                break;
+
+            case 'af':
+                core.af();
                 break;
 
             case 'set':

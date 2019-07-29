@@ -218,6 +218,11 @@ core.zoom = function(xPercent, yPercent, callback) {
         callback(err, data);      
     });
 };
+core.af = function(xPercent, yPercent, callback) {
+    call('camera.ptp.af', function(err, data) {
+        callback(err, data);      
+    });
+};
 core.focus = function(step, repeat, callback) {
     call('camera.ptp.focus', {step:step, repeat:repeat}, callback);
 };
