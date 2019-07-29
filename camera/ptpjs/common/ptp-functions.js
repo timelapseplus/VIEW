@@ -706,10 +706,10 @@ function runTransaction(cam, opcode, params, data, callback) {
 					} else {
 						_logD("error reading, data length", data && data.length);
 					}
-					if(receiveErrorCount < 3) {
+					if(receiveErrorCount < 10) {
 						_logD("error reading:", err);
 						receiveErrorCount++;
-						if(receiveErrorCount == 3) {
+						if(receiveErrorCount % 3 == 0) {
 							if(cam.ep && cam.ep.in && cam.ep.in.clearHalt) {
 								cam.ep.in.clearHalt(function(error){
 									if(error) console.log("Error clearing endpoint stall:", error);
