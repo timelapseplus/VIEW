@@ -499,10 +499,17 @@ function parseFocusPoints(list, current, previousMapped) {
 }
 
 function parseLiveviewSize(list, current, previousMapped) {
-    var obj = {};
+    var obj = previousMapped || {};
+    obj.value = current;
     obj.y = current & 0xFFFF;
     current /= 2^16;
     obj.x = current & 0xFFFF;
+
+    if(list && list.length == 3) {
+        obj.yMax = list[1] & 0xFFFF;
+        list[1] /= 2^16;
+        obj.xMax = list[1] & 0xFFFF;
+    }
     return obj;
 }
 
