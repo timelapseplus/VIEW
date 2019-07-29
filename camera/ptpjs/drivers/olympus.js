@@ -583,6 +583,7 @@ driver.refresh = function(camera, callback) {
                             } else {
                                 var currentMapped = null;
                                 var mappedList = [];
+                                _logD(key, "size is", valueSize, "listType", listType);
                                 if(properties[key].values && properties[key].values.length > 0) {
                                     var propertyListValues = properties[key].values;
                                     properties[key].size = valueSize; // save for setting value
@@ -592,7 +593,6 @@ driver.refresh = function(camera, callback) {
                                             return item[properties[key].filter.by] == val;
                                         });
                                     }
-                                    _logD(key, "size is", valueSize, "listType", listType);
                                     if(listType == 1 && list.length == 3) { // convert range to list
                                         _logD(key, "list", list);
                                         var newList = [];
