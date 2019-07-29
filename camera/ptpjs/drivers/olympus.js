@@ -439,9 +439,10 @@ var properties = {
         listFunction: ptp.listProp,
         code: 0xD0D6,
         ev: false,
-        values: [
-            { name: "320x240",         value: 'small',        code: 0x014000F0 },
-        ]
+        mapFunction: parseLiveviewSize
+        //values: [
+        //    { name: "320x240",         value: 'small',        code: 0x014000F0 },
+       // ]
     },
     'liveviewZoom': {
         name: 'liveviewZoom',
@@ -479,7 +480,7 @@ function propMapped(propCode) {
     return false;
 }
 
-function parseFocusPoints(list, current, previousMapped) {
+function parseLiveviewSize(list, current, previousMapped) {
     var obj = {};
     if(list && list.length > 0) {
         obj.xyMax = Math.round(Math.sqrt( list.reduce(function(a, b) {return Math.max(a, b);}) ));
@@ -494,6 +495,14 @@ function parseFocusPoints(list, current, previousMapped) {
         obj = null;
     }
     //_logD("focusPoints: ", obj);
+    return obj;
+}
+
+function parseFocusPoints(list, current, previousMapped) {
+    var obj = {};
+    obj.y = current && 0xFFFF;
+    current /= 2^16;
+    obj.x = current && 0xFFFF;
     return obj;
 }
 
