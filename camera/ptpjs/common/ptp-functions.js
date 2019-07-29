@@ -716,7 +716,11 @@ function runTransaction(cam, opcode, params, data, callback) {
 									receive(cb, rbuf);
 								});
 							} else {
-								return callback && callback("not connected");
+								if(receiveErrorCount < 10) {
+									receive(cb, rbuf);
+								} else {
+									return callback && callback("not connected");
+								}
 							}
 						} else {
 							receive(cb, rbuf);
