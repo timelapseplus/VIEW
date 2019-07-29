@@ -434,7 +434,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.zoom':
       if(camera.ptp.new.available) {
-        camera.ptp.new.setFocusPoint(x, y, function() {
+        camera.ptp.new.setFocusPoint(args.x, args.y, function() {
           zoomed = !zoomed;
           if(args.x == null || args.y == null) zoomed = false;
           camera.ptp.new.lvZoom(zoomed, function(err) {
