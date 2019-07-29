@@ -968,8 +968,10 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                     return callback && callback(err);
                 }
                 camera.status.liveview = true;
-                _logD("LV enabled");
-                return callback && callback();
+                driver.setLiveviewSize(camera, 320, 240, function() {
+                    _logD("LV enabled");
+                    return callback && callback();
+                })
             });
         } else {
             driver.set(camera, 'liveviewMode', 'off', function(err) {
@@ -1055,6 +1057,14 @@ driver.setFocusPoint = function(camera, x, y, callback) {
     } else {
         callback && callback("must be read first");
     }
+}
+
+driver.setLiveviewSize = function(camera, w, h, callback) {
+    var liveviewSize = camera.config.liveviewSize;
+    liveviewSize.x = w;
+    liveviewSize.y = h;
+    var newSize = (w << 16) | h;
+    driver.set(camera, 'liveviewSize', newSize, callback);
 }
 
 driver.lvZoom = function(camera, zoom, callback) {

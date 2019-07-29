@@ -218,7 +218,7 @@ core.zoom = function(xPercent, yPercent, callback) {
         callback(err, data);      
     });
 };
-core.af = function(xPercent, yPercent, callback) {
+core.af = function(callback) {
     call('camera.ptp.af', function(err, data) {
         callback(err, data);      
     });
