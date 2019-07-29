@@ -838,7 +838,7 @@ if (VIEW_HARDWARE) {
         interval.items.push({
             name: "Interval",
             help: help.interval,
-            value: n + " seconds",zoom
+            value: n + " seconds",
             action: ui.set(core.currentProgram, 'interval', n)
         });
     }
