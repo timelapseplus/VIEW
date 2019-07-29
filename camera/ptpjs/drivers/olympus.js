@@ -657,8 +657,12 @@ driver.init = function(camera, callback) {
             function(cb){ ptp.transaction(camera._dev, 0x1016, [0xD052], ptp.uint16buf(0x0001), cb); },
             function(cb){setTimeout(cb, 500);}, 
             function(cb){driver.refresh(camera, cb);},  // get settings
-            function(cb){driver.refresh(camera, cb);}  // get settings
-        ], function(err) {
+        ], function(err, results) {
+            if(err) {
+                _logE("initialization error", err, "at item", results.length);
+            } else {
+                _logD("initialization complete.");
+            }
             callback && callback(err);
         });
     });
