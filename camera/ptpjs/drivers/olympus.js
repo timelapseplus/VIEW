@@ -503,11 +503,11 @@ function parseLiveviewSize(list, current, previousMapped) {
     var val = current;
     obj.value = current;
     obj.y = val & 0xFFFF;
-    obj.x = (val / 2^16) & 0xFFFF;
+    obj.x = (val >> 16) & 0xFFFF;
 
     if(list && list.length == 3) {
         obj.yMax = list[1] & 0xFFFF;
-        obj.xMax = (list[1] / 2^16) & 0xFFFF;
+        obj.xMax = (list[1] >> 16) & 0xFFFF;
     }
     return obj;
 }
