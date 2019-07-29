@@ -500,9 +500,9 @@ function parseFocusPoints(list, current, previousMapped) {
 
 function parseLiveviewSize(list, current, previousMapped) {
     var obj = {};
-    obj.y = current && 0xFFFF;
+    obj.y = current & 0xFFFF;
     current /= 2^16;
-    obj.x = current && 0xFFFF;
+    obj.x = current & 0xFFFF;
     return obj;
 }
 
