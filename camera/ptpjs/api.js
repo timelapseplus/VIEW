@@ -195,7 +195,7 @@ CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
 	return this._driver.moveFocus(this, steps, resolution, callback);
 }
 
-CameraAPI.prototype.setFocusPoint = function(steps, resolution, callback) {
+CameraAPI.prototype.setFocusPoint = function(x, y, callback) {
 	if(!this._driver.setFocusPoint) return callback && callback("not supported");
 	return this._driver.setFocusPoint(this, x, y, callback);
 }
