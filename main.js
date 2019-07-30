@@ -5473,7 +5473,7 @@ app.on('message', function(msg) {
 var thmIndex = "1";
 core.on('camera.photo', function() {
     if (core.photo && core.photo.jpeg) {
-        console.log("EVENT: camera.photo, type=", core.photo.type);
+        if(core.photo.type != 'preview') console.log("EVENT: camera.photo, type=", core.photo.type);
         if (core.intervalometerStatus.running) {
             liveviewOn = false;
             liveviewOnStream = false;
@@ -5505,7 +5505,7 @@ core.on('camera.photo', function() {
                     q: 80
                 }
                 if (VIEW_HARDWARE && (core.photo.type != 'preview' || (liveviewOn && !liveviewOnApp))) {
-                    console.log("displaying image...", core.photo.type);
+                    //console.log("displaying image...", core.photo.type);
                     image.downsizeJpeg(new Buffer(core.photo.jpeg), size, null, function(err, jpgBuf) {
                         if (!err && jpgBuf) {
                             image.saveTemp("oledthm", jpgBuf, function(err, path) {
@@ -5541,7 +5541,7 @@ core.on('camera.photo', function() {
         }
         if (previewImage.imageType == "preview" && !core.intervalometerStatus.running) {
             if(liveviewOn) {
-                console.log("LV: requesting next frame");
+                //console.log("LV: requesting next frame");
                 setTimeout(core.preview, liveviewOnApp ? 150 : 0);
             }
         }

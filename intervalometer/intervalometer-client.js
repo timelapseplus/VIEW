@@ -216,12 +216,12 @@ core.zoom = function(xPercent, yPercent, callback) {
     call('camera.ptp.zoom', {x:xPercent,y:yPercent}, function(err, data) {
         core.cameraZoomed = !!data.zoomed;
         console.log("CLIENT: liveview zoomed:", core.cameraZoomed);
-        callback(err, data);      
+        callback && callback(err, data);      
     });
 };
 core.af = function(callback) {
     call('camera.ptp.af', function(err, data) {
-        callback(err, data);      
+        callback && callback(err, data);      
     });
 };
 core.focus = function(step, repeat, callback) {
