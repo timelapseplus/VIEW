@@ -1046,6 +1046,11 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
         });
     }
     doStep();
+    if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'mf') {
+        driver.set(camera, 'focusMode', 'mf', doStep);
+    } else {
+        doStep();
+    }
 }
 
 driver.setFocusPoint = function(camera, x, y, callback) {
@@ -1078,7 +1083,7 @@ driver.af = function(camera, callback) {
             callback && callback(err);
         });
     }
-    if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'mf') {
+    if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'af') {
         driver.set(camera, 'focusMode', 'af', doAf);
     } else {
         doAf();
