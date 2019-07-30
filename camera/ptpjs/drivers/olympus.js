@@ -911,7 +911,7 @@ driver.capture = function(camera, target, options, callback, noImage, noChangeBr
             if(camera.config && camera.config.destination.name && camera.config.destination.name == targetValue) cb(); else driver.set(camera, "destination", targetValue, cb);
         },
         function(cb){ // set focusMode
-            if(camera.config && camera.config.focusMode && camera.config.focusMode.value == 'mf') cb(); else driver.set(camera, "focusMode", 'mf', cb);
+            if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'mf') cb(); else driver.set(camera, "focusMode", 'mf', cb);
         },
         function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0003], null, cb); }, // press shutter
         function(cb){ ptp.transaction(camera._dev, 0x9481, [0x0006], null, cb); }, // release shutter
