@@ -215,7 +215,7 @@ core.lvOff = function(callback) {
 core.zoom = function(xPercent, yPercent, callback) {
     call('camera.ptp.zoom', {x:xPercent,y:yPercent}, function(err, data) {
         core.cameraZoomed = !!data.zoomed;
-        console.log("SERVER: liveview zoomed:", core.cameraZoomed);
+        console.log("CLIENT: liveview zoomed:", core.cameraZoomed);
         callback(err, data);      
     });
 };

@@ -435,6 +435,7 @@ function runCommand(type, args, callback, client) {
       if(camera.ptp.new.available) {
         camera.ptp.new.setFocusPoint(args.x, args.y, function() {
           var zoomed = 1;
+          console.log("SERVER: zoom args:", args);
           if(args.x == null || args.y == null) zoomed = 0;
           camera.ptp.new.lvZoom(zoomed, function(err) {
             callback && callback(err, {zoomed: zoomed});
