@@ -499,6 +499,7 @@ function parseFocusPoints(list, current, previousMapped) {
 }
 
 function parseLiveviewSize(list, current, previousMapped) {
+    _logD("parseLiveviewSize current:", ptp.hex(current));
     var obj = previousMapped || {};
     var val = current;
     obj.value = current;
@@ -968,6 +969,7 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
                     return callback && callback(err);
                 }
                 camera.status.liveview = true;
+                _logD("setting LV size to 320x24...0");
                 driver.setLiveviewSize(camera, 320, 240, function() {
                     _logD("LV enabled");
                     return callback && callback();
