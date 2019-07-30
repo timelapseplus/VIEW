@@ -433,13 +433,17 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.zoom':
       if(camera.ptp.new.available) {
-        camera.ptp.new.setFocusPoint(args.x, args.y, function() {
-          var zoomed = 1;
-          if(args.x == null || args.y == null) zoomed = 0;
-          camera.ptp.new.lvZoom(zoomed, function(err) {
-            console.log("SERVER: zoom args:", args, "zoomed:", zoomed);
+        var zoomed = 1;
+        if(args.x == null || args.y == null) zoomed = 0;
+        camera.ptp.new.lvZoom(zoomed, function(err) {
+          console.log("SERVER: zoom args:", args, "zoomed:", zoomed);
+          if(zoomed) {
+            camera.ptp.new.setFocusPoint(args.x, args.y, function() {
+              callback && callback(err, {zoomed: zoomed});
+            });
+          } else {
             callback && callback(err, {zoomed: zoomed});
-          });
+          }
         });
       } else {
         camera.ptp.zoom(args.x, args.y, callback);
