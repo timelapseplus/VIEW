@@ -207,7 +207,7 @@ CameraAPI.prototype.af = function(steps, resolution, callback) {
 
 CameraAPI.prototype.lvZoom = function(zoom, callback) {
 	if(!this._driver.lvZoom) return callback && callback("not supported");
-	return this._driver.lvZoom(this, callback);
+	return this._driver.lvZoom(this, zoom, callback);
 }
 
 function connectCamera(driver, device) {
