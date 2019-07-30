@@ -214,7 +214,7 @@ core.lvOff = function(callback) {
 };
 core.zoom = function(xPercent, yPercent, callback) {
     call('camera.ptp.zoom', {x:xPercent,y:yPercent}, function(err, data) {
-        core.cameraZoomed = data.zoomed;
+        core.cameraZoomed = !!data.zoomed;
         callback(err, data);      
     });
 };
