@@ -955,26 +955,25 @@ driver.liveviewMode = function(camera, enable, callback, _tries) {
     //}
     if(camera.status.liveview != !!enable) {
         if(enable) {
-            driver.set(camera, 'liveviewMode', 'on', function(err) {
-                if(err == 0x2019) {
-                    _tries++;
-                    if(_tries < 15) {
-                        return setTimeout(function(){
-                            driver.liveviewMode(camera, enable, callback, _tries);
-                        }, 50);
+            driver.setLiveviewSize(camera, 320, 240, function() {
+                driver.set(camera, 'liveviewMode', 'on', function(err) {
+                    if(err == 0x2019) {
+                        _tries++;
+                        if(_tries < 15) {
+                            return setTimeout(function(){
+                                driver.liveviewMode(camera, enable, callback, _tries);
+                            }, 50);
+                        }
                     }
-                }
-                if(err) {
-                    _logD("error enabling liveview:", err);
-                    return callback && callback(err);
-                }
-                camera.status.liveview = true;
-                _logD("setting LV size to 320x24...0");
-                driver.setLiveviewSize(camera, 320, 240, function() {
+                    if(err) {
+                        _logD("error enabling liveview:", err);
+                        return callback && callback(err);
+                    }
+                    camera.status.liveview = true;
                     _logD("LV enabled");
                     return callback && callback();
-                })
-            });
+                });
+            })
         } else {
             driver.set(camera, 'liveviewMode', 'off', function(err) {
                 if(err) return callback && callback(err);
