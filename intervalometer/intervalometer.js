@@ -87,13 +87,26 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             return callback && callback(err);
                         }
                         if(captureOptions && captureOptions.mode == "test") {
-                            logEvent("capture complete, analyzing image...");
-                            image.exposureValue(img, function(err, ev, histogram) {
-                                photoRes.ev = ev;
-                                photoRes.histogram = histogram;
-                                logEvent("...processing complete, image ev", ev);
-                                intervalometer.emit("histogram", histogram);
-                                callback && callback(err, photoRes);
+                            var size = {
+                                x: 120,
+                                q: 80
+                            }
+                            logEvent("capture complete, downsizing image...");
+                            image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
+                                var img;
+                                if (!err && lowResJpg) {
+                                    img = lowResJpg;
+                                } else {
+                                    img = thumb;
+                                }
+                                logEvent("analyzing test image exposure...");
+                                image.exposureValue(img, function(err, ev, histogram) {
+                                    photoRes.ev = ev;
+                                    photoRes.histogram = histogram;
+                                    logEvent("...processing complete, image ev", ev);
+                                    intervalometer.emit("histogram", histogram);
+                                    callback && callback(err, photoRes);
+                                });
                             });
                         } else {
                             var photoRes = {
