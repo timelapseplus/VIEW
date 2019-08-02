@@ -408,12 +408,12 @@ var referencePhotoRes = null;
 var retryCounter = 0;
 
 auxTrigger.on('press', function() {
-    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto) {
-        log("AUX2 trigger!");
+    if (intervalometer.status.running && intervalometer.currentProgram.intervalMode == 'aux' && !pendingPhoto && !intervalometer.status.waitForStartup) {
+        logEvent("AUX2 trigger!");
         if(timerHandle) clearTimeout(timerHandle);
         timerHandle = setTimeout(runPhoto, 0);
     } else {
-        log("AUX2 trigger! (ignoring)");
+        logEvent("AUX2 trigger! (ignoring)");
     }
 });
 
@@ -1016,7 +1016,7 @@ function setupExposure(cb) {
     var doSetup = function() {
         if(intervalometer.status.stopping) return cb && cb();
         log("EXP: current interval: ", intervalometer.status.intervalMs, " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
-        if(!intervalometer.status.rampEv) {
+        if(intervalometer.status.rampEv == null) {
             intervalometer.status.rampEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings'));
         }
         dynamicChangeUpdate();
@@ -2002,6 +2002,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                     }
                                     if(intervalometer.currentProgram.intervalMode == 'aux') {
                                         intervalometer.status.message = "waiting for AUX2...";
+                                        logEvent("ready and waiting for AUX2...");
                                         intervalometer.emit("intervalometer.status", intervalometer.status);
                                     }
                                 }, 3000);
