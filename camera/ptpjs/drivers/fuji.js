@@ -114,6 +114,9 @@ var properties = {
         code: 0x500D,
         ev: true,
         values: [
+            { name: "bulb",    ev: null,        code:  4294967295 },
+            { name: "60m",     ev: -17,         code:  64000180 },
+            { name: "30m",     ev: -16,         code:  64000150 },
             { name: "15m",     ev: -15,         code:  64000120 },
             { name: "8m",      ev: -14,         code:  64000090 },
             { name: "4m",      ev: -13,         code:  64000060 },
@@ -241,6 +244,8 @@ var properties = {
         code: 0x500F,
         ev: true,
         values: [
+            { name: "100",      ev: 0,           code: 100  },
+            { name: "125",      ev: -1 / 3,      code: 125  },
             { name: "160",      ev: -2 / 3,      code: 160  },
             { name: "200",      ev: -1,          code: 200  },
             { name: "250",      ev: -1 - 1 / 3,  code: 250  },
