@@ -186,7 +186,7 @@ exports.setPropU8 = function(cam, prop, value, callback) {
 
 exports.getPropU8 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt8 && data.readUInt8(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt8 && data.length >= 1 && data.readUInt8(0));
 	});
 }
 
@@ -198,7 +198,7 @@ exports.setPropU16 = function(cam, prop, value, callback) {
 
 exports.getPropU16 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.readUInt16LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt16LE && data.length >= 2 && data.readUInt16LE(0));
 	});
 }
 
@@ -210,7 +210,7 @@ exports.setProp16 = function(cam, prop, value, callback) {
 
 exports.getProp16 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt16LE && data.readInt16LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt16LE && data.length >= 2 && data.readInt16LE(0));
 	});
 }
 
@@ -222,7 +222,7 @@ exports.setPropU32 = function(cam, prop, value, callback) {
 
 exports.getPropU32 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt32LE && data.readUInt32LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readUInt32LE && data.length >= 4 && data.readUInt32LE(0));
 	});
 }
 
@@ -234,7 +234,7 @@ exports.setProp32 = function(cam, prop, value, callback) {
 
 exports.getProp32 = function(cam, prop, callback) {
 	exports.transaction(cam, exports.PTP_OC_GetDevicePropValue, [prop], null, function(err, responseCode, data) {
-		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt32LE && data.readInt32LE(0));
+		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data && data.readInt32LE && data.length >= 4 && data.readInt32LE(0));
 	});
 }
 

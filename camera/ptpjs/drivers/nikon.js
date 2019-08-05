@@ -593,49 +593,28 @@ driver.refresh = function(camera, callback) {
     });
 }
 
-driver.init = function(camera, callback) {
+driver.init = function(camera, callback, _tries) {
     camera.supportsNativeHDR = driver.supportsNativeHDR;
     camera._objectsAdded = [];
+    if(!_tries) _tries = 0;
     ptp.init(camera._dev, function(err, di) {
-        async.series([
-            //function(cb){ptp.setPropU16(camera._dev, 0xd38c, 1, cb);}, // PC mode
-            //function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
-            function(cb){driver.refresh(camera, cb);}  // get settings
-        ], function(err) {
-            
-            var shutterEv = camera.exposure.shutter.ev; 
-            var capture = function() {
-
-                driver.capture(camera, "", {}, function(err, thumb, filename, rawImage){
-                    if(err) {
-                        if(err != 0x2019) _logD("capture err result:", ptp.hex(err));
-                    } else {
-                        _logD("captured image:", filename);
-                    }
-                    var delay = 1000;
-                    if(err == 0x2019) delay = 50; 
-                    setTimeout(function() {
-                        shutterEv++;
-                        var set = function() {
-                            driver.set(camera, 'shutter', shutterEv, function(err) {
-                                if(err == 0x2019) return setTimeout(set, 100);
-                                if(err) _logD("set error:", err);
-                                capture();
-                            });
-                        }
-                        set();
-                    }, delay);
-                });
+        if(err) {
+            _logE("init error:", err);
+            if(_tries < 5) {
+                _tries++;
+                setTimeout(function(){
+                    driver.init(camera, callback, _tries);
+                }, 500);
+            } else {
+                callback && callback(err);
             }
-            //capture();
-            //driver.refresh(camera);
-
-            //ptp.listProp(camera._dev, 0x500D, function(err, current, list) {
-            //    _logD("0x500D", current, list);
-            //});
-
-            callback && callback(err);
-        });
+        } else {
+            async.series([
+                function(cb){driver.refresh(camera, cb);}  // get settings
+            ], function(err) {
+                callback && callback(err);
+            });
+        }
     });
 }
 
