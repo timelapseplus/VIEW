@@ -204,8 +204,8 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: ptp.setProp32,
-        getFunction: ptp.getProp32,
+        setFunction: ptp.setProp16,
+        getFunction: ptp.getProp16,
         listFunction: ptp.listProp,
         code: 0x500F,
         ev: true,
@@ -244,11 +244,11 @@ var properties = {
             { name: "40000",    ev: -8 - 2 / 3,  code: 40000 },
             { name: "51200",    ev: -9,          code: 51200 },
             { name: "64000",    ev: -9 - 1 / 3,  code: 64000 },
-            { name: "80000",    ev: -9 - 2 / 3,  code: 80000 },
-            { name: "102400",   ev: -10,         code: 102400 },
-            { name: "128000",   ev: -10 - 1 / 3, code: 128000 },
-            { name: "160000",   ev: -10 - 2 / 3, code: 160000 },
-            { name: "204800",   ev: -11,         code: 204800 },
+            //{ name: "80000",    ev: -9 - 2 / 3,  code: 80000 },
+            //{ name: "102400",   ev: -10,         code: 102400 },
+            //{ name: "128000",   ev: -10 - 1 / 3, code: 128000 },
+            //{ name: "160000",   ev: -10 - 2 / 3, code: 160000 },
+            //{ name: "204800",   ev: -11,         code: 204800 },
         ]
     },
     'format': {
