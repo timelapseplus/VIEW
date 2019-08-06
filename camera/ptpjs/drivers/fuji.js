@@ -670,7 +670,7 @@ driver.liveviewImage = function(camera, callback, _tries) {
             driver.liveviewMode(camera, false);
         }, 5000);
         ptp.getObject(camera._dev, 0x80000001, function(err, image) {
-            if(err == 0x2009 && tries < 5) {
+            if(err == 0x2009 && _tries < 5) {
                 _tries++;
                 _logE("error fetching LV image:", ptp.hex(err));
                 return setTimeout(function() {driver.liveviewImage(camera, callback, _tries);}, 100);
