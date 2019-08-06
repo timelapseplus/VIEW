@@ -91,6 +91,17 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02d3': {
+            name: "Fuji GFX 50S",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
     '04cb:02dc': {
             name: "Fuji GFX 50R",
             supports: {
