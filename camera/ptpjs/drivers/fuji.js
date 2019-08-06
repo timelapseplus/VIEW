@@ -400,6 +400,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.setPropU16(camera._dev, 0xd207, 2, cb);},  // USB control
             function(cb){driver.refresh(camera, cb);}  // get settings
         ], function(err) {
+            if(err) _logE("error during init:", ptp.hex(err));
             callback && callback(err);
         });
     });

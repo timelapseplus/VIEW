@@ -433,6 +433,7 @@ exports.terminateOpenCapture = function(cam, callback) {
 
 exports.hex = function(val) {
 	if(val == null) return "null";
+	if(typeof val != 'number') return val;
 	return "0x" + val.toString(16);
 }
 
