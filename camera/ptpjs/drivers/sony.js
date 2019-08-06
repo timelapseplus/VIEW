@@ -815,7 +815,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                     return cb(err);
                                 }
                             } else {
-                                _logE("error setting " + ptp.hex(properties[param].code) + ":". err);
+                                _logE("error setting " + ptp.hex(properties[param].code) + ": " + err);
                                 return cb(err);
                             }
                         });

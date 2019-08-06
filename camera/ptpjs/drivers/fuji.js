@@ -443,7 +443,7 @@ driver.set = function(camera, param, value, callback, tries) {
                             cb(err);
                             exposureEvent(camera);
                         } else {
-                            _logE("error setting " + ptp.hex(properties[param].code) + ":". err);
+                            _logE("error setting " + ptp.hex(properties[param].code) + ": " + err);
                             return cb(err);
                         }
                     });
@@ -650,7 +650,8 @@ driver.liveviewMode = function(camera, enable, callback) {
     }
 }
 
-driver.liveviewImage = function(camera, callback) {
+driver.liveviewImage = function(camera, callback, _tries) {
+    if(!_tries) _tries = 0;
     if(camera.status.liveview) {
         if(camera._dev._lvTimer) clearTimeout(camera._dev._lvTimer);
         camera._dev._lvTimer = setTimeout(function(){
@@ -658,7 +659,12 @@ driver.liveviewImage = function(camera, callback) {
             driver.liveviewMode(camera, false);
         }, 5000);
         ptp.getObject(camera._dev, 0x80000001, function(err, image) {
-            ptp.deleteObject(camera._dev, 0x80000001);
+            if(err == 0x2009 && tries < 5) {
+                _tries++;
+                return setTimeout(function() {driver.liveviewImage(camera, callback, _tries);}, 100);
+            } else {
+                ptp.deleteObject(camera._dev, 0x80000001);
+            }
             callback && callback(err, image);
         });
     } else {

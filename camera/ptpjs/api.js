@@ -500,6 +500,12 @@ function incEv(ev, evList) {
 	if(!evList) return null;
 	var i = evIndexOf(ev, evList);
 	if(i != -1 && i < evList.length - 1 && evList[i + 1] != null) return evList[i + 1];
+	if(ev != null && evList && evList.length > 0) {
+		var min = Math.min.apply(null, evList),
+	    	max = Math.max.apply(null, evList);
+	    if(ev < min) return min;
+	    if(ev > max) return max;
+	}
 	return ev;
 }
 
@@ -507,6 +513,12 @@ function decEv(ev, evList) {
 	if(!evList) return null;
 	var i = evIndexOf(ev, evList);
 	if(i > 0 && evList[i - 1] != null) return evList[i - 1];
+	if(ev != null && evList && evList.length > 0) {
+		var min = Math.min.apply(null, evList),
+	    	max = Math.max.apply(null, evList);
+	    if(ev < min) return min;
+	    if(ev > max) return max;
+	}
 	return ev;
 }
 

@@ -666,7 +666,7 @@ driver.set = function(camera, param, value, callback) {
                             cb(err);
                             exposureEvent(camera);
                         } else {
-                            _logE("error setting " + ptp.hex(properties[param].code) + ":". err);
+                            _logE("error setting " + ptp.hex(properties[param].code) + ": " + err);
                             return cb(err);
                         }
                     });
