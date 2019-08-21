@@ -275,13 +275,19 @@ var properties = {
         listParser: parseFormatList,
         ev: false,
         values: [
-            { name: "--",                   value: null,        code: 0x01  },
-            { name: "JPEG Large Fine",      value: null,        code: 0x02  },
-            { name: "JPEG Large",           value: null,        code: 0x03  },
-            { name: "JPEG Medium Fine",     value: null,        code: 0x04  },
-            { name: "JPEG Medium",          value: null,        code: 0x05  },
-            { name: "JPEG Small Fine",      value: null,        code: 0x06  },
-            { name: "JPEG Small",           value: null,        code: 0x07  },
+            { name: "JPEG Large Fine",      value: 'jpeg',        code: 0x0110010003  },
+            { name: "JPEG Large",           value: 'jpeg',        code: 0x0110010002  },
+            { name: "JPEG Medium Fine",     value: 'jpeg',        code: 0x0110010103  },
+            { name: "JPEG Medium",          value: 'jpeg',        code: 0x0110010102  },
+            { name: "JPEG Small Fine",      value: 'jpeg',        code: 0x0110010e03  },
+            { name: "JPEG Small",           value: 'jpeg',        code: 0x0110010e02  },
+            { name: "JPEG Small2",          value: 'jpeg',        code: 0x0110010f03  },
+
+            { name: "RAW+JPEG",             value: 'raw+jpeg',    code: 0x0210060004  },
+            { name: "CRAW+JPEG",            value: 'raw+jpeg',    code: 0x0210060003  },
+            { name: "RAW",                  value: 'raw',         code: 0x0110060004  },
+            { name: "CRAW",                 value: 'raw',         code: 0x0110060003  },
+
         ]
     },
     'framesRemaining': {
