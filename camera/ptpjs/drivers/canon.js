@@ -374,6 +374,7 @@ driver._event = function(camera, data) { // events received
 var EOS_EC_PROPERTY_CHANGE = 0xC189;
 var EOS_EC_PROPERTY_VALUES = 0xC18A;
 var EOS_EC_OBJECT_CREATED = 0xC181;
+var EOS_EC_OBJECT_CREATED_R = 0xC1A7;
 var EOS_EC_WillShutdownSoon = 0xC18D;
 
 var EOS_DPC_APERTURE = 0xD101;
@@ -648,7 +649,7 @@ function pollEvents(camera, callback) {
                     _logD("unknown event list", ptp.hex(event_item));
                 }
             }
-            else if(event_type == EOS_EC_OBJECT_CREATED)
+            else if(event_type == EOS_EC_OBJECT_CREATED || event_type == EOS_EC_OBJECT_CREATED_R)
             {
                 camera._busy = false;
                 var newObject = data.readUInt32LE(i + 4 * 2);
