@@ -460,7 +460,7 @@ driver.refresh = function(camera, callback, noEvent) {
                             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                             var currentMapped = mapPropertyItem(current, properties[key].values);
                             if(!currentMapped) {
-                                _logE(key, "item not found:", current);
+                                _logE(key, "(desc) item not found:", current);
                                 currentMapped = {
                                     name: "UNKNOWN",
                                     ev: null,
@@ -474,7 +474,7 @@ driver.refresh = function(camera, callback, noEvent) {
                             for(var i = 0; i < list.length; i++) {
                                 var mappedItem = mapPropertyItem(list[i], properties[key].values);
                                 if(!mappedItem) {
-                                    _logE(key, "list item not found:", list[i]);
+                                    _logE(key, "(desc) list item not found:", list[i]);
                                 } else {
                                     mappedList.push(mappedItem);
                                 }
@@ -493,7 +493,7 @@ driver.refresh = function(camera, callback, noEvent) {
                             if(properties[key].values) {
                                 var currentMapped = mapPropertyItem(current, properties[key].values);
                                 if(!currentMapped) {
-                                    _logE(key, "item not found:", current);
+                                    _logE(key, "(get) item not found:", current);
                                     currentMapped = {
                                         name: "UNKNOWN",
                                         ev: null,
@@ -621,7 +621,12 @@ function pollEvents(camera, callback) {
                         }
                         camera[properties[param].category][param].list = [];
                         var cameraList = []
-                        for(x = 0; x < event_size / 4 - 5; x++)
+                        var cameraListLength = event_size / 4 - 5;
+                        if(cameraListLength > 1024) {
+                            _logE(param, "list length too long:", cameraListLength);
+                            continue;
+                        }
+                        for(x = 0; x < cameraListLength; x++)
                         {
                             var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
                             cameraList.push(cameraValue);
