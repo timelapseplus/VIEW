@@ -5657,7 +5657,7 @@ core.on('intervalometer.status', function(msg) {
     cache.intervalometerStatus = msg;
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
-    var evText = (Math.round(lists.getEvFromSettings(core.cameraSettings) * 10) / 10).toString();
+    var evText = (Math.round(lists.getEvFromSettings(msg.cameraSettings) * 10) / 10).toString();
     var statusScreen = {
         isoText: (typeof msg.cameraSettings.iso == 'object') ? msg.cameraSettings.iso.name : msg.cameraSettings.iso,
         shutterText: (typeof msg.cameraSettings.shutter == 'object') ? msg.cameraSettings.shutter.name : msg.cameraSettings.shutter,
