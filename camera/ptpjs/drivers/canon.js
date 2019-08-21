@@ -601,7 +601,7 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown event change", ptp.hex(event_item), " = ", ptp.hex(event_value));
+                    _logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
                 }
             }
             else if(event_type == EOS_EC_PROPERTY_VALUES)
@@ -657,6 +657,7 @@ function pollEvents(camera, callback) {
             }
             else if(event_type > 0)
             {
+                _logD("unknown event type", ptp.hex(event_type), "item", ptp.hex(event_item));
                 //DEBUG(PSTR("\r\n Unknown: "));
                 //sendHex((char *)&event_type);
                 //DEBUG(PSTR("\r\n    Size: "));
@@ -700,7 +701,7 @@ driver.init = function(camera, callback) {
         ], function(err) {
             var setupPoll = function() {
                 setTimeout(function() {
-                    if(camera && camera._dev && camera._dev.connected) {
+                    if(camera && camera._dev && camera._dev) {
                         if(camera.busy) {
                             setupPoll();
                         } else {
