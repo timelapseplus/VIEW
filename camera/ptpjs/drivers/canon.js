@@ -1085,8 +1085,8 @@ driver.setFocusPoint = function(camera, x, y, callback) {
 }
 
 driver.lvZoom = function(camera, zoom, callback) {
-    _logD("lvZoom:", true);
-    ptp.transaction(camera._dev, 0x9158, [zoom ? 1 : 10], null, function(err) { // zoom can also be set to 5
+    _logD("lvZoom:", zoom);
+    ptp.transaction(camera._dev, 0x9158, [zoom ? 10 : 1], null, function(err) { // zoom can also be set to 5
         if(err) _logE("lvZoom error:", ptp.hex(err));
         callback && callback(err);
     });
