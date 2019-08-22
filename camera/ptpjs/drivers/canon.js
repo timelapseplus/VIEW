@@ -275,18 +275,17 @@ var properties = {
         listParser: parseFormatList,
         ev: false,
         values: [
-            { name: "JPEG Large Fine",      value: 'jpeg',        code: 0x0110010003  },
-            { name: "JPEG Large",           value: 'jpeg',        code: 0x0110010002  },
-            { name: "JPEG Medium Fine",     value: 'jpeg',        code: 0x0110010103  },
-            { name: "JPEG Medium",          value: 'jpeg',        code: 0x0110010102  },
-            { name: "JPEG Small Fine",      value: 'jpeg',        code: 0x0110010e03  },
-            { name: "JPEG Small",           value: 'jpeg',        code: 0x0110010e02  },
-            { name: "JPEG Small2",          value: 'jpeg',        code: 0x0110010f03  },
-
-            { name: "RAW+JPEG",             value: 'raw+jpeg',    code: 0x0210060004  },
-            { name: "CRAW+JPEG",            value: 'raw+jpeg',    code: 0x0210060003  },
-            { name: "RAW",                  value: 'raw',         code: 0x0110060004  },
-            { name: "CRAW",                 value: 'raw',         code: 0x0110060003  },
+            { name: "JPEG Large Fine",      value: 'jpeg',        code: '0110010003'  },
+            { name: "JPEG Large",           value: 'jpeg',        code: '0110010002'  },
+            { name: "JPEG Medium Fine",     value: 'jpeg',        code: '0110010103'  },
+            { name: "JPEG Medium",          value: 'jpeg',        code: '0110010102'  },
+            { name: "JPEG Small Fine",      value: 'jpeg',        code: '0110010e03'  },
+            { name: "JPEG Small",           value: 'jpeg',        code: '0110010e02'  },
+            { name: "JPEG Small2",          value: 'jpeg',        code: '0110010f03'  },
+            { name: "RAW+JPEG",             value: 'raw+jpeg',    code: '0210060004'  },
+            { name: "CRAW+JPEG",            value: 'raw+jpeg',    code: '0210060003'  },
+            { name: "RAW",                  value: 'raw',         code: '0110060004'  },
+            { name: "CRAW",                 value: 'raw',         code: '0110060003'  },
 
         ]
     },
@@ -313,6 +312,17 @@ var properties = {
         values: [
             { name: "camera",            code: 13  },
             { name: "VIEW",              code: 3  },
+        ]
+    },
+    'imageSize': {
+        name: 'imageSize',
+        category: 'config',
+        setFunction: ptp.setPropU32,
+        getFunction: ptp.getPropU32,
+        listFunction: null,
+        code: 0x5003,
+        ev: false,
+        values: [
         ]
     },
     'focusPos': {
@@ -359,6 +369,21 @@ var properties = {
             { name: "TFT",       value: null,          code: 1  },
             { name: "PC",        value: "pc",          code: 2  },
             { name: "Off",       value: null,          code: 3  },
+        ],
+        ev: false,
+    },
+    'focusMode': {
+        name: 'focusMode',
+        category: 'config',
+        setFunction: setProperty,
+        getFunction: null,
+        listFunction: null,
+        code: 0xD108,
+        values: [
+            { name: "One Shot",   value: 'af',     code: 0  },
+            { name: "Servo",      value: null,     code: 1  },
+            { name: "AI Servo",   value: null,     code: 2  },
+            { name: "Manual",     value: 'mf',     code: 3  },
         ],
         ev: false,
     },
@@ -1018,6 +1043,8 @@ driver.liveviewImage = function(camera, callback, _tries) {
     }
 }
 
+//var PTP_OC_CANON_EOS_TouchAfPosition = 0x915B /* 3 args: type,x,y */
+
 driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
 
@@ -1045,5 +1072,37 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     doStep();
 }
 
+driver.setFocusPoint = function(camera, x, y, callback) {
+    var focusPointObj = camera.config.focusPoint;
+    if(focusPointObj) {
+        //focusPointObj.x = x;
+        //focusPointObj.y = y;
+        //var newPoint = Math.round(y * focusPointObj.xyMax) * focusPointObj.xyMax + Math.round(y * focusPointObj.xyMax);
+        ptp.transaction(camera._dev, 0x9159, [x, y], null, function(err) { // zoom can also be set to 5
+            callback && callback(err);
+        });
+    } else {
+        callback && callback("must be read first");
+    }
+}
+
+driver.lvZoom = function(camera, zoom, callback) {
+    ptp.transaction(camera._dev, 0x9158, [zoom ? 1 : 10], null, function(err) { // zoom can also be set to 5
+        callback && callback(err);
+    });
+}
+
+driver.af = function(camera, callback) {
+    var doAf = function() {
+        ptp.transaction(camera._dev, 0x9154, [], null, function(err) {
+            callback && callback(err);
+        });
+    }
+    if(camera.config && camera.config.focusMode && camera.config.focusMode.value != 'af') {
+        driver.set(camera, 'focusMode', 'af', doAf);
+    } else {
+        doAf();
+    }
+}
 
 module.exports = driver;
