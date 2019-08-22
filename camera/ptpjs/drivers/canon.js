@@ -622,7 +622,7 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    //_logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
+                    _logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
                 }
             }
             else if(event_type == EOS_EC_PROPERTY_VALUES)
@@ -666,16 +666,7 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    var cameraListLength = event_size / 4 - 5;
-                    if(cameraListLength == 3) {
-                        var cameraList = []
-                        for(x = 0; x < cameraListLength; x++)
-                        {
-                            var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
-                            cameraList.push(cameraValue);
-                        }
-                        _logD("unknown event list", ptp.hex(event_item), "items:", cameraList);
-                    }
+                    //_logD("unknown event list", ptp.hex(event_item));
                 }
             }
             else if(event_type == EOS_EC_OBJECT_CREATED || event_type == EOS_EC_OBJECT_CREATED_R)
