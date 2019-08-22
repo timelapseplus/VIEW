@@ -1067,6 +1067,8 @@ driver.setFocusPoint = function(camera, x, y, callback) {
         //focusPointObj.x = x;
         //focusPointObj.y = y;
         //var newPoint = Math.round(y * focusPointObj.xyMax) * focusPointObj.xyMax + Math.round(y * focusPointObj.xyMax);
+        x = Math.round(x * 6000);
+        y = Math.round(y * 4000);
         ptp.transaction(camera._dev, 0x9159, [x, y], null, function(err) { // zoom can also be set to 5
             callback && callback(err);
         });
@@ -1076,8 +1078,9 @@ driver.setFocusPoint = function(camera, x, y, callback) {
 }
 
 driver.lvZoom = function(camera, zoom, callback) {
-    _logD("lvZoom:", zoom);
-    ptp.transaction(camera._dev, 0x9158, [zoom ? 10 : 1], null, function(err) { // zoom can also be set to 5
+    var zoomMultiple = zoom ? 10 : 1;
+    _logD("lvZoom:", zoomMultiple);
+    ptp.transaction(camera._dev, 0x9158, [zoomMultiple], null, function(err) { // zoom can also be set to 5
         if(err) _logE("lvZoom error:", ptp.hex(err));
         callback && callback(err);
     });
