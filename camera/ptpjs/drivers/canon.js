@@ -983,7 +983,7 @@ driver.liveviewMode = function(camera, enable, callback) {
 driver.liveviewImage = function(camera, callback, _tries) {
     if(!_tries) _tries = 0;
     if(camera.status.liveview) {
-        ptp.transaction(camera._dev, 0x9153, [0x00100000], null, function(err, responseCode, data) {
+        ptp.transaction(camera._dev, 0x9153, [0x00200000], null, function(err, responseCode, data) {
             if(!err && data) {
                 var index = 0;
                 while (index < data.length) {
