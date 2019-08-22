@@ -314,17 +314,6 @@ var properties = {
             { name: "VIEW",              code: 3  },
         ]
     },
-    'imageSize': {
-        name: 'imageSize',
-        category: 'config',
-        setFunction: ptp.setPropU32,
-        getFunction: ptp.getPropU32,
-        listFunction: null,
-        code: 0x5003,
-        ev: false,
-        values: [
-        ]
-    },
     'focusPos': {
         name: 'focusPos',
         category: 'status',
@@ -633,7 +622,7 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
+                    //_logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
                 }
             }
             else if(event_type == EOS_EC_PROPERTY_VALUES)
@@ -677,7 +666,16 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown event list", ptp.hex(event_item));
+                    var cameraListLength = event_size / 4 - 5;
+                    if(cameraListLength == 3) {
+                        var cameraList = []
+                        for(x = 0; x < cameraListLength; x++)
+                        {
+                            var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
+                            cameraList.push(cameraValue);
+                        }
+                        _logD("unknown event list", ptp.hex(event_item), "items:", cameraList);
+                    }
                 }
             }
             else if(event_type == EOS_EC_OBJECT_CREATED || event_type == EOS_EC_OBJECT_CREATED_R)
@@ -694,7 +692,7 @@ function pollEvents(camera, callback) {
             }
             else if(event_type > 0)
             {
-                _logD("unknown event type", ptp.hex(event_type), "item", ptp.hex(event_item));
+                //_logD("unknown event type", ptp.hex(event_type), "item", ptp.hex(event_item));
                 //DEBUG(PSTR("\r\n Unknown: "));
                 //sendHex((char *)&event_type);
                 //DEBUG(PSTR("\r\n    Size: "));
