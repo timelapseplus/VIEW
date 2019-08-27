@@ -697,7 +697,8 @@ function equalEv(ev1, ev2) {
     }
     return Math.abs(ev1 - ev2) < 0.15;
 }
-driver.set = function(camera, param, value, callback) {
+driver.set = function(camera, param, value, callback, _tries) {
+    if(!_tries) _tries = 0;
     async.series([
         function(cb){
             var cameraValue = null;
@@ -765,6 +766,12 @@ driver.set = function(camera, param, value, callback) {
             }
         },
     ], function(err) {
+        if(err == 0x2019 && _tries < 10) { // keep trying for up to 1 second if busy
+            _tries++;
+            return setTimeout(function() {
+                driver.set(camera, param, value, callback, _tries);
+            }, 100);
+        }
         if(!properties[param].ev) {
             driver.refresh(camera, callback);
         } else {
