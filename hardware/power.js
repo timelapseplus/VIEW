@@ -50,6 +50,7 @@ power.init = function(disableLight) {
     axpSet(0x33, 0xdc); // set charge rate to 1.5A
     axpSet(0x30, 0x60); // set system current limit to 900mA
     axpSet(0x82, 0xff); // enable ADC for battery monitoring
+    axpSet(0x36, 0b00011111); // PEK configuration
 
     if(disableLight) {
         power.chargeLight = 'disabled';
