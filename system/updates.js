@@ -11,7 +11,7 @@ var apiEndpoint = "/repos/timelapseplus/VIEW/";
 var baseInstallPath = "/home/view/";
 
 var kernelVersion = "#51 PREEMPT Thu Jan 5 13:15:18 EST 2017";
-var uBootVersion = "U-Boot SPL 2016.01 TL+ VIEW -00446-g12f229e-dirty (Dec 23 2016 - 17:47:10)";
+var uBootVersion = "U-Boot SPL 2019.10-rc3TL+ VIEW-00141-g877294b-dirty (Sep 02 2019 - 14:46:09 +0000)";
 
 var libgphoto2Version = "2.5.14.33";
 
