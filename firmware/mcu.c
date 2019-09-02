@@ -59,10 +59,10 @@ void init( void )
 	OCR1A = 100;     /* set top (~100us), 9600 baud */
 	TCNT1 = 0; /* reset counter */
 
-	OCR2A = 14;     /* set top (~17us), 57600 baud */
+	OCR2A = 204;     /* set top (~208us), 4800 baud */
 	TCNT2 = 0; /* reset counter */
 
-	OCR0A = 139;     /* set top (~17us), 57600 baud */
+	OCR0A = 204;     /* set top (~208us), 4800 baud */
 	
 	SREG = sreg_tmp;
 
@@ -225,7 +225,7 @@ void send_auxout(char c)
 		{
 			TCNT0 = 0;
 			TCCR0A = 1 << WGM01;
-			TCCR0B = 1 << CS00; //no prescale, 8MHz
+			TCCR0B = 1 << CS01; // 8MHz / 8
 			TIMSK0 = 1 << OCIE0A;
 		}
 	
