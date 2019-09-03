@@ -7,7 +7,7 @@ var moment = require('moment');
 require('rootpath')();
 var power = require('hardware/power.js');
 var gps = new GPS;
-var MCU_VERSION = 10;
+var MCU_VERSION = 2;
 
 
 var mcu = new EventEmitter();

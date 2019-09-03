@@ -6,7 +6,6 @@ var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 var exec = require('child_process').exec;
 var fs = require('fs');
-var viewAccountName = "elijahparker";
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
 
@@ -178,9 +177,24 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
             var matches = lines[i].match(/: ([0-9a-f]+)/i);
             if(matches.length > 1) {
                 viewId = matches[1];
-                console.log("VIEW_ID:", viewId);
-                app.serial = viewId;
-                connectRemote();
+                if(viewId == "0000000000000000") {
+                    exec('udevadm info -a -n /dev/mmcblk0 | grep "ATTRS{serial}=="', function(error, stdout, stderr) {
+                        res = stdout.trim();
+                        var matches = res.match(/=="(0x[0-9a-f]+)/i);
+                        if(matches.length > 1) {
+                            viewId = matches[1];
+                            console.log("VIEW_ID:", viewId);
+                            app.serial = viewId;
+                            connectRemote();
+                            break;
+                        }
+                    });
+                } else {
+                    console.log("VIEW_ID:", viewId);
+                    app.serial = viewId;
+                    connectRemote();
+                    break;
+                }
             }
         }
     }
