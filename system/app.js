@@ -186,15 +186,14 @@ exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
                             console.log("VIEW_ID:", viewId);
                             app.serial = viewId;
                             connectRemote();
-                            break;
                         }
                     });
                 } else {
                     console.log("VIEW_ID:", viewId);
                     app.serial = viewId;
                     connectRemote();
-                    break;
                 }
+                break;
             }
         }
     }
