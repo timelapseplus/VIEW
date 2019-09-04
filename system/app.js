@@ -85,8 +85,6 @@ app.addJpegFrame = function(frameBuffer) {
 
 //express.get('//')
 
-var viewId = null;
-
 wss.broadcast = function broadcast(data) {
     wss.clients.forEach(function each(client) {
         //console.log("client:", client);
@@ -105,6 +103,7 @@ wss.on('connection', function connection(ws) {
     });
 });
 
+app.serial = null;
 app.remote = false;
 app.authCode = null;
 var wsRemote;
@@ -116,7 +115,7 @@ function connectRemote(version) {
     console.log("connecting to view.tl");
     wsRemote = new WebSocket('wss://app.view.tl/socket/device', {
         headers: {
-            'x-view-id': viewId
+            'x-view-id': app.serial
         }
     });
 
