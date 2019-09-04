@@ -173,8 +173,8 @@ function connectRemote(version) {
 
 var reg = {
     email: false,
-    useNew: true;
-    viewId: "";
+    useNew: true,
+    viewId: ""
 }
 async.series([
     function(cb) {
