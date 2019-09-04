@@ -210,7 +210,7 @@ async.series([
                 res = stdout.trim();
                 var matches = res.match(/=="0x([0-9a-f]+)/i);
                 if(matches.length > 1) {
-                    reg.viewId = reg.viewId.substring(reg.viewId.length - 5) + matches[1];
+                    reg.viewId = reg.viewId.substring(reg.viewId.length - 8) + matches[1];
                 }
             });
         }
