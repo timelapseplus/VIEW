@@ -212,8 +212,11 @@ async.series([
                 if(matches.length > 1) {
                     reg.viewId = reg.viewId.substring(reg.viewId.length - 8) + matches[1];
                 }
+                cb();
             });
-        }
+        } else {
+            cb();
+        } 
     },], 
     function(err) {
         console.log("APP: VIEW_ID" + (reg.useNew ? " (new)" : "(legacy)") + ":", reg.viewId);
