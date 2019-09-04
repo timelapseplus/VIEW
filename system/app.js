@@ -5,7 +5,10 @@ var server = http.Server(express);
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 var exec = require('child_process').exec;
+var async = require('async');
 var fs = require('fs');
+var db = require("./db.js");
+
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
 
@@ -168,36 +171,61 @@ function connectRemote(version) {
     });
 }
 
-app.serial = "unknown";
-// get cpu serial number as unique id for view device
-exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
-    lines = stdout.split('\n');
-    for(var i = 0; i < lines.length; i++) {
-        if(lines[i].indexOf('Serial') === 0) {
-            var matches = lines[i].match(/: ([0-9a-f]+)/i);
-            if(matches.length > 1) {
-                viewId = matches[1];
-                if(viewId == "0000000000000000") {
-                    exec('udevadm info -a -n /dev/mmcblk0 | grep "ATTRS{serial}=="', function(error, stdout, stderr) {
-                        res = stdout.trim();
-                        var matches = res.match(/=="(0x[0-9a-f]+)/i);
-                        if(matches.length > 1) {
-                            viewId = matches[1];
-                            console.log("VIEW_ID:", viewId);
-                            app.serial = viewId;
-                            connectRemote();
-                        }
-                    });
-                } else {
-                    console.log("VIEW_ID:", viewId);
-                    app.serial = viewId;
-                    connectRemote();
-                }
-                break;
+var reg = {
+    email: false,
+    useNew: true;
+    viewId: "";
+}
+async.series([
+    function(cb) {
+        db.get('registrationEmail', function(err, email) {
+            if(!err && email) {
+                reg.email = email;
+                reg.useNew = false;
             }
+            cb(err);
+        });
+    }, function(cb) {
+        db.get('registrationNewId', function(err, id) {
+            if(!err && id) reg.useNew = id;
+            cb(err);
+        });
+    }, function(cb) {
+        exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
+            lines = stdout.split('\n');
+            for(var i = 0; i < lines.length; i++) {
+                if(lines[i].indexOf('Serial') === 0) {
+                    var matches = lines[i].match(/: ([0-9a-f]+)/i);
+                    if(matches.length > 1) {
+                        reg.viewId = matches[1];
+                        break;
+                    }
+                }
+            }
+            cb();
+        });
+    }, function(cb) {
+        if(reg.useNew) {
+            exec('udevadm info -a -n /dev/mmcblk0 | grep "ATTRS{serial}=="', function(error, stdout, stderr) {
+                res = stdout.trim();
+                var matches = res.match(/=="0x([0-9a-f]+)/i);
+                if(matches.length > 1) {
+                    reg.viewId = reg.viewId.substring(reg.viewId.length - 5) + matches[1];
+                }
+            });
+        }
+    },], 
+    function(err) {
+        console.log("APP: VIEW_ID" + (reg.useNew ? " (new)" : "(legacy)") + ":", reg.viewId);
+        app.serial = reg.viewId;
+        connectRemote();
+        if(reg.useNew && reg.useNew != reg.viewId) {
+            db.set('registrationNewId', reg.viewId, function(err) {
+                console.log("APP: Switched to new registration id.");
+            });
         }
     }
-});
+);
 
 function closeApp() {
     app.remoteEnabled = false;
