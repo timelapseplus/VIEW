@@ -1882,7 +1882,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                             (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"));
                         var newDriverUseLiveview = (camera.ptp.new.available && camera.ptp.new.model && camera.ptp.new.model.match(/nikon/i) && !camera.ptp.new.model.match(/ Z /i)) && 
                                             (((camera.ptp.new.cameras[0].camera.config.focusMode && camera.ptp.new.cameras[0].camera.config.focusMode.value != "mf" || camera.ptp.new.model.match(/D850/i))) || 
-                                                (!camera.ptp.new.cameras[0].camera.status.liveview));
+                                                (camera.ptp.new.cameras[0].camera.status.liveview));
                         if(oldDriverUseLiveview || newDriverUseLiveview) {
                             if(oldDriverUseLiveview) {
                                 logEvent("Intervalometer: using Nikon liveview for capture (old driver)");
