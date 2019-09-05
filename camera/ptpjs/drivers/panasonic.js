@@ -60,7 +60,7 @@ var PTP_OC_PANASONIC_SetCaptureTarget =  0x940B;
 
 
 
-driver.supportsNativeHDR = true;
+driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
     '04da:2382': { name: "Panasonic Lumix",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },

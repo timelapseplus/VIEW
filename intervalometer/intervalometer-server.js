@@ -234,6 +234,14 @@ var server = net.createServer(function(c) {
   var ev;
   c.on('error', function(err) {
     console.log("client error:", err);
+    c.ready = false;
+    if(c.wdtInterval) clearInterval(c.wdtInterval);
+    console.log('client disconnected');
+    for(var i = 0; i < clients.length; i++) {
+      if(clients[i].index == c.index) {
+        clients.splice(i, 1);
+      }
+    }
   });
   try {
     sendCameraUpdate();

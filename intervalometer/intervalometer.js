@@ -992,7 +992,7 @@ function setupExposure(cb) {
         });
     }
     if(newDriverEnableLv) {
-        log("\n\nEXP: setupExposure (enabling LV)");
+        logEvent("\n\nEXP: setupExposure (enabling LV)");
         busyExposure = true;
         return camera.ptp.new.liveviewMode(true, function(){
             setupExposure(cb);
@@ -1884,10 +1884,11 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                             (((camera.ptp.new.cameras[0].camera.config.focusMode && camera.ptp.new.cameras[0].camera.config.focusMode.value != "mf" || camera.ptp.new.model.match(/D850/i))) || 
                                                 (!camera.ptp.new.cameras[0].camera.status.liveview));
                         if(oldDriverUseLiveview || newDriverUseLiveview) {
-                            log("Intervalometer: using Nikon liveview for capture");
                             if(oldDriverUseLiveview) {
+                                logEvent("Intervalometer: using Nikon liveview for capture (old driver)");
                                 camera.ptp.liveview(start2);
                             } else {
+                                logEvent("Intervalometer: using Nikon liveview for capture (new driver)");
                                 camera.ptp.new.liveviewMode(true, start2);
                             }
                             intervalometer.status.useLiveview = true;
