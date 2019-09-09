@@ -86,6 +86,7 @@ driver.supportedCameras = {
     '04a9:32ca': {name: "Canon EOS 6d Mark II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32cb': {name: "Canon EOS 77D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32cc': {name: "Canon EOS 200D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:32d2': {name: "Canon EOS M50",            status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04a9:32da': {name: "Canon EOS R",              status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04a9:32e2': {name: "Canon EOS RP",             status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
