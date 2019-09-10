@@ -648,6 +648,7 @@ function pollEvents(camera, callback) {
                             _logE(param, "list length too long:", cameraListLength);
                             continue;
                         }
+                        _logD(param, "list length:", cameraListLength);
                         for(x = 0; x < cameraListLength; x++)
                         {
                             var cameraValue = data.readUInt32LE(i + (x + 5) * 4);
