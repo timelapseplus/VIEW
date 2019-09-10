@@ -346,7 +346,7 @@ api.setPrimaryCamera = function(cameraIndex) {
 }
 
 api.set = function(parameter, value, callback) {
-	console.log("API: setting", parameter, "to", value);
+	console.log("API setEv: setting", parameter, "to", value);
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
 			api.cameras[i].camera.set(parameter, value, callback);
@@ -580,8 +580,10 @@ api.setEv = function(ev, options, callback) {
     if(shutterEv != null && isoEv != null && apertureEv != null) {
         currentEv = api.getEv(shutterEv, apertureEv, isoEv);
     }
-    if(currentEv == null) return callback && callback("insufficient settings available", returnData);
-
+    if(currentEv == null) {
+	    console.log("API setEv: insufficient settings available");
+    	return callback && callback("insufficient settings available", returnData);
+    }
     var origEv = currentEv;
 
     if(equalEv(ev, currentEv)) {
@@ -597,9 +599,9 @@ api.setEv = function(ev, options, callback) {
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
     var isoList = 		listEvs('iso', 			options.isoMax, 		options.isoMin);
 
-    //console.log("API: setEv: shutterList", shutterList);
-    //console.log("API: setEv: apertureList", apertureList);
-    //console.log("API: setEv: isoList", isoList);
+    console.log("API setEv: shutterList.length", shutterList && shutterList.length);
+    console.log("API setEv: apertureList.length", apertureList && apertureList.length);
+    console.log("API setEv: isoList.length", isoList && isoList.length);
 
     if (shutterList && options && options.maxShutterLengthMs) {
         var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
