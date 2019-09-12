@@ -4738,9 +4738,12 @@ nodeCleanup(function (exitCode, signal) {
             //console.log("_getActiveHandles:", process._getActiveHandles());
             //console.log("_getActiveRequests:", process._getActiveRequests());
             nodeCleanup.uninstall();
-            exec("sleep 2; kill -s 9 " + process.pid, function(){
-
-            });
+            //exec("sleep 2; kill -s 9 " + process.pid, function(){
+            //
+            //});
+            setTimeout(function() {
+                process.kill(process.pid, 'SIGKILL');
+            }, 2000);
             process.kill(process.pid);
         });
     }
