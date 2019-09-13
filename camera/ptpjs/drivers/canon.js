@@ -665,7 +665,7 @@ function pollEvents(camera, callback) {
                         }
                         found = true;
                         if(param == 'shutter') {
-                            _logD(param, "complete list length:", camera[properties[param].category][param].list.length);
+                            _logD(properties[param].category, param, "complete list length:", camera[properties[param].category][param].list.length);
                         }
                         break;
                     }
