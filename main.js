@@ -4743,8 +4743,8 @@ nodeCleanup(function (exitCode, signal) {
             //});
             setTimeout(function() {
                 process.kill(process.pid, 'SIGKILL');
-            }, 2000);
-            process.kill(process.pid);
+            }, 1000);
+            //process.kill(process.pid);
         });
     }
     return false;
