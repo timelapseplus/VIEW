@@ -464,10 +464,7 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 	//console.log("API:", param, "base", base);
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
-	//console.log("API:", param, "base list", list);
-	var distinctEv = function(value, index) {
-		return
-	}
+	console.log("API:", param, "base list", list);
 
 	return list.map(function(item) {
 		return item.ev;
@@ -599,7 +596,7 @@ api.setEv = function(ev, options, callback) {
     var apertureList = 	listEvs('aperture', 	options.apertureMin, 	options.apertureMax);
     var isoList = 		listEvs('iso', 			options.isoMax, 		options.isoMin);
 
-    console.log("API setEv: shutterList.length", shutterList && shutterList.length);
+    console.log("API setEv: shutterList.length", shutterList && shutterList.length, "max =", options.shutterMax);
     console.log("API setEv: apertureList.length", apertureList && apertureList.length);
     console.log("API setEv: isoList.length", isoList && isoList.length);
 
