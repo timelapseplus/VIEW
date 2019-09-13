@@ -608,6 +608,8 @@ function pollEvents(camera, callback) {
                             if(!newItem) {
                                 _logE(param, "current value", ptp.hex(event_value), "not found");
                                 break;
+                            } else if(newItem.list) {
+                                delete newItem.list;
                             }
                         } else {
                             newItem = {
@@ -616,6 +618,7 @@ function pollEvents(camera, callback) {
                             }
                         }
                         if(!camera[properties[param].category][param]) {
+                            _logD("creating new item for", param, "category", properties[param].category);
                             newItem.list = [];
                             camera[properties[param].category][param] = {};
                         }
