@@ -641,13 +641,13 @@ function pollEvents(camera, callback) {
                                 list: []
                             }
                         }
-                        camera[properties[param].category][param].list = [];
                         var cameraList = []
                         var cameraListLength = event_size / 4 - 5;
                         if(cameraListLength > 1024) {
                             _logE(param, "list length too long:", cameraListLength);
                             continue;
                         }
+                        camera[properties[param].category][param].list = [];
                         _logD(param, "list length:", cameraListLength);
                         for(x = 0; x < cameraListLength; x++)
                         {
@@ -711,6 +711,9 @@ function pollEvents(camera, callback) {
 //
         //    }
         //}
+        if(camera.exposure.shutter) {
+            _logD("SHUTTER LIST LENGTH:", camera.exposure.shutter.list.length);
+        }
 
         callback && callback();
     });
