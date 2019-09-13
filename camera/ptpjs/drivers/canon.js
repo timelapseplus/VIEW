@@ -664,6 +664,9 @@ function pollEvents(camera, callback) {
                             }
                         }
                         found = true;
+                        if(param == 'shutter') {
+                            _logD(param, "complete list length:", camera[properties[param].category][param].list.length);
+                        }
                         break;
                     }
                 }
@@ -712,7 +715,9 @@ function pollEvents(camera, callback) {
         //    }
         //}
         if(camera.exposure.shutter) {
-            _logD("SHUTTER LIST LENGTH:", camera.exposure.shutter.list.length);
+            _logD("final shutter list lenght:", camera.exposure.shutter.list.length);
+        } else {
+            _logD("shutter not defined");
         }
 
         callback && callback();
