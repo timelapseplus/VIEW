@@ -579,6 +579,11 @@ function pollEvents(camera, callback) {
             var event_type = data.readUInt32LE(i + 4 * 1);
 
             if(i + 4 * 4 > data.length) {
+                if(camera.exposure.shutter) {
+                    _logD("final shutter list length:", camera.exposure.shutter.list.length);
+                } else {
+                    _logD("shutter not defined");
+                }
                 return callback && callback();
             }
 
@@ -714,11 +719,6 @@ function pollEvents(camera, callback) {
 //
         //    }
         //}
-        if(camera.exposure.shutter) {
-            _logD("final shutter list lenght:", camera.exposure.shutter.list.length);
-        } else {
-            _logD("shutter not defined");
-        }
 
         callback && callback();
     });
