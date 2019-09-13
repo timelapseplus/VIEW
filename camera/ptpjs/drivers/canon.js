@@ -609,6 +609,7 @@ function pollEvents(camera, callback) {
                                 _logE(param, "current value", ptp.hex(event_value), "not found");
                                 break;
                             } else if(newItem.list) {
+                                _logD("removing list item from", param, "update");
                                 delete newItem.list;
                             }
                         } else {
