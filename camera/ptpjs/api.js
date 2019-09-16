@@ -564,7 +564,7 @@ api.setEv = function(ev, options, callback) {
     var apertureEnabled = false;
     if(options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
 
-    if (!apertureEv) {
+    if (apertureEv == null) {
         apertureEnabled = false;
         apertureEv = options.fixedApertureEv != null ? options.fixedApertureEv : -5; // default to f/2.8
     }
