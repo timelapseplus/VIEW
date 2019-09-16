@@ -414,6 +414,10 @@ httpServer.on('connection', function (socket) {
   socket.setTimeout(4000);
 });
 
+httpServer.on('error', function (error) {
+    console.log("APP: server error:", error);
+})
+
 function closeHttpServer() {
     // Close the server
     httpServer.close(function () { console.log('Server closed!'); });
