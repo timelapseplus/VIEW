@@ -412,6 +412,7 @@ exec('ps aux | grep "/main.js"', function(err, res) {
             var matches = lines[i].match(/root\s+([0-9]+)/);
             if(matches && matches.length > 1) {
                 pid = parseInt(matches[1].trim());
+                if(pid == process.pid) continue;
                 console.log("Terminating existing process: PID", pid);
                 process.kill(pid, 'SIGKILL');
             }
