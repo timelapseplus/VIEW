@@ -20,6 +20,28 @@ var wss = new WebSocketServer({
     port: CLIENT_WS_PORT
 });
 
+wss.on('err', function(err){
+    console.log("APP: websocket server error:", err);
+});
+
+wss.broadcast = function broadcast(data) {
+    wss.clients.forEach(function each(client) {
+        //console.log("client:", client);
+        try {
+            if (client) client.send(data);
+        } catch (err) {
+            console.log("broadcast error:", err);
+        }
+    });
+};
+
+wss.on('connection', function connection(ws) {
+    ws.on('message', function incoming(message) {
+        //console.log('received: %s', message);
+        receive_message(message, ws);
+    });
+});
+
 var EventEmitter = require("events").EventEmitter;
 
 var app = new EventEmitter();
@@ -89,23 +111,6 @@ app.addJpegFrame = function(frameBuffer) {
 
 //express.get('//')
 
-wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-        //console.log("client:", client);
-        try {
-            if (client) client.send(data);
-        } catch (err) {
-            console.log("broadcast error:", err);
-        }
-    });
-};
-
-wss.on('connection', function connection(ws) {
-    ws.on('message', function incoming(message) {
-        //console.log('received: %s', message);
-        receive_message(message, ws);
-    });
-});
 
 app.serial = null;
 app.remote = false;
@@ -240,7 +245,7 @@ function closeApp() {
     if(wsRemote && wsRemote.destroy) {
         wsRemote.close();
     }
-    wss.clients.forEach(function (client) {
+    if(wss && wss.clients) wss.clients.forEach(function (client) {
         try {
             if (client && client.close) client.close();
         } catch (err) {
