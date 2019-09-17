@@ -398,6 +398,7 @@ app.sendLogs = sendLogs;
 app.close = closeApp;
 
 var httpServer;
+var sockets = {}, nextSocketId = 0;
 
 var exec = require('child_process').exec;
 exec('ps aux | grep "/main.js"', function(err, res) {
@@ -411,7 +412,7 @@ exec('ps aux | grep "/main.js"', function(err, res) {
             var matches = lines[i].match(/root\s+([0-9]+)/);
             if(matches && matches.length > 1) {
                 pid = parseInt(matches[1].trim());
-                console.log("PID:", pid);
+                console.log("Terminating existing process: PID", pid);
                 process.kill(pid, 'SIGKILL');
             }
         }
@@ -420,26 +421,25 @@ exec('ps aux | grep "/main.js"', function(err, res) {
         httpServer = server.listen(CLIENT_SERVER_PORT, function() {
             console.log('listening on *:' + CLIENT_SERVER_PORT);
         });
+
+        httpServer.on('connection', function (socket) {
+          // Add a newly connected socket
+          var socketId = nextSocketId++;
+          sockets[socketId] = socket;
+          console.log('socket', socketId, 'opened');
+
+          // Remove the socket when it closes
+          socket.on('close', function () {
+            console.log('socket', socketId, 'closed');
+            delete sockets[socketId];
+          });
+
+          // Extend socket lifetime for demo purposes
+          socket.setTimeout(4000);
+        });
     }, 5000);
 });
 
-
-var sockets = {}, nextSocketId = 0;
-httpServer.on('connection', function (socket) {
-  // Add a newly connected socket
-  var socketId = nextSocketId++;
-  sockets[socketId] = socket;
-  console.log('socket', socketId, 'opened');
-
-  // Remove the socket when it closes
-  socket.on('close', function () {
-    console.log('socket', socketId, 'closed');
-    delete sockets[socketId];
-  });
-
-  // Extend socket lifetime for demo purposes
-  socket.setTimeout(4000);
-});
 
 function closeHttpServer() {
     // Close the server
