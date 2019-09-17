@@ -16,31 +16,7 @@ var db = require("./db.js");
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
 
-var wss = new WebSocketServer({
-    port: CLIENT_WS_PORT
-});
-
-wss.on('err', function(err){
-    console.log("APP: websocket server error:", err);
-});
-
-wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-        //console.log("client:", client);
-        try {
-            if (client) client.send(data);
-        } catch (err) {
-            console.log("broadcast error:", err);
-        }
-    });
-};
-
-wss.on('connection', function connection(ws) {
-    ws.on('message', function incoming(message) {
-        //console.log('received: %s', message);
-        receive_message(message, ws);
-    });
-});
+var wss; // defined after checking processes
 
 var EventEmitter = require("events").EventEmitter;
 
@@ -346,7 +322,7 @@ function send_message(type, object, socket, callback) {
         if (socket) {
             socket.send(msg_string, callback);
         } else {
-            wss.broadcast(msg_string);
+            if(wss) wss.broadcast(msg_string);
             if (app.remote) wsRemote.send(msg_string);
         }
     } catch (err) {
@@ -445,6 +421,33 @@ exec('ps aux | grep "/main.js"', function(err, res) {
           // Extend socket lifetime for demo purposes
           socket.setTimeout(4000);
         });
+
+        wss = new WebSocketServer({
+            port: CLIENT_WS_PORT
+        });
+
+        wss.on('err', function(err){
+            console.log("APP: websocket server error:", err);
+        });
+
+        wss.broadcast = function broadcast(data) {
+            wss.clients.forEach(function each(client) {
+                //console.log("client:", client);
+                try {
+                    if (client) client.send(data);
+                } catch (err) {
+                    console.log("broadcast error:", err);
+                }
+            });
+        };
+
+        wss.on('connection', function connection(ws) {
+            ws.on('message', function incoming(message) {
+                //console.log('received: %s', message);
+                receive_message(message, ws);
+            });
+        });
+
     }, killedProcess ? 30000 : 5000);
 });
 
