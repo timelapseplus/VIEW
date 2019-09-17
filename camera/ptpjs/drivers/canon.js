@@ -579,11 +579,6 @@ function pollEvents(camera, callback) {
             var event_type = data.readUInt32LE(i + 4 * 1);
 
             if(i + 4 * 4 > data.length) {
-                if(camera.exposure.shutter) {
-                    _logD("final shutter list length:", camera.exposure.shutter.list.length);
-                } else {
-                    _logD("shutter not defined");
-                }
                 return callback && callback();
             }
 
@@ -907,7 +902,7 @@ function getImage(camera, timeout, callback) {
                 results.indexNumber = objectId;
                 if(camera.thumbnail) {
                     var thumbMethod = 'getThumb';
-                    if(camera.flags.rawThumbBug) thumbMethod = 'getThumbFromPartial';
+                    if(camera._driver.flags.rawThumbBug) thumbMethod = 'getThumbFromPartial';
                     _logD("thumbnail method:", thumbMethod);
                     ptp[thumbMethod](camera._dev, objectId, function(err, jpeg) {
                         results.thumb = jpeg;

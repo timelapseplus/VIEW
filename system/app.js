@@ -403,12 +403,12 @@ var sockets = {}, nextSocketId = 0;
 var exec = require('child_process').exec;
 exec('ps aux | grep "/main.js"', function(err, res) {
     if(!err && res) {
-        console.log("res:", res);
+        //console.log("res:", res);
         var lines = res.split('\n');
         for(var i = 0; i < lines.length; i++) {
             if(lines[i].indexOf('grep') > 0) continue;
             if(lines[i].indexOf('forever') > 0) continue;
-            console.log("line:", lines[i]);
+            //console.log("line:", lines[i]);
             var matches = lines[i].match(/root\s+([0-9]+)/);
             if(matches && matches.length > 1) {
                 pid = parseInt(matches[1].trim());
