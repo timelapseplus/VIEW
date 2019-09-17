@@ -397,9 +397,14 @@ server.on('error', function (error) {
     console.log("APP: server error:", error);
 })
 
-var httpServer = server.listen(CLIENT_SERVER_PORT, function() {
-    console.log('listening on *:' + CLIENT_SERVER_PORT);
-});
+var httpServer;
+try {
+    httpServer = server.listen(CLIENT_SERVER_PORT, function() {
+        console.log('listening on *:' + CLIENT_SERVER_PORT);
+    });
+} catch(e) {
+    console.log("APP: caught server error:", e);
+}
 
 var sockets = {}, nextSocketId = 0;
 httpServer.on('connection', function (socket) {
