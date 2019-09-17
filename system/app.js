@@ -1,13 +1,17 @@
 var Express = require('express');
 var express = Express();
 var http = require('http');
-var server = http.Server(express);
+//var server = http.Server(express);
+var server = http.createServer(express);
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 var exec = require('child_process').exec;
 var async = require('async');
 var fs = require('fs');
 var db = require("./db.js");
+
+
+
 
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
