@@ -293,6 +293,7 @@ function tryConnectDevice(device) {
 		}
 		if(camera) {
 			camera.supports = found.supports;
+			camera.flags = found.flags;
 			camera.init(function(err) {
 				api.cameras.push({
 					model: found.name,
