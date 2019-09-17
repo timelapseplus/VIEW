@@ -410,6 +410,10 @@ try {
     console.log("APP: caught server error:", e);
 }
 
+httpServer.on('error', function (error) {
+    console.log("APP: httpserver error:", error);
+})
+
 var sockets = {}, nextSocketId = 0;
 httpServer.on('connection', function (socket) {
   // Add a newly connected socket
