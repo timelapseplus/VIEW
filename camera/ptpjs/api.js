@@ -265,7 +265,8 @@ function matchDriver(device) {
 				return {
 					driver: DRIVERS[i],
 					name: DRIVERS[i].supportedCameras[id].name,
-					supports: DRIVERS[i].supportedCameras[id].supports
+					supports: DRIVERS[i].supportedCameras[id].supports,
+					flags: DRIVERS[i].supportedCameras[id].flags || {}
 				}
 			}
 		}

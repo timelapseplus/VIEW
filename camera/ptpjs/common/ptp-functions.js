@@ -382,6 +382,18 @@ exports.getThumb = function(cam, objectId, callback) {
 	});
 }
 
+exports.getThumbFromPartial = function(cam, objectId, callback) {
+	exports.transaction(cam, exports.PTP_OC_GetPartialObject, [objectId, 0x0, 0x8000], null, function(err, responseCode, data) {
+		err = err || (responseCode == 0x2001 ? null : responseCode);
+		if(err) {
+			data = null;
+		} else {
+			data = exports.extractJpeg(data);
+		}
+		callback && callback(err, data);
+	});
+}
+
 exports.deleteObject = function(cam, objectId, callback) {
 	exports.transaction(cam, exports.PTP_OC_DeleteObject, [objectId], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
