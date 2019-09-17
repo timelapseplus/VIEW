@@ -290,9 +290,9 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
     var buf = new Buffer('04a9020400004004010004000400040000', 'hex');
 
     buf.writeUInt32LE(mode_flags, 5);
-    buf.writeUInt16LE(tilt, 9);
-    buf.writeUInt16LE(roll, 11);
-    buf.writeUInt16LE(pan, 13);
+    buf.writeInt16LE(tilt, 9);
+    buf.writeInt16LE(roll, 11);
+    buf.writeInt16LE(pan, 13);
     buf.writeUInt16LE(other_flags, 15);
 
     return buf;
