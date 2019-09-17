@@ -120,6 +120,11 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 logEvent("...capture complete.");
                                 return callback && callback(err, photoRes);
                             }
+                            if(!thumb) {
+                                logEvent("capture complete, invalid thumbnail!  Using chached...");
+                                thumb = intervalometer.lastThumb;
+                            }
+                            intervalometer.lastThumb = thumb;
                             setTimeout(function() {
                                 saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
                             }, 10);
@@ -1806,6 +1811,9 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
                     busyPhoto = false;
                     intervalometer.currentProgram = program;
+                    intervalometer.lastThumb = null;
+                    intervalometer.lastImage = null;
+                    intervalometer.lastPhotoTime = null;
                     intervalometer.status.intervalMs = program.interval * 1000;
                     intervalometer.status.message = "starting";
                     intervalometer.status.frames = 0;

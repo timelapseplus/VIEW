@@ -152,7 +152,7 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
     if (!size.y) size.y = size.x / 1.5;
     if (!size.q) size.q = 70;
 
-    if (!jpeg) return;
+    if (!jpeg) return callback && callback("invalid JPEG");
 
     //var jpegPath;
     var jpegBuf;
