@@ -393,6 +393,10 @@ app.send = send_message;
 app.sendLogs = sendLogs;
 app.close = closeApp;
 
+server.on('error', function (error) {
+    console.log("APP: server error:", error);
+})
+
 var httpServer = server.listen(CLIENT_SERVER_PORT, function() {
     console.log('listening on *:' + CLIENT_SERVER_PORT);
 });
@@ -413,10 +417,6 @@ httpServer.on('connection', function (socket) {
   // Extend socket lifetime for demo purposes
   socket.setTimeout(4000);
 });
-
-httpServer.on('error', function (error) {
-    console.log("APP: server error:", error);
-})
 
 function closeHttpServer() {
     // Close the server
