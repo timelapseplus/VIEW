@@ -400,7 +400,6 @@ app.close = closeApp;
 var httpServer;
 var sockets = {}, nextSocketId = 0;
 
-var exec = require('child_process').exec;
 exec('ps aux | grep "/main.js"', function(err, res) {
     if(!err && res) {
         //console.log("res:", res);
@@ -412,7 +411,7 @@ exec('ps aux | grep "/main.js"', function(err, res) {
             //console.log("line:", lines[i]);
             var matches = lines[i].match(/root\s+([0-9]+)/);
             if(matches && matches.length > 1) {
-                pid = parseInt(matches[1].trim());
+                var pid = parseInt(matches[1].trim());
                 if(pid == process.pid) continue;
                 console.log("Terminating existing process: PID", pid);
                 process.kill(pid, 'SIGKILL');
@@ -420,6 +419,7 @@ exec('ps aux | grep "/main.js"', function(err, res) {
             }
         }
     }
+    console.log("Booting: prior process:", killedProcess);
     setTimeout(function() {
         httpServer = server.listen(CLIENT_SERVER_PORT, function() {
             console.log('listening on *:' + CLIENT_SERVER_PORT);
