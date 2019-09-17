@@ -404,6 +404,7 @@ var exec = require('child_process').exec;
 exec('ps aux | grep "/main.js"', function(err, res) {
     if(!err && res) {
         //console.log("res:", res);
+        var killedProcess = false;
         var lines = res.split('\n');
         for(var i = 0; i < lines.length; i++) {
             if(lines[i].indexOf('grep') > 0) continue;
@@ -415,6 +416,7 @@ exec('ps aux | grep "/main.js"', function(err, res) {
                 if(pid == process.pid) continue;
                 console.log("Terminating existing process: PID", pid);
                 process.kill(pid, 'SIGKILL');
+                killedProcess = true;
             }
         }
     }
@@ -438,13 +440,13 @@ exec('ps aux | grep "/main.js"', function(err, res) {
           // Extend socket lifetime for demo purposes
           socket.setTimeout(4000);
         });
-    }, 5000);
+    }, killedProcess ? 30000 : 5000);
 });
 
 
 function closeHttpServer() {
     // Close the server
-    httpServer.close(function () { console.log('Server closed!'); });
+    if(httpServer) httpServer.close(function () { console.log('Server closed!'); });
     // Destroy all open sockets
     for (var socketId in sockets) {
         console.log('socket', socketId, 'destroyed');
