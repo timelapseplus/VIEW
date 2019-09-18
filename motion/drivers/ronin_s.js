@@ -124,7 +124,6 @@ Ronin.prototype._init = function() {
     this._write(new Buffer("551004560204000040040f140101", 'hex')); // uncertain init sequence
     this._write(new Buffer("550f04a202f10000400a620100", 'hex')); // uncertain init sequence
 
-
     setTimeout(function() {
         self._pollPositions();
         self.emit("status", self.getStatus());
