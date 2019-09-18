@@ -466,7 +466,7 @@ function listEvs(param, minEv, maxEv) { // returns a sorted list of EV's from a 
 	//console.log("API:", param, "base", base);
 	if(!base || !base[param] || !base[param].list) return null;
 	var list = base[param].list;
-	console.log("API:", param, "base list", list);
+	//console.log("API:", param, "base list", list);
 
 	return list.map(function(item) {
 		return item.ev;
@@ -669,6 +669,7 @@ api.setEv = function(ev, options, callback) {
     console.log("API setEv: current:", origEv, "target:", ev, "new:", currentEv);
 
     function runQueue(queue, callback) {
+    	console.log("API: runQueue length", queue.length);
         set = queue.pop();
         if (set) {
             console.log("API setEv: setting", set.name, "to", set.val);

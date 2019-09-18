@@ -281,19 +281,19 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
         if(tilt < -1) tilt = -1; 
         if(roll > 1) roll = 1;
         if(roll < -1) roll = -1;
-        pan = pan * 1024 + 1024;
-        tilt = tilt * 1024 + 1024;
-        roll = roll * 1024 + 1024; 
+        pan = Math.round(pan * 1024 + 1024);
+        tilt = Math.round(tilt * 1024 + 1024);
+        roll = Math.round(roll * 1024 + 1024); 
         if(mode == 'joystick') mode_flags = 0x01044001; // joystick move 
     }
       
     var buf = new Buffer('04a9020400004004010004000400040000', 'hex');
 
     buf.writeUInt32LE(mode_flags, 5);
-    buf.writeInt16LE(tilt, 9);
-    buf.writeInt16LE(roll, 11);
-    buf.writeInt16LE(pan, 13);
-    buf.writeUInt32LE(other_flags, 15);
+    buf.writeUInt16LE(tilt, 9);
+    buf.writeUInt16LE(roll, 11);
+    buf.writeUInt16LE(pan, 13);
+    buf.writeUInt16LE(other_flags, 15);
 
     return buf;
 }
