@@ -283,7 +283,7 @@ function tryConnectDevice(device) {
 	}
 	var found = matchDriver(device);
 	if(found) {
-		console.log("camera connected:", found.name);
+		console.log("camera connected:", found.name, "port:", port);
 		var camera = null;
 		try {
 			camera = connectCamera(found.driver, device);
