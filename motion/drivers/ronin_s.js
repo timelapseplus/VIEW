@@ -110,6 +110,17 @@ Ronin.prototype._pollPositions = function() {
 
 Ronin.prototype._init = function() {
     var self = this;
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("0433020e0000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
+    this._write(new Buffer("04330227000040070e", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302040000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
+    this._write(new Buffer("047502e50000400412103e010000000c000050660c001c", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302240000400001", 'hex')); // uncertain init sequence
+
     setTimeout(function() {
         self._pollPositions();
         self.emit("status", self.getStatus());
