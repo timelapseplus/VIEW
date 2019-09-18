@@ -350,13 +350,18 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         var pan = motor == 1 ? speed : 0;
         var tilt = motor == 2 ? speed : 0;
         var roll = motor == 3 ? speed : 0;
-        self._moveJoystick(pan, tilt, roll, callback)
+        if(self._movingSpeed != speed) {
+            self._movingSpeed = speed;
+            self._moveJoystick(pan, tilt, roll, callback)
+        }
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
             self._moveJoystick(0, 0, 0, callback)
             this._pollPositions();
         }, 3000);
     } else {
+        self._movingSpeed = 0;
+        self._moveJoystick(0, 0, 0, callback)
         this._pollPositions();
         var check = function() {
             if(self._moving) {
