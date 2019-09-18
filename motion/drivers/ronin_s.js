@@ -293,7 +293,7 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
     buf.writeInt16LE(tilt, 9);
     buf.writeInt16LE(roll, 11);
     buf.writeInt16LE(pan, 13);
-    buf.writeUInt16LE(other_flags, 15);
+    buf.writeUInt32LE(other_flags, 15);
 
     return buf;
 }
