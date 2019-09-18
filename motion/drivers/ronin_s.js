@@ -295,9 +295,9 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
         if(tilt < -1) tilt = -1; 
         if(roll > 1) roll = 1;
         if(roll < -1) roll = -1;
-        pan = Math.round(pan * 1024 + 1024);
-        tilt = Math.round(tilt * 1024 + 1024);
-        roll = Math.round(roll * 1024 + 1024); 
+        pan = Math.round(pan * 512 + 1024);
+        tilt = Math.round(tilt * 512 + 1024);
+        roll = Math.round(roll * 512 + 1024); 
         if(mode == 'joystick') mode_flags = 0x01044001; // joystick move 
     }
       
@@ -345,23 +345,35 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         clearTimeout(this._watchdog);
         this._watchdog = null;
     }
+    if(this._timerMove1) {
+        clearTimeout(this._timerMove1);
+        this._timerMove1 = null;
+    }
+    if(this._timerMove2) {
+        clearTimeout(this._timerMove2);
+        this._timerMove2 = null;
+    }
+    if(this._timerMove3) {
+        clearTimeout(this._timerMove3);
+        this._timerMove3 = null;
+    }
     if(speed) {
         speed /= 100;
         var pan = motor == 1 ? speed : 0;
         var tilt = motor == 2 ? speed : 0;
         var roll = motor == 3 ? speed : 0;
-        if(self._movingSpeed != speed) {
-            self._movingSpeed = speed;
-            self._moveJoystick(pan, tilt, roll, callback)
-        }
+        self._moveJoystick(pan, tilt, roll, callback)
+        this._timerMove1 = setTimeout(function(){self._moveJoystick(pan, tilt, roll, null);}, 250);
+        this._timerMove2 = setTimeout(function(){self._moveJoystick(pan, tilt, roll, null);}, 500);
+        this._timerMove3 = setTimeout(function(){self._moveJoystick(pan, tilt, roll, null);}, 750);
+
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
-            self._moveJoystick(0, 0, 0, callback)
+            self._moveJoystick(0, 0, 0, null);
             this._pollPositions();
         }, 3000);
     } else {
-        self._movingSpeed = 0;
-        self._moveJoystick(0, 0, 0, callback)
+        self._moveJoystick(0, 0, 0, null);
         this._pollPositions();
         var check = function() {
             if(self._moving) {
