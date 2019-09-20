@@ -124,26 +124,26 @@ Ronin.prototype._init = function() {
     //this._write(new Buffer("551004560204000040040f140101", 'hex')); // uncertain init sequence
     //this._write(new Buffer("550f04a202f10000400a620100", 'hex')); // uncertain init sequence
 
-    this._write(new Buffer("433020e0000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000040003211", 'hex')); // uncertain init sequence
-    this._write(new Buffer("4330227000040070e", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302040000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302040000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000040003211", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302240000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302440000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302640000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302e50000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302c50000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("47502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("433020e0000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302270000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("43302260000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("47502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
-    this._write(new Buffer("46602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("0433020e0000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
+    this._write(new Buffer("04330227000040070e", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302040000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302040000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302240000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302440000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302640000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302e50000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302c50000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
+    this._write(new Buffer("0433020e0000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302270000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("043302260000400001", 'hex')); // uncertain init sequence
+    this._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
 
     setTimeout(function() {
         self._pollPositions();
