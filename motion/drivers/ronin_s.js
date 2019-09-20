@@ -105,7 +105,8 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 }
 
 Ronin.prototype._pollPositions = function() {
-    this._write(new Buffer("046602e5c70180000e00", 'hex')); // get positions
+    this._write(new Buffer("048a02e54b004004126624c01d00001c103e010030000c000050", 'hex')); // get positions
+    this._write(new Buffer("046602e5000080000e00", 'hex')); // get positions
 }
 
 Ronin.prototype._init = function() {
