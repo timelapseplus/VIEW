@@ -108,11 +108,11 @@ Ronin.prototype._pollPositions = function() {
     var self = this;
     //self._write(new Buffer("048a02e54b004004126624c01d00001c103e010030000c000050", 'hex')); // get positions
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
-        if(!err) {
-            self._notifyCh.read(function(err, data) {
-                self._parseIncoming(data);
-            });
-        }
+        //if(!err) {
+        //    self._notifyCh.read(function(err, data) {
+        //        self._parseIncoming(data);
+        //    });
+        //}
     }); // get positions
 }
 
@@ -160,6 +160,7 @@ Ronin.prototype._init = function() {
 }
 
 Ronin.prototype._parseIncoming = function(data) {
+    if(!data || data.length == 0) return;
     console.log("Ronin(" + this._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
