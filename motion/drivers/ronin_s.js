@@ -109,7 +109,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
     self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
-        self._pollTimer = setTimeout(function() {
+        if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
         }, 2000);
     }); // get positions
