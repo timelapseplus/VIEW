@@ -335,6 +335,7 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
 }
 
 Ronin.prototype._moveAbsolute = function(pan, tilt, roll, callback) {
+    console.log("Ronin(" + self._id + "): move absolute:", pan, tilt);
     pan *= 10;
     tilt *= 10;
     if(roll !== false) {
@@ -348,6 +349,7 @@ Ronin.prototype._moveAbsolute = function(pan, tilt, roll, callback) {
 }
 
 Ronin.prototype._moveRelative = function(pan, tilt, roll, callback) {
+    console.log("Ronin(" + self._id + "): move relative:", pan, tilt);
     this._write(this._buildMoveCommand(pan, tilt, false, 'relative'), callback);
 }
 
