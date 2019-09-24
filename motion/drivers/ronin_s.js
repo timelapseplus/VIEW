@@ -252,7 +252,11 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     roll += self.roll;
     pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
     tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
-    roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
+    if(motor == 3) {
+        roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
+    } else {
+        roll = false;
+    } 
     self._moving = true;
     self._moveAbsolute(pan, tilt, roll, callback)
 
