@@ -104,18 +104,19 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
     });
 }
 
-Ronin.prototype._pollPositions = function() {
-    var self = this;
+Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
     self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
-        self._pollTimer = setTimeout(self._pollPositions, 1000);
+        self._pollTimer = setTimeout(function() {
+            self._pollPositions(self);
+        }, 1000);
     }); // get positions
 }
 
 Ronin.prototype._init = function() {
     var self = this;
     setTimeout(function() {
-        self._pollPositions();
+        self._pollPositions(self);
         self.emit("status", self.getStatus());
     }, 1000);
 }
@@ -159,7 +160,7 @@ Ronin.prototype._parseIncoming = function(data) {
                     var self = this;
                     this._posTimer = setTimeout(function() { 
                         self._posTimer = null;
-                        self._pollPositions();
+                        self._pollPositions(self);
                     }, 1000);
                 } else {
                     this._moving = false;
@@ -171,11 +172,11 @@ Ronin.prototype._parseIncoming = function(data) {
             }
         } else if(this._expectedLength == 0x11) {
             if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x40) { // moved
-                this._pollPositions();
+                this._pollPositions(this);
             }
         } else if(this._expectedLength == 0x0e) {
             if(this._buf.readUInt16LE(9) == 0x1404 || this._buf.readUInt16LE(9) == 0xe00a) { // moved
-                this._pollPositions();
+                this._pollPositions(this);
             }
         }
         this._expectedLength = 0;
@@ -378,11 +379,11 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
             self._moveJoystick(0, 0, 0, null);
-            self._pollPositions();
+            self._pollPositions(self);
         }, 3000);
     } else {
         self._moveJoystick(0, 0, 0, null);
-        self._pollPositions();
+        self._pollPositions(self);
         var check = function() {
             if(self._moving) {
                 setTimeout(check, 200); // keep checking until stop
