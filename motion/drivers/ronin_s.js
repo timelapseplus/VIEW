@@ -106,58 +106,20 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function() {
     var self = this;
-    //self._write(new Buffer("048a02e54b004004126624c01d00001c103e010030000c000050", 'hex')); // get positions
-    self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
-        //if(!err) {
-        //    self._notifyCh.read(function(err, data) {
-        //        self._parseIncoming(data);
-        //    });
-        //}
+    self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
     }); // get positions
 }
 
 Ronin.prototype._init = function() {
     var self = this;
-    //this._write(new Buffer("550e046602e5000080000e00", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d0433020e0000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550e046602e5000040003211", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d04330227000040070e", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d043302040000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("551b047502e50000400412103e010000000c000050660c001c", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d043302240000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d043302440000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d043302640000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550d043302e50000400001", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("551004560204000040040f150101", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("551004560204000040040f140101", 'hex')); // uncertain init sequence
-    //this._write(new Buffer("550f04a202f10000400a620100", 'hex')); // uncertain init sequence
-
-    this._write(new Buffer("0433020e0000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
-    this._write(new Buffer("04330227000040070e", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302040000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302040000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000040003211", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302240000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302440000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302640000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302e50000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302c50000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
-    this._write(new Buffer("0433020e0000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302270000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("043302260000400001", 'hex')); // uncertain init sequence
-    this._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex')); // uncertain init sequence
-    this._write(new Buffer("046602e5000080000e00", 'hex')); // uncertain init sequence
-
     setTimeout(function() {
         self._pollPositions();
         self.emit("status", self.getStatus());
     }, 1000);
 }
+
+// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
+// 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
@@ -170,11 +132,24 @@ Ronin.prototype._parseIncoming = function(data) {
         this._buf = Buffer.concat([this._buf, data]);
     }
     if(this._buf.length >= this._expectedLength) {
+        var receivedPositions = false;
+        var tPos = 0, rPos = 0, pPos = 0;
         if(this._expectedLength == 0x23) {
-            if(this._buf.readUInt16LE(21) == 0x0222 && this._buf.readUInt16LE(25) == 0x0223 && this._buf.readUInt16LE(29) == 0x0224) {
-                var tilt = this._buf.readInt16LE(23) / 10;
-                var roll = this._buf.readInt16LE(27) / 10;
-                var pan = this._buf.readInt16LE(31) / 10;
+            receivedPositions = true;
+            tPos = 21;
+            rPos = 25;
+            pPos = 29;
+        } else if(this._expectedLength == 0x2c) {
+            receivedPositions = true;
+            tPos = 30;
+            rPos = 34;
+            pPos = 38;
+        }
+        if(receivedPositions) {
+            if(this._buf.readUInt16LE(tPos) == 0x0222 && this._buf.readUInt16LE(rPos) == 0x0223 && this._buf.readUInt16LE(pPos) == 0x0224) {
+                var tilt = this._buf.readInt16LE(tPos + 2) / 10;
+                var roll = this._buf.readInt16LE(rPos + 2) / 10;
+                var pan = this._buf.readInt16LE(pPos + 2) / 10;
                 console.log("Ronin(" + this._id + "): POSITIONS:", pan, tilt, roll);
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
@@ -287,7 +262,7 @@ Ronin.prototype._write = function(buffer, callback) {
     buf.writeUInt8(buf.length + 2, 1);
     buf.writeUInt8(this._commandIndex, 6);
     var chksm = new Buffer('0000', 'hex');
-    chksm.writeUInt16LE(crc(buf.slice(2)), 0);
+    chksm.writeUInt16LE(crc(buf.slice(2), crcInitFromLength(buf.length + 2)), 0);
     buf = Buffer.concat([buf, chksm]);
     console.log("Ronin(" + this._id + "): writing", buf);
     try {
@@ -492,8 +467,28 @@ var crcTable = [
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 ];
 
-var crcInit = 0xDC29;
+//var crcInit = 0xDC29; // 0x15 length
+//var crcInit = 0x965c; // 0x0e length
+
 var finalXor = 0x0000;
+
+function crcInitFromLength(len) {
+    switch(len) {
+        case 0x23:
+            return 0x7103;
+        case 0x1b:
+            return 0xe7cc;
+        case 0x15:
+            return 0xDC29;
+        case 0x0e:
+            return 0x965c;
+        case 0x0d:
+            return 0x4f10;
+        default:
+            console.log("RONIN: no crc init for length", len);
+    }
+    return 0;
+}
 
 function rf8(val, width) {
         var resByte = 0;
@@ -513,10 +508,9 @@ function rf16(val, width) {
         }
         return resByte;
 }
-
-function crc(bufData) {
+function crc(bufData, crcInit) {
     var crc16 = crcInit;
-    for(i = 0; i < bufData.length; i++) {
+    for(var i = 0; i < bufData.length; i++) {
         var curByte = bufData.readUInt8(i) & 0xFF;
         curByte = rf8(curByte);
         crc16 = (crc16 ^ (curByte << 8)) & 0xFFFF;
