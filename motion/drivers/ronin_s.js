@@ -106,7 +106,9 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function() {
     var self = this;
+    if(self._pollTimer) clearTimeout(self._pollTimer);
     self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
+        self._pollTimer = setTimeout(self._pollPositions, 1000);
     }); // get positions
 }
 
@@ -376,11 +378,11 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         this._watchdog = setTimeout(function(){
             console.log("Ronin(" + self._id + "): stopping via watchdog");
             self._moveJoystick(0, 0, 0, null);
-            this._pollPositions();
+            self._pollPositions();
         }, 3000);
     } else {
         self._moveJoystick(0, 0, 0, null);
-        this._pollPositions();
+        self._pollPositions();
         var check = function() {
             if(self._moving) {
                 setTimeout(check, 200); // keep checking until stop
