@@ -128,7 +128,7 @@ Ronin.prototype._init = function() {
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
-    console.log("Ronin(" + this._id + "): received", data);
+    //console.log("Ronin(" + this._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
         //console.log("this._expectedLength =", this._expectedLength);
@@ -155,7 +155,6 @@ Ronin.prototype._parseIncoming = function(data) {
                 var tilt = this._buf.readInt16LE(tPos + 2) / 10;
                 var roll = this._buf.readInt16LE(rPos + 2) / 10;
                 var pan = this._buf.readInt16LE(pPos + 2) / 10;
-                console.log("Ronin(" + this._id + "): POSITIONS:", pan, tilt, roll);
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
                     if(this._posTimer) clearTimeout(this._posTimer);
@@ -167,10 +166,17 @@ Ronin.prototype._parseIncoming = function(data) {
                 } else {
                     this._moving = false;
                 }
+                var emitUpdate = false;
+                if(this.pan != pan) emitUpdate = true;
+                if(this.tilt != tilt) emitUpdate = true;
+                if(this.roll != roll) emitUpdate = true;
                 this.pan = pan;
                 this.tilt = tilt;
                 this.roll = roll;
-                this.emit("status", this.getStatus());
+                if(emitUpdate) {
+                    console.log("Ronin(" + this._id + "): POSITIONS:", pan, tilt, roll);
+                    this.emit("status", this.getStatus());
+                }
             }
         } else if(this._expectedLength == 0x11) {
             if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x40) { // moved
