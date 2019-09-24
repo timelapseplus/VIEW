@@ -181,6 +181,8 @@ Ronin.prototype._parseIncoming = function(data) {
         } else if(this._expectedLength == 0x11) {
             if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x40) { // moved
                 this._pollPositions(this);
+            } else if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x0c) { // not moving
+                this._moving = false;
             }
         } else if(this._expectedLength == 0x0e) {
             if(this._buf.readUInt16LE(9) == 0x1404 || this._buf.readUInt16LE(9) == 0xe00a) { // moved
