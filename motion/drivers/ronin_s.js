@@ -383,6 +383,9 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         }, 3000);
     } else {
         self._moveJoystick(0, 0, 0, null);
+        this._timerMove1 = setTimeout(function(){self._moveJoystick(0, 0, 0, null);}, 250);
+        this._timerMove2 = setTimeout(function(){self._moveJoystick(0, 0, 0, null);}, 500);
+        this._timerMove3 = setTimeout(function(){self._moveJoystick(0, 0, 0, null);}, 750);
         self._pollPositions(self);
         var check = function() {
             if(self._moving) {
