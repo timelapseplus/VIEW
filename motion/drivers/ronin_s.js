@@ -205,6 +205,10 @@ Ronin.prototype.disconnect = function() {
     if (this._dev && this._dev.connected) {
         this.connected = false;
         this._dev.connected = false;
+        this._moving = false;
+        clearTimeout(this._posTimer);
+        clearTimeout(this._pollTimer);
+        this.emit("status", this.getStatus());
         this._dev.disconnect();
     } else {
         this._dev = null;
