@@ -61,7 +61,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
                         if (self._notifyCh && self._cmdCh) {
                             try {
                                 self._notifyCh.subscribe(function(){
-                                    console.log("subscribed...");
+                                    console.log('Ronin(' + self._id + "):subscribed...");
                                     self._expectedLength = 0;
                                     self._buf = null;
                                     self._dev = btPeripheral;
@@ -109,7 +109,7 @@ Ronin.prototype._pollPositions = function(self) {
     self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
         self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
-        }, 1000);
+        }, 2000);
     }); // get positions
 }
 
@@ -492,7 +492,7 @@ function crcInitFromLength(len) {
         case 0x0d:
             return 0x4f10;
         default:
-            console.log("RONIN: no crc init for length", len);
+            console.log('Ronin(' + self._id + "): no crc init for length", len);
     }
     return 0;
 }
