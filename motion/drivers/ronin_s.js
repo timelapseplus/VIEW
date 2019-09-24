@@ -97,7 +97,9 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
             console.log("Ronin(" + self._id + "): disconnected");
             self._dev = null;
             self.connected = false;
+            self._moving = false;
             clearTimeout(self._posTimer);
+            clearTimeout(self._pollTimer);
             self.emit("status", self.getStatus());
         });
 
@@ -231,6 +233,7 @@ Ronin.prototype.enable = function(motor) {
 }
 
 Ronin.prototype.move = function(motor, degrees, callback) {
+    var self = this;
     var pan = motor == 1 ? degrees : 0;
     var tilt = motor == 2 ? degrees : 0;
     var roll = motor == 3 ? degrees : 0;
