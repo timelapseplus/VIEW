@@ -248,23 +248,9 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     var tilt = motor == 2 ? degrees : 0;
     var roll = motor == 3 ? degrees : 0;
 
-    //pan += self.pan;
-    //tilt += self.tilt;
-    //roll += self.roll;
-    //pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
-    //tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
-    //if(motor == 3) {
-    //    roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
-    //} else {
-    //    roll = false;
-    //} 
-    self._moving = true;
-    //self._moveAbsolute(pan, tilt, roll, callback)
-    self._moveRelative(pan, tilt, false, callback)
-
-    var check = function() {
+    var checkEnd = function() {
         if(self._moving) {
-            setTimeout(check, 200); // keep checking until stop
+            setTimeout(checkEnd, 200); // keep checking until stop
         } else {
             var pos = 0;
             if(motor == 1) pos = self.pan;
@@ -273,7 +259,32 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             if (callback) callback(null, pos);
         }
     }
-    check();
+
+    var checkStart = function() {
+        if(self._moving) {
+            setTimeout(checkStart, 200); // keep checking until stop
+        } else {
+            var pos = 0;
+            if(motor == 1) pos = self.pan;
+            if(motor == 2) pos = self.tilt;
+            if(motor == 3) pos = self.roll;
+            pan += self.pan;
+            tilt += self.tilt;
+            roll += self.roll;
+            pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
+            tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
+            if(motor == 3) {
+                roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
+            } else {
+                roll = false;
+            } 
+            self._moving = true;
+            self._moveAbsolute(pan, tilt, roll, function(){
+                checkEnd();
+            });
+        }
+    }
+    checkStart();
 }
 
 
@@ -358,8 +369,8 @@ Ronin.prototype._moveAbsolute = function(pan, tilt, roll, callback) {
 }
 
 Ronin.prototype._moveRelative = function(pan, tilt, roll, callback) {
-    pan /= 36;
-    tilt /= 36;
+    pan /= 10;
+    tilt /= 10;
     console.log("Ronin(" + this._id + "): move relative:", pan, tilt);
     this._write(this._buildMoveCommand(pan, tilt, false, 'relative'), callback);
 }
