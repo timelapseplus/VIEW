@@ -154,9 +154,10 @@ Ronin.prototype._parseIncoming = function(data) {
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
                     if(this._posTimer) clearTimeout(this._posTimer);
+                    var self = this;
                     this._posTimer = setTimeout(function() { 
-                        this._posTimer = null;
-                        this._pollPositions();
+                        self._posTimer = null;
+                        self._pollPositions();
                     }, 1000);
                 } else {
                     this._moving = false;
