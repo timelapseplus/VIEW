@@ -309,6 +309,9 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
         if(tilt > 0xFFFF) tilt = 0xFFFF;
         if(roll < 0) roll = 0;
         if(roll > 0xFFFF) roll = 0xFFFF;
+        pan = Math.round(pan);
+        tilt = Math.round(tilt);
+        roll = Math.round(roll);
         mode_flags = 0x14044000; // absolute move
     } else {
         if(pan > 1) pan = 1;
