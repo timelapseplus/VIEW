@@ -258,33 +258,38 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             if(motor == 1) pos = self.pan;
             if(motor == 2) pos = self.tilt;
             if(motor == 3) pos = self.roll;
+            self._panTarget = null;
+            self._tiltTarget = null;
+            self._rollTarget = null;
             if (callback) callback(null, pos);
         }
     }
 
     var checkStart = function() {
         if(self._moving) {
-            setTimeout(checkStart, 200); // keep checking until stop
+            if(self._panTarget != null || self._tiltTarget != null || self._rollTarget != null) { // override exisiting move with current target
+                pan += self._panTarget != null ? self._panTarget : self.pan;
+                tilt += self._tiltTarget != null ? self._tiltTarget : self.tilt;
+                roll += self._rollTarget != null ? self._rollTarget : self.roll;
+            } else {
+                return setTimeout(checkStart, 200); // keep checking until stop
+            }
         } else {
-            var pos = 0;
-            if(motor == 1) pos = self.pan;
-            if(motor == 2) pos = self.tilt;
-            if(motor == 3) pos = self.roll;
             pan += self.pan;
             tilt += self.tilt;
             roll += self.roll;
-            pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
-            tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
-            if(motor == 3) {
-                roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
-            } else {
-                roll = false;
-            } 
-            self._moving = true;
-            self._moveAbsolute(pan, tilt, roll, function(){
-                checkEnd();
-            });
         }
+        pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
+        tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
+        if(motor == 3) {
+            roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
+        } else {
+            roll = false;
+        } 
+        self._moving = true;
+        self._moveAbsolute(pan, tilt, roll, function(){
+            checkEnd();
+        });
     }
     checkStart();
 }
