@@ -128,7 +128,7 @@ Ronin.prototype._init = function() {
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
-    //console.log("Ronin(" + this._id + "): received", data);
+    console.log("Ronin(" + this._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
         //console.log("this._expectedLength =", this._expectedLength);
@@ -139,18 +139,17 @@ Ronin.prototype._parseIncoming = function(data) {
     if(this._buf.length >= this._expectedLength) {
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
-        if(this._expectedLength == 0x23) {
-            receivedPositions = true;
-            tPos = 21;
-            rPos = 25;
-            pPos = 29;
-        } else if(this._expectedLength == 0x2c) {
-            receivedPositions = true;
-            tPos = 30;
-            rPos = 34;
-            pPos = 38;
+        for(var i = 0; i < this._buf.length; i++) {
+            if(this._buf.readUInt16LE(tPos) == 0x0222) {
+                if(i + 9 < this._buf.length) {
+                    tPos = i;
+                    rPos = i + 4;
+                    pPos = i + 8;
+                }
+                break;
+            }            
         }
-        if(receivedPositions) {
+        if(tPos > 0) {
             if(this._buf.readUInt16LE(tPos) == 0x0222 && this._buf.readUInt16LE(rPos) == 0x0223 && this._buf.readUInt16LE(pPos) == 0x0224) {
                 var tilt = this._buf.readInt16LE(tPos + 2) / 10;
                 var roll = this._buf.readInt16LE(rPos + 2) / 10;
