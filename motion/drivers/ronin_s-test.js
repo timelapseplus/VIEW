@@ -174,7 +174,7 @@ function btDiscover(peripheral) {
                                                     buf.writeUInt8(buf.length + 2, 1);
                                                     //buf.writeUInt8(cIndex + 1, 6);
                                                     var chksm = new Buffer('0000', 'hex');
-                                                    chksm.writeUInt16LE(crc(buf.slice(2)), 0);
+                                                    chksm.writeUInt16LE(crc(buf.slice(2), 0x965c), 0);
                                                     buf = Buffer.concat([buf, chksm]);
                                                     console.log("writing", buf);
                                                     cmdCh.write(buf); // get positions
@@ -359,9 +359,9 @@ function crc(bufData, crcInit) {
     return (crc16 ^ finalXor) & 0xFFFF;
 } 
 //5523042ee502e12d000466010a01000b01000c01002202420023020000240261ff1f49
-for(var x = 0; x <= 0xFFFF; x++) { 
-    if(crc(new Buffer("042ee502e12d000466010a01000b01000c01002202420023020000240261ff", 'hex'), x).toString(16) == '491f') {
-        console.log(x.toString(16)); 
-        break;
-    }
-}
+//for(var x = 0; x <= 0xFFFF; x++) { 
+//    if(crc(new Buffer("042ee502e12d000466010a01000b01000c01002202420023020000240261ff", 'hex'), x).toString(16) == '491f') {
+//        console.log(x.toString(16)); 
+//        break;
+//    }
+//}
