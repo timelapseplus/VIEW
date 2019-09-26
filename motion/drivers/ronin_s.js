@@ -7,6 +7,7 @@
 *****************************************************************************/
 
 var util = require('util');
+var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 
 function Ronin(id) {
@@ -117,24 +118,38 @@ Ronin.prototype._pollPositions = function(self) {
 
 Ronin.prototype._init = function() {
     var self = this;
-    self._write(new Buffer("0433020e0200400001", 'hex'));
-    self._write(new Buffer("046602e5030040003211", 'hex'));
-    self._write(new Buffer("043302040400400001", 'hex'));
-    self._write(new Buffer("04330227050040070e", 'hex'));
-    self._write(new Buffer("043302040600400001", 'hex'));
-    self._write(new Buffer("046602e5080040003211", 'hex'));
-    self._write(new Buffer("043302240900400001", 'hex'));
-    self._write(new Buffer("043302440a00400001", 'hex'));
-    self._write(new Buffer("043302640b00400001", 'hex'));
-    self._write(new Buffer("046602e50c0080000e00", 'hex'));
-    self._write(new Buffer("043302e50d00400001", 'hex'));
-    self._write(new Buffer("046602e5070080000e00", 'hex'));
-    self._write(new Buffer("043302c50e00400001", 'hex'));
-    self._write(new Buffer("046602e5080040003211", 'hex'));
-    setTimeout(function() {
-        self._pollPositions(self);
-        self.emit("status", self.getStatus());
-    }, 1000);
+    async.series([
+            function(cb) {self._write(new Buffer("0433020e0200400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5030040003211", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302040400400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("04330227050040070e", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302040600400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5080040003211", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302240900400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302440a00400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302640b00400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e50c0080000e00", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302e50d00400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5070080000e00", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302c50e00400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5080040003211", 'hex', cb));},
+            function(cb) {self._write(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5100080000e00", 'hex', cb));},
+            function(cb) {self._write(new Buffer("0433020e1100400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302271200400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("043302261300400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("047502e51400400412660cc01d103e01000050", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5150080000e00", 'hex', cb));},
+            function(cb) {self._write(new Buffer("047502e51600400412660cc01d103e01000050", 'hex', cb));},
+            function(cb) {self._write(new Buffer("0433020b1700400001", 'hex', cb));},
+            function(cb) {self._write(new Buffer("046602e5180080000e00", 'hex', cb));},
+        ], function(err) {
+            if(err) console.log("Ronin(" + this._id + "): init error:", err);
+            setTimeout(function() {
+                self._pollPositions(self);
+                self.emit("status", self.getStatus());
+            }, 1000);
+    });
 }
 
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
