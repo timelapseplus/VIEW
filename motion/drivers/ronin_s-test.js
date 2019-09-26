@@ -145,7 +145,7 @@ function btDiscover(peripheral) {
                                             expectedLength = data.readUInt8(1);
                                             //console.log("expectedLength =", expectedLength);
                                             buf = data;
-                                        } else if(expectedLength > 0) {
+                                        } else if(expectedLength > 0 && buf) {
                                             buf = Buffer.concat([buf, data]);
                                         } else {
                                             console.log("unknown data: ", data);
@@ -230,14 +230,14 @@ function btDiscover(peripheral) {
                                 //}, 20000);
                                 var cIndex = 0;
                                 setInterval(function() {
-                                    if(cIndex < commands.length) {
-                                        //var buf = new Buffer(commands[cIndex], 'hex');
-                                        var buf = new Buffer('5500' + commands[cIndex], 'hex');
-                                        buf.writeUInt8(buf.length + 2, 1);
-                                        buf.writeUInt8(cIndex + 1, 6);
-                                        var chksm = new Buffer('0000', 'hex');
-                                        chksm.writeUInt16LE(crc(buf.slice(2)), 0);
-                                        buf = Buffer.concat([buf, chksm]);
+                                    if(cIndex < cmds.length) {
+                                        var buf = new Buffer(cmds[cIndex], 'hex');
+                                        //var buf = new Buffer('5500' + commands[cIndex], 'hex');
+                                        //buf.writeUInt8(buf.length + 2, 1);
+                                        //buf.writeUInt8(cIndex + 1, 6);
+                                        //var chksm = new Buffer('0000', 'hex');
+                                        //chksm.writeUInt16LE(crc(buf.slice(2)), 0);
+                                        //buf = Buffer.concat([buf, chksm]);
                                         var startIndex = 0;
                                         while(buf.length - startIndex > 0) {
                                             var nb = buf.slice(startIndex, startIndex + 20);
@@ -247,7 +247,7 @@ function btDiscover(peripheral) {
                                         }
 
                                         cIndex++;
-                                        console.log(cIndex, "or", commands.length, ":", buf);
+                                        console.log(cIndex, "or", cmds.length, ":", buf);
                                     }
                                     //if(wIndex % 3 == 0) 
                                     //cmdCh.write(new Buffer("550e0466e502010080041200d4c2", 'hex')); // general status poll?
