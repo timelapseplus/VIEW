@@ -143,11 +143,12 @@ function btDiscover(peripheral) {
                                     notifyCh.on('data', function(data, isNotification) {
                                         if(expectedLength == 0 && data.readUInt8(0) == 0x55) {
                                             expectedLength = data.readUInt8(1);
-                                            //console.log("expectedLength =", expectedLength);
+                                            console.log("expectedLength =", expectedLength.toString(16));
                                             buf = data;
                                         } else if(expectedLength > 0 && buf) {
                                             buf = Buffer.concat([buf, data]);
                                         } else {
+                                            expectedLength 
                                             console.log("unknown data: ", data);
                                         }
                                         if(buf && buf.length >= expectedLength) {
