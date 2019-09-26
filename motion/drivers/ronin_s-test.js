@@ -150,7 +150,7 @@ function btDiscover(peripheral) {
                                         } else {
                                             console.log("unknown data: ", data);
                                         }
-                                        if(buf.length >= expectedLength) {
+                                        if(buf && buf.length >= expectedLength) {
                                             if(expectedLength == 0x23) {
                                                 if(buf.readUInt16LE(21) == 0x0222 && buf.readUInt16LE(25) == 0x0223 && buf.readUInt16LE(29) == 0x0224) {
                                                     var ntilt = buf.readInt16LE(23) / 10;
@@ -189,7 +189,7 @@ function btDiscover(peripheral) {
                                             expectedLength = 0;
                                             console.log("BT data received:", buf);
                                         }
-                                        if(buf.length > 255) {
+                                        if(buf && buf.length > 255) {
                                             expectedLength = 0;
                                         }
                                     });
