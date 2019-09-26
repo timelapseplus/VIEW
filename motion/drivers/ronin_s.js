@@ -119,8 +119,8 @@ Ronin.prototype._init = function() {
     var self = this;
     self._write(new Buffer("0433020e0200400001", 'hex'));
     self._write(new Buffer("046602e5030040003211", 'hex'));
-    self._write(new Buffer("04330227050040070e", 'hex'));
     self._write(new Buffer("043302040400400001", 'hex'));
+    self._write(new Buffer("04330227050040070e", 'hex'));
     self._write(new Buffer("043302040600400001", 'hex'));
     self._write(new Buffer("046602e5080040003211", 'hex'));
     self._write(new Buffer("043302240900400001", 'hex'));
@@ -130,7 +130,7 @@ Ronin.prototype._init = function() {
     self._write(new Buffer("043302e50d00400001", 'hex'));
     self._write(new Buffer("046602e5070080000e00", 'hex'));
     self._write(new Buffer("043302c50e00400001", 'hex'));
-    self._write(new Buffer("047502e50f00400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("046602e5080040003211", 'hex'));
     setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
@@ -142,7 +142,6 @@ Ronin.prototype._init = function() {
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
-    console.log("Ronin(" + this._id + "): received", data);
     if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
         this._expectedLength = data.readUInt8(1);
         //console.log("this._expectedLength =", this._expectedLength);
@@ -151,6 +150,7 @@ Ronin.prototype._parseIncoming = function(data) {
         this._buf = Buffer.concat([this._buf, data]);
     }
     if(this._buf.length >= this._expectedLength) {
+        console.log("Ronin(" + this._id + "): received", this._buf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
         for(var i = 0; i < this._buf.length; i++) {
