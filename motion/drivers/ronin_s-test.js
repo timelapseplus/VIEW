@@ -149,7 +149,7 @@ function btDiscover(peripheral) {
                                             console.log("concatenating data..");
                                             buf = Buffer.concat([buf, data]);
                                         } else {
-                                            console.log("unknown data: ", data);
+                                            console.log("unknown data: ", data, buf);
                                         }
                                         if(buf && buf.length >= expectedLength) {
                                             if(expectedLength == 0x23) {

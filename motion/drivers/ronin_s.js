@@ -117,6 +117,11 @@ Ronin.prototype._pollPositions = function(self) {
 
 Ronin.prototype._init = function() {
     var self = this;
+    self._write(new Buffer("043302e51400400001", 'hex'));
+    self._write(new Buffer("046602e50f0080000e00", 'hex'));
+    self._write(new Buffer("046602e5150080000e00", 'hex'));
+    self._write(new Buffer("046602e5650080000e88", 'hex'));
+    self._write(new Buffer("043302262100400001", 'hex'));
     setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
