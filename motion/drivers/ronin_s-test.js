@@ -145,8 +145,10 @@ function btDiscover(peripheral) {
                                             expectedLength = data.readUInt8(1);
                                             //console.log("expectedLength =", expectedLength);
                                             buf = data;
-                                        } else {
+                                        } else if(expectedLength > 0) {
                                             buf = Buffer.concat([buf, data]);
+                                        } else {
+                                            console.log("unknown data: ", data);
                                         }
                                         if(buf.length >= expectedLength) {
                                             if(expectedLength == 0x23) {
