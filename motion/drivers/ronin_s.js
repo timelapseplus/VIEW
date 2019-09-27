@@ -174,6 +174,7 @@ Ronin.prototype._parseIncoming = function(data) {
     }
     if(startIndex !== -1 && this._buf.length >= this._expectedLength) {
         receivedBuf = this._buf.slice(startIndex, this._expectedLength);
+        this._buf = this._buf.slice(this._expectedLength);
         console.log("Ronin(" + this._id + "): received", receivedBuf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
