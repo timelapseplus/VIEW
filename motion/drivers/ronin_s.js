@@ -143,7 +143,7 @@ Ronin.prototype._init = function() {
 //551b047502e51400400412660cc01d103e010000000c000050447e
 
 //crc(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex'), x).toString(16)
-// 55 22 04 ea e5 02 61 a8 00 0d 02 00 c8 3f 00 00 7f 00 00 00 72 09 00 00 2f 09 00 00 f7 00 04 62 fd 5a
+// 55 2c 04 36 e5 02 02 e9 00 04 66 01 06 01 f2 07 01 f6 08 01 fb 0a 01 00 0b 01 00 0c 01 00 22 02 75 00 23 02 00 00 24 02 21 ff 06 3d
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
 // 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
 
@@ -192,26 +192,28 @@ Ronin.prototype._parseIncoming = function(data) {
         receivedBuf = this._buf.slice(startIndex, this._expectedLength);
         this._buf = this._buf.slice(this._expectedLength);
         console.log("Ronin(" + this._id + "): received", receivedBuf);
-        var receivedPositions = false;
-        var tPos = 0, rPos = 0, pPos = 0;
+        //var tPos = 0, rPos = 0, pPos = 0;
         //if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
         //    var tilt = receivedBuf.readInt16LE(16) / 10;
         //    var roll = receivedBuf.readInt16LE(12) / 10;
         //    var pan = receivedBuf.readInt16LE(8) / 10;
         //    updateMove(this, pan, tilt, roll);
         //} else {
-            for(var i = 0; i < receivedBuf.length; i++) {
-                if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
-                    if(i + 9 < receivedBuf.length) {
-                        tPos = i;
-                        rPos = i + 4;
-                        pPos = i + 8;
-                    }
-                    break;
-                }            
-            }
+        //  for(var i = 0; i < receivedBuf.length; i++) {
+        //      if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
+        //          if(i + 9 < receivedBuf.length) {
+        //              tPos = i;
+        //              rPos = i + 4;
+        //              pPos = i + 8;
+        //          }
+        //          break;
+        //      }            
+        //  }
         //}
-        if(tPos > 0) {
+        if(receivedBuf.length >= pPos + 2 && receivedBuf.readUInt16LE(2) == 0x3604) {
+            var tPos = 30;
+            var rPos = 34;
+            var pPos = 38;
             if(receivedBuf.readUInt16LE(tPos) == 0x0222 && receivedBuf.readUInt16LE(rPos) == 0x0223 && receivedBuf.readUInt16LE(pPos) == 0x0224) {
                 var tilt = receivedBuf.readInt16LE(tPos + 2) / 10;
                 var roll = receivedBuf.readInt16LE(rPos + 2) / 10;
