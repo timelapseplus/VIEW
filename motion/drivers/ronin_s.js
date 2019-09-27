@@ -198,6 +198,7 @@ Ronin.prototype._parseIncoming = function(data) {
             var tilt = receivedBuf.readInt32LE(32) / 10;
             var roll = receivedBuf.readInt32LE(28) / 10;
             var pan = receivedBuf.readInt32LE(24) / 10;
+            updateMove(this, pan, tilt, roll);
         } else {
             for(var i = 0; i < receivedBuf.length; i++) {
                 if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
