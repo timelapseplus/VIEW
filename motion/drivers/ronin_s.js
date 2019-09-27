@@ -162,7 +162,13 @@ Ronin.prototype._parseIncoming = function(data) {
     } else {
         this._buf = Buffer.concat([this._buf, data]);
     }
-    var startIndex = this._buf.indexOf(0x55);
+    var startIndex = -1;
+    for(var i = 0; i < this._buf.length; i++) {
+        if(this._buf.readUInt8(i) == 0x55) {
+            startIndex = i;
+            break;
+        }
+    }
     if(startIndex !== -1) {
         this._expectedLength = this._buf.readUInt8(startIndex + 1);
     }
