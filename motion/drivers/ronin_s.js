@@ -132,7 +132,7 @@ Ronin.prototype._init = function() {
     self._write(new Buffer("043302270000400001", 'hex'));
     self._write(new Buffer("043302260000400001", 'hex'));
     //self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
-    self._write(new Buffer("0433020b0000400001", 'hex'));
+    //self._write(new Buffer("0433020b0000400001", 'hex'));
     self._write(new Buffer("046602e5000080000e00", 'hex'));
     setTimeout(function() {
         self._pollPositions(self);
@@ -194,12 +194,12 @@ Ronin.prototype._parseIncoming = function(data) {
         console.log("Ronin(" + this._id + "): received", receivedBuf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
-        if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
-            var tilt = receivedBuf.readInt16LE(16) / 10;
-            var roll = receivedBuf.readInt16LE(12) / 10;
-            var pan = receivedBuf.readInt16LE(8) / 10;
-            updateMove(this, pan, tilt, roll);
-        } else {
+        //if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
+        //    var tilt = receivedBuf.readInt16LE(16) / 10;
+        //    var roll = receivedBuf.readInt16LE(12) / 10;
+        //    var pan = receivedBuf.readInt16LE(8) / 10;
+        //    updateMove(this, pan, tilt, roll);
+        //} else {
             for(var i = 0; i < receivedBuf.length; i++) {
                 if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
                     if(i + 9 < receivedBuf.length) {
@@ -210,7 +210,7 @@ Ronin.prototype._parseIncoming = function(data) {
                     break;
                 }            
             }
-        }
+        //}
         if(tPos > 0) {
             if(receivedBuf.readUInt16LE(tPos) == 0x0222 && receivedBuf.readUInt16LE(rPos) == 0x0223 && receivedBuf.readUInt16LE(pPos) == 0x0224) {
                 var tilt = receivedBuf.readInt16LE(tPos + 2) / 10;
