@@ -109,7 +109,8 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
-    self._write(new Buffer("046602e5c70080000e00", 'hex'), function(err) {
+    self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
+    self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
         }, 2000);
@@ -118,30 +119,21 @@ Ronin.prototype._pollPositions = function(self) {
 
 Ronin.prototype._init = function() {
     var self = this;
-    self._write(new Buffer("0433020e0200400001", 'hex'));
-    self._write(new Buffer("046602e5030040003211", 'hex'));
-    self._write(new Buffer("043302040400400001", 'hex'));
-    self._write(new Buffer("04330227050040070e", 'hex'));
-    self._write(new Buffer("043302040600400001", 'hex'));
-    self._write(new Buffer("046602e5080040003211", 'hex'));
-    self._write(new Buffer("043302240900400001", 'hex'));
-    self._write(new Buffer("043302440a00400001", 'hex'));
-    self._write(new Buffer("043302640b00400001", 'hex'));
-    self._write(new Buffer("046602e50c0080000e00", 'hex'));
-    self._write(new Buffer("043302e50d00400001", 'hex'));
-    self._write(new Buffer("046602e5070080000e00", 'hex'));
-    self._write(new Buffer("043302c50e00400001", 'hex'));
-    self._write(new Buffer("046602e5080040003211", 'hex'));
-    self._write(new Buffer("047502e50f00400412660cc01d103e010000000c000050", 'hex'));
-    self._write(new Buffer("046602e5100080000e00", 'hex'));
-    self._write(new Buffer("0433020e1100400001", 'hex'));
-    self._write(new Buffer("043302271200400001", 'hex'));
-    self._write(new Buffer("043302261300400001", 'hex'));
-    self._write(new Buffer("047502e51400400412660cc01d103e010000000c000050", 'hex'));
-    self._write(new Buffer("046602e5150080000e00", 'hex'));
-    self._write(new Buffer("047502e51400400412660cc01d103e010000000c000050", 'hex'));
-    self._write(new Buffer("0433020b1700400001", 'hex'));
-    self._write(new Buffer("046602e5180080000e00", 'hex'));
+    self._write(new Buffer("04330227000040070e", 'hex'));
+    self._write(new Buffer("043302040000400001", 'hex'));
+    self._write(new Buffer("046602e5000040003211", 'hex'));
+    self._write(new Buffer("043302240000400001", 'hex'));
+    self._write(new Buffer("043302440000400001", 'hex'));
+    self._write(new Buffer("043302640000400001", 'hex'));
+    self._write(new Buffer("043302e50000400001", 'hex'));
+    self._write(new Buffer("043302c50000400001", 'hex'));
+    self._write(new Buffer("046602e5000040003211", 'hex'));
+    self._write(new Buffer("0433020e0000400001", 'hex'));
+    self._write(new Buffer("043302270000400001", 'hex'));
+    self._write(new Buffer("043302260000400001", 'hex'));
+    self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
+    self._write(new Buffer("0433020b0000400001", 'hex'));
+    self._write(new Buffer("046602e5000080000e00", 'hex'));
     setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
@@ -151,9 +143,33 @@ Ronin.prototype._init = function() {
 //551b047502e51400400412660cc01d103e010000000c000050447e
 
 //crc(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex'), x).toString(16)
-// 55 20 04 7b e5 02 60 5d 00 04 66 01 06 01 f2 07 01 f7 08 01 ff 0a 01 00 0b 01 00 0c 01 00 ff cd 55 22 04 ea e5 02 61 5d
+// 55 22 04 ea e5 02 61 a8 00 0d 02 00 c8 3f 00 00 7f 00 00 00 72 09 00 00 2f 09 00 00 f7 00 04 62 fd 5a
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
 // 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
+
+function updateMove(self, pan, tilt, roll) {
+    if(tilt != self.tilt || roll != self.roll || pan != self.pan) {
+        self._moving = true;
+        if(self._posTimer) clearTimeout(self._posTimer);
+        self._posTimer = setTimeout(function() { 
+            self._posTimer = null;
+            self._pollPositions(self);
+        }, 1000);
+    } else {
+        self._moving = self;
+    }
+    var emitUpdate = false;
+    if(self.pan != pan) emitUpdate = true;
+    if(self.tilt != tilt) emitUpdate = true;
+    if(self.roll != roll) emitUpdate = true;
+    self.pan = pan;
+    self.tilt = tilt;
+    self.roll = roll;
+    if(emitUpdate) {
+        console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll);
+        self.emit("status", self.getStatus());
+    }
+}
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
@@ -178,43 +194,28 @@ Ronin.prototype._parseIncoming = function(data) {
         console.log("Ronin(" + this._id + "): received", receivedBuf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
-        for(var i = 0; i < receivedBuf.length; i++) {
-            if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
-                if(i + 9 < receivedBuf.length) {
-                    tPos = i;
-                    rPos = i + 4;
-                    pPos = i + 8;
-                }
-                break;
-            }            
+        if(receivedBuf.length > 6 && receivedBuf.readUInt16LE(2) == 0xEA04) {
+            var tilt = receivedBuf.readInt32LE(32) / 10;
+            var roll = receivedBuf.readInt32LE() / 10;
+            var pan = receivedBuf.readInt32LE(pPos + 2) / 10;
+        } else {
+            for(var i = 0; i < receivedBuf.length; i++) {
+                if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
+                    if(i + 9 < receivedBuf.length) {
+                        tPos = i;
+                        rPos = i + 4;
+                        pPos = i + 8;
+                    }
+                    break;
+                }            
+            }
         }
         if(tPos > 0) {
             if(receivedBuf.readUInt16LE(tPos) == 0x0222 && receivedBuf.readUInt16LE(rPos) == 0x0223 && receivedBuf.readUInt16LE(pPos) == 0x0224) {
                 var tilt = receivedBuf.readInt16LE(tPos + 2) / 10;
                 var roll = receivedBuf.readInt16LE(rPos + 2) / 10;
                 var pan = receivedBuf.readInt16LE(pPos + 2) / 10;
-                if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
-                    this._moving = true;
-                    if(this._posTimer) clearTimeout(this._posTimer);
-                    var self = this;
-                    this._posTimer = setTimeout(function() { 
-                        self._posTimer = null;
-                        self._pollPositions(self);
-                    }, 1000);
-                } else {
-                    this._moving = false;
-                }
-                var emitUpdate = false;
-                if(this.pan != pan) emitUpdate = true;
-                if(this.tilt != tilt) emitUpdate = true;
-                if(this.roll != roll) emitUpdate = true;
-                this.pan = pan;
-                this.tilt = tilt;
-                this.roll = roll;
-                if(emitUpdate) {
-                    console.log("Ronin(" + this._id + "): POSITIONS:", pan, tilt, roll);
-                    this.emit("status", this.getStatus());
-                }
+                updateMove(this, pan, tilt, roll);
             }
         } else if(this._expectedLength == 0x11) {
             if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x40) { // moved
