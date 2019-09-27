@@ -151,26 +151,29 @@ Ronin.prototype._init = function() {
 //551b047502e51400400412660cc01d103e010000000c000050447e
 
 //crc(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex'), x).toString(16)
-
+// 55 20 04 7b e5 02 60 5d 00 04 66 01 06 01 f2 07 01 f7 08 01 ff 0a 01 00 0b 01 00 0c 01 00 ff cd 55 22 04 ea e5 02 61 5d
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
 // 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
 
 Ronin.prototype._parseIncoming = function(data) {
     if(!data || data.length == 0) return;
-    if(this._expectedLength == 0 && data.readUInt8(0) == 0x55) {
-        this._expectedLength = data.readUInt8(1);
-        //console.log("this._expectedLength =", this._expectedLength);
+    if(!this._buf) {
         this._buf = data;
     } else {
         this._buf = Buffer.concat([this._buf, data]);
     }
-    if(this._buf.length >= this._expectedLength) {
-        console.log("Ronin(" + this._id + "): received", this._buf);
+    var startIndex = this._buf.indexOf(0x55);
+    if(startIndex !== -1) {
+        this._expectedLength = this._buf.readUInt8(startIndex + 1);
+    }
+    if(startIndex !== -1 && this._buf.length >= this._expectedLength) {
+        receivedBuf = this._buf.slice(startIndex, this._expectedLength);
+        console.log("Ronin(" + this._id + "): received", receivedBuf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
-        for(var i = 0; i < this._buf.length; i++) {
-            if(this._buf.readUInt16LE(tPos) == 0x0222) {
-                if(i + 9 < this._buf.length) {
+        for(var i = 0; i < receivedBuf.length; i++) {
+            if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
+                if(i + 9 < receivedBuf.length) {
                     tPos = i;
                     rPos = i + 4;
                     pPos = i + 8;
@@ -179,10 +182,10 @@ Ronin.prototype._parseIncoming = function(data) {
             }            
         }
         if(tPos > 0) {
-            if(this._buf.readUInt16LE(tPos) == 0x0222 && this._buf.readUInt16LE(rPos) == 0x0223 && this._buf.readUInt16LE(pPos) == 0x0224) {
-                var tilt = this._buf.readInt16LE(tPos + 2) / 10;
-                var roll = this._buf.readInt16LE(rPos + 2) / 10;
-                var pan = this._buf.readInt16LE(pPos + 2) / 10;
+            if(receivedBuf.readUInt16LE(tPos) == 0x0222 && receivedBuf.readUInt16LE(rPos) == 0x0223 && receivedBuf.readUInt16LE(pPos) == 0x0224) {
+                var tilt = receivedBuf.readInt16LE(tPos + 2) / 10;
+                var roll = receivedBuf.readInt16LE(rPos + 2) / 10;
+                var pan = receivedBuf.readInt16LE(pPos + 2) / 10;
                 if(tilt != this.tilt || roll != this.roll || pan != this.pan) {
                     this._moving = true;
                     if(this._posTimer) clearTimeout(this._posTimer);
@@ -207,18 +210,18 @@ Ronin.prototype._parseIncoming = function(data) {
                 }
             }
         } else if(this._expectedLength == 0x11) {
-            if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x40) { // moved
+            if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x40) { // moved
                 this._pollPositions(this);
-            } else if(this._buf.readUInt16LE(10) == 0x10f1 && this._buf.readUInt8(12) == 0x0c) { // not moving
+            } else if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x0c) { // not moving
                 this._moving = false;
             }
         } else if(this._expectedLength == 0x0e) {
-            if(this._buf.readUInt16LE(9) == 0x1404 || this._buf.readUInt16LE(9) == 0xe00a) { // moved
+            if(receivedBuf.readUInt16LE(9) == 0x1404 || receivedBuf.readUInt16LE(9) == 0xe00a) { // moved
                 this._pollPositions(this);
             }
         }
         this._expectedLength = 0;
-        //console.log("BT data received:", this._buf);
+        //console.log("BT data received:", receivedBuf);
     }
     if(this._buf.length > 255) {
         this._expectedLength = 0;
