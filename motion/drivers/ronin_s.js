@@ -327,7 +327,7 @@ Ronin.prototype._write = function(buffer, callback) {
     buf.writeUInt8(buf.length + 2, 1);
     buf.writeUInt8(this._commandIndex, 6);
     var chksm = new Buffer('0000', 'hex');
-    chksm.writeUInt16LE(crc(buf.slice(2), crcInitFromLength(buf.length + 2)), 0);
+    chksm.writeUInt16LE(crc(buf.slice(2), crcInitFromLength(buf.length + 2, this)), 0);
     buf = Buffer.concat([buf, chksm]);
     console.log("Ronin(" + this._id + "): writing", buf);
     try {
@@ -547,7 +547,7 @@ var crcTable = [
 
 var finalXor = 0x0000;
 
-function crcInitFromLength(len) {
+function crcInitFromLength(len, self) {
     switch(len) {
         case 0x23:
             return 0x7103;
