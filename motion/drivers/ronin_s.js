@@ -194,10 +194,10 @@ Ronin.prototype._parseIncoming = function(data) {
         console.log("Ronin(" + this._id + "): received", receivedBuf);
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
-        if(receivedBuf.length > 6 && receivedBuf.readUInt16LE(2) == 0xEA04) {
+        if(receivedBuf.length > 36 && receivedBuf.readUInt16LE(2) == 0xEA04) {
             var tilt = receivedBuf.readInt32LE(32) / 10;
-            var roll = receivedBuf.readInt32LE() / 10;
-            var pan = receivedBuf.readInt32LE(pPos + 2) / 10;
+            var roll = receivedBuf.readInt32LE(28) / 10;
+            var pan = receivedBuf.readInt32LE(24) / 10;
         } else {
             for(var i = 0; i < receivedBuf.length; i++) {
                 if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
