@@ -109,7 +109,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
-    self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
+    //self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
@@ -131,7 +131,7 @@ Ronin.prototype._init = function() {
     self._write(new Buffer("0433020e0000400001", 'hex'));
     self._write(new Buffer("043302270000400001", 'hex'));
     self._write(new Buffer("043302260000400001", 'hex'));
-    self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
+    //self._write(new Buffer("047502e50000400412660cc01d103e010000000c000050", 'hex'));
     self._write(new Buffer("0433020b0000400001", 'hex'));
     self._write(new Buffer("046602e5000080000e00", 'hex'));
     setTimeout(function() {
