@@ -132,14 +132,14 @@ Ronin.prototype._init = function() {
     self._write(new Buffer("046602e5070080000e00", 'hex'));
     self._write(new Buffer("043302c50e00400001", 'hex'));
     self._write(new Buffer("046602e5080040003211", 'hex'));
-    self._write(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex'));
+    self._write(new Buffer("047502e50f00400412660cc01d103e010000000c000050", 'hex'));
     self._write(new Buffer("046602e5100080000e00", 'hex'));
     self._write(new Buffer("0433020e1100400001", 'hex'));
     self._write(new Buffer("043302271200400001", 'hex'));
     self._write(new Buffer("043302261300400001", 'hex'));
-    self._write(new Buffer("047502e51400400412660cc01d103e01000050", 'hex'));
+    self._write(new Buffer("047502e51400400412660cc01d103e010000000c000050", 'hex'));
     self._write(new Buffer("046602e5150080000e00", 'hex'));
-    self._write(new Buffer("047502e51600400412660cc01d103e01000050", 'hex'));
+    self._write(new Buffer("047502e51400400412660cc01d103e010000000c000050", 'hex'));
     self._write(new Buffer("0433020b1700400001", 'hex'));
     self._write(new Buffer("046602e5180080000e00", 'hex'));
     setTimeout(function() {
@@ -147,6 +147,10 @@ Ronin.prototype._init = function() {
         self.emit("status", self.getStatus());
     }, 2000);
 }
+
+//551b047502e51400400412660cc01d103e010000000c000050447e
+
+//crc(new Buffer("047502e50f00400412660cc01d103e01000050", 'hex'), x).toString(16)
 
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
 // 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
@@ -553,6 +557,8 @@ function crcInitFromLength(len, self) {
             return 0x7103;
         case 0x1b:
             return 0xe7cc;
+        //case 0x17:
+        //    return ;
         case 0x15:
             return 0xDC29;
         case 0x0e:
@@ -560,7 +566,7 @@ function crcInitFromLength(len, self) {
         case 0x0d:
             return 0x4f10;
         default:
-            console.log('Ronin(' + self._id + "): no crc init for length", len);
+            console.log('Ronin(' + self._id + "): no crc init for length", '0x' + len.toString(16));
     }
     return 0;
 }
