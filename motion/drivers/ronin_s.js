@@ -195,9 +195,9 @@ Ronin.prototype._parseIncoming = function(data) {
         var receivedPositions = false;
         var tPos = 0, rPos = 0, pPos = 0;
         if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
-            var tilt = receivedBuf.readInt32LE(16) / 10;
-            var roll = receivedBuf.readInt32LE(12) / 10;
-            var pan = receivedBuf.readInt32LE(8) / 10;
+            var tilt = receivedBuf.readInt16LE(16) / 10;
+            var roll = receivedBuf.readInt16LE(12) / 10;
+            var pan = receivedBuf.readInt16LE(8) / 10;
             updateMove(this, pan, tilt, roll);
         } else {
             for(var i = 0; i < receivedBuf.length; i++) {
