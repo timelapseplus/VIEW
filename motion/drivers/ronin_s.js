@@ -210,7 +210,8 @@ Ronin.prototype._parseIncoming = function(data) {
         //      }            
         //  }
         //}
-        if(receivedBuf.length >= pPos + 2 && receivedBuf.readUInt16LE(2) == 0x3604) {
+        //if(tPos > 0 && receivedBuf.length >= pPos + 2) {
+        if(receivedBuf.length >= 40 && receivedBuf.readUInt16LE(2) == 0x3604) {
             var tPos = 30;
             var rPos = 34;
             var pPos = 38;
