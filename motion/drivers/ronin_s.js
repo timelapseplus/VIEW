@@ -570,10 +570,10 @@ function crcInitFromLength(len, self) {
     switch(len) {
         case 0x23:
             return 0x7103;
+        case 0x1e:
+            return 0x1754;
         case 0x1b:
             return 0xe7cc;
-        //case 0x17:
-        //    return ;
         case 0x15:
             return 0xDC29;
         case 0x0e:
