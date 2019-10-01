@@ -10,6 +10,8 @@ var util = require('util');
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 
+var trafficLog = false;
+
 function Ronin(id) {
     this.btServiceIds = ['fff0'];
 
@@ -117,8 +119,10 @@ Ronin.prototype._pollPositions = function(self) {
     }); // get positions
 }
 
-Ronin.prototype._init = function() {
-    var self = this;
+Ronin.prototype._init = function(self) {
+    var first = self ? false : true;
+    if(!self) self = this;
+    console.log("Ronin(" + self._id + "): initializing...first time:", first);
     self._write(new Buffer("550d0433020e0000400001", 'hex'));
     self._write(new Buffer("550e046602e5000080000e00", 'hex'));
     self._write(new Buffer("550e046602e5000040003211", 'hex'));
@@ -134,10 +138,13 @@ Ronin.prototype._init = function() {
     self._write(new Buffer("550e046602e5000080000e00", 'hex'));
     self._write(new Buffer("550d043302c50000400001", 'hex'));
     self._write(new Buffer("550e046602e5000040003211", 'hex'));
-    setTimeout(function() {
+    if(first) setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
     }, 2000);
+    setTimeout(function() {
+        self._init(self);
+    }, 60000);
 }
 
 //551b047502e51400400412660cc01d103e010000000c000050447e
@@ -191,7 +198,7 @@ Ronin.prototype._parseIncoming = function(data) {
     if(startIndex !== -1 && this._buf.length >= this._expectedLength) {
         receivedBuf = this._buf.slice(startIndex, this._expectedLength);
         this._buf = this._buf.slice(this._expectedLength);
-        console.log("Ronin(" + this._id + "): received", receivedBuf);
+        if(trafficLog) console.log("Ronin(" + this._id + "): received", receivedBuf);
         //var tPos = 0, rPos = 0, pPos = 0;
         //if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
         //    var tilt = receivedBuf.readInt16LE(16) / 10;
@@ -348,7 +355,7 @@ Ronin.prototype._write = function(buffer, callback) {
     var chksm = new Buffer('0000', 'hex');
     chksm.writeUInt16LE(crc(buf.slice(2), crcInitFromLength(buf.length + 2, this)), 0);
     buf = Buffer.concat([buf, chksm]);
-    console.log("Ronin(" + this._id + "): writing", buf);
+    if(trafficLog) console.log("Ronin(" + this._id + "): writing", buf);
     try {
         var startIndex = 0;
         while(buf.length - startIndex > 0) {
