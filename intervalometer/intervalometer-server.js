@@ -990,6 +990,13 @@ function btStateChange(state) {
           motion.gm2.disconnect();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.rs1.getStatus();
+        console.log("CORE: Ronin status:", status);
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected Ronin, bluetooth powered off");
+          motion.rs1.disconnect();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 
@@ -1057,12 +1064,17 @@ function btDiscover(peripheral) {
 
 }
 
+function btError(err) {
+  console.log("CORE: bluetooth error:", err);
+}
+
 function cleanUpBt() {
   console.log("CORE: bluetooth cleanup");
   stopScan();
   btleScanStarting = false;
   noble.removeListener('stateChange', btStateChange);
   noble.removeListener('discover', btDiscover);
+  noble.removeListener('error', btError);
   noble = null;
   purgeCache('noble');
   noble = require('noble');
@@ -1072,6 +1084,7 @@ function setUpBt() {
   console.log("CORE: setting up bluetooth");
   noble.on('stateChange', btStateChange);
   noble.on('discover', btDiscover);
+  noble.on('error', btError);
 
   startScan();
 }
