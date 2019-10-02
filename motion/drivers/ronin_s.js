@@ -312,6 +312,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             self._panTarget = null;
             self._tiltTarget = null;
             self._rollTarget = null;
+            console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
             if (callback) callback(null, pos);
         }
     }
