@@ -295,6 +295,7 @@ Ronin.prototype.enable = function(motor) {
 }
 
 Ronin.prototype.move = function(motor, degrees, callback) {
+    console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees");
     var self = this;
     var pan = motor == 1 ? degrees : 0;
     var tilt = motor == 2 ? degrees : 0;
