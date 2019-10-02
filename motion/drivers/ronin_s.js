@@ -118,7 +118,7 @@ Ronin.prototype._pollPositions = function(self) {
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
-        }, 2000);
+        }, 5000);
     }); // get positions
 }
 
