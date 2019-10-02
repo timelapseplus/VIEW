@@ -27,6 +27,9 @@ function Ronin(id) {
     this.pan = 0;
     this.tilt = 0;
     this.roll = 0;
+    this.reportedPan = null;
+    this.reportedTilt = null;
+    this.reportedRoll = null;
     this._stepsPerDegree = 1;
     this._backlash = 0;
     this._lastDirection = 0;
@@ -111,7 +114,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
-    self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
+    //self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
@@ -138,6 +141,7 @@ Ronin.prototype._init = function(self) {
     self._write(new Buffer("046602e5000080000e00", 'hex'));
     self._write(new Buffer("043302c50000400001", 'hex'));
     self._write(new Buffer("046602e5000040003211", 'hex'));
+    self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
     if(first) setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
@@ -172,8 +176,24 @@ function updateMove(self, pan, tilt, roll) {
     self.pan = pan;
     self.tilt = tilt;
     self.roll = roll;
+
+    if(!self._moving) {
+        if(self.reportedPan == null || Math.abs(self.reportedPan - self.pan) > 0.5) {
+            self.reportedPan = self.pan;
+            emitUpdate = true;
+        }
+        if(self.reportedTilt == null || Math.abs(self.reportedTilt - self.tilt) > 0.5) {
+            self.reportedTilt = self.tilt;
+            emitUpdate = true;
+        }
+        if(self.reportedRoll == null || Math.abs(self.reportedRoll - self.roll) > 0.5) {
+            self.reportedRoll = self.roll;
+            emitUpdate = true;
+        }
+    }
+
     if(emitUpdate) {
-        console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll);
+        console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll, "REPORTED:", self.reportedPan, self.reportedTilt, self.reportedRoll);
         self.emit("status", self.getStatus());
     }
 }
@@ -280,9 +300,9 @@ Ronin.prototype.getStatus = function() {
     return {
         connected: this._dev && this._dev.connected,
         connectionType: type,
-        panPos: this.pan,
-        tiltPos: this.tilt,
-        rollPos: this.roll,
+        panPos: this.reportedPan,
+        tiltPos: this.reportedTilt,
+        rollPos: this.reportedRoll,
         backlash: this._backlash
     }   
 }
@@ -298,46 +318,30 @@ Ronin.prototype.enable = function(motor) {
 Ronin.prototype.move = function(motor, degrees, callback) {
     console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees");
     var self = this;
-    var pan = motor == 1 ? degrees : 0;
-    var tilt = motor == 2 ? degrees : 0;
-    var roll = motor == 3 ? degrees : 0;
+    self.reportedPan += (motor == 1 ? degrees : 0);
+    self.reportedTilt += (motor == 2 ? degrees : 0);
+    self.reportedRoll += (motor == 3 ? degrees : 0);
 
     var checkEnd = function() {
         if(self._moving) {
+            self._pollPositions(self);
             setTimeout(checkEnd, 200); // keep checking until stop
         } else {
             var pos = 0;
-            if(motor == 1) pos = self.pan;
-            if(motor == 2) pos = self.tilt;
-            if(motor == 3) pos = self.roll;
-            self._panTarget = null;
-            self._tiltTarget = null;
-            self._rollTarget = null;
+            if(motor == 1) pos = self.reportedPan;
+            if(motor == 2) pos = self.reportedTilt;
+            if(motor == 3) pos = self.reportedRoll;
             console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
             if (callback) callback(null, pos);
         }
     }
 
     var checkStart = function() {
-        if(self._moving) {
-            if(self._panTarget != null || self._tiltTarget != null || self._rollTarget != null) { // override exisiting move with current target
-                pan += self._panTarget != null ? self._panTarget : self.pan;
-                tilt += self._tiltTarget != null ? self._tiltTarget : self.tilt;
-                roll += self._rollTarget != null ? self._rollTarget : self.roll;
-            } else {
-                return setTimeout(checkStart, 200); // keep checking until stop
-            }
-        } else {
-            pan += self.pan;
-            tilt += self.tilt;
-            roll += self.roll;
-        }
-        pan = (((pan + 180) % 360) - 180) * (pan < 0 ? -1 : 1); 
-        tilt = (((tilt + 180) % 360) - 180) * (tilt < 0 ? -1 : 1); 
+        var pan = (((self.reportedPan + 180) % 360) - 180) * (self.reportedPan < 0 ? -1 : 1); 
+        var tilt = (((self.reportedTilt + 180) % 360) - 180) * (self.reportedTilt < 0 ? -1 : 1); 
+        var roll = false;
         if(motor == 3) {
-            roll = (((roll + 180) % 360) - 180) * (roll < 0 ? -1 : 1); 
-        } else {
-            roll = false;
+            roll = (((self.reportedRoll + 180) % 360) - 180) * (self.reportedRoll < 0 ? -1 : 1); 
         } 
         self._moving = true;
         self._moveAbsolute(pan, tilt, roll, function(){
@@ -492,6 +496,9 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
                 if(motor == 1) pos = self.pan;
                 if(motor == 2) pos = self.tilt;
                 if(motor == 3) pos = self.roll;
+                self.reportedPan = self.pan;
+                self.reportedTilt = self.tilt;
+                self.reportedRoll = self.roll;
                 if (callback) callback(null, pos);
             }
         }
