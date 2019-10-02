@@ -163,7 +163,7 @@ function updateMove(self, pan, tilt, roll) {
             self._pollPositions(self);
         }, 1000);
     } else {
-        self._moving = self;
+        self._moving = false;
     }
     var emitUpdate = false;
     if(self.pan != pan) emitUpdate = true;

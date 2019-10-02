@@ -851,6 +851,7 @@ var scanTimerHandle = null;
 var scanTimerHandle2 = null;
 var scanTimerHandle3 = null;
 var btleScanStarting = false;
+var btleScanning = false;
 
 function clearScanTimeouts() {
     if(scanTimerHandle) clearTimeout(scanTimerHandle);
@@ -865,6 +866,7 @@ function startScan() {
     //if(btleScanStarting || updates.installing) return;
     if(btleScanStarting) return;
     btleScanStarting = true;
+    btleScanning = true;
     clearScanTimeouts()
     scanTimerHandle = setTimeout(startScan, 20000);
     if (noble.state == "poweredOn") {
@@ -955,6 +957,7 @@ function stopScan() {
     console.log("CORE: stopping BLE scan");
     clearScanTimeouts();
     noble.stopScanning();
+    btleScanning = false;
 }
 
 function btStateChange(state) {
@@ -962,7 +965,7 @@ function btStateChange(state) {
     if (state == "poweredOn") {
         setTimeout(function() {
             startScan()
-        });
+        }, 2000);
     } else if(state == "poweredOff") {
         stopScan();
         btleScanStarting = false;
@@ -1055,6 +1058,7 @@ function btDiscover(peripheral) {
 }
 
 function cleanUpBt() {
+  console.log("CORE: bluetooth cleanup");
   stopScan();
   btleScanStarting = false;
   noble.removeListener('stateChange', btStateChange);
@@ -1078,11 +1082,11 @@ motion.st4.connect();
 
 motion.on('status', function(status) {
     sendEvent('motion.status', status);
-    if (status.available) {
+    if (status.available && btleScanning) {
         stopScan();
     } else {
         //wifi.resetBt(function(){
-            startScan();
+            if(!btleScanning) startScan();
         //});
     }
 });
