@@ -10,7 +10,7 @@ var util = require('util');
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 
-var trafficLog = false;
+var trafficLog = true;
 
 function Ronin(id) {
     this.btServiceIds = ['fff0'];
@@ -114,7 +114,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
 
 Ronin.prototype._pollPositions = function(self) {
     if(self._pollTimer) clearTimeout(self._pollTimer);
-    //self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
+    self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
