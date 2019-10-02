@@ -142,9 +142,9 @@ Ronin.prototype._init = function(self) {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
     }, 2000);
-    setTimeout(function() {
-        self._init(self);
-    }, 60000);
+    //setTimeout(function() {
+    //    self._init(self);
+    //}, 60000);
 }
 
 //551b047502e51400400412660cc01d103e010000000c000050447e
