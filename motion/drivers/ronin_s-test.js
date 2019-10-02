@@ -377,9 +377,9 @@ function crc(bufData, crcInit) {
     crc16 = rf16(crc16);
     return (crc16 ^ finalXor) & 0xFFFF;
 } 
-//5523042ee502e12d000466010a01000b01000c01002202420023020000240261ff1f49
+//551e048a02e559004004126624c01d00001c103e010300008c0e005009a2
 for(var x = 0; x <= 0xFFFF; x++) { 
-    if(crc(new Buffer("042ee502e12d000466010a01000b01000c01002202420023020000240261ff", 'hex'), x).toString(16) == '491f') {
+    if(crc(new Buffer("048a02e559004004126624c01d00001c103e010300008c0e0050", 'hex'), x).toString(16) == 'a209') {
         console.log(x.toString(16)); 
         break;
     }

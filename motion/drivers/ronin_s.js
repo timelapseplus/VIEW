@@ -127,7 +127,6 @@ Ronin.prototype._init = function(self) {
     if(!self) self = this;
     console.log("Ronin(" + self._id + "): initializing...first time:", first);
     self._write(new Buffer("0433020e0000400001", 'hex'));
-    self._write(new Buffer("046602e5000080000e00", 'hex'));
     self._write(new Buffer("046602e5000040003211", 'hex'));
     self._write(new Buffer("043302040000400001", 'hex'));
     self._write(new Buffer("04330227000040070e", 'hex'));
@@ -136,12 +135,20 @@ Ronin.prototype._init = function(self) {
     self._write(new Buffer("043302240000400001", 'hex'));
     self._write(new Buffer("043302440000400001", 'hex'));
     self._write(new Buffer("043302640000400001", 'hex'));
-    self._write(new Buffer("046602e5000080000e00", 'hex'));
     self._write(new Buffer("043302e50000400001", 'hex'));
-    self._write(new Buffer("046602e5000080000e00", 'hex'));
-    self._write(new Buffer("043302c50000400001", 'hex'));
     self._write(new Buffer("046602e5000040003211", 'hex'));
-    self._write(new Buffer("048a02e500004004126624c01d00001c103e010300008c0e0050", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("0433020e0000400001", 'hex'));
+    self._write(new Buffer("043302c50000400001", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("043302270000400001", 'hex'));
+    self._write(new Buffer("043302260000400001", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("0433020e0000400001", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("047502e50000400412103e010000000c000050660cc01d", 'hex'));
+    self._write(new Buffer("0433020b0000400001", 'hex'));
     if(first) setTimeout(function() {
         self._pollPositions(self);
         self.emit("status", self.getStatus());
