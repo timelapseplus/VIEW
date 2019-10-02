@@ -156,7 +156,7 @@ Ronin.prototype._init = function(self) {
 
 function updateMove(self, pan, tilt, roll) {
     if(tilt != self.tilt || roll != self.roll || pan != self.pan) {
-        self._moving = true;
+        //self._moving = true;
         if(self._posTimer) clearTimeout(self._posTimer);
         self._posTimer = setTimeout(function() { 
             self._posTimer = null;
@@ -230,6 +230,7 @@ Ronin.prototype._parseIncoming = function(data) {
             }
         } else if(this._expectedLength == 0x11) {
             if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x40) { // moved
+                this._moving = true;
                 this._pollPositions(this);
             } else if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x0c) { // not moving
                 this._moving = false;
