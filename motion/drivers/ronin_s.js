@@ -107,7 +107,7 @@ Ronin.prototype._connectBt = function(btPeripheral, callback) {
             self._moving = false;
             clearTimeout(self._posTimer);
             clearTimeout(self._pollTimer);
-            self.emit("status", self.getStatus());
+            self.emit("status", self.getStatus(self));
         });
 
     });
@@ -152,7 +152,7 @@ Ronin.prototype._init = function(self) {
     self._write(new Buffer("0433020b0000400001", 'hex'));
     if(first) setTimeout(function() {
         self._pollPositions(self);
-        self.emit("status", self.getStatus());
+        self.emit("status", self.getStatus(self));
     }, 2000);
     //setTimeout(function() {
     //    self._init(self);
@@ -167,6 +167,7 @@ Ronin.prototype._init = function(self) {
 // 55 2c 04 36 e5 02 bf 6c 00 04 66 01 06 01 01 07 01 01 08 01 01 0a 01 00 0b 01 00 0c 01 00 22 02 05 00 23 02 00 00 24 02 be fe 6c 16
 
 function updateMove(self, pan, tilt, roll) {
+    var wasMoving = self._moving;
     if(tilt != self.tilt || roll != self.roll || pan != self.pan) {
         //self._moving = true;
         if(self._posTimer) clearTimeout(self._posTimer);
@@ -193,14 +194,14 @@ function updateMove(self, pan, tilt, roll) {
         } else if(panDelta < -180) {
             panDelta += 360;
         }
-        self.reportedPan += panDelta;
-        self.reportedTilt = self.tilt;
-        self.reportedRoll = self.roll;
+        if(wasMoving || Math.abs(panDelta) > 0.5) self.reportedPan += panDelta;
+        if(wasMoving || Math.abs(self.reportedTilt - self.tilt) > 0.5) self.reportedTilt = self.tilt;
+        if(wasMoving || Math.abs(self.reportedRoll - self.roll) > 0.5) self.reportedRoll = self.roll;
     }
 
     if(emitUpdate) {
         console.log("Ronin(" + self._id + "): POSITIONS:", pan, tilt, roll, "REPORTED:", self.reportedPan, self.reportedTilt, self.reportedRoll);
-        self.emit("status", self.getStatus());
+        self.emit("status", self.getStatus(self));
     }
 }
 
@@ -301,15 +302,16 @@ Ronin.prototype.disconnect = function() {
     this.emit("status", this.getStatus());
 }
 
-Ronin.prototype.getStatus = function() {
-    var type = (this._dev && this._dev.type) ? this._dev.type : null;
+Ronin.prototype.getStatus = function(self) {
+    if(!self) self = this;
+    var type = (self._dev && self._dev.type) ? self._dev.type : null;
     return {
-        connected: this._dev && this._dev.connected,
+        connected: self._dev && self._dev.connected,
         connectionType: type,
-        panPos: this.reportedPan,
-        tiltPos: this.reportedTilt,
-        rollPos: this.reportedRoll,
-        backlash: this._backlash
+        panPos: self.reportedPan,
+        tiltPos: self.reportedTilt,
+        rollPos: self.reportedRoll,
+        backlash: self._backlash
     }   
 }
 
