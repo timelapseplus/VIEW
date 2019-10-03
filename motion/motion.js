@@ -339,8 +339,8 @@ function updateStatus() {
     motors.push({driver:'ST4', motor:2, connected:st4Status.connected, position:st4Status.motor2pos, unit: '°', orientation: 'tilt', backlash: 0});
     motors.push({driver:'ST4', motor:3, connected:st4Status.connected, position:st4Status.motor3pos, unit: 's', orientation: null, backlash: 0});
     motors.push({driver:'ST4', motor:4, connected:st4Status.connected, position:st4Status.motor4pos, unit: 's', orientation: null, backlash: 0});
-    motors.push({driver:'RS1', motor:1, connected:motion.rs1.connected, position:motion.rs1.pan, unit: '°', orientation: 'pan', backlash: 0});
-    motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.tilt, unit: '°', orientation: 'tilt', backlash: 0});
+    motors.push({driver:'RS1', motor:1, connected:motion.rs1.connected, position:motion.rs1.reportedPan, unit: '°', orientation: 'pan', backlash: 0});
+    motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.reportedTilt, unit: '°', orientation: 'tilt', backlash: 0});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),
