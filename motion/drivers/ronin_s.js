@@ -471,7 +471,6 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
     if(!this._enabled) this.enable();
 
     var self = this;
-    this._moving = true;
 
     if(this._watchdog) {
         clearTimeout(this._watchdog);
@@ -490,6 +489,7 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
         this._timerMove3 = null;
     }
     if(speed) {
+        this._moving = true;
         speed /= 100;
         var pan = motor == 1 ? speed : 0;
         var tilt = motor == 2 ? speed : 0;
@@ -518,6 +518,7 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
                 if(motor == 1) pos = self.reportedPan;
                 if(motor == 2) pos = self.reportedTilt;
                 if(motor == 3) pos = self.reportedRoll;
+                console.log("Ronin(" + self._id + "): reporting pos:", pos);
                 if (callback) callback(null, pos);
             }
         }
