@@ -513,12 +513,9 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
                 setTimeout(check, 200); // keep checking until stop
             } else {
                 var pos = 0;
-                if(motor == 1) pos = self.pan;
-                if(motor == 2) pos = self.tilt;
-                if(motor == 3) pos = self.roll;
-                self.reportedPan = self.pan;
-                self.reportedTilt = self.tilt;
-                self.reportedRoll = self.roll;
+                if(motor == 1) pos = self.reportedPan;
+                if(motor == 2) pos = self.reportedTilt;
+                if(motor == 3) pos = self.reportedRoll;
                 if (callback) callback(null, pos);
             }
         }
