@@ -226,25 +226,6 @@ Ronin.prototype._parseIncoming = function(data) {
         receivedBuf = this._buf.slice(startIndex, this._expectedLength);
         this._buf = this._buf.slice(this._expectedLength);
         if(trafficLog) console.log("Ronin(" + this._id + "): received", receivedBuf);
-        //var tPos = 0, rPos = 0, pPos = 0;
-        //if(receivedBuf.length >= 20 && receivedBuf.readUInt16LE(2) == 0xEA04) {
-        //    var tilt = receivedBuf.readInt16LE(16) / 10;
-        //    var roll = receivedBuf.readInt16LE(12) / 10;
-        //    var pan = receivedBuf.readInt16LE(8) / 10;
-        //    updateMove(this, pan, tilt, roll);
-        //} else {
-        //  for(var i = 0; i < receivedBuf.length; i++) {
-        //      if(receivedBuf.readUInt16LE(tPos) == 0x0222) {
-        //          if(i + 9 < receivedBuf.length) {
-        //              tPos = i;
-        //              rPos = i + 4;
-        //              pPos = i + 8;
-        //          }
-        //          break;
-        //      }            
-        //  }
-        //}
-        //if(tPos > 0 && receivedBuf.length >= pPos + 2) {
         if(receivedBuf.length >= 40 && receivedBuf.readUInt16LE(2) == 0x3604) {
             var tPos = 30;
             var rPos = 34;
@@ -327,7 +308,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees");
     var self = this;
     var retries = 2;
-    var tries = Math.abs(degrees % 360) / 12 + 2;
+    var tries = Math.abs(degrees % 360) / 10 + 5;
 
     self.reportedPan += (motor == 1 ? degrees : 0);
     self.reportedTilt += (motor == 2 ? degrees : 0);
@@ -343,7 +324,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     self._movingToReported = true;
 
     var checkEnd = function() {
-        var targetDelta = 0.2;
+        var targetDelta = 0.3;
         var pos = 0;
         if(motor == 1) pos = self.reportedPan;
         if(motor == 2) pos = self.reportedTilt;
@@ -357,10 +338,11 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             tries--;
             if(tries > 0) {
                 self._pollPositions(self);
-                setTimeout(checkEnd, 500); // keep checking until stop
+                setTimeout(checkEnd, 300); // keep checking until stop
             } else {
                 self._movingToReported = false;
                 retries--;
+                tries = 5;
                 if(retries > 0) {
                     console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED, retrying...");
                     self._moveAbsolute(panMod, tiltMod, rollMod, function(){
@@ -416,15 +398,9 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
     var other_flags = roll === false ? 0x1405 : 0x0000;
 
     if(mode == 'absolute') {
-        if(pan < 0) pan = 0;
-        if(pan > 0xFFFF) pan = 0xFFFF;
-        if(tilt < 0) tilt = 0;
-        if(tilt > 0xFFFF) tilt = 0xFFFF;
-        if(roll < 0) roll = 0;
-        if(roll > 0xFFFF) roll = 0xFFFF;
-        pan = Math.round(pan);
-        tilt = Math.round(tilt);
-        roll = Math.round(roll);
+        pan = Math.round(pan % 3600);
+        tilt = Math.round(tilt % 3600);
+        roll = Math.round(roll % 3600);
         mode_flags = 0x14044000; // absolute move
     } else {
         if(pan > 1) pan = 1;
@@ -442,9 +418,9 @@ Ronin.prototype._buildMoveCommand = function(pan, tilt, roll, mode) {
     var buf = new Buffer('04a9020400004004010004000400040000', 'hex');
 
     buf.writeUInt32LE(mode_flags, 5);
-    buf.writeUInt16LE(tilt, 9);
-    buf.writeUInt16LE(roll, 11);
-    buf.writeUInt16LE(pan, 13);
+    buf.writeInt16LE(tilt, 9);
+    buf.writeInt16LE(roll, 11);
+    buf.writeInt16LE(pan, 13);
     buf.writeUInt16LE(other_flags, 15);
 
     return buf;
