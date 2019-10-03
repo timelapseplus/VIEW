@@ -10,7 +10,7 @@ var util = require('util');
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 
-var trafficLog = true;
+var trafficLog = false;
 
 function Ronin(id) {
     this.btServiceIds = ['fff0'];
@@ -118,7 +118,7 @@ Ronin.prototype._pollPositions = function(self) {
     self._write(new Buffer("046602e5000080000e00", 'hex'), function(err) {
         if(self.connected) self._pollTimer = setTimeout(function() {
             self._pollPositions(self);
-        }, 5000);
+        }, 2000);
     }); // get positions
 }
 
@@ -332,13 +332,13 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     var checkEnd = function() {
         if(self._moving) {
             self._pollPositions(self);
-            setTimeout(checkEnd, 200); // keep checking until stop
+            setTimeout(checkEnd, 500); // keep checking until stop
         } else {
             var pos = 0;
             if(motor == 1) pos = self.reportedPan;
             if(motor == 2) pos = self.reportedTilt;
             if(motor == 3) pos = self.reportedRoll;
-            console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
+            console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
             if (callback) callback(null, pos);
         }
     }
@@ -375,7 +375,9 @@ Ronin.prototype._write = function(buffer, callback) {
         while(buf.length - startIndex > 0) {
             var nb = buf.slice(startIndex, startIndex + 20);
             //console.log("Ronin(" + this._id + "): writing chunk", nb);
-            this._cmdCh.write(nb);
+            this._cmdCh.write(nb, true, function(err) {
+                if(err) console.log("Ronin(" + this._id + "): error writing:", err);
+            });
             startIndex += nb.length;
         }
         callback && callback();
