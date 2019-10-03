@@ -28,9 +28,9 @@ function Ronin(id) {
     this.pan = 0;
     this.tilt = 0;
     this.roll = 0;
-    this.reportedPan = null;
-    this.reportedTilt = null;
-    this.reportedRoll = null;
+    this.reportedPan = 0;
+    this.reportedTilt = 0;
+    this.reportedRoll = 0;
     this._stepsPerDegree = 1;
     this._backlash = 0;
     this._lastDirection = 0;
@@ -329,7 +329,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
         if(motor == 1) pos = self.reportedPan;
         if(motor == 2) pos = self.reportedTilt;
         if(motor == 3) pos = self.reportedRoll;
-        if(Math.abs(panMod - self.pan) <= targetDelta && Math.abs(self.reportedTilt - self.tilt) <= targetDelta && Math.abs(self.reportedRoll - self.roll) <= targetDelta) {
+        if(Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
             self._movingToReported = false;
             self._pollPositions(self);
@@ -344,7 +344,11 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                 retries--;
                 tries = 5;
                 if(retries > 0) {
-                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED, retrying...");
+                    var errorDelta = 0;
+                    if(motor == 1) errorDelta = Math.abs(panMod - self.pan);
+                    if(motor == 2) errorDelta = Math.abs(tiltMod - self.tilt);
+                    if(motor == 3) errorDelta = Math.abs(rollMod - self.roll);
+                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", ,"), retrying...");
                     self._moveAbsolute(panMod, tiltMod, rollMod, function(){
                         self._pollPositions(self);
                         setTimeout(checkEnd, 500); // keep checking until stop
