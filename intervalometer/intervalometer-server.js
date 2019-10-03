@@ -956,7 +956,7 @@ function startScan() {
 function stopScan() {
     console.log("CORE: stopping BLE scan");
     clearScanTimeouts();
-    noble.stopScanning();
+    //noble.stopScanning();
     btleScanning = false;
 }
 
