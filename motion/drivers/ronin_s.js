@@ -21,6 +21,7 @@ function Ronin(id) {
     this._dev = null;
     this._buf = null;
     this._moving = false;
+    this._movingToReported = false;
     this._angle = null;
     this._expectedLength = 0;
     this._posTimer = null;
@@ -184,19 +185,17 @@ function updateMove(self, pan, tilt, roll) {
     self.tilt = tilt;
     self.roll = roll;
 
-    if(!self._moving) {
-        if(self.reportedPan == null || Math.abs(self.reportedPan - self.pan) > 0.5) {
-            self.reportedPan = self.pan;
-            emitUpdate = true;
+    if(!self._movingToReported) {
+        var panMod = self.reportedPan >= 0 ? ((self.reportedPan + 180) % 360 - 180) : ((self.reportedPan - 180) % 360 + 180);
+        var panDelta = self.pan - panMod;
+        if(panDelta > 180) {
+            panDelta -= 360;
+        } else if(panDelta < -180) {
+            panDelta += 360;
         }
-        if(self.reportedTilt == null || Math.abs(self.reportedTilt - self.tilt) > 0.5) {
-            self.reportedTilt = self.tilt;
-            emitUpdate = true;
-        }
-        if(self.reportedRoll == null || Math.abs(self.reportedRoll - self.roll) > 0.5) {
-            self.reportedRoll = self.roll;
-            emitUpdate = true;
-        }
+        self.reportedPan += panDelta;
+        self.reportedTilt = self.tilt;
+        self.reportedRoll = self.roll;
     }
 
     if(emitUpdate) {
@@ -325,37 +324,49 @@ Ronin.prototype.enable = function(motor) {
 Ronin.prototype.move = function(motor, degrees, callback) {
     console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees");
     var self = this;
-    self.reportedPan += (motor == 1 ? degrees : 0);
-    self.reportedTilt += (motor == 2 ? degrees : 0);
-    self.reportedRoll += (motor == 3 ? degrees : 0);
-
+    var tries = 10;
     var checkEnd = function() {
-        if(self._moving) {
-            self._pollPositions(self);
-            setTimeout(checkEnd, 500); // keep checking until stop
-        } else {
+        var targetDelta = 0.5;
+        var panMod = self.reportedPan >= 0 ? ((self.reportedPan + 180) % 360 - 180) : ((self.reportedPan - 180) % 360 + 180);
+        if(Math.abs(panMod - self.pan) <= targetDelta && Math.abs(self.reportedTilt - self.tilt) <= targetDelta && Math.abs(self.reportedRoll - self.roll) <= targetDelta) {
             var pos = 0;
             if(motor == 1) pos = self.reportedPan;
             if(motor == 2) pos = self.reportedTilt;
             if(motor == 3) pos = self.reportedRoll;
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
+            self._movingToReported = false;
             if (callback) callback(null, pos);
+        } else {
+            tries--;
+            if(tries > 0) {
+                self._pollPositions(self);
+                setTimeout(checkEnd, 500); // keep checking until stop
+            } else {
+                var pos = 0;
+                if(motor == 1) pos = self.pan;
+                if(motor == 2) pos = self.tilt;
+                if(motor == 3) pos = self.roll;
+                self._movingToReported = false;
+                if (callback) callback("timeout", pos);
+            }
         }
     }
 
-    var checkStart = function() {
-        var pan = (((self.reportedPan + 180) % 360) - 180) * (self.reportedPan < 0 ? -1 : 1); 
-        var tilt = (((self.reportedTilt + 180) % 360) - 180) * (self.reportedTilt < 0 ? -1 : 1); 
-        var roll = false;
-        if(motor == 3) {
-            roll = (((self.reportedRoll + 180) % 360) - 180) * (self.reportedRoll < 0 ? -1 : 1); 
-        } 
-        self._moving = true;
-        self._moveAbsolute(pan, tilt, roll, function(){
-            checkEnd();
-        });
-    }
-    checkStart();
+    self.reportedPan += (motor == 1 ? degrees : 0);
+    self.reportedTilt += (motor == 2 ? degrees : 0);
+    self.reportedRoll += (motor == 3 ? degrees : 0);
+
+    var pan = (((self.reportedPan + 180) % 360) - 180) * (self.reportedPan < 0 ? -1 : 1); 
+    var tilt = (((self.reportedTilt + 180) % 360) - 180) * (self.reportedTilt < 0 ? -1 : 1); 
+    var roll = false;
+    if(motor == 3) {
+        roll = (((self.reportedRoll + 180) % 360) - 180) * (self.reportedRoll < 0 ? -1 : 1); 
+    } 
+    self._movingToReported = true;
+    self._moveAbsolute(pan, tilt, roll, function(){
+        self._pollPositions(self);
+        setTimeout(checkEnd, 500); // keep checking until stop
+    });
 }
 
 
