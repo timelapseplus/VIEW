@@ -328,7 +328,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     var self = this;
     var tries = 10;
     var checkEnd = function() {
-        var targetDelta = 0.5;
+        var targetDelta = 0.8;
         var panMod = self.reportedPan >= 0 ? ((self.reportedPan + 180) % 360 - 180) : ((self.reportedPan - 180) % 360 + 180);
         var pos = 0;
         if(motor == 1) pos = self.reportedPan;
@@ -337,6 +337,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
         if(Math.abs(panMod - self.pan) <= targetDelta && Math.abs(self.reportedTilt - self.tilt) <= targetDelta && Math.abs(self.reportedRoll - self.roll) <= targetDelta) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
             self._movingToReported = false;
+            self._pollPositions(self);
             if (callback) callback(null, pos);
         } else {
             tries--;
