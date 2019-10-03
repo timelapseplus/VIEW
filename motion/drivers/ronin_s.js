@@ -236,14 +236,14 @@ Ronin.prototype._parseIncoming = function(data) {
                 var pan = receivedBuf.readInt16LE(pPos + 2) / 10;
                 updateMove(this, pan, tilt, roll);
             }
-        } else if(this._expectedLength == 0x11) {
+        } else if(this._expectedLength == 0x11 && receivedBuf.length >= 12) {
             if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x40) { // moved
                 this._moving = true;
                 this._pollPositions(this);
             } else if(receivedBuf.readUInt16LE(10) == 0x10f1 && receivedBuf.readUInt8(12) == 0x0c) { // not moving
                 this._moving = false;
             }
-        } else if(this._expectedLength == 0x0e) {
+        } else if(this._expectedLength == 0x0e && receivedBuf.length >= 10) {
             if(receivedBuf.readUInt16LE(9) == 0x1404 || receivedBuf.readUInt16LE(9) == 0xe00a) { // moved
                 this._pollPositions(this);
             }
@@ -343,18 +343,18 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                 self._movingToReported = false;
                 retries--;
                 tries = 5;
+                var errorDelta = 0;
+                if(motor == 1) errorDelta = Math.abs(panMod - self.pan);
+                if(motor == 2) errorDelta = Math.abs(tiltMod - self.tilt);
+                if(motor == 3) errorDelta = Math.abs(rollMod - self.roll);
                 if(retries > 0) {
-                    var errorDelta = 0;
-                    if(motor == 1) errorDelta = Math.abs(panMod - self.pan);
-                    if(motor == 2) errorDelta = Math.abs(tiltMod - self.tilt);
-                    if(motor == 3) errorDelta = Math.abs(rollMod - self.roll);
                     console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (",errorDelta ,"), retrying...");
                     self._moveAbsolute(panMod, tiltMod, rollMod, function(){
                         self._pollPositions(self);
                         setTimeout(checkEnd, 500); // keep checking until stop
                     });
                 } else {
-                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED");
+                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, ")");
                     if (callback) callback("timeout", pos);
                 }
             }
