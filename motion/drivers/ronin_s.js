@@ -373,9 +373,9 @@ Ronin.prototype.move = function(motor, degrees, callback) {
         });
     }
 
-    self._movingJoystick[1] self.constantMove(1, 0);
-    self._movingJoystick[2] self.constantMove(2, 0);
-    self._movingJoystick[3] self.constantMove(3, 0);
+    if(self._movingJoystick[1]) self.constantMove(1, 0);
+    if(self._movingJoystick[2]) self.constantMove(2, 0);
+    if(self._movingJoystick[3]) self.constantMove(3, 0);
     start();
 }
 
