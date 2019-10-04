@@ -334,6 +334,12 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     self._movingToReported = true;
     self._moving = true;
     var checkEnd = function() {
+        if(self._stopTrying) {
+            console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - SKIPPED for next axis");
+            self._stopTrying = false;
+            self._busyAxis = 0;
+            if (callback) callback(null, self.getOffsetPositionByMotor(motor));
+        }
         var targetDelta = 0.3;
         if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED (retries:", 5 - retries,")");
@@ -368,11 +374,19 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     }
 
     var start = function() {
-        self._moveAbsolute(panMod, tiltMod, rollMod, function(){
-            self._pollPositions(self);
-            setTimeout(checkEnd, 500); // keep checking until stop
-        });
+        if(self._movingToReported && self._busyAxis) {
+            setTimeout(start, 100);
+        } else {
+            self._busyAxis = motor;
+            self._stopTrying = false;
+            self._moveAbsolute(panMod, tiltMod, rollMod, function(){
+                self._pollPositions(self);
+                setTimeout(checkEnd, 500); // keep checking until stop
+            });
+        }
     }
+
+    self._stopTrying = true;
 
     if(self._movingJoystick[1]) self.constantMove(1, 0);
     if(self._movingJoystick[2]) self.constantMove(2, 0);
