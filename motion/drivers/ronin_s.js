@@ -339,6 +339,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             self._stopTrying = false;
             self._busyAxis = 0;
             if (callback) callback(null, self.getOffsetPositionByMotor(motor));
+            return;
         }
         var targetDelta = 0.3;
         if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
