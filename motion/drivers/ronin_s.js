@@ -35,6 +35,11 @@ function Ronin(id) {
     this._backlash = 0;
     this._lastDirection = 0;
     this._commandIndex = 0;
+    this._movingJoystick = {
+        1: false,
+        2: false,
+        3: false
+    }
 }
 
 util.inherits(Ronin, EventEmitter);
@@ -307,7 +312,7 @@ Ronin.prototype.enable = function(motor) {
 Ronin.prototype.move = function(motor, degrees, callback) {
     console.log("Ronin(" + this._id + "): move axis", motor, "by", degrees, "degrees");
     var self = this;
-    var retries = 2;
+    var retries = 5;
     var tries = Math.abs(degrees % 360) / 10 + 5;
 
     self.reportedPan += (motor == 1 ? degrees : 0);
@@ -322,15 +327,15 @@ Ronin.prototype.move = function(motor, degrees, callback) {
         rollMod = self.reportedRoll >= 0 ? ((self.reportedRoll + 180) % 360 - 180) : ((self.reportedRoll - 180) % 360 + 180);
     } 
     self._movingToReported = true;
-
+    self._moving = true;
     var checkEnd = function() {
         var targetDelta = 0.3;
         var pos = 0;
         if(motor == 1) pos = self.reportedPan;
         if(motor == 2) pos = self.reportedTilt;
         if(motor == 3) pos = self.reportedRoll;
-        if(Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
-            console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED");
+        if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
+            console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED (retries:", 5 - retries,")");
             self._movingToReported = false;
             self._pollPositions(self);
             if (callback) callback(null, pos);
@@ -338,7 +343,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
             tries--;
             if(tries > 0) {
                 self._pollPositions(self);
-                setTimeout(checkEnd, 300); // keep checking until stop
+                setTimeout(checkEnd, 200); // keep checking until stop
             } else {
                 self._movingToReported = false;
                 retries--;
@@ -348,7 +353,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                 if(motor == 2) errorDelta = Math.abs(tiltMod - self.tilt);
                 if(motor == 3) errorDelta = Math.abs(rollMod - self.roll);
                 if(retries > 0) {
-                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (",errorDelta ,"), retrying...");
+                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, "), retrying...");
                     self._moveAbsolute(panMod, tiltMod, rollMod, function(){
                         self._pollPositions(self);
                         setTimeout(checkEnd, 500); // keep checking until stop
@@ -361,10 +366,17 @@ Ronin.prototype.move = function(motor, degrees, callback) {
         }
     }
 
-    self._moveAbsolute(panMod, tiltMod, rollMod, function(){
-        self._pollPositions(self);
-        setTimeout(checkEnd, 500); // keep checking until stop
-    });
+    var start = function() {
+        self._moveAbsolute(panMod, tiltMod, rollMod, function(){
+            self._pollPositions(self);
+            setTimeout(checkEnd, 500); // keep checking until stop
+        });
+    }
+
+    self._movingJoystick[1] self.constantMove(1, 0);
+    self._movingJoystick[2] self.constantMove(2, 0);
+    self._movingJoystick[3] self.constantMove(3, 0);
+    start();
 }
 
 
@@ -480,6 +492,7 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
     }
     if(speed) {
         this._moving = true;
+        this._movingJoystick[motor] = true;
         speed /= 100;
         var pan = motor == 1 ? speed : 0;
         var tilt = motor == 2 ? speed : 0;
@@ -495,6 +508,7 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
             self._pollPositions(self);
         }, 3000);
     } else {
+        this._movingJoystick[motor] = false;
         self._moveJoystick(0, 0, 0, null);
         this._timerMove1 = setTimeout(function(){self._moveJoystick(0, 0, 0, null);}, 250);
         this._timerMove2 = setTimeout(function(){self._moveJoystick(0, 0, 0, null);}, 500);
