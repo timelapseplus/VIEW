@@ -39,6 +39,11 @@ function Ronin(id) {
         1: false,
         2: false,
         3: false
+    },
+    this._positionOffset = {
+        1: 0,
+        2: 0,
+        3: 0
     }
 }
 
@@ -294,9 +299,9 @@ Ronin.prototype.getStatus = function(self) {
     return {
         connected: self._dev && self._dev.connected,
         connectionType: type,
-        panPos: self.reportedPan,
-        tiltPos: self.reportedTilt,
-        rollPos: self.reportedRoll,
+        panPos: self.getOffsetPositionByMotor(1),
+        tiltPos: self.getOffsetPositionByMotor(2),
+        rollPos: self.getOffsetPositionByMotor(3),
         backlash: self._backlash
     }   
 }
@@ -330,15 +335,11 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     self._moving = true;
     var checkEnd = function() {
         var targetDelta = 0.3;
-        var pos = 0;
-        if(motor == 1) pos = self.reportedPan;
-        if(motor == 2) pos = self.reportedTilt;
-        if(motor == 3) pos = self.reportedRoll;
         if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED (retries:", 5 - retries,")");
             self._movingToReported = false;
             self._pollPositions(self);
-            if (callback) callback(null, pos);
+            if (callback) callback(null, self.getOffsetPositionByMotor(motor));
         } else {
             tries--;
             if(tries > 0) {
@@ -360,7 +361,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                     });
                 } else {
                     console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, ")");
-                    if (callback) callback("timeout", pos);
+                    if (callback) callback("timeout", self.getOffsetPositionByMotor(motor));
                 }
             }
         }
@@ -518,25 +519,50 @@ Ronin.prototype.constantMove = function(motor, speed, callback) {
             if(self._moving) {
                 setTimeout(check, 200); // keep checking until stop
             } else {
-                var pos = 0;
-                if(motor == 1) pos = self.reportedPan;
-                if(motor == 2) pos = self.reportedTilt;
-                if(motor == 3) pos = self.reportedRoll;
-                console.log("Ronin(" + self._id + "): reporting pos:", pos);
-                if (callback) callback(null, pos);
+                console.log("Ronin(" + self._id + "): reporting pos:", self.getOffsetPositionByMotor(motor));
+                if (callback) callback(null, self.getOffsetPositionByMotor(motor));
             }
         }
         check();
     }
 }
 
+Ronin.prototype.getInternalPositionByMotor = function(motor) {
+    if(!motor) return 0;
+    motor = parseInt(motor);
+    if(!motor) return 0;
+    if(motor == 1) {
+        return this.reportedPan;
+    } else if(motor == 2) {
+        return this.reportedTilt;
+    } else if(motor == 3) {
+        return this.reportedRoll;
+    }
+    return 0;
+}
+
+Ronin.prototype.getOffsetPositionByMotor = function(motor) {
+    if(!motor) return 0;
+    motor = parseInt(motor);
+    if(!motor) return 0;
+    if(motor == 1) {
+        return this.reportedPan - self._positionOffset[1];
+    } else if(motor == 2) {
+        return this.reportedTilt - self._positionOffset[2];
+    } else if(motor == 3) {
+        return this.reportedRoll - self._positionOffset[3];
+    }
+    return 0;
+}
+
 Ronin.prototype.resetMotorPosition = function(motor, callback) { // needs work
     var self = this;
+    if(!motor) return callback && callback();
     var check = function() {
-        if(self._moving) {
+        if(self._moving || self._movingToReported) {
             setTimeout(check, 200); // keep checking until stop
         } else {
-            self._position = 0;
+            self._positionOffset[motor] = self.getInternalPositionByMotor(motor);
             if (callback) callback();
         }
     }
@@ -545,11 +571,12 @@ Ronin.prototype.resetMotorPosition = function(motor, callback) { // needs work
 
 Ronin.prototype.setMotorPosition = function(motor, position, callback) { // needs work
     var self = this;
+    if(!motor) return callback && callback();
     var check = function() {
-        if(self._moving) {
+        if(self._moving || self._movingToReported) {
             setTimeout(check, 200); // keep checking until stop
         } else {
-            self._position = position;
+            self._positionOffset[motor] = self.getInternalPositionByMotor(motor) - position;
             if (callback) callback();
         }
     }
