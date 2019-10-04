@@ -334,18 +334,17 @@ Ronin.prototype.move = function(motor, degrees, callback) {
     self._movingToReported = true;
     self._moving = true;
     var checkEnd = function() {
+        var targetDelta = 0.3;
         if(self._stopTrying) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - SKIPPED for next axis");
             self._stopTrying = false;
             self._busyAxis = 0;
             if (callback) callback(null, self.getOffsetPositionByMotor(motor));
-            return;
-        }
-        var targetDelta = 0.3;
-        if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
+        } else if(!self._moving && Math.abs(panMod - self.pan) <= targetDelta && Math.abs(tiltMod - self.tilt) <= targetDelta && Math.abs(rollMod - self.roll) <= targetDelta) {
             console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - COMPLETED (retries:", 5 - retries,")");
             self._movingToReported = false;
             self._pollPositions(self);
+            self._busyAxis = 0;
             if (callback) callback(null, self.getOffsetPositionByMotor(motor));
         } else {
             tries--;
@@ -368,6 +367,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                     });
                 } else {
                     console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, ")");
+                    self._busyAxis = 0;
                     if (callback) callback("timeout", self.getOffsetPositionByMotor(motor));
                 }
             }
