@@ -353,7 +353,7 @@ Ronin.prototype.move = function(motor, degrees, callback) {
                 if(motor == 2) errorDelta = Math.abs(tiltMod - self.tilt);
                 if(motor == 3) errorDelta = Math.abs(rollMod - self.roll);
                 if(retries > 0) {
-                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, "), retrying...");
+                    console.log("Ronin(" + self._id + "): move axis", motor, "by", degrees, "degrees - FAILED (", errorDelta, "), retrying...", 5 - retries);
                     self._moveAbsolute(panMod, tiltMod, rollMod, function(){
                         self._pollPositions(self);
                         setTimeout(checkEnd, 500); // keep checking until stop
