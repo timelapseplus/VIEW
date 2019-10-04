@@ -560,11 +560,11 @@ Ronin.prototype.getOffsetPositionByMotor = function(motor) {
     motor = parseInt(motor);
     if(!motor) return 0;
     if(motor == 1) {
-        return this.reportedPan - self._positionOffset[1];
+        return this.reportedPan - this._positionOffset[1];
     } else if(motor == 2) {
-        return this.reportedTilt - self._positionOffset[2];
+        return this.reportedTilt - this._positionOffset[2];
     } else if(motor == 3) {
-        return this.reportedRoll - self._positionOffset[3];
+        return this.reportedRoll - this._positionOffset[3];
     }
     return 0;
 }
