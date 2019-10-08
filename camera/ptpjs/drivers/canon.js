@@ -779,15 +779,7 @@ driver.set = function(camera, param, value, callback, tries) {
         function(cb){
             if(properties[param] && properties[param].setFunction) {
                 var cameraValue = null;
-                var currentValueCode = camera[properties[param].category][param].code;
-                var currentIndex = null;
                 var targetIndex = null;
-                for(var i = 0; i < properties[param].values.length; i++) {
-                    if(properties[param].values[i].code == currentValueCode) {
-                        currentIndex = i;
-                        break;
-                    }
-                }
                 if(properties[param].ev && typeof value == "number") {
                     for(var i = 0; i < properties[param].values.length; i++) {
                         if(equalEv(properties[param].values[i].ev, value)) {
@@ -805,7 +797,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         }
                     }
                 }
-                if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
+                if(cameraValue !== null && targetIndex !== null) {
                     if(!properties[param].setFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
                     properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
