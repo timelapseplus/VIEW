@@ -1562,6 +1562,7 @@ if (VIEW_HARDWARE) {
                     ui.status("liveview error");
                 }
             });
+            lists.fixedApertureEv = core.currentProgram.manualAperture;
             console.log("(exposure) started liveview, getting settings...");
             inputs.on('B', captureButtonHandler);
             core.getSettings(function() {
@@ -2477,6 +2478,7 @@ if (VIEW_HARDWARE) {
             liveviewOnApp = false;
             inputs.on('B', captureButtonHandler);
             console.log("(capture) started liveview, getting settings...");
+            lists.fixedApertureEv = core.currentProgram.manualAperture;
             core.getSettings(function() {
                 console.log("(capture) done getting settings, enabling knob");
                 stats = lists.evStats(core.cameraSettings);
