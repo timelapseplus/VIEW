@@ -42,17 +42,17 @@ function objCopy(sourceObj, destObj) {
 driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
-    '054c:0994': {
-            name: "Sony A7III",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
+    //'054c:0994': { // this seems like the charging mode
+    //        name: "Sony A7III",
+    //        supports: {
+    //            shutter: true,
+    //            aperture: true,
+    //            iso: true,
+    //            liveview: true,
+    //            destination: true,
+    //            focus: true,
+    //        }
+    //    },
     '054c:0c34': {
             name: "Sony A7III",
             supports: {
@@ -577,7 +577,16 @@ driver.refresh = function(camera, callback, noEvent) {
                             camera[p.category][p.name].list = [];
                             for(var x = 0; x < list.length; x++) {
                                 var item =  mapPropertyItem(list[x], p.values);
-                                if(item) camera[p.category][p.name].list.push(item);
+                                if(item) {
+                                    camera[p.category][p.name].list.push(item);
+                                } else if(list[x] != null) {
+                                    camera[p.category][p.name].list.push({
+                                        name: "UNKNOWN (" + list[x] + ")",
+                                        ev: null,
+                                        value: null,
+                                        code: list[x]
+                                    }
+                                }
                             }
                         } else {
                             camera[p.category][p.name].list = p.values;
@@ -750,7 +759,16 @@ driver.set = function(camera, param, value, callback, tries) {
     tries++;
     async.series([
         function(cb){
-            if(properties[param] && properties[param].setFunction) {
+            if(camera[properties[param].category][param] && camera[properties[param].category][param].code != null) { // first make sure we already have the current value for comparison
+                cb();
+            } else {
+                driver.get(camera, param, function(err, val) {
+                    cb();
+                });
+            }
+        },
+        function(cb){
+            if(properties[param] && properties[param].setFunction && camera[properties[param].category][param] && camera[properties[param].category][param].code != null) {
                 var cameraValue = null;
                 var currentValueCode = camera[properties[param].category][param].code;
                 var currentIndex = null;
@@ -945,12 +963,18 @@ function getImage(camera, timeout, callback) {
 }
 
 driver.capture = function(camera, target, options, callback, tries) {
+    if(camera.busyCapture) {
+        return setTimeout(function(){
+            driver.capture(camera, target, options, callback, tries);
+        }, 100);
+    }
     _logD("triggering capture...");
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
     var thumb = null;
     var filename = null;
     var rawImage = null;
+    camera.busyCapture = true;
     async.series([
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 2, 4, cb);}, // activate full-press
@@ -971,6 +995,7 @@ driver.capture = function(camera, target, options, callback, tries) {
         } else {
             _logD("capture complete:", filename);
         }
+        camera.busyCapture = false;
         callback && callback(err, thumb, filename, rawImage);
     });
 }

@@ -116,33 +116,45 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 x: 120,
                                 q: 80
                             }
-                            image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
-                                var img;
-                                if (!err && lowResJpg) {
-                                    img = lowResJpg;
-                                } else {
-                                    img = thumb;
-                                }
+                            if(thumb) {
+                              image.downsizeJpeg(thumb, size, null, function(err, lowResJpg) {
+                                  var img;
+                                  if (!err && lowResJpg) {
+                                      img = lowResJpg;
+                                  } else {
+                                      img = thumb;
+                                  }
+                                  var photoRes = {
+                                      base64: new Buffer(img).toString('base64'),
+                                      type: 'thumbnail',
+                                      file: filename,
+                                      cameraCount: 1,
+                                      cameraResults: [],
+                                      ev: null
+                                  }
+                                  if(captureOptions.calculateEv) {
+                                      image.exposureValue(img, function(err, ev, histogram) {
+                                          photoRes.ev = ev;
+                                          photoRes.histogram = histogram;
+                                          sendEvent('camera.photo', photoRes);
+                                          callback && callback(err, photoRes);
+                                      });
+                                  } else {
+                                      sendEvent('camera.photo', photoRes);
+                                      callback && callback(err, photoRes);
+                                  }
+                              });
+                            } else {
                                 var photoRes = {
-                                    base64: new Buffer(img).toString('base64'),
+                                    base64: null,
                                     type: 'thumbnail',
                                     file: filename,
                                     cameraCount: 1,
                                     cameraResults: [],
                                     ev: null
                                 }
-                                if(captureOptions.calculateEv) {
-                                    image.exposureValue(img, function(err, ev, histogram) {
-                                        photoRes.ev = ev;
-                                        photoRes.histogram = histogram;
-                                        sendEvent('camera.photo', photoRes);
-                                        callback && callback(err, photoRes);
-                                    });
-                                } else {
-                                    sendEvent('camera.photo', photoRes);
-                                    callback && callback(err, photoRes);
-                                }
-                            });
+                                callback && callback(err, photoRes);
+                            }
                         }
                         if(options.destination == 'sd' && captureOptions.saveRaw && raw && filename) {
                             var file = captureOptions.saveRaw + filename.slice(-4);
