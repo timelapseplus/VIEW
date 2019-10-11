@@ -1781,7 +1781,10 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
         intervalometer.status.exposureReferenceEv = null;
     }
 
-    if(program.manualAperture != null) camera.fixedApertureEv = program.manualAperture;
+    if(program.manualAperture != null) {
+        camera.fixedApertureEv = program.manualAperture;
+        camera.lists.fixedApertureEv = program.manualAperture;    
+    }
 
     if (remap('camera.ptp.connected')) {
         remap('camera.ptp.getSettings')(function(){
