@@ -401,6 +401,11 @@ exports.deleteObject = function(cam, objectId, callback) {
 }
 
 exports.getObject = function(cam, objectId, callback) {
+	try {
+	  if (global.gc) {global.gc();}
+	} catch (e) {
+	  console.log("PTP: garbage collection failed:", e);
+	}
 	exports.transaction(cam, exports.PTP_OC_GetObject, [objectId], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
 	});

@@ -67,5 +67,5 @@ forever -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOG
 sleep 35
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
-forever -c "node --max_old_space_size=320" intervalometer/intervalometer-server.js 2>&1 | prepend_date >> $CORELOGFILE &
+forever -c "node --max_old_space_size=320 --expose-gc" intervalometer/intervalometer-server.js 2>&1 | prepend_date >> $CORELOGFILE &
 
