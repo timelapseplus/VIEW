@@ -585,7 +585,7 @@ driver.refresh = function(camera, callback, noEvent) {
                                         ev: null,
                                         value: null,
                                         code: list[x]
-                                    }
+                                    });
                                 }
                             }
                         } else {
