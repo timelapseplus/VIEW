@@ -569,6 +569,7 @@ api.setEv = function(ev, options, callback) {
     if (apertureEv == null) {
         apertureEnabled = false;
         apertureEv = options.fixedApertureEv != null ? options.fixedApertureEv : -5; // default to f/2.8
+	    console.log("API setEv: using fixed aperture at", apertureEv);
     }
 
     var shutterOrig = shutterEv;
