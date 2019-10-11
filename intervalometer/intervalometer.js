@@ -1007,6 +1007,7 @@ function setupExposure(cb) {
     busyExposure = true;
 
     log("\n\nEXP: setupExposure");
+
     var diff = 0;
     if(intervalometer.status.hdrSet && intervalometer.status.hdrSet.length > 0) {
         if(!intervalometer.status.hdrIndex) intervalometer.status.hdrIndex = 0;
@@ -1399,6 +1400,11 @@ function runPhoto(isRetry) {
                     busyKeyframes = false;
                     pendingPhoto = false;
                 });
+                try {
+                  if (global.gc) {global.gc();}
+                } catch (e) {
+                  console.log("INTERVALOMETER: garbage collection failed:", e);
+                }
             });
         } else {
             if (intervalometer.status.rampEv === null) {
@@ -1533,6 +1539,12 @@ function runPhoto(isRetry) {
                     pendingPhoto = false;
                     log("INTERVALOMETER: KF completed.");
                 });
+
+                try {
+                  if (global.gc) {global.gc();}
+                } catch (e) {
+                  console.log("INTERVALOMETER: garbage collection failed:", e);
+                }
             });
         }
     }

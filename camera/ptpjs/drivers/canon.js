@@ -627,7 +627,7 @@ function pollEvents(camera, callback) {
                     }
                 }
                 if(!found) {
-                    _logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
+                    //_logD("unknown prop change", ptp.hex(event_item), " = ", ptp.hex(event_value));
                 }
             }
             else if(event_type == EOS_EC_PROPERTY_VALUES)
