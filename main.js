@@ -1514,7 +1514,8 @@ if (VIEW_HARDWARE) {
                                 getSettingsTimer = null;
                             }
                             core.setEv(ev, {
-                                cameraSettings: core.cameraSettings
+                                cameraSettings: core.cameraSettings,
+                                fixedApertureEv: core.currentProgram.manualAperture
                             }, function() {
                                 getSettingsTimer = setTimeout(function(){
                                     core.getSettings(function() {
@@ -1533,7 +1534,8 @@ if (VIEW_HARDWARE) {
                                 getSettingsTimer = null;
                             }
                             core.setEv(ev, {
-                                cameraSettings: core.cameraSettings
+                                cameraSettings: core.cameraSettings,
+                                fixedApertureEv: core.currentProgram.manualAperture
                             }, function() {
                                 getSettingsTimer = setTimeout(function(){
                                     core.getSettings(function() {
@@ -2441,7 +2443,8 @@ if (VIEW_HARDWARE) {
                             getSettingsTimer = null;
                         }
                         core.setEv(ev, {
-                            cameraSettings: core.cameraSettings
+                            cameraSettings: core.cameraSettings,
+                            fixedApertureEv: core.currentProgram.manualAperture
                         }, function() {
                             getSettingsTimer = setTimeout(function(){
                                 core.getSettings(function() {
@@ -2460,7 +2463,8 @@ if (VIEW_HARDWARE) {
                             getSettingsTimer = null;
                         }
                         core.setEv(ev, {
-                            cameraSettings: core.cameraSettings
+                            cameraSettings: core.cameraSettings,
+                            fixedApertureEv: core.currentProgram.manualAperture
                         }, function() {
                             getSettingsTimer = setTimeout(function(){
                                 core.getSettings(function() {
@@ -5361,7 +5365,9 @@ app.on('message', function(msg) {
             case 'setEv':
                 if (msg.ev) {
                     if (core.cameraConnected) {
-                        core.setEv(msg.ev, {}, function() {
+                        core.setEv(msg.ev, {
+                            fixedApertureEv: core.currentProgram.manualAperture
+                        }, function() {
                             core.getSettings(function() {
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
@@ -5376,8 +5382,11 @@ app.on('message', function(msg) {
             case 'setEvUp':
                 if (core.cameraConnected) {
                     core.getSettings(function() {
+                        lists.fixedApertureEv = core.currentProgram.manualAperture;
                         core.cameraSettings.stats = lists.evStats(core.cameraSettings);
-                        core.setEv(core.cameraSettings.stats.ev+1/3, {}, function() {
+                        core.setEv(core.cameraSettings.stats.ev+1/3, {
+                            fixedApertureEv: core.currentProgram.manualAperture
+                        }, function() {
                             core.getSettings(function() {
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
@@ -5392,8 +5401,11 @@ app.on('message', function(msg) {
             case 'setEvDown':
                 if (core.cameraConnected) {
                     core.getSettings(function() {
+                        lists.fixedApertureEv = core.currentProgram.manualAperture;
                         core.cameraSettings.stats = lists.evStats(core.cameraSettings);
-                        core.setEv(core.cameraSettings.stats.ev-1/3, {}, function() {
+                        core.setEv(core.cameraSettings.stats.ev-1/3, {
+                            fixedApertureEv: core.currentProgram.manualAperture
+                        }, function() {
                             core.getSettings(function() {
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
@@ -5412,6 +5424,7 @@ app.on('message', function(msg) {
                             settings: core.cameraSettings
                         } else {
                             core.getSettings(function() {
+                                lists.fixedApertureEv = core.currentProgram.manualAperture;
                                 core.cameraSettings.stats = lists.evStats(core.cameraSettings);
                                 msg.reply('settings', {
                                     settings: core.cameraSettings
