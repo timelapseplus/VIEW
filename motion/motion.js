@@ -4,6 +4,7 @@ var nmx = require('motion/drivers/nmx.js');
 var st4 = require('motion/drivers/emotimo_st4.js');
 var GenieMini = require('motion/drivers/genie_mini.js');
 var RoninS = require('motion/drivers/ronin_s.js');
+var CB = require('motion/drivers/cb.js');
 var db = require('system/db.js');
 
 var async = require('async');
@@ -29,6 +30,7 @@ motion.st4 = st4;
 motion.gm1 = new GenieMini(1);
 motion.gm2 = new GenieMini(2);
 motion.rs1 = new RoninS(1);
+motion.cb1 = new CB(1);
 
 motion.cancelCalibration = function(driver, motorId, callback) {
 	motion.status.calibrating = false;
@@ -325,7 +327,7 @@ function updateStatus() {
 	var st4Status = motion.st4.getStatus();
 	var rs1Status = motion.rs1.getStatus();
 
-    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected);
+    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected || motion.cb1.connected);
     var motors = [];
 
 	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected);
@@ -341,6 +343,7 @@ function updateStatus() {
     motors.push({driver:'ST4', motor:4, connected:st4Status.connected, position:st4Status.motor4pos, unit: 's', orientation: null, backlash: 0});
     motors.push({driver:'RS1', motor:1, connected:motion.rs1.connected, position:motion.rs1.reportedPan, unit: '°', orientation: 'pan', backlash: 0});
     motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.reportedTilt, unit: '°', orientation: 'tilt', backlash: 0});
+    motors.push({driver:'CB1', motor:1, connected:motion.cb1.connected, position:motion.cb1.position, unit: 's', orientation: 'slide', backlash: 0});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),
@@ -352,7 +355,7 @@ function updateStatus() {
 	    motion.emit('status', motion.status);
     }
     lastStatus = motion.status;
-    lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected) || motion.rs1.connected;
+    lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected) || motion.rs1.connected || motion.cb1.connected;
 }
 
 motion.loadBacklash("NMX", 1);
@@ -360,6 +363,7 @@ motion.loadBacklash("NMX", 2);
 motion.loadBacklash("NMX", 3);
 motion.loadBacklash("GM", 1);
 motion.loadBacklash("GM", 2);
+motion.loadBacklash("CB", 1);
 
 motion.nmx.on('status', function(status) {
     updateStatus()
@@ -374,6 +378,9 @@ motion.st4.on('status', function(status) {
 	updateStatus()
 });
 motion.rs1.on('status', function(status) {
+	updateStatus()
+});
+motion.cb1.on('status', function(status) {
 	updateStatus()
 });
 
