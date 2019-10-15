@@ -129,7 +129,7 @@ CB.prototype.getStatus = function() {
         connected: this._dev && this._dev.connected,
         connectionType: type,
         position: this._position / this._stepsPerUnit,
-        backlash: this._backlash
+        backlash: this._backlash,
         moving: this._moving
     }   
 }
