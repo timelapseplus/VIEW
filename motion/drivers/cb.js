@@ -64,7 +64,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                             self._init();
                                             if (callback) callback(true);
                                         }
-                                        if(self.connected) setTimeout(tryRead, 100);
+                                        if(self.connected) setTimeout(tryRead, 200);
                                         first = false;
                                     });
                                 } catch(err3) {
