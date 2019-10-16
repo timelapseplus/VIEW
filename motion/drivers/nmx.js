@@ -171,7 +171,7 @@ function keepAlive(enable) {
 function getStatus() {
     var type = (_dev && _dev.type) ? _dev.type : null;
     return {
-        connected: _dev && _dev.connected,
+        connected: (_dev && _dev.connected) ? true : false,
         connectionType: type,
         motor1: motorConnected[0],
         motor2: motorConnected[1],

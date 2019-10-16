@@ -297,7 +297,7 @@ Ronin.prototype.getStatus = function(self) {
     if(!self) self = this;
     var type = (self._dev && self._dev.type) ? self._dev.type : null;
     return {
-        connected: self._dev && self._dev.connected,
+        connected: (self._dev && self._dev.connected) ? true : false,
         connectionType: type,
         panPos: self.getOffsetPositionByMotor(1),
         tiltPos: self.getOffsetPositionByMotor(2),

@@ -146,7 +146,7 @@ CB.prototype.disconnect = function() {
 CB.prototype.getStatus = function() {
     var type = (this._dev && this._dev.type) ? this._dev.type : null;
     return {
-        connected: this._dev && this._dev.connected,
+        connected: (this._dev && this._dev.connected) ? true : false,
         connectionType: type,
         position: this._position / this._stepsPerUnit,
         backlash: this._backlash,

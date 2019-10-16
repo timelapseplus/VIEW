@@ -181,7 +181,7 @@ GenieMini.prototype.disconnect = function() {
 GenieMini.prototype.getStatus = function() {
     var type = (this._dev && this._dev.type) ? this._dev.type : null;
     return {
-        connected: this._dev && this._dev.connected,
+        connected: (this._dev && this._dev.connected) ? true : false,
         connectionType: type,
         motor1: this._dev && this._dev.connected,
         motor1pos: this._position / this._stepsPerDegree,
