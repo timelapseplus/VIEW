@@ -189,6 +189,8 @@ motion.move = function(driver, motorId, steps, callback) {
 		motion.st4.move(motorId, steps, callback);
 	} else if(driver == "RS1") {
 		motion.rs1.move(motorId, steps, callback);
+	} else if(driver == "CB1") {
+		motion.cb1.move(motorId, steps, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.move(motorId, steps, callback);
@@ -207,6 +209,8 @@ motion.joystick = function(driver, motorId, speed, callback) {
 		motion.st4.constantMove(motorId, speed, callback);
 	} else if(driver == "RS1") {
 		motion.rs1.constantMove(motorId, speed, callback);
+	} else if(driver == "CB1") {
+		motion.cb1.constantMove(motorId, speed, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.constantMove(motorId, speed, callback);
@@ -225,6 +229,8 @@ motion.zero = function(driver, motorId, callback) {
 		motion.st4.setPosition(motorId, 0, callback);
 	} else if(driver == "RS1") {
 		motion.rs1.setPosition(motorId, 0, callback);
+	} else if(driver == "CB1") {
+		motion.cb1.setPosition(motorId, 0, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.resetMotorPosition(motorId, callback);
@@ -242,7 +248,9 @@ motion.setPosition = function(driver, motorId, position, callback) {
 	} else if(driver == "ST4") {
 		motion.st4.setPosition(motorId, position, callback);
 	} else if(driver == "RS1") {
-		motion.st4.setPosition(motorId, position, callback);
+		motion.rs1.setPosition(motorId, position, callback);
+	} else if(driver == "CB1") {
+		motion.cb1.setPosition(motorId, position, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.setMotorPosition(motorId, position, callback);
