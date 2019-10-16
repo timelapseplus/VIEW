@@ -210,7 +210,6 @@ CB.prototype.constantMove = function(motor, speed, callback) {
     if(!this._enabled) this.enable();
 
     var self = this;
-    dataBuf.writeUInt16LE(speed ? 0x01 : 0x00, 1);
     self._moving = true;
 
     self._constantSpeed = speed;
