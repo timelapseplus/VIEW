@@ -331,7 +331,7 @@ function updateStatus() {
     var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected || motion.cb1.connected);
     var motors = [];
 
-	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected, ", CB1:", rs1Status.connected);
+	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected, ", CB1:", cb1Status.connected);
 
     motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1 && nmxStatus.connected, position:nmxStatus.motor1pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor1backlash});
     motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2 && nmxStatus.connected, position:nmxStatus.motor2pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor2backlash});
@@ -344,7 +344,7 @@ function updateStatus() {
     motors.push({driver:'ST4', motor:4, connected:st4Status.connected, position:st4Status.motor4pos, unit: 's', orientation: null, backlash: 0});
     motors.push({driver:'RS1', motor:1, connected:motion.rs1.connected, position:motion.rs1.reportedPan, unit: '°', orientation: 'pan', backlash: 0});
     motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.reportedTilt, unit: '°', orientation: 'tilt', backlash: 0});
-    motors.push({driver:'CB1', motor:1, connected:motion.cb1.connected, position:cb1Status.position, unit: 's', orientation: 'slide', backlash: 0});
+    motors.push({driver:'CB1', motor:1, connected:cb1Status.connected, position:cb1Status.position, unit: 's', orientation: 'slide', backlash: 0});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),
