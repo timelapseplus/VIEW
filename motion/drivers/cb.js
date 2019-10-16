@@ -123,7 +123,7 @@ CB.prototype._parseIncoming = function(data) {
         this._lastPosition = this._position;
         this._lastMoving = this._moving;
         console.log("CB(" + this._id + "): moving: ", this._moving, ", position:", this._position);
-        this.emit("status", self.getStatus());
+        this.emit("status", this.getStatus());
     }    
 }
 
