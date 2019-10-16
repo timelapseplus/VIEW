@@ -43,7 +43,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                             }
                         }
                         if (self._writeCh && self._readCh) {
-                            var tries = 2;
+                            var tries = 5;
                             var tryConnect = function() {
                                 tries--;
                                 setTimeout(function(){
@@ -59,14 +59,20 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                 setTimeout(function(){
                                     try {
                                         console.log("CB(" + self._id + "): subscribing...");
+                                        self._readCh.read(function(){
+                                            console.log("CB(" + self._id + "): read requested");
+                                        });
+                                        self._readCh.on('data', function(data, isNotification) {
+                                            console.log("CB(" + self._id + "): data read:", data);
+                                        });
                                         self._readCh.subscribe(function(){
                                             self._dev = btPeripheral;
                                             self._dev.connected = true;
                                             self.connected = true;
                                             self._dev.type = "bt";
-                                            self._readCh.on('data', function(data, isNotification) {
-                                                self._parseIncoming(data);
-                                            });
+                                            //self._readCh.on('data', function(data, isNotification) {
+                                            //    self._parseIncoming(data);
+                                            //});
                                             console.log("CB(" + self._id + "): connected!");
                                             self._init();
                                             if (callback) callback(true);
