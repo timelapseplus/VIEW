@@ -43,25 +43,27 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                             }
                         }
                         if (self._writeCh && self._readCh) {
-                            try {
-                                console.log("CB(" + self._id + "): subscribing...");
-                                self._readCh.subscribe(function(){
-                                    self._dev = btPeripheral;
-                                    self._dev.connected = true;
-                                    self.connected = true;
-                                    self._dev.type = "bt";
-                                    self._readCh.on('data', function(data, isNotification) {
-                                        self._parseIncoming(data);
+                            setTimeout(function(){
+                                try {
+                                    console.log("CB(" + self._id + "): subscribing...");
+                                    self._readCh.subscribe(function(){
+                                        self._dev = btPeripheral;
+                                        self._dev.connected = true;
+                                        self.connected = true;
+                                        self._dev.type = "bt";
+                                        self._readCh.on('data', function(data, isNotification) {
+                                            self._parseIncoming(data);
+                                        });
+                                        console.log("CB(" + self._id + "): connected!");
+                                        self._init();
+                                        if (callback) callback(true);
                                     });
-                                    console.log("CB(" + self._id + "): connected!");
-                                    self._init();
-                                    if (callback) callback(true);
-                                });
-                            } catch(err3) {
-                                btPeripheral.disconnect();
-                                console.log("CB(" + self._id + "): exception while connecting: ", err3);
-                                if (callback) callback(false);
-                            }
+                                } catch(err3) {
+                                    btPeripheral.disconnect();
+                                    console.log("CB(" + self._id + "): exception while connecting: ", err3);
+                                    if (callback) callback(false);
+                                }
+                            }, 500);
                         } else {
                             console.log("CB(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
                             btPeripheral.disconnect();
