@@ -1009,6 +1009,13 @@ function btStateChange(state) {
           motion.rs1.disconnect();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.cb1.getStatus();
+        console.log("CORE: CB status:", status);
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected CB, bluetooth powered off");
+          motion.cb1.disconnect();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 
