@@ -108,6 +108,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
 CB.prototype._init = function() {
     var self = this;
     self._writeCh.write(new Buffer("S\n"));
+    self.emit("status", self.getStatus());
 }
 
 CB.prototype._parseIncoming = function(data) {
