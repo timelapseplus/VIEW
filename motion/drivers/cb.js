@@ -117,12 +117,12 @@ CB.prototype._parseIncoming = function(data) {
     if(data.length != 5) return;
 
     this._moving = data.readUInt8(0) & 0x01;
-    this._position = data.readUInt32BE(1);
+    this._position = data.readUInt32LE(1);
 
     if(this._lastPosition !== this._position || this._lastMoving !== this._moving) {
         this._lastPosition = this._position;
         this._lastMoving = this._moving;
-        console.log("CB(" + this._id + "): moving: ", this._moving, ", position:", this._position);
+        console.log("CB(" + this._id + "): moving: ", this._moving, ", position:", this._position, "raw data:", data);
         this.emit("status", this.getStatus());
     }    
 }
