@@ -210,7 +210,6 @@ CB.prototype.constantMove = function(motor, speed, callback) {
     if(!this._enabled) this.enable();
 
     var self = this;
-    self._moving = true;
 
     self._constantSpeed = speed;
 
