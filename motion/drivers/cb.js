@@ -176,7 +176,7 @@ CB.prototype.move = function(motor, amount, callback) {
     this._moving = true;
 
     var self = this;
-    self._writeCh.write('M' + steps.toString(), function(err) {
+    self._writeCh.write(new Buffer('M' + steps.toString()), function(err) {
         self._moving = true;
         if (!err) {
             var n = 0;
@@ -260,7 +260,7 @@ CB.prototype.setMotorPosition = function(motor, position, callback) {
         } else {
             if(!position) position = 0;
             self._position = Math.round(position);
-            self._writeCh.write('P' + self._position.toString());
+            self._writeCh.write(new Buffer('P' + self._position.toString()));
             if (callback) callback();
         }
     }
