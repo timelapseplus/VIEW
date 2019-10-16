@@ -12,6 +12,8 @@ function CB(id) {
     this._stepsPerUnit = 1;
     this._backlash = 0;
     this._lastDirection = 0;
+    this._lastPosition = null;
+    this._lastMoving = null;
 }
 
 util.inherits(CB, EventEmitter);
@@ -75,7 +77,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
 
                             }
                             self._readCh.on('data', function(data, isNotification) {
-                                console.log("CB(" + self._id + "): data read:", data);
+                                if(first) console.log("CB(" + self._id + "): data read:", data);
                                 self._parseIncoming(data);
                             });
                             tryRead();
@@ -115,9 +117,14 @@ CB.prototype._parseIncoming = function(data) {
     if(data.length != 5) return;
 
     this._moving = data.readUInt8(0) & 0x01;
-    this._position = data.readUInt32LE(1);
+    this._position = data.readUInt32BE(1);
 
-    console.log("CB(" + this._id + "): moving: ", this._moving, ", position:", this._position);
+    if(this._lastPosition !== this._position || this._lastMoving !== this._moving) {
+        this._lastPosition = this._position;
+        this._lastMoving = this._moving;
+        console.log("CB(" + this._id + "): moving: ", this._moving, ", position:", this._position);
+        self.emit("status", self.getStatus());
+    }    
 }
 
 CB.prototype.connect = function(device, callback) {
