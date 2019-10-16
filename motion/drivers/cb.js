@@ -53,8 +53,8 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                 }
                                 try {
                                     //console.log("CB(" + self._id + "): subscribing...");
-                                    if(first) {
-                                        self._readCh.subscribe(function(){
+                                    self._readCh.read(function(){
+                                        if(first) {
                                             console.log("CB(" + self._id + "): read requested");
                                             self._dev = btPeripheral;
                                             self._dev.connected = true;
@@ -63,13 +63,9 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                             console.log("CB(" + self._id + "): connected!");
                                             self._init();
                                             if (callback) callback(true);
-                                        });
+                                        }
+                                        if(self.connected) setTimeout(tryRead, 100);
                                         first = false;
-                                    }
-                                    //if(self.connected) setTimeout(tryRead, 100);
-                                    self._readCh.on('data', function(data, isNotification) {
-                                        console.log("CB(" + self._id + "): data read:", data);
-                                        self._parseIncoming(data);
                                     });
                                 } catch(err3) {
                                     btPeripheral.disconnect();
@@ -78,6 +74,10 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                 }
 
                             }
+                            self._readCh.on('data', function(data, isNotification) {
+                                console.log("CB(" + self._id + "): data read:", data);
+                                self._parseIncoming(data);
+                            });
                             tryRead();
                         } else {
                             console.log("CB(" + self._id + "): couldn't locate characteristics, disconnecting... ", err);
