@@ -52,7 +52,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                     if (first && callback) callback(false);
                                 }
                                 try {
-                                    console.log("CB(" + self._id + "): subscribing...");
+                                    //console.log("CB(" + self._id + "): subscribing...");
                                     self._readCh.read(function(){
                                         console.log("CB(" + self._id + "): read requested");
                                         if(first) {
@@ -65,11 +65,11 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                             if (callback) callback(true);
                                         }
                                         first = false;
+                                        if(self.connected) setTimeout(tryRead, 100);
                                     });
                                     self._readCh.on('data', function(data, isNotification) {
                                         console.log("CB(" + self._id + "): data read:", data);
                                         self._parseIncoming(data);
-                                        if(self.connected) setTimeout(tryRead, 100);
                                     });
                                 } catch(err3) {
                                     btPeripheral.disconnect();
