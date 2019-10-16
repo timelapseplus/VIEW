@@ -218,7 +218,7 @@ CB.prototype.constantMove = function(motor, speed, callback) {
 
     var self = this;
 
-    self._constantSpeed = speed * 5;
+    self._constantSpeed = speed * 20;
 
     if(self._watchdog) {
         clearTimeout(self._watchdog);
