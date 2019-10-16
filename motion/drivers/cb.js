@@ -54,7 +54,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                                 try {
                                     //console.log("CB(" + self._id + "): subscribing...");
                                     if(first) {
-                                        self._readCh.read(function(){
+                                        self._readCh.subscribe(function(){
                                             console.log("CB(" + self._id + "): read requested");
                                             self._dev = btPeripheral;
                                             self._dev.connected = true;
