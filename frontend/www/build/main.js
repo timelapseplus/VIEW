@@ -860,7 +860,7 @@ var RampingModalContentPage = (function () {
         alert.addButton({
             text: 'Ok',
             handler: function (data) {
-                if (data == "")
+                if (data === "")
                     data = null;
                 console.log('Radio data:', data, typeof (data));
                 object[key] = data;
@@ -1275,28 +1275,28 @@ var KeyframeModalContentPage = (function () {
         }
     };
     KeyframeModalContentPage.prototype.setHomePos = function () {
-        var moved = false;
-        for (var axisId in this.axes) {
-            if (this.axes[axisId].kf && this.axes[axisId].kf.length > 0 && this.axes[axisId].type == 'keyframe' && axisId != 'focus') {
-                var homePos = this.axes[axisId].kf[0].position;
-                if (homePos != 0) {
-                    for (var i = 0; i < this.axes[axisId].kf.length; i++) {
-                        this.axes[axisId].kf[i].position -= homePos;
-                    }
-                    moved = true;
-                    var curPos = this.axes[axisId].motor ? this.axes[axisId].motor.pos : this.axes[axisId].pos;
-                    var newPos = curPos - homePos;
-                    if (this.axes[axisId].motor) {
-                        this.motion.setAxisPosition(axisId, newPos);
-                        console.log("updating", axisId, "position to", newPos);
-                        this.motion.axis[this.motion.getAxisIndex(axisId)].pos = newPos;
-                    }
-                    else {
-                        this.axes[axisId].pos = newPos;
-                    }
-                }
-            }
-        }
+        return; // experiement with not starting at zero -- important for Ronin
+        //let moved = false;
+        //for(let axisId in this.axes) {
+        //  if(this.axes[axisId].kf && this.axes[axisId].kf.length > 0 && this.axes[axisId].type == 'keyframe' && axisId != 'focus') { // focus position doesn't get reset
+        //    let homePos = this.axes[axisId].kf[0].position;
+        //    if(homePos != 0) {
+        //      for (let i = 0; i < this.axes[axisId].kf.length; i++) {
+        //        this.axes[axisId].kf[i].position -= homePos;
+        //      }
+        //      moved = true;
+        //      let curPos = this.axes[axisId].motor ? this.axes[axisId].motor.pos : this.axes[axisId].pos;
+        //      let newPos = curPos - homePos;
+        //      if(this.axes[axisId].motor) {
+        //        this.motion.setAxisPosition(axisId, newPos);
+        //        console.log("updating", axisId, "position to", newPos);
+        //        this.motion.axis[this.motion.getAxisIndex(axisId)].pos = newPos;
+        //      } else {
+        //        this.axes[axisId].pos = newPos;
+        //      }
+        //    }
+        //  }
+        //}
     };
     KeyframeModalContentPage.prototype.addKeyframe = function (axisId) {
         this.axes[axisId].kf.push({

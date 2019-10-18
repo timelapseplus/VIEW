@@ -183,33 +183,27 @@ CB.prototype.move = function(motor, amount, callback) {
     this._moving = true;
 
     var self = this;
-    self._writeCh.write(new Buffer('M' + steps.toString()), function(err) {
-        self._moving = true;
-        if (!err) {
-            var n = 0;
-            var check = function() {
-                setTimeout(function() {
-                    if(self._moving || self._moving === undefined) {
-                        n++;
-                        if(n > 500) {
-                            console.log("CB(" + self._id + "): ERROR: timed out waiting for move");
-                            if (callback) callback("timeout");
-                            self._moving = false;
-                        } else {
-                            check(); // keep checking until stop
-                        }
-                    } else {
-                        console.log("CB(" + self._id + "): position:", self._position);
-                        if (callback) callback(null, self._position / self._stepsPerUnit);
-                    }
-                }, 300);
+    self._writeCh.write(new Buffer('M' + steps.toString()));
+    self._moving = true;
+    var n = 0;
+    var check = function() {
+        setTimeout(function() {
+            if(self._moving || self._moving === undefined) {
+                n++;
+                if(n > 500) {
+                    console.log("CB(" + self._id + "): ERROR: timed out waiting for move");
+                    if (callback) callback("timeout");
+                    self._moving = false;
+                } else {
+                    check(); // keep checking until stop
+                }
+            } else {
+                console.log("CB(" + self._id + "): position:", self._position);
+                if (callback) callback(null, self._position / self._stepsPerUnit);
             }
-            check();
-        } else {
-            if (callback) callback(err);
-            self._moving = false;
-        }
-    });
+        }, 300);
+    }
+    check();
 }
 
 CB.prototype.constantMove = function(motor, speed, callback) {
