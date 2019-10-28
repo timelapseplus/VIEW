@@ -7,12 +7,10 @@ exp.status = {};
 exp.config = {};
 
 
-exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
-    if (nightCompensation === null) nightCompensation = 'auto';
-
-    if(nightCompensation != 'auto') {
-        nightCompensation = parseFloat(nightCompensation);
-    }
+//exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
+exp.init = function(minEv, maxEv, nightLuminance, dayLuminance, highlightProtection) {
+    if(nightLuminance == null) nightLuminance = -1.5;
+    if(dayLuminance == null) dayLuminance = 0;
 
     local = {
         lumArray: [],
@@ -58,7 +56,9 @@ exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
         hysteresis: 0.4,
         nightCompensationDayEv: 10,
         nightCompensationNightEv: -2,
-        nightCompensation: nightCompensation,
+        nightCompensation: 'auto',
+        nightLuminance: nightLuminance,
+        dayLuminance: dayLuminance,
         highlightProtection: highlightProtection,
         highlightProtectionLimit: 1
     };
@@ -268,8 +268,10 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.nightRatio = interpolate.linear(evScale, currentEv);
 
     if (local.first) {
-        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
-        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio);
+//        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
+//        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio);
+        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + exp.config.nightLuminance * (1 - exp.status.nightRatio);
+        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio) + exp.config.dayLuminance * exp.status.nightRatio;
         exp.status.fixedRefEv = lastPhotoLum;
         exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
         console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);

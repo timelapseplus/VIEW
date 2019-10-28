@@ -1183,52 +1183,88 @@ if (VIEW_HARDWARE) {
         }
     }
 
-    var rampingNightCompensation = {
-        name: "Night Exposure Compensation",
+    var rampingNightLuminance = {
+        name: "Night Luminance Target",
         type: "options",
         items: [{
-            name: "Night Exposure Compensation",
-            value: "Automatic",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', 'auto')
+            name: "Night Luminance Target",
+            value: "-3 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -3)
         }, {
-            name: "Night Exposure Compensation",
-            value: "0 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', 0)
+            name: "Night Luminance Target",
+            value: "-2.5 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -2.5)
         }, {
-            name: "Night Exposure Compensation",
-            value: "-1/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -1/3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-2/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -2/3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 stop",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -1)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 1/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -1 - 1 / 3)
-        }, {
-            name: "Night Exposure Compensation",
-            value: "-1 2/3 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -1 - 2 / 3)
-        }, {
-            name: "Night Exposure Compensation",
+            name: "Night Luminance Target",
             value: "-2 stops",
-            help: help.rampingNightCompensation,
-            action: ui.set(core.currentProgram, 'nightCompensation', -2)
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -2)
+        }, {
+            name: "Night Luminance Target",
+            value: "-1.5 stops (default)",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -1.5)
+        }, {
+            name: "Night Luminance Target",
+            value: "-1 stop",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -1)
+        }, {
+            name: "Night Luminance Target",
+            value: "-0.5 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', -0.5)
+        }, {
+            name: "Night Luminance Target",
+            value: "0 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', 0)
         }]
     }
 
+
+    var rampingDayLuminance = {
+        name: "Day Luminance Target",
+        type: "options",
+        items: [{
+            name: "Day Luminance Target",
+            value: "-1.5 stops",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', -1.5)
+        }, {
+            name: "Day Luminance Target",
+            value: "-1 stop",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', -1)
+        }, {
+            name: "Day Luminance Target",
+            value: "-0.5 stops",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', -0.5)
+        }, {
+            name: "Day Luminance Target",
+            value: "0 stops (default)",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', 0)
+        }, {
+            name: "Day Luminance Target",
+            value: "+0.5 stops",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', 0.5)
+        }, {
+            name: "Day Luminance Target",
+            value: "+1 stop",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', 1)
+        }, {
+            name: "Day Luminance Target",
+            value: "+1.5 stops",
+            help: help.dayLuminance,
+            action: ui.set(core.currentProgram, 'dayLuminance', 1.5)
+        }]
+    }
 
     var hdrCountPlan = function(planIndex) {
         return {
@@ -1237,47 +1273,47 @@ if (VIEW_HARDWARE) {
             items: [{
                 name: "HDR Exposures",
                 value: "Single (no HDR)",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 0)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 2",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 2)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 3",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 3)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 5",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 5)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 7",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 7)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 9",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 9)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 11",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 11)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 13",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 13)
             }, {
                 name: "HDR Exposures",
                 value: "Sets of 15",
-                help: help.rampingNightCompensation,
+                help: help.hdrCount,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 15)
             }]
         }
@@ -1289,47 +1325,47 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "HDR Exposures",
             value: "Single (no HDR)",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 0)
         }, {
             name: "HDR Exposures",
             value: "Sets of 2",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 2)
         }, {
             name: "HDR Exposures",
             value: "Sets of 3",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 3)
         }, {
             name: "HDR Exposures",
             value: "Sets of 5",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 5)
         }, {
             name: "HDR Exposures",
             value: "Sets of 7",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 7)
         }, {
             name: "HDR Exposures",
             value: "Sets of 9",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 9)
         }, {
             name: "HDR Exposures",
             value: "Sets of 11",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 11)
         }, {
             name: "HDR Exposures",
             value: "Sets of 13",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 13)
         }, {
             name: "HDR Exposures",
             value: "Sets of 15",
-            help: help.rampingNightCompensation,
+            help: help.hdrCount,
             action: ui.set(core.currentProgram, 'hdrCount', 15)
         }]
     }
@@ -1341,32 +1377,32 @@ if (VIEW_HARDWARE) {
             items: [{
                 name: "HDR Bracket Step",
                 value: "1/3 stops",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1/3)
             }, {
                 name: "HDR Bracket Step",
                 value: "2/3 stops",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 2/3)
             }, {
                 name: "HDR Bracket Step",
                 value: "1 stop",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1)
             }, {
                 name: "HDR Bracket Step",
                 value: "1 1/3 stops",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1 - 1 / 3)
             }, {
                 name: "HDR Bracket Step",
                 value: "1 2/3 stops",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 1 - 2 / 3)
             }, {
                 name: "HDR Bracket Step",
                 value: "2 stops",
-                help: help.rampingNightCompensation,
+                help: help.hdrStops,
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 2)
             }]
         }
@@ -1378,32 +1414,32 @@ if (VIEW_HARDWARE) {
         items: [{
             name: "HDR Bracket Step",
             value: "1/3 stops",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 1/3)
         }, {
             name: "HDR Bracket Step",
             value: "2/3 stops",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 2/3)
         }, {
             name: "HDR Bracket Step",
             value: "1 stop",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 1)
         }, {
             name: "HDR Bracket Step",
             value: "1 1/3 stops",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 1 - 1 / 3)
         }, {
             name: "HDR Bracket Step",
             value: "1 2/3 stops",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 1 - 2 / 3)
         }, {
             name: "HDR Bracket Step",
             value: "2 stops",
-            help: help.rampingNightCompensation,
+            help: help.hdrStops,
             action: ui.set(core.currentProgram, 'hdrStops', 2)
         }]
     }
@@ -1412,9 +1448,14 @@ if (VIEW_HARDWARE) {
         name: "Ramping Options",
         type: "menu",
         items: [{
-            name: valueDisplay("Night Exposure", core.currentProgram, 'nightCompensation'),
-            action: rampingNightCompensation,
-            help: help.rampingNightCompensation
+            name: valueDisplay("Night Lum Target", core.currentProgram, 'nightLuminance'),
+            action: rampingNightLuminance,
+            help: help.nightLuminance
+        }, {
+            name: valueDisplay("Day Lum Target", core.currentProgram, 'dayLuminance'),
+            action: rampingDayLuminance,
+            help: help.dayLuminance
+        }, {
         //}, {
         //    name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
         //    help: help.rampingAlgorithm,
@@ -1422,7 +1463,6 @@ if (VIEW_HARDWARE) {
         //    condition: function() {
         //        return core.currentProgram.rampMode == 'auto';
         //    }
-        }, {
             name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
             help: help.highlightProtection,
             action: highlightProtectionOptions,
@@ -2025,14 +2065,14 @@ if (VIEW_HARDWARE) {
         }, {
             name: valueDisplay("HDR Exposures", core.currentProgram, 'hdrCount'),
             action: hdrCountOptions,
-            help: help.interval,
+            help: help.hdrCount,
             condition: function() {
                 return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("HDR Bracket Step", core.currentProgram, 'hdrStops'),
             action: hdrStopsOptions,
-            help: help.interval,
+            help: help.hdrStops,
             condition: function() {
                 return core.currentProgram.rampMode == 'auto' && core.currentProgram.hdrCount > 1;
             }

@@ -216,7 +216,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                 var base = camera.ptp.new.cameras[0].camera.exposure;
                 return {
                     shutter: base.shutter && base.shutter.name,
-                    aperture: base.aperture && base.aperture.name,
+                    aperture: (base.aperture && base.aperture.name) || camera.lists.getNameFromEv(camera.lists.apertureAll, intervalometer.currentProgram.manualAperture),
                     iso: base.iso && base.iso.name,
                     details: {
                         shutter: base.shutter,
@@ -1883,7 +1883,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                             altitude: sunmoon.moonpos.alt,
                         }
                     }
-                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), program.nightCompensation, program.highlightProtection);
+                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), program.nightLuminance, program.dayLuminance, program.highlightProtection);
                     intervalometer.status.running = true;
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("program:", "starting", program);
@@ -2143,9 +2143,9 @@ function dynamicChangeUpdate() {
 }
 
 // changes 'parameter' to 'newValue' across 'frames'
-// parameter can be: interval, dayInterval, nightInterval, nightCompensation, exposureOffset, mode (immediate)
+// parameter can be: interval, dayInterval, nightInterval, exposureOffset, mode (immediate)
 intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
-    var rampableChange = ['interval', 'dayInterval', 'nightInterval', 'nightCompensation'];
+    var rampableChange = ['interval', 'dayInterval', 'nightInterval'];
     var specialChange = ['rampMode', 'hdrCount', 'hdrStops', 'intervalMode', 'manualOffsetEv', 'dayRefEv', 'nightRefEv', 'rampEv', 'frames'];
 
     if(rampableChange.indexOf(parameter) !== -1) {
@@ -2184,7 +2184,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
                 if(newValue == 'auto' && intervalometer.status.rampMode != 'auto') { // restart ramping based on current exposure
                     intervalometer.status.rampMode = 'auto';
                     intervalometer.status.rampEv = camera.lists.getEvFromSettings(remap('camera.ptp.settings'));
-                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), intervalometer.currentProgram.nightCompensation, intervalometer.currentProgram.highlightProtection);
+                    exp.init(camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()), intervalometer.currentProgram.nightLuminance, intervalometer.currentProgram.dayLuminance, intervalometer.currentProgram.highlightProtection);
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                 }
                 if(newValue == 'fixed') {
