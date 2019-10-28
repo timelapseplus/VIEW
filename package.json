@@ -44,7 +44,7 @@
     "usb": "^1.2.0",
     "wget-improved": "^1.5.0",
     "wireless": "elijahparker/node-wireless",
-    "ws": "^0.8.1"
+    "ws": "^7.2.0"
   },
   "devDependencies": {
     "mocha": "latest"
