@@ -746,7 +746,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
                 if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
                 try {
-                    ptp.setPropU16(camera._dev, 0xd171, Math.round(targetPos + targetOffset), function(err) {
+                    ptp.setPropI16(camera._dev, 0xd171, Math.round(targetPos + targetOffset), function(err) {
                         attempts++;
                         if(attempts < 5) {
                             doFocus(targetPos, cb);
@@ -762,7 +762,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
         }, false);
     }
     var startFocus = function(cb) {
-        if(camera.config.focusEnable.value != 'enabled') {
+        if(camera.config.focusEnable.value == 'enabled') {
             if(absPos != null) {
                 doFocus(absPos * FUJI_FOCUS_RESOLUTION, cb);
             } else {
