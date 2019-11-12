@@ -748,7 +748,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
                 if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
                 try {
-                    ptp.setProp16(camera._dev, 0xD171, Math.round(targetPos + targetOffset), function(err) {
+                    ptp.setProp16(camera._dev, 0xD171, -Math.round(targetPos + targetOffset), function(err) {
                         if(err) _logE("focus move error:", err);
                         attempts++;
                         if(attempts < 5) {
