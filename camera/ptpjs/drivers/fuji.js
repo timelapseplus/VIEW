@@ -745,22 +745,18 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
                 var targetOffset = 0;
                 if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
                 console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
-                if(camera.connected) {
-                    try {
-                        ptp.setPropU16(camera._dev, 0xd171, Math.round(targetPos + targetOffset), function(err) {
-                            attempts++;
-                            if(attempts < 5) {
-                                doFocus(targetPos, cb);
-                            } else {
-                                console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
-                                if (cb) cb("failed to reach focus target", camera.status.focusPos);
-                            }
-                        });
-                    } catch(e) {
-                        if (cb) cb("unknown error");
-                    }
-                } else {
-                    if (cb) cb("not connected");
+                try {
+                    ptp.setPropU16(camera._dev, 0xd171, Math.round(targetPos + targetOffset), function(err) {
+                        attempts++;
+                        if(attempts < 5) {
+                            doFocus(targetPos, cb);
+                        } else {
+                            console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
+                            if (cb) cb("failed to reach focus target", camera.status.focusPos);
+                        }
+                    });
+                } catch(e) {
+                    if (cb) cb("unknown error");
                 }
             }
         }, false);
