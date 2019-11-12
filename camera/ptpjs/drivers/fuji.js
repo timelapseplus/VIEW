@@ -539,7 +539,7 @@ driver.get = function(camera, param, callback) {
                                 }
                             }
                         } else if(properties[param].valueParser) {
-                            camera[properties[key].category][key] = properties[param].valueParser(data);
+                            camera[properties[param].category][param] = properties[param].valueParser(data);
                         }
                         return cb(err);
                     } else {
@@ -554,7 +554,7 @@ driver.get = function(camera, param, callback) {
             if(lvMode) driver.liveviewMode(camera, true, cb); else cb();
         },
     ], function(err) {
-        return callback && callback(err, camera[properties[key].category][key]);
+        return callback && callback(err, camera[properties[param].category][param]);
     });
 }
 
