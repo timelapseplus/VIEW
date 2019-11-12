@@ -736,6 +736,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
 
     var doFocus = function(target, cb) {
         driver.get(camera, 'focusPos', function(err, currentPos){
+            currentPos *= FUJI_FOCUS_RESOLUTION;
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
                 camera.fujiFocusPosCache = parseInt(target);
                 console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target, "(" + camera.status.focusPos + ")");
