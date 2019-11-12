@@ -739,14 +739,14 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
             currentPos *= FUJI_FOCUS_RESOLUTION;
             if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
                 camera.fujiFocusPosCache = parseInt(target);
-                console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target, "(" + camera.status.focusPos + ")");
+                _logD("focus: target reached:", currentPos, ", targetPos", target, "(" + camera.status.focusPos + ")");
                 if (cb) cb(null, Math.round(camera.fujiFocusPosCache / FUJI_FOCUS_RESOLUTION));
             } else {
                 var targetPos = target || parseInt(currentPos) + relativeMove;
                 if(targetPos == 0) targetPos = 2;
                 var targetOffset = 0;
                 if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
-                console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
+                _logD("focus: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
                 try {
                     ptp.setProp16(camera._dev, 0xD171, -Math.round(targetPos + targetOffset), function(err) {
                         if(err) _logE("focus move error:", err);
@@ -754,7 +754,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
                         if(attempts < 5) {
                             doFocus(targetPos, cb);
                         } else {
-                            console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
+                            _logD("focus: error: target failed:", currentPos, ", targetPos", targetPos);
                             if (cb) cb("failed to reach focus target", camera.status.focusPos);
                         }
                     });
@@ -787,7 +787,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
                         if(attempts < 5) {
                             startFocus(cb);
                         } else {
-                            console.log("PTP: focusFuji: error: failed to switch focus control");
+                            _logE("failed to switch focus control");
                             if (cb) cb("failed to switch focus control");
                         }
                     }
