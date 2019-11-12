@@ -190,9 +190,9 @@ CameraAPI.prototype.liveviewImage = function(callback) {
 	return this._driver.liveviewImage(this, callback);
 }
 
-CameraAPI.prototype.moveFocus = function(steps, resolution, callback) {
+CameraAPI.prototype.moveFocus = function(steps, resolution, callback, absPos) {
 	if(!this.supports.focus || !this._driver.moveFocus) return callback && callback("not supported");
-	return this._driver.moveFocus(this, steps, resolution, callback);
+	return this._driver.moveFocus(this, steps, resolution, callback, absPos);
 }
 
 CameraAPI.prototype.setFocusPoint = function(x, y, callback) {

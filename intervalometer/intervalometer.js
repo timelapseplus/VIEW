@@ -251,8 +251,8 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             }
         case 'camera.ptp.focus':
             if(camera.ptp.new.available) {
-                return function(dir, steps, callback) {
-                    camera.ptp.new.moveFocus(dir * steps, 1, callback);
+                return function(dir, steps, callback, absPos) {
+                    camera.ptp.new.moveFocus(dir * steps, 1, callback, absPos);
                 }
             } else {
                 return camera.ptp.focus;
