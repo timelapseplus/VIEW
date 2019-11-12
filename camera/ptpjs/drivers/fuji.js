@@ -339,7 +339,7 @@ var properties = {
         ev: false,
         valueParser: function(value){
             if(!value) return 0;
-            return Math.round(value / FUJI_FOCUS_RESOLUTION);
+            return Math.round(-value / FUJI_FOCUS_RESOLUTION);
         }
     }
 }
@@ -767,7 +767,7 @@ driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
     var startFocus = function(cb) {
         if(camera.config.focusEnable.value == 'enabled') {
             if(absPos != null) {
-                doFocus(absPos * FUJI_FOCUS_RESOLUTION, cb);
+                doFocus(-absPos * FUJI_FOCUS_RESOLUTION, cb);
             } else {
                 if(camera.fujiFocusPosCache != null) {
                     doFocus(parseInt(camera.fujiFocusPosCache) + relativeMove, cb);
