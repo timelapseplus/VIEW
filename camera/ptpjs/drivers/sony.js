@@ -53,6 +53,17 @@ driver.supportedCameras = {
     //            focus: true,
     //        }
     //    },
+    '054c:0ccc': {
+            name: "Sony A7RIV",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
     '054c:0c34': {
             name: "Sony A7III",
             supports: {
@@ -457,7 +468,7 @@ driver.refresh = function(camera, callback, noEvent) {
             i += 2;
             step_size = data.readUInt16LE(i);
             i += 2; // skip an unknown uint16
-            //console.log("SONY: data type", data_type);
+            //_logD("data type", data_type);
             switch(data_type)
             {
                 case DATA8:
@@ -559,11 +570,11 @@ driver.refresh = function(camera, callback, noEvent) {
                     if(p.noList) {
                         if(!camera[p.category]) camera[p.category] = {};
                         camera[p.category][p.name] = data_current;
-                        console.log("SONY:", prop, "=", data_current);
+                        _logD(prop, "=", data_current);
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
                         if(!current) {
-                            console.log("SONY:", prop, "item not found:", data_current);
+                            _logD(prop, "item not found:", data_current);
                             current = {
                                 name: "UNKNOWN",
                                 ev: null,
@@ -591,8 +602,8 @@ driver.refresh = function(camera, callback, noEvent) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        console.log("SONY:", prop, "=", current.name, "count", camera[p.category][p.name].list.length);
-                        //console.log("SONY:", prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
+                        _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        //_logD(prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
                 }
             }

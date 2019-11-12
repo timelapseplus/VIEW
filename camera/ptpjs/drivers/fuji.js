@@ -44,6 +44,8 @@ function exposureEvent(camera) {
     }
 }
 
+var FUJI_FOCUS_RESOLUTION = 5;
+
 driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
@@ -312,6 +314,33 @@ var properties = {
             { name: "UNKNOWN2",          code: 3  },
             { name: "VIEW",              code: 4  },
         ]
+    },
+    'focusEnable': {
+        name: 'focusEnable',
+        category: 'config',
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
+        listFunction: ptp.listProp,
+        code: 0x500A,
+        ev: false,
+        values: [
+            { name: "Enabled", value: 'enabled', code: 1  },
+            { name: "afonly1", value: 'disabled', code: 32769  },
+            { name: "afonly2", value: '', code: 32770  },
+        ]
+    },
+    'focusPos': {
+        name: 'focusPos',
+        category: 'status',
+        setFunction: null,
+        getFunction: ptp.getPropI16,
+        listFunction: ptp.listProp,
+        code: 0xD171,
+        ev: false,
+        valueParser: function(value){
+            if(!value) return 0;
+            return Math.round(value / FUJI_FOCUS_RESOLUTION);
+        }
     }
 }
 
@@ -351,28 +380,33 @@ driver.refresh = function(camera, callback) {
                             _logD(key, "type is", type);
                             if(!camera[properties[key].category]) camera[properties[key].category] = {};
                             if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
-                            var currentMapped = mapPropertyItem(current, properties[key].values);
-                            if(!currentMapped) {
-                                _logE(key, "item not found:", current);
-                                currentMapped = {
-                                    name: "UNKNOWN",
-                                    ev: null,
-                                    value: null,
-                                    code: current
+
+                            if(properties[key].list) {
+                                var currentMapped = mapPropertyItem(current, properties[key].values);
+                                if(!currentMapped) {
+                                    _logE(key, "item not found:", current);
+                                    currentMapped = {
+                                        name: "UNKNOWN",
+                                        ev: null,
+                                        value: null,
+                                        code: current
+                                    }
                                 }
-                            }
-                            _logD(key, "=", currentMapped.name);
-                            camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
-                            var mappedList = [];
-                            for(var i = 0; i < list.length; i++) {
-                                var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                                if(!mappedItem) {
-                                    _logE(key, "list item not found:", list[i]);
-                                } else {
-                                    mappedList.push(mappedItem);
+                                _logD(key, "=", currentMapped.name);
+                                camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
+                                var mappedList = [];
+                                for(var i = 0; i < list.length; i++) {
+                                    var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                                    if(!mappedItem) {
+                                        _logE(key, "list item not found:", list[i]);
+                                    } else {
+                                        mappedList.push(mappedItem);
+                                    }
                                 }
+                                camera[properties[key].category][key].list = mappedList;
+                            } else {
+                                camera[properties[key].category][key] = properties[key].valueParser(current);
                             }
-                            camera[properties[key].category][key].list = mappedList;
                         }
                         fetchNextProperty();
                     });
@@ -492,16 +526,20 @@ driver.get = function(camera, param, callback) {
             if(properties[param] && properties[param].getFunction) {
                 properties[param].getFunction(camera._dev, properties[param].code, function(err, data) {
                     if(!err) {
-                        var newItem =  mapPropertyItem(data, properties[param].values);
-                        if(newItem) {
-                            for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                        if(properties[param].values) { // has list
+                            var newItem =  mapPropertyItem(data, properties[param].values);
+                            if(newItem) {
+                                for(var k in newItem) {
+                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                }
+                            } else {
+                                var list = camera[properties[param].category][param].list;
+                                camera[properties[param].category][param] = {
+                                    list: list
+                                }
                             }
-                        } else {
-                            var list = camera[properties[param].category][param].list;
-                            camera[properties[param].category][param] = {
-                                list: list
-                            }
+                        } else if(properties[param].valueParser) {
+                            camera[properties[key].category][key] = properties[param].valueParser(data);
                         }
                         return cb(err);
                     } else {
@@ -685,9 +723,100 @@ driver.liveviewImage = function(camera, callback, _tries) {
     }
 }
 
-driver.moveFocus = function(camera, steps, resolution, callback) {
+driver.moveFocus = function(camera, steps, resolution, callback, absPos) {
+    if (!steps) return callback && callback();
+
+    var attempts = 0;
+    var relativeMove = (parseInt(resolution) * FUJI_FOCUS_RESOLUTION * parseInt(steps));
+
+    var sign = function(n) {
+        return n && n < 0 ? -1 : 1;
+    }
+
+    var doFocus = function(target, cb) {
+        driver.get(camera, 'focusPos', function(err, currentPos){
+            if(target && Math.abs(parseInt(currentPos) - parseInt(target)) < FUJI_FOCUS_RESOLUTION) {
+                camera.fujiFocusPosCache = parseInt(target);
+                console.log("PTP: focusFuji: target reached:", currentPos, ", targetPos", target, "(" + camera.status.focusPos + ")");
+                if (cb) cb(null, Math.round(camera.fujiFocusPosCache / FUJI_FOCUS_RESOLUTION));
+            } else {
+                var targetPos = target || parseInt(currentPos) + relativeMove;
+                if(targetPos == 0) targetPos = 2;
+                var targetOffset = 0;
+                if(attempts > 0) targetOffset = sign(targetPos - currentPos) * attempts;
+                console.log("PTP: focusFuji: currentPos", currentPos, ", targetPos", targetPos, "targetOffset", targetOffset);
+                if(camera.connected) {
+                    try {
+                        ptp.setPropU16(camera._dev, 0xd171, Math.round(targetPos + targetOffset), function(err) {
+                            attempts++;
+                            if(attempts < 5) {
+                                doFocus(targetPos, cb);
+                            } else {
+                                console.log("PTP: focusFuji: error: target failed:", currentPos, ", targetPos", targetPos);
+                                if (cb) cb("failed to reach focus target", camera.status.focusPos);
+                            }
+                        });
+                    } catch(e) {
+                        if (cb) cb("unknown error");
+                    }
+                } else {
+                    if (cb) cb("not connected");
+                }
+            }
+        }, false);
+    }
+    var startFocus = function(cb) {
+        if(camera.config.focusEnable.value != 'enabled') {
+            if(absPos != null) {
+                doFocus(absPos * FUJI_FOCUS_RESOLUTION, cb);
+            } else {
+                if(camera.fujiFocusPosCache != null) {
+                    doFocus(parseInt(camera.fujiFocusPosCache) + relativeMove, cb);
+                } else {
+                    doFocus(null, cb);
+                }
+            }
+        } else {
+            camera.fujiFocusPosCache = null;
+            driver.set(camera, 'focusEnable', 'enabled', function(err) {
+                driver.get(camera, 'focusEnable', function(err, focusEnable) {
+                    if(camera.config.focusEnable.value == 'enabled') {
+                        attempts = 0;
+                        startFocus(cb);
+                    } else {
+                        attempts++;
+                        if(attempts < 5) {
+                            startFocus(cb);
+                        } else {
+                            console.log("PTP: focusFuji: error: failed to switch focus control");
+                            if (cb) cb("failed to switch focus control");
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    var lvMode = camera.status.liveview;
+
+    if(camera.config.focusEnable) {
+        async.series([
+            function(cb){
+                if(lvMode) driver.liveviewMode(camera, false, function() {cb();}); else cb();
+            },
+            function(cb){startFocus(cb);},
+            function(cb){
+                if(lvMode) driver.liveviewMode(camera, true, function() {cb();}); else cb();
+            },
+        ], function(err, res) {
+            callback && callback(err, (res && res.length > 1) ? res[1] : null);
+        });
+    } else {
+        callback && callback("unsupported");        
+    }
+
+
 
 }
-
 
 module.exports = driver;

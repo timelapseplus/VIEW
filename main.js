@@ -1448,14 +1448,6 @@ if (VIEW_HARDWARE) {
         name: "Ramping Options",
         type: "menu",
         items: [{
-            name: valueDisplay("Night Lum Target", core.currentProgram, 'nightLuminance'),
-            action: rampingNightLuminance,
-            help: help.nightLuminance
-        }, {
-            name: valueDisplay("Day Lum Target", core.currentProgram, 'dayLuminance'),
-            action: rampingDayLuminance,
-            help: help.dayLuminance
-        }, {
         //}, {
         //    name: valueDisplay("Ramping Algorithm", core.currentProgram, 'rampAlgorithm'),
         //    help: help.rampingAlgorithm,
@@ -1463,13 +1455,6 @@ if (VIEW_HARDWARE) {
         //    condition: function() {
         //        return core.currentProgram.rampMode == 'auto';
         //    }
-            name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
-            help: help.highlightProtection,
-            action: highlightProtectionOptions,
-            condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lum' && core.currentProgram.rampMode == 'auto';
-            }
-        }, {
             name: isoValueDisplay("Maximum ISO", core.currentProgram, 'isoMax'),
             action: isoMax,
             help: help.isoMax
@@ -1499,6 +1484,21 @@ if (VIEW_HARDWARE) {
             condition: function() {
                 return core.currentProgram.rampParameters && core.currentProgram.rampParameters.indexOf('A') !== -1 && (core.cameraSettings.aperture && core.cameraSettings.details && core.cameraSettings.details.aperture && core.cameraSettings.details.aperture.ev != null);
             }
+        }, {
+            name: valueDisplay("Highlight Protection", core.currentProgram, 'highlightProtection'),
+            help: help.highlightProtection,
+            action: highlightProtectionOptions,
+            condition: function() {
+                return core.currentProgram.rampAlgorithm == 'lum' && core.currentProgram.rampMode == 'auto';
+            }
+        }, {
+            name: valueDisplay("Night Lum Target", core.currentProgram, 'nightLuminance'),
+            action: rampingNightLuminance,
+            help: help.nightLuminance
+        }, {
+            name: valueDisplay("Day Lum Target", core.currentProgram, 'dayLuminance'),
+            action: rampingDayLuminance,
+            help: help.dayLuminance
         }, ]
     }
 
@@ -4286,18 +4286,18 @@ if (VIEW_HARDWARE) {
             name: "Developer Mode",
             action: developerModeMenu,
             help: help.developerModeMenu
-        }, {
-            name: "Send camera report",
-            action: function(){
-                core.runSupportTest(function() {
-                    ui.back();
-                    app.sendLogs();
-                });
-            },
-            condition: function() {
-                return core.cameraConnected && !core.intervalometerStatus.running;
-            },
-            help: help.sendCameraReport
+        //}, {
+        //    name: "Send camera report",
+        //    action: function(){
+        //        core.runSupportTest(function() {
+        //            ui.back();
+        //            app.sendLogs();
+        //        });
+        //    },
+        //    condition: function() {
+        //        return core.cameraConnected && !core.intervalometerStatus.running;
+        //    },
+        //    help: help.sendCameraReport
         }, {
             name: "Send log for review",
             action: function(){

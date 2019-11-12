@@ -48,7 +48,7 @@ fs.readdir(path.resolve(__dirname, './drivers/'), function(err, files) {
 	if(api.enabled) {
 		var devices = usb.getDeviceList();
 		for(var i = 0; i < devices.length; i++) {
-			tryConnectDevice(devices[i]);
+			tryConnectDevice(devices[i], true);
 		}
 	}
 });
@@ -276,7 +276,7 @@ function matchDriver(device) {
 
 api.cameras = [];
 
-function tryConnectDevice(device) {
+function tryConnectDevice(device, noUnsupportedEvent) {
 	var port = device.busNumber + ':' + device.deviceAddress;
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].camera._port == port) return; // already connected
@@ -307,7 +307,7 @@ function tryConnectDevice(device) {
 		}
 	} else {
 		console.log("USB device not supported by new driver:", port);
-		api.emit('unsupported', device);
+		if(!noUnsupportedEvent) api.emit('unsupported', device);
 	}
 }
 
