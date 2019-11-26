@@ -42,128 +42,29 @@ function objCopy(sourceObj, destObj) {
 driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
-    //'054c:0994': { // this seems like the charging mode
-    //        name: "Sony A7III",
-    //        supports: {
-    //            shutter: true,
-    //            aperture: true,
-    //            iso: true,
-    //            liveview: true,
-    //            destination: true,
-    //            focus: true,
-    //        }
-    //    },
-    '054c:0ccc': {
-            name: "Sony A7RIV",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '054c:0c34': {
-            name: "Sony A7III",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '054c:0c33': {
-            name: "Sony A7RIII",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '054c:0c2a': {
-            name: "Sony A9",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: true,
-                focus: true,
-            }
-        },
-    '054c:094c': {
-            name: "Sony A7",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: false,
-                destination: false,
-                focus: false,
-            }
-        },
-    '054c:0954': {
-            name: "Sony A7S",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: false,
-                destination: false,
-                focus: false,
-            }
-        },
-    '054c:094d': {
-            name: "Sony A7R",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: false,
-                destination: false,
-                focus: false,
-            }
-        },
-    '054c:0a6a': {
-            name: "Sony A7II",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: false,
-                focus: false,
-            }
-        },
-    '054c:0a71': {
-            name: "Sony A7SII",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: false,
-                focus: false,
-            }
-        },
-    '054c:0a6b': {
-            name: "Sony A7RII",
-            supports: {
-                shutter: true,
-                aperture: true,
-                iso: true,
-                liveview: true,
-                destination: false,
-                focus: false,
-            }
-        },
+    '054c:02e7': { name: "Sony DSC-A900", supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:0737': { name: "Sony A58",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:079c': { name: "Sony A6300",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:079d': { name: "Sony RX10 III", supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:079e': { name: "Sony A99 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:07a3': { name: "Sony RX100 V",  supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:07a4': { name: "Sony A6500",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:07c6': { name: "Sony A5000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:094c': { name: "Sony A7",       supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:094d': { name: "Sony A7R",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } }, 
+    '054c:094e': { name: "Sony A6000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:0953': { name: "Sony A77 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:0954': { name: "Sony A7S",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
+    '054c:0957': { name: "Sony A5100",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:0a6a': { name: "Sony A7 II",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:0a6b': { name: "Sony A7R II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:0a71': { name: "Sony A7S II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
+    '054c:0c2a': { name: "Sony A9",       supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
+    '054c:0c33': { name: "Sony A7R III",  supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
+    '054c:0c34': { name: "Sony A7 III",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
+    '054c:0ccc': { name: "Sony A7R IV",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
 }
+
 
 var properties = {
     'shutter': {
