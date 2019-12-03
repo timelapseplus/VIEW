@@ -331,6 +331,16 @@ function ensurePrimary() {
 	} else {
 		api.available = false;
 	}
+
+	var cameras = [];
+	if(api.cameras.length > 0) { // this puts the primary in position [0]
+		cameras.push(api.cameras[primaryIndex]);
+		for(var i = 0; i < api.cameras.length; i++) {
+			if(!api.cameras[i].primary) {
+				cameras.push(api.cameras[i]);
+			}
+		}
+	}
 }
 
 function getPrimary() {
