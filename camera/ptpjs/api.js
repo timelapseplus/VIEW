@@ -340,6 +340,7 @@ function ensurePrimary() {
 				cameras.push(api.cameras[i]);
 			}
 		}
+		api.cameras = cameras;
 	}
 }
 
