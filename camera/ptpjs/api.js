@@ -347,6 +347,37 @@ api.setPrimaryCamera = function(cameraIndex) {
 	ensurePrimary();
 }
 
+api.cameraList = function(callback) {
+    var list = [];
+    for(var i = 0; i < api.cameras.length; i++) {
+        list.push({
+            model: api.cameras[i].model,
+            primary: api.cameras[i].primary,
+            _port: api.cameras[i].camera._port
+        });
+    }
+    callback && callback(list);
+    return list;
+}
+
+api.switchPrimary = function(cameraObject, callback) {
+    //if(camera.lvOn) camera.lvOff();
+    if(cameraObject._port) {
+        console.log("switching primary camera to ", cameraObject.model);            
+        var index = null;
+		for(var j = 0; j < api.cameras.length; j++) {
+			if(api.cameras[j].camera._port == cameraObject._port) {
+				index = j;
+				break;
+			}
+		}
+        if(index == null) return callback && callback("camera not connected");
+        setPrimaryCamera(index);
+		api.emit('connected', found.name, camera.exposure);
+    }
+    callback && callback();
+}
+
 api.set = function(parameter, value, callback) {
 	console.log("API setEv: setting", parameter, "to", value);
 	for(var i = 0; i < api.cameras.length; i++) {

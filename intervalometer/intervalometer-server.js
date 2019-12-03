@@ -572,10 +572,18 @@ function runCommand(type, args, callback, client) {
       }
       break;
     case 'camera.ptp.cameraList':
-      camera.ptp.cameraList(callback);
+      if(camera.ptp.new.available) {
+        camera.ptp.new.list(callback);
+      } else {
+        camera.ptp.cameraList(callback);
+      }
       break;
     case 'camera.ptp.switchPrimary':
-      camera.ptp.switchPrimary(args.cameraObject, callback);
+      if(camera.ptp.new.available) {
+        camera.ptp.new.switchPrimary(args.cameraObject, callback);
+      } else {
+        camera.ptp.switchPrimary(args.cameraObject, callback);
+      }    
       break;
     case 'camera.ptp.capture':
       remap('camera.ptp.capture')(args.options, cameraCallback);
