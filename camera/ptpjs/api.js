@@ -373,7 +373,7 @@ api.switchPrimary = function(cameraObject, callback) {
 		}
         if(index == null) return callback && callback("camera not connected");
         api.setPrimaryCamera(index);
-		api.emit('connected', found.name, camera.exposure);
+		api.emit('connected', api.cameras[index].model, api.cameras[index].camera.exposure);
     }
     callback && callback();
 }
