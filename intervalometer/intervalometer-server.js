@@ -573,7 +573,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.cameraList':
       if(camera.ptp.new.available) {
-        camera.ptp.new.list(callback);
+        camera.ptp.new.cameraList(callback);
       } else {
         camera.ptp.cameraList(callback);
       }
