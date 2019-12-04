@@ -1942,9 +1942,29 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
                     function start3() {
                         var cameras = 1, primary = 1;
-                        if(camera.ptp.synchronized) {
-                            cameras = camera.ptp.count;
-                            primary = camera.ptp.getPrimaryCameraIndex();
+                        if(camera.ptp.synchronized || (camera.ptp.new.available && camera.ptp.new.cameras.length > 1)) {
+                            if(camera.ptp.new.available) {
+                                cameras = 1; //camera.ptp.new.cameras.length;
+                                primary = 1;
+                                try {
+                                    camera.ptp.new.set('shutter', camera.ptp.new.cameras[0].exposure.shutter.ev);
+                                } catch(e) {
+                                    logErr("sync: error setting shutter:", e);
+                                }
+                                try {
+                                    if(camera.ptp.new.cameras[0].exposure.aperture) camera.ptp.new.set('aperture', camera.ptp.new.cameras[0].exposure.aperture.ev);
+                                } catch(e) {
+                                    logErr("sync: error setting aperture:", e);
+                                }
+                                try {
+                                    camera.ptp.new.set('iso', camera.ptp.new.cameras[0].exposure.iso.ev);
+                                } catch(e) {
+                                    logErr("sync: error setting iso:", e);
+                                }
+                            } else {
+                                cameras = camera.ptp.count;
+                                primary = camera.ptp.getPrimaryCameraIndex();
+                            }
                         }
                         db.setTimelapse(intervalometer.status.tlName, program, cameras, primary, intervalometer.status, function(err, timelapseId) {
                             intervalometer.status.id = timelapseId;
