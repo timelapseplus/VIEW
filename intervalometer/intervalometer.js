@@ -1947,21 +1947,9 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                 cameras = 1; //camera.ptp.new.cameras.length;
                                 primary = 1;
                                 try {
-                                    camera.ptp.new.set('shutter', camera.ptp.new.cameras[0].camera.exposure.shutter.ev, function(){
-                                        try {
-                                            camera.ptp.new.set('iso', camera.ptp.new.cameras[0].camera.exposure.iso.ev, function() {
-                                                try {
-                                                    if(camera.ptp.new.cameras[0].exposure.aperture) camera.ptp.new.set('aperture', camera.ptp.new.cameras[0].camera.exposure.aperture.ev);
-                                                } catch(e) {
-                                                    logErr("sync: error setting aperture:", e);
-                                                }
-                                            });
-                                        } catch(e) {
-                                            logErr("sync: error setting iso:", e);
-                                        }
-                                    });
+                                    camera.ptp.new.setExposure(camera.ptp.new.cameras[0].camera.exposure.shutter.ev, camera.ptp.new.cameras[0].camera.exposure.aperture && camera.ptp.new.cameras[0].camera.exposure.aperture.ev, camera.ptp.new.cameras[0].camera.exposure.iso.ev);
                                 } catch(e) {
-                                    logErr("sync: error setting shutter:", e);
+                                    logErr("sync: error setting exposure:", e);
                                 }
                             } else {
                                 cameras = camera.ptp.count;

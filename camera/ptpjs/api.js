@@ -390,7 +390,7 @@ api.switchPrimary = function(cameraObject, callback) {
 }
 
 api.set = function(parameter, value, callback) {
-	console.log("API setEv: setting", parameter, "to", value);
+	console.log("API: setting", parameter, "to", value);
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
 			api.cameras[i].camera.set(parameter, value, callback);
