@@ -1046,6 +1046,25 @@ oled.liveview = function(jpegFile, text) {
     oled.update(true);
 }
 
+oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
+    if(!textArray) textArray = [];
+    oled.jpeg(jpegFile, 0, 14, true);
+    fb.color(0, 0, 0);
+    fb.rect(0, 119, 159, 127, true);
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
+    color("primary");
+    var sectionSize = 160 / textArray.length;
+    for(var i = 0; i < textArray.length; i++) {
+        var textSize = fb.textSize(textArray[i]);
+        var x = sectionSize * i + sectionSize / 2 - textSize / 2; 
+        if(highlightTextIndex === i) {
+            fb.rect(i * sectionSize, 118, i * sectionSize + sectionSize, 127, true);
+        }
+        fb.text(x, 127, textArray[i]);
+    }
+    oled.update(true);
+}
+
 oled.jpeg = function(jpegFile, x, y, overlay) {
     if(!overlay) fb.clear();
     fb.jpeg(x||0, y||0, jpegFile);

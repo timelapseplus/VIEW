@@ -5572,7 +5572,8 @@ core.on('camera.photo', function() {
                                     var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
                                     var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
 
-                                    oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
+                                    //oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
+                                    oled.exposure(path, [shutterText, "f/" + apertureText, "ISO " + isoText], 0);
                                 }
                             });
                         }
