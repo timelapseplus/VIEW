@@ -71,6 +71,7 @@ var liveviewOnStream = false;
 var liveviewRequestStart = false;
 var previewImageLastTime = new Date();
 var gpsExists = null;
+var oledLiveviewActiveParam = 0;
 
 var cache = {};
 var gestureString = "";
@@ -2444,6 +2445,9 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
+                } else if (b == 3) {
+                    oledLiveviewActiveParam++;
+                    if(oledLiveviewActiveParam > 2) oledLiveviewActiveParam = 0;
                 } else if (b == 4) {
                     liveviewOn = false;
                     core.capture(null, function(err) {
@@ -5573,7 +5577,7 @@ core.on('camera.photo', function() {
                                     var apertureText = (core.cameraSettings && core.cameraSettings.aperture && core.cameraSettings.aperture != "UNKNOWN") ? core.cameraSettings.aperture : "---";
 
                                     //oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
-                                    oled.exposure(path, [shutterText, "f/" + apertureText, "ISO " + isoText], 0);
+                                    oled.exposure(path, [shutterText, "f/" + apertureText, "ISO " + isoText], oledLiveviewActiveParam);
                                 }
                             });
                         }
