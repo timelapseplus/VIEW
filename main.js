@@ -5568,9 +5568,9 @@ core.on('camera.photo', function() {
                         if (!err && jpgBuf) {
                             image.saveTemp("oledthm", jpgBuf, function(err, path) {
                                 if(!err && path) {
-                                    var isoText = (core.cameraSettings && core.cameraSettings.iso) ? core.cameraSettings.iso : "---";
-                                    var shutterText = (core.cameraSettings && core.cameraSettings.shutter) ? core.cameraSettings.shutter : "---";
-                                    var apertureText = (core.cameraSettings && core.cameraSettings.aperture) ? core.cameraSettings.aperture : "---";
+                                    var isoText = (core.cameraSettings && core.cameraSettings.iso && core.cameraSettings.iso != "UNKNOWN") ? core.cameraSettings.iso : "---";
+                                    var shutterText = (core.cameraSettings && core.cameraSettings.shutter && core.cameraSettings.shutter != "UNKNOWN") ? core.cameraSettings.shutter : "---";
+                                    var apertureText = (core.cameraSettings && core.cameraSettings.aperture && core.cameraSettings.aperture != "UNKNOWN") ? core.cameraSettings.aperture : "---";
 
                                     //oled.liveview(path, shutterText + "    f/" + apertureText + "    ISO " + isoText);
                                     oled.exposure(path, [shutterText, "f/" + apertureText, "ISO " + isoText], 0);
