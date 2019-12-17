@@ -1050,7 +1050,7 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
     if(!textArray) textArray = [];
     oled.jpeg(jpegFile, 0, 14, true);
     fb.color(0, 0, 0);
-    fb.rect(0, 119, 159, 127, true);
+    fb.rect(0, 116.5, 160, 11, true);
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
     var sectionSize = 160 / textArray.length;

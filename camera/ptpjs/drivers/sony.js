@@ -736,9 +736,9 @@ driver.set = function(camera, param, value, callback, tries) {
                                             }
                                         });
                                     }
-                                    setTimeout(refresh, 200 + 50 * delta);
+                                    setTimeout(refresh, 300 + 50 * delta);
                                 } else {
-                                    var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                                    var newItem = mapPropertyItem(cameraValue, properties[param].values);
                                     for(var k in newItem) {
                                         if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
                                     }
