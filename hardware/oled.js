@@ -1058,8 +1058,9 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
         var textSize = fb.textSize(textArray[i]);
         var x = sectionSize * i + sectionSize / 2 - textSize / 2; 
         if(highlightTextIndex === i) {
-            fb.rect(i * sectionSize, 118, i * sectionSize + sectionSize, 127, true);
+            fb.rect(i * sectionSize, 118, i * sectionSize + sectionSize, 127, false);
         }
+        console.log("OLED: writing", textArray[i], "at x =", x);
         fb.text(x, 127, textArray[i]);
     }
     oled.update(true);
