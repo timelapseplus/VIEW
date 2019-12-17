@@ -1061,7 +1061,7 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
         fb.text(x, 126, textArray[i]);
         if(highlightTextIndex === i) {
             color("secondary");
-            fb.rect(i * sectionSize, 116.5, i * sectionSize + sectionSize, 10, false);
+            fb.rect(i * sectionSize, 116.5, sectionSize, 11, false);
             color("primary");
         }
     }
