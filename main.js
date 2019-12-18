@@ -1526,7 +1526,7 @@ if (VIEW_HARDWARE) {
                     setTimeout(cb, 500);
                 } else if (b == 3) {
                     oledLiveviewActiveParam++;
-                    if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
+                    if(oledLiveviewActiveParam > 2) oledLiveviewActiveParam = 0;
                     if(oledLiveviewActiveParam == 3) {
                         core.zoom(0.5, 0.5);
                     } else if(core.cameraZoomed) {
@@ -2441,7 +2441,7 @@ if (VIEW_HARDWARE) {
                     setTimeout(cb, 500);
                 } else if (b == 3) {
                     oledLiveviewActiveParam++;
-                    if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
+                    if(oledLiveviewActiveParam > 2) oledLiveviewActiveParam = 0; // 3 for focus
                     if(oledLiveviewActiveParam == 3) {
                         core.zoom(0.5, 0.5);
                     } else if(core.cameraZoomed) {
@@ -5537,7 +5537,7 @@ function showLiveViewScreen() {
     var shutterText = (core.cameraSettings && core.cameraSettings.shutter && core.cameraSettings.shutter != "UNKNOWN") ? core.cameraSettings.shutter : "---";
     var apertureText = (core.cameraSettings && core.cameraSettings.aperture && core.cameraSettings.aperture != "UNKNOWN") ? core.cameraSettings.aperture : "---";
 
-    oled.exposure(liveViewImagePath, [shutterText, "f/" + apertureText, "ISO " + isoText, "[" + core.focusPos + "]"], oledLiveviewActiveParam);
+    oled.exposure(liveViewImagePath, [shutterText, "f/" + apertureText, "ISO " + isoText], oledLiveviewActiveParam);
     oled.activity(); // keep screen on during lv
 }
 
