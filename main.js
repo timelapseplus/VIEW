@@ -2475,7 +2475,7 @@ if (VIEW_HARDWARE) {
                     });
                 }
             }
-
+            var busySetting = false;
             function captureDialHandler(d) {
                 oled.activity();
                 power.activity();
@@ -2501,11 +2501,16 @@ if (VIEW_HARDWARE) {
                 } else if (d == 'D') {
                     if(param) newSetting = lists.decEv(paramEv, paramList);
                 }
-                if(newSetting) core.set(param, newSetting.ev, function(err) {
-                    core.getSettings(function() {
-                        showLiveViewScreen();
+                if(newSetting && !busySetting) {
+                    busySetting = true;
+                    core.set(param, newSetting.ev, function(err) {
+                        core.getSettings(function() {
+                            busySetting = false;
+                            core.preview();
+                            showLiveViewScreen();
+                        });
                     });
-                });
+                }
             }
 
             oled.block();
