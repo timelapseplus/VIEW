@@ -301,7 +301,7 @@ lists.evStats = function(settings, options) {
     settings = settings.details ? settings.details : settings;
 
     //console.log("lists.evStats: slists", slists, "settings", settings);
-
+    res.settings = settings;
     var apertureEnabled = false;
 
     var av;
