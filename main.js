@@ -2495,20 +2495,17 @@ if (VIEW_HARDWARE) {
                     paramEv = stats.settings.iso.ev
                     paramList = stats.isoList;
                 }
-
+                var newSetting = null;
                 if (d == 'U') {
-                    if(param) core.set(param, lists.incEv(paramEv, paramList), function(err) {
-                        core.getSettings(function() {
-                            showLiveViewScreen();
-                        });
-                    });
+                    if(param) newSetting = lists.incEv(paramEv, paramList);
                 } else if (d == 'D') {
-                    if(param) core.set(param, lists.decEv(paramEv, paramList), function(err) {
-                        core.getSettings(function() {
-                            showLiveViewScreen();
-                        });
-                    });
+                    if(param) newSetting = lists.decEv(paramEv, paramList);
                 }
+                if(newSetting) core.set(param, newSetting.ev, function(err) {
+                    core.getSettings(function() {
+                        showLiveViewScreen();
+                    });
+                });
             }
 
             oled.block();
