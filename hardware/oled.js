@@ -1053,7 +1053,7 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
         oled.jpeg(jpegFile, 0, 14, true);
         fb.rect(0, 116.5, 160, 12, true);
     } else {
-        fb.rect(0, 0, 160, 128, true);
+        fb.rect(0, 15, 160, 128 - 15, true);
     }
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
