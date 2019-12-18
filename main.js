@@ -2487,8 +2487,8 @@ if (VIEW_HARDWARE) {
                     paramEv = stats.settings.shutter.ev
                     paramList = stats.shutterList;
                 } else if(oledLiveviewActiveParam == 1) {
-                    param = stats.settings.aperture ? "aperture" || null;
-                    paramEv = stats.settings.aperture ? stats.settings.aperture.ev || null;
+                    param = stats.settings.aperture ? "aperture" : null;
+                    paramEv = stats.settings.aperture ? stats.settings.aperture.ev : null;
                     paramList = stats.apertureList;
                 } else if(oledLiveviewActiveParam == 2) {
                     param = "iso";
