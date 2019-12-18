@@ -1048,9 +1048,13 @@ oled.liveview = function(jpegFile, text) {
 
 oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
     if(!textArray) textArray = [];
-    oled.jpeg(jpegFile, 0, 14, true);
     fb.color(0, 0, 0);
-    fb.rect(0, 116.5, 160, 12, true);
+    if(jpegFile) {
+        oled.jpeg(jpegFile, 0, 14, true);
+        fb.rect(0, 116.5, 160, 12, true);
+    } else {
+        fb.rect(0, 0, 160, 128, true);
+    }
     fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
     var sectionSize = 160 / textArray.length;

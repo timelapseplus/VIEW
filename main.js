@@ -1510,6 +1510,7 @@ if (VIEW_HARDWARE) {
             blockInputs = true;
             var stats, ev, exiting = false;
             var getSettingsTimer = null;
+            showLiveViewScreen();
 
             function captureButtonHandler(b) {
                 oled.activity();
@@ -1523,6 +1524,10 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
+                } else if (b == 3) {
+                    oledLiveviewActiveParam++;
+                    if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
+                    showLiveViewScreen();
                 } else if (b == 2) {
                     if (core.cameraZoomed) {
                         core.zoom();
@@ -1532,11 +1537,26 @@ if (VIEW_HARDWARE) {
                 }
             }
 
+            var busySetting = false;
             function captureDialHandler(d) {
                 oled.activity();
                 power.activity();
                 //console.log("captureDialHandler", d, stats, ev);
-                if (core.photo && core.cameraZoomed) {
+                stats = lists.evStats(core.cameraSettings);
+                var paramEv = null, paramList = [], param = null;
+                if(oledLiveviewActiveParam == 0) {
+                    param = "shutter";
+                    paramEv = stats.settings.shutter
+                    paramList = stats.shutterList;
+                } else if(oledLiveviewActiveParam == 1) {
+                    param = "aperture";
+                    paramEv = stats.settings.aperture ? stats.settings.aperture : null;
+                    paramList = stats.apertureList;
+                } else if(oledLiveviewActiveParam == 2) {
+                    param = "iso";
+                    paramEv = stats.settings.iso
+                    paramList = stats.isoList;
+                } else if(oledLiveviewActiveParam == 3) {
                     var f = 0;
                     if (d == 'U') {
                         f = +2;
@@ -1545,48 +1565,22 @@ if (VIEW_HARDWARE) {
                         f = -2;
                     }
                     core.focus(f, 1);
-                } else {
-                    if (d == 'U') {
-                        if (stats.ev < stats.maxEv) {
-                            ev += 1 / 3;
-                            console.log("(exposure) setting ev to ", ev);
-                            if(getSettingsTimer) {
-                                clearTimeout(getSettingsTimer);
-                                getSettingsTimer = null;
-                            }
-                            core.setEv(ev, {
-                                cameraSettings: core.cameraSettings,
-                                fixedApertureEv: core.currentProgram.manualAperture
-                            }, function() {
-                                getSettingsTimer = setTimeout(function(){
-                                    core.getSettings(function() {
-                                        stats = lists.evStats(core.cameraSettings);
-                                        ev = stats.ev;
-                                    });
-                                }, 500);
-                            });
-                        }
-                    } else if (d == 'D') {
-                        if (stats.ev > stats.minEv) {
-                            ev -= 1 / 3;
-                            console.log("(exposure) setting ev to ", ev);
-                            if(getSettingsTimer) {
-                                clearTimeout(getSettingsTimer);
-                                getSettingsTimer = null;
-                            }
-                            core.setEv(ev, {
-                                cameraSettings: core.cameraSettings,
-                                fixedApertureEv: core.currentProgram.manualAperture
-                            }, function() {
-                                getSettingsTimer = setTimeout(function(){
-                                    core.getSettings(function() {
-                                        stats = lists.evStats(core.cameraSettings);
-                                        ev = stats.ev;
-                                    });
-                                }, 500);
-                            });
-                        }
-                    }
+                }
+                var newSetting = null;
+                if (d == 'U') {
+                    if(param) newSetting = lists.decEv(paramEv, paramList);
+                } else if (d == 'D') {
+                    if(param) newSetting = lists.incEv(paramEv, paramList);
+                }
+                if(newSetting && !busySetting) {
+                    busySetting = true;
+                    core.set(param, newSetting.ev, function(err) {
+                        core.getSettings(function() {
+                            busySetting = false;
+                            core.preview();
+                            showLiveViewScreen();
+                        });
+                    });
                 }
             }
 
@@ -2448,7 +2442,7 @@ if (VIEW_HARDWARE) {
                     setTimeout(cb, 500);
                 } else if (b == 3) {
                     oledLiveviewActiveParam++;
-                    if(oledLiveviewActiveParam > 2) oledLiveviewActiveParam = 0;
+                    if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
                     showLiveViewScreen();
                 } else if (b == 4) {
                     liveviewOn = false;
@@ -2494,12 +2488,21 @@ if (VIEW_HARDWARE) {
                     param = "iso";
                     paramEv = stats.settings.iso
                     paramList = stats.isoList;
+                } else if(oledLiveviewActiveParam == 3) {
+                    var f = 0;
+                    if (d == 'U') {
+                        f = +2;
+                    }
+                    if (d == 'D') {
+                        f = -2;
+                    }
+                    core.focus(f, 1);
                 }
                 var newSetting = null;
                 if (d == 'U') {
-                    if(param) newSetting = lists.incEv(paramEv, paramList);
-                } else if (d == 'D') {
                     if(param) newSetting = lists.decEv(paramEv, paramList);
+                } else if (d == 'D') {
+                    if(param) newSetting = lists.incEv(paramEv, paramList);
                 }
                 if(newSetting && !busySetting) {
                     busySetting = true;
@@ -5530,7 +5533,7 @@ function showLiveViewScreen() {
     var shutterText = (core.cameraSettings && core.cameraSettings.shutter && core.cameraSettings.shutter != "UNKNOWN") ? core.cameraSettings.shutter : "---";
     var apertureText = (core.cameraSettings && core.cameraSettings.aperture && core.cameraSettings.aperture != "UNKNOWN") ? core.cameraSettings.aperture : "---";
 
-    oled.exposure(liveViewImagePath, [shutterText, "f/" + apertureText, "ISO " + isoText], oledLiveviewActiveParam);
+    oled.exposure(liveViewImagePath, [shutterText, "f/" + apertureText, "ISO " + isoText, "[" + core.focusPos + "]"], oledLiveviewActiveParam);
     oled.activity(); // keep screen on during lv
 }
 
