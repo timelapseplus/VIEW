@@ -1527,13 +1527,12 @@ if (VIEW_HARDWARE) {
                 } else if (b == 3) {
                     oledLiveviewActiveParam++;
                     if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
-                    showLiveViewScreen();
-                } else if (b == 2) {
-                    if (core.cameraZoomed) {
-                        core.zoom();
-                    } else {
+                    if(oledLiveviewActiveParam == 3) {
                         core.zoom(0.5, 0.5);
+                    } else if(core.cameraZoomed) {
+                        core.zoom();
                     }
+                    showLiveViewScreen();
                 }
             }
 
@@ -2443,6 +2442,11 @@ if (VIEW_HARDWARE) {
                 } else if (b == 3) {
                     oledLiveviewActiveParam++;
                     if(oledLiveviewActiveParam > 3) oledLiveviewActiveParam = 0;
+                    if(oledLiveviewActiveParam == 3) {
+                        core.zoom(0.5, 0.5);
+                    } else if(core.cameraZoomed) {
+                        core.zoom();
+                    }
                     showLiveViewScreen();
                 } else if (b == 4) {
                     liveviewOn = false;
