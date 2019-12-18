@@ -1,6 +1,6 @@
 exports.timelapseMenu = "Welcome to the VIEW Intervalometer!  The Time-lapse menu is the intervalometer, where you setup a simple time-lapse or automatic exposure ramp.\n To leave this help screen, press the top button on the right.  Then, press the knob or the middle button on the right to enter the Time-lapse menu.";
 
-exports.captureMenu = "The Capture menu puts the camera into live-view mode and captures photos to the camera's memory card when the knob is pressed. Turning the knob will adjust the exposure.  Pressing the middle button will enter focus mode, where the knob will then adjust focus if supported. \n At present, the Capture menu only works with Canon and Nikon cameras.";
+exports.captureMenu = "The Capture menu puts the camera into live-view mode and captures photos to the camera's memory card when the knob is pressed. Turning the knob will adjust the selected parameter seen below the image.  Press the context (lower left) button to toggle selected parameter.";
 
 exports.clipsMenu = "This is where you can playback your time-lapse clips, even while they're still recording. \nPress the bottom right button to show options for the selected clip.  \nTo save XMP data to an SD card while in the Time-lapse Clips menu, insert an SD card, press the bottom right button, then select 'Write XMPs to SD card' to save the XMPs for the selected clip.";
 
@@ -24,7 +24,7 @@ exports.wifiConnect = "Pressing the knob or middle right button will connect to 
 
 exports.softwareHelpHeader = "Pressing the knob or middle right button will install the currently selected software version.  If the version is already downloaded, it will quickly load, but new versions can take up to 30 minutes to download and install.";
 
-exports.exposureMenu = "This puts the camera in live-view mode and allows adjusting of the exposure via the knob.  Press the top right button to exit. \nNote: This feature is still in development and is very limited. It only works with Canon and Nikon cameras at present.  It will cause Sony cameras to crash and require a power cycle.  A fix will be released soon, but in the meantime do not use this for cameras other than Canon and Nikon.  Instead, simply setup the focus and exposure from the camera directly.";
+exports.exposureMenu = "This puts the camera into live-view mode to preview and adjust the exposure. Turning the knob will adjust the selected parameter seen below the image.  Press the context (lower left) button to toggle selected parameter.";
 
 exports.rampingOptions = "This determines the time-lapse mode: \"Basic - Fixed\" for standard time-lapse with no exposure change, or \"Auto Ramping\" for fully automatic exposure ramping.";
 
@@ -36,9 +36,9 @@ exports.destinationOptions = "The VIEW can save images from the time-lapse seque
 
 exports.nightInterval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds to use during the night.  It will automatically be ramped to/from the day interval.  \nA recommended night interval to start with is 40 seconds, as this allows for a full 30-second exposure with some processing time (setting the camera to 30s actually is a 32 second exposure).";
 
-exports.dayInterval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds to use during the daylight.  It will automatically be ramped to/from the night interval. \nA recommended day interval to start with is 8 seconds, starting about an hour before sunset. \nCurrently, it's not recommended to use intervals less than 4 seconds for regular time-lapse and not less than 6 seconds for automatic ramping. I'm working to decrease these limits soon.";
+exports.dayInterval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds to use during the daylight.  It will automatically be ramped to/from the night interval. \nA recommended day interval to start with is 8 seconds, starting about an hour before sunset. \nWith most cameras, it's not recommended to use intervals less than 3 seconds for regular time-lapse and not less than 4 seconds for automatic ramping.";
 
-exports.interval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds.\nCurrently, it's not recommended to use intervals less than 4 seconds for regular time-lapse and not less than 6 seconds for automatic ramping. I'm working to decrease these limits soon.";
+exports.interval = "This is the interval length (the time from the start of one exposure to the start of the next) in seconds.\nWith most cameras, it's not recommended to use intervals less than 3 seconds for regular time-lapse and not less than 4 seconds for automatic ramping.";
 
 exports.startTimelapse = "Are all the settings correct?  This will get it started!  Once it's going, you can navigate to other menus, view the time-lapse, or if you let the screen go blank for a little while, wave your hand across the front of the screen twice to activate a hands-free preview of the time-lapse while its running.";
 
@@ -48,7 +48,7 @@ exports.wifiPassword = "Enter the WiFi password here. Use the lower-right button
 
 exports.btEnableMenu = "This will enable Bluetooth and allow automatically connecting to a nearby NMX motion controller (this functionality is still limited and in development).  The VIEW must first either be connected to a wifi access point (Connect to Network) or have the built-in access point enabled (Enable built-in AP).";
 
-exports.btDisableMenu = "This disables Bluetooth.";
+exports.btDisableMenu = "This disables Bluetooth. (Bluetooth is currently enabled.)";
 
 exports.connectCamera = "Connect the camera via USB to enable the time-lapse menu.  If the camera is already connected, try unplugging it and plugging it back in.  Sony cameras must have USB mode set to \"PC Connect\" to work with the VIEW.";
 
