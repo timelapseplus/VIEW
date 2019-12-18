@@ -1510,6 +1510,7 @@ if (VIEW_HARDWARE) {
             blockInputs = true;
             var stats, ev, exiting = false;
             var getSettingsTimer = null;
+            oled.block();
             showLiveViewScreen();
 
             function captureButtonHandler(b) {
@@ -1520,6 +1521,7 @@ if (VIEW_HARDWARE) {
                     liveviewOn = false;
                     blockInputs = false;
                     core.lvOff();
+                    oled.unblock();
                     console.log("(exposure) disabling handlers...");
                     inputs.removeListener('B', captureButtonHandler);
                     inputs.removeListener('D', captureDialHandler);
@@ -2424,6 +2426,7 @@ if (VIEW_HARDWARE) {
             blockInputs = true;
             var stats, ev, exiting = false;
             var getSettingsTimer = null;
+            oled.block();
             showLiveViewScreen();
 
             function captureButtonHandler(b) {
@@ -2431,9 +2434,9 @@ if (VIEW_HARDWARE) {
                 power.activity();
                 if (b == 1) {
                     exiting = true;
-                    oled.unblock();
                     liveviewOn = false;
                     core.lvOff();
+                    oled.unblock();
                     blockInputs = false;
                     console.log("(capture) disabling handlers...");
                     inputs.removeListener('B', captureButtonHandler);
@@ -2520,7 +2523,6 @@ if (VIEW_HARDWARE) {
                 }
             }
 
-            oled.block();
             liveviewOn = true;
             liveviewOnApp = false;
             inputs.on('B', captureButtonHandler);
