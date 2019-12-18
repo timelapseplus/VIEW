@@ -2484,15 +2484,15 @@ if (VIEW_HARDWARE) {
                 var paramEv = null, paramList = [], param = null;
                 if(oledLiveviewActiveParam == 0) {
                     param = "shutter";
-                    paramEv = stats.settings.shutter.ev
+                    paramEv = stats.settings.shutter
                     paramList = stats.shutterList;
                 } else if(oledLiveviewActiveParam == 1) {
-                    param = stats.settings.aperture ? "aperture" : null;
-                    paramEv = stats.settings.aperture ? stats.settings.aperture.ev : null;
+                    param = "aperture";
+                    paramEv = stats.settings.aperture ? stats.settings.aperture : null;
                     paramList = stats.apertureList;
                 } else if(oledLiveviewActiveParam == 2) {
                     param = "iso";
-                    paramEv = stats.settings.iso.ev
+                    paramEv = stats.settings.iso
                     paramList = stats.isoList;
                 }
                 var newSetting = null;
