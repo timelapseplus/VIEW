@@ -603,9 +603,9 @@ function pollEvents(camera, callback) {
                             if(!newItem) {
                                 _logE(param, "current value", ptp.hex(event_value), "not found");
                                 break;
-                            } else if(newItem.list) {
-                                _logD("removing list item from", param, "update");
-                                delete newItem.list;
+                            //} else if(newItem.list) {
+                            //    _logD("removing list item from", param, "update");
+                            //    delete newItem.list;
                             }
                         } else {
                             newItem = {
@@ -619,7 +619,7 @@ function pollEvents(camera, callback) {
                             camera[properties[param].category][param] = {};
                         }
                         for(var k in newItem) {
-                            if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                            if(newItem.hasOwnProperty(k) && (k != 'list' || !camera[properties[param].category][param][k].list || camera[properties[param].category][param][k].list.length == 0) ) camera[properties[param].category][param][k] = newItem[k];
                         }
                         _logD(param, "=", newItem.name);
                         found = true;
