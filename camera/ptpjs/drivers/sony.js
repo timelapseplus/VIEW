@@ -720,7 +720,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         //}
                         properties[param].setFunction(camera._dev, properties[param].code, delta, function(err) {
                             if(!err) {
-                                if(delta > 1 || tries > 1) {
+                                //if(delta > 1 || tries > 1) {
                                     var refresh = function() {
                                         var updated = driver.get(camera, param, function() {
                                             if(!updated) {
@@ -736,14 +736,14 @@ driver.set = function(camera, param, value, callback, tries) {
                                             }
                                         });
                                     }
-                                    setTimeout(refresh, 300 + 50 * delta);
-                                } else {
-                                    var newItem = mapPropertyItem(cameraValue, properties[param].values);
-                                    for(var k in newItem) {
-                                        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
-                                    }
-                                    return cb(err);
-                                }
+                                    setTimeout(refresh, 200 + 75 * delta);
+                                //} else {
+                                //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
+                                //    for(var k in newItem) {
+                                //        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                //    }
+                                //    return cb(err);
+                                //}
                             } else {
                                 _logE("error setting " + ptp.hex(properties[param].code) + ": " + err);
                                 return cb(err);
