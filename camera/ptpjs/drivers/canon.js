@@ -619,7 +619,7 @@ function pollEvents(camera, callback) {
                             camera[properties[param].category][param] = {};
                         }
                         for(var k in newItem) {
-                            if(newItem.hasOwnProperty(k) && (k != 'list' || !camera[properties[param].category][param][k].list || camera[properties[param].category][param][k].list.length == 0) ) camera[properties[param].category][param][k] = newItem[k];
+                            if(newItem.hasOwnProperty(k) && (k != 'list' || (!camera[properties[param].category][param].list || camera[properties[param].category][param].list.length == 0)) ) camera[properties[param].category][param][k] = newItem[k];
                         }
                         _logD(param, "=", newItem.name);
                         found = true;
