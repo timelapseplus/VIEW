@@ -804,7 +804,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         if(!err) {
                             var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                             for(var k in newItem) {
-                                if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                if(newItem.hasOwnProperty(k) && k != 'list') camera[properties[param].category][param][k] = newItem[k];
                             }
                             return cb(err);
                         } else {
