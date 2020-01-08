@@ -350,18 +350,18 @@ var properties = {
             { name: "Mechanical",         value: 'mechanical', code: 3  },
         ]
     },
-    'focusPos': {
-        name: 'focusPos',
-        category: 'status',
-        setFunction: null,
-        getFunction: null,
-        listFunction: null,
-        listWorks: false,
-        noList: true,
-        code: 0xD2D1,
-        typeCode: 3,
-        ev: false,
-    },
+    //'focusPos': {
+    //    name: 'focusPos',
+    //    category: 'status',
+    //    setFunction: null,
+    //    getFunction: null,
+    //    listFunction: null,
+    //    listWorks: false,
+    //    noList: true,
+    //    code: 0xD2D1,
+    //    typeCode: 3,
+    //    ev: false,
+    //},
     'battery': {
         name: 'battery',
         category: 'status',
@@ -643,6 +643,9 @@ function ptp_sony_9281 (camera, param1, callback) {
 
 driver.init = function(camera, callback) {
     camera.supportsNativeHDR = driver.supportsNativeHDR;
+
+    camera.status = {};
+    camera.status.focusPos = 0;
     ptp.init(camera._dev, function(err, di) {
         async.series([
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x1, 0x0, 0x0], null, cb);}, // PC mode
@@ -834,7 +837,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                             });
                                         });
                                     }
-                                    setTimeout(refresh, 150 + 50 * delta);
+                                    setTimeout(refresh, 350 + 50 * delta);
                                 //} else {
                                 //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
                                 //    for(var k in newItem) {
@@ -1045,6 +1048,8 @@ driver.liveviewImage = function(camera, callback) {
 
 driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
+
+    camera.status.focusPos += steps;
 
     var dir = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution));
