@@ -296,7 +296,7 @@ var properties = {
         setFunction: function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
         },
-        getFunction: ptp.getPropU16,
+        getFunction: null,
         listFunction: null,
         listWorks: false,
         code: 0x500A,
@@ -308,6 +308,46 @@ var properties = {
             { name: "AF-C",       value: null,        code: 32772  },
             { name: "DMF",        value: null,        code: 32774  },
             { name: "MF",         value: 'mf',        code: 1  },
+        ]
+    },
+    'driveMode': {
+        name: 'driveMode',
+        category: 'config',
+        setFunction: function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 4, callback);
+        },
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0x5013,
+        typeCode: 4,
+        ev: false,
+        values: [
+            { name: "Single",           value: 'single', code: 1  },
+            { name: "High Speed",       value: 'high',   code: 2  },
+            { name: "10s Timer",        value: null,     code: 32772  },
+            { name: "10s Timer 3 img",  value: null,     code: 32776  },
+            { name: "Cont. BRK0.3EV3",  value: null,     code: 33591  },
+            { name: "Single BRK0.3EV3", value: null,     code: 33590  },
+            { name: "BRK WB LO",        value: null,     code: 32792  },
+            { name: "BRK DRO LO",       value: null,     code: 32793  },
+        ]
+    },
+    'shutterMode': {
+        name: 'shutterMode',
+        category: 'config',
+        setFunction: function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 4, callback);
+        },
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0x500C,
+        typeCode: 4,
+        ev: false,
+        values: [
+            { name: "Electonic (Silent)", value: 'e-shutter',  code: 2  },
+            { name: "Mechanical",         value: 'mechanical', code: 3  },
         ]
     },
     'focusPos': {
@@ -530,7 +570,7 @@ driver.refresh = function(camera, callback, noEvent) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        if(unknownProps[property_code] == null || unknownProps[property_code] != data_current) {
+                        if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                             unknownProps[property_code] = data_current;
                             _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
                         }
@@ -539,7 +579,7 @@ driver.refresh = function(camera, callback, noEvent) {
                 }
             }
             if(!found) {
-                if(unknownProps[property_code] == null || unknownProps[property_code] != data_current) {
+                if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                     unknownProps[property_code] = data_current;
                     _logD("UNKNOWN CODE:", property_code, "=", data_current);
                 }
@@ -758,6 +798,7 @@ driver.set = function(camera, param, value, callback, tries) {
                             if(!err) {
                                 //if(delta > 1 || tries > 1) {
                                     var refresh = function() {
+                                        camera._eventTimer = true; // this forces a refresh
                                         var updated = driver.get(camera, param, function() {
                                             if(!updated) {
                                                 setTimeout(refresh, 100);
@@ -824,7 +865,7 @@ driver.get = function(camera, param, callback) {
     }
 
     if(camera._eventTimer) {
-        clearTimeout(camera._eventTimer);
+        if(camera._eventTimer !== true) clearTimeout(camera._eventTimer);
         camera._eventTimer = null;
         driver.refresh(camera, function() {
             get();
