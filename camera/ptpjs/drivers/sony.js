@@ -928,7 +928,7 @@ driver.capture = function(camera, target, options, callback, tries) {
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 1, 4, cb);}, // release full-press
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 1, 4, cb);}, // release half-press
         function(cb){
-            getImage(camera, 60000, function(err, th, fn, rw) {
+            getImage(camera, camera.exposure.shutter.duration_ms + camera.supports._bufTime, function(err, th, fn, rw) {
                 thumb = th;
                 filename = fn;
                 rawImage = rw;
