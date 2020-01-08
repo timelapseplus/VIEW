@@ -336,8 +336,7 @@ driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == SONY_EVENT_OBJECT_CREATED) {
             _logD("object added:", param1);
-        }
-        if(event == SONY_EVENT_CHANGE) {
+        } else if(event == SONY_EVENT_CHANGE) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
@@ -350,6 +349,8 @@ driver._event = function(camera, data) { // events received
                 }, 800);
             }
             check();
+        } else {
+            _logD("UNKNOWN EVENT:", event, "=", param1, param2, param3);
         }
     });
 };
