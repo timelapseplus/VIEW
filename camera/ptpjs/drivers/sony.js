@@ -289,6 +289,24 @@ var properties = {
             { name: "10",         value: 10,       code: 0x8010  },
         ]
     },
+    'focusMode': {
+        name: 'focusMode',
+        category: 'config',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0x500A,
+        typeCode: 2,
+        ev: false,
+        values: [
+            { name: "AF-S",       value: 'af',        code: 2  },
+            { name: "AF-A",       value: null,        code: 32773  },
+            { name: "AF-C",       value: null,        code: 32772  },
+            { name: "DMF",        value: null,        code: 32774  },
+            { name: "MF",         value: 'mf',        code: 1  },
+        ]
+    },
     'focusPos': {
         name: 'focusPos',
         category: 'status',
