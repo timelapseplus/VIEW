@@ -292,15 +292,12 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        //setFunction: ptp.setPropU16,
-        setFunction: function(dev, param, value, callback) {
-            setDeviceControlValueB(dev, param, value, 4, callback);
-        },
-        getFunction: null,
+        setFunction: ptp.setPropU16,
+        getFunction: ptp.getPropU16,
         listFunction: null,
         listWorks: false,
         code: 0x500A,
-        typeCode: 2,
+        typeCode: 4,
         ev: false,
         values: [
             { name: "AF-S",       value: 'af',        code: 2  },
@@ -786,6 +783,7 @@ driver.set = function(camera, param, value, callback, tries) {
                             }
                         });
                     } else {
+                        _logD("setFunction:", properties[param].code, "=>", cameraValue);
                         properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
