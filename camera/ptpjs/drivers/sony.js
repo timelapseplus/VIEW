@@ -831,7 +831,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                                     }, 300);
                                                 }
                                             });
-                                        }
+                                        });
                                     }
                                     setTimeout(refresh, 150 + 50 * delta);
                                 //} else {
