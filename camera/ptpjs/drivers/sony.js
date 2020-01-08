@@ -818,6 +818,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                 //if(delta > 1 || tries > 1) {
                                     var refresh = function() {
                                         driver.refresh(camera, function(){
+                                            camera._eventTimer = true; // this forces a refresh
                                             var updated = driver.get(camera, param, function() {
                                                 if(!updated) {
                                                     setTimeout(refresh, 100);
