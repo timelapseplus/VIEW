@@ -847,7 +847,7 @@ function getImage(camera, timeout, callback) {
                     camera._eventTimer = null;
                 }
                 driver.refresh(camera, function() {
-                    if(camera[properties['objectsAvailable'].category]['objectsAvailable'] > 0) {
+                    if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
                         _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable']);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = res;
