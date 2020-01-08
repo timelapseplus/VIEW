@@ -311,7 +311,7 @@ var properties = {
         name: 'focusPos',
         category: 'status',
         setFunction: function(dev, param, value, callback) {
-            setDeviceControlValueB(dev, param, value, 2, cb);
+            setDeviceControlValueB(dev, param, value, 2, callback);
         },
         getFunction: null,
         listFunction: null,
