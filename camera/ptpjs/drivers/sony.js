@@ -812,11 +812,11 @@ driver.set = function(camera, param, value, callback, tries) {
                                                     driver.refresh(camera, function(){
                                                         driver.set(camera, param, value, callback, tries);
                                                     }, true);
-                                                }, 200);
+                                                }, 300);
                                             }
                                         });
                                     }
-                                    setTimeout(refresh, 200 + 75 * delta);
+                                    setTimeout(refresh, 250 + 50 * delta);
                                 //} else {
                                 //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
                                 //    for(var k in newItem) {
