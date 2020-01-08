@@ -538,7 +538,10 @@ driver.refresh = function(camera, callback, noEvent) {
                     if(p.noList) {
                         if(!camera[p.category]) camera[p.category] = {};
                         camera[p.category][p.name] = data_current;
-                        _logD(prop, "=", data_current);
+                        if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
+                            unknownProps[property_code] = data_current;
+                            _logD(prop, "=", data_current);
+                        }
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
                         if(!current) {
