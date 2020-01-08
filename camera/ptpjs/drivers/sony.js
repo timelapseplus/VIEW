@@ -42,27 +42,27 @@ function objCopy(sourceObj, destObj) {
 driver.supportsNativeHDR = false;
 
 driver.supportedCameras = {
-    '054c:02e7': { name: "Sony DSC-A900", supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:0737': { name: "Sony A58",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:079c': { name: "Sony A6300",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:079d': { name: "Sony RX10 III", supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:079e': { name: "Sony A99 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:07a3': { name: "Sony RX100 V",  supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:07a4': { name: "Sony A6500",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:07c6': { name: "Sony A5000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:094c': { name: "Sony A7",       supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:094d': { name: "Sony A7R",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } }, 
-    '054c:094e': { name: "Sony A6000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:0953': { name: "Sony A77 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:0954': { name: "Sony A7S",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, } },
-    '054c:0957': { name: "Sony A5100",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:0a6a': { name: "Sony A7 II",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:0a6b': { name: "Sony A7R II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:0a71': { name: "Sony A7S II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, } },
-    '054c:0c2a': { name: "Sony A9",       supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
-    '054c:0c33': { name: "Sony A7R III",  supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
-    '054c:0c34': { name: "Sony A7 III",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
-    '054c:0ccc': { name: "Sony A7R IV",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  } },
+    '054c:02e7': { name: "Sony DSC-A900", supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0737': { name: "Sony A58",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:079c': { name: "Sony A6300",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:079d': { name: "Sony RX10 III", supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:079e': { name: "Sony A99 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:07a3': { name: "Sony RX100 V",  supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:07a4': { name: "Sony A6500",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:07c6': { name: "Sony A5000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:094c': { name: "Sony A7",       supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:094d': { name: "Sony A7R",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 4500 } }, 
+    '054c:094e': { name: "Sony A6000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0953': { name: "Sony A77 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0954': { name: "Sony A7S",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0957': { name: "Sony A5100",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0a6a': { name: "Sony A7 II",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0a6b': { name: "Sony A7R II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 4500 } },
+    '054c:0a71': { name: "Sony A7S II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500 } },
+    '054c:0c2a': { name: "Sony A9",       supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2000 } },
+    '054c:0c33': { name: "Sony A7R III",  supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2000 } },
+    '054c:0c34': { name: "Sony A7 III",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500 } },
+    '054c:0ccc': { name: "Sony A7R IV",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500 } },
 }
 
 
@@ -514,7 +514,7 @@ driver.refresh = function(camera, callback, noEvent) {
                 }
             }
             if(!found) {
-                if(!unknownProps[property_code] || unknownProps[property_code] != data_current) {
+                if(unknownProps[property_code] == null || unknownProps[property_code] != data_current) {
                     unknownProps[property_code] = data_current;
                     _logD("UNKNOWN CODE:", property_code, "=", data_current);
                 }
@@ -842,9 +842,13 @@ function getImage(camera, timeout, callback) {
                     _logD("getImage: timed out");
                     return cb && cb("timeout");
                 }
-                driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
-                    if(err || (res && res.value > 0)) {
-                        _logD("OBJECTS AVAILABLE:", res && res.value, err);
+                if(camera._eventTimer) {
+                    clearTimeout(camera._eventTimer);
+                    camera._eventTimer = null;
+                }
+                driver.refresh(camera, function() {
+                    if(camera[properties['objectsAvailable'].category]['objectsAvailable'] > 0) {
+                        _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable']);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = res;
                         return cb(err);
