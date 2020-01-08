@@ -526,7 +526,10 @@ driver.refresh = function(camera, callback, noEvent) {
                         } else {
                             camera[p.category][p.name].list = p.values;
                         }
-                        _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        if(unknownProps[property_code] == null || unknownProps[property_code] != data_current) {
+                            unknownProps[property_code] = data_current;
+                            _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                        }
                         //_logD(prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
                 }
@@ -866,7 +869,7 @@ function getImage(camera, timeout, callback) {
                 }
                 driver.refresh(camera, function() {
                     if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
-                        _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable']);
+                        _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable'].value);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = 1;
                         return cb();
@@ -922,6 +925,13 @@ driver.capture = function(camera, target, options, callback, tries) {
     var rawImage = null;
     camera.busyCapture = true;
     async.series([
+        function(cb){
+            if(camera.config && camera.config.focusMode && camera.config.focusMode.value == 'mf') {
+                cb();
+            } else {
+                driver.set(camera, 'focusMode', 'MF', cb);
+            }
+        }, // make sure focus is set to MF
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 2, 4, cb);}, // activate full-press
         function(cb){ setTimeout(cb, 10); },
