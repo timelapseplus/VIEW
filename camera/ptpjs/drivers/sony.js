@@ -292,10 +292,10 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        setFunction: ptp.setPropU16,
+        //setFunction: ptp.setPropU16,
         setFunction: function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
-        }
+        },
         getFunction: ptp.getPropU16,
         listFunction: null,
         listWorks: false,
