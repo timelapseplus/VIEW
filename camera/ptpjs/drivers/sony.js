@@ -346,7 +346,7 @@ var properties = {
         typeCode: 4,
         ev: false,
         values: [
-            { name: "Electonic (Silent)", value: 'e-shutter',  code: 2  },
+            { name: "Electronic (Silent)", value: 'e-shutter', code: 2  },
             { name: "Mechanical",         value: 'mechanical', code: 3  },
         ]
     },
@@ -362,7 +362,23 @@ var properties = {
         typeCode: 3,
         ev: false,
     }
+    'battery': {
+        name: 'battery',
+        category: 'status',
+        setFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        noList: true,
+        code: 0xD218,
+        typeCode: 2,
+        ev: false,
+    },
 }
+
+//20200108-221512 PTP-SONY: UNKNOWN CODE: 53805 = 2 // zoom mode 2=true, 0=false
+//20200108-221512 PTP-SONY: UNKNOWN CODE: 53807 = 59 // zoom amount
+//20200108-221530 PTP-SONY: UNKNOWN CODE: 53808 = 25297107 // zoom position
 
 driver.properties = properties;
 
@@ -816,7 +832,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                             }
                                         });
                                     }
-                                    setTimeout(refresh, 250 + 50 * delta);
+                                    setTimeout(refresh, 300 + 50 * delta);
                                 //} else {
                                 //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
                                 //    for(var k in newItem) {
