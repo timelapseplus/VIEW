@@ -79,61 +79,61 @@ var properties = {
         typeCode: 6,
         ev: true,
         values: [
-            { name: "30s",     ev: -11,         code:  19660810 },
-            { name: "25s",     ev: -10 - 2 / 3, code:  16384010 },
-            { name: "20s",     ev: -10 - 1 / 3, code:  13107210 },
-            { name: "15s",     ev: -10,         code:  9830410 },
-            { name: "13s",     ev: -9 - 2 / 3,  code:  8519690 },
-            { name: "10s",     ev: -9 - 1 / 3,  code:  6553610 },
-            { name: "8s",      ev: -9,          code:  5242890 },
-            { name: "6s",      ev: -8 - 2 / 3,  code:  3932170 },
-            { name: "5s",      ev: -8 - 1 / 3,  code:  3276810 },
-            { name: "4s",      ev: -8,          code:  2621450 },
-            { name: "3s",      ev: -7 - 2 / 3,  code:  2097162 },
-            { name: "2.5s",    ev: -7 - 1 / 3,  code:  1638410 },
-            { name: "2s",      ev: -7,          code:  1310730 },
-            { name: "1.6s",    ev: -6 - 2 / 3,  code:  1048586 },
-            { name: "1.3s",    ev: -6 - 1 / 3,  code:  851978 },
-            { name: "1s",      ev: -6,          code:  655370 },
-            { name: "0.8s",    ev: -5 - 2 / 3,  code:  524298 },
-            { name: "0.6s",    ev: -5 - 1 / 3,  code:  393226 },
-            { name: "1/2",     ev: -5,          code:  327690 },
-            { name: "0.4s",    ev: -4 - 2 / 3,  code:  262154 },
-            { name: "1/3",     ev: -4 - 1 / 3,  code:  65539 },
-            { name: "1/4",     ev: -4,          code:  65540 },
-            { name: "1/5",     ev: -3 - 2 / 3,  code:  65541 },
-            { name: "1/6",     ev: -3 - 1 / 3,  code:  65542 },
-            { name: "1/8",     ev: -3,          code:  65544 },
-            { name: "1/10",    ev: -2 - 2 / 3,  code:  65546 },
-            { name: "1/13",    ev: -2 - 1 / 3,  code:  65549 },
-            { name: "1/15",    ev: -2,          code:  65551 },
-            { name: "1/20",    ev: -1 - 2 / 3,  code:  65556 },
-            { name: "1/25",    ev: -1 - 1 / 3,  code:  65561 },
-            { name: "1/30",    ev: -1,          code:  65566 },
-            { name: "1/40",    ev: 0 - 2 / 3,   code:  65576 },
-            { name: "1/50",    ev: 0 - 1 / 3,   code:  65586 },
-            { name: "1/60",    ev: 0,           code:  65596 },
-            { name: "1/80",    ev: 0 + 1 / 3,   code:  65616 },
-            { name: "1/100",   ev: 0 + 2 / 3,   code:  65636 },
-            { name: "1/125",   ev: 1,           code:  65661 },
-            { name: "1/160",   ev: 1 + 1 / 3,   code:  65696 },
-            { name: "1/200",   ev: 1 + 2 / 3,   code:  65736 },
-            { name: "1/250",   ev: 2,           code:  65786 },
-            { name: "1/320",   ev: 2 + 1 / 3,   code:  65856 },
-            { name: "1/400",   ev: 2 + 2 / 3,   code:  65936 },
-            { name: "1/500",   ev: 3,           code:  66036 },
-            { name: "1/640",   ev: 3 + 1 / 3,   code:  66176 },
-            { name: "1/800",   ev: 3 + 2 / 3,   code:  66336 },
-            { name: "1/1000",  ev: 4,           code:  66536 },
-            { name: "1/1250",  ev: 4 + 1 / 3,   code:  66786 },
-            { name: "1/1600",  ev: 4 + 2 / 3,   code:  67136 },
-            { name: "1/2000",  ev: 5,           code:  67536 },
-            { name: "1/2500",  ev: 5 + 1 / 3,   code:  68036 },
-            { name: "1/3200",  ev: 5 + 2 / 3,   code:  68736 },
-            { name: "1/4000",  ev: 6,           code:  69536 },
-            { name: "1/5000",  ev: 6 + 1 / 3,   code:  70536 },
-            { name: "1/6400",  ev: 6 + 2 / 3,   code:  71936 },
-            { name: "1/8000",  ev: 7,           code:  73536 }
+            { name: "30s",     ev: -11,         code:  19660810, duration_ms: 32000},
+            { name: "25s",     ev: -10 - 2 / 3, code:  16384010, duration_ms: 27000 },
+            { name: "20s",     ev: -10 - 1 / 3, code:  13107210, duration_ms: 21500 },
+            { name: "15s",     ev: -10,         code:  9830410, duration_ms: 16000 },
+            { name: "13s",     ev: -9 - 2 / 3,  code:  8519690, duration_ms: 13800 },
+            { name: "10s",     ev: -9 - 1 / 3,  code:  6553610, duration_ms: 10600},
+            { name: "8s",      ev: -9,          code:  5242890, duration_ms: 8000 },
+            { name: "6s",      ev: -8 - 2 / 3,  code:  3932170, duration_ms: 6000 },
+            { name: "5s",      ev: -8 - 1 / 3,  code:  3276810, duration_ms: 5000 },
+            { name: "4s",      ev: -8,          code:  2621450, duration_ms: 4000 },
+            { name: "3s",      ev: -7 - 2 / 3,  code:  2097162, duration_ms: 3000 },
+            { name: "2.5s",    ev: -7 - 1 / 3,  code:  1638410, duration_ms: 2500 },
+            { name: "2s",      ev: -7,          code:  1310730, duration_ms: 2000 },
+            { name: "1.6s",    ev: -6 - 2 / 3,  code:  1048586, duration_ms: 1600 },
+            { name: "1.3s",    ev: -6 - 1 / 3,  code:  851978, duration_ms: 1300 },
+            { name: "1s",      ev: -6,          code:  655370, duration_ms: 1000 },
+            { name: "0.8s",    ev: -5 - 2 / 3,  code:  524298, duration_ms: 800 },
+            { name: "0.6s",    ev: -5 - 1 / 3,  code:  393226, duration_ms: 600 },
+            { name: "1/2",     ev: -5,          code:  327690, duration_ms: 500 },
+            { name: "0.4s",    ev: -4 - 2 / 3,  code:  262154, duration_ms: 400 },
+            { name: "1/3",     ev: -4 - 1 / 3,  code:  65539, duration_ms: 333 },
+            { name: "1/4",     ev: -4,          code:  65540, duration_ms: 250 },
+            { name: "1/5",     ev: -3 - 2 / 3,  code:  65541, duration_ms: 200 },
+            { name: "1/6",     ev: -3 - 1 / 3,  code:  65542, duration_ms: 150 },
+            { name: "1/8",     ev: -3,          code:  65544, duration_ms: 125 },
+            { name: "1/10",    ev: -2 - 2 / 3,  code:  65546, duration_ms: 100 },
+            { name: "1/13",    ev: -2 - 1 / 3,  code:  65549, duration_ms: 100 },
+            { name: "1/15",    ev: -2,          code:  65551, duration_ms: 100 },
+            { name: "1/20",    ev: -1 - 2 / 3,  code:  65556, duration_ms: 100 },
+            { name: "1/25",    ev: -1 - 1 / 3,  code:  65561, duration_ms: 100 },
+            { name: "1/30",    ev: -1,          code:  65566, duration_ms: 100 },
+            { name: "1/40",    ev: 0 - 2 / 3,   code:  65576, duration_ms: 100 },
+            { name: "1/50",    ev: 0 - 1 / 3,   code:  65586, duration_ms: 100 },
+            { name: "1/60",    ev: 0,           code:  65596, duration_ms: 100 },
+            { name: "1/80",    ev: 0 + 1 / 3,   code:  65616, duration_ms: 100 },
+            { name: "1/100",   ev: 0 + 2 / 3,   code:  65636, duration_ms: 100 },
+            { name: "1/125",   ev: 1,           code:  65661, duration_ms: 100 },
+            { name: "1/160",   ev: 1 + 1 / 3,   code:  65696, duration_ms: 100 },
+            { name: "1/200",   ev: 1 + 2 / 3,   code:  65736, duration_ms: 100 },
+            { name: "1/250",   ev: 2,           code:  65786, duration_ms: 100 },
+            { name: "1/320",   ev: 2 + 1 / 3,   code:  65856, duration_ms: 100 },
+            { name: "1/400",   ev: 2 + 2 / 3,   code:  65936, duration_ms: 100 },
+            { name: "1/500",   ev: 3,           code:  66036, duration_ms: 100 },
+            { name: "1/640",   ev: 3 + 1 / 3,   code:  66176, duration_ms: 100 },
+            { name: "1/800",   ev: 3 + 2 / 3,   code:  66336, duration_ms: 100 },
+            { name: "1/1000",  ev: 4,           code:  66536, duration_ms: 100 },
+            { name: "1/1250",  ev: 4 + 1 / 3,   code:  66786, duration_ms: 100 },
+            { name: "1/1600",  ev: 4 + 2 / 3,   code:  67136, duration_ms: 100 },
+            { name: "1/2000",  ev: 5,           code:  67536, duration_ms: 100 },
+            { name: "1/2500",  ev: 5 + 1 / 3,   code:  68036, duration_ms: 100 },
+            { name: "1/3200",  ev: 5 + 2 / 3,   code:  68736, duration_ms: 100 },
+            { name: "1/4000",  ev: 6,           code:  69536, duration_ms: 100 },
+            { name: "1/5000",  ev: 6 + 1 / 3,   code:  70536, duration_ms: 100 },
+            { name: "1/6400",  ev: 6 + 2 / 3,   code:  71936, duration_ms: 100 },
+            { name: "1/8000",  ev: 7,           code:  73536, duration_ms: 100 }
         ]
     },
     'aperture': {
@@ -153,6 +153,7 @@ var properties = {
             { name: "1.2",      ev: -7 - 1 / 3,  code: 120  },
             { name: "1.4",      ev: -7,          code: 140  },
             { name: "1.6",      ev: -6 - 2 / 3,  code: 160  },
+            { name: "1.7",      ev: -6 - 1 / 2,  code: 170  },
             { name: "1.8",      ev: -6 - 1 / 3,  code: 180  },
             { name: "2.0",      ev: -6,          code: 200  },
             { name: "2.2",      ev: -5 - 2 / 3,  code: 220  },
@@ -345,9 +346,11 @@ var DATAU32 = 0x0006;
 var RANGE = 1;
 var LIST = 2;
 
+var unknownProps = {};
+
 driver.refresh = function(camera, callback, noEvent) {
     ptp.transaction(camera._dev, 0x9209, [], null, function(err, responseCode, data) {
-        //console.log("0x9209 data.length", data.length,  "err", err);
+        //_logD("0x9209 data.length", data.length,  "err", err);
         var i = 8;
         var data_current;//, data_default;
 
@@ -465,8 +468,10 @@ driver.refresh = function(camera, callback, noEvent) {
                 list.push(data_list_item);
                 count--;
             }
+            var found = false;
             for(var prop in properties) {
                 if(properties[prop].code == property_code) {
+                    found = true;
                     var p = properties[prop];
                     if(p.noList) {
                         if(!camera[p.category]) camera[p.category] = {};
@@ -506,6 +511,12 @@ driver.refresh = function(camera, callback, noEvent) {
                         _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
                         //_logD(prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
+                }
+            }
+            if(!found) {
+                if(!unknownProps[property_code] || unknownProps[property_code] != data_current) {
+                    unknownProps[property_code] = data_current;
+                    _logD("UNKNOWN CODE:", property_code, "=", data_current);
                 }
             }
         }
@@ -570,15 +581,15 @@ function findLimits(camera, callback) {
         function(cb2){
             async.parallel([
                 function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
-                    console.log("shutter max:", val.name);
+                    _logD("shutter max:", val.name);
                     cb();
                 });},
                 function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
-                    console.log("aperture max:", val.name);
+                    _logD("aperture max:", val.name);
                     cb();
                 });},
                 function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
-                    console.log("iso max:", val.name);
+                    _logD("iso max:", val.name);
                     cb();
                 });},
             ], cb2);
@@ -591,15 +602,15 @@ function findLimits(camera, callback) {
         function(cb2){
             async.parallel([
                 function(cb){waitValueChange(camera, 'shutter', 2000, function(err, val) {
-                    console.log("shutter min:", val.name);
+                    _logD("shutter min:", val.name);
                     cb();
                 });},
                 function(cb){waitValueChange(camera, 'aperture', 2000, function(err, val) {
-                    console.log("aperture min:", val.name);
+                    _logD("aperture min:", val.name);
                     cb();
                 });},
                 function(cb){waitValueChange(camera, 'iso', 2000, function(err, val) {
-                    console.log("iso min:", val.name);
+                    _logD("iso min:", val.name);
                     cb();
                 });},
             ], cb2);
@@ -619,7 +630,7 @@ function waitValueChange(camera, param, timeout, callback) {
         }
         driver.get(camera, 'param', function(err, val) {
             if(err || val == null) {
-                console.log("error reading values!", err)
+                _logD("error reading values!", err)
                 return callback && callback(err);
             } else if(firstValue == null) {
                 firstValue = val.code;
@@ -828,11 +839,12 @@ function getImage(camera, timeout, callback) {
         function(cb){
             var check = function() {
                 if(Date.now() - startTime > timeout) {
+                    _logD("getImage: timed out");
                     return cb && cb("timeout");
                 }
                 driver.get(camera, 'objectsAvailable', function(err, res) { // check for new objects
                     if(err || (res && res.value > 0)) {
-                        console.log("OBJECTS AVAILABLE:", res && res.value, err);
+                        _logD("OBJECTS AVAILABLE:", res && res.value, err);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = res;
                         return cb(err);
@@ -845,17 +857,17 @@ function getImage(camera, timeout, callback) {
         },
         function(cb){
             camera._blockEvents = true;
-            //console.log("getting object info");
+            //_logD("getting object info");
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
                     results.filename = oi.filename;
-                    console.log("filename =", oi.filename);
+                    _logD("filename =", oi.filename);
                 }
                 cb(err);
             });
         },
         function(cb){
-            //console.log("getting object");
+            //_logD("getting object");
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 //ptp.deleteObject(camera._dev, 0xffffc001, function() {
                     if(results.filename && results.filename.slice(-3).toLowerCase() == 'jpg') {
