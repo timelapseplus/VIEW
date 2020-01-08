@@ -869,7 +869,7 @@ function getImage(camera, timeout, callback) {
                         _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable']);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = 1;
-                        return cb(err);
+                        return cb();
                     } else {
                         return setTimeout(check, 50);
                     }
