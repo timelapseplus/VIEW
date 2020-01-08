@@ -361,7 +361,7 @@ var properties = {
         code: 0xD2D1,
         typeCode: 3,
         ev: false,
-    }
+    },
     'battery': {
         name: 'battery',
         category: 'status',
