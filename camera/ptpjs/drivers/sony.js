@@ -272,7 +272,7 @@ var properties = {
         listFunction: null,
         listWorks: false,
         code: 0xD215,
-        typeCode: 2,
+        typeCode: 4,
         ev: false,
         values: [
             { name: "none",       value: 0,        code: 0x0000  },
@@ -292,9 +292,10 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        setFunction: function(dev, param, value, callback) {
-            setDeviceControlValueB(dev, param, value, 2, callback);
-        },
+        setFunction: ptp.setPropU16,
+        //setFunction: function(dev, param, value, callback) {
+        //    setDeviceControlValueB(dev, param, value, 4, callback);
+        //},
         getFunction: null,
         listFunction: null,
         listWorks: false,
