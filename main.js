@@ -5083,7 +5083,7 @@ app.on('message', function(msg) {
                         if(!lastLV && core.cameraModel.match(/canon|nikon/i)) {
                             core.preview(function(){
                                 core.focus(msg.val, msg.repeat, function(err, pos){
-                                    console.log("MAIN: focus complete");
+                                    console.log("MAIN: focus complete, pos:", pos);
                                     msg.reply('focus', {
                                         complete: true,
                                         position: pos
@@ -5093,7 +5093,7 @@ app.on('message', function(msg) {
                             });
                         } else {
                             core.focus(msg.val, msg.repeat, function(err, pos){
-                                console.log("MAIN: focus complete");
+                                console.log("MAIN: focus complete, pos:", pos);
                                 msg.reply('focus', {
                                     complete: true,
                                     position: pos
