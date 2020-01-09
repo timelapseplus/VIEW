@@ -72,7 +72,7 @@ var properties = {
         category: 'exposure',
         //setFunction: shiftProperty,
         setFunction: function(dev, propcode, value, callback) {
-            setDeviceControlValueA (dev, propcode, value, 4, callback);
+            setDeviceControlValueA (dev, propcode, value, 6, callback);
         },
         getFunction: null,
         listFunction: null,
