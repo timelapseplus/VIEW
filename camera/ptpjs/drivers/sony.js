@@ -1074,6 +1074,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             if(steps > 0) {
                 setTimeout(doStep, 50);
             } else {
+                driver.emit('settings', camera);
                 callback && callback();
             }
         });
