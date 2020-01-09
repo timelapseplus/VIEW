@@ -70,10 +70,13 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: shiftProperty,
+        //setFunction: shiftProperty,
+        setFunction: function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 4, callback);
+        },
         getFunction: null,
         listFunction: null,
-        sonyShift: true,
+        //sonyShift: true,
         listWorks: false,
         code: 0xD20D,
         typeCode: 6,
