@@ -825,6 +825,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                             camera._eventTimer = null;
                                         }
                                         driver.refresh(camera, function(){
+                                            _logD("read settings...");
                                             if(camera[properties[param].category][param].code == cameraValue) {
                                                 return cb();
                                             } else if(tries > 5) {
