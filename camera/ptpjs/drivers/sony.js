@@ -1010,15 +1010,15 @@ driver.capture = function(camera, target, options, callback, tries) {
             }
         }, // make sure focus is set to MF
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
-        function(cb){ setTimeout(cb, 10); },
+        function(cb){ setTimeout(cb, 20); },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 2, 4, cb);}, // activate full-press
-        function(cb){ setTimeout(cb, 50); },
+        function(cb){ setTimeout(cb, 100); },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 1, 4, cb);}, // release full-press
-        function(cb){ setTimeout(cb, 10); },
+        function(cb){ setTimeout(cb, 20); },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 1, 4, cb);}, // release half-press
-        function(cb){ setTimeout(cb, 10); },
+        function(cb){ setTimeout(cb, 20); },
         function(cb){
-            getImage(camera, camera.exposure.shutter.duration_ms + camera.supports._bufTime, function(err, th, fn, rw) {
+            getImage(camera, camera.exposure.shutter.duration_ms + camera.supports._bufTime + 1, function(err, th, fn, rw) {
                 thumb = th;
                 filename = fn;
                 rawImage = rw;
