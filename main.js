@@ -257,9 +257,27 @@ if (VIEW_HARDWARE) {
                         }
                     });
                 } else {
-                    wifi.disable(function(){
-                        setTimeout(configureWifi, 2000);
-                    });
+                    var retryWifi = function(reload) {
+                        var btMotion = false;
+                        if(core.motionStatus.nmxConnectedBt || core.motionStatus.gmConnectedBt) btMotion = true;
+                        if(core.intervalometerStatus.running && btMotion) reload = false;
+                        if(previousConnection && previousConnection.address && !wifi.connected && wifi.enabled) {
+                            if(reload) {
+                                wifi.disable(function(){
+                                    setTimeout(configureWifi, 2000);
+                                    setTimeout(retryWifi, 300000); // keep retrying every 5 minutes
+                                });
+                            } else {
+                                db.get('wifi-status', function(err, wifiStatus) {
+                                    if(wifiStatus && wifiStatus.enabled && wifiStatus.connect) {
+                                        wifi.connect(wifiStatus.connect, wifiStatus.password);
+                                        setTimeout(retryWifi, 300000); // keep retrying every 5 minutes
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    retryWifi(true);
                 }
             }
         }
