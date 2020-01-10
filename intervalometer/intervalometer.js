@@ -101,6 +101,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 }
                                 logEvent("analyzing test image exposure...");
                                 image.exposureValue(img, function(err, ev, histogram) {
+                                    var photoRes = {};
                                     photoRes.ev = ev;
                                     photoRes.histogram = histogram;
                                     logEvent("...processing complete, image ev", ev);
