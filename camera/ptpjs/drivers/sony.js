@@ -292,7 +292,6 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        //setFunction: ptp.setPropU16,
         setFunction: function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
         },
@@ -1002,13 +1001,20 @@ driver.capture = function(camera, target, options, callback, tries) {
     var rawImage = null;
     camera.busyCapture = true;
     async.series([
-        function(cb){
-            if(camera.config && camera.config.focusMode && camera.config.focusMode.value == 'mf') {
+        function(cb){ // make sure focus is set to MF
+            if(!camera.config || !camera.config.focusMode || camera.config.focusMode.value == 'mf') {
                 cb();
             } else {
                 driver.set(camera, 'focusMode', 'MF', cb);
             }
-        }, // make sure focus is set to MF
+        },
+        function(cb){ // make sure drive mode is single shot
+            if(!camera.config || !camera.config.driveMode || camera.config.driveMode.value == 'single') {
+                cb();
+            } else {
+                driver.set(camera, 'driveMode', 'single', cb);
+            }
+        },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){ setTimeout(cb, 20); },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C2, 2, 4, cb);}, // activate full-press
