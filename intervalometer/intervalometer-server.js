@@ -177,6 +177,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     shutter: base.shutter,
                     aperture: base.aperture,
                     iso: base.iso,
+                    battery: camera.ptp.new.cameras[0].camera.status.battery,
                     lists: {
                         shutter: base.shutter.list,
                         aperture: base.aperture.list,
@@ -193,6 +194,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     shutter: base.shutter,
                     aperture: base.aperture,
                     iso: base.iso,
+                    battery: camera.ptp.new.cameras[0].camera.status.battery,
                     lists: {
                         shutter: base.shutter.list,
                         aperture: base.aperture.list,
