@@ -261,7 +261,7 @@ if (VIEW_HARDWARE) {
                         var btMotion = false;
                         if(core.motionStatus.nmxConnectedBt || core.motionStatus.gmConnectedBt) btMotion = true;
                         if(core.intervalometerStatus.running && btMotion) reload = false;
-                        if(previousConnection && previousConnection.address && !wifi.connected && wifi.enabled) {
+                        if(!wifi.apMode && !wifi.connected && wifi.enabled) {
                             if(reload) {
                                 wifi.disable(function(){
                                     setTimeout(configureWifi, 2000);
