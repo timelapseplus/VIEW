@@ -428,8 +428,7 @@ auxTrigger.on('error', function(err) {
 });
 
 function motionSyncSetup() {
-    //gpio.write(AUXTIP_OUT, (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux') ? 0 : 1);
-    aux2out({lengthMs: 0, invert: auxMotionConfig.inverted}, function(){});
+    aux2out({lengthMs: 0, invert: (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux')}, function(){});
 }
 motionSyncSetup();
 
@@ -446,16 +445,10 @@ function motionSyncPulse(callback) {
                     log("=> AUX Pulse Complete");
                     callback && callback();
                 });
-                //gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 1 : 0, function() {
-                //    setTimeout(function(){
-                //        gpio.write(AUXTIP_OUT, auxMotionConfig.inverted ? 0 : 1);
-                //    }, auxMotionConfig.lengthMs);
-                //});
             } else {
                 setTimeout(motionSyncPulse, 100);
             }
         });
-
     } 
 }
 
