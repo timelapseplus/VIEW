@@ -191,11 +191,14 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        setFunction: shiftProperty,
+        //setFunction: shiftProperty,
+        setFunction: function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 4, callback);
+        },
         getFunction: null,
         listFunction: null,
         listWorks: true,
-        sonyShift: true,
+        //sonyShift: true,
         typeCode: 6,
         code: function(camera) { 
             if(camera.supports.newISO) return 0xD226; else return 0xD21E
