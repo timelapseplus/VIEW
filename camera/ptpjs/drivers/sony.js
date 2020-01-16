@@ -826,7 +826,7 @@ driver.set = function(camera, param, value, callback, tries) {
                 if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
                     if(!properties[param].getSetFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(getCode(camera, properties[param].code)), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
-                    if(properties[param].sonyShift(camera)) {
+                    if(properties[param].sonyShift && properties[param].sonyShift(camera)) {
                         var delta = targetIndex - currentIndex;
                         //var abs = Math.abs(delta);
                         //var sign = delta < 0 ? -1 : 1;
