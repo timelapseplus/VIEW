@@ -193,11 +193,11 @@ var properties = {
         category: 'exposure',
         getSetFunction: function(camera) { 
             if(camera.supports.newISO) {
-                return shiftProperty;
-            } else {
                 return function(dev, propcode, value, callback) {
                     setDeviceControlValueA (dev, propcode, value, 4, callback);
                 }
+            } else {
+                return shiftProperty;
             }
         },
         getFunction: null,
