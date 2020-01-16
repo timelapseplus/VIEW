@@ -70,10 +70,10 @@ var properties = {
     'shutter': {
         name: 'shutter',
         category: 'exposure',
-        setFunction: shiftProperty,
+        getSetFunction: function(camera) { return shiftProperty; },
         getFunction: null,
         listFunction: null,
-        sonyShift: true,
+        sonyShift: function(camera){return true;},
         listWorks: false,
         code: 0xD20D,
         typeCode: 6,
@@ -139,11 +139,11 @@ var properties = {
     'aperture': {
         name: 'aperture',
         category: 'exposure',
-        setFunction: shiftProperty,
+        getSetFunction: function(camera) { return shiftProperty; },
         getFunction: null,
         listFunction: null,
         listWorks: false,
-        sonyShift: true,
+        sonyShift: function(camera){return true;},
         code: 0x5007,
         typeCode: 4,
         ev: true,
@@ -191,14 +191,19 @@ var properties = {
     'iso': {
         name: 'iso',
         category: 'exposure',
-        //setFunction: shiftProperty,
-        setFunction: function(dev, propcode, value, callback) {
-            setDeviceControlValueA (dev, propcode, value, 4, callback);
+        getSetFunction: function(camera) { 
+            if(camera.supports.newISO) {
+                return shiftProperty;
+            } else {
+                return function(dev, propcode, value, callback) {
+                    setDeviceControlValueA (dev, propcode, value, 4, callback);
+                }
+            }
         },
         getFunction: null,
         listFunction: null,
         listWorks: true,
-        //sonyShift: true,
+        sonyShift: function(camera){ return !camera.supports.newISO; },
         typeCode: 6,
         code: function(camera) { 
             if(camera.supports.newISO) return 0xD226; else return 0xD21E
@@ -252,7 +257,7 @@ var properties = {
     'format': {
         name: 'format',
         category: 'config',
-        setFunction: ptp.setPropU8,
+        getSetFunction: function(camera) { return ptp.setPropU8; },
         getFunction: null,
         listFunction: null,
         listWorks: true,
@@ -272,7 +277,7 @@ var properties = {
     'objectsAvailable': {
         name: 'objectsAvailable',
         category: 'status',
-        setFunction: null,
+        getSetFunction: null,
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -297,9 +302,9 @@ var properties = {
     'focusMode': {
         name: 'focusMode',
         category: 'config',
-        setFunction: function(dev, propcode, value, callback) {
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
-        },
+        } },
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -317,9 +322,9 @@ var properties = {
     'driveMode': {
         name: 'driveMode',
         category: 'config',
-        setFunction: function(dev, propcode, value, callback) {
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
-        },
+        } },
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -340,9 +345,9 @@ var properties = {
     'shutterMode': {
         name: 'shutterMode',
         category: 'config',
-        setFunction: function(dev, propcode, value, callback) {
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
             setDeviceControlValueA (dev, propcode, value, 4, callback);
-        },
+        } },
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -357,7 +362,7 @@ var properties = {
     //'focusPos': {
     //    name: 'focusPos',
     //    category: 'status',
-    //    setFunction: null,
+    //    getSetFunction: null,
     //    getFunction: null,
     //    listFunction: null,
     //    listWorks: false,
@@ -369,7 +374,7 @@ var properties = {
     'battery': {
         name: 'battery',
         category: 'status',
-        setFunction: null,
+        getSetFunction: null,
         getFunction: null,
         listFunction: null,
         listWorks: false,
@@ -790,7 +795,7 @@ driver.set = function(camera, param, value, callback, tries) {
             }
         },
         function(cb){
-            if(properties[param] && properties[param].setFunction && camera[properties[param].category][param] && camera[properties[param].category][param].code != null) {
+            if(properties[param] && properties[param].getSetFunction && camera[properties[param].category][param] && camera[properties[param].category][param].code != null) {
                 var cameraValue = null;
                 var currentValueCode = camera[properties[param].category][param].code;
                 var currentIndex = null;
@@ -819,16 +824,16 @@ driver.set = function(camera, param, value, callback, tries) {
                     }
                 }
                 if(cameraValue !== null && currentIndex !== null && targetIndex !== null) {
-                    if(!properties[param].setFunction) return cb("unable to write");
+                    if(!properties[param].getSetFunction) return cb("unable to write");
                     _logD("setting", ptp.hex(getCode(camera, properties[param].code)), "to", cameraValue, " (currentIndex:", currentIndex,", targetIndex:", targetIndex, ", delta:", targetIndex - currentIndex, ")");
-                    if(properties[param].sonyShift) {
+                    if(properties[param].sonyShift(camera)) {
                         var delta = targetIndex - currentIndex;
                         //var abs = Math.abs(delta);
                         //var sign = delta < 0 ? -1 : 1;
                         //if(abs > 4) {
                         //    delta += ((abs - 4) * 2) * sign;
                         //}
-                        properties[param].setFunction(camera._dev, getCode(camera, properties[param].code), delta, function(err) {
+                        properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), delta, function(err) {
                             if(!err) {
                                 //if(delta > 1 || tries > 1) {
                                     var refreshTries = 8 + Math.abs(delta) * 2;
@@ -872,7 +877,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         });
                     } else {
                         _logD("setFunction:", getCode(camera, properties[param].code), "=>", cameraValue);
-                        properties[param].setFunction(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
+                        properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
                             if(!err) {
                                 var newItem =  mapPropertyItem(cameraValue, properties[param].values);
                                 for(var k in newItem) {
