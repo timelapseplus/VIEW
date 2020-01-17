@@ -1108,7 +1108,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     steps = Math.abs(steps);
 
     var doStep = function() {
-        setDeviceControlValueB(camera._dev, 0xD24C, resolution, 3, function(err){
+        setDeviceControlValueA(camera._dev, 0xD24C, 50, 1, function(err){
 //        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
             if(err) return callback && callback(err);
             steps--;
