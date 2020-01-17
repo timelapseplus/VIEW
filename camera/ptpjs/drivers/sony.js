@@ -383,6 +383,18 @@ var properties = {
         typeCode: 2,
         ev: false,
     },
+    'framesRemaining': {
+        name: 'framesRemaining',
+        category: 'status',
+        getSetFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        noList: true,
+        code: 0xD249,
+        typeCode: 2,
+        ev: false,
+    },
 }
 
 //20200108-221512 PTP-SONY: UNKNOWN CODE: 53805 = 2 // zoom mode 2=true, 0=false
