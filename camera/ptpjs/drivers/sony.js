@@ -359,18 +359,21 @@ var properties = {
             { name: "Mechanical",         value: 'mechanical', code: 3  },
         ]
     },
-    //'focusPos': {
-    //    name: 'focusPos',
-    //    category: 'status',
-    //    getSetFunction: null,
-    //    getFunction: null,
-    //    listFunction: null,
-    //    listWorks: false,
-    //    noList: true,
-    //    code: 0xD2D1,
-    //    typeCode: 3,
-    //    ev: false,
-    //},
+    'absFocusPos': {
+        name: 'absFocusPos',
+        category: 'status',
+        getSetFunction: null,
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        noList: true,
+        code: 0xD24C,
+        typeCode: 3,
+        onChange: function(camera, newValue) {
+            camera.status.focusPos = absFocusPos;
+        },
+        ev: false,
+    },
     'battery': {
         name: 'battery',
         category: 'status',
@@ -1105,7 +1108,8 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     steps = Math.abs(steps);
 
     var doStep = function() {
-        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
+        setDeviceControlValueB(camera._dev, 0xD24C, resolution, 3, function(err){
+//        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
             if(err) return callback && callback(err);
             steps--;
             if(steps > 0) {
