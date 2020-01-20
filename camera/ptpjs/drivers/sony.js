@@ -1164,17 +1164,22 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             tries++;
             var diff = Math.abs(camera[properties['absFocusPos'].category]['absFocusPos'] - targetPos);
             var move = dir;
-            if(diff > 1) {
+            if(diff > 2) {
                 move = dir * 2;
-            } else if(diff > 5) {
+            }
+            if(diff > 5) {
                 move = dir * 3;
-            } else if(diff > 10) {
+            }
+            if(diff > 10) {
                 move = dir * 4;
-            } else if(diff > 20) {
+            }
+            if(diff > 20) {
                 move = dir * 5;
-            } else if(diff > 30) {
+            }
+            if(diff > 30) {
                 move = dir * 6;
-            } else if(diff > 40) {
+            }
+            if(diff > 40) {
                 move = dir * 7;
             }
 
