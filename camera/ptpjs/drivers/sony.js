@@ -1162,17 +1162,33 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
                 tries = 0;
             }
             tries++;
+            var diff = Math.abs(camera[properties['absFocusPos'].category]['absFocusPos'] - targetPos);
+            var move = dir;
+            if(diff > 1) {
+                move = dir * 2;
+            } else if(diff > 5) {
+                move = dir * 3;
+            } else if(diff > 10) {
+                move = dir * 4;
+            } else if(diff > 20) {
+                move = dir * 5;
+            } else if(diff > 30) {
+                move = dir * 6;
+            } else if(diff > 40) {
+                move = dir * 7;
+            }
+
             if(camera[properties['absFocusPos'].category]['absFocusPos'] == targetPos) {
                 camera.status.focusPos = camera[properties['absFocusPos'].category]['absFocusPos'];
                 return callback(null, camera[properties['absFocusPos'].category]['absFocusPos']);
             } else if(tries > 20) {
                 return callback("timeout", camera[properties['absFocusPos'].category]['absFocusPos']);
             } else if(camera[properties['absFocusPos'].category]['absFocusPos'] > targetPos) {
-                setDeviceControlValueB(camera._dev, 0xD2D1, -2, 3, function(err){
+                setDeviceControlValueB(camera._dev, 0xD2D1, move, 3, function(err){
                     return setTimeout(absStep, 50);
                 });
             } else if(camera[properties['absFocusPos'].category]['absFocusPos'] < targetPos) {
-                setDeviceControlValueB(camera._dev, 0xD2D1, 2, 3, function(err){
+                setDeviceControlValueB(camera._dev, 0xD2D1, move, 3, function(err){
                     return setTimeout(absStep, 50);
                 });
             }
