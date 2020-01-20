@@ -590,6 +590,9 @@ driver.refresh = function(camera, callback, noEvent) {
                         if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                             unknownProps[property_code] = data_current;
                             _logD(prop, "=", data_current);
+                            if(camera[p.category][p.name].onChange) {
+                                camera[p.category][p.name].onChange(camera, data_current);
+                            }
                         }
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
@@ -625,9 +628,6 @@ driver.refresh = function(camera, callback, noEvent) {
                         if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                             unknownProps[property_code] = data_current;
                             _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
-                            if(camera[p.category][p.name].onChange) {
-                                camera[p.category][p.name].onChange(camera, data_current);
-                            }
                         }
                         //_logD(prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
@@ -1134,7 +1134,6 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     resolution = Math.round(Math.abs(resolution) * 2);
     if(resolution > 7) resolution = 7;
     resolution *= dir;
-    steps = Math.abs(steps);
 
     var tries = 0;
     var startPos = null;
@@ -1149,6 +1148,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
         camera.status.focusPos = targetPos;
     }
 
+    steps = Math.abs(steps);
 
     var absStep = function() {
         if(camera._eventTimer) {
