@@ -370,6 +370,7 @@ var properties = {
         code: 0xD24C,
         typeCode: 3,
         onChange: function(camera, newValue) {
+            _logD("absFocusPos: onChange =", newValue);
             camera.status.focusPos = newValue;
         },
         ev: false,
@@ -1140,6 +1141,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
 
     if(camera[properties['absFocusPos'].category] && camera[properties['absFocusPos'].category]['absFocusPos'] != null) {
         startPos = camera[properties['absFocusPos'].category]['absFocusPos'];
+        targetPos = camera[properties['absFocusPos'].category]['absFocusPos'] + steps;
         if(targetPos < 0) targetPos = 0;
         if(targetPos > 100) targetPos = 100;
         _logD("Focus: start:", startPos, " target:", targetPos);
@@ -1161,6 +1163,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             }
             tries++;
             if(camera[properties['absFocusPos'].category]['absFocusPos'] == targetPos) {
+                camera.status.focusPos = camera[properties['absFocusPos'].category]['absFocusPos'];
                 return callback(null, camera[properties['absFocusPos'].category]['absFocusPos']);
             } else if(tries > 20) {
                 return callback("timeout", camera[properties['absFocusPos'].category]['absFocusPos']);
