@@ -1138,7 +1138,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     var tries = 0;
     var startPos = null;
 
-    if(if(camera[properties['absFocusPos'].category] && camera[properties['absFocusPos'].category]['absFocusPos'] != null) {
+    if(camera[properties['absFocusPos'].category] && camera[properties['absFocusPos'].category]['absFocusPos'] != null) {
         startPos = camera[properties['absFocusPos'].category]['absFocusPos'];
     } else {
         camera.status.focusPos = targetPos;
