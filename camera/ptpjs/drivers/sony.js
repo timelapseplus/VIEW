@@ -370,7 +370,7 @@ var properties = {
         code: 0xD24C,
         typeCode: 3,
         onChange: function(camera, newValue) {
-            camera.status.focusPos = absFocusPos;
+            camera.status.focusPos = newValue;
         },
         ev: false,
     },
@@ -624,6 +624,9 @@ driver.refresh = function(camera, callback, noEvent) {
                         if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                             unknownProps[property_code] = data_current;
                             _logD(prop, "=", current.name, "count", camera[p.category][p.name].list.length);
+                            if(camera[p.category][p.name].onChange) {
+                                camera[p.category][p.name].onChange(camera, data_current);
+                            }
                         }
                         //_logD(prop, "=", data_current, "type", data_type, list_type == LIST ? "list" : "range", "count", list.length);
                     }
@@ -1096,16 +1099,79 @@ driver.liveviewImage = function(camera, callback) {
     }
 }
 
+//driver.moveFocus = function(camera, steps, resolution, callback) {
+//    if(!steps) return callback && callback();
+//
+//    camera.status.focusPos += steps;
+//
+//    var dir = steps < 0 ? -1 : 1;
+//    resolution = Math.round(Math.abs(resolution) * 2);
+//    if(resolution > 7) resolution = 7;
+//    resolution *= dir;
+//    steps = Math.abs(steps);
+//
+//    var doStep = function() {
+//        setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
+//            if(err) return callback && callback(err);
+//            steps--;
+//            if(steps > 0) {
+//                setTimeout(doStep, 50);
+//            } else {
+//                driver.emit('settings', camera);
+//                callback && callback(err, camera.status.focusPos);
+//            }
+//        });
+//    }
+//    doStep();
+//}
+
 driver.moveFocus = function(camera, steps, resolution, callback) {
     if(!steps) return callback && callback();
 
-    camera.status.focusPos += steps;
-
+    var targetPos = camera.status.focusPos + steps;
     var dir = steps < 0 ? -1 : 1;
     resolution = Math.round(Math.abs(resolution) * 2);
     if(resolution > 7) resolution = 7;
     resolution *= dir;
     steps = Math.abs(steps);
+
+    var tries = 0;
+    var startPos = null;
+
+    if(if(camera[properties['absFocusPos'].category] && camera[properties['absFocusPos'].category]['absFocusPos'] != null) {
+        startPos = camera[properties['absFocusPos'].category]['absFocusPos'];
+    } else {
+        camera.status.focusPos = targetPos;
+    }
+
+
+    var absStep = function() {
+        if(camera._eventTimer) {
+            clearTimeout(camera._eventTimer);
+            camera._eventTimer = null;
+        }
+
+        driver.refresh(camera, function() {
+            if(camera[properties['absFocusPos'].category]['absFocusPos'] != startPos) {
+                startPos = camera[properties['absFocusPos'].category]['absFocusPos'];
+                tries = 0;
+            }
+            tries++;
+            if(camera[properties['absFocusPos'].category]['absFocusPos'] == targetPos) {
+                return cb(null, camera[properties['absFocusPos'].category]['absFocusPos']);
+            } else if(tries > 20) {
+                return cb("timeout", camera[properties['absFocusPos'].category]['absFocusPos']);
+            } else if(camera[properties['absFocusPos'].category]['absFocusPos'] > targetPos) {
+                setDeviceControlValueB(camera._dev, 0xD2D1, -5, 3, function(err){
+                    return setTimeout(absStep, 50);
+                });
+            } else if(camera[properties['absFocusPos'].category]['absFocusPos'] < targetPos) {
+                setDeviceControlValueB(camera._dev, 0xD2D1, +5, 3, function(err){
+                    return setTimeout(absStep, 50);
+                });
+            }
+        });
+    }
 
     var doStep = function() {
         setDeviceControlValueB(camera._dev, 0xD2D1, resolution, 3, function(err){
@@ -1119,8 +1185,15 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
             }
         });
     }
-    doStep();
+
+    if(startPos === null) {
+        doStep();
+    } else {
+        absStep();
+    }
 }
+
+
 
 
 module.exports = driver;
