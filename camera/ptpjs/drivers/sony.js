@@ -1102,7 +1102,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
     camera.status.focusPos += steps;
 
     var dir = steps < 0 ? -1 : 1;
-    resolution = Math.round(Math.abs(resolution));
+    resolution = Math.round(Math.abs(resolution) * 2);
     if(resolution > 7) resolution = 7;
     resolution *= dir;
     steps = Math.abs(steps);
