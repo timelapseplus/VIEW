@@ -1168,7 +1168,7 @@ driver.moveFocus = function(camera, steps, resolution, callback) {
                     return setTimeout(absStep, 50);
                 });
             } else if(camera[properties['absFocusPos'].category]['absFocusPos'] < targetPos) {
-                setDeviceControlValueB(camera._dev, 0xD2D1, +2, 3, function(err){
+                setDeviceControlValueB(camera._dev, 0xD2D1, 2, 3, function(err){
                     return setTimeout(absStep, 50);
                 });
             }
