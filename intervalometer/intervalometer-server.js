@@ -565,7 +565,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.getSettings':
       if(camera.ptp.new.available) {
-        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure);
+        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status);
         sendEvent('camera.settings', newSettings);
           cameraCallback(null, newSettings);
       } else {
@@ -708,11 +708,13 @@ function runCommand(type, args, callback, client) {
   }
 }
 
-function getNewSettings(settings) {
+function getNewSettings(settings, status) {
   return {
         shutter: settings.shutter && settings.shutter.name,
         aperture: settings.aperture && settings.aperture.name,
         iso: settings.iso && settings.iso.name,
+        battery: status && status.battery,
+        focusPos: status && status.focusPos,
         lists: {
           shutter: settings.shutter && settings.shutter.list,
           aperture: settings.aperture && settings.aperture.list,
@@ -722,6 +724,8 @@ function getNewSettings(settings) {
           shutter: settings.shutter,
           aperture: settings.aperture,
           iso: settings.iso,
+          battery: status && status.battery,
+          focusPos: status && status.focusPos,
           lists: {
             shutter: settings.shutter && settings.shutter.list && settings.shutter.list.map(function(item) { item.cameraName = item.name; return item; }),
             aperture: settings.aperture && settings.aperture.list && settings.aperture.list.map(function(item) { item.cameraName = item.name; return item; }),
@@ -823,7 +827,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
- sendEvent('camera.settings', getNewSettings(settings));
+ sendEvent('camera.settings', getNewSettings(settings, camera.ptp.new.cameras[0].camera.status));
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
