@@ -372,6 +372,7 @@ var properties = {
         onChange: function(camera, newValue) {
             _logD("absFocusPos: onChange =", newValue);
             camera.status.focusPos = newValue;
+            driver.emit('settings', camera);
         },
         ev: false,
     },
@@ -590,8 +591,8 @@ driver.refresh = function(camera, callback, noEvent) {
                         if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) {
                             unknownProps[property_code] = data_current;
                             _logD(prop, "=", data_current);
-                            if(camera[p.category][p.name].onChange) {
-                                camera[p.category][p.name].onChange(camera, data_current);
+                            if(properties[prop].onChange) {
+                                properties[prop].onChange(camera, data_current);
                             }
                         }
                     } else {

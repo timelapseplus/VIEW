@@ -827,7 +827,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.count > 0 && intervalometer.status && intervalometer.status.running) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
- sendEvent('camera.settings', getNewSettings(settings, camera.ptp.new.cameras[0].camera.status));
+ sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status));
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected");
