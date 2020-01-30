@@ -1508,7 +1508,7 @@ if (VIEW_HARDWARE) {
             help: help.highlightProtection,
             action: highlightProtectionOptions,
             condition: function() {
-                return core.currentProgram.rampAlgorithm == 'lum' && core.currentProgram.rampMode == 'auto';
+                return core.currentProgram.rampMode == 'auto';
             }
         }, {
             name: valueDisplay("Night Lum Target", core.currentProgram, 'nightLuminance'),
