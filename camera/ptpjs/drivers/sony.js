@@ -48,7 +48,7 @@ driver.supportedCameras = {
     '054c:079d': { name: "Sony RX10 III", supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500, newISO: false } },
     '054c:079e': { name: "Sony A99 II",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500, newISO: false } },
     '054c:07a3': { name: "Sony RX100 V",  supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500, newISO: false } },
-    '054c:07a4': { name: "Sony A6500",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: false, focus: false, _bufTime: 3500, newISO: false } },
+    '054c:07a4': { name: "Sony A6500",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2000, newISO: false } },
     '054c:07c6': { name: "Sony A5000",    supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500, newISO: false } },
     '054c:094c': { name: "Sony A7",       supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500, newISO: false } },
     '054c:094d': { name: "Sony A7R",      supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 4500, newISO: false } }, 
