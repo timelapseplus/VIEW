@@ -376,7 +376,7 @@ intervalometer.autoSettings = {
 var auxMotionConfig = {
     inverted: false,
     lengthMs: 200,
-    externalIntervalPaddingMs: 500
+    externalIntervalPaddingMs: 2500
 }
 
 // this is where the pulse length is set
@@ -957,13 +957,14 @@ function processKeyframes(setupFirst, callback) {
 
 
 function getEvOptions() {
-    var maxShutterLengthMs = (intervalometer.status.intervalMs - intervalometer.autoSettings.paddingTimeMs);
+    var neededPadMs = intervalometer.autoSettings.paddingTimeMs;
     if(intervalometer.currentProgram.intervalMode == 'aux') {
-        maxShutterLengthMs -= auxMotionConfig.externalIntervalPaddingMs; // add an extra padding for external motion
+        if(auxMotionConfig.externalIntervalPaddingMs > neededPadMs) neededPadMs = auxMotionConfig.externalIntervalPaddingMs; // add an extra padding for external motion
     } else {
-        maxShutterLengthMs -= auxMotionConfig.lengthMs;
+        if(auxMotionConfig.lengthMs > neededPadMs) neededPadMs = auxMotionConfig.lengthMs;
     }
-    if(maxShutterLengthMs < 500) maxShutterLengthMs = 500;
+    var maxShutterLengthMs = (intervalometer.status.intervalMs - neededPadMs);
+    if(maxShutterLengthMs < 500) maxShutterLengthMs = 500; // warn on this condition?
     return {
         cameraSettings: remap('camera.ptp.settings'),
         maxShutterLengthMs: maxShutterLengthMs,
@@ -2272,6 +2273,10 @@ intervalometer.setAuxPulseInvert = function(invert, callback) {
     log("INTERVALOMETER: set aux invert to", auxMotionConfig.inverted);
 }
 
+intervalometer.setAuxExternalPad = function(padMs, callback) {
+    auxMotionConfig.externalIntervalPaddingMs = padMs;
+    log("INTERVALOMETER: set aux externalIntervalPaddingMs to", auxMotionConfig.externalIntervalPaddingMs);
+}
 
 
 
