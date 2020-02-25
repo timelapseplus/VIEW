@@ -307,10 +307,13 @@ core.setAuxPulseLength = function(length, callback) {
     core.auxPulseLength = length;
     call('motion.setAuxPulseLength', {length:length}, callback);
 };
-
 core.setAuxPulseInvert = function(invert, callback) {
     core.auxPulseInvert = invert ? "yes" : "no";
     call('motion.setAuxPulseInvert', {invert:invert}, callback);
+};
+core.setAuxExternalPad = function(pad, callback) {
+    core.auxExternalPad = pad;
+    call('motion.setAuxExternalPad', {pad:pad}, callback);
 };
 
 core.getCurrentTimelapseFrames = function(cameraIndex, callback) {
