@@ -965,7 +965,7 @@ function getEvOptions() {
     }
     var maxShutterLengthMs = (intervalometer.status.intervalMs - neededPadMs);
     if(maxShutterLengthMs < 500) maxShutterLengthMs = 500; // warn on this condition?
-    log("\n\nIntervalometer: total padding ms:", neededPadMs, "= max shutter ms: ", maxShutterLengthMs);
+    logEvent("\n\nIntervalometer: total padding ms:", neededPadMs, "= max shutter ms: ", maxShutterLengthMs);
     return {
         cameraSettings: remap('camera.ptp.settings'),
         maxShutterLengthMs: maxShutterLengthMs,
