@@ -669,6 +669,9 @@ function runCommand(type, args, callback, client) {
     case 'motion.setAuxPulseInvert':
       intervalometer.setAuxPulseInvert(args.invert, callback);
       break;
+    case 'motion.setAuxExternalPad':
+      intervalometer.setAuxExternalPad(args.pad, callback);
+      break;
 
     case 'intervalometer.moveTracking':
       intervalometer.moveTracking(args.axis, args.degrees, callback);
@@ -904,7 +907,7 @@ function startScan() {
         scanTimerHandle3 = setTimeout(function() {
             if (noble.state == "poweredOn") {
                 //console.log("Starting BLE scan...");
-                var scanIds = motion.gm1.btServiceIds.concat(motion.rs1.btServiceIds).concat(motion.cb1.btServiceIds);
+                var scanIds = motion.gm1.btServiceIds.concat(motion.rs1.btServiceIds).concat(motion.cb1.btServiceIds).concat(motion.mc1.btServiceIds);
                 if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(scanIds);
                 noble.startScanning(scanIds, false, function(err){
                     console.log("BLE scan started: ", err);
@@ -1063,6 +1066,12 @@ function btDiscover(peripheral) {
     } else if(matchServices(peripheral, motion.cb1.btServiceIds) && !motion.cb1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.cb1.connect(peripheral, function(connected) {
+          btConnecting = false;
+           if(connected) stopScan();
+        });
+    } else if(matchServices(peripheral, motion.mc1.btServiceIds) && !motion.mc1.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.mc1.connect(peripheral, function(connected) {
           btConnecting = false;
            if(connected) stopScan();
         });
