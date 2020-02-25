@@ -899,11 +899,40 @@ driver.set = function(camera, param, value, callback, tries) {
                         _logD("setFunction:", getCode(camera, properties[param].code), "=>", cameraValue);
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
                             if(!err) {
-                                var newItem =  mapPropertyItem(cameraValue, properties[param].values);
-                                for(var k in newItem) {
-                                    if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                if(properties[param].ev) {
+                                    var refresh = function() {
+                                        if(camera._eventTimer) {
+                                            clearTimeout(camera._eventTimer);
+                                            camera._eventTimer = null;
+                                        }
+                                        driver.refresh(camera, function(){
+                                            _logD("read settings...");
+                                            if(camera[properties[param].category][param].code == cameraValue) {
+                                                return cb();
+                                            } else if(tries > 5) {
+                                                return cb("failed to set", param);
+                                            } else {
+                                                if(refreshTries <= 0) {
+                                                    return setTimeout(function(){
+                                                        driver.refresh(camera, function(){
+                                                            driver.set(camera, param, value, callback, tries);
+                                                        }, true);
+                                                    }, 300);
+                                                } else {
+                                                    refreshTries--;
+                                                    return setTimeout(refresh, 50);
+                                                }
+                                            }
+                                        });
+                                    }
+                                    setTimeout(refresh, 50);
+                                } else {
+                                    var newItem =  mapPropertyItem(cameraValue, properties[param].values);
+                                    for(var k in newItem) {
+                                        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
+                                    }
+                                    return cb(err);
                                 }
-                                return cb(err);
                             } else {
                                 _logE("error setting " + ptp.hex(getCode(camera, properties[param].code)) + ":". err);
                                 return cb(err);
