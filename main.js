@@ -3209,6 +3209,14 @@ if (VIEW_HARDWARE) {
         }
     });
 
+    db.get('auxExternalPad', function(err, pad) {
+        if(!err && pad) {
+            core.setAuxExternalPad(pad);
+        } else {
+            core.setAuxExternalPad(2500);
+        }
+    });
+
     db.get('auxPulseInvert', function(err, invert) {
         if(!err && invert == 'yes') {
             core.setAuxPulseInvert(true);
@@ -3216,6 +3224,230 @@ if (VIEW_HARDWARE) {
             core.setAuxPulseInvert(false);
         }
     });
+
+
+
+    var auxExternalPadMenu = {
+        name: "AUX2 Ext. Interval Motion Pad",
+        type: "options",
+        items: [{
+            name: "AUX2 Ext Motion Ms",
+            value: "100ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 100, function(cb){
+                db.set('auxExternalPad', 100);
+                core.setAuxExternalPad(100);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "200ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 200, function(cb){
+                db.set('auxExternalPad', 200);
+                core.setAuxExternalPad(200);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "300ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 300, function(cb){
+                db.set('auxExternalPad', 300);
+                core.setAuxExternalPad(300);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "400ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 400, function(cb){
+                db.set('auxExternalPad', 400);
+                core.setAuxExternalPad(400);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "500ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 500, function(cb){
+                db.set('auxExternalPad', 500);
+                core.setAuxExternalPad(500);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "600ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 600, function(cb){
+                db.set('auxExternalPad', 600);
+                core.setAuxExternalPad(600);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "700ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 700, function(cb){
+                db.set('auxExternalPad', 700);
+                core.setAuxExternalPad(700);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "800ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 800, function(cb){
+                db.set('auxExternalPad', 800);
+                core.setAuxPulseLength(800);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "900ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 900, function(cb){
+                db.set('auxExternalPad', 900);
+                core.setAuxExternalPad(900);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "1000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 1000, function(cb){
+                db.set('auxExternalPad', 1000);
+                core.setAuxExternalPad(1000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "1200ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 1200, function(cb){
+                db.set('auxExternalPad', 1200);
+                core.setAuxExternalPad(1200);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "1400ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 1400, function(cb){
+                db.set('auxExternalPad', 1400);
+                core.setAuxExternalPad(1400);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "1600ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 1600, function(cb){
+                db.set('auxExternalPad', 1600);
+                core.setAuxExternalPad(1600);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "1800ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 1800, function(cb){
+                db.set('auxExternalPad', 1800);
+                core.setAuxExternalPad(1800);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "2000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 2000, function(cb){
+                db.set('auxExternalPad', 2000);
+                core.setAuxExternalPad(2000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "2500ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 2500, function(cb){
+                db.set('auxExternalPad', 2500);
+                core.setAuxExternalPad(2500);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "3000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 3000, function(cb){
+                db.set('auxExternalPad', 3000);
+                core.setAuxExternalPad(3000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "4000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 4000, function(cb){
+                db.set('auxExternalPad', 4000);
+                core.setAuxExternalPad(4000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "5000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 5000, function(cb){
+                db.set('auxExternalPad', 5000);
+                core.setAuxExternalPad(5000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "6000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 6000, function(cb){
+                db.set('auxExternalPad', 6000);
+                core.setAuxPulseLength(6000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "7000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 7000, function(cb){
+                db.set('auxExternalPad', 7000);
+                core.setAuxExternalPad(7000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "8000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 8000, function(cb){
+                db.set('auxExternalPad', 8000);
+                core.setAuxExternalPad(8000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "9000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 9000, function(cb){
+                db.set('auxExternalPad', 9000);
+                core.setAuxExternalPad(9000);
+                cb && cb();
+            })
+        }, {
+            name: "AUX2 Ext Motion Ms",
+            value: "10000ms",
+            help: help.auxExternalPad,
+            action: ui.set(core, 'auxExternalPad', 10000, function(cb){
+                db.set('auxExternalPad', 10000);
+                core.setAuxExternalPad(10000);
+                cb && cb();
+            })
+        }]
+    }
 
     var auxPulseLengthMenu = {
         name: "AUX2 Pulse Length",
@@ -3474,6 +3706,10 @@ if (VIEW_HARDWARE) {
             name: "Invert Pulse",
             help: help.auxPulseInvert,
             action: auxPulseInvertMenu
+        }, {
+            name: "Ext. Int. Motion Time",
+            help: help.auxExternalPad,
+            action: auxExternalPadMenu
         }]
     }
 
