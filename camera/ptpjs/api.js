@@ -646,8 +646,8 @@ api.setEv = function(ev, options, callback) {
     console.log("API setEv: isoList.length", isoList && isoList.length);
 
     if (shutterList && options && options.maxShutterLengthMs) {
-        var maxSeconds = Math.floor(options.maxShutterLengthMs / 1000);
-        if(maxSeconds < 1) maxSeconds = 1;
+        var maxSeconds = Math.ceil(options.maxShutterLengthMs / 100) / 10;
+        if(maxSeconds < 0.5) maxSeconds = 0.5;
         shutterList = shutterList.filter(function(ev) {
             return api.getSecondsFromEv(ev) <= maxSeconds;
         });
