@@ -184,7 +184,7 @@ exports.auxPulseLength = "Set the length of the pulse sent out AUX2 after each c
 
 exports.auxPulseInvert = "Configures whether the shield-tip connection on AUX2 is normally open (default, most motion systems expect this) or normally close (inverted, open for pulse length after capture).";
 
-exports.auxExternalPad = "When interval mode is set to External AUX2, this configures the minimum gap (dark time) between frames to allow for motion to complete while the shutter is closed.  This actual time may be longer than this setting if buffering and processing time exceed this setting.";
+exports.auxExternalPad = "When interval mode is set to External AUX2, this configures the minimum gap (dark time) between frames to allow for motion to complete while the shutter is closed.  The actual time may be longer than this setting if buffering and processing time exceed this setting.";
 
 exports.setTimezone = "Sets local time-zone for time/date display.  Not essential for operation otherwise.";
 
