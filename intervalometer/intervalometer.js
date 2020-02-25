@@ -428,7 +428,7 @@ auxTrigger.on('error', function(err) {
 });
 
 function motionSyncSetup() {
-    aux2out({lengthMs: 0, invert: (auxMotionConfig.inverted && intervalometer.currentProgram.intervalMode != 'aux')}, function(){});
+    aux2out({lengthMs: 0, invert: (auxMotionConfig.inverted && intervalometer.currentProgram && intervalometer.currentProgram.intervalMode != 'aux')}, function(){});
 }
 motionSyncSetup();
 
