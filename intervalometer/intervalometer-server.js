@@ -279,7 +279,7 @@ var server = net.createServer(function(c) {
   }
   c.dataBuf = new Buffer(0);
   c.on('data', function(rawData) {
-  	//console.log("received:", rawData);
+    //console.log("received:", rawData);
     try {
       if(!rawData.length) return;
       c.dataBuf = Buffer.concat([c.dataBuf, rawData]);
@@ -909,7 +909,7 @@ function startScan() {
                 //console.log("Starting BLE scan...");
                 var scanIds = motion.gm1.btServiceIds.concat(motion.rs1.btServiceIds).concat(motion.cb1.btServiceIds).concat(motion.mc1.btServiceIds);
                 if(nmxBT) scanIds = motion.nmx.btServiceIds.concat(scanIds);
-                noble.startScanning(scanIds, false, function(err){
+                noble.startScanning([], false, function(err){
                     console.log("BLE scan started: ", err);
                 });
             } else {
@@ -1056,6 +1056,7 @@ function btDiscover(peripheral) {
     btConnecting = false;
     btConnectingTries = 0;
     //console.log('ble', peripheral);
+    //if(peripheral && peripheral.advertisement && peripheral.advertisement.serviceUuids) console.log('--- ble advertisement', peripheral.advertisement);
 
     if(matchServices(peripheral, motion.rs1.btServiceIds) && !motion.rs1.connected) { // all types should be updated to this check
         btConnecting = true;
@@ -1069,47 +1070,32 @@ function btDiscover(peripheral) {
           btConnecting = false;
            if(connected) stopScan();
         });
-    } else if(matchServices(peripheral, motion.mc1.btServiceIds) && !motion.mc1.connected) { // all types should be updated to this check
+    } else if(matchServices(peripheral, motion.gm1.btServiceIds) && !motion.gm1.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.gm1.connect(peripheral, function(connected) {
+          var status = motion.gm1.getStatus();
+          btConnecting = false;
+           if(status.connected && motion.gm2.connected) stopScan();
+        });
+    } else if(matchServices(peripheral, motion.gm2.btServiceIds) && !motion.gm2.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.gm2.connect(peripheral, function(connected) {
+          var status = motion.gm2.getStatus();
+          btConnecting = false;
+           if(status.connected && motion.gm1.connected) stopScan();
+        });
+    } else if(matchServices(peripheral, motion.nmx.btServiceIds) && !motion.nmx.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.nmx.connect(peripheral, function(connected) {
+          btConnecting = false;
+           if(connected) stopScan();
+        });
+    } else if((peripheral && peripheral.advertisement && peripheral.advertisement.localName && peripheral.advertisement.localName.substr(0, 7) == 'CAPSULE') && !motion.mc1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.mc1.connect(peripheral, function(connected) {
           btConnecting = false;
            if(connected) stopScan();
         });
-    } else if(!motion.rs1.connected) {
-      var connectGM = function(cb) {
-        var status = motion.gm1.getStatus();
-        if(status.connected && status.connectionType == "bt") {
-          var status = motion.gm2.getStatus();
-          if(status.connected && status.connectionType == "bt") {
-            stopScan();
-          } else {
-            btConnecting = true;
-            motion.gm2.connect(peripheral, function(connected) {
-              btConnecting = false;
-            });
-          }
-        } else {
-          btConnecting = true;
-          motion.gm1.connect(peripheral, function(connected) {
-            btConnecting = false;
-          });
-        }
-      }
-      var status = motion.nmx.getStatus();
-      if(status.connected || !nmxBT) {
-        connectGM();
-      } else {
-        btConnecting = true;
-        motion.nmx.connect(peripheral, function(connected) {
-          btConnecting = false;
-          if(connected) {
-            stopScan();
-          } else {
-            console.log("CORE: peripheral not NMX, trying GM");
-            connectGM();
-          }
-        });
-      }
     }
 
 }
