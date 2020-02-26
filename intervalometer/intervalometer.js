@@ -651,11 +651,12 @@ function processKeyframes(setupFirst, callback) {
             if(m == 'focus') {
                 doKeyframeAxis(m, axis.kf, setupFirst, axis.interpolation || 'linear', remap('camera.ptp.settings.focusPos'), function(focus, axisName, absFocus) {
                     var doFocus = function() {
-                        log("KF: Moving focus by " + focus + " steps (currentPos=" + remap('camera.ptp.settings.focusPos') + ")");
+                        logEvent("KF: Moving focus by " + focus + " steps (currentPos=" + remap('camera.ptp.settings.focusPos') + ")");
                         var dir = focus > 0 ? 1 : -1;
                         var steps = Math.abs(focus);
                         remap('camera.ptp.focus')(dir, steps, function() {
-                            if(camera.ptp.model && camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                            var model = remap('camera.ptp.model');
+                            if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
                                 checkDone('focus');
                             } else {
                                 setTimeout(function(){
@@ -671,7 +672,8 @@ function processKeyframes(setupFirst, callback) {
                     focus += intervalometer.status.focusDiffNew;
                     intervalometer.status.focusDiffNew = 0;
                     if(focus) {
-                        if(camera.ptp.model && camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                        var model = remap('camera.ptp.model');
+                        if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
                             doFocus();
                         } else {
                             remap('camera.ptp.preview')(function() {
@@ -915,7 +917,8 @@ function processKeyframes(setupFirst, callback) {
                     var dir = focus > 0 ? 1 : -1;
                     var steps = Math.abs(focus);
                     remap('camera.ptp.focus')(dir, steps, function() {
-                        if(camera.ptp.model && camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                        var model = remap('camera.ptp.model');
+                        if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
                             checkDone('focus-update');
                         } else {
                             setTimeout(function(){
@@ -930,7 +933,8 @@ function processKeyframes(setupFirst, callback) {
                 }
                 if(intervalometer.status.focusDiffNew) {
                     intervalometer.status.focusDiffNew = 0;
-                    if(camera.ptp.model && camera.ptp.model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                    var model = remap('camera.ptp.model');
+                    if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
                         doFocus(intervalometer.status.focusDiffNew);
                     } else {
                         remap('camera.ptp.preview')(function() {
@@ -1493,7 +1497,8 @@ function runPhoto(isRetry) {
                     }
                     intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
 
-                    if(camera.ptp.model && camera.ptp.model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
+                    var model = remap('camera.ptp.model');
+                    if(model && model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
 
                     if(intervalometer.status.rampMode == "auto") {
                         intervalometer.status.rampEv = exp.calculate(intervalometer.currentProgram.rampAlgorithm, intervalometer.currentProgram.lrtDirection, intervalometer.status.rampEv, referencePhotoRes.ev, referencePhotoRes.histogram, camera.minEv(remap('camera.ptp.settings'), getEvOptions()), camera.maxEv(remap('camera.ptp.settings'), getEvOptions()));
@@ -1928,7 +1933,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                 start3();
                             //}
                         } else {
-                            if(camera.ptp.model && camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') {
+                            if(camera.ptp.model && camera.ptp.model.match(/nikon/i) && !camera.ptp.captureInitiated() && intervalometer.currentProgram.intervalMode == 'aux') { // only applies to old driver
                                 remap('camera.ptp.capture')({mode:"test"}, start3);
                             } else {
                                 start3();
