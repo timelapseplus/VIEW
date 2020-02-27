@@ -704,7 +704,7 @@ function runCommand(type, args, callback, client) {
     case 'bt.reset':
       console.log("CORE: reloading BT module");
       cleanUpBt();
-      setUpBt();
+      setTimeout(setUpBt, 5000);
       callback();
       break;
 
