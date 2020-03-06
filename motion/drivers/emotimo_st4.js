@@ -6,7 +6,7 @@ var st4 = new EventEmitter();
 var _port = null;
 var _buf = "";
 
-
+var watchdogHandle = null;
 st4.connected = false;
 st4.busy = false;
 st4.joystickMode = false;
@@ -95,6 +95,21 @@ function _connect(path, callback) {
     }, function() {
         console.log('ST4: serial opened');
         if (!_port) return;
+        watchdogHandle = null;
+		st4.busy = false;
+		st4.joystickMode = false;
+		st4.status = {
+			motor1moving: false,
+			motor2moving: false,
+			motor3moving: false,
+			motor4moving: false,
+			motor1pos: 0,
+			motor2pos: 0,
+			motor3pos: 0,
+			motor4pos: 0,
+			moving: false,
+			moveStarted: false
+		}
         st4.connected = true;
         startPoll();
 
@@ -283,7 +298,7 @@ st4.move = function(motorId, steps, callback) {
 	}, 100);
 }
 
-var watchdogHandle = null;
+
 st4.constantMove = function(motorId, speed, callback) {
 	if(speed) {
 		if(st4.busy) return;
