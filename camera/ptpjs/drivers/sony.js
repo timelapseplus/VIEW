@@ -900,6 +900,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
                             if(!err) {
                                 if(properties[param].ev) {
+                                    var refreshTries = 4;
                                     var refresh = function() {
                                         if(camera._eventTimer) {
                                             clearTimeout(camera._eventTimer);
