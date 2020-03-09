@@ -311,6 +311,7 @@ st4.constantMove = function(motorId, speed, callback) {
 		watchdogHandle = null;
 	}
 	if(speed) watchdogHandle = setTimeout(function(){
+		watchdogHandle = null;
 		st4.constantMove(motorId, 0);
 	}, 1200);
 	speed /= 100;
