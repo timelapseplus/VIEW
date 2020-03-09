@@ -22,6 +22,24 @@ st4.status = {
 	moving: false,
 	moveStarted: false
 }
+
+var logLevel = 0;
+
+function _logD() {
+	if(logLevel < 1) return;
+    if(arguments.length > 0) {
+        arguments[0] = "ST4: " + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
+
+function _logE() {
+    if(arguments.length > 0) {
+        arguments[0] = "ST4: " + arguments[0];
+    }
+    console.log.apply(console, arguments);
+}
+
 function _conversionFactor(motorId) {
 	if(motorId == 1) return 3275.420875;
 	if(motorId == 2) return 8680.968858;
@@ -74,7 +92,7 @@ st4.connect = function(path, callback) {
         _connect(path, callback);
     } else if (!path || typeof path == "function") {
         SerialPort.list(function(err, ports) {
-            console.log("ST4: scanned serial ports");
+            _logD("scanned serial ports");
             for (var i = 0; i < ports.length; i++) {
                 if (ports[i].manufacturer == 'FTDI') {
                     _connect(ports[i].comName, callback)
@@ -89,11 +107,11 @@ st4.connect = function(path, callback) {
 }
 
 function _connect(path, callback) {
-    console.log("ST4: connecting via " + path);
+    _logE("ST4: connecting via " + path);
     _port = new SerialPort(path, {
         baudrate: 57600
     }, function() {
-        console.log('ST4: serial opened');
+        _logD('serial opened');
         if (!_port) return;
         watchdogHandle = null;
 		st4.busy = false;
@@ -119,26 +137,26 @@ function _connect(path, callback) {
                 _port = null;
                 st4.connected = false;
                 st4.emit("status", st4.getStatus());
-                console.log("ST4: ERROR: ST4 Disconnected: ", err);
+                _logE("ERROR: ST4 Disconnected: ", err);
             }
         });
         _port.once('error', function(err) {
-            console.log("ST4: ERROR: ", err);
+            _logE("ERROR: ", err);
         });
         _port.once('close', function() {
-            console.log("ST4: CLOSED");
+            _logE("CLOSED");
         });
 
         _port.on('data', function(data) {
         	data = data.toString('UTF8');
-            console.log("ST4: received data: ", data);
+            _logD("received data: ", data);
 			_buf += data;
         });
 
-        console.log("ST4: checking positions...");
+        _logE("checking positions...");
         st4.getPosition(function(){
 		    st4.emit("status", st4.getStatus());
-			console.log("ST4: status:", st4.status);
+			_logE("ST4: status:", st4.status);
         });
         if (callback) callback(true);
     });
@@ -187,8 +205,8 @@ function startPoll() {
 				}
 			});
 		} else {
-			if(st4.busy) console.log("ST4: busy = true");
-			if(st4.joystickMode) console.log("ST4: joystickMode = true");
+			if(st4.busy) _logD("busy = true");
+			if(st4.joystickMode) _logD("joystickMode = true");
 		}
 	}, 1000);
 }
@@ -215,7 +233,7 @@ st4.getPosition = function(callback) {
 					if(parseInt(locationSet[3]) !== NaN) st4.status.motor4pos = parseInt(locationSet[3]) * _motorDirection(4) / _conversionFactor(4);
 					st4.status.moving = st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving;
 				}
-				console.log("ST4: status:", st4.status);
+				_logD("status:", st4.status);
 			}
 		}
 		callback && callback(err, st4.status.motor1pos, st4.status.motor2pos, st4.status.motor3pos, st4.status.motor4pos);
@@ -274,7 +292,7 @@ st4.move = function(motorId, steps, callback) {
 				if(err) {
 					for(var mId in grp) {
 						for(var i = 0; i < grp[mId].callbacks.length; i++) {
-							console.log("ST4: running (err) callback for motor ", mId);
+							_logD("running (err) callback for motor ", mId);
 							grp[mId].callbacks[i] && grp[mId].callbacks[i](err);
 						}					
 					}
@@ -288,7 +306,7 @@ st4.move = function(motorId, steps, callback) {
 						if(mId == 3) pos = st4.status.motor3pos;
 						if(mId == 4) pos = st4.status.motor4pos;
 						for(var i = 0; i < grp[mId].callbacks.length; i++) {
-							console.log("ST4: running callback for motor ", mId);
+							_logD("running callback for motor ", mId);
 							grp[mId].callbacks[i] && grp[mId].callbacks[i](err, pos);
 						}					
 					}
@@ -319,7 +337,7 @@ st4.constantMove = function(motorId, speed, callback) {
 	if(speed < -1) speed = -1;
 	var sign = speed < 0 ? -1 : 1;
 	var rate = Math.pow(speed, 2.0) * 200000 * sign; // add curve for finer control
-	//console.log("ST4: moving at speed ", speed, ", steps: ", rate);
+	//_logD("moving at speed ", speed, ", steps: ", rate);
 	var args = {};
 	args['M'] = parseInt(motorId);
 	args['V'] = parseInt(rate);
