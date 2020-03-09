@@ -326,9 +326,9 @@ st4.constantMove = function(motorId, speed, callback) {
 	_transaction('G300', args, function(err) {
 		if(err) return callback && callback(err);
 		if(speed == 0) {
+			st4.joystickMode = false;
 			_waitRunning(motorId, function(err, pos) {
 				callback && callback(err, pos);
-				st4.joystickMode = false;
 			});
 		}
 	});
