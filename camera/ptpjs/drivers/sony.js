@@ -900,7 +900,7 @@ driver.set = function(camera, param, value, callback, tries) {
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
                             if(!err) {
                                 if(properties[param].ev) {
-                                    var refreshTries = 4;
+                                    var refreshTries = 8;
                                     var refresh = function() {
                                         if(camera._eventTimer) {
                                             clearTimeout(camera._eventTimer);
@@ -910,7 +910,7 @@ driver.set = function(camera, param, value, callback, tries) {
                                             _logD("read settings...");
                                             if(camera[properties[param].category][param].code == cameraValue) {
                                                 return cb();
-                                            } else if(tries > 5) {
+                                            } else if(tries > 3) {
                                                 return cb("failed to set", param);
                                             } else {
                                                 if(refreshTries <= 0) {
