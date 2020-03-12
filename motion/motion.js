@@ -40,6 +40,7 @@ motion.cancelCalibration = function(driver, motorId, callback) {
 }
 
 motion.calibrateBacklash = function(driver, motorId, callback) {
+	console.log("MOTION: starting backlash calibration for ", driver);
 	var steps = 1.1;
 	var dec = 0.025;
 
