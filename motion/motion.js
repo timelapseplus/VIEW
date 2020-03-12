@@ -40,8 +40,16 @@ motion.cancelCalibration = function(driver, motorId, callback) {
 }
 
 motion.calibrateBacklash = function(driver, motorId, callback) {
-	var steps = (driver == 'NMX') ? 600 : 1.1;
-	var dec = (driver == 'NMX') ? 12 : 0.025;
+	var steps = 1.1;
+	var dec = 0.025;
+
+	if(driver == 'NMX') {
+		steps == 600;
+		dec = 12;
+	} else if(driver == 'MC1') {
+		steps == 1000;
+		dec = 50;
+	}
 
 	var fusionReference = null;
 	var fusionDiffReference = null;
