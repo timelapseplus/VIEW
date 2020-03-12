@@ -28,6 +28,7 @@ function MIOPS(id) {
     this._stepsPerMM = 10000000 / 866;
     this._backlash = 0;
     this._lastDirection = 0;
+    this._backlashOffset = 0;
     this._commandIndex = 1;
     this._movingJoystick = false,
     this._callbacks = {}
@@ -237,6 +238,8 @@ MIOPS.prototype._connectBt = function(btPeripheral, callback) {
                                         self._dev.type = "bt";
                                         self._watchdog = null;
                                         self._commandIndex = 1;
+                                        self._lastDirection = 0;
+                                        self._backlashOffset = 0;
                                         self._notifyCh.on('data', function(data, isNotification) {
                                             self._parseIncoming(data);
                                         });
@@ -349,27 +352,55 @@ MIOPS.prototype.enable = function(motor) {
     this._enabled = true;
 }
 
-MIOPS.prototype.move = function(motor, steps, callback) {
-    console.log("MIOPS(" + this._id + "): move axis", motor, "by", steps, "steps");
+MIOPS.prototype._takeBacklash = function(direction, callback) {
+    if(this._lastDirection != 0 && this._lastDirection != direction && this._backlash > 0) {
+        this._lastDirection = direction;
+        if(this._backlashOffset) {
+            this._backlashOffset = 0;
+        } else {
+            this._backlashOffset = this._backlash * direction;
+        }
+        this.move(0, this._backlash * direction, callback);
+    } else {
+        callback && callback();
+    }
+}
+
+MIOPS.prototype.move = function(motor, steps, callback, noBacklash) {
+    if(noBacklash) {
+        console.log("MIOPS(" + this._id + "): taking up backlash by", steps, "steps");
+    } else {
+        console.log("MIOPS(" + this._id + "): move by", steps, "steps");
+    }
     var self = this;
     if(self._movingJoystick) self.constantMove(1, 0);
     var target = self._pos + steps;
     var lastPos = self._pos;
+    var dir = 0;
+    if(steps > 0) dir = 1;
+    if(steps < 0) dir = -1;
     self._moving = true;
-    self._sendCommand('moveToStep', {targetStep: target}, function(err) {
-        var check = function() {
-            self._getPosition(function(err, pos) {
-                if(lastPos - pos == 0) {
-                    self._moving = false;
-                    callback && callback(err, pos);
-                } else {
-                    lastPos = pos;
-                    setTimeout(check, 200);
-                }
-            });
-        }
-        setTimeout(check, 200);
-    });
+    var doMove = function() {
+        self._sendCommand('moveToStep', {targetStep: target}, function(err) {
+            var check = function() {
+                self._getPosition(function(err, pos) {
+                    if(lastPos - pos == 0) {
+                        self._moving = false;
+                        callback && callback(err, pos);
+                    } else {
+                        lastPos = pos;
+                        setTimeout(check, 200);
+                    }
+                });
+            }
+            setTimeout(check, 200);
+        });
+    }
+    if(noBacklash) {
+        doMove();
+    } else {
+        self._takeBacklash(dir, doMove);
+    }
 }
 
 MIOPS.prototype.constantMove = function(motor, speed, callback) {
@@ -378,40 +409,45 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     var range = 10000 - 1001;
     var direction = speed < 0 ? 0 : 1;
     var speedVal = Math.abs(speed / 100) * range + 1001;
+    var dir = 0;
+    if(speed > 0) dir = 1;
+    if(speed < 0) dir = -1;
     console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, ")");
 
-    self._sendCommand('constant', {direction: direction, speed: speedVal}, function(err) {
-        if(speed != 0) callback(err, self.position);
-    });
+    self._takeBacklash(dir, function() {
+        self._sendCommand('constant', {direction: direction, speed: speedVal}, function(err) {
+            if(speed != 0) callback(err, self.position);
+        });
 
-    if(self._watchdog) {
-        clearTimeout(this._watchdog);
-        self._watchdog = null;
-    }
-    if(speed == 0) {
-        setTimeout(function(){
-            self._movingJoystick = false;
-            self._sendCommand('stop', {});
+        if(self._watchdog) {
+            clearTimeout(this._watchdog);
+            self._watchdog = null;
+        }
+        if(speed == 0) {
             setTimeout(function(){
-                self._getPosition(function(err, pos){
-                    callback && callback(err, pos);
-                    console.log("MIOPS(" + self._id + "): position ", self.position);
-                    self.emit("status", self.getStatus());
-                });
-            }, 100);
-        }, 1000);
-    } else {
-        self._movingJoystick = true;
-        self._watchdog = setTimeout(function(){
-            self._sendCommand('stop', {});
-            self._movingJoystick = false;
-        }, 1000);
-    }
+                self._movingJoystick = false;
+                self._sendCommand('stop', {});
+                setTimeout(function(){
+                    self._getPosition(function(err, pos){
+                        callback && callback(err, pos);
+                        console.log("MIOPS(" + self._id + "): position ", self.position);
+                        self.emit("status", self.getStatus());
+                    });
+                }, 100);
+            }, 1000);
+        } else {
+            self._movingJoystick = true;
+            self._watchdog = setTimeout(function(){
+                self._sendCommand('stop', {});
+                self._movingJoystick = false;
+            }, 1000);
+        }
+    });
 }
 
 
 MIOPS.prototype.getOffsetPosition = function() {
-    return this._pos - this._positionOffset;
+    return this._pos - this._positionOffset - this._backlashOffset;
 }
 
 MIOPS.prototype.resetPosition = function(motor, callback) {
@@ -447,11 +483,12 @@ MIOPS.prototype.setPosition = function(motor, position, callback) {
 }
 
 MIOPS.prototype.setBacklash = function(motor, backlash, callback) { // not implemented
+    this._backlash = backlash || 0;
     if (callback) callback(0);
 }
 
 MIOPS.prototype.getBacklash = function(motor, callback) { // not implemented
-    if (callback) callback(0);
+    if (callback) callback(this._backlash || 0);
 }
 
 module.exports = MIOPS;
