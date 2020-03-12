@@ -45,10 +45,10 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var dec = 0.025;
 
 	if(driver == 'NMX') {
-		steps == 600;
+		steps = 600;
 		dec = 12;
 	} else if(driver == 'MC1') {
-		steps == 1000;
+		steps = 1000;
 		dec = 50;
 	}
 
