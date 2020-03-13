@@ -416,7 +416,8 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, ")");
 
     if(self._watchdog) {
-        clearTimeout(this._watchdog);
+        console.log("MIOPS(" + self._id + "): reset timeout");
+        clearTimeout(self._watchdog);
         self._watchdog = null;
     }
     self._takeBacklash(dir, function() {
