@@ -353,15 +353,16 @@ MIOPS.prototype.enable = function(motor) {
 }
 
 MIOPS.prototype._takeBacklash = function(direction, callback) {
-    if(this._lastDirection != 0 && this._lastDirection != direction && this._backlash > 0) {
+    if(this._lastDirection != 0 && this._lastDirection != direction && this._backlash > 0 && this.direction != 0) {
         this._lastDirection = direction;
         if(this._backlashOffset) {
             this._backlashOffset = 0;
         } else {
             this._backlashOffset = this._backlash * direction;
         }
-        this.move(0, this._backlash * direction, callback);
+        this.move(0, this._backlash * direction, callback, true);
     } else {
+        if(direction) this._lastDirection = direction;
         callback && callback();
     }
 }
@@ -417,31 +418,31 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     self._takeBacklash(dir, function() {
         self._sendCommand('constant', {direction: direction, speed: speedVal}, function(err) {
             if(speed != 0) callback(err, self.position);
-        });
 
-        if(self._watchdog) {
-            clearTimeout(this._watchdog);
-            self._watchdog = null;
-        }
-        if(speed == 0) {
-            setTimeout(function(){
-                self._movingJoystick = false;
-                self._sendCommand('stop', {});
+            if(self._watchdog) {
+                clearTimeout(this._watchdog);
+                self._watchdog = null;
+            }
+            if(speed == 0) {
                 setTimeout(function(){
-                    self._getPosition(function(err, pos){
-                        callback && callback(err, pos);
-                        console.log("MIOPS(" + self._id + "): position ", self.position);
-                        self.emit("status", self.getStatus());
-                    });
-                }, 100);
-            }, 1000);
-        } else {
-            self._movingJoystick = true;
-            self._watchdog = setTimeout(function(){
-                self._sendCommand('stop', {});
-                self._movingJoystick = false;
-            }, 1000);
-        }
+                    self._movingJoystick = false;
+                    self._sendCommand('stop', {});
+                    setTimeout(function(){
+                        self._getPosition(function(err, pos){
+                            callback && callback(err, pos);
+                            console.log("MIOPS(" + self._id + "): position ", self.position);
+                            self.emit("status", self.getStatus());
+                        });
+                    }, 100);
+                }, 1000);
+            } else {
+                self._movingJoystick = true;
+                self._watchdog = setTimeout(function(){
+                    self._sendCommand('stop', {});
+                    self._movingJoystick = false;
+                }, 2000);
+            }
+        });
     });
 }
 
