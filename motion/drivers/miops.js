@@ -488,6 +488,7 @@ MIOPS.prototype.setPosition = function(motor, position, callback) {
 
 MIOPS.prototype.setBacklash = function(motor, backlash, callback) { // not implemented
     this._backlash = backlash || 0;
+    console.log("MIOPS(" + self._id + "): set backlash to", backlash);
     if (callback) callback(0);
 }
 
