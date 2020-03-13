@@ -415,14 +415,14 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     if(speed < 0) dir = -1;
     console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, ")");
 
+    if(self._watchdog) {
+        clearTimeout(this._watchdog);
+        self._watchdog = null;
+    }
     self._takeBacklash(dir, function() {
         self._sendCommand('constant', {direction: direction, speed: speedVal}, function(err) {
             if(speed != 0) callback(err, self.position);
 
-            if(self._watchdog) {
-                clearTimeout(this._watchdog);
-                self._watchdog = null;
-            }
             if(speed == 0) {
                 setTimeout(function(){
                     self._movingJoystick = false;
@@ -438,6 +438,7 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
             } else {
                 self._movingJoystick = true;
                 self._watchdog = setTimeout(function(){
+                    console.log("MIOPS(" + self._id + "): stopping joystick by timeout");
                     self._sendCommand('stop', {});
                     self._movingJoystick = false;
                 }, 2000);
