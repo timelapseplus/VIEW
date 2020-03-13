@@ -358,22 +358,24 @@ MIOPS.prototype._takeBacklash = function(direction, callback) {
         if(this._backlashOffset) {
             this._backlashOffset = 0;
         } else {
-            this._backlashOffset = -(this._backlash * direction);
+            this._backlashOffset = this._backlash * direction;
         }
-        this.move(0, this._backlash * direction, callback, null, true);
+        this.move(0, this._backlash * direction, function() {
+            callback && callback(this._backlashOffset);
+        }, null, true);
     } else {
         if(direction) this._lastDirection = direction;
-        callback && callback();
+        callback && callback(0);
     }
 }
 
 MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
+    if(steps == 0) return callback && callback(null, this.getOffsetPosition());
     if(noBacklash) {
         console.log("MIOPS(" + this._id + "): taking up backlash by", steps, "steps");
     } else {
         console.log("MIOPS(" + this._id + "): move by", steps, "steps");
     }
-    if(steps == 0) return callback && callback(null, this.getOffsetPosition());
     var self = this;
     if(self._movingJoystick) self.constantMove(1, 0);
     var target = self._pos + steps;
@@ -382,8 +384,8 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     if(steps > 0) dir = 1;
     if(steps < 0) dir = -1;
     self._moving = true;
-    var doMove = function() {
-        self._sendCommand('moveToStep', {targetStep: target}, function(err) {
+    var doMove = function(offset) {
+        self._sendCommand('moveToStep', {targetStep: target + offset}, function(err) {
             var check = function() {
                 self._getPosition(function(err, pos) {
                     if(lastPos - pos == 0) {
@@ -399,7 +401,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
         });
     }
     if(noBacklash) {
-        doMove();
+        doMove(0);
     } else {
         self._takeBacklash(dir, doMove);
     }
