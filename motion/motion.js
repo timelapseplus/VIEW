@@ -301,7 +301,7 @@ motion.getBacklash = function(driver, motorId, callback) {
 		} else {
 			motion.gm1.getMotorBacklash(motorId, callback);
 		}
-	} else if(driver == "MC1") {
+	} else if(driver == "MC1" || driver == "MC") {
 		motion.mc1.getBacklash(motorId, callback);
 	} else {
 		callback && callback("invalid motion driver: " + driver);
@@ -317,7 +317,7 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
 		} else {
 			motion.gm1.setMotorBacklash(motorId, backlashSteps, callback);
 		}
-	} else if(driver == "MC1") {
+	} else if(driver == "MC1" || driver == "MC") {
 		motion.mc1.setBacklash(motorId, backlashSteps, callback);
 	} else {
 		callback && callback("invalid motion driver: " + driver);

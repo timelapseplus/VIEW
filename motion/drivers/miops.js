@@ -360,19 +360,20 @@ MIOPS.prototype._takeBacklash = function(direction, callback) {
         } else {
             this._backlashOffset = this._backlash * direction;
         }
-        this.move(0, this._backlash * direction, callback, true);
+        this.move(0, this._backlash * direction, callback, null, true);
     } else {
         if(direction) this._lastDirection = direction;
         callback && callback();
     }
 }
 
-MIOPS.prototype.move = function(motor, steps, callback, noBacklash) {
+MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     if(noBacklash) {
         console.log("MIOPS(" + this._id + "): taking up backlash by", steps, "steps");
     } else {
         console.log("MIOPS(" + this._id + "): move by", steps, "steps");
     }
+    if(steps == 0) return callback && callback(null, this.getOffsetPosition());
     var self = this;
     if(self._movingJoystick) self.constantMove(1, 0);
     var target = self._pos + steps;
