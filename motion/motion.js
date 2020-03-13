@@ -171,11 +171,11 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				motion.move(driver, motorId, (steps / 2), function(){
 					if(err) {
 						console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
-						motion.setBacklash(driver, motorId, origBacklash);
+						motion.setBacklash(driver, motorId, origBacklash, true);
 					} else {
 						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
 						motion.saveBacklash(driver, motorId, backlashSteps)
-						motion.setBacklash(driver, motorId, backlashSteps);
+						motion.setBacklash(driver, motorId, backlashSteps, true);
 					}
 					motion.status.calibrating = false;
 					callback && callback(err, backlashSteps);
@@ -188,7 +188,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		origBacklash = backlash || 0;
 		motion.setBacklash(driver, motorId, 0, function(){
 			startCalibration();
-		});
+		}, true);
 	});
 
 }
@@ -308,7 +308,7 @@ motion.getBacklash = function(driver, motorId, callback) {
 	}
 }
 
-motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
+motion.setBacklash = function(driver, motorId, backlashSteps, callback, noSave) {
 	if(driver == "NMX") {
 		motion.nmx.setMotorBacklash(motorId, backlashSteps, callback);
 	} else if(driver == "GM") {
@@ -322,6 +322,7 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback) {
 	} else {
 		callback && callback("invalid motion driver: " + driver);
 	}
+	if(!noSave) motion.saveBacklash(driver, motorId, backlashSteps);
 }
 
 motion.saveBacklash = function(driver, motorId, backlashSteps, callback) {
