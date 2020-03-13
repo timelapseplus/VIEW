@@ -358,7 +358,7 @@ MIOPS.prototype._takeBacklash = function(direction, callback) {
         if(this._backlashOffset) {
             this._backlashOffset = 0;
         } else {
-            this._backlashOffset = this._backlash * direction;
+            this._backlashOffset = -(this._backlash * direction);
         }
         this.move(0, this._backlash * direction, callback, null, true);
     } else {
