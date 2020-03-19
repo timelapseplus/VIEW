@@ -390,6 +390,11 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
                 self._getPosition(function(err, pos) {
                     if(lastPos - pos == 0) {
                         self._moving = false;
+                        if(noBacklash) {
+                            console.log("MIOPS(" + this._id + "): backlash move complete.");
+                        } else {
+                            console.log("MIOPS(" + this._id + "): move complete.");
+                        }
                         callback && callback(err, pos);
                     } else {
                         lastPos = pos;

@@ -1359,7 +1359,12 @@ function runPhoto(isRetry) {
         if (intervalometer.currentProgram.rampMode == "fixed") {
             intervalometer.status.intervalMs = intervalometer.currentProgram.interval * 1000;
             if (intervalometer.status.running && scheduled()) timerHandle = setTimeout(runPhoto, intervalometer.status.intervalMs);
-            setTimeout(motionSyncPulse, camera.lists.getSecondsFromEv(remap('camera.ptp.settings.details').shutter.ev) * 1000 + 1500);
+            var details = remap('camera.ptp.settings.details');
+            var delayMs = intervalometer.status.intervalMs / 2;
+            if(details && details.shutter) {
+                delayMs = camera.lists.getSecondsFromEv(details.shutter.ev) * 1000;
+            }
+            setTimeout(motionSyncPulse, delayMs + 1000);
             captureOptions.calculateEv = false;
             intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
             if(intervalometer.status.hdrCount && intervalometer.status.hdrCount > 1 && intervalometer.status.hdrStops > 0) {
