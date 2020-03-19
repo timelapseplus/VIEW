@@ -286,9 +286,19 @@ MIOPS.prototype._connectBt = function(btPeripheral, callback) {
     });
 }
 
-MIOPS.prototype._getPosition = function(callback) {
+MIOPS.prototype._getPosition = function(callback, tries) {
     var self = this;
+    if(!tries) tries = 0;
+    tries++;
+    var timeoutHandle = setTimeout(function(){
+        if(tries < 3) {
+            self._getPosition(callback); // retry on fail
+        } else {
+            callback && callback("timeout");
+        }
+    }, 1000);
     self._sendCommand('getPos', {}, function(err, pos) {
+        clearTimeout(timeoutHandle);
         callback && callback(err, pos || self.position);
     });
 }
@@ -391,9 +401,9 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
                     if(lastPos - pos == 0) {
                         self._moving = false;
                         if(noBacklash) {
-                            console.log("MIOPS(" + this._id + "): backlash move complete.");
+                            console.log("MIOPS(" + self._id + "): backlash move complete.");
                         } else {
-                            console.log("MIOPS(" + this._id + "): move complete.");
+                            console.log("MIOPS(" + self._id + "): move complete.");
                         }
                         callback && callback(err, pos);
                     } else {
