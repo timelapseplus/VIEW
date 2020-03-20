@@ -28,6 +28,7 @@ function MIOPS(id) {
     this._stepsPerMM = 10000000 / 866;
     this._backlash = 0;
     this._lastDirection = 0;
+    this._offsetDirection = 0;
     this._backlashOffset = 0;
     this._commandIndex = 1;
     this._movingJoystick = false,
@@ -239,6 +240,7 @@ MIOPS.prototype._connectBt = function(btPeripheral, callback) {
                                         self._watchdog = null;
                                         self._commandIndex = 1;
                                         self._lastDirection = 0;
+                                        self._offsetDirection = 0;
                                         self._backlashOffset = 0;
                                         self._notifyCh.on('data', function(data, isNotification) {
                                             self._parseIncoming(data);
@@ -365,18 +367,27 @@ MIOPS.prototype.enable = function(motor) {
     this._enabled = true;
 }
 
-MIOPS.prototype._takeBacklash = function(direction, callback) {
+MIOPS.prototype._takeBacklash = function(direction, callback, noMove) {
     if(!direction) direction = 0;
     if(this._lastDirection != 0 && this._lastDirection != direction && this._backlash > 0 && this.direction != 0) {
         this._lastDirection = direction;
-        if(this._backlashOffset) {
-            this._backlashOffset = 0;
-        } else {
-            this._backlashOffset = this._backlash * direction;
+        if(this._offsetDirection == 0) {
+            this._offsetDirection = direction;
         }
-        this.move(0, this._backlash * direction, function() {
-            callback && callback(this._backlashOffset);
-        }, null, true);
+        if(this._offsetDirection == direction) {
+            this._backlashOffset = this._backlash * direction;
+        } else {
+            this._backlashOffset = 0;
+        }
+        console.log("MIOPS(" + this._id + "): using backlash offset of", this._backlashOffset, "steps");
+        if(noMove) {
+            callback && callback();
+        } else {
+            var self = this;
+            this.move(0, this._backlash * direction, function() {
+                callback && callback();
+            }, null, true);
+        }
     } else {
         if(direction) this._lastDirection = direction;
         callback && callback(0);
@@ -396,10 +407,9 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     if(steps > 0) dir = 1;
     if(steps < 0) dir = -1;
     self._moving = true;
-    var doMove = function(offset) {
+    var doMove = function() {
         var target = self._pos + steps;
         var lastPos = self._pos;
-        if(!offset) offset = 0;
         self._sendCommand('moveToStep', {targetStep: target}, function(err) {
             var check = function() {
                 self._getPosition(function(err, pos) {
@@ -408,7 +418,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
                         if(noBacklash) {
                             console.log("MIOPS(" + self._id + "): backlash move complete.");
                         } else {
-                            console.log("MIOPS(" + self._id + "): move complete.  POS:", pos, "TARGET:", target, "OFFSET:", offset);
+                            console.log("MIOPS(" + self._id + "): move complete.  POS:", pos, "TARGET:", target, "OFFSET:", self._backlashOffset);
                         }
                         callback && callback(err, pos);
                     } else {
@@ -421,7 +431,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
         });
     }
     if(noBacklash) {
-        doMove(0);
+        doMove();
     } else {
         self._takeBacklash(dir, doMove);
     }
@@ -468,7 +478,7 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
                 }, 2000);
             }
         });
-    });
+    }, true); // don't do backlash move, only track direction and offset
 }
 
 
