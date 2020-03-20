@@ -381,11 +381,11 @@ MIOPS.prototype._takeBacklash = function(direction, callback, noMove) {
         }
         console.log("MIOPS(" + this._id + "): using backlash offset of", this._backlashOffset, "steps");
         if(noMove) {
-            callback && callback();
+            callback && callback(0);
         } else {
             var self = this;
             this.move(0, this._backlash * direction, function() {
-                callback && callback(this._backlashOffset);
+                callback && callback(self._backlashOffset);
             }, null, true);
         }
     } else {
