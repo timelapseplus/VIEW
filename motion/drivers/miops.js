@@ -392,15 +392,15 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     }
     var self = this;
     if(self._movingJoystick) self.constantMove(1, 0);
-    var target = self._pos + steps;
-    var lastPos = self._pos;
     var dir = 0;
     if(steps > 0) dir = 1;
     if(steps < 0) dir = -1;
     self._moving = true;
     var doMove = function(offset) {
+        var target = self._pos + steps;
+        var lastPos = self._pos;
         if(!offset) offset = 0;
-        self._sendCommand('moveToStep', {targetStep: target + offset}, function(err) {
+        self._sendCommand('moveToStep', {targetStep: target}, function(err) {
             var check = function() {
                 self._getPosition(function(err, pos) {
                     if(lastPos - pos == 0) {
@@ -408,7 +408,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
                         if(noBacklash) {
                             console.log("MIOPS(" + self._id + "): backlash move complete.");
                         } else {
-                            console.log("MIOPS(" + self._id + "): move complete.  POS:", pos, "TARGET:", target);
+                            console.log("MIOPS(" + self._id + "): move complete.  POS:", pos, "TARGET:", target, "OFFSET:", offset);
                         }
                         callback && callback(err, pos);
                     } else {
