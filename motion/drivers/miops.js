@@ -385,7 +385,7 @@ MIOPS.prototype._takeBacklash = function(direction, callback, noMove) {
         } else {
             var self = this;
             this.move(0, this._backlash * direction, function() {
-                callback && callback();
+                callback && callback(this._backlashOffset);
             }, null, true);
         }
     } else {
@@ -407,10 +407,10 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     if(steps > 0) dir = 1;
     if(steps < 0) dir = -1;
     self._moving = true;
-    var doMove = function() {
-        var target = self._pos + steps;
-        var lastPos = self._pos;
-        self._sendCommand('moveToStep', {targetStep: target}, function(err) {
+    var target = self._pos + steps;
+    var lastPos = self._pos;
+    var doMove = function(offset) {
+        self._sendCommand('moveToStep', {targetStep: target + offset}, function(err) {
             var check = function() {
                 self._getPosition(function(err, pos) {
                     if(lastPos - pos == 0) {
@@ -431,7 +431,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
         });
     }
     if(noBacklash) {
-        doMove();
+        doMove(0);
     } else {
         self._takeBacklash(dir, doMove);
     }
@@ -446,7 +446,7 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     var dir = 0;
     if(speed > 0) dir = 1;
     if(speed < 0) dir = -1;
-    console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, ")");
+    console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, dir, ")");
 
     if(self._watchdog) {
         console.log("MIOPS(" + self._id + "): reset timeout");
