@@ -292,11 +292,14 @@ MIOPS.prototype._getPosition = function(callback, tries) {
     tries++;
     var timeoutHandle = setTimeout(function(){
         if(tries < 3) {
+            console.log("MIOPS(" + self._id + "): retrying failed pos request...");
             self._getPosition(callback); // retry on fail
         } else {
+            console.log("MIOPS(" + self._id + "): ERROR: position request failed after 3 tries");
             callback && callback("timeout");
+            callback = null;
         }
-    }, 1000);
+    }, 500);
     self._sendCommand('getPos', {}, function(err, pos) {
         clearTimeout(timeoutHandle);
         callback && callback(err, pos || self.position);
@@ -363,6 +366,7 @@ MIOPS.prototype.enable = function(motor) {
 }
 
 MIOPS.prototype._takeBacklash = function(direction, callback) {
+    if(!direction) direction = 0;
     if(this._lastDirection != 0 && this._lastDirection != direction && this._backlash > 0 && this.direction != 0) {
         this._lastDirection = direction;
         if(this._backlashOffset) {
@@ -395,6 +399,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
     if(steps < 0) dir = -1;
     self._moving = true;
     var doMove = function(offset) {
+        if(!offset) offset = 0;
         self._sendCommand('moveToStep', {targetStep: target + offset}, function(err) {
             var check = function() {
                 self._getPosition(function(err, pos) {
@@ -403,7 +408,7 @@ MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
                         if(noBacklash) {
                             console.log("MIOPS(" + self._id + "): backlash move complete.");
                         } else {
-                            console.log("MIOPS(" + self._id + "): move complete.");
+                            console.log("MIOPS(" + self._id + "): move complete.  POS:", pos, "TARGET:", target);
                         }
                         callback && callback(err, pos);
                     } else {
