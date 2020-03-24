@@ -153,10 +153,10 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
         if(self._callbacks[cbIndex.toString()]) {
             self._callbacks[cbIndex.toString()] = null;
             if(tries > 3) {
-                console.log('MIOPS(' + self._id + '): ALERT: command failed:', command, ", retrying...");
+                console.log('MIOPS(' + self._id + '): ALERT: command failed:', command, ", retrying... CB = ", cbIndex);
                 return callback && callback("timeout");
             } else {
-                console.log('MIOPS(' + self._id + '): ERROR: command failed:', retryData.command, ", giving up.");
+                console.log('MIOPS(' + self._id + '): ERROR: command failed:', command, ", giving up. CB = ", cbIndex);
                 return self._sendCommand(command, args, callback, tries + 1);
             }
         }
@@ -195,7 +195,7 @@ MIOPS.prototype._parseIncoming = function(data) {
         if(tagName) {
             var tagData = readBufInt(data, index, len);
             index += len;
-            if(tagName == 'index' && tagData) { // we ignore zero
+            if(tagName == 'index') { // we ignore zero
                 console.log('MIOPS(' + self._id + '): callback for #', tagData.toString());
                 callbackData = self._callbacks[tagData.toString()];
                 if(self._callbacks[tagData.toString()]) clearTimeout(self._callbacks[tagData.toString()].timer);
