@@ -62,9 +62,9 @@ driver.supportedCameras = {
     '054c:0c2a': { name: "Sony A9",       supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500, newISO: false } },
     '054c:0c33': { name: "Sony A7R III",  supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500, newISO: false } },
     '054c:0c34': { name: "Sony A7 III",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500, newISO: false } },
+    '054c:0caa': { name: "Sony A6400",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 3000, newISO: false } },
     '054c:0ccc': { name: "Sony A7R IV",   supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true, _bufTime: 2500, newISO: true } },
 }
-
 
 var properties = {
     'shutter': {
