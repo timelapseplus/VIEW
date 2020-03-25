@@ -309,6 +309,7 @@ motion.getBacklash = function(driver, motorId, callback) {
 }
 
 motion.setBacklash = function(driver, motorId, backlashSteps, callback, noSave) {
+	if(!motorId) motorId = 1;
 	if(driver == "NMX") {
 		motion.nmx.setMotorBacklash(motorId, backlashSteps, callback);
 	} else if(driver == "GM") {
@@ -322,17 +323,19 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback, noSave) 
 	} else {
 		callback && callback("invalid motion driver: " + driver);
 	}
+
 	if(!noSave) motion.saveBacklash(driver, motorId, backlashSteps);
 }
 
 motion.saveBacklash = function(driver, motorId, backlashSteps, callback) {
+	if(!motorId) motorId = 1;
 	db.set(driver + motorId + '-backlash', backlashSteps, callback);
 }
 
 motion.loadBacklash = function(driver, motorId, callback) {
 	db.get(driver + motorId + '-backlash', function(err, backlashSteps) {
 		if(!err && backlashSteps != null) {
-			motion.setBacklash(driver, motorId, backlashSteps, callback);
+			motion.setBacklash(driver, motorId, backlashSteps, callback, true);
 		} else {
 			callback && callback(err);
 		}
@@ -398,8 +401,8 @@ motion.loadBacklash("NMX", 2);
 motion.loadBacklash("NMX", 3);
 motion.loadBacklash("GM", 1);
 motion.loadBacklash("GM", 2);
-motion.loadBacklash("CB", 1);
-motion.loadBacklash("MC", 1);
+motion.loadBacklash("CB1", 1);
+motion.loadBacklash("MC1", 1);
 
 motion.nmx.on('status', function(status) {
     updateStatus()
