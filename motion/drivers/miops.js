@@ -393,8 +393,8 @@ MIOPS.prototype._backlashCorrection = function(targetPos) {
     }
 
     this._backlashOffset -= move * this._offsetDirection;
-    if(Math.abs(this._backlashOffset) > this._backlash) this._backlashOffset = this._backlash * this._offsetDirection;
-    if(this._backlashOffset * this._offsetDirection < 0) this._backlashOffset = 0;
+    if(Math.abs(this._backlashOffset) > this._backlash) this._backlashOffset = this._backlash * -this._offsetDirection;
+    if(-this._backlashOffset * this._offsetDirection < 0) this._backlashOffset = 0;
 
     console.log("MIOPS(" + this._id + "): using backlash offset of", this._backlashOffset, "steps (moved", move, "steps)");
 
