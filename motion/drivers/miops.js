@@ -188,7 +188,7 @@ MIOPS.prototype._runCallback = function(id, err, data) {
     this._busy = false;
     console.log('MIOPS(' + this._id + '): callback for #', id);
     if(this._callbacks[id.toString()]) {
-        clearTimeout(self._callbacks[id.toString()].timer);
+        clearTimeout(this._callbacks[id.toString()].timer);
         this._callbacks[id.toString()].callback && this._callbacks[id.toString()].callback(err, data);
         this._callbacks[id.toString()] = null;
     }
