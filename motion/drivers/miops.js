@@ -459,7 +459,7 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     var self = this;
     var range = 10000 - 1001;
     var direction = speed < 0 ? 0 : 1;
-    var speedVal = Math.abs(speed / 100) * range + 1001;
+    var speedVal = Math.abs(speed / 100) * range + 1000;
     console.log("MIOPS(" + this._id + "): moving motor at speed ", speed, "% (", speedVal, direction, ")");
 
     if(self._watchdog) {
