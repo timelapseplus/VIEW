@@ -110,6 +110,13 @@ util.inherits(MIOPS, EventEmitter);
 MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
     var self = this;
     if(!tries) tries = 0;
+
+    if(tries == 0 && self._busy) { // don't send new command if we are waiting for a response
+        setTimeout(function() {
+            self._sendCommand(command, args, callback);
+        });
+    }
+
     var cmd = COMMANDS[command];
     if(!cmd) {
         console.log('MIOPS(' + self._id + '): error invalid command:', command);
@@ -151,14 +158,14 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
 
     var timerHandle = setTimeout(function() {
         if(self._callbacks[cbIndex.toString()]) {
-            self._callbacks[cbIndex.toString()] = null;
             if(tries > 3) {
-                console.log('MIOPS(' + self._id + '): ALERT: command failed:', command, ", retrying... CB = ", cbIndex);
-                return callback && callback("timeout");
-            } else {
                 console.log('MIOPS(' + self._id + '): ERROR: command failed:', command, ", giving up. CB = ", cbIndex);
-                return self._sendCommand(command, args, callback, tries + 1);
+                self._runCallback(cbIndex, "timeout");
+            } else {
+                console.log('MIOPS(' + self._id + '): ALERT: command failed:', command, ", retrying... CB = ", cbIndex);
+                self._sendCommand(command, args, callback, tries + 1);
             }
+            self._callbacks[cbIndex.toString()] = null;
         }
     }, 1000);
 
@@ -166,6 +173,7 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
         callback: callback,
         timer: timerHandle,
     }
+    self._busy = true;
     console.log('MIOPS(' + self._id + '): sending command:', buf);
     self._cmdCh.write(buf, true, function(err) {
         if(err) {
@@ -176,6 +184,16 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
     });
 }
 
+MIOPS.prototype._runCallback = function(id, err, data) {
+    this._busy = false;
+    console.log('MIOPS(' + this._id + '): callback for #', tagData.toString());
+    if(this._callbacks[tagData.toString()]) {
+        clearTimeout(self._callbacks[tagData.toString()].timer);
+        this._callbacks[tagData.toString()].callback && this._callbacks[tagData.toString()].callback(err, data);
+        this._callbacks[tagData.toString()] = null;
+    }
+}
+
 MIOPS.prototype._parseIncoming = function(data) {
     var self = this;
     if(!data || data.length < 5 || data.readUInt8(0) != 0x00) return; // chunk0
@@ -183,7 +201,7 @@ MIOPS.prototype._parseIncoming = function(data) {
     var res = RESPONSES[data.readUInt8(2)];
     if(!res) return;
     var index = 3;
-    var callbackData = null;
+    var callbackId = null;
     var dataCB = null;
     console.log('MIOPS(' + self._id + '): data received:', data);
     while(index < data.length - 1) {
@@ -195,11 +213,8 @@ MIOPS.prototype._parseIncoming = function(data) {
         if(tagName) {
             var tagData = readBufInt(data, index, len);
             index += len;
-            if(tagName == 'index') { // we ignore zero
-                console.log('MIOPS(' + self._id + '): callback for #', tagData.toString());
-                callbackData = self._callbacks[tagData.toString()];
-                if(self._callbacks[tagData.toString()]) clearTimeout(self._callbacks[tagData.toString()].timer);
-                self._callbacks[tagData.toString()] = null;
+            if(tagName == 'index') {
+                callbackId = tagData.toString();
             } else {
                 dataCB = tagData;
                 console.log('MIOPS(' + self._id + '): value received:', dataCB, "for tag", tagName);
@@ -214,7 +229,7 @@ MIOPS.prototype._parseIncoming = function(data) {
             continue;
         }
     }
-    callbackData && callbackData.callback && callbackData.callback(null, dataCB);
+    if(callbackId != null) self._runCallback(callbackId, null, dataCB);
 }
 
 
