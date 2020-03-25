@@ -111,10 +111,10 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
     var self = this;
     if(!tries) tries = 0;
 
-    if(tries == 0 && self._busy) { // don't send new command if we are waiting for a response
+    if(tries == 0 && self._busy && command != 'stop') { // don't send new command if we are waiting for a response, but prioritize 'stop'
         return setTimeout(function() {
             self._sendCommand(command, args, callback);
-        });
+        }, 100);
     }
 
     var cmd = COMMANDS[command];
