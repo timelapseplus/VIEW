@@ -186,11 +186,11 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
 
 MIOPS.prototype._runCallback = function(id, err, data) {
     this._busy = false;
-    console.log('MIOPS(' + this._id + '): callback for #', tagData.toString());
-    if(this._callbacks[tagData.toString()]) {
-        clearTimeout(self._callbacks[tagData.toString()].timer);
-        this._callbacks[tagData.toString()].callback && this._callbacks[tagData.toString()].callback(err, data);
-        this._callbacks[tagData.toString()] = null;
+    console.log('MIOPS(' + this._id + '): callback for #', id);
+    if(this._callbacks[id.toString()]) {
+        clearTimeout(self._callbacks[id.toString()].timer);
+        this._callbacks[id.toString()].callback && this._callbacks[id.toString()].callback(err, data);
+        this._callbacks[id.toString()] = null;
     }
 }
 
