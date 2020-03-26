@@ -175,7 +175,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 					} else {
 						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
 						motion.saveBacklash(driver, motorId, backlashSteps)
-						motion.setBacklash(driver, motorId, backlashSteps, true);
+						motion.setBacklash(driver, motorId, backlashSteps, null, true);
 					}
 					motion.status.calibrating = false;
 					callback && callback(err, backlashSteps);
