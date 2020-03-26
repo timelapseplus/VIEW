@@ -140,7 +140,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		});
 	}
 
-	var doCycle = function(cb) {
+	var doCycleDown = function(cb) {
 		tries++;
 		var moveRight = function(cb2) { checkMove(1, cb2); }
 		var moveLeft = function(cb2) { checkMove(-1, cb2); }
@@ -156,7 +156,29 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 					return cb("too much motion interference, failed to find backlash value");
 				}
 				if(motion.status.calibrating) {
-					setTimeout(function(){doCycle(cb)});
+					setTimeout(function(){doCycleDown(cb)});
+				} else {
+					return cb("calibration cancelled");
+				}
+			}
+		});
+	}
+	var doCycleUp = function(cb) {
+		tries++;
+		var moveRight = function(cb2) { checkMove(1, cb2); }
+		var moveLeft = function(cb2) { checkMove(-1, cb2); }
+		async.series([moveRight, moveLeft], function(err, results) {
+			if(err) return cb(err);
+			var moved = results[0] || results[1];
+			if(moved) {
+				return cb(null, steps - (dec / 4));
+			} else {
+				steps += dec / 4;
+				if(tries > 4) {
+					return cb(null, steps);
+				}
+				if(motion.status.calibrating) {
+					setTimeout(function(){doCycleUp(cb)});
 				} else {
 					return cb("calibration cancelled");
 				}
@@ -166,21 +188,29 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 
 	var startCalibration = function() {
 		motion.status.calibrating = true;
+		var finishCal = function(err, backlashSteps) {
+			motion.move(driver, motorId, (steps / 2), function(){
+				if(err) {
+					console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
+					motion.setBacklash(driver, motorId, origBacklash, null, true);
+				} else {
+					console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
+					motion.saveBacklash(driver, motorId, backlashSteps)
+					motion.setBacklash(driver, motorId, backlashSteps, null, true);
+				}
+				motion.status.calibrating = false;
+				callback && callback(err, backlashSteps);
+			});
+		}
 		motion.move(driver, motorId, -(steps / 2), function(){
-			doCycle(function(err, backlashSteps){
-				motion.move(driver, motorId, (steps / 2), function(){
-					if(err) {
-						console.log("calibration failed for", driver, "motor", motorId, ". Error:", err);
-						motion.setBacklash(driver, motorId, origBacklash, null, true);
-					} else {
-						console.log("calibration complete for", driver, "motor", motorId, ". Backlash steps:", backlashSteps);
-						motion.saveBacklash(driver, motorId, backlashSteps)
-						motion.setBacklash(driver, motorId, backlashSteps, null, true);
-					}
-					motion.status.calibrating = false;
-					callback && callback(err, backlashSteps);
-				})
-			})
+			doCycleDown(function(err, backlashSteps){
+				if(err) {
+					finishCal(err, backlashSteps);
+				} else {
+					tries = 0;
+					doCycleUp(finishCal);
+				}
+			});
 		});
 	}
 
