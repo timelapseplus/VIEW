@@ -174,7 +174,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				return cb(null, steps - (dec / 4));
 			} else {
 				steps += dec / 4;
-				if(tries > 4) {
+				if(tries > 7) {
 					return cb(null, steps);
 				}
 				if(motion.status.calibrating) {
