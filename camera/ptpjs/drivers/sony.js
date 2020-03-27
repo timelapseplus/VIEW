@@ -891,12 +891,12 @@ driver.set = function(camera, param, value, callback, tries) {
                                 //    return cb(err);
                                 //}
                             } else {
-                                _logE("error setting " + ptp.hex(getCode(camera, properties[param].code)) + ": " + err);
+                                _logE("error setting (shift) " + ptp.hex(getCode(camera, properties[param].code)) + ": " + err);
                                 return cb(err);
                             }
                         });
                     } else {
-                        _logD("setFunction:", getCode(camera, properties[param].code), "=>", cameraValue);
+                        _logD("setFunction:", ptp.hex(getCode(camera, properties[param].code)), "=>", cameraValue);
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), cameraValue, function(err) {
                             if(!err) {
                                 if(properties[param].ev) {
@@ -1071,14 +1071,14 @@ driver.capture = function(camera, target, options, callback, tries) {
     camera.busyCapture = true;
     async.series([
         function(cb){ // make sure focus is set to MF
-            if(!camera.config || !camera.config.focusMode || camera.config.focusMode.value == 'mf') {
+            if(!camera.config || !camera.config.focusMode || camera.config.focusMode.value == 'mf' || camera.config.focusMode.name == 'UNKNOWN') {
                 cb();
             } else {
                 driver.set(camera, 'focusMode', 'MF', cb);
             }
         },
         function(cb){ // make sure drive mode is single shot
-            if(!camera.config || !camera.config.driveMode || camera.config.driveMode.value == 'single') {
+            if(!camera.config || !camera.config.driveMode || camera.config.driveMode.value == 'single' || camera.config.driveMode.name == 'UNKNOWN') {
                 cb();
             } else {
                 driver.set(camera, 'driveMode', 'single', cb);

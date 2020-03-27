@@ -167,7 +167,7 @@ MIOPS.prototype._sendCommand = function(command, args, callback, tries) {
             }
             self._callbacks[cbIndex.toString()] = null;
         }
-    }, 1000);
+    }, (command == 'moveToStep' ? 2000 : 1000));
 
     self._callbacks[cbIndex.toString()] = {
         callback: callback,
