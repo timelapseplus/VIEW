@@ -947,6 +947,13 @@ function startScan() {
           //status = motion.nmx.getStatus();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.mc1.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected MC1, bluetooth powered off");
+          motion.mc1.disconnect();
+          //status = motion.nmx.getStatus();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 //function startScan() {
