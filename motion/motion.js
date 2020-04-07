@@ -48,7 +48,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 		steps = 600;
 		dec = 12;
 	} else if(driver == 'MC1') {
-		steps = 1000;
+		steps = 2000;
 		dec = 50;
 	}
 
