@@ -954,6 +954,13 @@ function startScan() {
           //status = motion.nmx.getStatus();
           sendEvent('motion.status', motion.status);
         }
+        var status = motion.mc2.getStatus();
+        if(status.connected && status.connectionType == "bt") {
+          console.log("CORE: disconnected MC2, bluetooth powered off");
+          motion.mc2.disconnect();
+          //status = motion.nmx.getStatus();
+          sendEvent('motion.status', motion.status);
+        }
     }
 }
 //function startScan() {
@@ -1101,7 +1108,13 @@ function btDiscover(peripheral) {
         btConnecting = true;
         motion.mc1.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected) stopScan();
+           if(connected && motion.mc2.connected) stopScan();
+        });
+    } else if((peripheral && peripheral.advertisement && peripheral.advertisement.localName && peripheral.advertisement.localName.substr(0, 7) == 'CAPSULE') && !motion.mc2.connected) { // all types should be updated to this check
+        btConnecting = true;
+        motion.mc2.connect(peripheral, function(connected) {
+          btConnecting = false;
+           if(connected && motion.mc1.connected) stopScan();
         });
     }
 

@@ -33,6 +33,7 @@ motion.gm2 = new GenieMini(2);
 motion.rs1 = new RoninS(1);
 motion.cb1 = new CB(1);
 motion.mc1 = new MIOPS(1);
+motion.mc2 = new MIOPS(2);
 
 motion.cancelCalibration = function(driver, motorId, callback) {
 	motion.status.calibrating = false;
@@ -234,6 +235,8 @@ motion.move = function(driver, motorId, steps, callback) {
 		motion.cb1.move(motorId, steps, callback);
 	} else if(driver == "MC1") {
 		motion.mc1.move(motorId, steps, callback);
+	} else if(driver == "MC2") {
+		motion.mc2.move(motorId, steps, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.move(motorId, steps, callback);
@@ -256,6 +259,8 @@ motion.joystick = function(driver, motorId, speed, callback) {
 		motion.cb1.constantMove(motorId, speed, callback);
 	} else if(driver == "MC1") {
 		motion.mc1.constantMove(motorId, speed, callback);
+	} else if(driver == "MC2") {
+		motion.mc2.constantMove(motorId, speed, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.constantMove(motorId, speed, callback);
@@ -278,6 +283,8 @@ motion.zero = function(driver, motorId, callback) {
 		motion.cb1.setPosition(motorId, 0, callback);
 	} else if(driver == "MC1") {
 		motion.mc1.setPosition(motorId, 0, callback);
+	} else if(driver == "MC2") {
+		motion.mc2.setPosition(motorId, 0, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.resetMotorPosition(motorId, callback);
@@ -300,6 +307,8 @@ motion.setPosition = function(driver, motorId, position, callback) {
 		motion.cb1.setPosition(motorId, position, callback);
 	} else if(driver == "MC1") {
 		motion.mc1.setPosition(motorId, position, callback);
+	} else if(driver == "MC2") {
+		motion.mc2.setPosition(motorId, position, callback);
 	} else if(driver == "GM") {
 		if(motorId == 2) {
 			motion.gm2.setMotorPosition(motorId, position, callback);
@@ -331,8 +340,10 @@ motion.getBacklash = function(driver, motorId, callback) {
 		} else {
 			motion.gm1.getMotorBacklash(motorId, callback);
 		}
-	} else if(driver == "MC1" || driver == "MC") {
+	} else if(driver == "MC1" || (driver == "MC" && motorId == 1)) {
 		motion.mc1.getBacklash(motorId, callback);
+	} else if(driver == "MC2" || (driver == "MC" && motorId == 2)) {
+		motion.mc2.getBacklash(motorId, callback);
 	} else {
 		callback && callback("invalid motion driver: " + driver);
 	}
@@ -348,7 +359,9 @@ motion.setBacklash = function(driver, motorId, backlashSteps, callback, noSave) 
 		} else {
 			motion.gm1.setMotorBacklash(motorId, backlashSteps, callback);
 		}
-	} else if(driver == "MC1" || driver == "MC") {
+	} else if(driver == "MC1" || (driver == "MC" && motorId == 1)) {
+		motion.mc1.setBacklash(motorId, backlashSteps, callback);
+	} else if(driver == "MC2" || (driver == "MC" && motorId == 2)) {
 		motion.mc1.setBacklash(motorId, backlashSteps, callback);
 	} else {
 		callback && callback("invalid motion driver: " + driver);
@@ -393,11 +406,12 @@ function updateStatus() {
 	var rs1Status = motion.rs1.getStatus();
 	var cb1Status = motion.cb1.getStatus();
 	var mc1Status = motion.mc1.getStatus();
+	var mc2Status = motion.mc2.getStatus();
 
-    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected);
+    var available = (nmxStatus.connected || gm1Status.connected || gm2Status.connected || st4.connected || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected || motion.mc2.connected) && (nmxStatus.motor1 || nmxStatus.motor2 || nmxStatus.motor2 || gm1Status.motor1 || gm2Status.motor1 || st4.connected || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected || motion.mc2.connected);
     var motors = [];
 
-	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected, ", CB1:", cb1Status.connected, ", MC1:", mc1Status.connected);
+	console.log("motion.status: " , available, ", NMX: ", nmxStatus.connected, ", GM1:", gm1Status.connected, ", GM2:", gm2Status.connected, ", ST4:", st4Status.connected, ", RS1:", rs1Status.connected, ", CB1:", cb1Status.connected, ", MC1:", mc1Status.connected, ", MC2:", mc2Status.connected);
 
     motors.push({driver:'NMX', motor:1, connected:nmxStatus.motor1 && nmxStatus.connected, position:nmxStatus.motor1pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor1backlash});
     motors.push({driver:'NMX', motor:2, connected:nmxStatus.motor2 && nmxStatus.connected, position:nmxStatus.motor2pos, unit: 'steps', orientation: null, backlash: nmxStatus.motor2backlash});
@@ -412,6 +426,7 @@ function updateStatus() {
     motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.reportedTilt, unit: '°', orientation: 'tilt', backlash: 0});
     motors.push({driver:'CB1', motor:1, connected:cb1Status.connected, position:cb1Status.position, unit: 's', orientation: 'slide', backlash: 0});
     motors.push({driver:'MC1', motor:1, connected:mc1Status.connected, position:mc1Status.position, unit: 's', orientation: 'slide', backlash: mc1Status.backlash});
+    motors.push({driver:'MC2', motor:1, connected:mc2Status.connected, position:mc2Status.position, unit: 's', orientation: 'slide', backlash: mc2Status.backlash});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),
@@ -423,7 +438,7 @@ function updateStatus() {
 	    motion.emit('status', motion.status);
     }
     lastStatus = motion.status;
-    lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected) || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected;
+    lastStatus.reloadBt = (nmxStatus.connectionType == 'bt' && nmxStatus.connected) || (gm1Status.connectionType == 'bt' && gm1Status.connected) || (gm2Status.connectionType == 'bt' && gm2Status.connected) || motion.rs1.connected || motion.cb1.connected || motion.mc1.connected || motion.mc2.connected;
 }
 
 motion.loadBacklash("NMX", 1);
@@ -433,6 +448,7 @@ motion.loadBacklash("GM", 1);
 motion.loadBacklash("GM", 2);
 motion.loadBacklash("CB1", 1);
 motion.loadBacklash("MC1", 1);
+motion.loadBacklash("MC2", 2);
 
 motion.nmx.on('status', function(status) {
     updateStatus()
@@ -453,6 +469,9 @@ motion.cb1.on('status', function(status) {
 	updateStatus()
 });
 motion.mc1.on('status', function(status) {
+	updateStatus()
+});
+motion.mc2.on('status', function(status) {
 	updateStatus()
 });
 
