@@ -998,8 +998,9 @@ function startScan() {
 //    }
 //}
 
-function stopScan() {
-    console.log("CORE: stopping BLE scan");
+function stopScan(reason) {
+  if(!reason) reason = "unknown";
+    console.log("CORE: stopping BLE scan (reason: " + reason + ")");
     clearScanTimeouts();
     //noble.stopScanning();
     btleScanning = false;
@@ -1076,45 +1077,45 @@ function btDiscover(peripheral) {
         btConnecting = true;
         motion.rs1.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected) stopScan();
+           if(connected) stopScan("RS1 connected");
         });
     } else if(matchServices(peripheral, motion.cb1.btServiceIds) && !motion.cb1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.cb1.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected) stopScan();
+           if(connected) stopScan("CB1 connected");
         });
     } else if(matchServices(peripheral, motion.gm1.btServiceIds) && !motion.gm1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.gm1.connect(peripheral, function(connected) {
           var status = motion.gm1.getStatus();
           btConnecting = false;
-           if(status.connected && motion.gm2.connected) stopScan();
+           if(status.connected && motion.gm2.connected) stopScan("GM1 & GM2 connected");
         });
     } else if(matchServices(peripheral, motion.gm2.btServiceIds) && !motion.gm2.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.gm2.connect(peripheral, function(connected) {
           var status = motion.gm2.getStatus();
           btConnecting = false;
-           if(status.connected && motion.gm1.connected) stopScan();
+           if(status.connected && motion.gm1.connected) stopScan("GM2 & GM1 connected");
         });
     } else if(matchServices(peripheral, motion.nmx.btServiceIds) && !motion.nmx.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.nmx.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected) stopScan();
+           if(connected) stopScan("NMX connected");
         });
     } else if((peripheral && peripheral.advertisement && peripheral.advertisement.localName && peripheral.advertisement.localName.substr(0, 7) == 'CAPSULE') && !motion.mc1.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.mc1.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected && motion.mc2.connected) stopScan();
+           if(connected && motion.mc2.connected) stopScan("MC1 & MC2 connected");
         });
     } else if((peripheral && peripheral.advertisement && peripheral.advertisement.localName && peripheral.advertisement.localName.substr(0, 7) == 'CAPSULE') && !motion.mc2.connected) { // all types should be updated to this check
         btConnecting = true;
         motion.mc2.connect(peripheral, function(connected) {
           btConnecting = false;
-           if(connected && motion.mc1.connected) stopScan();
+           if(connected && motion.mc1.connected) stopScan("MC2 & MC1 connected");
         });
     }
 
@@ -1152,7 +1153,7 @@ motion.st4.connect();
 motion.on('status', function(status) {
     sendEvent('motion.status', status);
     if (status.available && btleScanning) {
-        stopScan();
+        //stopScan();
     } else {
         //wifi.resetBt(function(){
             if(!btleScanning) startScan();
