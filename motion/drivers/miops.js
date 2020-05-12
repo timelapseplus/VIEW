@@ -493,7 +493,6 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
     });
 }
 
-
 MIOPS.prototype.getOffsetPosition = function() {
     return this._pos - this._positionOffset - this._backlashOffset;
 }
@@ -505,7 +504,7 @@ MIOPS.prototype.resetPosition = function(motor, callback) {
         if(self._moving || self._movingJoystick) {
             setTimeout(check, 200); // keep checking until stop
         } else {
-            self._positionOffset = self._pos;
+            self._positionOffset = self._pos - this._backlashOffset;
             self.position = self.getOffsetPosition();
             self.emit("status", self.getStatus());
             if (callback) callback();
@@ -521,7 +520,7 @@ MIOPS.prototype.setPosition = function(motor, position, callback) {
         if(self._moving || self._movingJoystick) {
             setTimeout(check, 200); // keep checking until stop
         } else {
-            self._positionOffset = self._pos - position;
+            self._positionOffset = self._pos - (position - this._backlashOffset);
             self.position = self.getOffsetPosition();
             self.emit("status", self.getStatus());
             if (callback) callback();
