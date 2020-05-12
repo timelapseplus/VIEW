@@ -93,6 +93,17 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02e6': {
+            name: "Fuji X-T4",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
     '04cb:02d3': {
             name: "Fuji GFX 50S",
             supports: {
