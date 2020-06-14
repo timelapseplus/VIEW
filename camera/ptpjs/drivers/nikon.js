@@ -82,6 +82,7 @@ driver.supportedCameras = {
     '04b0:0441': { name: "Nikon D850",  status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
     '04b0:0442': { name: "Nikon Z 7",   status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04b0:0443': { name: "Nikon Z 6",   status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0446': { name: "Nikon D780",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
