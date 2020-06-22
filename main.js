@@ -2995,8 +2995,12 @@ if (VIEW_HARDWARE) {
                 type: "textInput",
                 value: wifi.apPass,
                 onSave: function(result) {
-                    db.set('wifi-ap-pass', result);
-                    wifi.setApPass(result);
+                    if(result && result.length >= 8) {
+                        db.set('wifi-ap-pass', result);
+                        wifi.setApPass(result);
+                    } else {
+                        ui.alert('ERROR', "WiFi password must be at least 8 characters long. Password was not saved, please try again.");
+                    }
                 }
             });
         }
