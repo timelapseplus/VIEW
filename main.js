@@ -3000,6 +3000,7 @@ if (VIEW_HARDWARE) {
                         wifi.setApPass(result);
                     } else {
                         ui.alert('ERROR', "WiFi password must be at least 8 characters long. Password was not saved, please try again.");
+                        ui.alert('ERROR', "WiFi password must be at least 8 characters long. Password was not saved, please try again.");
                     }
                 }
             });
