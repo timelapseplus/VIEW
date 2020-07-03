@@ -1984,6 +1984,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                     if(delayedMinutes * 60 >= program.delay) {
                                                         if(intervalometer.status.exposureReferenceEv != null && (!program.scheduled || autoExposureTarget != null)) {
                                                             autoSetExposure(intervalometer.status.exposureReferenceEv, function(err) {
+                                                                intervalometer.status.startTime = new Date() / 1000; // update start time to now (important for keyframes)
                                                                 if(err) {
                                                                     error("Failed to verify reference exposure after delayed start, will try to continue anyway...");
                                                                     logErr("failed to verify reference exposure after delayed start")
@@ -1993,6 +1994,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                                 }
                                                             });
                                                         } else {
+                                                            intervalometer.status.startTime = new Date() / 1000; // update start time to now (important for keyframes)
                                                             runPhoto();
                                                         }
                                                     } else {
