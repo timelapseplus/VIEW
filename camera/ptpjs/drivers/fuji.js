@@ -60,6 +60,17 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02e4': {
+            name: "Fuji X-Pro3",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
     '04cb:02cd': {
             name: "Fuji X-T2",
             supports: {
