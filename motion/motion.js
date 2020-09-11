@@ -425,8 +425,8 @@ function updateStatus() {
     motors.push({driver:'RS1', motor:1, connected:motion.rs1.connected, position:motion.rs1.reportedPan, unit: '°', orientation: 'pan', backlash: 0});
     motors.push({driver:'RS1', motor:2, connected:motion.rs1.connected, position:motion.rs1.reportedTilt, unit: '°', orientation: 'tilt', backlash: 0});
     motors.push({driver:'CB1', motor:1, connected:cb1Status.connected, position:cb1Status.position, unit: 's', orientation: 'slide', backlash: 0});
-    motors.push({driver:'MC1', motor:1, connected:mc1Status.connected, position:mc1Status.position, unit: 's', orientation: 'slide', backlash: mc1Status.backlash});
-    motors.push({driver:'MC2', motor:1, connected:mc2Status.connected, position:mc2Status.position, unit: 's', orientation: 'slide', backlash: mc2Status.backlash});
+    motors.push({driver:'MC1', motor:1, connected:mc1Status.connected, position:mc1Status.position, unit: 's', orientation: motion.mc1.rotary ? 'pan' : 'slide', backlash: mc1Status.backlash});
+    motors.push({driver:'MC2', motor:1, connected:mc2Status.connected, position:mc2Status.position, unit: 's', orientation: motion.mc2.rotary ? 'pan' : 'slide', backlash: mc2Status.backlash});
     motion.status = {
     	nmxConnectedBt: nmxStatus.connected ? 1 : 0,
     	gmConnectedBt: (gm1Status.connected ? 1 : 0) + (gm2Status.connected ? 1 : 0),

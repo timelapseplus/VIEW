@@ -34,6 +34,8 @@ function MIOPS(id) {
     this._commandIndex = 1;
     this._movingJoystick = false,
     this._callbacks = {}
+    this.rotary = false;
+    this.slide = false;
 }
 
 var COMMANDS = {
@@ -281,10 +283,20 @@ MIOPS.prototype._connectBt = function(btPeripheral, callback) {
                                         self._offsetDirection = 0;
                                         self._lastPos = null;
                                         self._backlashOffset = 0;
+
+
+                                        if(btPeripheral.advertisement && btPeripheral.advertisement.localName && btPeripheral.advertisement.localName.substr(0, 10) == "CAPSULE360") {
+                                            self.rotary = true;
+                                            self.slide = false;
+                                        } else {
+                                            self.rotary = false;
+                                            self.slide = true;
+                                        }
+
                                         self._notifyCh.on('data', function(data, isNotification) {
                                             self._parseIncoming(data);
                                         });
-                                        console.log("MIOPS(" + self._id + "): connected!", btPeripheral);
+                                        console.log("MIOPS(" + self._id + "): connected!");//, btPeripheral);
                                         self._init();
                                         if (callback) callback(true);
                                         callback = null;
