@@ -217,7 +217,7 @@ var getTimelapseImages = function(clipNumber, startFrame, limitFrames, hq, callb
 
                     function getTimelapseImage(index, cb) {
                         index++;
-                        indexString = index.toString();
+                        var indexString = index.toString();
                         while (indexString.length < 5) indexString = "0" + indexString;
                         fs.readFile(folder + "/img" + indexString + ".jpg", function(err, jpegData) {
                             cb(null, err ? null : jpegData);

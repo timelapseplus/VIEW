@@ -1915,7 +1915,7 @@ function getc2c3( )
 // Get the observational circumstances
 function observational( circumstances )
 {
-  var contacttype, coslat, sinla;
+  var contacttype, coslat, sinlat;
 
   // We are looking at an "external" contact UNLESS this is a total solar eclipse AND we are looking at
   // c2 or c3, in which case it is an INTERNAL contact! Note that if we are looking at maximum eclipse,
@@ -2142,7 +2142,7 @@ function observational( circumstances )
     var siderealTime = 280.46061837 + (360.98564736629 * jd2000) + (0.000387933 * st2) - (st3 / 38710000.0);
     siderealTime += DeltaPsi * Math.cos(epsilon * D2R);
     siderealTime = rev(siderealTime);
-    localSiderealTime = siderealTime - (obsvconst[1] * R2D);
+    var localSiderealTime = siderealTime - (obsvconst[1] * R2D);
     localSiderealTime = rev(localSiderealTime);
 //    var salpha = localSiderealTime - (sha * R2D);
 //    salpha = rev(salpha);
@@ -2226,7 +2226,7 @@ function observational( circumstances )
     // Optical libration in longitude
     var A = Math.atan2((Math.sin(W) * Math.cos(gMoonData.beta) * Math.cos(I)) - (Math.sin(gMoonData.beta) * Math.sin(I)), Math.cos(W) * Math.cos(gMoonData.beta));
     A = revrad(A);
-    l = A - F;
+    var l = A - F;
     // Optical libration in latitude
     var b = Math.asin((-Math.sin(W) * Math.cos(gMoonData.beta) * Math.sin(I)) - (Math.sin(gMoonData.beta) * Math.cos(I)));
     // Physical libration in longitude
@@ -2709,7 +2709,7 @@ function modifiedCoordinates( which )
 
 function changeEclipse()
 {
-  if ( location.search.length > 1 )
+  if (location && location.search.length > 1 )
   {
     location.search = ""; // Clear the url => reload the page with default values
     var Eclipse = "20080801";
@@ -2796,7 +2796,7 @@ function getdate( circumstances )
 // Get the UT date of an event
 function getnumUTdate( circumstances, numDate )
 {
-  var index, jd, a, b, c, d, e;
+  var index, jd, a, b, c, d, e, t;
 
   index = obsvconst[6];
   // JD for noon (TDT) the day before the day that contains T0
@@ -3481,6 +3481,7 @@ function getdia_sunmoon( circumstances, type )
 
 function elevationRefraction( elv_geometric )
 {
+  var refraction;
   if ( elv_geometric > 10.2 )
     refraction = 0.01617 * Math.cos(elv_geometric * D2R) / Math.sin(elv_geometric * D2R);
   else

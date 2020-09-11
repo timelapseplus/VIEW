@@ -1,5 +1,5 @@
 var EventEmitter = require("events").EventEmitter;
-var exec = require('child_process').exec;
+//var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
@@ -8,15 +8,15 @@ var image = require('camera/image/image.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
-var async = require('async');
+//var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
 var gpio = require('linux-gpio');
 var aux2out = require('node-aux2out');
-var _ = require('underscore');
+//var _ = require('underscore');
 //var suncalc = require('suncalc');
 var meeus = require('meeusjs');
-var eclipse = require('intervalometer/eclipse.js');
+//var eclipse = require('intervalometer/eclipse.js');
 var moment = require('moment');
 
 var AUXTIP_OUT = 111;
@@ -367,8 +367,6 @@ function logEvent() {
 var timerHandle = null;
 var delayHandle = null;
 
-var rate = 0;
-
 intervalometer.autoSettings = {
     paddingTimeMs: 2000
 }
@@ -497,8 +495,6 @@ function getDetails(file) {
     return d;
 }
 
-var startShutterEv = -1;
-
 function calculateIntervalMs(interval, currentEv) {
     var dayEv = 8;
     var nightEv = -2;
@@ -540,7 +536,7 @@ function doKeyframeAxis(axisName, keyframes, setupFirst, interpolationMethod, po
             }
 
             var totalSeconds = 0;
-            kfPoints = keyframes.map(function(kf) {
+            var kfPoints = keyframes.map(function(kf) {
                 return {
                     x: kf.seconds,
                     y: kf.position || 0
@@ -656,7 +652,7 @@ function processKeyframes(setupFirst, callback) {
                         var steps = Math.abs(focus);
                         remap('camera.ptp.focus')(dir, steps, function() {
                             var model = remap('camera.ptp.model');
-                            if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                            if((model && model.match(/fuji/i)) || intervalometer.status.useLiveview) {
                                 checkDone('focus');
                             } else {
                                 setTimeout(function(){
@@ -673,7 +669,7 @@ function processKeyframes(setupFirst, callback) {
                     intervalometer.status.focusDiffNew = 0;
                     if(focus) {
                         var model = remap('camera.ptp.model');
-                        if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                        if((model && model.match(/fuji/i)) || intervalometer.status.useLiveview) {
                             doFocus();
                         } else {
                             remap('camera.ptp.preview')(function() {
@@ -918,7 +914,7 @@ function processKeyframes(setupFirst, callback) {
                     var steps = Math.abs(focus);
                     remap('camera.ptp.focus')(dir, steps, function() {
                         var model = remap('camera.ptp.model');
-                        if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                        if((model && model.match(/fuji/i)) || intervalometer.status.useLiveview) {
                             checkDone('focus-update');
                         } else {
                             setTimeout(function(){
@@ -934,7 +930,7 @@ function processKeyframes(setupFirst, callback) {
                 if(intervalometer.status.focusDiffNew) {
                     intervalometer.status.focusDiffNew = 0;
                     var model = remap('camera.ptp.model');
-                    if(model && model.match(/fuji/i) || intervalometer.status.useLiveview) {
+                    if((model && model.match(/fuji/i)) || intervalometer.status.useLiveview) {
                         doFocus(intervalometer.status.focusDiffNew);
                     } else {
                         remap('camera.ptp.preview')(function() {
@@ -1908,10 +1904,10 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                         intervalometer.status.useLiveview = false;
                         var oldDriverUseLiveview = (camera.ptp.model && camera.ptp.model.match(/nikon/i) && 
                                                                         !camera.ptp.model.match(/ Z /i)) && 
-                                        (((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual" || camera.ptp.model.match(/D850/i))) || 
+                                        (((camera.ptp.settings.afmode && camera.ptp.settings.afmode != "manual") || camera.ptp.model.match(/D850/i)) || 
                                             (camera.ptp.settings.viewfinder && camera.ptp.settings.viewfinder != "off"));
                         var newDriverUseLiveview = (camera.ptp.new.available && camera.ptp.new.model && camera.ptp.new.model.match(/nikon/i) && !camera.ptp.new.model.match(/ Z /i)) && 
-                                            (((camera.ptp.new.cameras[0].camera.config.focusMode && camera.ptp.new.cameras[0].camera.config.focusMode.value != "mf" || camera.ptp.new.model.match(/D850/i))) || 
+                                            (((camera.ptp.new.cameras[0].camera.config.focusMode && camera.ptp.new.cameras[0].camera.config.focusMode.value != "mf") || camera.ptp.new.model.match(/D850/i)) || 
                                                 (camera.ptp.new.cameras[0].camera.status.liveview));
                         if(oldDriverUseLiveview || newDriverUseLiveview) {
                             if(oldDriverUseLiveview) {
@@ -2123,7 +2119,7 @@ intervalometer.addGpsData = function(gpsData, callback) {
 function dynamicChangeUpdate() {
     if(intervalometer.status.dynamicChange) {
         var change = false;
-        for(param in intervalometer.status.dynamicChange) {
+        for(var param in intervalometer.status.dynamicChange) {
             if(intervalometer.status.dynamicChange.hasOwnProperty(param) && intervalometer.status.dynamicChange[param]) {
                 var item = intervalometer.status.dynamicChange[param];
                 var newVal = interpolate.linear([{
@@ -2267,7 +2263,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
 
 intervalometer.updateProgram = function(updates, callback) {
     log("Intervalometer: updateProgram:", updates);
-    for(key in updates) {
+    for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
             intervalometer.currentProgram[key] = updates[key];
         }

@@ -350,7 +350,7 @@ core.resetBt = function(callback) {
     call('bt.reset', {}, callback);
 };
 
-defaultProgram = {
+var defaultProgram = {
     rampMode: "fixed",
     lrtDirection: "auto",
     intervalMode: "fixed",
@@ -404,7 +404,7 @@ core.moveFocus = function(steps, callback) {
 
 core.updateProgram = function(updates, callback) {
     call('intervalometer.updateProgram', {updates:updates}, callback);
-    for(key in updates) {
+    for(var key in updates) {
         if(updates.hasOwnProperty(key)) {
             core.currentProgram[key] = updates[key];
         }

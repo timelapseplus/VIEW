@@ -47,7 +47,7 @@ exposure.prototype.setEv = function(ev) {
     var sEv = this.usingShutter ? LISTS.longestShutter().ev : this.shutterEv;
     var iEv = this.usingIso ? LISTS.lowestISO().ev : this.isoEv;
 
-    if (this.bulbMode) sEv = LISTS.(ev - LISTS.getEv(sEv, aEv, iEv));
+    //if (this.bulbMode) sEv = LISTS.(ev - LISTS.getEv(sEv, aEv, iEv)); // not implemented yet
     if (this.usingShutter && !this.bulbMode) sEv = this._valueShift(ev - LISTS.getEv(sEv, aEv, iEv), 'iso');
     if (this.usingAperture) aEv = this._valueShift(ev - LISTS.getEv(sEv, aEv, iEv), 'iso');
     if (this.usingIso) iEv = this._valueShift(ev - LISTS.getEv(sEv, aEv, iEv), 'iso');
