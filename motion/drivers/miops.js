@@ -284,7 +284,7 @@ MIOPS.prototype._connectBt = function(btPeripheral, callback) {
                                         self._notifyCh.on('data', function(data, isNotification) {
                                             self._parseIncoming(data);
                                         });
-                                        console.log("MIOPS(" + self._id + "): connected!");
+                                        console.log("MIOPS(" + self._id + "): connected!", btPeripheral);
                                         self._init();
                                         if (callback) callback(true);
                                         callback = null;
