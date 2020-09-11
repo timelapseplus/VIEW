@@ -297,7 +297,7 @@ var server = net.createServer(function(c) {
         parseData(piece, c);
       }
     } catch(e) {
-      console.log("failed parsing", data, "piece:", piece, e);
+      console.log("SERVER: failed parsing ===================\n", data, "piece:", piece, e, "stack trace: ", e.stack,  "\n========================================");
     }
   });
   c.on('end', function() {
