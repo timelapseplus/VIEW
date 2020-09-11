@@ -204,9 +204,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     aperture: base.aperture,
                     iso: base.iso,
                     lists: {
-                        shutter: base.shutter.list,
-                        aperture: base.aperture.list,
-                        iso: base.iso.list
+                        shutter: base.shutter ? base.shutter.list : [],
+                        aperture: base.aperture ? base.aperture.list : [],
+                        iso: base.iso ? base.iso.list : []
                     }
                 }
             } else {
@@ -236,9 +236,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     aperture: base.aperture,
                     iso: base.iso,
                     lists: {
-                        shutter: base.shutter.list,
-                        aperture: base.aperture.list,
-                        iso: base.iso.list
+                        shutter: base.shutter ? base.shutter.list : [],
+                        aperture: base.aperture ? base.aperture.list : [],
+                        iso: base.iso ? base.iso.list : []
                     }
                 }
             } else {
@@ -1870,12 +1870,12 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
                     motionSyncSetup();
 
-                    if(intervalometer.currentProgram.coords) {
+                    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != NULL && intervalometer.currentProgram.coords.lon != NULL && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
                         intervalometer.status.latitude = intervalometer.currentProgram.coords.lat;
                         intervalometer.status.longitude = intervalometer.currentProgram.coords.lon;
                         intervalometer.status.altitude = intervalometer.currentProgram.coords.alt;
             
-                        var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt);
+                        var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt || 0);
                         intervalometer.status.sunPos = {
                             azimuth: sunmoon.sunpos.az,
                             altitude: sunmoon.sunpos.alt,
@@ -1946,12 +1946,14 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                         var cameras = 1, primary = 1;
                         if(camera.ptp.synchronized || (camera.ptp.new.available && camera.ptp.new.cameras.length > 1)) {
                             if(camera.ptp.new.available) {
-                                cameras = 1; //camera.ptp.new.cameras.length;
-                                primary = 1;
+                                cameras = camera.ptp.new.cameras.length;
+                                primary = camera.ptp.new.primaryIndex;
                                 try {
-                                    camera.ptp.new.setExposure(camera.ptp.new.cameras[0].camera.exposure.shutter.ev, camera.ptp.new.cameras[0].camera.exposure.aperture && camera.ptp.new.cameras[0].camera.exposure.aperture.ev, camera.ptp.new.cameras[0].camera.exposure.iso.ev);
+                                    camera.ptp.new.setExposure(camera.ptp.new.cameras[primary].camera.exposure.shutter.ev, camera.ptp.new.cameras[primary].camera.exposure.aperture && camera.ptp.new.cameras[primary].camera.exposure.aperture.ev, camera.ptp.new.cameras[primary].camera.exposure.iso.ev);
                                 } catch(e) {
-                                    logErr("sync: error setting exposure:", e);
+                                    var sh_err = camera.ptp.new.cameras[primary] && camera.ptp.new.cameras[primary].camera && camera.ptp.new.cameras[primary].camera.exposure && camera.ptp.new.cameras[primary].camera.exposure.shutter ? camera.ptp.new.cameras[primary].camera.exposure.shutter.ev : "NULL";
+                                    var iso_err = camera.ptp.new.cameras[primary] && camera.ptp.new.cameras[primary].camera && camera.ptp.new.cameras[primary].camera.exposure && camera.ptp.new.cameras[primary].camera.exposure.iso ? camera.ptp.new.cameras[primary].camera.exposure.iso.ev : "NULL";
+                                    logErr("sync: error setting exposure:", e, e.stack, "\n\tcamera.ptp.new.cameras[primary].camera.exposure.shutter.ev: " + sh_err + "\n\tcamera.ptp.new.cameras[primary].camera.exposure.iso.ev: " + iso_err);
                                 }
                             } else {
                                 cameras = camera.ptp.count;
