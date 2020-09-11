@@ -342,6 +342,7 @@ function ensurePrimary() {
 		}
 		api.cameras = cameras;
 	}
+	api.primaryIndex = primaryIndex;
 }
 
 function getPrimary() {
@@ -349,6 +350,8 @@ function getPrimary() {
 		if(api.cameras[i].primary) return api.cameras[i];
 	}
 }
+
+api.getPrimary = getPrimary;
 
 api.setPrimaryCamera = function(cameraIndex) {
 	for(var i = 0; i < api.cameras.length; i++) {
