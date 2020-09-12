@@ -434,6 +434,7 @@ MIOPS.prototype._backlashCorrection = function(targetPos) {
 }
  
 MIOPS.prototype.move = function(motor, steps, callback, empty, noBacklash) {
+    steps = self.convertToSteps(steps);
     if(steps == 0) return callback && callback(null, this.getOffsetPosition());
     if(noBacklash) {
         console.log("MIOPS(" + this._id + "): taking up backlash by", steps, "steps");
@@ -506,7 +507,17 @@ MIOPS.prototype.constantMove = function(motor, speed, callback) {
 }
 
 MIOPS.prototype.getOffsetPosition = function() {
-    return this._pos - this._positionOffset - this._backlashOffset;
+    var div = 1;
+    if(this.rotary) div = this._stepsPerDegree;
+    if(this.slide) div = this._stepsPerMM;
+    return (this._pos - this._positionOffset - this._backlashOffset) / div;
+}
+
+MIOPS.prototype.convertToSteps = function(position) {
+    var steps = 1;
+    if(this.rotary) steps = this._stepsPerDegree;
+    if(this.slide) steps = this._stepsPerMM;
+    return position * steps;
 }
 
 MIOPS.prototype.resetPosition = function(motor, callback) {
@@ -527,6 +538,7 @@ MIOPS.prototype.resetPosition = function(motor, callback) {
 
 MIOPS.prototype.setPosition = function(motor, position, callback) {
     var self = this;
+    position = self.convertToSteps(position);
     if(!motor) return callback && callback();
     var check = function() {
         if(self._moving || self._movingJoystick) {
