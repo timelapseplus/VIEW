@@ -1870,7 +1870,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
                     motionSyncSetup();
 
-                    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != NULL && intervalometer.currentProgram.coords.lon != NULL && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
+                    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
                         intervalometer.status.latitude = intervalometer.currentProgram.coords.lat;
                         intervalometer.status.longitude = intervalometer.currentProgram.coords.lon;
                         intervalometer.status.altitude = intervalometer.currentProgram.coords.alt;
