@@ -805,13 +805,15 @@ camera.ptp.on('histogram', function(data) {
   sendEvent('camera.histogram', data);
 });
 intervalometer.on('photo', function() {
-  setTimeout(function() {
-    var obj = {
-      base64: new Buffer(intervalometer.lastImage).toString('base64'),
-      type: 'thumbnail'
-    };
-    sendEvent('camera.photo', obj);
-  });
+  if(intervalometer.lastImage) {
+    setTimeout(function() {
+      var obj = {
+        base64: new Buffer(intervalometer.lastImage).toString('base64'),
+        type: 'thumbnail'
+      };
+      sendEvent('camera.photo', obj);
+    });
+  }
 });
 intervalometer.on('histogram', function(data) {
   sendEvent('camera.histogram', data);

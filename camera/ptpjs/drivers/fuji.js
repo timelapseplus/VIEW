@@ -417,12 +417,14 @@ driver.refresh = function(camera, callback) {
                                 _logD(key, "=", currentMapped.name);
                                 camera[properties[key].category][key] = ptp.objCopy(currentMapped, {});
                                 var mappedList = [];
-                                for(var i = 0; i < list.length; i++) {
-                                    var mappedItem = mapPropertyItem(list[i], properties[key].values);
-                                    if(!mappedItem) {
-                                        _logE(key, "list item not found:", list[i]);
-                                    } else {
-                                        mappedList.push(mappedItem);
+                                if(list) {
+                                    for(var i = 0; i < list.length; i++) {
+                                        var mappedItem = mapPropertyItem(list[i], properties[key].values);
+                                        if(!mappedItem) {
+                                            _logE(key, "list item not found:", list[i]);
+                                        } else {
+                                            mappedList.push(mappedItem);
+                                        }
                                     }
                                 }
                                 camera[properties[key].category][key].list = mappedList;
