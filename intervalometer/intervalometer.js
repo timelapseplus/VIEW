@@ -627,7 +627,7 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    if(intervalometer.currentProgram.coords) {
+    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
         var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt);
         var sunPos = {
             azimuth: sunmoon.sunpos.az,
