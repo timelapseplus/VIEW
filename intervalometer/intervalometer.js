@@ -627,7 +627,7 @@ function processKeyframes(setupFirst, callback) {
         }
     }
 
-    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
+    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && !isNaN(intervalometer.currentProgram.coords.lat) && !isNaN(intervalometer.currentProgram.coords.lon)) {
         var sunmoon = meeus.sunmoon(new Date(), intervalometer.currentProgram.coords.lat, intervalometer.currentProgram.coords.lon, intervalometer.currentProgram.coords.alt);
         var sunPos = {
             azimuth: sunmoon.sunpos.az,
@@ -1870,7 +1870,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
 
                     motionSyncSetup();
 
-                    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && intervalometer.currentProgram.coords.lat != NaN && intervalometer.currentProgram.coords.lon != NaN) {
+                    if(intervalometer.currentProgram.coords && intervalometer.currentProgram.coords.lat != null && intervalometer.currentProgram.coords.lon != null && !isNaN(intervalometer.currentProgram.coords.lat) && !isNaN(intervalometer.currentProgram.coords.lon)) {
                         intervalometer.status.latitude = intervalometer.currentProgram.coords.lat;
                         intervalometer.status.longitude = intervalometer.currentProgram.coords.lon;
                         intervalometer.status.altitude = intervalometer.currentProgram.coords.alt;
