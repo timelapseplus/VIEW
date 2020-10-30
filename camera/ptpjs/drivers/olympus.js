@@ -49,6 +49,7 @@ driver.supportsNativeHDR = true;
 
 driver.supportedCameras = {
     '07b4:0130': { name: "Olympus OM-D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '07b4:0135': { name: "Olympus OM-D M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '07b4:012f': { name: "Olympus OM-D M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 0x7b4,0x12f
@@ -62,9 +63,9 @@ var properties = {
         code: 0xD01C,
         ev: true,
         values: [
-            { name: "LIVETIME", ev: null,        code:  4294967293 },
-            { name: "bulb",     ev: null,        code:  4294967292 },
-            { name: "LIVECOMP", ev: null,        code:  4294967290 },
+            { name: "LIVETIME", ev: null,       code:  4294967293 },
+            { name: "bulb",     ev: null,       code:  4294967292 },
+            { name: "LIVECOMP", ev: null,       code:  4294967290 },
             { name: "60s",     ev: -11,         code:  39321610  },
             { name: "50s",     ev: -11,         code:  32768010  },
             { name: "40s",     ev: -11,         code:  26214410  },
