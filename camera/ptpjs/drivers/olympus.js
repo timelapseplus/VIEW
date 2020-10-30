@@ -48,11 +48,11 @@ function exposureEvent(camera) {
 driver.supportsNativeHDR = true;
 
 driver.supportedCameras = {
-    '07b4:0130': { name: "Olympus OM-D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '07b4:0135': { name: "Olympus OM-D M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '07b4:012f': { name: "Olympus OM-D M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '07b4:0130': { name: "Olympus OM-D",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '07b4:0135': { name: "Olympus OM-D E-M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '07b4:012f': { name: "Olympus OM-D E-M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
-0x7b4,0x12f
+
 var properties = {
     'shutter': {
         name: 'shutter',
