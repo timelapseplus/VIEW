@@ -339,7 +339,7 @@ var intervalometer = new EventEmitter();
 
 intervalometer.db = db;
 
-intervalometer.enableLogging = false;
+intervalometer.enableLogging = true;
 
 function log() {
     if(!intervalometer.enableLogging) return;
