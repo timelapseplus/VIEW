@@ -47,13 +47,13 @@ driver.supportedCameras = {
     '04a9:3145': {name: "Canon EOS Rebel XSi",      status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3146': {name: "Canon EOS 40D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:317b': {name: "Canon EOS 1000D",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:3199': {name: "Canon EOS 5D Mark II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:3199': {name: "Canon EOS 5D II",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:319a': {name: "Canon EOS 7D",             status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:319b': {name: "Canon EOS 50D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:31cf': {name: "Canon EOS 500D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:31cf': {name: "Canon EOS Kiss X3",        status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:31cf': {name: "Canon EOS Rebel T1i",      status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:31d0': {name: "Canon EOS 1D Mark IV",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:31d0': {name: "Canon EOS 1D IV",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:31ea': {name: "Canon EOS 550D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3215': {name: "Canon EOS 60D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3217': {name: "Canon EOS 1100D",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
@@ -61,19 +61,19 @@ driver.supportedCameras = {
     '04a9:3218': {name: "Canon EOS 600D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3218': {name: "Canon Rebel T3i",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3219': {name: "Canon EOS 1D X",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:323a': {name: "Canon EOS 5D Mark III",    status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:323a': {name: "Canon EOS 5D III",         status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:323b': {name: "Canon EOS 650D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:323b': {name: "Canon Rebel T4i",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3250': {name: "Canon EOS 6D",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3252': {name: "Canon EOS 1D C",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3253': {name: "Canon EOS 70D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:326f': {name: "Canon EOS 7D MarkII",      status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
+    '04a9:326f': {name: "Canon EOS 7D II",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
     '04a9:3270': {name: "Canon EOS 100D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3272': {name: "Canon EOS 700D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:327f': {name: "Canon EOS 1200D",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3280': {name: "Canon EOS 760D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:3281': {name: "Canon EOS 5D Mark IV",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
-    '04a9:3292': {name: "Canon EOS 1D X MarkII",    status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
+    '04a9:3281': {name: "Canon EOS 5D IV",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
+    '04a9:3292': {name: "Canon EOS 1D X II",        status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
     '04a9:3294': {name: "Canon EOS 80D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:3295': {name: "Canon EOS 5DS",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3.0' },
     '04a9:3299': {name: "Canon EOS M3",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
@@ -83,14 +83,15 @@ driver.supportedCameras = {
     '04a9:32b4': {name: "Canon EOS 1300D",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32bb': {name: "Canon EOS M5",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Micro-B' },
     '04a9:32c9': {name: "Canon EOS Rebel T7i",      status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
-    '04a9:32ca': {name: "Canon EOS 6d Mark II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
+    '04a9:32ca': {name: "Canon EOS 6d II",          status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32cb': {name: "Canon EOS 77D",            status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32cc': {name: "Canon EOS 200D",           status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'Mini-B' },
     '04a9:32d2': {name: "Canon EOS M50",            status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', },
     '04a9:32da': {name: "Canon EOS R",              status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', flags: {rawThumbBug:true} },
     '04a9:32e2': {name: "Canon EOS RP",             status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '04a9:32e8': {name: "Canon EOS 1D X MarkIII",   status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04a9:32e8': {name: "Canon EOS 1D X III",       status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04a9:32f4': {name: "Canon EOS R5",             status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04a9:32f5': {name: "Canon EOS R6",             status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
@@ -904,13 +905,13 @@ function getImage(camera, timeout, callback) {
                             _logE("error fetching thumbnail:", ptp.hex(err));
                         }
                         //fs.writeFile("thm.jpg", jpeg);
-                        if(camera.config.destination.name == 'VIEW') {
-                            ptp.deleteObject(camera._dev, objectId, function() {
-                                callback && callback(err, results);
-                            });
-                        } else {
+                        //if(camera.config.destination.name == 'VIEW') {
+                        //    ptp.deleteObject(camera._dev, objectId, function() {
+                        //        callback && callback(err, results);
+                        //    });
+                        //} else {
                             callback && callback(err, results);
-                        }
+                        //}
                     });
                 } else {
                     ptp.getObject(camera._dev, objectId, function(err, image) {
