@@ -222,7 +222,7 @@ st4.getPosition = function(callback) {
 			if(parts && parts.length > 1) {
 				var movingSet = parts[0];
 				var locationSet = parts[1].split(',');
-				if(movingSet && movingSet.length == 4 && locationSet && locationSet.length == 4 && ) {
+				if(movingSet && movingSet.length == 4 && locationSet && locationSet.length == 4) {
 					st4.status.motor1moving = parseInt(movingSet.substring(0, 1)) > 0;
 					st4.status.motor2moving = parseInt(movingSet.substring(1, 2)) > 0;
 					st4.status.motor3moving = parseInt(movingSet.substring(2, 3)) > 0;
