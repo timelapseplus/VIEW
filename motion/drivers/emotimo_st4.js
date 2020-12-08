@@ -23,7 +23,7 @@ st4.status = {
 	moveStarted: false
 }
 
-var logLevel = 1;
+var logLevel = 0;
 
 function _logD() {
 	if(logLevel < 1) return;

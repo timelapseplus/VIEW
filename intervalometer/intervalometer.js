@@ -339,7 +339,7 @@ var intervalometer = new EventEmitter();
 
 intervalometer.db = db;
 
-intervalometer.enableLogging = true;
+intervalometer.enableLogging = false;
 
 function log() {
     if(!intervalometer.enableLogging) return;
@@ -699,7 +699,7 @@ function processKeyframes(setupFirst, callback) {
                     if (move && parts.length == 2) {
                         var driver = parts[0];
                         var motor = parseInt(parts[1]);
-                        log("KF: Moving " + axisName + " by " + move + " steps");
+                        logE("KF: Moving " + axisName + " by " + move + " steps");
                         if (motion.status.available) {
                             var connected = false;
                             for(var index = 0; index < motion.status.motors.length; index++) {
@@ -789,7 +789,7 @@ function processKeyframes(setupFirst, callback) {
                         if(motor.stepsPerDegree > 100) {
                             panSteps = Math.round(panSteps);
                         }
-                        log("Intervalometer: tracking pan", panDegrees, intervalometer.status.trackingPan, panSteps, intervalometer.status.frames);
+                        logE("Intervalometer: tracking pan", panDegrees, intervalometer.status.trackingPan, panSteps, intervalometer.status.frames);
                         motion.move(motor.driver, motor.motor, panSteps * motor.direction, function() {
                             intervalometer.status.trackingPan += panSteps / motor.stepsPerDegree;
                             checkDone('tracking');
@@ -813,7 +813,7 @@ function processKeyframes(setupFirst, callback) {
                         if(motor.stepsPerDegree > 100) {
                             tiltSteps = Math.round(tiltSteps);
                         }
-                        log("Intervalometer: tracking tilt", tiltDegrees, intervalometer.status.trackingTilt, tiltSteps, intervalometer.status.frames);
+                        logE("Intervalometer: tracking tilt", tiltDegrees, intervalometer.status.trackingTilt, tiltSteps, intervalometer.status.frames);
                         motion.move(motor.driver, motor.motor, tiltSteps * motor.direction, function() {
                             intervalometer.status.trackingTilt += tiltSteps / motor.stepsPerDegree;
                             checkDone('tracking');
@@ -848,21 +848,21 @@ function processKeyframes(setupFirst, callback) {
 
             var setupTracking = function(speed, _motor) {
                 var moveBack = function(cb) {
-                    log("Intervalometer: polar: moving back", "(motor", _motor.motor, ")");
+                    logE("Intervalometer: polar: moving back", "(motor", _motor.motor, ")");
                     motion.move(_motor.driver, _motor.motor, (intervalometer.internal.polarStart - currentPolarPos) + (backlashAmount * -polarDirection), function(err) {
-                        if(err) log("Intervalometer: polar: err:", err);                        
+                        if(err) logErr("Intervalometer: polar: err:", err);                        
                         setTimeout(cb);
                     });
                 }
                 var moveStart = function(cb) {
-                    log("Intervalometer: polar: moving to start");
+                    logE("Intervalometer: polar: moving to start");
                     motion.move(_motor.driver, _motor.motor, backlashAmount * polarDirection, function(err) {
-                        if(err) log("Intervalometer: polar: err:", err);
+                        if(err) logErr("Intervalometer: polar: err:", err);
                         setTimeout(cb);
                     });
                 }
                 var startTracking = function() {
-                    log("Intervalometer: polar: moving tracking...");
+                    logE("Intervalometer: polar: moving tracking...");
                     if(intervalometer.status.running) intervalometer.internal.polarTrackIntervalHandle = setInterval(function(){
                         log("Intervalometer: polar: continuing tracking...");
                         motion.joystick(_motor.driver, _motor.motor, speed + 1000);
