@@ -61,7 +61,7 @@ UILOGFILE="/var/log/view-ui-$DATE.txt"
 CORELOGFILE="/var/log/view-core-$DATE.txt"
 cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
-prepend_date() { while read line; do echo $(date +%Y%m%d-%H%M%S) $line; done }
+prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
 echo "starting UI...";
 forever -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOGFILE &
 sleep 35
