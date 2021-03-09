@@ -427,7 +427,7 @@ var properties = {
         getFunction: null,
         listFunction: null,
         listWorks: false,
-        code: 0xD25A,
+        code: 0xD222,
         typeCode: 1,
         ev: false,
         values: [
