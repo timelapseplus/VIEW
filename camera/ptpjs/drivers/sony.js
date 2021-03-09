@@ -417,7 +417,7 @@ var properties = {
             { name: "Application",    value: 'app', code: 1  },
             { name: "Camera",         value: 'cam', code: 0  },
         ]
-    }
+    },
     'storageMode': {
         name: 'priorityMode',
         category: 'config',
