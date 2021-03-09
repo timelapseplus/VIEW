@@ -707,7 +707,7 @@ driver.init = function(camera, callback) {
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x2, 0x0, 0x0], null, cb);}, // PC mode
             function(cb){ptp.transaction(camera._dev, 0x9202, [0xC8], null, cb);}, // Receive events
             function(cb){ptp.transaction(camera._dev, 0x9201, [0x3, 0x0, 0x0], null, cb);}, // PC mode
-            function(cb){driver.set(camera, 'priorityMode', 'app', cb);},
+            function(cb){setDeviceControlValueA(camera._dev, 0xD25A, 1, 1, cb);},
         ], function(err) {
             return callback && callback(err);
         });
