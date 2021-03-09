@@ -418,6 +418,23 @@ var properties = {
             { name: "Camera",         value: 'cam', code: 0  },
         ]
     }
+    'storageMode': {
+        name: 'priorityMode',
+        category: 'config',
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 1, callback);
+        } },
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0xD25A,
+        typeCode: 1,
+        ev: false,
+        values: [
+            { name: "Application",    value: 'app', code: 1  },
+            { name: "Camera",         value: 'cam', code: 0  },
+        ]
+    }
 }
 
 //20200108-221512 PTP-SONY: UNKNOWN CODE: 53805 = 2 // zoom mode 2=true, 0=false
