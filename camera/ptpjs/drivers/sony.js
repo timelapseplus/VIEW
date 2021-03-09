@@ -419,20 +419,21 @@ var properties = {
         ]
     },
     'storageMode': {
-        name: 'priorityMode',
+        name: 'storageMode',
         category: 'config',
         getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
-            setDeviceControlValueA (dev, propcode, value, 1, callback);
+            setDeviceControlValueA (dev, propcode, value, 2, callback);
         } },
         getFunction: null,
         listFunction: null,
         listWorks: false,
         code: 0xD222,
-        typeCode: 1,
+        typeCode: 2,
         ev: false,
         values: [
-            { name: "Application",    value: 'app', code: 1  },
-            { name: "Camera",         value: 'cam', code: 0  },
+            { name: "Camera Only",    value: 'cam', code: 1  },
+            { name: "Camera + PC",    value: 'campc', code: 17  },
+            { name: "PC Only",        value: 'pc', code: 16  },
         ]
     }
 }
