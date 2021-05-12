@@ -137,6 +137,28 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02de': {
+            name: "Fuji GFX 100",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
+    '04cb:02e9': {
+            name: "Fuji GFX 100S",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
 }
 
 var properties = {
