@@ -82,7 +82,12 @@ driver.supportedCameras = {
     '04b0:0441': { name: "Nikon D850",  status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB 3' },
     '04b0:0442': { name: "Nikon Z 7",   status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04b0:0443': { name: "Nikon Z 6",   status: 'tested',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0444': { name: "Nikon Z 50",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0445': { name: "Nikon D3500", status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04b0:0446': { name: "Nikon D780",  status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:0448': { name: "Nikon Z 5",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:044b': { name: "Nikon Z 7 II",   status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04b0:044c': { name: "Nikon Z 6 II",   status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
