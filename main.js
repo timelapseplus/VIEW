@@ -5983,7 +5983,7 @@ core.on('intervalometer.status', function(msg) {
     if(msg && msg.running) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
-        if(!core.currentProgram.autoRestart && core.currentProgram.scheduled && !isNaN(msg.exposureReferenceEv) ) {
+        if(!core.currentProgram.autoRestart && core.currentProgram.scheduled && msg.exposureReferenceEv != null ) {
             console.log("MAIN: Saving intervalometer.currentProgram for auto restart,", msg.exposureReferenceEv);
             core.currentProgram.autoRestart = true;
             db.set('intervalometer.currentProgramReferenceEv', msg.exposureReferenceEv);
