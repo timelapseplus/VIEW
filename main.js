@@ -5063,9 +5063,9 @@ setTimeout(function(){
             console.log("MAIN: Loading saved intervalometer settings...", data);
             core.loadProgram(data);
             if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
-                console.log("MAIN: Restarting scheduled program...");
                 db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
-                    if(!err && ref) {
+                    if(!err) {
+                        console.log("MAIN: Restarting scheduled program...", ref);
                         core.startIntervalometer(core.currentProgram, null, 0, parseFloat(ref), callback);
                     }
                 });
