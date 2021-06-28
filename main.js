@@ -5964,12 +5964,12 @@ core.on('intervalometer.status', function(msg) {
     if(msg && msg.running) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
-        if(!cache.intervalometerStatus.running && core.currentProgram.scheduled) {
+        if((!cache.intervalometerStatus || !cache.intervalometerStatus.running) && core.currentProgram.scheduled) {
             console.log("MAIN: Saving intervalometer.currentProgram on intervalometer start");
             core.currentProgram.autoRestart = true;
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
-    } else if(msg && cache.intervalometerStatus.running) {
+    } else if(msg && cache.intervalometerStatus && cache.intervalometerStatus.running) {
         power.enableAutoOff();
         mcu.disableGpsTimeUpdate = false;
         if(!msg.running && core.currentProgram.autoRestart) {

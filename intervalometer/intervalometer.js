@@ -8,6 +8,7 @@ var image = require('camera/image/image.js');
 var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
+var exec = require('child_process').exec;
 //var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
