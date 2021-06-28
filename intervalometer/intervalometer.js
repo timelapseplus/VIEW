@@ -2021,6 +2021,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                     } else {
                                                         brightWarning(ev);
                                                         intervalometer.status.exposureReferenceEv = ev;
+                                                        console.log("INTERVALOMETER: reference EV:", intervalometer.status.exposureReferenceEv);
                                                         intervalometer.emit("intervalometer.status", intervalometer.status);
                                                         delayed();
                                                     }
@@ -2039,6 +2040,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                             brightWarning(ev);
                                                             intervalometer.status.exposureReferenceEv = ev;
                                                             intervalometer.emit("intervalometer.status", intervalometer.status);
+                                                            console.log("INTERVALOMETER: reference EV:", intervalometer.status.exposureReferenceEv);
                                                             if(scheduled()) runPhoto();
                                                         }
                                                     });
