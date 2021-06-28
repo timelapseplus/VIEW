@@ -4979,7 +4979,11 @@ var closeSystem = function(callback) {
         inputs.stop();
     }
     try {
-        if(!core.currentProgram.scheduled) core.currentProgram.autoRestart = false;
+        if(!core.currentProgram.scheduled) {
+            console.log("MAIN: Disabled autorestart.");
+            core.currentProgram.autoRestart = false;
+        }
+        console.log("MAIN: Saving current program before shutdown:", core.currentProgram);
         db.set('intervalometer.currentProgram', core.currentProgram);
         if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb) {
             mcu.lastGpsFix.fromDb = true;
@@ -5056,9 +5060,9 @@ nodeCleanup(function (exitCode, signal) {
 setTimeout(function(){
     db.get('intervalometer.currentProgram', function(err, data) {
         if(!err && data) {
-            console.log("Loading saved intervalometer settings...", data);
+            console.log("MAIN: Loading saved intervalometer settings...", data);
             core.loadProgram(data);
-            if(core.currentProgram.scheduled && core.currentProgram.scheduled.autoRestart) {
+            if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
                 console.log("MAIN: Restarting scheduled program...");
                 core.startIntervalometer(core.currentProgram);
             }
