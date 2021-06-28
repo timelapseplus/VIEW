@@ -10,12 +10,12 @@ function Exposure(options) {
     this.usingAperture = false;
     this.bulbMode = true;
 
-    if (!options.camera || !options.camera.ptp) {
+    if (options && (!options.camera || !options.camera.ptp)) {
         throw new Error("camera parameter is required");
     }
 
     if (options && typeof options === 'object') {
-        for (key in options) {
+        for (var key in options) {
             this[key] = options[key];
         }
     }

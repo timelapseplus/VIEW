@@ -265,7 +265,7 @@ camera.testBulb = function() {
 camera.getEv = function(callback) {
     remap('camera.ptp.getSettings')(function() {
         var settings = remap('camera.ptp.settings.details');
-        var av = (settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : lists.fixedApertureEv;
+        var av = (settings && settings.aperture && settings.aperture.ev != null) ? settings.aperture.ev : lists.fixedApertureEv;
 
         if (callback) {
             if(settings && settings.shutter && settings.iso) {
@@ -291,7 +291,7 @@ camera.setEv = function(ev, options, cb) {
 
         var apertureEnabled = false;
         //var shutterEnabled = true; //to be added
-        if(options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
+        if(options && options.parameters && options.parameters.indexOf('A') !== -1) apertureEnabled = true
         // if(options.parameters && options.parameters.indexOf('I') === -1) shutterEnabled = false // defaults to enabled
 
         if (!aperture) {

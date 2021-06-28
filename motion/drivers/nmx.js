@@ -952,7 +952,7 @@ function _connectBt(btPeripheral, callback) {
                         _nmxReadCh = null;
                         _dev = null;
                         for (var i = 0; i < characteristics.length; i++) {
-                            ch = characteristics[i];
+                            var ch = characteristics[i];
                             if (ch.uuid == "bf45e40ade2a4bc8bba0e5d6065f1b4b") {
                                 _nmxCommandCh = ch;
                             }

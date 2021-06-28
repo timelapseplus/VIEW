@@ -227,10 +227,10 @@ st4.getPosition = function(callback) {
 					st4.status.motor2moving = parseInt(movingSet.substring(1, 2)) > 0;
 					st4.status.motor3moving = parseInt(movingSet.substring(2, 3)) > 0;
 					st4.status.motor4moving = parseInt(movingSet.substring(3, 4)) > 0;
-					if(parseInt(locationSet[0]) !== NaN) st4.status.motor1pos = parseInt(locationSet[0]) * _motorDirection(1) / _conversionFactor(1);
-					if(parseInt(locationSet[1]) !== NaN) st4.status.motor2pos = parseInt(locationSet[1]) * _motorDirection(2) / _conversionFactor(2);
-					if(parseInt(locationSet[2]) !== NaN) st4.status.motor3pos = parseInt(locationSet[2]) * _motorDirection(3) / _conversionFactor(3);
-					if(parseInt(locationSet[3]) !== NaN) st4.status.motor4pos = parseInt(locationSet[3]) * _motorDirection(4) / _conversionFactor(4);
+					if(!isNaN(parseInt(locationSet[0]))) st4.status.motor1pos = parseInt(locationSet[0]) * _motorDirection(1) / _conversionFactor(1);
+					if(!isNaN(parseInt(locationSet[1]))) st4.status.motor2pos = parseInt(locationSet[1]) * _motorDirection(2) / _conversionFactor(2);
+					if(!isNaN(parseInt(locationSet[2]))) st4.status.motor3pos = parseInt(locationSet[2]) * _motorDirection(3) / _conversionFactor(3);
+					if(!isNaN(parseInt(locationSet[3]))) st4.status.motor4pos = parseInt(locationSet[3]) * _motorDirection(4) / _conversionFactor(4);
 					st4.status.moving = st4.status.motor1moving || st4.status.motor2moving || st4.status.motor3moving || st4.status.motor4moving;
 				}
 				_logD("status:", st4.status);

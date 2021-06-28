@@ -22,7 +22,7 @@ var powerDownTimerHandle = null;
 function axpSet(reg, val, callback) {
     reg = parseInt(reg);
     val = parseInt(val);
-    if(reg != null && val != null) {
+    if(!isNaN(reg) && !isNaN(val)) {
         exec("i2cset -y -f 0 0x34 0x" + reg.toString(16) + " 0x" + val.toString(16), callback);
     } else {
         callback('invalid parameters');
@@ -31,7 +31,7 @@ function axpSet(reg, val, callback) {
 
 function axpGet(reg, callback) {
     reg = parseInt(reg);
-    if(reg != null) {
+    if(!isNan(reg)) {
         exec("i2cget -y -f 0 0x34 0x" + reg.toString(16), function(err, stdout) {
             if(!err && stdout) {
                 callback && callback(null, parseInt(stdout.trim()));

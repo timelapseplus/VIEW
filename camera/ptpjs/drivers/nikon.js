@@ -459,7 +459,7 @@ var properties = {
 driver.properties = properties;
 
 function propMapped(propCode) {
-    for(name in properties) {
+    for(var name in properties) {
         if(properties.hasOwnProperty(name)) {
             if(propCode === properties[name].code) return true;
         }
@@ -782,7 +782,7 @@ function getImage(camera, timeout, callback) {
                                 if(data.length < dataIndex + 8) return setTimeout(check);
                                 eventCode = data.readUInt16LE(dataIndex);
                                 dataIndex += 2;
-                                eventParamsCount = data.readUInt16LE(dataIndex);
+                                var eventParamsCount = data.readUInt16LE(dataIndex);
                                 dataIndex += 2;
                                 if(eventCode == 0xC101) {
                                     var newObject = data.readUInt32LE(dataIndex);

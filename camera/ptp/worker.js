@@ -1005,7 +1005,7 @@ function getConfig(noEvent, cached, cb) {
                 var value = false;
                 var name = '';
                 var detail = null;
-                for (m in maps) {
+                for (var m in maps) {
                     var section = maps[m].section;
                     var item = maps[m].item;
                     if(section == null && data[item] && data[item].available) {

@@ -88,7 +88,7 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 				if(fusionDiffReference === null) {
 					preSamples.push(fusionDiff);
 					if(preSamples.length >= 10) {
-						fusionDiffReference = Math.max((Math.max(preSamples) * 4), 0.002);
+						fusionDiffReference = Math.max((Math.max.apply(null, preSamples) * 4), 0.002);
 						startMotorCb && startMotorCb(null);
 					}
 					return IMU.getValue(processData);

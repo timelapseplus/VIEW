@@ -425,10 +425,10 @@ function drawStatusBar() {
 
         var fillWidth = Math.ceil((batteryPercentage / 100) * (bw - 1.5));
         if(fillWidth < 1) fillWidth = 1;
-        if(batteryPercentage > 20) {
-            color("batteryOk");
-        } else if(batteryPercentage == 100) {
+        if(batteryPercentage == 100) {
             color("batteryFull");
+        } else if(batteryPercentage > 20) {
+            color("batteryOk");
         } else {
             color("batteryLow");
         }

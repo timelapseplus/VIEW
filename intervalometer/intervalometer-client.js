@@ -25,7 +25,7 @@ function getCallbackId(callerName, cb) {
 function runCallback(cbData) {    
     if (cbData && cbData.id && cbStore[cbData.id.toString()]) {
         var cb = cbStore[cbData.id.toString()];
-        console.log("running callback for ", cb.name);
+        if(cb) console.log("running callback for ", cb.name);
         cb && cb.callback && cb.callback(cbData.err, cbData.data);
         delete cbStore[cbData.id.toString()];
     }

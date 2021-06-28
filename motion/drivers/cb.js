@@ -35,7 +35,7 @@ CB.prototype._connectBt = function(btPeripheral, callback) {
                         self._readCh = null;
                         self._dev = null;
                         for (var i = 0; i < characteristics.length; i++) {
-                            ch = characteristics[i];
+                            var ch = characteristics[i];
                             //console.log("ch.uuid", ch.uuid);
                             //console.log("ch", ch);
                             if (ch.uuid == "ae0e0408ef7511e981b42a2ae2dbcce4") {

@@ -477,7 +477,7 @@ var properties = {
 driver.properties = properties;
 
 function propMapped(propCode) {
-    for(name in properties) {
+    for(var name in properties) {
         if(properties.hasOwnProperty(name)) {
             if(propCode === (properties[name].code & 0xFFFFFFF0)) return true;
         }

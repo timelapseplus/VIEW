@@ -41,8 +41,8 @@ function logDateHelper(logFileName) {
 		//console.log(date);
 		return date;
 	} else {
-		return null;
 		console.log("LOG CLEANUP: no match:", logFileName);
+		return null;
 	}
 }
 

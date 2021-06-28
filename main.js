@@ -4375,17 +4375,21 @@ if (VIEW_HARDWARE) {
                 var c2 = data.c2_timestamp ? moment(data.c2_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 var c3 = data.c3_timestamp ? moment(data.c3_timestamp).utcOffset(mcu.timezoneOffset()) : null;
                 var c4 = data.c4_timestamp ? moment(data.c4_timestamp).utcOffset(mcu.timezoneOffset()) : null;
-                info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "";
-                if(!noRelative) info += "\t(" + c1.fromNow() + ")\n"; else info += ".\n";
+                if(c1) {
+                    info += "Next eclipse: " + c1.format("DD MMM YYYY") + ", with first contact starting at " + c1.format("h:mm:ss A ZZ") + "";
+                    if(!noRelative) info += "\t(" + c1.fromNow() + ")\n"; else info += ".\n";
 
-                if(c2 && c3) {
-                    info += "This is a total eclipse, observable from the current location " + currentLocation + ".  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
-                } else if(data.eclipseType == "T") {
-                    info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observable at the current location " + currentLocation + ".";
-                } else if(data.eclipseType == "A") {
-                    info += "This is a annular eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
+                    if(c2 && c3) {
+                        info += "This is a total eclipse, observable from the current location " + currentLocation + ".  Totality will last a total of " + data.duration + ", starting at " + c2.format('h:mm:ss A');
+                    } else if(data.eclipseType == "T") {
+                        info += "This is a total eclipse, but only a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage will be observable at the current location " + currentLocation + ".";
+                    } else if(data.eclipseType == "A") {
+                        info += "This is a annular eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
+                    } else {
+                        info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
+                    }
                 } else {
-                    info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
+                    info += "No upcoming eclipses were found for the current location " + currentLocation + ".";                
                 }
             } else {
                 info += "No upcoming eclipses were found for the current location " + currentLocation + ".";                
@@ -4853,7 +4857,7 @@ if (VIEW_HARDWARE) {
         console.log("media inserted: ", type);
         oled.activity();
         power.activity();
-        if(type = 'sd') {
+        if(type == 'sd') {
             core.currentProgram.destination = 'sd';
             ui.reload();
         }
@@ -4864,7 +4868,7 @@ if (VIEW_HARDWARE) {
 
     core.on('media.remove', function(type) {
         console.log("media removed: ", type);
-        if(type = 'sd') {
+        if(type == 'sd') {
             core.currentProgram.destination = 'camera';
             ui.reload();
         }
@@ -5977,10 +5981,12 @@ core.on('intervalometer.status', function(msg) {
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
     }
-    app.send('intervalometerStatus', {
-        status: msg
-    });
-    cache.intervalometerStatus = msg;
+    if(msg) {
+        app.send('intervalometerStatus', {
+            status: msg
+        });
+        cache.intervalometerStatus = msg;
+    }
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
     var evText = (Math.round(lists.getEvFromSettings(msg.cameraSettings) * 10) / 10).toString();

@@ -115,10 +115,10 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 file: filename,
                                 cameraCount: 1,
                                 cameraResults: [],
-                                thumbnailPath: thumbnailFileFromIndex(captureOptions.index),
+                                thumbnailPath: thumbnailFileFromIndex(captureOptions ? captureOptions.index : 1),
                                 ev: null
                             }
-                            if(captureOptions.noDownload) {
+                            if(captureOptions && captureOptions.noDownload) {
                                 logEvent("...capture complete.");
                                 return callback && callback(err, photoRes);
                             }
@@ -128,7 +128,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             }
                             intervalometer.lastThumb = thumb;
                             setTimeout(function() {
-                                saveThumbnail(thumb, captureOptions.index, cameraIndex, 0);
+                                saveThumbnail(thumb, captureOptions ? captureOptions.index : 1, cameraIndex, 0);
                             }, 10);
 
                             var completeCapture = function() {

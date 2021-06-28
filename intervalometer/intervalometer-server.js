@@ -256,6 +256,7 @@ var server = net.createServer(function(c) {
     for(var i = 0; i < clients.length; i++) {
       if(clients[i].index == c.index) {
         clients.splice(i, 1);
+        break;
       }
     }
   });

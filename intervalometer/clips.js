@@ -441,7 +441,7 @@ clips.getTimelapseData = function (clipNumber, cameraNumber, callback) {
                 var detailsLines = details.toString().split('\n');
                 for (var i = 1; i < detailsLines.length; i++) {
                     var data = detailsLines[i].split(',');
-                    if (data && data.length >= 2 && parseInt(data[0].trim()) != NaN) {
+                    if (data && data.length >= 2 && !isNaN(parseInt(data[0].trim()))) {
                         var fileNumberString = data[7].match(/([A-Z0-9_]{8})\.[A-Z0-9]+$/i)[1];
                         dataSet.push({
                             fileNumberString: fileNumberString,

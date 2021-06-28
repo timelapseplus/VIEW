@@ -2759,11 +2759,11 @@ function getdate( circumstances )
   d = Math.floor(365.25 * c);
   e = Math.floor((b - d) / 30.6001);
   d = b - d - Math.floor(30.6001 * e);
-  if (e < 13.5)
+  if (e <= 13)
     e -= 1;
   else
     e -= 13;
-  if (e > 2.5)
+  if (e >= 3)
     year = c - 4716;
   else
     year = c - 4715;
