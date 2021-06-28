@@ -1258,11 +1258,17 @@ function scheduled(noResume) {
         var m = moment().add(intervalometer.status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
-                console.trace("Intervalometer: scheduled start ready");
+                log("Intervalometer: scheduled start ready");
                 return true;
             } else {
                 if(intervalometer.status.minutesUntilStart < 0) {
                     intervalometer.status.message = "done for today...";
+                    log("Intervalometer: schedule complete, reloading app and resuming...");
+                    intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
+                        setTimeout(function(){
+                            exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
+                        });
+                    });
                 } else {
                     var minutes = intervalometer.status.minutesUntilStart % 60;
                     var hours = (intervalometer.status.minutesUntilStart - minutes) / 60;

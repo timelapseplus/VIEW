@@ -2613,11 +2613,7 @@ if (VIEW_HARDWARE) {
                                         oled.update();
                                         wifi.unblockBt(function(){
                                             closeSystem(function(){
-                                                var killServer = '';
-                                                if(core.processId) {
-                                                    killServer = '; kill -s 9 ' + core.processId;
-                                                }
-                                                exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+                                                exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
                                             });
                                         });
                                     }
@@ -2643,11 +2639,7 @@ if (VIEW_HARDWARE) {
                                 updates.setVersion(versionTarget, function(){
                                     oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                     closeSystem(function(){
-                                        var killServer = '';
-                                        if(core.processId) {
-                                            killServer = '; kill -s 9 ' + core.processId;
-                                        }
-                                        exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+                                        exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
                                     });
                                 });
                             } else {
@@ -2691,11 +2683,7 @@ if (VIEW_HARDWARE) {
                                             oled.update();
                                             wifi.unblockBt(function(){
                                                 closeSystem(function(){
-                                                    var killServer = '';
-                                                    if(core.processId) {
-                                                        killServer = '; kill -s 9 ' + core.processId;
-                                                    }
-                                                    exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+                                                    exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
                                                 });
                                             });
                                         });
@@ -5976,9 +5964,18 @@ core.on('intervalometer.status', function(msg) {
     if(msg && msg.running) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
+        if(!cache.intervalometerStatus.running && core.currentProgram.scheduled) {
+            console.log("MAIN: Saving intervalometer.currentProgram on intervalometer start");
+            core.currentProgram.autoRestart = true;
+            db.set('intervalometer.currentProgram', core.currentProgram);
+        }
     } else if(msg && cache.intervalometerStatus.running) {
         power.enableAutoOff();
         mcu.disableGpsTimeUpdate = false;
+        if(!msg.running && core.currentProgram.autoRestart) {
+            core.currentProgram.autoRestart = false;
+            db.set('intervalometer.currentProgram', core.currentProgram);
+        }
     }
     app.send('intervalometerStatus', {
         status: msg
