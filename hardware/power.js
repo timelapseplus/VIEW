@@ -31,7 +31,7 @@ function axpSet(reg, val, callback) {
 
 function axpGet(reg, callback) {
     reg = parseInt(reg);
-    if(!isNan(reg)) {
+    if(!isNaN(reg)) {
         exec("i2cget -y -f 0 0x34 0x" + reg.toString(16), function(err, stdout) {
             if(!err && stdout) {
                 callback && callback(null, parseInt(stdout.trim()));
