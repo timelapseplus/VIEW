@@ -5064,7 +5064,7 @@ setTimeout(function(){
             core.loadProgram(data);
             if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
                 db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
-                    if(!err) {
+                    if(!err && !isNaN(parseFloat(ref))) {
                         console.log("MAIN: Restarting scheduled program...", ref);
                         core.startIntervalometer(core.currentProgram, null, 0, parseFloat(ref), callback);
                     }
