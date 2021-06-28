@@ -2038,6 +2038,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                         } else {
                                                             brightWarning(ev);
                                                             intervalometer.status.exposureReferenceEv = ev;
+                                                            intervalometer.emit("intervalometer.status", intervalometer.status);
                                                             if(scheduled()) runPhoto();
                                                         }
                                                     });
