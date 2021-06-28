@@ -4979,6 +4979,7 @@ var closeSystem = function(callback) {
         inputs.stop();
     }
     try {
+        core.currentProgram.autoRestart = false;
         db.set('intervalometer.currentProgram', core.currentProgram);
         if(mcu.lastGpsFix && !mcu.lastGpsFix.fromDb) {
             mcu.lastGpsFix.fromDb = true;
@@ -5052,12 +5053,14 @@ nodeCleanup(function (exitCode, signal) {
     return false;
 });
 
-db.get('intervalometer.currentProgram', function(err, data) {
-    if(!err && data) {
-        console.log("Loading saved intervalometer settings...", data);
-        core.loadProgram(data);
-    }
-});
+setTimeout(function(){
+    db.get('intervalometer.currentProgram', function(err, data) {
+        if(!err && data) {
+            console.log("Loading saved intervalometer settings...", data);
+            core.loadProgram(data);
+        }
+    });
+}, 30000);
 
 db.get('chargeLightDisabled', function(err, en) {
     if(!err) {
@@ -5990,11 +5993,12 @@ core.on('intervalometer.status', function(msg) {
     }
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
+    
     var evText = (Math.round(lists.getEvFromSettings(msg.cameraSettings) * 10) / 10).toString();
     var statusScreen = {
-        isoText: (typeof msg.cameraSettings.iso == 'object') ? msg.cameraSettings.iso.name : msg.cameraSettings.iso,
-        shutterText: (typeof msg.cameraSettings.shutter == 'object') ? msg.cameraSettings.shutter.name : msg.cameraSettings.shutter,
-        apertureText: ((msg.cameraSettings.aperture && msg.cameraSettings.aperture.ev != null) || (msg.cameraSettings.details && msg.cameraSettings.details.aperture && msg.cameraSettings.details.aperture.ev != null)) ? ("f/" + (msg.cameraSettings.details ? msg.cameraSettings.details.aperture.name : msg.cameraSettings.aperture.name)) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)'),
+        isoText: msg.cameraSettings ? ((typeof msg.cameraSettings.iso == 'object') ? msg.cameraSettings.iso.name : msg.cameraSettings.iso) : "--",
+        shutterText: msg.cameraSettings ? ((typeof msg.cameraSettings.shutter == 'object') ? msg.cameraSettings.shutter.name : msg.cameraSettings.shutter) : "--",
+        apertureText: msg.cameraSettings ? (((msg.cameraSettings.aperture && msg.cameraSettings.aperture.ev != null) || (msg.cameraSettings.details && msg.cameraSettings.details.aperture && msg.cameraSettings.details.aperture.ev != null)) ? ("f/" + (msg.cameraSettings.details ? msg.cameraSettings.details.aperture.name : msg.cameraSettings.aperture.name)) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)')) : "--",
         evText: evText + " EV",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
@@ -6002,7 +6006,7 @@ core.on('intervalometer.status', function(msg) {
         intervalModeText: core.currentProgram.rampMode == 'auto' ? core.currentProgram.intervalMode : 'fixed',
         frames: msg.frames,
         remaining: msg.framesRemaining,
-        shutterSeconds: ((msg.cameraSettings.shutter && msg.cameraSettings.shutter.ev) || msg.cameraSettings.details.shutter) ? lists.getSecondsFromEv(msg.cameraSettings.details ? msg.cameraSettings.details.shutter.ev : msg.cameraSettings.shutter.ev) : 0,
+        shutterSeconds: msg.cameraSettings ? (((msg.cameraSettings.shutter && msg.cameraSettings.shutter.ev) || msg.cameraSettings.details.shutter) ? lists.getSecondsFromEv(msg.cameraSettings.details ? msg.cameraSettings.details.shutter.ev : msg.cameraSettings.shutter.ev) : 0) : 0,
         durationSeconds: (new Date() / 1000) - msg.startTime,
         captureStartTime: msg.captureStartTime,
         running: msg.running

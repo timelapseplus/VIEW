@@ -373,7 +373,8 @@ var defaultProgram = {
     hdrCount: 0,
     hdrStops: 1,
     exposurePlans: [],
-    trackingTarget: 'moon',    
+    trackingTarget: 'moon',
+    autoRestart: false,
     keyframes: [{
         focus: 0,
         ev: "not set",
@@ -467,6 +468,7 @@ core.stopIntervalometer = function(callback) {
     if(!client || !client.ready) {
         core.intervalometerStatus.running = false;
         restartProgram = null;
+        core.currentProgram.autoRestart = false;
         core.emit('intervalometer.status', core.intervalometerStatus);
     } else {
         call('intervalometer.cancel', {}, callback);
