@@ -5058,6 +5058,10 @@ setTimeout(function(){
         if(!err && data) {
             console.log("Loading saved intervalometer settings...", data);
             core.loadProgram(data);
+            if(core.currentProgram.scheduled && core.currentProgram.scheduled.autoRestart) {
+                console.log("SERVER: Restarting scheduled program...");
+                core.startIntervalometer(core.currentProgram);
+            }
         }
     });
 }, 30000);

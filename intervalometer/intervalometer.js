@@ -1266,7 +1266,7 @@ function scheduled(noResume) {
                 log("Intervalometer: scheduled start ready");
                 return true;
             } else {
-                if(intervalometer.status.minutesUntilStart < 0) {
+                if(intervalometer.status.minutesUntilStart < 0 && intervalometer.status.frames > 0) {
                     intervalometer.status.message = "done for today, rebooting...";
                     log("Intervalometer: schedule complete, rebooting system and resuming...");
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
@@ -1728,6 +1728,7 @@ intervalometer.cancel = function(reason, callback) {
                     busyPhoto = false;
                     intervalometer.status.running = false;
                     intervalometer.status.stopping = false;
+                    intervalometer.status.frames = 0;
                     intervalometer.timelapseFolder = false;
                     camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                     camera.ptp.unmountSd();
