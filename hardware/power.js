@@ -174,7 +174,7 @@ power.shutdown = function() {
 }
 
 power.reboot = function() {
-    exec('nohup sh -c "killall node; sleep 2; kill -s 9 ' + process.pid +  '; init 6"');
+    exec('nohup sh -c "killall node; sleep 2; killall -s 9 node; init 6"');
 }
 
 power.disableAutoOff = function() {

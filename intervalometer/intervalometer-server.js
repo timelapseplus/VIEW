@@ -756,8 +756,8 @@ intervalometer.on('error', function(data) {
 });
 intervalometer.on('intervalometer.currentProgram', function(data) {
   sendEvent('intervalometer.currentProgram', data);
-  if(data.autoRestart && !intervalometer.status.running) {
-      console.log("SERVER: Restaring scheduled program...");
+  if(data.scheduled && data.autoRestart && !intervalometer.status.running) {
+      console.log("SERVER: Restarting scheduled program...");
       intervalometer.run(data, null, null, null, null);
   }
 });

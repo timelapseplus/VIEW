@@ -1,5 +1,4 @@
 var EventEmitter = require("events").EventEmitter;
-//var exec = require('child_process').exec;
 require('rootpath')();
 var camera = require('camera/camera.js');
 var db = require('system/db.js');
@@ -400,7 +399,12 @@ intervalometer.status = {
 
 intervalometer.internal = {};
 
-intervalometer.emit("intervalometer.status", intervalometer.status);
+
+setInterval(function() {
+    if(!intervalometer.status.running) {
+        intervalometer.emit("intervalometer.status", intervalometer.status);
+    }
+}, 10000);
 
 var auxTrigger = new Button('input-aux2');
 
@@ -1263,12 +1267,12 @@ function scheduled(noResume) {
                 return true;
             } else {
                 if(intervalometer.status.minutesUntilStart < 0) {
-                    intervalometer.status.message = "done for today...";
-                    log("Intervalometer: schedule complete, reloading app and resuming...");
+                    intervalometer.status.message = "done for today, rebooting...";
+                    log("Intervalometer: schedule complete, rebooting system and resuming...");
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
-                        setTimeout(function(){
-                            exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
-                        });
+                        setTimeout(function() {
+                            exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; init 6"', function() {}); // restarting system
+                        }, 10000);
                     });
                 } else {
                     var minutes = intervalometer.status.minutesUntilStart % 60;
@@ -1736,7 +1740,7 @@ intervalometer.cancel = function(reason, callback) {
             finalize();
         });
     } else {
-        intervalometer.emit("intervalometer.status", intervalometer.status);
+        if(reason != "scheduled") intervalometer.emit("intervalometer.status", intervalometer.status);
     }   
 }
 

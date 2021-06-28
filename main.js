@@ -5969,7 +5969,7 @@ core.on('intervalometer.status', function(msg) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
         if((!cache.intervalometerStatus || !cache.intervalometerStatus.running) && core.currentProgram.scheduled) {
-            console.log("MAIN: Saving intervalometer.currentProgram on intervalometer start");
+            console.log("MAIN: Saving intervalometer.currentProgram for auto restart");
             core.currentProgram.autoRestart = true;
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
@@ -5977,6 +5977,7 @@ core.on('intervalometer.status', function(msg) {
         power.enableAutoOff();
         mcu.disableGpsTimeUpdate = false;
         if(!msg.running && core.currentProgram.autoRestart) {
+            console.log("MAIN: Disabling auto restart.");
             core.currentProgram.autoRestart = false;
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
