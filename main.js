@@ -5064,7 +5064,11 @@ setTimeout(function(){
             core.loadProgram(data);
             if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
                 console.log("MAIN: Restarting scheduled program...");
-                core.startIntervalometer(core.currentProgram);
+                db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
+                    if(!err && ref) {
+                        core.startIntervalometer(core.currentProgram, null, 0, parseFloat(ref), callback);
+                    }
+                });
             }
         }
     });
@@ -5979,9 +5983,10 @@ core.on('intervalometer.status', function(msg) {
     if(msg && msg.running) {
         mcu.disableGpsTimeUpdate = true;
         power.disableAutoOff();
-        if((!cache.intervalometerStatus || !cache.intervalometerStatus.running) && core.currentProgram.scheduled) {
-            console.log("MAIN: Saving intervalometer.currentProgram for auto restart");
+        if(!core.currentProgram.autoRestart && core.currentProgram.scheduled && !isNaN(msg.exposureReferenceEv) ) {
+            console.log("MAIN: Saving intervalometer.currentProgram for auto restart,", msg.exposureReferenceEv);
             core.currentProgram.autoRestart = true;
+            db.set('intervalometer.currentProgramReferenceEv', msg.exposureReferenceEv);
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
     } else if(msg && cache.intervalometerStatus && cache.intervalometerStatus.running) {
