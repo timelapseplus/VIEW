@@ -596,7 +596,7 @@ function calculateCelestialDistance(startPos, currentPos, trackBelowHorizon) {
 }
 
 function getTrackingMotor(trackingMotor) {
-    log("INTERVALOMETER: getTrackingMotor: no motor info found for " + trackingMotor);
+    logEvent("getTrackingMotor: no motor info found for " + trackingMotor);
     if(trackingMotor && trackingMotor != 'none') {
         var parts = trackingMotor.match(/^([A-Z]+)-([0-9]+)(r?)$/);
         if(parts && parts.length > 2) {
@@ -1235,22 +1235,22 @@ function waitForSchedule() {
     scheduleHandle = setTimeout(function(){
         if(scheduled(true)) {
             if(intervalometer.status.running) {
-                log("Intervalometer: scheduled start beginning...");
+                logEvent("scheduled start beginning...");
                 if(intervalometer.status.frames > 0) {
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function(){
-                            log("Intervalometer: running scheduled start...");
+                            logEvent("running scheduled start...");
                             intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv);
                         });
                     });
                 } else {
                     setTimeout(function(){
-                        log("Intervalometer: running scheduled start...");
+                        logEvent("running scheduled start...");
                         intervalometer.run(intervalometer.currentProgram, null, intervalometer.status.timeOffsetSeconds, intervalometer.status.exposureReferenceEv || 0);
                     });
                 }
              } else {
-                log("Intervalometer: scheduled start canceled because time-lapse is no longer running.");
+                logEvent("scheduled start canceled because time-lapse is no longer running.");
              }
         } else {
             waitForSchedule();
@@ -1263,12 +1263,12 @@ function scheduled(noResume) {
         var m = moment().add(intervalometer.status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
-                log("Intervalometer: scheduled start ready");
+                logEvent("scheduled start ready");
                 return true;
             } else {
                 if(intervalometer.status.minutesUntilStart < 0 && intervalometer.status.frames > 0) {
                     intervalometer.status.message = "done for today, rebooting...";
-                    log("Intervalometer: schedule complete, rebooting system and resuming...");
+                    logEvent("schedule complete, rebooting system and resuming...");
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function() {
                             exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; init 6"', function() {}); // restarting system
@@ -1313,7 +1313,7 @@ function runPhoto(isRetry) {
     if(busyAuxPulse) return setTimeout(runPhoto, 100);
     
     if((busyPhoto || busyExposure) && pendingPhoto && !isRetry) {
-        log("INTERVALOMETER: dropping frame!");
+        logEvent("dropping frame!");
         return; // drop frame if backed up
     }
 
@@ -1415,7 +1415,7 @@ function runPhoto(isRetry) {
                 try {
                   if (global.gc) {global.gc();}
                 } catch (e) {
-                  console.log("INTERVALOMETER: garbage collection failed:", e);
+                  logEvent("garbage collection failed:", e);
                 }
             });
         } else {
@@ -1556,7 +1556,7 @@ function runPhoto(isRetry) {
                 try {
                   if (global.gc) {global.gc();}
                 } catch (e) {
-                  console.log("INTERVALOMETER: garbage collection failed:", e);
+                  logEvent("garbage collection failed:", e);
                 }
             });
         }
@@ -1598,6 +1598,7 @@ camera.ptp.on('saveErrorCardFull', function(msg) {
 function autoSetExposure(offset, callback) {
     if(!offset) offset = 0;
     function captureTestEv() {
+        logEvent("Auto Setting Exposure...");
         remap('camera.ptp.capture')({mode:'test'}, function(err, res) {
             if(!err && res && res.ev != null) {
                 intervalometer.status.message = "checking/setting exposure...";
@@ -1746,7 +1747,7 @@ intervalometer.cancel = function(reason, callback) {
 }
 
 intervalometer.resume = function() {
-    log("Intervalometer: resuming time-lapse...")
+    logEvent("resuming time-lapse...")
     camera.ptp.cancelCallbacks();
     busyPhoto = false;
     busyExposure = false;
@@ -1769,10 +1770,11 @@ intervalometer.resume = function() {
 }
 
 function getReferenceExposure(callback) {
+    logEvent("Getting reference exposure...");
     intervalometer.status.message = "capturing reference image";
     intervalometer.emit("intervalometer.status", intervalometer.status);
     remap('camera.ptp.capture')({mode:'test'}, function(err, res){
-        log("reference exposure result:", err, res);
+        logEvent("reference exposure result:", err, res);
         if(!err && res && res.ev != null) {
             callback && callback(null, res.ev);
         } else {
@@ -1790,18 +1792,19 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
     if(date != null) { // sync time with phone app local time
         var mD = moment(date);
         var mN = moment();
-        log("Intervalometer: App time:", mD.format(), "VIEW time:", mN.format());
+        logEvent("Intervalometer: App time:", mD.format(), "VIEW time:", mN.format());
         var daysDiff = mD.day() - mN.day();
         var hoursDiff = mD.hour() - mN.hour();
         var minutesDiff = mD.minute() - mN.minute();
         var secondsDiff = mD.seconds() - mN.seconds();
         intervalometer.status.timeOffsetSeconds = daysDiff * 86400 + hoursDiff * 3600 + minutesDiff * 60 + secondsDiff;
-        log("Intervalometer: date difference (seconds):", intervalometer.status.timeOffsetSeconds);
+        logEvent("date difference (seconds):", intervalometer.status.timeOffsetSeconds);
     } else if(timeOffsetSeconds != null) { // cached timeOffsetSeconds from restart
         intervalometer.status.timeOffsetSeconds = parseInt(timeOffsetSeconds);
     }
     if(!intervalometer.status.timeOffsetSeconds) intervalometer.status.timeOffsetSeconds = 0;
     if(autoExposureTarget != null && program.rampMode == 'auto') {
+        logEvent("using referenceEv from argument:", autoExposureTarget);
         intervalometer.status.exposureReferenceEv = autoExposureTarget;
     } else {
         intervalometer.status.exposureReferenceEv = null;
@@ -2021,7 +2024,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                     } else {
                                                         brightWarning(ev);
                                                         intervalometer.status.exposureReferenceEv = ev;
-                                                        console.log("INTERVALOMETER: reference EV:", intervalometer.status.exposureReferenceEv);
+                                                        logEvent("reference EV:", intervalometer.status.exposureReferenceEv);
                                                         intervalometer.emit("intervalometer.status", intervalometer.status);
                                                         delayed();
                                                     }
@@ -2040,7 +2043,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                             brightWarning(ev);
                                                             intervalometer.status.exposureReferenceEv = ev;
                                                             intervalometer.emit("intervalometer.status", intervalometer.status);
-                                                            console.log("INTERVALOMETER: reference EV:", intervalometer.status.exposureReferenceEv);
+                                                            logEvent("reference EV:", intervalometer.status.exposureReferenceEv);
                                                             if(scheduled()) runPhoto();
                                                         }
                                                     });
@@ -2183,7 +2186,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
     if(rampableChange.indexOf(parameter) !== -1) {
         frames = parseInt(frames);
         if(!frames || frames < 1) frames = 1;
-        log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
+        logEvent("LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
         intervalometer.status.dynamicChange[parameter] = {
             startVal: parseFloat(intervalometer.currentProgram[parameter]),
             lastVal: parseFloat(intervalometer.currentProgram[parameter]),
@@ -2231,7 +2234,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'dayRefEv':
                 frames = parseInt(frames);
                 if(!frames || frames < 1) frames = 1;
-                log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
+                logEvent("LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: parseFloat(intervalometer.status.exposure.status[parameter]),
                     lastVal: parseFloat(intervalometer.status.exposure.status[parameter]),
@@ -2245,7 +2248,7 @@ intervalometer.dynamicChange = function(parameter, newValue, frames, callback) {
             case 'rampEv':
                 frames = parseInt(frames);
                 if(!frames || frames < 1) frames = 1;
-                log("Intervalometer: LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
+                logEvent("LIVE UPDATE:", parameter, "set to", newValue, "across", frames, "frames");
                 intervalometer.status.dynamicChange[parameter] = {
                     startVal: intervalometer.status.rampEv,
                     lastVal: intervalometer.status.rampEv,
