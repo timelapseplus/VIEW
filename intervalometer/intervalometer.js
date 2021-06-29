@@ -2013,7 +2013,7 @@ intervalometer.run = function(program, date, timeOffsetSeconds, autoExposureTarg
                                                 }, delay * 1000);
 
                                             }
-                                            if((program.delay > 60 || (program.scheduled && intervalometer.status.exposureReferenceEv == null)) && program.rampMode == 'auto') {
+                                            if((program.delay > 60 || program.scheduled) && intervalometer.status.exposureReferenceEv == null) && program.rampMode == 'auto') {
                                                 getReferenceExposure(function(err, ev) {
                                                     if(err) {
                                                         intervalometer.cancel('err');

@@ -188,7 +188,7 @@ function call(method, args, callback) {
         (function(m, a, c){
             setTimeout(function(){
                 call(m, a, c);
-            }, 1000);
+            }, 5000);
         })(method, args, callback);
         return;
     }

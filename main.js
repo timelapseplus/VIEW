@@ -5074,7 +5074,7 @@ setTimeout(function(){
             }
         }
     });
-}, 30000);
+}, 60000);
 
 db.get('chargeLightDisabled', function(err, en) {
     if(!err) {
