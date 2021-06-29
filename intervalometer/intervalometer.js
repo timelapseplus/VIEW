@@ -404,7 +404,7 @@ setInterval(function() {
     if(!intervalometer.status.running) {
         intervalometer.emit("intervalometer.status", intervalometer.status);
     }
-}, 10000);
+}, 30000);
 
 var auxTrigger = new Button('input-aux2');
 
