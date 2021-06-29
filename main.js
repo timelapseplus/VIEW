@@ -5995,13 +5995,14 @@ core.on('intervalometer.status', function(msg) {
     } else if(msg && cache.intervalometerStatus && cache.intervalometerStatus.running) {
         power.enableAutoOff();
         mcu.disableGpsTimeUpdate = false;
-        if(!msg.running && core.currentProgram.autoRestart) {
+    }
+    if(msg) {
+        if(!msg.running && !cache.intervalometerStatus.running && core.currentProgram.autoRestart) {
             console.log("MAIN: Disabling auto restart.");
             core.currentProgram.autoRestart = false;
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
-    }
-    if(msg) {
+
         app.send('intervalometerStatus', {
             status: msg
         });
@@ -6027,7 +6028,7 @@ core.on('intervalometer.status', function(msg) {
         captureStartTime: msg.captureStartTime,
         running: msg.running
     }
-    console.log("statusScreen", statusScreen);
+    //console.log("statusScreen", statusScreen);
     oled.updateTimelapseStatus(statusScreen);
     ui.reload();
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
@@ -6058,7 +6059,7 @@ core.on('intervalometer.error', function(msg) {
 });
 
 core.on('motion.status', function(status) {
-    console.log("motion.status", status)
+    //console.log("motion.status", status)
     app.send('motion', status);
     if (status.available) {
         oled.setIcon('bt', true);

@@ -1257,22 +1257,25 @@ function waitForSchedule() {
         }
     }, 60000);
 }
-
+var wasDelayed = false;
 function scheduled(noResume) {
     if(intervalometer.currentProgram && intervalometer.currentProgram.scheduled) {
         var m = moment().add(intervalometer.status.timeOffsetSeconds, 'seconds');
         if(checkDay(m)) {
             if(checkTime(m)) {
-                logEvent("scheduled start ready");
+                if(wasDelayed) {
+                    logEvent("scheduled start ready");
+                }
                 return true;
             } else {
+                wasDelayed = true;
                 if(intervalometer.status.minutesUntilStart < 0 && intervalometer.status.frames > 0) {
                     intervalometer.status.message = "done for today, rebooting...";
                     logEvent("schedule complete, rebooting system and resuming...");
                     intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function() {
                             exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; init 6"', function() {}); // restarting system
-                        }, 10000);
+                        }, 3000);
                     });
                 } else {
                     var minutes = intervalometer.status.minutesUntilStart % 60;
@@ -1289,6 +1292,7 @@ function scheduled(noResume) {
                 return false;
             }
         } else {
+            wasDelayed = true;
             intervalometer.status.message = "not scheduled today, waiting...";
             intervalometer.emit("intervalometer.status", intervalometer.status);
             if(!noResume) waitForSchedule();
