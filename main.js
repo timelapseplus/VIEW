@@ -5997,7 +5997,7 @@ core.on('intervalometer.status', function(msg) {
         mcu.disableGpsTimeUpdate = false;
     }
     if(msg) {
-        if(!msg.running && !cache.intervalometerStatus.running && core.currentProgram.autoRestart) {
+        if(!msg.running && !cache.intervalometerStatus.running && core.currentProgram.autoRestart && !msg.autoRestart) {
             console.log("MAIN: Disabling auto restart.");
             core.currentProgram.autoRestart = false;
             db.set('intervalometer.currentProgram', core.currentProgram);

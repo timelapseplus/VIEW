@@ -1272,7 +1272,8 @@ function scheduled(noResume) {
                 if(intervalometer.status.minutesUntilStart < 0 && intervalometer.status.frames > 0) {
                     intervalometer.status.message = "done for today, rebooting...";
                     logEvent("schedule complete, rebooting system and resuming...");
-                    intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
+                    intervalometer.status.autoRestart = true;
+                    return intervalometer.cancel('scheduled', function(){ // each day a new clip is generated
                         setTimeout(function() {
                             exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; init 6"', function() {}); // restarting system
                         }, 3000);
