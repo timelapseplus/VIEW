@@ -5065,8 +5065,10 @@ setTimeout(function(){
             if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
                 db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
                     if(!err && !isNaN(parseFloat(ref))) {
-                        console.log("MAIN: Restarting scheduled program...", ref);
-                        core.startIntervalometer(core.currentProgram, null, 0, parseFloat(ref), callback);
+                        db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
+                            console.log("MAIN: Restarting scheduled program...", ref, offset);
+                            core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
+                        });
                     }
                 });
             }
@@ -5987,6 +5989,7 @@ core.on('intervalometer.status', function(msg) {
             console.log("MAIN: Saving intervalometer.currentProgram for auto restart,", msg.exposureReferenceEv);
             core.currentProgram.autoRestart = true;
             db.set('intervalometer.currentProgramReferenceEv', msg.exposureReferenceEv);
+            db.set('intervalometer.currentProgramTimeOffset', msg.timeOffsetSeconds);
             db.set('intervalometer.currentProgram', core.currentProgram);
         }
     } else if(msg && cache.intervalometerStatus && cache.intervalometerStatus.running) {
