@@ -1278,12 +1278,16 @@ function scheduled(noResume) {
                         }, 3000);
                     });
                 } else {
-                    var minutes = intervalometer.status.minutesUntilStart % 60;
-                    var hours = (intervalometer.status.minutesUntilStart - minutes) / 60;
-                    if(hours > 0) {
-                        intervalometer.status.message = "starting in " + hours + "hour" + (hours > 1 ? "s, ":", ") + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                    if(intervalometer.status.minutesUntilStart < 0) {
+                        intervalometer.status.message = "today's schedule complete, waiting...";
                     } else {
-                        intervalometer.status.message = "starting in " + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                        var minutes = intervalometer.status.minutesUntilStart % 60;
+                        var hours = (intervalometer.status.minutesUntilStart - minutes) / 60;
+                        if(hours > 0) {
+                            intervalometer.status.message = "starting in " + hours + "hour" + (hours > 1 ? "s, ":", ") + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                        } else {
+                            intervalometer.status.message = "starting in " + minutes + " minute" + (minutes > 1 ? "s...":"...");
+                        }
                     }
                 }
                 intervalometer.emit("intervalometer.status", intervalometer.status);
@@ -1773,7 +1777,8 @@ intervalometer.resume = function() {
     if(scheduled() && intervalometer.status.running) setTimeout(runPhoto, ms);
 }
 
-function getReferenceExposure(callback) {
+function getReferenceExposure(callback, tries) {
+
     logEvent("Getting reference exposure...");
     intervalometer.status.message = "capturing reference image";
     intervalometer.emit("intervalometer.status", intervalometer.status);
@@ -1782,7 +1787,15 @@ function getReferenceExposure(callback) {
         if(!err && res && res.ev != null) {
             callback && callback(null, res.ev);
         } else {
-            callback && callback("Failed to determine reference exposure for delayed start", null);
+            if(!tries) tries = 0;
+            tries++;
+            if(tries < 3) {
+                setTimeout(function() {
+                    getReferenceExposure(callback, tries);
+                }, 5000);
+            } else {
+                callback && callback("Failed to determine reference exposure for delayed start", null);
+            }
         }
     });
 }
