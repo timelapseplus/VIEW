@@ -5057,24 +5057,30 @@ nodeCleanup(function (exitCode, signal) {
     return false;
 });
 
-setTimeout(function(){
-    db.get('intervalometer.currentProgram', function(err, data) {
-        if(!err && data) {
-            console.log("MAIN: Loading saved intervalometer settings...", data);
-            core.loadProgram(data);
-            if(core.currentProgram.scheduled && core.currentProgram.autoRestart) {
-                db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
-                    if(!err && !isNaN(parseFloat(ref))) {
-                        db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
-                            console.log("MAIN: Restarting scheduled program...", ref, offset);
-                            core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
-                        });
-                    }
-                });
+function loadSavedProgram() {
+    if(!core.connected || !core.intervalometerStatus) {
+        return setTimeout(loadSavedProgram, 30000);
+    } else {
+        return db.get('intervalometer.currentProgram', function(err, data) {
+            if(!err && data) {
+                console.log("MAIN: Loading saved intervalometer settings...", data);
+                core.loadProgram(data);
+                if(core.currentProgram.scheduled && core.currentProgram.autoRestart && !core.intervalometerStatus.running) {
+                    db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
+                        if(!err && !isNaN(parseFloat(ref))) {
+                            db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
+                                console.log("MAIN: Restarting scheduled program...", ref, offset);
+                                core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
+                            });
+                        }
+                    });
+                }
             }
-        }
-    });
-}, 60000);
+        });
+    }
+}
+loadSavedProgram();
+
 
 db.get('chargeLightDisabled', function(err, en) {
     if(!err) {
@@ -5997,7 +6003,7 @@ core.on('intervalometer.status', function(msg) {
         mcu.disableGpsTimeUpdate = false;
     }
     if(msg) {
-        if(!msg.running && cache.intervalometerStatus && !cache.intervalometerStatus.running && core.currentProgram.autoRestart && !msg.autoRestart) {
+        if(!msg.running && cache.intervalometerStatus && !cache.intervalometerStatus.running && core.currentProgram.scheduled && !core.currentProgram.autoRestart && !msg.autoRestart) {
             console.log("MAIN: Disabling auto restart.");
             core.currentProgram.autoRestart = false;
             db.set('intervalometer.currentProgram', core.currentProgram);

@@ -79,6 +79,7 @@ function connect() {
     client = net.connect('/tmp/intervalometer.sock', function() {
       console.log('connected to server!');
       client.ready = true;
+      core.connected = true;
       if(restartProgram) {
         core.startIntervalometer(restartProgram, null, restartProgram._timeOffsetSeconds, restartProgram._exposureReferenceEv);
         restartProgram = null;
@@ -166,6 +167,7 @@ function connect() {
     });
     client.on('end', function() {
       client.ready = false;
+      core.connected = false;
       checkRestart();
       console.log('disconnected from server');
       setTimeout(connect, 2000);
@@ -177,6 +179,7 @@ function connect() {
         } else {
             console.log("error: ", err);
         }
+        core.connected = false;
         client.ready = false;
         client.end();
     });
@@ -465,16 +468,18 @@ core.loadProgram(defaultProgram);
 
 
 core.stopIntervalometer = function(callback) {
+    core.currentProgram.autoRestart = false;
     if(!client || !client.ready) {
         core.intervalometerStatus.running = false;
         restartProgram = null;
-        core.currentProgram.autoRestart = false;
         core.emit('intervalometer.status', core.intervalometerStatus);
     } else {
         call('intervalometer.cancel', {}, callback);
     }
 }
 core.startIntervalometer = function(program, date, timeOffsetSeconds, exposureReferenceEv, callback) {
+    if(program.scheduled) program.autoRestart = true;
+    core.loadProgram(program);
     if(typeof date == 'function') {
         callback = date;
         date = null;
@@ -483,7 +488,7 @@ core.startIntervalometer = function(program, date, timeOffsetSeconds, exposureRe
     }
     power.performance('high');
     core.addGpsData(mcu.validCoordinates());
-    call('intervalometer.run', {program:program, date:date, timeOffsetSeconds:timeOffsetSeconds, exposureReferenceEv:exposureReferenceEv}, callback);
+    call('intervalometer.run', {program:core.currentProgram, date:date, timeOffsetSeconds:timeOffsetSeconds, exposureReferenceEv:exposureReferenceEv}, callback);
 }
 core.addGpsData = function(gpsData, callback) {
     call('gps', {gpsData:gpsData}, callback);
