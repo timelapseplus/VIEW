@@ -1756,6 +1756,7 @@ intervalometer.cancel = function(reason, callback) {
 }
 
 intervalometer.resume = function() {
+    if(!intervalometer.status.running) return;
     logEvent("resuming time-lapse...")
     camera.ptp.cancelCallbacks();
     busyPhoto = false;
