@@ -825,12 +825,12 @@ camera.ptp.on('settings', function(data) {
 camera.ptp.on('connected', function(model) {
   console.log("CORE: camera connected", model, "count", camera.ptp.count);
   sendCameraUpdate();
-  if(camera.ptp.count == 1 && intervalometerStatus && intervalometerStatus.running) intervalometer.resume();
+  if(camera.ptp.count == 1) intervalometer.resume();
 });
 camera.ptp.new.on('connected', function(model) {
   console.log("CORE: camera connected", model, "count", camera.ptp.new.cameras.length);
   sendCameraUpdate();
-  if(camera.ptp.new.cameras.length == 1 && intervalometerStatus && intervalometerStatus.running) intervalometer.resume();
+  if(camera.ptp.new.cameras.length == 1) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
  sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status));

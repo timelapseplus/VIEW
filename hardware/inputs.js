@@ -134,7 +134,7 @@ inputs.start = function(knobOptions) {
             inputsRunning = false;
             if (!stop) {
                 setTimeout(function() {
-                    if(!stop) inputs.start();
+                    if(!stop) inputs.start(knobOptions);
                 }, 500);
             }
         });
