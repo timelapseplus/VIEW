@@ -10,8 +10,7 @@ var async = require('async');
 var fs = require('fs');
 var db = require("./db.js");
 
-
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 var CLIENT_SERVER_PORT = 80;
 var CLIENT_WS_PORT = 8101;
