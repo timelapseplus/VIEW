@@ -4215,7 +4215,7 @@ if (VIEW_HARDWARE) {
                 if(mcu.gps.satsActive) info += "Active Sats: " + mcu.gps.satsActive.length + "\t";
             } else {
                info = "GPS enabled\tAcquiring a position fix...\t";
-               info += "Visible Sats: " + mcu.gps.satsVisible.length + "\t";
+               info += "Visible Sats: " + (mcu.gps.satsVisible ? mcu.gps.satsVisible.length : '0') + "\t";
                if(mcu.gps.time) info += "Time: " + mcu.gps.time + "\t";
             }
         } else {
