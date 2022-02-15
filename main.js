@@ -2570,6 +2570,17 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var reloadApp = function() {
+        closeSystem(function(){
+            var killServer = '';
+            if(core.processId) {
+                killServer = '; kill -s 9 ' + core.processId;
+            }
+            exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+            //exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
+        });
+    }
+
     var versionUpdateConfirmMenuBuild = function(versionTarget) {
         var statusValue = null;
         return {
@@ -2612,9 +2623,7 @@ if (VIEW_HARDWARE) {
                                         oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                         oled.update();
                                         wifi.unblockBt(function(){
-                                            closeSystem(function(){
-                                                exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
-                                            });
+                                            reloadApp();
                                         });
                                     }
                                 });
@@ -2638,9 +2647,7 @@ if (VIEW_HARDWARE) {
                                 });
                                 updates.setVersion(versionTarget, function(){
                                     oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
-                                    closeSystem(function(){
-                                        exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
-                                    });
+                                    reloadApp();
                                 });
                             } else {
                                 power.disableAutoOff();
@@ -2682,9 +2689,7 @@ if (VIEW_HARDWARE) {
                                             oled.progress("Installing " + versionTarget.version, "reloading app...", 1, false);
                                             oled.update();
                                             wifi.unblockBt(function(){
-                                                closeSystem(function(){
-                                                    exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
-                                                });
+                                                reloadApp();
                                             });
                                         });
                                     } else {
