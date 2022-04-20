@@ -198,6 +198,6 @@ exports.hdrCount = "Number of exposures per frame in a bracketed shot";
 
 exports.hdrStops = "Number of stops between each exposure in a bracket";
 
-exports.nightLuminance = "This is the target luminance for evaluating the night exposure when going from day to night.  The value is defined in stops relative to a 'normally exposed' scene.  For night to day, this value is not used, but instead the luminance of the starting image becomes the luminance target, and as it changes to day the day luminance target is used instead.";
+exports.nightLuminance = "This is the target luminance for evaluating the night exposure when going from day to night.  The value is defined in stops relative to a 'normally exposed' scene.  For night to day, this value is not used, but instead the luminance of the starting image becomes the luminance target, and as it changes to day the day luminance target is used instead.  A positive night luminance is not recommended unless there are ISO/shutter/aperture limits to prevent overexposure at night.";
 
 exports.dayLuminance = "This is the target luminance for evaluating the day exposure when going from night to day.  The value is defined in stops relative to a 'normally exposed' scene.  For day to night, this value is not used, but instead the luminance of the starting image becomes the luminance target, and as it changes to night the night luminance target is used instead.";

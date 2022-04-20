@@ -1240,6 +1240,26 @@ if (VIEW_HARDWARE) {
             value: "0 stops",
             help: help.nightLuminance,
             action: ui.set(core.currentProgram, 'nightLuminance', 0)
+        }, {
+            name: "Night Luminance Target",
+            value: "+0.5 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', 0.5)
+        }, {
+            name: "Night Luminance Target",
+            value: "+1 stop",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', 1)
+        }, {
+            name: "Night Luminance Target",
+            value: "+1.5 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', 1.5)
+        }, {
+            name: "Night Luminance Target",
+            value: "2 stops",
+            help: help.nightLuminance,
+            action: ui.set(core.currentProgram, 'nightLuminance', 2)
         }]
     }
 
