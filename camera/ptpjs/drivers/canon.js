@@ -92,6 +92,7 @@ driver.supportedCameras = {
     '04a9:32e8': {name: "Canon EOS 1D X III",       status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04a9:32f4': {name: "Canon EOS R5",             status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '04a9:32f5': {name: "Canon EOS R6",             status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '04a9:3303': {name: "Canon EOS R5 C",           status: 'unknown',  supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {

@@ -51,7 +51,7 @@ driver.supportedCameras = {
     '07b4:0130': { name: "Olympus OM-D",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '07b4:0135': { name: "Olympus OM-D E-M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
     '07b4:012f': { name: "Olympus OM-D E-M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '33A2:0136': { name: "Olympus OM-1",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '33a2:0136': { name: "Olympus OM-1",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
 }
 
 var properties = {
