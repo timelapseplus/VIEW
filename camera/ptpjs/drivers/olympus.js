@@ -34,7 +34,7 @@ function exposureEvent(camera) {
     if(!camera._expCache) camera._expCache = {};
     var update = false;
     for(var k in camera.exposure) {
-        if(camera.exposure[k].ev != camera._expCache[k]) {
+        if(camera.exposure[k] && camera.exposure[k].ev != camera._expCache[k]) {
            camera._expCache[k] = camera.exposure[k].ev;
            update = true; 
         }
@@ -1078,6 +1078,7 @@ driver.setFocusPoint = function(camera, x, y, callback) {
 
 driver.setLiveviewSize = function(camera, w, h, callback) {
     var liveviewSize = camera.config.liveviewSize;
+    if(!liveviewSize) return callback && callback("not supported");
     liveviewSize.x = w;
     liveviewSize.y = h;
     var newSize = (w << 16) | h;
