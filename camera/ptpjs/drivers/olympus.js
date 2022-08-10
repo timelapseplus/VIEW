@@ -48,10 +48,10 @@ function exposureEvent(camera) {
 driver.supportsNativeHDR = true;
 
 driver.supportedCameras = {
-    '07b4:0130': { name: "Olympus OM-D",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '07b4:0135': { name: "Olympus OM-D E-M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '07b4:012f': { name: "Olympus OM-D E-M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
-    '33a2:0136': { name: "Olympus OM-1",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C' },
+    '07b4:0130': { name: "Olympus OM-D",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', codeIndex: {iso: 0} },
+    '07b4:0135': { name: "Olympus OM-D E-M1 II",     status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', codeIndex: {iso: 0} },
+    '07b4:012f': { name: "Olympus OM-D E-M10 III",   status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', codeIndex: {iso: 0} },
+    '33a2:0136': { name: "Olympus OM-1",             status: 'unknown', supports: { shutter: true, aperture: true, iso: true, liveview: true, destination: true, focus: true, }, usb: 'USB C', codeIndex: {iso: 1} },
 }
 
 var properties = {
@@ -61,7 +61,7 @@ var properties = {
         setFunction: ptp.setPropU32,
         getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
-        code: 0xD01C,
+        code: [0xD01C],
         ev: true,
         values: [
             { name: "LIVETIME", ev: null,       code:  4294967293 },
@@ -139,7 +139,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0xD002,
+        code: [0xD002],
         ev: true,
         values: [
             { name: "1.0",      ev: -8,          code: 10  },
@@ -192,7 +192,7 @@ var properties = {
         setFunction: ptp.setProp32,
         getFunction: ptp.getProp32,
         listFunction: ptp.listProp,
-        code: 0xD007,
+        code: [0xD007, 0xD1BF],
         ev: true,
         values: [
             { name: "32",       ev:  1 + 2 / 3,  code: 32 },
@@ -242,7 +242,7 @@ var properties = {
         setFunction: ptp.setPropU8,
         getFunction: ptp.getPropU8,
         listFunction: ptp.listProp,
-        code: 0xd00d,
+        code: [0xd00d],
         ev: false,
         values: [
             { name: "RAW",               value: 'raw',      code: 32   },
@@ -262,7 +262,7 @@ var properties = {
         setFunction: null,
         getFunction: null,
         listFunction: null,
-        code: null,
+        code: [null],
         ev: false,
         default: 0,
         values: [
@@ -276,7 +276,7 @@ var properties = {
         setFunction: null,
         getFunction: null,
         listFunction: null,
-        code: null,
+        code: [null],
         ev: false,
         default: 0,
     },
@@ -286,7 +286,7 @@ var properties = {
         setFunction: null,
         getFunction: ptp.getPropU8,
         listFunction: null,
-        code: 0x5001,
+        code: [0x5001],
         ev: false,
     },
     'burst': {
@@ -295,7 +295,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: null,
-        code: 0x5018,
+        code: [0x5018],
         ev: false,
     },
     //'bracketing': {
@@ -304,7 +304,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD0C0,
+    //    code: [0xD0C0],
     //    ev: false,
     //    values: [
     //        { name: "disabled",  value: 0, code: 0 },
@@ -317,7 +317,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD0C1,
+    //    code: [0xD0C1],
     //    ev: false,
     //    values: [
     //        { name: "1/3 stop",  value: 1/3, code: 0 },
@@ -333,7 +333,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0xD0AD,
+        code: [0xD0AD],
         ev: false,
         values: [
             { name: "Off",   value: null, code: 1 },
@@ -352,7 +352,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD0C3,
+    //    code: [0xD0C3],
     //    ev: false,
     //    values: [
     //        { name: "UNKNOWN",  value: 0, code: 1 },
@@ -364,7 +364,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD07A,
+    //    code: [0xD07A],
     //    ev: false,
     //    values: [
     //        { name: "Center first",  value: 'center', code: 0 },
@@ -377,7 +377,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD079,
+    //    code: [0xD079],
     //    ev: false,
     //    values: [
     //        { name: "Shutter",            value: 's',   code: 0 },
@@ -392,7 +392,7 @@ var properties = {
     //    setFunction: ptp.setPropU8,
     //    getFunction: ptp.getPropU8,
     //    listFunction: ptp.listProp,
-    //    code: 0xD078,
+    //    code: [0xD078],
     //    ev: false,
     //    values: [
     //        { name: "AE & Flash",         value: 'flash',   code: 0 },
@@ -407,7 +407,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0xD003,
+        code: [0xD003],
         ev: false,
         values: [
             { name: "MF",           value: 'mf',     code: 0x0001 },
@@ -423,7 +423,7 @@ var properties = {
         setFunction: ptp.setPropU32,
         getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
-        code: 0xD06D,
+        code: [0xD06D],
         ev: false,
         values: [
             { name: "enabled",         value: 'on',        code: 67109632 },
@@ -440,7 +440,7 @@ var properties = {
         setFunction: ptp.setPropU32,
         getFunction: ptp.getPropU32,
         listFunction: ptp.listProp,
-        code: 0xD0D6,
+        code: [0xD0D6],
         ev: false,
         mapFunction: parseLiveviewSize
         //values: [
@@ -453,7 +453,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0xD04B,
+        code: [0xD04B],
         ev: false,
         values: [
             { name: "full",         value: 'full',        code: 0x0000 },
@@ -466,7 +466,7 @@ var properties = {
         setFunction: ptp.setPropU16,
         getFunction: ptp.getPropU16,
         listFunction: ptp.listProp,
-        code: 0xD051,
+        code: [0xD051],
         ev: false,
         mapFunction: parseFocusPoints
     },
@@ -477,7 +477,7 @@ driver.properties = properties;
 function propMapped(propCode) {
     for(var name in properties) {
         if(properties.hasOwnProperty(name)) {
-            if(propCode === properties[name].code) return true;
+            if(properties[name].code.indexOf(propCode) !== -1) return true;
         }
     }
     return false;
@@ -581,7 +581,7 @@ driver.refresh = function(camera, callback) {
                     if(!camera[properties[key].category]) camera[properties[key].category] = {};
                     if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                     if(properties[key].listFunction) {
-                        properties[key].listFunction(camera._dev, properties[key].code, function(err, current, list, valueSize, listType) {
+                        properties[key].listFunction(camera._dev, properties[key].code[camera.supports.codeIndex[key] || 0], function(err, current, list, valueSize, listType) {
                             if(err || !list) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
@@ -726,8 +726,8 @@ driver.set = function(camera, param, value, callback, _tries) {
             }
             if(properties[param] && properties[param].setFunction) {
                 if(cameraValue !== null) {
-                    _logD("setting", ptp.hex(properties[param].code), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code, cameraValue, function(err) {
+                    _logD("setting", ptp.hex(properties[param].code[camera.supports.codeIndex[key] || 0]), "to", cameraValue);
+                    properties[param].setFunction(camera._dev, properties[param].code[camera.supports.codeIndex[key] || 0], cameraValue, function(err) {
                         if(!err) {
                             if(!camera[properties[param].category]) camera[properties[param].category] = {};
                             if(!camera[properties[param].category][param]) camera[properties[param].category][param] = {};
@@ -742,7 +742,7 @@ driver.set = function(camera, param, value, callback, _tries) {
                             cb(err);
                             exposureEvent(camera);
                         } else {
-                            _logE("error setting " + ptp.hex(properties[param].code) + ": " + err);
+                            _logE("error setting " + ptp.hex(properties[param].code[camera.supports.codeIndex[key] || 0]) + ": " + err);
                             return cb(err);
                         }
                     });
@@ -787,7 +787,7 @@ driver.get = function(camera, param, callback) {
     async.series([
         function(cb){
             if(properties[param] && properties[param].getFunction) {
-                properties[param].getFunction(camera._dev, properties[param].code, function(err, data, size) {
+                properties[param].getFunction(camera._dev, properties[param].code[camera.supports.codeIndex[key] || 0], function(err, data, size) {
                     if(!err) {
                         properties[param].size = size;
                         if(properties[param].values) {
