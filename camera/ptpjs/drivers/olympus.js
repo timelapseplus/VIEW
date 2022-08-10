@@ -581,7 +581,7 @@ driver.refresh = function(camera, callback) {
                     if(!camera[properties[key].category]) camera[properties[key].category] = {};
                     if(!camera[properties[key].category][key]) camera[properties[key].category][key] = {};
                     if(properties[key].listFunction) {
-                        properties[key].listFunction(camera._dev, properties[key].code[camera.supports.codeIndex[key] || 0], function(err, current, list, valueSize, listType) {
+                        properties[key].listFunction(camera._dev, properties[key].code[camera.supports.codeIndex.hasOwnProperty(key) ? camera.supports.codeIndex[key] : 0], function(err, current, list, valueSize, listType) {
                             if(err || !list) {
                                 _logE("failed to list", key, ", err:", err);
                             } else {
@@ -726,8 +726,8 @@ driver.set = function(camera, param, value, callback, _tries) {
             }
             if(properties[param] && properties[param].setFunction) {
                 if(cameraValue !== null) {
-                    _logD("setting", ptp.hex(properties[param].code[camera.supports.codeIndex[key] || 0]), "to", cameraValue);
-                    properties[param].setFunction(camera._dev, properties[param].code[camera.supports.codeIndex[key] || 0], cameraValue, function(err) {
+                    _logD("setting", ptp.hex(properties[param].code[camera.supports.codeIndex.hasOwnProperty(key) ? camera.supports.codeIndex[key] : 0]), "to", cameraValue);
+                    properties[param].setFunction(camera._dev, properties[param].code[camera.supports.codeIndex.hasOwnProperty(key) ? camera.supports.codeIndex[key] : 0], cameraValue, function(err) {
                         if(!err) {
                             if(!camera[properties[param].category]) camera[properties[param].category] = {};
                             if(!camera[properties[param].category][param]) camera[properties[param].category][param] = {};
@@ -742,7 +742,7 @@ driver.set = function(camera, param, value, callback, _tries) {
                             cb(err);
                             exposureEvent(camera);
                         } else {
-                            _logE("error setting " + ptp.hex(properties[param].code[camera.supports.codeIndex[key] || 0]) + ": " + err);
+                            _logE("error setting " + ptp.hex(properties[param].code[camera.supports.codeIndex.hasOwnProperty(key) ? camera.supports.codeIndex[key] : 0]) + ": " + err);
                             return cb(err);
                         }
                     });
@@ -787,7 +787,7 @@ driver.get = function(camera, param, callback) {
     async.series([
         function(cb){
             if(properties[param] && properties[param].getFunction) {
-                properties[param].getFunction(camera._dev, properties[param].code[camera.supports.codeIndex[key] || 0], function(err, data, size) {
+                properties[param].getFunction(camera._dev, properties[param].code[camera.supports.codeIndex.hasOwnProperty(key) ? camera.supports.codeIndex[key] : 0], function(err, data, size) {
                     if(!err) {
                         properties[param].size = size;
                         if(properties[param].values) {
