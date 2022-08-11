@@ -192,7 +192,7 @@ var properties = {
         setFunction: ptp.setProp32,
         getFunction: ptp.getProp32,
         listFunction: ptp.listProp,
-        code: [0xD007, 0xD1BF],
+        code: [0xD007, 0xD1C0],
         ev: true,
         values: [
             { name: "32",       ev:  1 + 2 / 3,  code: 32 },

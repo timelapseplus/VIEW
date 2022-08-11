@@ -69,7 +69,7 @@ driver.supportedCameras = {
     '054c:0d2b': { name: "Sony A7C",      supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2500, newISO: true  } },
     '054c:0d9f': { name: "Sony A7R IV A", supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2500, newISO: true  } },
     '054c:0da3': { name: "Sony FX3",      supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2500, newISO: true  } },
-    '054c:0da7': { name: "Sony A7 IV",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2500, newISO: true  } },
+    '054c:0da7': { name: "Sony A7 IV",    supports: { shutter: true, aperture: true, iso: true, liveview: true,  destination: true,  focus: true,  _bufTime: 2500, newISO: false  } },
 }
 
 var properties = {
