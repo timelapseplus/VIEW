@@ -159,6 +159,28 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02f0': {
+            name: "Fuji X-H2S",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
+    '04cb:02f2': {
+            name: "Fuji X-H2",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
 }
 
 var properties = {
