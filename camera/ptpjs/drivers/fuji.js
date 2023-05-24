@@ -181,6 +181,17 @@ driver.supportedCameras = {
                 focus: true,
             }
         },
+    '04cb:02fc': {
+            name: "Fuji X-T5",
+            supports: {
+                shutter: true,
+                aperture: true,
+                iso: true,
+                liveview: true,
+                destination: true,
+                focus: true,
+            }
+        },
 }
 
 var properties = {
