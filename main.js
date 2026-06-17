@@ -4874,6 +4874,8 @@ if (VIEW_HARDWARE) {
     }
 
     var gestureVideoPlaying = false;
+    var gesturePreviewArmed = false;
+    var gesturePreviewArmHandle = null;
     var gestureModeTimer = function() {
         if (gestureModeHandle) clearTimeout(gestureModeHandle);
         if (!gestureMode) {
@@ -4901,6 +4903,7 @@ if (VIEW_HARDWARE) {
         power.activity();
         if (blockInputs) return;
         if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
+        if(inputs.gestureStatus != 'enabled') return; // respect the gesture-sensor setting
         if (blockGesture) {
             console.log("(blocked)");
             return;
@@ -4934,7 +4937,18 @@ if (VIEW_HARDWARE) {
                 oled.show();
             } else if(gestureVideoPlaying) {
                 oled.videoSkipFrames(30*10);
+            } else if(!gesturePreviewArmed) {
+                // require a second deliberate swipe to start the preview, so a single
+                // spurious gesture reading doesn't launch playback during a time-lapse
+                gesturePreviewArmed = true;
+                ui.status("swipe again to preview");
+                if(gesturePreviewArmHandle) clearTimeout(gesturePreviewArmHandle);
+                gesturePreviewArmHandle = setTimeout(function() {
+                    gesturePreviewArmed = false;
+                }, 2000);
             } else {
+                if(gesturePreviewArmHandle) clearTimeout(gesturePreviewArmHandle);
+                gesturePreviewArmed = false;
                 console.log("running preview via gesture...");
                 gestureVideoPlaying = true;
                 core.getCurrentTimelapseFrames(null, function(err, framesPaths) {

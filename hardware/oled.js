@@ -1165,7 +1165,7 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
         skipFrames = 0;
         if (fpsMultiplier > 0)
             frameIndex += fpsMultiplier;
-        if(frameIndex > frames) oled.stopVideo();
+        if(frameIndex > frames) return oled.stopVideo();
 
         if(frameArray) {
             fb.jpeg(0, 0, frameArray[frameIndex]);
