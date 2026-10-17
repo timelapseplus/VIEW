@@ -65,13 +65,16 @@ var reconnectNetwork, reconnectPassword;
 var sys_events_mon = spawn(SYSTEM_WIFI_EVENTS, ['-w'], {shell: true});
 var startTime = Date.now();
 var lastBtReset = Date.now() - 2 * 60 * 1000;
+var sysEventsTail = ""; // dmesg output to a pipe is block-buffered, so a chunk can end mid-line
 sys_events_mon.stdout.on('data', function(data) {
   if(Date.now() - startTime < 30000) return;
-  var lines = data.toString().split('\n');
+  var lines = (sysEventsTail + data.toString()).split('\n');
+  sysEventsTail = lines.pop();
   for(var i = 0; i < lines.length; i++) {
 	  var line = lines[i];
 	  if(line.indexOf("RTL871X") !== -1) {
 		  console.log("WIFI: system event: ", line);
+		  trackApClient(line);
 		  var matches = line.toString().match(/sta recv deauth reason code\(([0-9]+)\)/);
 		  if(matches && matches.length > 0) {
 		  	var reasonCode = parseInt(matches[1]);
@@ -120,6 +123,43 @@ sys_events_mon.stdout.on('data', function(data) {
 	  }
   }
 });
+
+// AP watchdog. In 2026-08 the RTL8723BU hotspot twice went silent: the driver dropped the phone, phones
+// could no longer see the SSID, and nothing was logged until the AP was restarted by hand. Clients are
+// tracked from the driver's key events; once one has used the AP and it has stayed empty for a while,
+// 'apIdle' is emitted (main.js decides whether to restart). The wait doubles after each emit and resets
+// when a client joins, so a VIEW left without its phone is not power-cycling its WiFi every 5 minutes.
+var AP_IDLE_MIN_MS = 5 * 60 * 1000;
+var AP_IDLE_MAX_MS = 60 * 60 * 1000;
+var apClients = {};
+var apHadClient = false;
+var apEmptySince = null;
+var apIdleMs = AP_IDLE_MIN_MS;
+
+function trackApClient(line) {
+	if(!wifi.apMode) return;
+	var joined = line.match(/set pairwise key .*addr:([0-9a-f:]{17})/);
+	var left = line.match(/clear key for addr:([0-9a-f:]{17})/);
+	if(joined) {
+		apClients[joined[1]] = true;
+		apHadClient = true;
+		apEmptySince = null;
+		apIdleMs = AP_IDLE_MIN_MS;
+	} else if(left) {
+		delete apClients[left[1]];
+		if(Object.keys(apClients).length == 0) apEmptySince = Date.now();
+	}
+}
+
+setInterval(function() {
+	if(!wifi.apMode || !apHadClient || apEmptySince == null) return;
+	if(Date.now() - apEmptySince < apIdleMs) return;
+	console.log("WIFI: no AP clients for " + Math.round((Date.now() - apEmptySince) / 60000) + " min");
+	apClients = {}; // a restart drops everyone anyway
+	apEmptySince = Date.now();
+	apIdleMs = Math.min(apIdleMs * 2, AP_IDLE_MAX_MS);
+	wifi.emit("apIdle");
+}, 30000);
 
 function hostApdConfig(ssid, pass, channel, callback) {
 	console.log("WIFI: configuring AP with SSID '" + ssid + "' on channel " + channel);

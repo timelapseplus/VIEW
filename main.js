@@ -236,6 +236,16 @@ if (VIEW_HARDWARE) {
     wifi.on('error', function(message) {
         ui.alert('Error', message);
     });
+    wifi.on('apIdle', function() {
+        // reloading the WiFi module drops BT (shared chip), so leave a running BT motion rig alone
+        var btMotion = core.motionStatus.nmxConnectedBt || core.motionStatus.gmConnectedBt;
+        if(wifi.noReset || (core.intervalometerStatus.running && btMotion)) {
+            console.log("WIFI: AP idle, not restarting (BT motion or camera WiFi in use)");
+            return;
+        }
+        console.log("WIFI: AP idle, restarting AP");
+        wifi.enableAP();
+    });
     wifi.on('disconnect', function(previousConnection) {
         app.disableRemote();
         oled.setIcon('wifi', false);
