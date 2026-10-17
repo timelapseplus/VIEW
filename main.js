@@ -6004,7 +6004,23 @@ core.on('intervalometer.currentProgram', function(msg) {
     app.send('timelapseProgram', {program: core.currentProgram});
 });
 
+var frameWatch = require('./intervalometer/frame-watch.js')(function(minutes, frames) {
+    var msg = "No new frames for " + minutes + " minutes (last frame " + frames + ").\nThe camera may have powered off or disconnected.";
+    console.log("FRAME WATCH: " + msg.replace("\n", " "));
+    if (VIEW_HARDWARE) {
+        if(ui.currentOrigin() == 'alert') ui.back();
+        ui.alert('ERROR', msg, null, true);
+    }
+    app.send('intervalometerError', {
+        msg: msg
+    });
+});
+setInterval(function() {
+    frameWatch.check(Date.now());
+}, 30000);
+
 core.on('intervalometer.status', function(msg) {
+    frameWatch.status(msg, Date.now());
     //console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
