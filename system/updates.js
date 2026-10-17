@@ -67,7 +67,7 @@ function cleanupLogs() {
 			var logs = res.trim().split('\n');
 			var uiLogs = logs.filter(function(l){return l.indexOf('ui')>0});
 			var coreLogs = logs.filter(function(l){return l.indexOf('core')>0});
-			logPurgeHelper(uiLogs, 2);
+			logPurgeHelper(uiLogs, 10); // UI logs hold the WiFi/app events; 2 lost them after two reboots
 			logPurgeHelper(coreLogs, 10);
 		}
 	});
