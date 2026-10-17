@@ -1532,7 +1532,9 @@ function runPhoto(isRetry) {
                 if (!err && photoRes) {
                     if (!intervalometer.status.hdrIndex) referencePhotoRes = photoRes;
 
-                    var bufferTime = (new Date() / 1000) - intervalometer.status.captureStartTime - camera.lists.getSecondsFromEv(remap('camera.ptp.settings.details').shutter.ev);
+                    // shutterEv is this frame's (null-safe) shutter; re-reading the camera here threw and killed
+                    // the core when the camera dropped off USB right after a capture.
+                    var bufferTime = (new Date() / 1000) - intervalometer.status.captureStartTime - camera.lists.getSecondsFromEv(shutterEv);
                     if (!intervalometer.status.bufferSeconds) {
                         intervalometer.status.bufferSeconds = bufferTime;
                     } else if (bufferTime != intervalometer.status.bufferSeconds) {
