@@ -18,4 +18,8 @@ cat ./logs/current.txt > ./logs/previous.txt
 > ./logs/last.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
 echo "starting CORE...";
-forever -c "node --max_old_space_size=320 --expose-gc" intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+supervise() {
+	name=$1; shift
+	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
+}
+supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &

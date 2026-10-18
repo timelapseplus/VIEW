@@ -57,9 +57,13 @@ echo "STARTING processes...";
 
 killall fbi
 fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
-killall node
-sleep 1
-killall -s 9 node
+# Stop a running app, supervisors first or they would respawn node; a clean boot has nothing to stop.
+pkill -f view-supervise- 2>/dev/null
+if pgrep -x node > /dev/null; then
+	killall node
+	sleep 1
+	killall -s 9 node
+fi
 cd /home/view/current;
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
@@ -68,12 +72,21 @@ cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 > ./logs/last.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+# Keeps a process running like `forever` did, minus forever's own 8-9 s of node start-up per launch.
+# The loop is a shell named view-supervise-<name>, so the stop/restart scripts can kill it by name.
+supervise() {
+	name=$1; shift
+	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
+}
 # The pango/cairo/fontconfig the UI ends up using come from the sharp bundle and cannot find the
 # system config on their own; without this the first OLED draw rescans every font for ~15 s.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 echo "starting UI...";
-forever -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOGFILE &
-sleep 35
+supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
+# Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most.
+i=0
+while [ $i -lt 40 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
+echo "UI ready after ${i}s"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
-forever -c "node --max_old_space_size=320 --expose-gc" intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &

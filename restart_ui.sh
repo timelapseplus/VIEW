@@ -22,4 +22,8 @@ prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
 # See start.sh: keeps the sharp-bundled fontconfig from rescanning all fonts at every start.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 echo "starting UI...";
-forever -l forever.log -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOGFILE &
+supervise() {
+	name=$1; shift
+	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
+}
+supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
