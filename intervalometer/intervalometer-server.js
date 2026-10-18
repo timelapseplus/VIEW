@@ -599,7 +599,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.getSettings':
       if(camera.ptp.new.available) {
-        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status);
+        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status, camera.ptp.new.cameras[0].camera.config);
         sendEvent('camera.settings', newSettings);
           cameraCallback(null, newSettings);
       } else {
@@ -745,13 +745,14 @@ function runCommand(type, args, callback, client) {
   }
 }
 
-function getNewSettings(settings, status) {
+function getNewSettings(settings, status, config) {
   return {
         shutter: settings.shutter && settings.shutter.name,
         aperture: settings.aperture && settings.aperture.name,
         iso: settings.iso && settings.iso.name,
         battery: status && status.battery,
         focusPos: status && status.focusPos,
+        driveMode: config && config.driveMode && config.driveMode.name,
         lists: {
           shutter: settings.shutter && settings.shutter.list,
           aperture: settings.aperture && settings.aperture.list,
@@ -866,7 +867,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.new.cameras.length == 1) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
- sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status));
+ sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status, camera.ptp.new.cameras[0].camera.config));
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected.  Count =", camera.ptp.count);

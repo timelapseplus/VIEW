@@ -217,10 +217,12 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
         case 'camera.ptp.settings-camera':
             if (camera.ptp.new.available) {
                 var base = camera.ptp.new.cameras[0].camera.exposure;
+                var config = camera.ptp.new.cameras[0].camera.config;
                 return {
                     shutter: base.shutter && base.shutter.name,
                     aperture: (base.aperture && base.aperture.name) || camera.lists.getNameFromEv(camera.lists.apertureAll, intervalometer.currentProgram.manualAperture),
                     iso: base.iso && base.iso.name,
+                    driveMode: config && config.driveMode && config.driveMode.name,
                     details: {
                         shutter: base.shutter,
                         aperture: base.aperture,
