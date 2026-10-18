@@ -205,13 +205,15 @@ power.activity = function() {
 power.activity();
 
 power.shutdown = function() {
-    // Supervisors first: unlike forever they survive `killall node` and would start node again.
+    // Leave the Wi-Fi network properly first, and stop wpa_supplicant before it reconnects: when a link just
+    // disappears, the router can ignore VIEW's next authentication attempts for up to a minute.
+    // Supervisors next: unlike forever they survive `killall node` and would start node again.
     // '[v]iew-supervise' matches them but not this sh -c line itself.
-    exec('nohup sh -c "pkill -f \'[v]iew-supervise\'; killall node; sleep 2; kill -s 9 ' + process.pid +  '; init 0"');
+    exec('nohup sh -c "iw dev wlan0 disconnect; killall wpa_supplicant; pkill -f \'[v]iew-supervise\'; killall node; sleep 2; kill -s 9 ' + process.pid +  '; init 0"');
 }
 
 power.reboot = function() {
-    exec('nohup sh -c "pkill -f \'[v]iew-supervise\'; killall node; sleep 2; killall -s 9 node; init 6"'); // see power.shutdown
+    exec('nohup sh -c "iw dev wlan0 disconnect; killall wpa_supplicant; pkill -f \'[v]iew-supervise\'; killall node; sleep 2; killall -s 9 node; init 6"'); // see power.shutdown
 }
 
 power.disableAutoOff = function() {
