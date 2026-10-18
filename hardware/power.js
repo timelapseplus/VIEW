@@ -1,6 +1,7 @@
 var EventEmitter = require("events").EventEmitter;
 var exec = require('child_process').exec;
 var async = require('async');
+var fs = require('fs');
 var interpolate = require('../intervalometer/interpolate.js');
 
 var power = new EventEmitter();
@@ -197,7 +198,18 @@ power.gps = function(enable, callback) {
 power.wifi = function(enable, callback) {
     power.wifiEnabled = enable;
     setPower(function(){
-        setTimeout(callback, 3000); // give time for modules to load/unload
+        if(!enable) return setTimeout(callback, 3000); // give the module time to unload
+        // The chip is normally powered and enumerated long before the app starts (wlan0 exists from ~10 s after
+        // power-on), so only wait while the interface is actually missing, 3 s at most.
+        var waited = 0;
+        var check = function() {
+            fs.exists('/sys/class/net/wlan0', function(exists) {
+                if(exists || waited >= 3000) return callback && callback();
+                waited += 250;
+                setTimeout(check, 250);
+            });
+        };
+        check();
     });
 }
 

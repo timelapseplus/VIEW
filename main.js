@@ -121,15 +121,10 @@ if (VIEW_HARDWARE) {
                         if(wifiStatus.enabled) {
                             wifi.btEnabled = true;
                             wifi.enable(function(){
-                                setTimeout(function(){
-                                    db.get('bt-status', function(err, status) {
-                                        if(status && status.enabled) {
-                                            wifi.enableBt();
-                                            console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                        } else {
-                                            wifi.disableBt();
-                                            console.log("MAIN: disabling bluetooth", wifi.btEnabled);
-                                        }
+                                db.get('bt-status', function(err, status) {
+                                    // Connect (or start the AP) as soon as the Bluetooth module has been switched,
+                                    // instead of after a fixed 5 s: ~0.3 s when BT is off, ~3 s when it is reset.
+                                    var btSettled = function() {
                                         if(!wifi.connected) {
                                             if(wifiStatus.apMode) {
                                                 wifi.enableAP();
@@ -138,8 +133,15 @@ if (VIEW_HARDWARE) {
                                                 wifi.connect(wifiStatus.connect, wifiStatus.password);
                                             }
                                         }
-                                    });
-                                },5000);
+                                    };
+                                    if(status && status.enabled) {
+                                        wifi.enableBt(btSettled);
+                                        console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                    } else {
+                                        wifi.disableBt(btSettled);
+                                        console.log("MAIN: disabling bluetooth", wifi.btEnabled);
+                                    }
+                                });
                             });
                         } else {
                             wifi.disable();
@@ -147,21 +149,20 @@ if (VIEW_HARDWARE) {
                     } else {
                         wifi.btEnabled = true;
                         wifi.enable(function(){
-                            setTimeout(function(){
-                                db.get('bt-status', function(err, status) {
-                                    if(status && status.enabled) {
-                                        wifi.enableBt();
-                                        console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                    } else {
-                                        wifi.disableBt();
-                                        console.log("MAIN: disabling bluetooth", wifi.btEnabled);
+                            db.get('bt-status', function(err, status) {
+                                var btSettled = function() {
+                                    if(!wifi.connected) {
+                                        wifi.enableAP();
                                     }
-                                });
-
-                                if(!wifi.connected) {
-                                    wifi.enableAP();
+                                };
+                                if(status && status.enabled) {
+                                    wifi.enableBt(btSettled);
+                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                } else {
+                                    wifi.disableBt(btSettled);
+                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                 }
-                            },5000);
+                            });
                         });
                     }
                 });

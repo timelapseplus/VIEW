@@ -367,9 +367,10 @@ wifi.connect = function(network, password, callback) {
 	disableBtReset = false;
 	wifi.lastNetwork = network;
 	wifi.lastPassword = password;
-	var join = function() { 
+	var join = function() {
 		iw.join(network, password, function(){
 			iw.dhcp(function(){
+				iw._executeTrackConnection(); // raise 'join' now rather than at the next 10 s connection poll
 				if(callback) callback();
 			});
 		});
@@ -379,7 +380,15 @@ wifi.connect = function(network, password, callback) {
 			wifi.powerCycle(function(){
 				setTimeout(join, 2000);
 			});
-		});		
+		});
+	} else if(!wifi.connected) {
+		// Nothing to tear down on a fresh start: skip the disconnect (dhclient -r alone takes ~2 s) and the 2 s pause.
+		exec("pidof wpa_supplicant dhclient > /dev/null", function(err) {
+			if(err) return join();
+			wifi.disconnect(function() {
+				setTimeout(join, 2000);
+			});
+		});
 	} else {
 		wifi.disconnect(function() {
 			setTimeout(join, 2000);
