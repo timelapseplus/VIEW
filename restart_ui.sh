@@ -4,8 +4,7 @@
 # Find the PIDs of Node.js processes associated with main.js
 PIDS=$(pgrep -f "main.js")
 
-killall fbi
-fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
+cat /home/view/current/media/view-splash.rgb565 > /dev/fb0 2>/dev/null # the splash, see start.sh
 
 # If processes persist, forcefully terminate them
 for PID in $PIDS; do

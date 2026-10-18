@@ -36,6 +36,7 @@ if [ "$ACTION" = "install" ]; then
 	node sd_card_update.js
 	echo "installation complete!"
 	umount /media
+	killall fbi
 fi
 
 echo "current script=$0"
@@ -76,8 +77,6 @@ cpustat "start.sh"
 		node_modules/sharp/lib/* camera/ptpjs/drivers/*.js motion/*.js motion/drivers/*.js $COREMODS > /dev/null 2>&1
 ) &
 
-killall fbi
-fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
 # Stop a running app, supervisors first or they would respawn node; a clean boot has nothing to stop.
 # The pattern matches bin/view-supervise and the inline loop of the first 1.8.55 betas.
 pkill -f '[v]iew-supervise' 2>/dev/null
@@ -87,29 +86,10 @@ if pgrep -x node > /dev/null; then
 	killall -s 9 node
 fi
 cd /home/view/current;
-# rc-local.service (which runs all of this at boot) has TimeoutSec=0: at shutdown systemd waits for our processes
-# with no limit, so a single one that ignores SIGTERM hangs the unit until the battery is pulled. Bound the wait;
-# after 20 s systemd SIGKILLs whatever is left. Written once, only when missing or different.
-DROPIN_DIR=/etc/systemd/system/rc-local.service.d
-DROPIN="[Service]
-TimeoutStopSec=20"
-if [ "$(cat $DROPIN_DIR/view-stop-timeout.conf 2>/dev/null)" != "$DROPIN" ]; then
-	mkdir -p $DROPIN_DIR && echo "$DROPIN" > $DROPIN_DIR/view-stop-timeout.conf && (systemctl daemon-reload &)
-fi
-# Services inherited from the Olimex Debian image that do nothing useful on a VIEW but compete with the app for
-# the single CPU core while it starts: X login (X cannot run on this hardware), boot splash (fbi shows ours), IR
-# remote (unconfigured), a second DHCP server set up for a non-existent interface (dnsmasq serves the hotspot), PPP
-# DNS restore (no PPP), ConsoleKit, cpufreq scripts (they set a governor this kernel lacks; rc.local and the app set
-# the clock), ifupdown (only lo, which systemd brings up itself) and systemd-rfkill@, which restores the radios'
-# saved soft-block state: sysinit.target waits for it until udev has handed over the rfkill devices of the Wi-Fi
-# driver, while the app sets the Bluetooth state itself. Nothing depends on them. Masked once, takes
-# effect from the next boot; `systemctl unmask <name>.service` undoes it.
-UNNEEDED="systemd-rfkill@ slim lirc udhcpd pppd-dns console-kit-log-system-start loadcpufreq cpufrequtils networking plymouth-start plymouth-read-write plymouth-quit plymouth-quit-wait plymouth-halt plymouth-poweroff plymouth-reboot plymouth-kexec"
-TOMASK=""
-for u in $UNNEEDED; do
-	[ -h /etc/systemd/system/$u.service ] || TOMASK="$TOMASK $u.service"
-done
-[ -n "$TOMASK" ] && (systemctl mask $TOMASK > /dev/null 2>&1 &)
+# The splash, until the UI draws its menu. At boot the view-splash unit below has normally put it up already; this
+# covers restarts of the app. A pre-converted frame written straight into the framebuffer: fbi, used before, took
+# over a second (fonts) of the CPU the UI is starting on.
+cat /home/view/current/media/view-splash.rgb565 > /dev/fb0 2>/dev/null
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
 CORELOGFILE="/var/log/view-core-$DATE.txt"
@@ -133,6 +113,48 @@ export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 576MHz
 echo "starting UI...";
 $SUPERVISE ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
+# Housekeeping the UI does not have to wait for.
+# rc-local.service (which runs all of this at boot) has TimeoutSec=0: at shutdown systemd waits for our processes
+# with no limit, so a single one that ignores SIGTERM hangs the unit until the battery is pulled. Bound the wait;
+# after 20 s systemd SIGKILLs whatever is left. Written once, only when missing or different.
+DROPIN_DIR=/etc/systemd/system/rc-local.service.d
+DROPIN="[Service]
+TimeoutStopSec=20"
+if [ "$(cat $DROPIN_DIR/view-stop-timeout.conf 2>/dev/null)" != "$DROPIN" ]; then
+	mkdir -p $DROPIN_DIR && echo "$DROPIN" > $DROPIN_DIR/view-stop-timeout.conf && (systemctl daemon-reload &)
+fi
+# Services inherited from the Olimex Debian image that do nothing useful on a VIEW but compete with the app for
+# the single CPU core while it starts: X login (X cannot run on this hardware), boot splash (we show ours), IR
+# remote (unconfigured), a second DHCP server set up for a non-existent interface (dnsmasq serves the hotspot), PPP
+# DNS restore (no PPP), ConsoleKit, cpufreq scripts (they set a governor this kernel lacks; rc.local and the app set
+# the clock), ifupdown (only lo, which systemd brings up itself) and systemd-rfkill@, which restores the radios'
+# saved soft-block state: sysinit.target waits for it until udev has handed over the rfkill devices of the Wi-Fi
+# driver, while the app sets the Bluetooth state itself. Nothing depends on them. Masked once, takes
+# effect from the next boot; `systemctl unmask <name>.service` undoes it.
+UNNEEDED="systemd-rfkill@ slim lirc udhcpd pppd-dns console-kit-log-system-start loadcpufreq cpufrequtils networking plymouth-start plymouth-read-write plymouth-quit plymouth-quit-wait plymouth-halt plymouth-poweroff plymouth-reboot plymouth-kexec"
+TOMASK=""
+for u in $UNNEEDED; do
+	[ -h /etc/systemd/system/$u.service ] || TOMASK="$TOMASK $u.service"
+done
+[ -n "$TOMASK" ] && (systemctl mask $TOMASK > /dev/null 2>&1 &)
+# Put the splash up as early in the boot as possible, ~3 s after the kernel starts rather than ~14 s: a unit with no
+# dependencies writes the frame (160x128 RGB565, converted from media/view-splash.png) into the OLED's framebuffer,
+# which the kernel sets up 1.5 s into the boot. Written once, takes effect from the next boot;
+# `systemctl disable view-splash` undoes it.
+SPLASH_UNIT="[Unit]
+Description=VIEW boot splash
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'cat /home/view/current/media/view-splash.rgb565 > /dev/fb0 || true'
+
+[Install]
+WantedBy=sysinit.target"
+if [ "$(cat /etc/systemd/system/view-splash.service 2>/dev/null)" != "$SPLASH_UNIT" ]; then
+	echo "$SPLASH_UNIT" > /etc/systemd/system/view-splash.service && mkdir -p /etc/systemd/system/sysinit.target.wants &&
+		ln -sf /etc/systemd/system/view-splash.service /etc/systemd/system/sysinit.target.wants/view-splash.service
+fi
 # Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most.
 i=0
 while [ $i -lt 40 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
