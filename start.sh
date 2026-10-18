@@ -75,6 +75,18 @@ TimeoutStopSec=20"
 if [ "$(cat $DROPIN_DIR/view-stop-timeout.conf 2>/dev/null)" != "$DROPIN" ]; then
 	mkdir -p $DROPIN_DIR && echo "$DROPIN" > $DROPIN_DIR/view-stop-timeout.conf && (systemctl daemon-reload &)
 fi
+# Services inherited from the Olimex Debian image that do nothing useful on a VIEW but compete with the app for
+# the single CPU core while it starts: X login (X cannot run on this hardware), boot splash (fbi shows ours), IR
+# remote (unconfigured), a second DHCP server set up for a non-existent interface (dnsmasq serves the hotspot), PPP
+# DNS restore (no PPP), ConsoleKit, cpufreq scripts (they set a governor this kernel lacks; rc.local and the app set
+# the clock) and ifupdown (only lo, which systemd brings up itself). Nothing depends on them. Masked once, takes
+# effect from the next boot; `systemctl unmask <name>.service` undoes it.
+UNNEEDED="slim lirc udhcpd pppd-dns console-kit-log-system-start loadcpufreq cpufrequtils networking plymouth-start plymouth-read-write plymouth-quit plymouth-quit-wait plymouth-halt plymouth-poweroff plymouth-reboot plymouth-kexec"
+TOMASK=""
+for u in $UNNEEDED; do
+	[ "$(readlink /etc/systemd/system/$u.service)" = "/dev/null" ] || TOMASK="$TOMASK $u.service"
+done
+[ -n "$TOMASK" ] && (systemctl mask $TOMASK > /dev/null 2>&1 &)
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
 CORELOGFILE="/var/log/view-core-$DATE.txt"
