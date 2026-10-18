@@ -133,6 +133,7 @@ usb.on('attach', function(device) {
 usb.on('detach', function(device) {
 	//console.log("DETACHED:", device);
 	var port = device.busNumber + ':' + device.deviceAddress;
+	if(connecting[port]) connecting[port]._detached = true; // still in init(), it won't be added
 	var camIndex = null;
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].camera._port == port) {
@@ -277,8 +278,14 @@ function matchDriver(device) {
 
 api.cameras = [];
 
+// Cameras still in init(), by port. A camera that is on while the VIEW boots is reported by both the
+// device scan and an attach event; connecting it twice left a second camera with no shutter or ISO that
+// stayed primary after a replug, so no time-lapse would start (2026-10-18).
+var connecting = {};
+
 function tryConnectDevice(device, noUnsupportedEvent) {
 	var port = device.busNumber + ':' + device.deviceAddress;
+	if(connecting[port]) return; // already connecting
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].camera._port == port) return; // already connected
 	}
@@ -295,7 +302,13 @@ function tryConnectDevice(device, noUnsupportedEvent) {
 		if(camera) {
 			camera.supports = found.supports;
 			camera.flags = found.flags;
+			connecting[port] = camera;
 			camera.init(function(err) {
+				delete connecting[port];
+				if(camera._detached) {
+					console.log("camera unplugged while connecting:", found.name, "port:", port);
+					return;
+				}
 				api.cameras.push({
 					model: found.name,
 					camera: camera
