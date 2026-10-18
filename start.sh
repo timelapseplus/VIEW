@@ -158,10 +158,11 @@ if [ "$(cat /etc/systemd/system/view-splash.service 2>/dev/null)" != "$SPLASH_UN
 	echo "$SPLASH_UNIT" > /etc/systemd/system/view-splash.service && mkdir -p /etc/systemd/system/sysinit.target.wants &&
 		ln -sf /etc/systemd/system/view-splash.service /etc/systemd/system/sysinit.target.wants/view-splash.service
 fi
-# Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most.
+# Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most; checked every
+# 0.2 s, as the core waits for nothing else.
 i=0
-while [ $i -lt 40 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
-echo "UI ready after ${i}s"
+while [ $i -lt 200 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 0.2; i=$((i+1)); done
+echo "UI ready after $((i / 5)).$((i % 5 * 2))s"
 cpustat "UI ready"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";

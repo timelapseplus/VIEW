@@ -323,10 +323,11 @@ var server = net.createServer(function(c) {
 server.on('error', function(err) {
   console.log("server error", err);
 });
-fs.unlink('/tmp/intervalometer.sock', function(){
-  server.listen('/tmp/intervalometer.sock',  function() {
-    console.log('server bound');
-  });
+// Bound right here rather than from an fs.unlink callback: that callback only ran after the camera API had loaded and
+// tested its drivers (an fs.readdir callback queued earlier in camera/ptpjs/api.js), ~0.5 s later.
+try { fs.unlinkSync('/tmp/intervalometer.sock'); } catch(e) {}
+server.listen('/tmp/intervalometer.sock',  function() {
+  console.log('server bound');
 });
 
 function broadcast(data) {

@@ -75,9 +75,11 @@ watchdog.onKill(function(pid){
 
 var dataBuf = new Buffer(0);
 var client;
+var waitingForServer = false;
 function connect() {
     client = net.connect('/tmp/intervalometer.sock', function() {
       console.log('connected to server!');
+      waitingForServer = false;
       client.ready = true;
       core.connected = true;
       if(restartProgram) {
@@ -174,8 +176,11 @@ function connect() {
     });
     client.on('error', function(err) {
         if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT' || err.code == 'ECONNRESET')) {
-            console.log("Error: server not ready");
-            setTimeout(connect, 1000);
+            // The core binds its socket once it has loaded; retry often so the connection does not add up to a
+            // second to that, and log the wait once.
+            if(!waitingForServer) console.log("Error: server not ready");
+            waitingForServer = true;
+            setTimeout(connect, 250);
         } else {
             console.log("error: ", err);
         }
