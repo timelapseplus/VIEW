@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Boot at 624 MHz, the top of the kernel's frequency table (it runs there at 1.2 V through the systemd part of every
+# boot), at the 1.3 V hardware/power.js uses for live view; rc.local caps the CPU at 432 MHz otherwise. Voltage first,
+# same AXP209 registers as performance(); back to 500 MHz once the core is up (below). First thing, and once: this
+# file runs twice per start, as /root/startup.sh and then as the installed version.
+read -r MAXFREQ < /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+[ "$MAXFREQ" = 624000 ] || { i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 624MHz; }
+
 echo Y > /sys/module/usbcore/parameters/old_scheme_first
 echo -1 >/sys/module/usbcore/parameters/autosuspend
 
@@ -107,10 +114,6 @@ SUPERVISE="sh /home/view/current/bin/view-supervise"
 # The pango/cairo/fontconfig the UI ends up using come from the sharp bundle and cannot find the
 # system config on their own; without this the first OLED draw rescans every font for ~15 s.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
-# Boot at the clock the app itself uses for live view (hardware/power.js performance('high'): 576 MHz at
-# 1.3 V, voltage first, same AXP209 registers); rc.local caps the CPU at 432 MHz otherwise. Restored below
-# once the core is up.
-i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 576MHz
 echo "starting UI...";
 $SUPERVISE ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
 # Housekeeping the UI does not have to wait for.
