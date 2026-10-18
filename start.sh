@@ -81,6 +81,10 @@ supervise() {
 # The pango/cairo/fontconfig the UI ends up using come from the sharp bundle and cannot find the
 # system config on their own; without this the first OLED draw rescans every font for ~15 s.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
+# Boot at the clock the app itself uses for live view (hardware/power.js performance('high'): 576 MHz at
+# 1.3 V, voltage first, same AXP209 registers); rc.local caps the CPU at 432 MHz otherwise. The UI drops it
+# back to 'low' by itself once the core reports an idle intervalometer.
+i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 576MHz
 echo "starting UI...";
 supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
 # Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most.
