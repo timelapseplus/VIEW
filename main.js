@@ -5104,27 +5104,28 @@ nodeCleanup(function (exitCode, signal) {
 });
 exitHandledByCleanup = true;
 
+// The saved program is in the UI's own settings database, so it is loaded right away and the time-lapse menu shows it
+// from the first frame (it used to wait for the core with a fixed 30 s retry, showing the default program until
+// then). Only restarting an interrupted scheduled program needs the core, which may still be shooting if just the UI
+// restarted: it tells in the 'core.ready' message it sends as soon as the UI connects.
 function loadSavedProgram() {
-    if(!core.connected || !core.intervalometerStatus) {
-        return setTimeout(loadSavedProgram, 30000);
-    } else {
-        return db.get('intervalometer.currentProgram', function(err, data) {
-            if(!err && data) {
-                console.log("MAIN: Loading saved intervalometer settings...", data);
-                core.loadProgram(data);
-                if(core.currentProgram.scheduled && core.currentProgram.autoRestart && !core.intervalometerStatus.running) {
-                    db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
-                        if(!err && !isNaN(parseFloat(ref))) {
-                            db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
-                                console.log("MAIN: Restarting scheduled program...", ref, offset);
-                                core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
-                            });
-                        }
+    db.get('intervalometer.currentProgram', function(err, data) {
+        if(err || !data) return;
+        console.log("MAIN: Loading saved intervalometer settings...", data);
+        core.loadProgram(data);
+        if(!core.currentProgram.scheduled || !core.currentProgram.autoRestart) return;
+        core.once('core.ready', function(state) {
+            if(state.running || !core.currentProgram.scheduled || !core.currentProgram.autoRestart) return;
+            db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
+                if(!err && !isNaN(parseFloat(ref))) {
+                    db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
+                        console.log("MAIN: Restarting scheduled program...", ref, offset);
+                        core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
                     });
                 }
-            }
+            });
         });
-    }
+    });
 }
 loadSavedProgram();
 

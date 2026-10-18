@@ -272,6 +272,9 @@ var server = net.createServer(function(c) {
     sendEvent('motion.status', motion.status);
     sendEvent('process.pid', process.pid);
     if(intervalometerStatus) sendEvent('intervalometer.status', intervalometerStatus);
+    // Tells the UI that the core is up and whether it is shooting (main.js restarts an interrupted scheduled program
+    // on it); unlike intervalometer.status above it is sent even before the first time-lapse.
+    sendEvent('core.ready', {running: !!intervalometer.status.running});
     while(ev = eventQueue.shift()) c.write(ev);
     if(!c.wdtInterval) {
         sendEvent('watchdog.set', process.pid);
