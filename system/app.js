@@ -420,6 +420,22 @@ app.sendLogs = sendLogs;
 app.close = closeApp;
 
 var httpServer;
+// Building the HTTP and WebSocket servers (express, ws) keeps this single-threaded process busy for over a second,
+// longer while the core is starting next to it, and nothing else runs meanwhile, the knob and buttons included. So
+// main.js says when: once the core is up (app.startHttp). Phones cannot reach the VIEW before Wi-Fi or the hotspot
+// is up anyway, which takes longer. The timer covers a core that never comes up.
+var httpWanted = false;
+var httpWaiting = null;
+app.startHttp = function () {
+    httpWanted = true;
+    if (httpWaiting) httpWaiting();
+    httpWaiting = null;
+};
+setTimeout(app.startHttp, 20000);
+function whenHttpWanted(start) {
+    if (httpWanted) start();
+    else httpWaiting = start;
+}
 var sockets = {}, nextSocketId = 0;
 
 exec('ps aux | grep "/main.js"', function (err, res) {
@@ -444,7 +460,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
         }
     }
     console.log("Booting: prior process:", killedProcess);
-    setTimeout(function () {
+    setTimeout(whenHttpWanted, killedProcess ? 30000 : 0, function () {
         httpServer = createServer().listen(CLIENT_SERVER_PORT, function () {
             console.log('listening on *:' + CLIENT_SERVER_PORT);
         });
@@ -492,7 +508,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
             });
         });
 
-    }, killedProcess ? 30000 : 0); // a fresh boot has nothing to wait for; only a killed predecessor needs time to free the ports
+    }); // a fresh boot has nothing to wait for; only a killed predecessor needs 30 s to free the ports
 });
 
 

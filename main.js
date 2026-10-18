@@ -5237,6 +5237,7 @@ mcu.on('gps', function(index) {
 // light.start();
 
 core.watchdogEnable();
+core.once('core.ready', app.startHttp); // see app.startHttp in system/app.js
 
 app.on('message', function(msg) {
     power.activity();
