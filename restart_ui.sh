@@ -17,7 +17,7 @@ done
 cd /home/view/current;
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
-prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+prepend_date() { bash -c 'while IFS= read -r line; do printf "%(%Y%m%d-%H%M%S)T %s\n" -1 "$line"; done'; } # see start.sh
 trap '' PIPE # see start.sh: keep the log pipeline alive when the SSH session that started it closes
 # See start.sh: keeps the sharp-bundled fontconfig from rescanning all fonts at every start.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf

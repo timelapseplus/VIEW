@@ -103,7 +103,9 @@ CORELOGFILE="/var/log/view-core-$DATE.txt"
 cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 > ./logs/last.txt
-prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+# Prefixes each line with the time like `date` did, without forking it for every line (~10 ms each, ~200 lines in the
+# first 40 s of a boot): bash's printf formats the time itself.
+prepend_date() { bash -c 'while IFS= read -r line; do printf "%(%Y%m%d-%H%M%S)T %s\n" -1 "$line"; done'; }
 # The core is also tee'd to our stdout (the journal at boot, an SSH session or the old app process when
 # restarted). When that stdout goes away, tee would die of SIGPIPE and take prepend_date, the supervisor and
 # node with it; with SIGPIPE ignored tee just drops the dead output and keeps writing the log files.
