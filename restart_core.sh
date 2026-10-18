@@ -17,6 +17,7 @@ CORELOGFILE="/var/log/view-core-$DATE.txt"
 cat ./logs/current.txt > ./logs/previous.txt
 > ./logs/last.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+trap '' PIPE # see start.sh: keep the log pipeline alive when the SSH session that started it closes
 echo "starting CORE...";
 supervise() {
 	name=$1; shift

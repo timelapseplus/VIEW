@@ -72,6 +72,10 @@ cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 > ./logs/last.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+# The core is also tee'd to our stdout (the journal at boot, an SSH session or the old app process when
+# restarted). When that stdout goes away, tee would die of SIGPIPE and take prepend_date, the supervisor and
+# node with it; with SIGPIPE ignored tee just drops the dead output and keeps writing the log files.
+trap '' PIPE
 # Keeps a process running like `forever` did, minus forever's own 8-9 s of node start-up per launch.
 # The loop is a shell named view-supervise-<name>, so the stop/restart scripts can kill it by name.
 supervise() {
@@ -82,8 +86,8 @@ supervise() {
 # system config on their own; without this the first OLED draw rescans every font for ~15 s.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 # Boot at the clock the app itself uses for live view (hardware/power.js performance('high'): 576 MHz at
-# 1.3 V, voltage first, same AXP209 registers); rc.local caps the CPU at 432 MHz otherwise. The UI drops it
-# back to 'low' by itself once the core reports an idle intervalometer.
+# 1.3 V, voltage first, same AXP209 registers); rc.local caps the CPU at 432 MHz otherwise. Restored below
+# once the core is up.
 i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 576MHz
 echo "starting UI...";
 supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
@@ -94,3 +98,13 @@ echo "UI ready after ${i}s"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
 supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+# Back to the everyday clock (rc.local's 500 MHz cap at 1.2 V) once the core is up; the app manages it from
+# there. Frequency first, then voltage, like performance('low'). A live view started in this window just
+# runs at the normal clock until the app raises it again.
+(
+	i=0
+	while [ $i -lt 90 ] && ! grep -q "server bound" "$CORELOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
+	sleep 5
+	cpufreq-set -u 500MHz && i2cset -y -f 0 0x34 0x23 0x14 && i2cset -y -f 0 0x34 0x27 0x14
+	echo "CPU back to 500MHz after ${i}s"
+) &
