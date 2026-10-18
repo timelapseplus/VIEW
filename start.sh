@@ -54,6 +54,27 @@ else
 fi
 
 echo "STARTING processes...";
+# Diagnostics: seconds since boot and the CPU's cumulative user/system/idle/iowait time (1/100 s) at the boot
+# milestones, to see how much CPU is left unused while the app starts.
+cpustat() {
+	read -r UP IDLE < /proc/uptime
+	read -r CPU USR NIC SYS IDL IOW REST < /proc/stat
+	echo "cpu at ${UP}s, $1: user=$USR sys=$SYS idle=$IDL iowait=$IOW"
+}
+cpustat "start.sh"
+# Pull the files node is about to load into the page cache, roughly in load order: the node binary, our own code,
+# the node modules listed in the fast-boot caches (written by the UI and the core on their first start) and the
+# libraries sharp loads. Loading them is CPU-bound but starts from a cold cache; this way the SD card reads overlap
+# with the compiling instead of stalling it. Lowest disk priority, so the app's own reads go first; normal CPU priority,
+# as at nice 19 the busy UI starves it until it is too late to help (it needs very little CPU).
+(
+	cd /home/view/current
+	ionice -c2 -n7 cat "$(command -v node)" > /dev/null 2>&1
+	UIMODS=$(grep -oE ':"[^"]+\.(js|json|node)"' module-locations-cache.json 2>/dev/null | cut -d'"' -f2)
+	COREMODS=$(grep -oE ':"[^"]+\.(js|json|node)"' module-locations-cache-core.json 2>/dev/null | cut -d'"' -f2)
+	ionice -c2 -n7 cat main.js system/*.js hardware/*.js interface/*.js intervalometer/*.js camera/*.js camera/*/*.js $UIMODS \
+		node_modules/sharp/lib/* camera/ptpjs/drivers/*.js motion/*.js motion/drivers/*.js $COREMODS > /dev/null 2>&1
+) &
 
 killall fbi
 fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
@@ -79,12 +100,14 @@ fi
 # the single CPU core while it starts: X login (X cannot run on this hardware), boot splash (fbi shows ours), IR
 # remote (unconfigured), a second DHCP server set up for a non-existent interface (dnsmasq serves the hotspot), PPP
 # DNS restore (no PPP), ConsoleKit, cpufreq scripts (they set a governor this kernel lacks; rc.local and the app set
-# the clock) and ifupdown (only lo, which systemd brings up itself). Nothing depends on them. Masked once, takes
+# the clock), ifupdown (only lo, which systemd brings up itself) and systemd-rfkill@, which restores the radios'
+# saved soft-block state: sysinit.target waits for it until udev has handed over the rfkill devices of the Wi-Fi
+# driver, while the app sets the Bluetooth state itself. Nothing depends on them. Masked once, takes
 # effect from the next boot; `systemctl unmask <name>.service` undoes it.
-UNNEEDED="slim lirc udhcpd pppd-dns console-kit-log-system-start loadcpufreq cpufrequtils networking plymouth-start plymouth-read-write plymouth-quit plymouth-quit-wait plymouth-halt plymouth-poweroff plymouth-reboot plymouth-kexec"
+UNNEEDED="systemd-rfkill@ slim lirc udhcpd pppd-dns console-kit-log-system-start loadcpufreq cpufrequtils networking plymouth-start plymouth-read-write plymouth-quit plymouth-quit-wait plymouth-halt plymouth-poweroff plymouth-reboot plymouth-kexec"
 TOMASK=""
 for u in $UNNEEDED; do
-	[ "$(readlink /etc/systemd/system/$u.service)" = "/dev/null" ] || TOMASK="$TOMASK $u.service"
+	[ -h /etc/systemd/system/$u.service ] || TOMASK="$TOMASK $u.service"
 done
 [ -n "$TOMASK" ] && (systemctl mask $TOMASK > /dev/null 2>&1 &)
 DATE=`date +"%Y%m%d-%H%M%S"`
@@ -114,6 +137,7 @@ $SUPERVISE ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | pr
 i=0
 while [ $i -lt 40 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
 echo "UI ready after ${i}s"
+cpustat "UI ready"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
 $SUPERVISE core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
@@ -123,6 +147,7 @@ $SUPERVISE core node --max_old_space_size=320 --expose-gc /home/view/current/int
 (
 	i=0
 	while [ $i -lt 90 ] && ! grep -q "server bound" "$CORELOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
+	cpustat "core ready"
 	sleep 5
 	cpufreq-set -u 500MHz && i2cset -y -f 0 0x34 0x23 0x14 && i2cset -y -f 0 0x34 0x27 0x14
 	F=/sys/devices/system/cpu/cpu0/cpufreq

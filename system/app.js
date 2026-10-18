@@ -426,6 +426,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
             if (lines[i].indexOf('grep') > 0) continue;
             if (lines[i].indexOf('forever') > 0) continue;
             if (lines[i].indexOf('view-supervise') > 0) continue; // the restart loop from start.sh, not a UI instance
+            if (!/[\s\/]node\s.*\/main\.js/.test(lines[i])) continue; // only node running main.js, not e.g. the file pre-read in start.sh
             //console.log("line:", lines[i]);
             var matches = lines[i].match(/root\s+([0-9]+)/);
             if (matches && matches.length > 1) {

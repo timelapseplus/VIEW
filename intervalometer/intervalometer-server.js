@@ -36,6 +36,10 @@ event                  payload
 
 */
 
+// Remember where each node module was found, as main.js does for the UI: saves the path search on every start, and
+// start.sh reads the list to pull these files into the page cache before they are needed.
+var nodeModuleCache = require('fast-boot');
+nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache-core.json"});
 require('rootpath')();
 var camera = require('camera/camera.js');
 var image = require('camera/image/image.js');
