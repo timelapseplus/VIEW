@@ -484,7 +484,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
             });
         });
 
-    }, killedProcess ? 30000 : 5000);
+    }, killedProcess ? 30000 : 0); // a fresh boot has nothing to wait for; only a killed predecessor needs time to free the ports
 });
 
 

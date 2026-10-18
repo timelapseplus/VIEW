@@ -68,6 +68,9 @@ cat ./logs/current.txt > ./logs/previous.txt
 echo $CORELOGFILE > ./logs/current.txt
 > ./logs/last.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
+# The pango/cairo/fontconfig the UI ends up using come from the sharp bundle and cannot find the
+# system config on their own; without this the first OLED draw rescans every font for ~15 s.
+export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 echo "starting UI...";
 forever -c "node --max_old_space_size=128" main.js 2>&1 | prepend_date >> $UILOGFILE &
 sleep 35
