@@ -66,6 +66,15 @@ if pgrep -x node > /dev/null; then
 	killall -s 9 node
 fi
 cd /home/view/current;
+# rc-local.service (which runs all of this at boot) has TimeoutSec=0: at shutdown systemd waits for our processes
+# with no limit, so a single one that ignores SIGTERM hangs the unit until the battery is pulled. Bound the wait;
+# after 20 s systemd SIGKILLs whatever is left. Written once, only when missing or different.
+DROPIN_DIR=/etc/systemd/system/rc-local.service.d
+DROPIN="[Service]
+TimeoutStopSec=20"
+if [ "$(cat $DROPIN_DIR/view-stop-timeout.conf 2>/dev/null)" != "$DROPIN" ]; then
+	mkdir -p $DROPIN_DIR && echo "$DROPIN" > $DROPIN_DIR/view-stop-timeout.conf && (systemctl daemon-reload &)
+fi
 DATE=`date +"%Y%m%d-%H%M%S"`
 UILOGFILE="/var/log/view-ui-$DATE.txt"
 CORELOGFILE="/var/log/view-core-$DATE.txt"

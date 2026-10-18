@@ -11,6 +11,22 @@ var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 process.stdout.on('error', function() {});
 process.stderr.on('error', function() {});
 
+// A normal exit() never completes in this process: libuv's thread-pool destructor joins its threads, and
+// gpio-button keeps two pool threads blocked reading /dev/input forever (fs.createReadStream on the button event
+// files). So every way out has to end in SIGKILL, after which the supervisor in start.sh starts the UI again.
+// Until the nodeCleanup handler near the end of this file is installed, these two do it; afterwards it does.
+var exitHandledByCleanup = false;
+process.on('uncaughtException', function(err) {
+    if(exitHandledByCleanup) return;
+    try {
+        console.log("Uncaught exception during start-up:", (err && err.stack) || err);
+    } catch(e) {}
+    process.kill(process.pid, 'SIGKILL');
+});
+process.on('exit', function() {
+    if(!exitHandledByCleanup) process.kill(process.pid, 'SIGKILL');
+});
+
 var nodeModuleCache = require('fast-boot');
 nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache.json"});
 
@@ -5042,14 +5058,22 @@ var closeSystem = function(callback) {
 }
 
 nodeCleanup(function (exitCode, signal) {
-    if(signal) {
-        console.log("Shutting down from signal", signal);
-    } else if (exitCode) {
-        console.log("Shutting down from error", exitCode);
-    } else {
-        console.log("Shutting down normally, assuming closeSystem is already called.");
+    if(!signal) {
+        // Called from process 'exit': process.exit() or an uncaught exception. No timer or async callback runs
+        // any more, and returning would let node go on into exit(), which never completes in this process (see
+        // the top of the file). End with SIGKILL so the supervisor starts the UI again.
+        console.log(exitCode ? "Shutting down from error " + exitCode : "Shutting down from process.exit()");
+        if(!systemClosed) {
+            try {
+                closeSystem();
+            } catch(e) {
+                console.log("closeSystem failed:", e);
+            }
+        }
+        process.kill(process.pid, 'SIGKILL');
         return;
     }
+    console.log("Shutting down from signal", signal);
     if(updates.updatingKernel) {
         console.log("Kernel update in progress, delaying shutdown by 10 seconds...");
         setTimeout(function() {
@@ -5078,6 +5102,7 @@ nodeCleanup(function (exitCode, signal) {
     }
     return false;
 });
+exitHandledByCleanup = true;
 
 function loadSavedProgram() {
     if(!core.connected || !core.intervalometerStatus) {
