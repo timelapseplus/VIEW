@@ -106,5 +106,8 @@ supervise core node --max_old_space_size=320 --expose-gc /home/view/current/inte
 	while [ $i -lt 90 ] && ! grep -q "server bound" "$CORELOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
 	sleep 5
 	cpufreq-set -u 500MHz && i2cset -y -f 0 0x34 0x23 0x14 && i2cset -y -f 0 0x34 0x27 0x14
-	echo "CPU back to 500MHz after ${i}s"
+	F=/sys/devices/system/cpu/cpu0/cpufreq
+	echo "CPU back to 500MHz after ${i}s (max=$(cat $F/scaling_max_freq) cur=$(cat $F/scaling_cur_freq))"
+	# Diagnostics: one boot showed the cap at 528000 some minutes later with nothing in the firmware setting it.
+	sleep 60; echo "CPU cap +60s: max=$(cat $F/scaling_max_freq) cur=$(cat $F/scaling_cur_freq) dcdc2=$(i2cget -y -f 0 0x34 0x23)"
 ) &
