@@ -3,7 +3,14 @@ var UFRAW = "/usr/bin/ufraw-batch";
 var TMPFOLDER = "/tmp/tlp";
 var execFile = require('child_process').execFile;
 var epeg = require('epeg');
-var sharp = require('sharp');
+// sharp is only used past the early return in downsizeJpegSharp, and its JS half (bluebird, semver, color) costs
+// ~1 s at start-up, so that half is loaded on first use. The native half stays loaded up front: it brings sharp's
+// own pango/cairo/fontconfig, and the OLED (pitft, loaded after this in the UI) has always drawn with those.
+require('sharp/build/Release/sharp.node');
+var sharp = function(input, options) {
+    sharp = require('sharp');
+    return sharp(input, options);
+};
 var fs = require('fs');
 //var pixelr = require('pixelr');
 var luminance = require('jpeg-lum');

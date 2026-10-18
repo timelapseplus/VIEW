@@ -35,7 +35,6 @@ console.log('Starting up...');
 var _ = require('underscore');
 var async = require('async');
 var exec = require('child_process').exec;
-var crypto = require('crypto');
 var fs = require('fs');
 var moment = require('moment');
 console.log('Basic modules loaded in ' + (new Date() - startupTime) + 'ms');
@@ -52,8 +51,6 @@ var updates = require('./system/updates.js');
 console.log('Updates module loaded in ' + (new Date() - startupTime) + 'ms');
 var clips = require('./intervalometer/clips.js');
 console.log('Clips module loaded in ' + (new Date() - startupTime) + 'ms');
-var eclipse = require('./intervalometer/eclipse.js');
-console.log('Eclipse module loaded in ' + (new Date() - startupTime) + 'ms');
 var core = require('./intervalometer/intervalometer-client.js');
 console.log('Core client module loaded in ' + (new Date() - startupTime) + 'ms');
 var image = require('./camera/image/image.js');
@@ -84,7 +81,8 @@ if(power) wifi.power = power; // allow wifi module to control power
 var db = require("./system/db.js");
 
 //var suncalc = require('suncalc');
-var meeus = require('meeusjs');
+// meeusjs and eclipse.js are only needed by the sun/moon and eclipse info screens and take ~0.5 s to load, so
+// they are loaded there, once the menu is up.
 
 console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 
@@ -4334,7 +4332,7 @@ if (VIEW_HARDWARE) {
         var info = "";
         var coords = mcu.validCoordinates();
         if(coords) {
-            var sunmoon = meeus.sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
+            var sunmoon = require('meeusjs').sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
             var now = mcu.now();
             var sunrise = moment(sunmoon.suntimes.rise).utcOffset(mcu.timezoneOffset());
             var sunset = moment(sunmoon.suntimes.set).utcOffset(mcu.timezoneOffset());
@@ -4367,6 +4365,7 @@ if (VIEW_HARDWARE) {
     var getEclipseData = function() {
         var coords = mcu.validCoordinates();
         if(coords) {
+            var eclipse = require('./intervalometer/eclipse.js');
             var data = eclipse.data;
             if(!data || data.lat != coords.lat || data.lon != coords.lon) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
@@ -4680,6 +4679,7 @@ if (VIEW_HARDWARE) {
 
     ui.init(oled);
     ui.load(mainMenu);
+    console.log("Main menu drawn at uptime " + fs.readFileSync('/proc/uptime', 'utf8').split(' ')[0] + " s, " + (new Date() - startupTime) + " ms after start-up");
 
     inputs.on('D', function(move) {
         power.activity();

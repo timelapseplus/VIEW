@@ -1,5 +1,5 @@
-var wget = require('wget-improved');
-var https = require('https');
+// wget-improved and https pull in http, tls and crypto; they are only needed to check for and download updates, so
+// they are loaded there instead of before the first menu.
 var fs = require('fs');
 var url = require('url');
 var child_process = require('child_process');
@@ -109,7 +109,7 @@ function installLibGPhoto(callback) {
 }
 
 function apiRequest(method, callback) {
-	var req = https.request({method:'get', host:apiHost, path: apiEndpoint+method, headers: {'user-agent': 'VIEW-app'}}, function(res) {
+	var req = require('https').request({method:'get', host:apiHost, path: apiEndpoint+method, headers: {'user-agent': 'VIEW-app'}}, function(res) {
 		//console.log(`STATUS: ${res.statusCode}`);
 		//console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
 		res.setEncoding('utf8');
@@ -135,7 +135,7 @@ var dl = null;
 function download(href, path, progressCallback, callback) {
     console.log("UPDATES: downloading " + href);
     var downloadSize = null;
-	dl = wget.download(href, path, {headers: {'user-agent': 'VIEW-app'}});
+	dl = require('wget-improved').download(href, path, {headers: {'user-agent': 'VIEW-app'}});
 	dl.on('error', function(err) {
 	    console.log("UPDATES: download error: ", err);
 		callback(err);

@@ -1,10 +1,7 @@
-var Express = require('express');
-var express = Express();
-var http = require('http');
-//var server = http.Server(express);
-var server = http.createServer(express);
-var WebSocket = require('ws');
-var WebSocketServer = WebSocket.Server;
+// express, http and ws take ~1.5 s to load on this single core and nothing needs them before the first menu is on
+// the screen, so they are loaded after it: createServer() runs in the callback of the process check below, which
+// cannot fire before main.js has finished its synchronous start-up (the menu is drawn in it), and ws is loaded
+// where its servers and the view.tl connection are created.
 var exec = require('child_process').exec;
 var async = require('async');
 var fs = require('fs');
@@ -26,59 +23,66 @@ app.remoteEnabled = false;
 
 fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "0"); // favor low latency over high throughput (reversed now to support high-throughput for LV)
 
-express.use(Express.static('/home/view/current/frontend/www'));
+function createServer() {
+    var Express = require('express');
+    var express = Express();
 
-express.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, access-control-allow-origin, x-view-session");
-    next();
-});
+    express.use(Express.static('/home/view/current/frontend/www'));
 
-express.get('/socket/address', function (req, res) {
-    var host = req.headers.host;
-    var domain = host.split(':')[0];
-    res.send({
-        address: 'ws://' + domain + ':' + CLIENT_WS_PORT,
-        server: 'local'
+    express.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, access-control-allow-origin, x-view-session");
+        next();
     });
-});
 
-express.get('/clips', function (req, res) {
-    console.log("API: getting clips");
-    clips.getRecentTimelapseClips(30, true, function (err, clips) {
-        console.log("API: err" + clips);
-        try {
-            var ss = res.send(clips.map(function (clip) {
-                console.log("API: mm" + clip.name);
-                return clip;
-            }));
-            console.log("API: " + ss);
-        } catch (e) {
-            console.log("API: e" + e);
-            res.send(400, e)
-        }
-    });
-});
-
-express.get('/clipinfo', function (req, res) {
-    try {
-        db.getTimelapseByName(req.query.name, function (err, dbClip) {
-            // if (dbClip) {
-            res.send(dbClip);
-            // }
+    express.get('/socket/address', function (req, res) {
+        var host = req.headers.host;
+        var domain = host.split(':')[0];
+        res.send({
+            address: 'ws://' + domain + ':' + CLIENT_WS_PORT,
+            server: 'local'
         });
-    } catch (e) {
-        res.status(400)
-    }
+    });
 
-});
+    express.get('/clips', function (req, res) {
+        console.log("API: getting clips");
+        clips.getRecentTimelapseClips(30, true, function (err, clips) {
+            console.log("API: err" + clips);
+            try {
+                var ss = res.send(clips.map(function (clip) {
+                    console.log("API: mm" + clip.name);
+                    return clip;
+                }));
+                console.log("API: " + ss);
+            } catch (e) {
+                console.log("API: e" + e);
+                res.send(400, e)
+            }
+        });
+    });
 
-express.get('/download', function (req, res) {
-    var q = req.query.file; //tl-329/cam-1-03252.jpg
-    var file = '/root/time-lapse/' + q;
-    res.download(file); // Set disposition and send it.
-});
+    express.get('/clipinfo', function (req, res) {
+        try {
+            db.getTimelapseByName(req.query.name, function (err, dbClip) {
+                // if (dbClip) {
+                res.send(dbClip);
+                // }
+            });
+        } catch (e) {
+            res.status(400)
+        }
+
+    });
+
+    express.get('/download', function (req, res) {
+        var q = req.query.file; //tl-329/cam-1-03252.jpg
+        var file = '/root/time-lapse/' + q;
+        res.download(file); // Set disposition and send it.
+    });
+
+    return require('http').createServer(express);
+}
 
 var jpegFrame = null;
 
@@ -134,6 +138,7 @@ var remotePingHandle = null;
 function connectRemote(version) {
     if (app.remote || !app.remoteEnabled) return;
     console.log("connecting to view.tl");
+    var WebSocket = require('ws');
     wsRemote = new WebSocket('wss://app.view.tl/socket/device', {
         headers: {
             'x-view-id': app.serial
@@ -440,7 +445,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
     }
     console.log("Booting: prior process:", killedProcess);
     setTimeout(function () {
-        httpServer = server.listen(CLIENT_SERVER_PORT, function () {
+        httpServer = createServer().listen(CLIENT_SERVER_PORT, function () {
             console.log('listening on *:' + CLIENT_SERVER_PORT);
         });
 
@@ -460,6 +465,7 @@ exec('ps aux | grep "/main.js"', function (err, res) {
             socket.setTimeout(4000);
         });
 
+        var WebSocketServer = require('ws').Server;
         wss = new WebSocketServer({
             port: CLIENT_WS_PORT
         });

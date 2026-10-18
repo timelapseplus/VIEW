@@ -1,17 +1,23 @@
-var Speaker = require('speaker');
 var fs = require('fs');
 var exec = require('child_process').exec;
  
 var sampleRate = 44100;
   
-// Create the Speaker instance 
-var speaker = new Speaker({
-  channels: 1,          // 2 channels 
-  bitDepth: 16,         // 16-bit samples 
-  signed: true,
-  float: false,
-  sampleRate: sampleRate     // 44,100 Hz sample rate 
-});
+// Create the Speaker instance on the first beep: the speaker module takes ~0.3 s to load and is only needed for alarms
+var speaker = null;
+function getSpeaker() {
+  if(!speaker) {
+    var Speaker = require('speaker');
+    speaker = new Speaker({
+      channels: 1,          // 2 channels 
+      bitDepth: 16,         // 16-bit samples 
+      signed: true,
+      float: false,
+      sampleRate: sampleRate     // 44,100 Hz sample rate 
+    });
+  }
+  return speaker;
+}
  
 function sineWaveAt(sampleNumber, tone) {
   var sampleFreq = sampleRate / tone
@@ -57,7 +63,7 @@ var enabled = true;
 
 exports.play = function(beep, count, intervalSeconds) {
   if(!enabled) return null;
-  speaker.write(beep);
+  getSpeaker().write(beep);
   if(count > 0 && intervalSeconds > 0) {
     count--;
     return handle = setInterval(function(){
