@@ -8,11 +8,13 @@ var wifi = new EventEmitter();
 
 var ENABLE_AP = "/bin/sh /home/view/current/bin/enable_ap.sh";
 var DISABLE_AP = "/bin/sh /home/view/current/bin/disable_ap.sh";
-var WIFI_SHUTDOWN = "sudo modprobe -r 8723bu";
-var WIFI_POWERON = "sudo modprobe 8723bu";
-var BT_RESET = "sudo rfkill block bluetooth; sudo modprobe -r btusb; sleep 2; sudo modprobe btusb; sudo rfkill unblock bluetooth";
-var BT_BLOCK = "sudo rfkill block bluetooth;sudo modprobe -r btusb;";
-var BT_UNBLOCK = "sudo modprobe btusb;sudo rfkill unblock bluetooth;";
+// The app runs as root; sudo would only add a PAM session and a journal entry to each of these.
+var SUDO = (process.getuid && process.getuid() === 0) ? "" : "sudo ";
+var WIFI_SHUTDOWN = SUDO + "modprobe -r 8723bu";
+var WIFI_POWERON = SUDO + "modprobe 8723bu";
+var BT_RESET = SUDO + "rfkill block bluetooth; " + SUDO + "modprobe -r btusb; sleep 2; " + SUDO + "modprobe btusb; " + SUDO + "rfkill unblock bluetooth";
+var BT_BLOCK = SUDO + "rfkill block bluetooth;" + SUDO + "modprobe -r btusb;";
+var BT_UNBLOCK = SUDO + "modprobe btusb;" + SUDO + "rfkill unblock bluetooth;";
 var BT_DISABLE = BT_BLOCK;//"sudo modprobe -r btusb";
 var BT_ENABLE = BT_RESET;//"sudo modprobe btusb";
 
@@ -280,6 +282,12 @@ wifi.enableBt = function(cb) {
 wifi.disableBt = function(cb) {
 	disableBtReset = false;
 	wifi.btEnabled = false;
+	// Nothing to do once btusb is unloaded (no Bluetooth rfkill device is left either). At start-up wifi.enable()
+	// asks again 2 s after main.js did: that second round of rfkill + modprobe -r only cost CPU.
+	if(!fs.existsSync('/sys/module/btusb')) {
+		if(cb) setImmediate(cb);
+		return;
+	}
 	exec(BT_DISABLE, function(err) {
 		if(cb) cb(err);
 	});
@@ -385,8 +393,17 @@ wifi.connect = function(network, password, callback) {
 		// Nothing to tear down on a fresh start: skip the disconnect (dhclient -r alone takes ~2 s) and the 2 s pause.
 		exec("pidof wpa_supplicant dhclient > /dev/null", function(err) {
 			if(err) return join();
-			wifi.disconnect(function() {
-				setTimeout(join, 2000);
+			// After an app restart the old connection is usually still up, but the 10 s connection poll may not
+			// have reported it yet: ask now, and only tear down a connection to some other network.
+			iw._executeTrackConnection(function() {
+				var current = wifi.connected && wifi.connected.address;
+				if(current && network.address && current.toLowerCase() == network.address.toLowerCase()) {
+					if(callback) callback();
+					return;
+				}
+				wifi.disconnect(function() {
+					setTimeout(join, 2000);
+				});
 			});
 		});
 	} else {

@@ -4,6 +4,17 @@ var async = require('async');
 var fs = require('fs');
 var interpolate = require('../intervalometer/interpolate.js');
 
+// The AXP209 power chip is read every 10 s (battery, charging) and written at start-up and for live view. Talking
+// to it in-process instead of exec'ing i2cget/i2cset saves a fork of this whole node process per register, which
+// dominated the UI's CPU use while idle. -f/forceAccess as before: the kernel's axp20x driver also owns 0x34.
+// Falls back to the tools if the bus cannot be opened.
+var axpBus = null;
+try {
+    axpBus = require('apds-gesture/node_modules/i2c-bus').openSync(0, {forceAccess: true});
+} catch(e) {
+    console.log("POWER: cannot open I2C bus 0, using i2cget/i2cset:", e.message || e);
+}
+
 var power = new EventEmitter();
 
 power.chargeLight = 'enabled';
@@ -24,6 +35,16 @@ function axpSet(reg, val, callback) {
     reg = parseInt(reg);
     val = parseInt(val);
     if(!isNaN(reg) && !isNaN(val)) {
+        if(axpBus) {
+            var err = null;
+            try {
+                axpBus.writeByteSync(0x34, reg, val);
+            } catch(e) {
+                err = e;
+            }
+            if(callback) setImmediate(function() { callback(err); });
+            return;
+        }
         exec("i2cset -y -f 0 0x34 0x" + reg.toString(16) + " 0x" + val.toString(16), callback);
     } else {
         callback('invalid parameters');
@@ -33,6 +54,19 @@ function axpSet(reg, val, callback) {
 function axpGet(reg, callback) {
     reg = parseInt(reg);
     if(!isNaN(reg)) {
+        if(axpBus) {
+            var err = null, val;
+            try {
+                val = axpBus.readByteSync(0x34, reg);
+            } catch(e) {
+                err = e;
+            }
+            setImmediate(function() {
+                if(err) return callback(err);
+                callback && callback(null, val);
+            });
+            return;
+        }
         exec("i2cget -y -f 0 0x34 0x" + reg.toString(16), function(err, stdout) {
             if(!err && stdout) {
                 callback && callback(null, parseInt(stdout.trim()));
@@ -344,40 +378,41 @@ power.update = function(noEvents) {
     });
 };
 
-power.buttonPowerLight = function(on) {
-    if(on) {
-        exec("echo 255 | sudo tee /sys/class/leds/view-button-power/brightness");
-    } else {
-        exec("echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
+// The app runs as root, so the LEDs are written directly: `echo | sudo tee` cost a fork of this node process plus
+// sudo with its PAM session and journal entry each time, and the power button blinks every 5 s.
+function setLed(name, value) {
+    try {
+        fs.writeFileSync('/sys/class/leds/' + name + '/brightness', String(value));
+    } catch(e) {
+        exec("echo " + value + " | sudo tee /sys/class/leds/" + name + "/brightness");
     }
+}
+
+var blinkOffHandle = null;
+
+power.buttonPowerLight = function(on) {
+    clearTimeout(blinkOffHandle);
+    setLed('view-button-power', on ? 255 : 0);
 }
 
 power.buttonPowerBlink = function() {
-    exec("echo 255 | sudo tee /sys/class/leds/view-button-power/brightness; echo 0 | sudo tee /sys/class/leds/view-button-power/brightness");
+    setLed('view-button-power', 255);
+    clearTimeout(blinkOffHandle);
+    blinkOffHandle = setTimeout(function() {
+        setLed('view-button-power', 0);
+    }, 130); // about as long as the second sudo tee used to keep it lit
 }
 
 power.button1Light = function(on) {
-    if(on) {
-        exec("echo 255 | sudo tee /sys/class/leds/view-button-1/brightness");
-    } else {
-        exec("echo 0 | sudo tee /sys/class/leds/view-button-1/brightness");
-    }
+    setLed('view-button-1', on ? 255 : 0);
 }
 
 power.button2Light = function(on) {
-    if(on) {
-        exec("echo 255 | sudo tee /sys/class/leds/view-button-2/brightness");
-    } else {
-        exec("echo 0 | sudo tee /sys/class/leds/view-button-2/brightness");
-    }
+    setLed('view-button-2', on ? 255 : 0);
 }
 
 power.button3Light = function(on) {
-    if(on) {
-        exec("echo 255 | sudo tee /sys/class/leds/view-button-3/brightness");
-    } else {
-        exec("echo 0 | sudo tee /sys/class/leds/view-button-3/brightness");
-    }
+    setLed('view-button-3', on ? 255 : 0);
 }
 
 setInterval(power.update, 10000);

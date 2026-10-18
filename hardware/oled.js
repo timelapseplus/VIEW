@@ -1028,12 +1028,21 @@ oled.down = function() {
 oled.hide = function() {
     if(oled.videoRunning) return oled.activity();
     console.log("power off  OLED");
-    exec("echo 0 | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    setBacklight(0);
     oled.visible = false;
 }
 
+// Written directly (the app runs as root) rather than through a forked `sudo tee`.
+function setBacklight(value) {
+    try {
+        fs.writeFileSync('/sys/class/leds/view-oled-backlight/brightness', String(value));
+    } catch(e) {
+        exec("echo " + value + " | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    }
+}
+
 oled.show = function() {
-    exec("echo 255 | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    setBacklight(255);
     oled.visible = true;
 }
 
