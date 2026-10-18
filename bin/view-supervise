@@ -1,0 +1,49 @@
+#!/bin/sh
+# Keeps one VIEW process running, the way forever did, and makes sure it actually stops when asked.
+#
+# Usage: sh /home/view/current/bin/view-supervise <name> <command> [args...]
+#
+# Restart: when the command exits it is started again after 1 s.
+# Stop: on SIGTERM, SIGINT or SIGHUP (systemd stopping rc.local at shutdown, start.sh, the restart scripts,
+# power.reboot/shutdown) the loop stops restarting, passes SIGTERM on, gives the process 5 s to exit and then
+# SIGKILLs it. The UI's SIGTERM handler can hang on a futex instead of exiting, and rc-local.service has
+# TimeoutSec=0, so without this a shutdown that relies on systemd's SIGTERM waits forever.
+#
+# The command line contains "bin/view-supervise", which is what the stop scripts match on, and app.js skips
+# it when looking for stale UI instances.
+
+name=$1
+shift
+prog=$1
+child=
+
+stop() {
+	trap '' TERM INT HUP
+	if [ -n "$child" ]; then
+		kill -TERM "$child" 2>/dev/null
+		i=0
+		while [ $i -lt 5 ] && kill -0 "$child" 2>/dev/null; do
+			sleep 1
+			i=$((i+1))
+		done
+		if kill -0 "$child" 2>/dev/null; then
+			echo "supervise $name: $prog still running 5 s after SIGTERM, sending SIGKILL"
+			kill -KILL "$child" 2>/dev/null
+		fi
+	fi
+	exit 0
+}
+
+trap stop TERM INT HUP
+
+while :; do
+	# In the background so that `wait` can be interrupted by the trap; a foreground command would delay
+	# the trap until it exits, which is exactly the case where it never does.
+	"$@" &
+	child=$!
+	wait "$child"
+	status=$?
+	child=
+	echo "supervise $name: $prog exited with status $status, restarting in 1 s"
+	sleep 1
+done

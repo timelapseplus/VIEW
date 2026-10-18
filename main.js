@@ -3,6 +3,14 @@
 var startupTime = new Date();
 var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
+// stdout/stderr are a pipe to the log writer in start.sh. At shutdown that writer gets the same SIGTERM as we do
+// and is often gone before our SIGTERM handler logs its first line; the unhandled EPIPE 'error' then makes node
+// leave through exit(), which never returns here: it joins the button reader thread (blocked in evdev_read).
+// The process then hangs forever and so does systemd's stop of rc.local, which has no timeout. Lost log lines
+// are fine, a process that cannot exit is not.
+process.stdout.on('error', function() {});
+process.stderr.on('error', function() {});
+
 var nodeModuleCache = require('fast-boot');
 nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache.json"});
 
@@ -2562,7 +2570,8 @@ if (VIEW_HARDWARE) {
             if(core.processId) {
                 killServer = '; kill -s 9 ' + core.processId;
             }
-            exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+            // supervisors first, see power.shutdown in hardware/power.js
+            exec('nohup /bin/sh -c "pkill -f \'[v]iew-supervise\'; killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
             //exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
         });
     }

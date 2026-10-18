@@ -23,8 +23,4 @@ trap '' PIPE # see start.sh: keep the log pipeline alive when the SSH session th
 # See start.sh: keeps the sharp-bundled fontconfig from rescanning all fonts at every start.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 echo "starting UI...";
-supervise() {
-	name=$1; shift
-	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
-}
-supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
+sh /home/view/current/bin/view-supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &

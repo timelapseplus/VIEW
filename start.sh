@@ -58,7 +58,8 @@ echo "STARTING processes...";
 killall fbi
 fbi -T 1 -d /dev/fb0 -noverbose /root/view-splash.png &
 # Stop a running app, supervisors first or they would respawn node; a clean boot has nothing to stop.
-pkill -f view-supervise- 2>/dev/null
+# The pattern matches bin/view-supervise and the inline loop of the first 1.8.55 betas.
+pkill -f '[v]iew-supervise' 2>/dev/null
 if pgrep -x node > /dev/null; then
 	killall node
 	sleep 1
@@ -76,12 +77,9 @@ prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
 # restarted). When that stdout goes away, tee would die of SIGPIPE and take prepend_date, the supervisor and
 # node with it; with SIGPIPE ignored tee just drops the dead output and keeps writing the log files.
 trap '' PIPE
-# Keeps a process running like `forever` did, minus forever's own 8-9 s of node start-up per launch.
-# The loop is a shell named view-supervise-<name>, so the stop/restart scripts can kill it by name.
-supervise() {
-	name=$1; shift
-	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
-}
+# bin/view-supervise keeps each process running like `forever` did (minus forever's 8-9 s of node start-up per
+# launch) and, unlike forever, SIGKILLs it 5 s after a stop request so a hung node cannot block shutdown.
+SUPERVISE="sh /home/view/current/bin/view-supervise"
 # The pango/cairo/fontconfig the UI ends up using come from the sharp bundle and cannot find the
 # system config on their own; without this the first OLED draw rescans every font for ~15 s.
 export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
@@ -90,14 +88,14 @@ export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
 # once the core is up.
 i2cset -y -f 0 0x34 0x27 0x18 && i2cset -y -f 0 0x34 0x23 0x18 && cpufreq-set -u 576MHz
 echo "starting UI...";
-supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
+$SUPERVISE ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &
 # Start the core as soon as the UI has drawn its first menu (used to be a fixed 35 s), 40 s at most.
 i=0
 while [ $i -lt 40 ] && ! grep -q "Setting default status" "$UILOGFILE" 2>/dev/null; do sleep 1; i=$((i+1)); done
 echo "UI ready after ${i}s"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
-supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+$SUPERVISE core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
 # Back to the everyday clock (rc.local's 500 MHz cap at 1.2 V) once the core is up; the app manages it from
 # there. Frequency first, then voltage, like performance('low'). A live view started in this window just
 # runs at the normal clock until the app raises it again.

@@ -19,8 +19,4 @@ cat ./logs/current.txt > ./logs/previous.txt
 prepend_date() { while read line; do echo "$(date +%Y%m%d-%H%M%S) $line"; done }
 trap '' PIPE # see start.sh: keep the log pipeline alive when the SSH session that started it closes
 echo "starting CORE...";
-supervise() {
-	name=$1; shift
-	sh -c 'while :; do "$@"; echo "supervise: $1 exited with status $?, restarting in 1 s"; sleep 1; done' "view-supervise-$name" "$@"
-}
-supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+sh /home/view/current/bin/view-supervise core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
