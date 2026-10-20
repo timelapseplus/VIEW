@@ -4679,6 +4679,9 @@ if (VIEW_HARDWARE) {
 
     ui.init(oled);
     ui.load(mainMenu);
+    oled.onShow = function() {
+        ui.reload();
+    };
     console.log("Main menu drawn at uptime " + fs.readFileSync('/proc/uptime', 'utf8').split(' ')[0] + " s, " + (new Date() - startupTime) + " ms after start-up");
 
     inputs.on('D', function(move) {
@@ -6111,7 +6114,7 @@ core.on('intervalometer.status', function(msg) {
     }
     //console.log("statusScreen", statusScreen);
     oled.updateTimelapseStatus(statusScreen);
-    ui.reload();
+    if (oled.visible) ui.reload(); // a hidden menu is redrawn by oled.onShow when the screen comes back on
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
         ui.status(msg.message);
     }

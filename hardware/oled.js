@@ -14,6 +14,8 @@ oled.items = [];
 oled.selected = 0;
 oled.visible = false;
 oled.blocked = false;
+oled.onShow = null; // set by main.js: redraws the current menu when the screen comes back on
+var pendingBlit = false; // a frame drawn while the screen was off, sent out by oled.show()
 
 var oledSize = fb.size();
 oled.width = oledSize.width;
@@ -962,7 +964,12 @@ oled.activity = function() {
 }
 
 oled.update = function(override) {
-    if(!oled.blocked || override) fb.blit();
+    if(oled.blocked && !override) return;
+    if(!oled.visible && !override) { // nothing to see: skip the SPI transfer to the panel
+        pendingBlit = true;
+        return;
+    }
+    fb.blit();
 }
 
 oled.up = function() {
@@ -1042,8 +1049,14 @@ function setBacklight(value) {
 }
 
 oled.show = function() {
+    var wasHidden = !oled.visible;
     setBacklight(255);
     oled.visible = true;
+    if(pendingBlit) {
+        pendingBlit = false;
+        fb.blit();
+    }
+    if(wasHidden && oled.onShow) oled.onShow();
 }
 
 oled.close = function() {
