@@ -168,7 +168,10 @@ echo "UI ready after $((i / 5)).$((i % 5 * 2))s"
 cpustat "UI ready"
 test -e /lib/arm-linux-gnueabihf/libusb-0.1.so.4 && mv /lib/arm-linux-gnueabihf/libusb-0.1.so.4 /lib/arm-linux-gnueabihf/libusb--disabled--0.1.so.4 # disable libusb0.1 for Olympus support
 echo "starting CORE...";
-$SUPERVISE core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt &
+# The core's log goes to its two files only (2026-10-21): the copy tee sent to our stdout ended up, at boot, in journald
+# and from there in rsyslog's daemon.log and syslog — two more copies of every line on the SD card and ≈2.7 ms of CPU
+# per line in those daemons (docs/2026-10-20-logging-research.md). Watch it with `tail -f logs/last.txt`.
+$SUPERVISE core node --max_old_space_size=320 --expose-gc /home/view/current/intervalometer/intervalometer-server.js 2>&1 | prepend_date | tee -a $CORELOGFILE ./logs/last.txt > /dev/null &
 # Back to the everyday clock (rc.local's 500 MHz cap at 1.2 V) once the core is up; the app manages it from
 # there. Frequency first, then voltage, like performance('low'). A live view started in this window just
 # runs at the normal clock until the app raises it again.
