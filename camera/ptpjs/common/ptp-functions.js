@@ -422,7 +422,7 @@ exports.deleteObject = function(cam, objectId, callback) {
 // answers the GetObject only ~0.6 s later, once it has done with the RAW (doc §20); callback waits for that answer.
 exports.getObject = function(cam, objectId, callback, onData) {
 	// No global.gc() here: a full collection (~0.12 s at 576 MHz) before every download and every live view frame
-	// (Sony, Fuji); the intervalometer already collects once after each frame.
+	// (Sony, Fuji); the intervalometer collects after frames (collectGarbage) and live view every 20 frames.
 	exports.transaction(cam, exports.PTP_OC_GetObject, [objectId], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
 	}, onData);

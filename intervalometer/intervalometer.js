@@ -168,6 +168,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 thumb = intervalometer.lastThumb;
                             }
                             intervalometer.lastThumb = thumb;
+                            photoRes.bytes = (thumb ? thumb.length : 0) + (raw ? raw.length : 0); // for collectGarbage
 
                             var logFrame = function (ev) { // the frame in one line: what was shot, how big, how long it took
                                 var s = remap('camera.ptp.settings') || {};
@@ -1018,6 +1019,28 @@ function processKeyframes(setupFirst, callback) {
 }
 
 
+// A full collection takes ~0.13-0.26 s at 576 MHz (doc §15, §21). The camera's images are buffers outside the V8 heap
+// that only a full collection frees, so collect when they add up to 32 MB (every frame or two with RAW to the SD card,
+// every ~30 frames with a 1 MB JPEG) or the core passes 150 MB, and then only with time to spare before the next frame;
+// past 250 MB, or once the time-lapse has ended, at once.
+var gcBytes = 0;
+function collectGarbage(bytes) {
+    gcBytes += bytes || 0;
+    if (!global.gc) return;
+    var rss = process.memoryUsage().rss;
+    if (intervalometer.status.running) {
+        if (gcBytes < 32 * 1048576 && rss < 150 * 1048576) return;
+        var nextFrameMs = intervalometer.status.captureStartTime * 1000 + intervalometer.status.intervalMs - Date.now();
+        if (nextFrameMs < 500 && rss < 250 * 1048576) return; // the next frame is close: after a later one
+    }
+    gcBytes = 0;
+    try {
+        global.gc();
+    } catch (e) {
+        logEvent("garbage collection failed:", e);
+    }
+}
+
 var paddingLoggedFrame = null;
 function getEvOptions() {
     var neededPadMs = intervalometer.autoSettings.paddingTimeMs;
@@ -1488,13 +1511,7 @@ function runPhoto(isRetry) {
                     busyKeyframes = false;
                     pendingPhoto = false;
                 });
-                try {
-                    if (global.gc) {
-                        global.gc();
-                    }
-                } catch (e) {
-                    logEvent("garbage collection failed:", e);
-                }
+                collectGarbage(photoRes && photoRes.bytes);
             });
         } else {
             if (intervalometer.status.rampEv === null) {
@@ -1637,13 +1654,7 @@ function runPhoto(isRetry) {
                     log("INTERVALOMETER: KF completed.");
                 });
 
-                try {
-                    if (global.gc) {
-                        global.gc();
-                    }
-                } catch (e) {
-                    logEvent("garbage collection failed:", e);
-                }
+                collectGarbage(photoRes && photoRes.bytes);
             });
         }
     }
@@ -1836,6 +1847,7 @@ intervalometer.cancel = function (reason, callback) {
                     camera.ptp.saveThumbnails(intervalometer.timelapseFolder);
                     camera.ptp.unmountSd();
                     if (intervalometer.status.useLiveview) remap('camera.ptp.lvOff');
+                    collectGarbage(); // the last frame's collectGarbage ran while status.running was still true
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
                     callback && callback();
