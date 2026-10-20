@@ -628,6 +628,8 @@ driver._event = function(camera, data) { // events received
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == SONY_EVENT_OBJECT_CREATED) {
             _logD("object added:", param1);
+        } else if(event == SONY_EVENT_CAPTURE) { // SDIE_ObjectAdded: "a shot file is ready to transfer" (v2 reference, p.96)
+            if(camera._shotReady) camera._shotReady();
         } else if(event == SONY_EVENT_CHANGE) {
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
@@ -1218,8 +1220,13 @@ function getImage(camera, timeout, callback) {
 
     async.series([
         function(cb){
+            var timer = null;
+            var woken = false;
             var check = function() {
+                timer = null;
+                woken = false;
                 if(Date.now() - startTime > timeout) {
+                    camera._shotReady = null;
                     _logD("getImage: timed out");
                     return cb && cb("timeout");
                 }
@@ -1229,14 +1236,24 @@ function getImage(camera, timeout, callback) {
                 }
                 driver.refresh(camera, function() {
                     if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
+                        camera._shotReady = null;
                         _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable'].value);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = 1;
                         return cb();
                     } else {
-                        return setTimeout(check, 50);
+                        // 250 ms, not 50, after the exposure: SDIE_ObjectAdded below ends the wait as soon as the file is there
+                        timer = setTimeout(check, woken ? 0 : ptp.pollDelay(camera, startTime, 250));
                     }
                 });
+            }
+            camera._shotReady = function() { // SDIE_ObjectAdded (0xC201): look now, not at the next poll
+                if(timer) {
+                    clearTimeout(timer);
+                    check();
+                } else {
+                    woken = true; // a refresh is on its way and may have missed the file: look again right after it
+                }
             }
             check();
         },

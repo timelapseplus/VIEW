@@ -815,10 +815,10 @@ function getImage(camera, timeout, callback) {
                                         dataIndex += 4;
                                     }
                                 }
-                                return setTimeout(check, 50);
+                                return setTimeout(check, ptp.pollDelay(camera, startTime));
                             });
                         }
-                        return setTimeout(check, 50);
+                        return setTimeout(check, ptp.pollDelay(camera, startTime));
                     });
                 }
                 ptp.getObjectInfo(camera._dev, objectId, function(err, oi) {
@@ -853,7 +853,7 @@ function getImage(camera, timeout, callback) {
                     }
                 });
             } else {
-                setTimeout(check, 50);
+                setTimeout(check, ptp.pollDelay(camera, startTime));
             }
         });
     }

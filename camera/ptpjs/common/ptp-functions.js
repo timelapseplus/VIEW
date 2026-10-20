@@ -238,6 +238,24 @@ exports.getProp32 = function(cam, prop, callback) {
 	});
 }
 
+// Delay before the next "is the shot file there yet?" poll in a driver's getImage(). Each poll is a USB transaction
+// (Sony: the whole property list, ~9 ms of CPU), so while the shutter is still open poll once a second, and every fastMs
+// (default 50) from 0.5 s before the exposure should end. If the shutter the VIEW knows is wrong, the file is seen at
+// most ~1 s late. The exposure comes from the driver's shutter table: duration_ms, or the EV (0 = 1/64 s, -6 = 1 s, as
+// lists.bulb).
+exports.pollDelay = function(camera, startTime, fastMs) {
+	if(!fastMs) fastMs = 50;
+	var shutter = camera && camera.exposure && camera.exposure.shutter;
+	var ms = 0;
+	if(shutter && shutter.duration_ms) {
+		ms = shutter.duration_ms;
+	} else if(shutter && shutter.ev != null) {
+		ms = 1000 * Math.pow(2, -shutter.ev) / 64;
+	}
+	var left = ms - 500 - (Date.now() - startTime);
+	return left > fastMs ? Math.min(left, 1000) : fastMs;
+}
+
 exports.objCopy = function(sourceObj, destObj) {
     if(!destObj) destObj = {};
     if(!sourceObj) return destObj;

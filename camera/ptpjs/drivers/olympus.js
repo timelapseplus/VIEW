@@ -850,7 +850,7 @@ function getImage(camera, timeout, callback) {
                 if(err) return setTimeout(check, 50);
                 //if(shutter != waitShutter) return setTimeout(check, 50);
                 //waitShutter = 7; // wait for shutter to open
-                if(shutter != 7) return setTimeout(check, 50);
+                if(shutter != 7) return setTimeout(check, ptp.pollDelay(camera, startTime));
                 _logD("checking for image...");
                 return ptp.transaction(camera._dev, 0x9485, [0x00000007], null, function(err, responseCode, data) {
                     if(err) return callback && callback(err, results);

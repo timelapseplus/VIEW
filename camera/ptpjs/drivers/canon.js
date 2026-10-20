@@ -893,7 +893,7 @@ function getImage(camera, timeout, callback) {
         }
         pollEvents(camera, function(err) { // check events
             if(camera._objectsAdded.length == 0) {
-                return setTimeout(check, 50);
+                return setTimeout(check, ptp.pollDelay(camera, startTime));
             }
             //console.log("data:", data);
             var objectId = camera._objectsAdded.shift();
