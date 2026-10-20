@@ -68,6 +68,7 @@ exp.init = function (minEv, maxEv, nightLuminance, dayLuminance, highlightProtec
     fs.writeFileSync(datajs, "var datajs = {}\n" +
         "module.exports = datajs\n" +
         "\n" +
+        "datajs.config = " + JSON.stringify(exp.config) + "\n" +
         "datajs.data = [ ");
     return exp.config;
 }
@@ -81,6 +82,7 @@ exp.calculate = function (algorithm, direction, currentEv, lastPhotoLum, lastPho
 
     fs.appendFileSync(local.datajs, "{ \n" +
         "frame: " + frame + ", \n" +
+        "time: " + Date.now() + ", \n" + // the ramp's step follows the real interval between frames: a replay needs it
         "lastPhotoHistogram: " + JSON.stringify(lastPhotoHistogram) + ", \n" +
         "currentEv: " + currentEv + ", \n" +
         "lastPhotoLum: " + lastPhotoLum + ", \n" +
@@ -253,7 +255,6 @@ exp.calculate_TLPAuto = function (currentEv, lastPhotoLum, lastPhotoHistogram, m
         exp.status.highlightProtection = Math.round(exp.status.highlightProtection * 1000) / 1000;
     }
 
-    console.log("status: ", exp.status);
     //console.log("local: ", local);
 
     return exp.status.rampEv;
