@@ -1151,6 +1151,14 @@ function getEvOptions() {
 
 var busyExposure = false;
 
+// How long an exposure change takes from setupExposure's start to the camera's confirmation, averaged like
+// bufferSeconds; the ramp's padding reserves it (0.73-0.85 s for an ISO step on the A6600, doc 2026-10-20 §H4).
+function noteExposureTime(startSeconds) {
+    var ms = (new Date() / 1000 - startSeconds) * 1000;
+    if (!(ms >= 0)) return;
+    intervalometer.status.exposureSetMs = intervalometer.status.exposureSetMs ? (intervalometer.status.exposureSetMs + ms) / 2 : ms;
+}
+
 function setupExposure(cb) {
     var expSetupStartTime = new Date() / 1000;
     var oldDriverEnableLv = intervalometer.status.useLiveview && !busyExposure && camera.ptp.settings && camera.ptp.settings.viewfinder == "off";
@@ -1201,6 +1209,7 @@ function setupExposure(cb) {
                 intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                 intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                 log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                noteExposureTime(expSetupStartTime);
                 busyExposure = false;
                 setTimeout(function () {
                     cb && cb(err);
@@ -1219,6 +1228,7 @@ function setupExposure(cb) {
                         intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                         intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                         log("EXP: program (preset):", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                noteExposureTime(expSetupStartTime);
                         busyExposure = false;
                         setTimeout(function () {
                             cb && cb(err);
@@ -1233,6 +1243,7 @@ function setupExposure(cb) {
                     intervalometer.status.cameraSettings = remap('camera.ptp.settings-camera');
                     intervalometer.status.evDiff = intervalometer.status.cameraEv - intervalometer.status.rampEv;
                     log("EXP: program:", "capture", " (took ", (new Date() / 1000 - expSetupStartTime), "seconds from setup start");
+                    noteExposureTime(expSetupStartTime);
                     busyExposure = false;
                     setTimeout(function () {
                         cb && cb(err);
@@ -1494,7 +1505,11 @@ function runPhoto(isRetry) {
         return; // drop frame if backed up
     }
 
-    if ((busyPhoto || busyExposure || busyKeyframes) && intervalometer.currentProgram.rampMode != "fixed") {
+    // In every mode (until 2026-10-21 only outside `fixed`): a tick that finds the previous frame still busy waits for
+    // it, 100 ms at a time, instead of starting another capture. In `fixed` the extra captures queued up in the driver
+    // (`busyCapture`), the camera shot them back to back, frame numbers repeated and the run ended with captures still
+    // pending (E2, doc 2026-10-20 §7.7). Now a too-short interval just runs at the frame cycle, counted right.
+    if (busyPhoto || busyExposure || busyKeyframes) {
         if (retryCounter == 0) {
             if (busyPhoto) log("P");
             if (busyExposure) log("E");
@@ -1560,6 +1575,13 @@ function runPhoto(isRetry) {
             remap('camera.ptp.capture')(captureOptions, function (err, photoRes) {
                 if (!err && photoRes) {
                     intervalometer.status.path = photoRes.file;
+                    // Once per run: the interval is shorter than a frame takes (fixed mode has no bufferSeconds; the
+                    // frame's own duration from its trigger is the cycle here). runPhoto then waits for each frame.
+                    var fixedCycleSeconds = (new Date() / 1000) - intervalometer.status.captureStartTime;
+                    if (!intervalometer.status.cycleWarned && intervalometer.status.frames >= 2 && intervalometer.status.intervalMs < fixedCycleSeconds * 1000) {
+                        intervalometer.status.cycleWarned = true;
+                        logEvent("interval " + (intervalometer.status.intervalMs / 1000) + " s is shorter than the frame cycle (" + fixedCycleSeconds.toFixed(2) + " s): frames come as fast as the camera allows");
+                    }
                     if (photoRes.cameraCount > 1) {
                         for (var i = 0; i < photoRes.cameraResults.length; i++) {
                             log("photoRes.cameraResults[" + i + "]:", photoRes.cameraResults[i].file, photoRes.cameraResults[i].cameraIndex, photoRes.cameraResults[i].thumbnailPath);
@@ -1678,14 +1700,26 @@ function runPhoto(isRetry) {
                         intervalometer.status.bufferSeconds = (intervalometer.status.bufferSeconds + bufferTime) / 2;
                     }
                     intervalometer.status.path = referencePhotoRes.file;
+                    var cycleSeconds = intervalometer.status.bufferSeconds + camera.lists.getSecondsFromEv(shutterEv);
+                    if (!intervalometer.status.cycleWarned && intervalometer.status.frames >= 2 && intervalometer.status.intervalMs < cycleSeconds * 1000) {
+                        intervalometer.status.cycleWarned = true;
+                        logEvent("interval " + (intervalometer.status.intervalMs / 1000) + " s is shorter than the frame cycle (" + cycleSeconds.toFixed(2) + " s): frames come as fast as the camera allows");
+                    }
+                    // The frame's database rows go in after the next exposure is on its way to the camera (below): in
+                    // `auto` the ISO/shutter command used to leave 65-116 ms after the camera's answer, behind the
+                    // node-serialize of these details and three SQL statements (doc 2026-10-20 §H4). The details are
+                    // taken now, before the ramp moves rampEv on, so the rows read as before.
+                    var frameRows = [];
                     if (referencePhotoRes.cameraCount > 1) {
                         for (var i = 0; i < referencePhotoRes.cameraResults.length; i++) {
-                            db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, getDetails(referencePhotoRes.cameraResults[i].file), referencePhotoRes.cameraResults[i].cameraIndex, referencePhotoRes.cameraResults[i].thumbnailPath);
+                            frameRows.push([getDetails(referencePhotoRes.cameraResults[i].file), referencePhotoRes.cameraResults[i].cameraIndex, referencePhotoRes.cameraResults[i].thumbnailPath]);
                         }
                     } else {
-                        db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, getDetails(), 1, referencePhotoRes.thumbnailPath);
+                        frameRows.push([getDetails(), 1, referencePhotoRes.thumbnailPath]);
                     }
-                    intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + 500; // add a half second for setting exposure
+                    // The padding reserves the measured exposure-change time (0.73-0.85 s for an ISO step on the A6600, doc
+                    // §H4) instead of a fixed half second, so the ramp's longest shutter leaves room for it.
+                    intervalometer.autoSettings.paddingTimeMs = intervalometer.status.bufferSeconds * 1000 + Math.max(500, intervalometer.status.exposureSetMs || 0);
 
                     var model = remap('camera.ptp.model');
                     if (model && model.match(/5DS/i)) intervalometer.autoSettings.paddingTimeMs += 1000; // add one second for 5DS
@@ -1703,7 +1737,10 @@ function runPhoto(isRetry) {
                     intervalometer.status.path = referencePhotoRes.file;
                     intervalometer.status.lastPhotoLum = referencePhotoRes.ev;
                     intervalometer.status.message = "running";
-                    if (!checkCurrentPlan(true)) setupExposure();
+                    if (!checkCurrentPlan(true)) setupExposure(); // the exposure command goes out first (see frameRows above)
+                    for (var r = 0; r < frameRows.length; r++) {
+                        db.setTimelapseFrame(intervalometer.status.id, intervalometer.status.evDiff, frameRows[r][0], frameRows[r][1], frameRows[r][2]);
+                    }
 
                     if (intervalometer.status.framesRemaining > 0) intervalometer.status.framesRemaining--;
                     intervalometer.status.frames++;
@@ -2055,6 +2092,8 @@ intervalometer.run = function (program, date, timeOffsetSeconds, autoExposureTar
                     intervalometer.lastImage = null;
                     intervalometer.meterSource = null; // 'exif' or 'decode', decided on the first frame (processImage)
                     cpuBoostOn = undefined; // the clock is looked at on the first frame (cpuBoost)
+                    intervalometer.status.exposureSetMs = 0; // measured by noteExposureTime, used in the padding
+                    intervalometer.status.cycleWarned = false; // "interval shorter than the frame cycle", once per run
                     intervalometer.lastPhotoTime = null;
                     intervalometer.status.intervalMs = program.interval * 1000;
                     intervalometer.status.message = "starting";
