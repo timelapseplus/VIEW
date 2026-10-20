@@ -259,10 +259,12 @@ var properties = {
             //{ name: "409600",   ev: -12,         code: 409600 }
         ]
     },
-    'format': {
+    'format': { // Compression Setting (docs/Camera Control PTP 2 Reference, 0x5004, UINT8): the v2 reference has no standard SetDevicePropValue, so write it with 0x9205
         name: 'format',
         category: 'config',
-        getSetFunction: function(camera) { return ptp.setPropU8; },
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 2, callback);
+        } },
         getFunction: null,
         listFunction: null,
         listWorks: true,
@@ -322,6 +324,24 @@ var properties = {
             { name: "AF-C",       value: null,        code: 32772  },
             { name: "DMF",        value: null,        code: 32774  },
             { name: "MF",         value: 'mf',        code: 1  },
+        ]
+    },
+    'imageSize': { // JPEG image size (docs/Camera Control PTP 2 Reference, Image Size 0xD203, UINT8); RAW is always full size
+        name: 'imageSize',
+        category: 'config',
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 2, callback);
+        } },
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0xD203,
+        typeCode: 2,
+        ev: false,
+        values: [
+            { name: "L", value: 'l', code: 0x01 },
+            { name: "M", value: 'm', code: 0x02 },
+            { name: "S", value: 's', code: 0x03 },
         ]
     },
     'driveMode': {
@@ -1224,7 +1244,7 @@ function getImage(camera, timeout, callback) {
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
                     results.filename = oi.filename;
-                    _logD("filename =", oi.filename);
+                    _logD("filename =", oi.filename, oi.objectCompressedSize, "bytes", oi.imagePixWidth + "x" + oi.imagePixHeight);
                 }
                 cb(err);
             });
@@ -1282,6 +1302,30 @@ driver.capture = function(camera, target, options, callback, tries) {
                     cb();
                 });
             }
+        },
+        function(cb){ // with RAW+JPEG the VIEW gets only the JPEG, for the meter and the thumbnails: make it S Standard, once
+            var format = camera.config && camera.config.format && camera.config.format.name;
+            var size = camera.config && camera.config.imageSize;
+            if(camera._smallJpegTried || !format || !/^RAW\+JPEG/.test(format)) return cb();
+            camera._smallJpegTried = true;
+            async.series([
+                function(cb){ // the meter decodes at 1/8 scale, from the block averages: Fine and Extra Fine only cost transfer and decode time
+                    if(format == 'RAW+JPEG Standard') return cb();
+                    _logD("format is", format, "- switching the JPEG to Standard");
+                    driver.set(camera, 'format', 'RAW+JPEG Standard', function(err) {
+                        if(err) _logE("unable to switch the JPEG to Standard:", err);
+                        cb();
+                    });
+                },
+                function(cb){
+                    if(!size || size.name == 'S' || size.name == 'UNKNOWN') return cb();
+                    _logD("JPEG size is", size.name, "- switching the JPEG to S");
+                    driver.set(camera, 'imageSize', 'S', function(err) {
+                        if(err) _logE("unable to switch the JPEG size to S:", err);
+                        cb();
+                    });
+                }
+            ], function() { cb(); });
         },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){ setTimeout(cb, 20); },
