@@ -8,6 +8,30 @@ var exp = require('intervalometer/exposure.js');
 var interpolate = require('intervalometer/interpolate.js');
 var fs = require('fs');
 var exec = require('child_process').exec;
+
+// The CPU clock during a time-lapse (2026-10-21). The UI puts the CPU at 576 MHz / 1.3 V for the whole run
+// (power.performance('high'): 74 mW more than 384 MHz between frames at the same load, doc 2026-10-19 §8), but the
+// core works only from the JPEG's arrival to the end of the frame's bookkeeping, 0.3-0.7 s of a frame. So the core
+// raises the clock for that part and drops it to 384 MHz after it, through the userspace cpufreq governor the UI
+// selected (one sysfs write, no fork). The voltage stays at 1.3 V, which is safe at 384 MHz. Expected -40..-55 mW at a
+// 5 s interval; measure on battery. Nothing happens when the governor is not 'userspace' (no time-lapse, other units).
+var CPUFREQ = '/sys/devices/system/cpu/cpu0/cpufreq/';
+var cpuBoostOn; // undefined: not looked at yet (run start); null: not ours to touch; true/false: the clock we asked for
+function cpuBoost(on) {
+    if (cpuBoostOn === null || cpuBoostOn === on) return;
+    if (cpuBoostOn === undefined) {
+        var gov = '';
+        try { gov = fs.readFileSync(CPUFREQ + 'scaling_governor', 'utf8').trim(); } catch (e) {}
+        if (gov != 'userspace') { cpuBoostOn = null; return; }
+    }
+    cpuBoostOn = on;
+    fs.writeFile(CPUFREQ + 'scaling_setspeed', on ? '576000' : '384000', function (err) {
+        if (err) {
+            logErr("CPU: failed to set the clock:", err);
+            cpuBoostOn = null;
+        }
+    });
+}
 //var async = require('async');
 var TLROOT = "/root/time-lapse";
 var Button = require('gpio-button');
@@ -90,6 +114,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     // frames; a 120 px image made from the thumbnail read 0.04 EV darker. That 120 px image still
                     // goes to the app and the screen, so they get what they did before.
                     var processImage = function (jpeg, done) {
+                        cpuBoost(true); // the frame's work starts: the JPEG is in
                         var meterFrom = function (small) {
                             setTimeout(function () {
                                 saveThumbnail(small, captureOptions ? captureOptions.index : 1, 1, 0);
@@ -168,6 +193,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     }
                     return camera.ptp.new.capture(options.destination, options, function (err, thumb, filename, raw) {
                         var fileMs = Date.now() - captureStart;
+                        cpuBoost(true); // (already on since the JPEG came in; here for drivers without onImage)
                         if (err) {
                             logErr("capture failed:", err);
                             return callback && callback(err);
@@ -1566,6 +1592,7 @@ function runPhoto(isRetry) {
                     pendingPhoto = false;
                 });
                 collectGarbage(photoRes && photoRes.bytes);
+                cpuBoost(false); // the frame's work is done: 384 MHz until the next JPEG
             });
         } else {
             if (intervalometer.status.rampEv === null) {
@@ -1709,6 +1736,7 @@ function runPhoto(isRetry) {
                 });
 
                 collectGarbage(photoRes && photoRes.bytes);
+                cpuBoost(false); // the frame's work is done: 384 MHz until the next JPEG
             });
         }
     }
@@ -1902,6 +1930,7 @@ intervalometer.cancel = function (reason, callback) {
                     camera.ptp.unmountSd();
                     if (intervalometer.status.useLiveview) remap('camera.ptp.lvOff');
                     collectGarbage(); // the last frame's collectGarbage ran while status.running was still true
+                    cpuBoostOn = null; // the UI puts the clock and the voltage back (performance('low'))
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
                     callback && callback();
@@ -2025,6 +2054,7 @@ intervalometer.run = function (program, date, timeOffsetSeconds, autoExposureTar
                     intervalometer.lastThumb = null;
                     intervalometer.lastImage = null;
                     intervalometer.meterSource = null; // 'exif' or 'decode', decided on the first frame (processImage)
+                    cpuBoostOn = undefined; // the clock is looked at on the first frame (cpuBoost)
                     intervalometer.lastPhotoTime = null;
                     intervalometer.status.intervalMs = program.interval * 1000;
                     intervalometer.status.message = "starting";
