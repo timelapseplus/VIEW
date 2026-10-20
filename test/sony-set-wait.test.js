@@ -85,6 +85,13 @@ describe('sony set() waits for a shifted value', function () {
         });
     });
 
+    it('goes on past six shifts while the camera follows them (an eight-step change)', function (done) {
+        setIso(from, from + 8, 200, false, function (shifts, reads, ms) {
+            assert.deepStrictEqual(shifts.map(function (s) { return s[0]; }), [8, 7, 6, 5, 4, 3, 2, 1]);
+            done();
+        });
+    });
+
     it('shifts again once the first shift is lost', function (done) {
         setIso(from, to, 300, true, function (shifts, reads, ms) {
             assert.strictEqual(shifts.length, 2, 'shifts: ' + JSON.stringify(shifts));

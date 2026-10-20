@@ -1023,7 +1023,7 @@ function equalEv(ev1, ev2) {
 // DevicePropChanged (0xC203) then; it sends two more 0xC203 before that, moves one step per shift whatever the delta, and
 // while still busy with a shot shifts only afterwards (doc §24). So look on every 0xC203 and every 250 ms in case one is
 // missed; once it has moved but is not there yet, shift again by what is left at once; with no move give up only after
-// 1.5 s: shifting again while the camera is merely slow would move it a step too far.
+// 1.5 s: shifting again while the camera is merely slow would move it a step too far. callback(reached, moved).
 function waitForValue(camera, param, code, callback) {
     var deadline = Date.now() + 1500;
     var start = camera[properties[param].category][param].code;
@@ -1033,7 +1033,7 @@ function waitForValue(camera, param, code, callback) {
         clearTimeout(timer);
         var i = camera._propWaiters.indexOf(look);
         if(i !== -1) camera._propWaiters.splice(i, 1);
-        callback(reached);
+        callback(reached, camera[properties[param].category][param].code != start);
     }
     var look = function() {
         if(finished) return;
@@ -1062,8 +1062,11 @@ function waitForValue(camera, param, code, callback) {
     timer = setTimeout(look, 250);
 }
 
-driver.set = function(camera, param, value, callback, tries) {
+// tries: shifts the camera did not follow (up to 6); moves: shifts it followed part of the way. The A6600 moves ISO one step
+// per shift, so a 14-step change is 14 shifts; those must not count as failures, only be capped in case it never arrives.
+driver.set = function(camera, param, value, callback, tries, moves) {
     if(!tries) tries = 0;
+    if(!moves) moves = 0;
     tries++;
     async.series([
         function(cb){
@@ -1119,10 +1122,11 @@ driver.set = function(camera, param, value, callback, tries) {
                                 _logE("error setting (shift) " + ptp.hex(getCode(camera, properties[param].code)) + ": " + err);
                                 return cb(err);
                             }
-                            waitForValue(camera, param, cameraValue, function(reached) {
+                            waitForValue(camera, param, cameraValue, function(reached, moved) {
                                 if(reached) return cb();
+                                if(moved && moves < 60) return driver.set(camera, param, value, callback, tries - 1, moves + 1); // the rest
                                 if(tries > 5) return cb("failed to reach target value");
-                                driver.set(camera, param, value, callback, tries); // shift again by what is left
+                                driver.set(camera, param, value, callback, tries, moves); // shift again by what is left
                             });
                         });
                     } else {
