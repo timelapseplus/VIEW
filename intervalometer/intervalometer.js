@@ -90,8 +90,7 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                     // frames; a 120 px image made from the thumbnail read 0.04 EV darker. That 120 px image still
                     // goes to the app and the screen, so they get what they did before.
                     var processImage = function (jpeg, done) {
-                        image.downsizeJpeg(jpeg, {x: 160, q: 80}, null, function (err, thumb160) {
-                            var small = (!err && thumb160) ? thumb160 : jpeg;
+                        var meterFrom = function (small) {
                             setTimeout(function () {
                                 saveThumbnail(small, captureOptions ? captureOptions.index : 1, 1, 0);
                             }, 10);
@@ -106,6 +105,51 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                 } else {
                                     done({err: null, ev: null});
                                 }
+                            });
+                        };
+                        var decodeFull = function () {
+                            image.downsizeJpeg(jpeg, {x: 160, q: 80}, null, function (err, thumb160) {
+                                meterFrom((!err && thumb160) ? thumb160 : jpeg);
+                            });
+                        };
+                        // Since 2026-10-21 the 160 px image comes from the JPEG's own EXIF thumbnail when the camera
+                        // writes one (≈6 ms instead of 110-430 ms of decoding, doc 2026-10-20 §7.1). Decided once per
+                        // run, on its first frame: the thumbnail is kept only if its reading agrees with the full
+                        // decode (the A6600's reads +0.09..+0.14 higher, a constant), so that every frame of the run,
+                        // the ramp's reference included, is metered the same way; otherwise the run decodes as before.
+                        if (intervalometer.meterSource == 'decode') return decodeFull();
+                        image.thumbnailFromExif(jpeg, 80, function (err, exifThumb, info) {
+                            if (err || !exifThumb) {
+                                if (intervalometer.meterSource == null) {
+                                    intervalometer.meterSource = 'decode';
+                                    log("METER: no usable EXIF thumbnail (" + err + "): decoding the full JPEG for this run");
+                                } else {
+                                    logErr("METER: EXIF thumbnail failed (" + err + "): decoding this frame");
+                                }
+                                return decodeFull();
+                            }
+                            if (intervalometer.meterSource == 'exif') return meterFrom(exifThumb);
+                            image.downsizeJpeg(jpeg, {x: 160, q: 80}, null, function (err, thumb160) {
+                                if (err || !thumb160) {
+                                    intervalometer.meterSource = 'exif';
+                                    log("METER: full decode failed, using the EXIF thumbnail for this run");
+                                    return meterFrom(exifThumb);
+                                }
+                                image.exposureValue(exifThumb, function (e1, lumExif) {
+                                    image.exposureValue(thumb160, function (e2, lumFull) {
+                                        var diff = (e1 || e2 || lumExif == null || lumFull == null) ? null : lumExif - lumFull;
+                                        var where = info.width + "x" + info.height + ", " + info.bytes + " B, bars " + info.bars;
+                                        if (diff != null && Math.abs(diff) <= 0.3) {
+                                            intervalometer.meterSource = 'exif';
+                                            log("METER: EXIF thumbnail (" + where + ") reads " + (diff >= 0 ? "+" : "") + diff.toFixed(2) + " against the full decode: using it for this run");
+                                            meterFrom(exifThumb);
+                                        } else {
+                                            intervalometer.meterSource = 'decode';
+                                            log("METER: EXIF thumbnail (" + where + ") reads " + (diff == null ? "n/a" : diff.toFixed(2)) + " against the full decode: decoding the full JPEG for this run");
+                                            meterFrom(thumb160);
+                                        }
+                                    });
+                                });
                             });
                         });
                     }
@@ -1980,6 +2024,7 @@ intervalometer.run = function (program, date, timeOffsetSeconds, autoExposureTar
                     intervalometer.currentProgram = program;
                     intervalometer.lastThumb = null;
                     intervalometer.lastImage = null;
+                    intervalometer.meterSource = null; // 'exif' or 'decode', decided on the first frame (processImage)
                     intervalometer.lastPhotoTime = null;
                     intervalometer.status.intervalMs = program.interval * 1000;
                     intervalometer.status.message = "starting";
