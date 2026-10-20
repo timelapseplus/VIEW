@@ -2880,6 +2880,7 @@ if (VIEW_HARDWARE) {
     }
 
     var wifiScanWait = function() {
+        wifi.wantScan(120); // the list is on screen: keep scanning (while connected the scan is otherwise off)
         if(wifi.list.length > 0) {
             process.nextTick(function(){
                 ui.back();
@@ -2892,6 +2893,7 @@ if (VIEW_HARDWARE) {
     }
 
     var wifiConnectMenu = function(cb) {
+        wifi.wantScan(120); // scan now and for the next two minutes: the menu shows the last scan's list
         if(wifi.list.length == 0) {
             cb(null, {
                 name: "wifi connect",

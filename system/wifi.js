@@ -22,7 +22,13 @@ var SYSTEM_WIFI_EVENTS = 'dmesg';//-w | grep "RTL871X: sta recv deauth reason co
 
 var dualInterface = false;
 
-var iw = new Wireless({ iface:'wlan0', iface2: dualInterface ? 'wlan1' : false, updateFrequency: 60, connectionSpyFrequency: 10 });
+// Each check is a forked `iw`: the link check every 30 s (was 10; the driver's own join/deauth lines reach
+// sys_events_mon below anyway), the scan every 60 s only while disconnected or while the Wi-Fi menu asked for it
+// (wifi.wantScan) — together ≈2 % of the CPU in idle before 2026-10-21 (doc 2026-10-20 §8.6). Off in AP mode.
+var scanWantedUntil = 0;
+var lastScanAt = 0;
+var iw = new Wireless({ iface:'wlan0', iface2: dualInterface ? 'wlan1' : false, updateFrequency: 60, connectionSpyFrequency: 30,
+	scanWanted: function() { return Date.now() < scanWantedUntil; } });
 
 // wpa_group_rekey=0: hostapd 2.3 rotates the group key every 600 s and kicks a dozing phone that
 // misses the handshake (seen in the 2026-08 logs).
@@ -249,6 +255,7 @@ iw.on('stop', function() {
 
 iw.on('command', function(cmd) {
 	//console.log("[Wifi] Command: ", cmd);
+	if(cmd && cmd.indexOf(' scan') > 0) lastScanAt = Date.now();
 });
 
 wifi.listHandler = function(callback) {
@@ -258,6 +265,13 @@ wifi.listHandler = function(callback) {
 	} else {
 		listCallback = null;
 	}
+}
+
+// The Wi-Fi menu is being shown: keep the periodic scan going for `seconds` (while connected it is otherwise off),
+// and scan right away unless one ran in the last 20 s, so the list is fresh within a few seconds of opening the menu.
+wifi.wantScan = function(seconds) {
+	scanWantedUntil = Date.now() + (seconds || 120) * 1000;
+	if(wifi.enabled && !wifi.apMode && iw.scanning && Date.now() - lastScanAt > 20000) iw.scanNow();
 }
 
 wifi.scan = function() {
