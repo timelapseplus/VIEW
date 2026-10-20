@@ -234,8 +234,12 @@ if (VIEW_HARDWARE) {
             core.resetBt();
         }
     });
+    // The app.view.tl relay (remote browser access through the vendor's cloud) is off (2026-10-21): the owner does not
+    // use it, and once enabled by a Wi-Fi connection it kept reconnecting every 5 s for ever (system/app.js
+    // connectRemote), in the field too. Set true to get the old behaviour back.
+    var CLOUD_REMOTE = false;
     wifi.on('connect', function(ssid) {
-        app.enableRemote(updates.version);
+        if (CLOUD_REMOTE) app.enableRemote(updates.version);
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
