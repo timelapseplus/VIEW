@@ -243,15 +243,25 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
             if (camera.ptp.new.available) {
                 var base = camera.ptp.new.cameras[0].camera.exposure;
                 var config = camera.ptp.new.cameras[0].camera.config;
+                // The status goes to the UI (and on to the app, the screen and the cloud socket) on every frame: the
+                // exposure objects without their value lists (15 of the 16.8 KB — the lists are in the camera settings,
+                // `camera.ptp.settings`, which the clients already have; doc 2026-10-20 §H7). Measured 2026-10-21 E5:
+                // two to four serialisations of it per frame in the core and as many in the UI.
+                var slim = function (p) {
+                    if (!p) return p;
+                    var o = {};
+                    for (var k in p) if (p.hasOwnProperty(k) && k != 'list') o[k] = p[k];
+                    return o;
+                };
                 return {
                     shutter: base.shutter && base.shutter.name,
                     aperture: (base.aperture && base.aperture.name) || camera.lists.getNameFromEv(camera.lists.apertureAll, intervalometer.currentProgram.manualAperture),
                     iso: base.iso && base.iso.name,
                     driveMode: config && config.driveMode && config.driveMode.name,
                     details: {
-                        shutter: base.shutter,
-                        aperture: base.aperture,
-                        iso: base.iso,
+                        shutter: slim(base.shutter),
+                        aperture: slim(base.aperture),
+                        iso: slim(base.iso),
                     }
                 }
             } else {
