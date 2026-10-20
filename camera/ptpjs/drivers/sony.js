@@ -691,6 +691,16 @@ driver.refresh = function(camera, callback, noEvent) {
 
         if(err || !data) return callback && callback(err || "no data received");
 
+        // The dump is the same ~10 KB for every property the camera has; parsing it costs 7-9 ms of CPU and most reads
+        // during a time-lapse (the polls before the file is ready, the refresh after each 0xC203) bring back exactly
+        // the previous bytes. Identical dump -> nothing changed -> nothing to parse or emit (2026-10-21). The cache is
+        // dropped wherever the driver resets a parsed value itself (getImage, capture), so a repeat of an old dump
+        // can never hide a reset value.
+        if(camera._lastDump && camera._lastDump.length == data.length && camera._lastDump.toString('binary') == data.toString('binary')) {
+            return callback && callback();
+        }
+        camera._lastDump = data;
+
         while(i < data.length) {
             var list = [];
             property_code = data.readUInt16LE(i);
@@ -1260,6 +1270,7 @@ function getImage(camera, timeout, callback, onImage) {
                     if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
                         camera._shotReady = null;
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
+                        camera._lastDump = null; // a parsed value was reset by hand: the next dump must be parsed (refresh)
                         results.indexNumber = 1;
                         return cb();
                     } else {
@@ -1317,6 +1328,7 @@ driver.capture = function(camera, target, options, callback, tries) {
     }
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
+    camera._lastDump = null; // a new shot changes the dump (0xD215): parse the next one (refresh)
     var thumb = null;
     var filename = null;
     var rawImage = null;
