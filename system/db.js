@@ -13,6 +13,14 @@ dbSys.serialize(function(){
 });
 
 dbTl.serialize(function(){
+	// Every time-lapse frame writes two transactions here (UPDATE clips, INSERT clip_frames): in the default rollback
+	// journal with synchronous=FULL that was 8 fsync() a frame on the SD card's ext3, ~150 ms of kernel CPU in the libuv
+	// pool per frame (2026-10-21 E5, doc 2026-10-20 §7.8). WAL with synchronous=NORMAL syncs only at checkpoints (every
+	// ~1000 pages, i.e. every few hundred frames): 84 -> 8 fsync for 20 frames on the unit (docs/profiling/2026-10-21-sqlite).
+	// The database stays consistent after a power cut; the last frames since the checkpoint may be lost from it (they are
+	// all in the clip's details.csv). The mode is stored in the file, so the UI, which opens the same file, follows.
+	dbRun(dbTl, "PRAGMA journal_mode = WAL");
+	dbRun(dbTl, "PRAGMA synchronous = NORMAL");
 	dbRun(dbTl, "CREATE TABLE IF NOT EXISTS clips (id INTEGER PRIMARY KEY AUTOINCREMENT,\
 													 name TEXT,\
 													 date TEXT,\
