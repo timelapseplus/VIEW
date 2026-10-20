@@ -666,15 +666,30 @@ api.setEv = function(targetEv, options, callback) {
         val: isoEv
     });
 
-    runQueue(setQueue, function() {
+    var done = function() {
         if (callback) callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},
             aperture: {ev: apertureEv},
             iso: {ev: isoEv}
         });
-
+    }
+    // A driver whose set() can run side by side (setsInParallel) gets all changes at once: the A6600 takes ~0.75 s to show
+    // each new value, so shutter then ISO one after the other took twice that, 3.2 s with a retry (doc §24).
+    var parallel = setQueue.length > 1 && api.cameras.every(function(c) {
+        var p = c.camera._driver && c.camera._driver.setsInParallel;
+        return typeof p == 'function' ? p(c.camera) : !!p;
     });
+    if (parallel) {
+        var pending = setQueue.length;
+        setQueue.forEach(function(set) {
+            setAll(set.name, set.val, function() {
+                if (--pending == 0) done();
+            });
+        });
+    } else {
+        runQueue(setQueue, done);
+    }
 
 }
 

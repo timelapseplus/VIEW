@@ -40,6 +40,9 @@ function objCopy(sourceObj, destObj) {
 }
 
 driver.supportsNativeHDR = false;
+// api.setEv may set shutter and ISO at once where both are relative shifts (each set() then waits for its own value in
+// waitForValue); bodies with the absolute ISO (newISO) keep one after the other, untried
+driver.setsInParallel = function(camera) { return !(camera.supports && camera.supports.newISO); };
 
 driver.supportedCameras = {
     '054c:02e7': { name: "Sony DSC-A900", supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500, newISO: false } },
@@ -631,6 +634,9 @@ driver._event = function(camera, data) { // events received
         } else if(event == SONY_EVENT_CAPTURE) { // SDIE_ObjectAdded: "a shot file is ready to transfer" (v2 reference, p.96)
             if(camera._shotReady) camera._shotReady();
         } else if(event == SONY_EVENT_CHANGE) {
+            if(camera._propWaiters && camera._propWaiters.length) { // a set() waits for its value (waitForValue): look now
+                return camera._propWaiters.slice().forEach(function(look) { look(); });
+            }
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
@@ -1013,6 +1019,49 @@ function equalEv(ev1, ev2) {
     }
     return Math.abs(ev1 - ev2) < 0.15;
 }
+// After a relative shift (shutter, and ISO on older bodies) the A6600 shows the new value 0.73-0.78 s later and sends
+// DevicePropChanged (0xC203) then; it sends two more 0xC203 before that, moves one step per shift whatever the delta, and
+// while still busy with a shot shifts only afterwards (doc §24). So look on every 0xC203 and every 250 ms in case one is
+// missed; once it has moved but is not there yet, shift again by what is left at once; with no move give up only after
+// 1.5 s: shifting again while the camera is merely slow would move it a step too far.
+function waitForValue(camera, param, code, callback) {
+    var deadline = Date.now() + 1500;
+    var start = camera[properties[param].category][param].code;
+    var timer = null, busy = false, again = false, finished = false;
+    var finish = function(reached) {
+        finished = true;
+        clearTimeout(timer);
+        var i = camera._propWaiters.indexOf(look);
+        if(i !== -1) camera._propWaiters.splice(i, 1);
+        callback(reached);
+    }
+    var look = function() {
+        if(finished) return;
+        if(busy) { again = true; return; }
+        busy = true;
+        clearTimeout(timer);
+        timer = null;
+        if(camera._eventTimer) {
+            clearTimeout(camera._eventTimer);
+            camera._eventTimer = null;
+        }
+        driver.refresh(camera, function() {
+            busy = false;
+            var now = camera[properties[param].category][param].code;
+            if(now == code) return finish(true);
+            if(now != start || Date.now() >= deadline) return finish(false);
+            if(again) {
+                again = false;
+                return look();
+            }
+            timer = setTimeout(look, 250);
+        });
+    }
+    if(!camera._propWaiters) camera._propWaiters = [];
+    camera._propWaiters.push(look);
+    timer = setTimeout(look, 250);
+}
+
 driver.set = function(camera, param, value, callback, tries) {
     if(!tries) tries = 0;
     tries++;
@@ -1066,45 +1115,15 @@ driver.set = function(camera, param, value, callback, tries) {
                         //    delta += ((abs - 4) * 2) * sign;
                         //}
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), delta, function(err) {
-                            if(!err) {
-                                //if(delta > 1 || tries > 1) {
-                                    var refreshTries = 8 + Math.abs(delta) * 2;
-                                    var refresh = function() {
-                                        if(camera._eventTimer) {
-                                            clearTimeout(camera._eventTimer);
-                                            camera._eventTimer = null;
-                                        }
-                                        driver.refresh(camera, function(){
-                                            if(camera[properties[param].category][param].code == cameraValue) {
-                                                return cb();
-                                            } else if(tries > 5) {
-                                                return cb("failed to reach target value");
-                                            } else {
-                                                if(refreshTries <= 0) {
-                                                    return setTimeout(function(){
-                                                        driver.refresh(camera, function(){
-                                                            driver.set(camera, param, value, callback, tries);
-                                                        }, true);
-                                                    }, 300);
-                                                } else {
-                                                    refreshTries--;
-                                                    return setTimeout(refresh, 50);
-                                                }
-                                            }
-                                        });
-                                    }
-                                    setTimeout(refresh, 50);
-                                //} else {
-                                //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
-                                //    for(var k in newItem) {
-                                //        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
-                                //    }
-                                //    return cb(err);
-                                //}
-                            } else {
+                            if(err) {
                                 _logE("error setting (shift) " + ptp.hex(getCode(camera, properties[param].code)) + ": " + err);
                                 return cb(err);
                             }
+                            waitForValue(camera, param, cameraValue, function(reached) {
+                                if(reached) return cb();
+                                if(tries > 5) return cb("failed to reach target value");
+                                driver.set(camera, param, value, callback, tries); // shift again by what is left
+                            });
                         });
                     } else {
                         _logD("setFunction:", ptp.hex(getCode(camera, properties[param].code)), "=>", cameraValue);
