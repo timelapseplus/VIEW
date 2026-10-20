@@ -699,6 +699,64 @@ function runTransaction(cam, opcode, params, data, callback, onData) {
 			}
 		}
 
+		// A data phase longer than the first read goes straight into one buffer, with no copy or new buffer per chunk, and
+		// the next chunk is queued before this one is handled: two in flight (2 x 6 MB fits usbfs' 16 MiB). A RAW over USB
+		// came in five 6 MB chunks with 50-156 ms of copying between them (doc §22-23). Chunks end on packet boundaries; if
+		// the camera sends less than its container said, the read queued after the short one holds the response.
+		var readData = function(first, rlen, cb) {
+			var CHUNK = 11719 * 512; // 6000128 bytes, whole packets
+			var DATA_TIMEOUT = 10000; // a chunk's clock starts when it is queued, behind the one in flight
+			var bigData = new Buffer(rlen);
+			first.copy(bigData, 0);
+			var next = first.length, length = rlen, pending = 0, failed = null, ended = false, response = null, done = false;
+			var finish = function() {
+				if(done) return;
+				done = true;
+				var rbuf = bigData.slice(0, length);
+				if(failed) {
+					_logD("ERROR", failed);
+					return receive(cb, rbuf); // as before: read the response, hand back what came
+				}
+				if(response) { // the data ended early and the next read got the response
+					dataDone(rbuf);
+					return cb && cb(null, parseResponse(response), rbuf.slice(12));
+				}
+				receive(cb, rbuf);
+				dataDone(rbuf);
+			}
+			var submit = function() {
+				if(next >= rlen || ended || failed) return;
+				var off = next, len = Math.min(CHUNK, rlen - off);
+				next += len;
+				pending++;
+				var transfer = cam.ep.in.makeTransfer(DATA_TIMEOUT, function(err, buf, actual) {
+					pending--;
+					if(err) {
+						failed = failed || err;
+					} else if(ended) {
+						if(actual == 12 && buf.readUInt16LE(4) == 3) { // copy it out: buf is part of bigData
+							response = new Buffer(12);
+							buf.copy(response, 0, 0, 12);
+						}
+					} else if(actual < len) {
+						ended = true;
+						length = off + actual;
+					}
+					if(!failed && !ended) submit();
+					if(pending == 0) finish();
+				});
+				try {
+					transfer.submit(bigData.slice(off, off + len));
+				} catch(e) {
+					pending--;
+					failed = failed || e;
+					if(pending == 0) finish();
+				}
+			}
+			submit();
+			submit();
+		}
+
 		var receive = function(cb, rbuf) {
 			_logD("reading 12 bytes...");
 			cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
@@ -716,7 +774,9 @@ function runTransaction(cam, opcode, params, data, callback, onData) {
 						}
 						cb && cb(err, responseCode, rbuf);
 					} else {
-						if(rlen > data.length) {
+						if(rlen > data.length && cam.ep.in.makeTransfer && data.length % maxPacket == 0) {
+							readData(data, rlen, cb); // (a short first packet means the data ended early: the old way below)
+						} else if(rlen > data.length) {
 							var remainingBytes = rlen - data.length;
 							var receivedIndex = 0;
 							var bigData = new Buffer(rlen);
