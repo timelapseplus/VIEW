@@ -401,6 +401,11 @@ function parseData(data, client) {
   }
 }
 
+var previewFrames = 0;
+function previewCollect() { // live view frames are buffers outside the V8 heap, which only a full collection frees
+  if(++previewFrames % 20 == 0 && global.gc) global.gc(); // every ~4 s at the A6600's 4.5 frames/s
+}
+
 function runCommand(type, args, callback, client) {
   var cameraCallback = function(err, res) {
     if(intervalometerStatus && !intervalometerStatus.running && !camera.ptp.lvOn && camera.ptp.model && camera.ptp.model.match(/nikon/i)) {
@@ -458,6 +463,7 @@ function runCommand(type, args, callback, client) {
       camera.ptp.connectSonyWifi(callback);
       break;
     case 'camera.ptp.lvOff':
+      if(global.gc) global.gc(); // what live view left since the last previewCollect()
       if(camera.ptp.new.available) {
         camera.ptp.new.liveviewMode(false, cameraCallback);
       } else {
@@ -504,6 +510,7 @@ function runCommand(type, args, callback, client) {
             cameraCallback(err);
             console.log("PREVIEW: enabled, fetching image...");
             camera.ptp.new.liveviewImage(function(err, img) {
+              previewCollect();
               if(!err && img) {
                 var obj = {
                   base64: new Buffer(img).toString('base64'),
@@ -519,6 +526,7 @@ function runCommand(type, args, callback, client) {
           //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
+            previewCollect();
             if(!err && img) {
 
                     var size = {
@@ -567,6 +575,7 @@ function runCommand(type, args, callback, client) {
           camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
             camera.ptp.new.liveviewImage(function(err, img) {
+              previewCollect();
               if(!err && img) {
                 var obj = {
                   base64: new Buffer(img).toString('base64'),
@@ -582,6 +591,7 @@ function runCommand(type, args, callback, client) {
           //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
+            previewCollect();
             if(!err && img) {
               var obj = {
                 base64: new Buffer(img).toString('base64'),
