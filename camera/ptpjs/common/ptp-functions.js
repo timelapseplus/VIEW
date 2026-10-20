@@ -418,12 +418,14 @@ exports.deleteObject = function(cam, objectId, callback) {
 	});
 }
 
-exports.getObject = function(cam, objectId, callback) {
+// onData (optional): the object's bytes as soon as they have arrived. A Sony shooting RAW+JPEG sends the JPEG at once but
+// answers the GetObject only ~0.6 s later, once it has done with the RAW (doc §20); callback waits for that answer.
+exports.getObject = function(cam, objectId, callback, onData) {
 	// No global.gc() here: a full collection (~0.12 s at 576 MHz) before every download and every live view frame
 	// (Sony, Fuji); the intervalometer already collects once after each frame.
 	exports.transaction(cam, exports.PTP_OC_GetObject, [objectId], null, function(err, responseCode, data) {
 		callback && callback(err || responseCode == 0x2001 ? null : responseCode, data);
-	});
+	}, onData);
 }
 
 exports.getObjectHandles = function(cam, callback) {
@@ -630,7 +632,9 @@ exports.parseEvent = function(data, callback) {
 	callback && callback(type, event, param1, param2, param3);
 }
 
-function runTransaction(cam, opcode, params, data, callback) {
+// onData (optional) gets the data phase's payload as soon as it has arrived, before the camera's response; callback still
+// comes after the response, and the next transaction only then.
+function runTransaction(cam, opcode, params, data, callback, onData) {
 	try {
 		if(!params) params = [];
 		cam.transactionId++
@@ -684,6 +688,17 @@ function runTransaction(cam, opcode, params, data, callback) {
 
 		var receiveErrorCount = 0;
 
+		var dataDone = function(buf) { // called right after the read of the response was submitted
+			if(!onData) return;
+			var f = onData;
+			onData = null;
+			try {
+				f(buf.slice(12));
+			} catch(e) {
+				_logE("error handling the data of", exports.hex(opcode), ":", e);
+			}
+		}
+
 		var receive = function(cb, rbuf) {
 			_logD("reading 12 bytes...");
 			cam.ep.in.transfer(packetSize(cam.ep.in, 12), function(err, data) {
@@ -721,6 +736,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 											fetchMore();
 										} else {
 											receive(cb, bigData);
+											dataDone(bigData);
 										}
 									} else {
 										_logD("ERROR", err);
@@ -731,6 +747,7 @@ function runTransaction(cam, opcode, params, data, callback) {
 							fetchMore();
 						} else {
 							receive(cb, data);
+							dataDone(data);
 						}
 					}
 				} else {
@@ -780,22 +797,23 @@ function nextTransaction(cam) {
 	if(cam.transactionQueue && cam.transactionQueue.length > 0) {
 		var next = cam.transactionQueue.shift();
 		runTransaction(next.cam, next.opcode, next.params, next.data, function() {
-			next.callback && next.callback.apply(this, arguments);	
+			next.callback && next.callback.apply(this, arguments);
 			nextTransaction(next.cam);
-		});
+		}, next.onData);
 	} else {
 		cam.transactionRunning = false;
 	}
 }
 
-exports.transaction = function(cam, opcode, params, data, callback) {
+exports.transaction = function(cam, opcode, params, data, callback, onData) {
 	if(!cam.transactionQueue) cam.transactionQueue = [];
 	cam.transactionQueue.push({
 		cam: cam,
 		opcode: opcode,
 		params: params,
 		data: data,
-		callback: callback
+		callback: callback,
+		onData: onData
 	});
 
 	if(!cam.transactionRunning) {

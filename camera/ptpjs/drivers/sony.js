@@ -1206,7 +1206,8 @@ function exposureEvent(camera) {
     }
 }
 
-function getImage(camera, timeout, callback) {
+// onImage (optional): gets the JPEG as soon as its bytes are in, before the camera answers the GetObject (doc §20)
+function getImage(camera, timeout, callback, onImage) {
     var results = {
         thumb: null,
         filename: null,
@@ -1266,9 +1267,10 @@ function getImage(camera, timeout, callback) {
         },
         function(cb){
             //_logD("getting object");
+            var isJpeg = results.filename && results.filename.slice(-3).toLowerCase() == 'jpg';
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 //ptp.deleteObject(camera._dev, 0xffffc001, function() {
-                    if(results.filename && results.filename.slice(-3).toLowerCase() == 'jpg') {
+                    if(isJpeg) {
                         results.thumb = image;
                     } else {
                         results.thumb = ptp.extractJpeg(image);
@@ -1276,7 +1278,7 @@ function getImage(camera, timeout, callback) {
                     }
                     cb(err);
                 //});
-            });
+            }, isJpeg ? onImage : null);
         },
     ], function(err) {
         camera._blockEvents = false;
@@ -1355,7 +1357,7 @@ driver.capture = function(camera, target, options, callback, tries) {
                 filename = fn;
                 rawImage = rw;
                 cb(err);
-            });
+            }, options && options.onImage);
         },
     ], function(err) {
         if(err) _logE("error during capture:", err); // a good frame is logged once by the intervalometer

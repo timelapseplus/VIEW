@@ -83,6 +83,45 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                         options.hdrCount = captureOptions.hdrCount;
                     }
                     var captureStart = Date.now();
+                    // The camera's full JPEG is decoded once (0.15 s for 6 MP Standard, 1.3-1.8 s for 24 MP Extra
+                    // Fine at 384 MHz), to the 160 px clip thumbnail. The light meter reads that thumbnail: against
+                    // metering a 120 px image made from the full JPEG, 0.01 EV on average (0.06 max) on 905 frames
+                    // of two night clips, under 0.03 EV on a bright clipped scene, 0.03-0.08 EV darker on near-black
+                    // frames; a 120 px image made from the thumbnail read 0.04 EV darker. That 120 px image still
+                    // goes to the app and the screen, so they get what they did before.
+                    var processImage = function (jpeg, done) {
+                        image.downsizeJpeg(jpeg, {x: 160, q: 80}, null, function (err, thumb160) {
+                            var small = (!err && thumb160) ? thumb160 : jpeg;
+                            setTimeout(function () {
+                                saveThumbnail(small, captureOptions ? captureOptions.index : 1, 1, 0);
+                            }, 10);
+                            image.downsizeJpeg(small, {x: 120, q: 80}, null, function (err, lowResJpg) {
+                                intervalometer.lastImage = (!err && lowResJpg) ? lowResJpg : small;
+                                intervalometer.emit("photo");
+                                if (captureOptions.calculateEv) {
+                                    image.exposureValue(small, function (err, ev, histogram) {
+                                        intervalometer.emit("histogram", histogram);
+                                        done({err: err, ev: ev, histogram: histogram});
+                                    });
+                                } else {
+                                    done({err: null, ev: null});
+                                }
+                            });
+                        });
+                    }
+                    // Sony RAW+JPEG: the JPEG's bytes are in ~0.6 s before the camera answers the transfer (it is
+                    // done with the RAW only then, doc §20), so process it meanwhile. The frame still completes on that
+                    // answer: the camera takes no command before it, and the ramp's padding is measured to it.
+                    var early = null;
+                    if (captureOptions && captureOptions.mode != 'test' && !captureOptions.noDownload && !(options.destination == 'sd' && captureOptions.saveRaw)) {
+                        options.onImage = function (jpeg) {
+                            early = {imageMs: Date.now() - captureStart, result: null, waiting: null};
+                            processImage(jpeg, function (res) {
+                                early.result = res;
+                                if (early.waiting) early.waiting(res);
+                            });
+                        };
+                    }
                     return camera.ptp.new.capture(options.destination, options, function (err, thumb, filename, raw) {
                         var fileMs = Date.now() - captureStart;
                         if (err) {
@@ -130,46 +169,27 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             }
                             intervalometer.lastThumb = thumb;
 
-                            // The camera's full JPEG is decoded once (0.15 s for 6 MP Standard, 1.3-1.8 s for 24 MP Extra
-                            // Fine at 384 MHz), to the 160 px clip thumbnail. The light meter reads that thumbnail: against
-                            // metering a 120 px image made from the full JPEG, 0.01 EV on average (0.06 max) on 905 frames
-                            // of two night clips, under 0.03 EV on a bright clipped scene, 0.03-0.08 EV darker on near-black
-                            // frames; a 120 px image made from the thumbnail read 0.04 EV darker. That 120 px image still
-                            // goes to the app and the screen, so they get what they did before.
                             var logFrame = function (ev) { // the frame in one line: what was shot, how big, how long it took
                                 var s = remap('camera.ptp.settings') || {};
                                 logEvent("frame", (captureOptions ? captureOptions.index : 1) + ":", filename, (thumb ? Math.round(thumb.length / 1024) : 0) + " KB,",
                                     [s.shutter, s.aperture, s.iso].map(function (x) { return x ? x.name : '?'; }).join(' ') + ",",
-                                    (ev != null ? "ev " + ev.toFixed(2) + ", " : "") + "file in " + fileMs + " ms, done in " + (Date.now() - captureStart) + " ms");
+                                    (ev != null ? "ev " + ev.toFixed(2) + ", " : "") + (early ? "image in " + early.imageMs + " ms, " : "") +
+                                    "file in " + fileMs + " ms, done in " + (Date.now() - captureStart) + " ms");
+                            }
+                            var finish = function (res) {
+                                photoRes.ev = res.ev;
+                                photoRes.histogram = res.histogram;
+                                logFrame(res.ev);
+                                callback && callback(res.err, photoRes);
                             }
                             var completeCapture = function () {
-                                image.downsizeJpeg(thumb, {x: 160, q: 80}, null, function (err, thumb160) {
-                                    var small = (!err && thumb160) ? thumb160 : thumb;
-                                    setTimeout(function () {
-                                        saveThumbnail(small, captureOptions ? captureOptions.index : 1, cameraIndex, 0);
-                                    }, 10);
-                                    image.downsizeJpeg(small, {x: 120, q: 80}, null, function (err, lowResJpg) {
-                                        intervalometer.lastImage = (!err && lowResJpg) ? lowResJpg : small;
-                                        intervalometer.emit("photo");
-                                        if (captureOptions.calculateEv) {
-                                            image.exposureValue(small, function (err, ev, histogram) {
-                                                photoRes.ev = ev;
-                                                photoRes.histogram = histogram;
-                                                logFrame(ev);
-                                                intervalometer.emit("histogram", histogram);
-                                                callback && callback(err, photoRes);
-                                            });
-                                        } else {
-                                            logFrame(null);
-                                            callback && callback(err, photoRes);
-                                        }
-                                    });
-                                });
+                                if (!early) return processImage(thumb, finish);
+                                if (early.result) return finish(early.result);
+                                early.waiting = finish; // the camera answered before we were done with its JPEG
                             }
                             if (options.destination == 'sd' && captureOptions.saveRaw) {
                                 if (raw && filename) {
                                     var file = captureOptions.saveRaw + filename.slice(-4);
-                                    var cameraIndex = 1;
                                     var writeSD = function () {
                                         if (intervalometer.status.writing) return setTimeout(writeSD, 100);
                                         if (!intervalometer.status.running) return;
