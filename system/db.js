@@ -251,7 +251,6 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	details = serialize(details);
-	console.log("cameraNumber:", cameraNumber);
 	evCorrection = evCorrection || 0;
 	cameraNumber = parseInt(cameraNumber);
 	cameraNumber = cameraNumber || 0;
@@ -284,7 +283,6 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 					dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
 				}
 			});
-			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail, " clip thumbnail:'" + data.thumbnail + "'");
 			setTimeout(function(){ dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);});
 		}
 	});});

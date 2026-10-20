@@ -406,8 +406,7 @@ api.switchPrimary = function(cameraObject, callback) {
     callback && callback();
 }
 
-api.set = function(parameter, value, callback) {
-	console.log("API: setting", parameter, "to", value);
+function setAll(parameter, value, callback) {
 	for(var i = 0; i < api.cameras.length; i++) {
 		if(api.cameras[i].primary) {
 			api.cameras[i].camera.set(parameter, value, callback);
@@ -415,6 +414,11 @@ api.set = function(parameter, value, callback) {
 			api.cameras[i].camera.set(parameter, value);
 		}
 	}
+}
+
+api.set = function(parameter, value, callback) {
+	console.log("API: setting", parameter, "to", value);
+	setAll(parameter, value, callback);
 }
 
 api.setExposure = function(shutterEv, apertureEv, isoEv, callback) {
@@ -562,7 +566,6 @@ api.setEv = function(targetEv, options, callback) {
     if (apertureEv == null) {
         apertureEnabled = false;
         apertureEv = options.fixedApertureEv != null ? options.fixedApertureEv : -5; // default to f/2.8
-	    console.log("API setEv: using fixed aperture at", apertureEv);
     }
 
     var shutterOrig = shutterEv;
@@ -593,10 +596,6 @@ api.setEv = function(targetEv, options, callback) {
     var apertureList = 	api_util.listEvs(base, 'aperture', 	options.apertureMin, 	options.apertureMax);
     var isoList = 		api_util.listEvs(base, 'iso', 			options.isoMax, 		options.isoMin);
 
-    console.log("API setEv: shutterList.length", shutterList && shutterList.length, "max =", options.shutterMax);
-    console.log("API setEv: apertureList.length", apertureList && apertureList.length);
-    console.log("API setEv: isoList.length", isoList && isoList.length);
-
     if (shutterList && options && options.maxShutterLengthMs) {
         var maxSeconds = Math.ceil(options.maxShutterLengthMs / 100) / 10;
         if(maxSeconds < 0.5) maxSeconds = 0.5;
@@ -618,23 +617,21 @@ api.setEv = function(targetEv, options, callback) {
     apertureEv = result.apertureEv;
     isoEv = result.isoEv;
 
-    console.log("API setEv: current:", origEv, "target:", targetEv, "new:", currentEv);
-    console.log("API setEv: current:",
-        api_util.findEvName(exposure, 'shutter', result.shutterEv), " ",
-        api_util.findEvName(exposure, 'aperture', result.apertureEv), " ",
-        api_util.findEvName(exposure, 'iso', result.isoEv), " ",
-        result.direction, " ",
-        result.lastParam, " ",
-		targetEv.toFixed(2), " ",
-		result.currentEv.toFixed(2)
-        );
+    function evName(param, ev) { // for the log only: a value missing from the camera's list must not throw
+        var list = (exposure[param] && exposure[param].list) || [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ev == ev) return list[i].name;
+        }
+        return ev;
+    }
+    console.log("API setEv:", evName('shutter', shutterOrig), evName('aperture', apertureOrig), evName('iso', isoOrig),
+        "(" + origEv.toFixed(2) + ") ->", evName('shutter', shutterEv), evName('aperture', apertureEv), evName('iso', isoEv),
+        "(" + currentEv.toFixed(2) + "), target", targetEv.toFixed(2) + (options.doNotSet ? ", not applied" : ""));
 
     function runQueue(queue, callback) {
-    	console.log("API: runQueue length", queue.length);
         set = queue.pop();
         if (set) {
-            console.log("API setEv: setting", set.name, "to", set.val);
-            api.set(set.name, set.val, function() {
+            setAll(set.name, set.val, function() {
                 setTimeout(function() {
                     runQueue(queue, callback)
                 });
@@ -646,7 +643,6 @@ api.setEv = function(targetEv, options, callback) {
     }
 
     if(options.doNotSet) {
-        console.log("API setEv: done, not applying changes.");
         if (callback) return callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},
@@ -671,7 +667,6 @@ api.setEv = function(targetEv, options, callback) {
     });
 
     runQueue(setQueue, function() {
-        console.log("API setEv: done.");
         if (callback) callback(null, {
             ev: currentEv,
             shutter: {ev: shutterEv},

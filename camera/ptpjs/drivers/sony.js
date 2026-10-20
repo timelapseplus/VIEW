@@ -627,7 +627,7 @@ driver._event = function(camera, data) { // events received
     //_logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == SONY_EVENT_OBJECT_CREATED) {
-            _logD("object added:", param1);
+            // SDIE_ObjectRemoved, despite the name: the shot file was transferred
         } else if(event == SONY_EVENT_CAPTURE) { // SDIE_ObjectAdded: "a shot file is ready to transfer" (v2 reference, p.96)
             if(camera._shotReady) camera._shotReady();
         } else if(event == SONY_EVENT_CHANGE) {
@@ -1075,7 +1075,6 @@ driver.set = function(camera, param, value, callback, tries) {
                                             camera._eventTimer = null;
                                         }
                                         driver.refresh(camera, function(){
-                                            _logD("read settings...");
                                             if(camera[properties[param].category][param].code == cameraValue) {
                                                 return cb();
                                             } else if(tries > 5) {
@@ -1119,7 +1118,6 @@ driver.set = function(camera, param, value, callback, tries) {
                                             camera._eventTimer = null;
                                         }
                                         driver.refresh(camera, function(){
-                                            _logD("read settings...");
                                             if(camera[properties[param].category][param].code == cameraValue) {
                                                 return cb();
                                             } else if(tries > 3) {
@@ -1237,7 +1235,6 @@ function getImage(camera, timeout, callback) {
                 driver.refresh(camera, function() {
                     if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
                         camera._shotReady = null;
-                        _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable'].value);
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
                         results.indexNumber = 1;
                         return cb();
@@ -1263,7 +1260,6 @@ function getImage(camera, timeout, callback) {
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
                     results.filename = oi.filename;
-                    _logD("filename =", oi.filename, oi.objectCompressedSize, "bytes", oi.imagePixWidth + "x" + oi.imagePixHeight);
                 }
                 cb(err);
             });
@@ -1294,7 +1290,6 @@ driver.capture = function(camera, target, options, callback, tries) {
             driver.capture(camera, target, options, callback, tries);
         }, 100);
     }
-    _logD("triggering capture...");
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
     var thumb = null;
@@ -1363,11 +1358,7 @@ driver.capture = function(camera, target, options, callback, tries) {
             });
         },
     ], function(err) {
-        if(err) {
-            _logE("error during capture:", err);
-        } else {
-            _logD("capture complete:", filename);
-        }
+        if(err) _logE("error during capture:", err); // a good frame is logged once by the intervalometer
         camera.busyCapture = false;
         callback && callback(err, thumb, filename, rawImage);
     });

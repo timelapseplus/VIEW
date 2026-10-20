@@ -82,8 +82,9 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                         options.hdrStops = captureOptions.hdrStops;
                         options.hdrCount = captureOptions.hdrCount;
                     }
-                    logEvent("initiating capture...");
+                    var captureStart = Date.now();
                     return camera.ptp.new.capture(options.destination, options, function (err, thumb, filename, raw) {
+                        var fileMs = Date.now() - captureStart;
                         if (err) {
                             logErr("capture failed:", err);
                             return callback && callback(err);
@@ -135,8 +136,13 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                             // of two night clips, under 0.03 EV on a bright clipped scene, 0.03-0.08 EV darker on near-black
                             // frames; a 120 px image made from the thumbnail read 0.04 EV darker. That 120 px image still
                             // goes to the app and the screen, so they get what they did before.
+                            var logFrame = function (ev) { // the frame in one line: what was shot, how big, how long it took
+                                var s = remap('camera.ptp.settings') || {};
+                                logEvent("frame", (captureOptions ? captureOptions.index : 1) + ":", filename, (thumb ? Math.round(thumb.length / 1024) : 0) + " KB,",
+                                    [s.shutter, s.aperture, s.iso].map(function (x) { return x ? x.name : '?'; }).join(' ') + ",",
+                                    (ev != null ? "ev " + ev.toFixed(2) + ", " : "") + "file in " + fileMs + " ms, done in " + (Date.now() - captureStart) + " ms");
+                            }
                             var completeCapture = function () {
-                                logEvent("capture complete, downsizing image...");
                                 image.downsizeJpeg(thumb, {x: 160, q: 80}, null, function (err, thumb160) {
                                     var small = (!err && thumb160) ? thumb160 : thumb;
                                     setTimeout(function () {
@@ -146,16 +152,15 @@ function remap(method) { // remaps camera.ptp methods to use new driver if possi
                                         intervalometer.lastImage = (!err && lowResJpg) ? lowResJpg : small;
                                         intervalometer.emit("photo");
                                         if (captureOptions.calculateEv) {
-                                            logEvent("capture complete, analyzing image...");
                                             image.exposureValue(small, function (err, ev, histogram) {
                                                 photoRes.ev = ev;
                                                 photoRes.histogram = histogram;
-                                                logEvent("...processing complete, image ev", ev);
+                                                logFrame(ev);
                                                 intervalometer.emit("histogram", histogram);
                                                 callback && callback(err, photoRes);
                                             });
                                         } else {
-                                            logEvent("...processing complete.");
+                                            logFrame(null);
                                             callback && callback(err, photoRes);
                                         }
                                     });
@@ -292,7 +297,6 @@ function thumbnailFileFromIndex(index, cameraIndex, hqVersion) {
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     var indexStr = (index + 1).toString();
-    logEvent("saving thumbnails...");
     fs.writeFile(intervalometer.timelapseFolder + "/count.txt", indexStr, function () {
 
         //image.downsizeJpeg(jpgBuffer, {x: 320, q: 80}, null, function(err1, jpgHQBuf) {
@@ -302,8 +306,8 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
         try {
             image.downsizeJpeg(jpgBuffer, {x: 160, q: 80}, null, function (err2, jpgBuf) {
                 if (!err2 && jpgBuf) {
-                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function () {
-                        logEvent("...completed save thumbnails.");
+                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function (err) {
+                        if (err) logErr("error writing thumbnail:", err);
                     });
                 } else {
                     logErr("error saving thumbnail jpeg:", err2);
@@ -984,6 +988,7 @@ function processKeyframes(setupFirst, callback) {
 }
 
 
+var paddingLoggedFrame = null;
 function getEvOptions() {
     var neededPadMs = intervalometer.autoSettings.paddingTimeMs;
     if (intervalometer.currentProgram.intervalMode == 'aux') {
@@ -993,7 +998,10 @@ function getEvOptions() {
     }
     var maxShutterLengthMs = (intervalometer.status.intervalMs - neededPadMs);
     if (maxShutterLengthMs < 500) maxShutterLengthMs = 500; // warn on this condition?
-    logEvent("\n\nIntervalometer: total padding ms:", neededPadMs, "= max shutter ms: ", maxShutterLengthMs);
+    if (paddingLoggedFrame !== intervalometer.status.frames) { // called ~3 times a frame
+        paddingLoggedFrame = intervalometer.status.frames;
+        logEvent("Intervalometer: total padding ms:", neededPadMs, "= max shutter ms: ", maxShutterLengthMs);
+    }
     return {
         cameraSettings: remap('camera.ptp.settings'),
         maxShutterLengthMs: maxShutterLengthMs,

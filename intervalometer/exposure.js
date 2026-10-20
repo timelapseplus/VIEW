@@ -203,7 +203,6 @@ exp.calculate_TLPAuto = function (currentEv, lastPhotoLum, lastPhotoHistogram, m
 
     // get the current rate of change
     exp.status.rate = calculateRate(currentEv, lastPhotoLum, config);
-    console.log("rate: ", exp.status.rate);
 
     // don't change if within hysteresis setting
     if (Math.abs(exp.status.rate) < exp.config.hysteresis) exp.status.rate = 0;
@@ -292,17 +291,11 @@ function calculateRate(currentEv, lastPhotoLum, config) {
     exp.status.iComponent = exp.status.pastError * config.i;
     exp.status.dComponent = exp.status.evSlope * config.d;
 
-    console.log("currentEv = ", currentEv, " lastPhotoLum = ", lastPhotoLum, " diff = ", diff, " delta = ", delta);
-
     delta *= config.p;
     delta += exp.status.pastError * config.i;
     delta += exp.status.evSlope * config.d;
 
     var rate = delta * (3600 / config.targetTimeSeconds);
-
-    console.log(" deltaNew = ", delta, " delta*3600", delta * 3600,
-        "exp.status.pastError", exp.status.pastError,
-        "exp.status.evSlope = ", exp.status.evSlope);
 
 
     local.rateHistoryArray.push({
@@ -357,17 +350,7 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         exp.status.dayRefEv = r.dayRefEv;
         exp.status.fixedRefEv = lastPhotoLum;
         exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv);
-        console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
-        console.log("EXPOSURE: currentEv =", currentEv);
-        console.log("EXPOSURE: exp.status.nightRefEv =", exp.status.nightRefEv);
-        console.log("EXPOSURE: exp.status.dayRefEv =", exp.status.dayRefEv);
-        console.log("EXPOSURE: exp.status.nightRatio =", exp.status.nightRatio);
-        console.log("EXPOSURE: exp.config.nightLuminance =", exp.config.nightLuminance);
-        console.log("EXPOSURE: exp.config.dayLuminance =", exp.config.dayLuminance);
-        console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
-        console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv));
         //exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
-        console.log("EXPOSURE: lastPhotoLum - exp.status.manualOffsetEv =", lastPhotoLum - exp.status.manualOffsetEv);
         local.first = false;
     }
 
@@ -389,9 +372,6 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
     var evOffsetScale = getEvOffsetScale(currentEv);
-    console.log("lastPhotoLum - ", lastPhotoLum, "getEvOffsetScale = ", (evOffsetScale),
-        "  + manual(", exp.status.manualOffsetEv, ")",
-        "currentEv=  ", currentEv);
 
     return lastPhotoLum - (evOffsetScale + exp.status.manualOffsetEv);
 }
@@ -426,8 +406,6 @@ function getEvOffsetScale(ev, noAuto) {
     });
 
     var result = interpolate.linear(values, ev);
-    console.log("getEvOffsetScale() values= ", values);
-    console.log("getEvOffsetScale() interpolate.linear(values, ev) ", result, " ev = ", ev);
 
     return result;
 }
