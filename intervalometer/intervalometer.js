@@ -649,6 +649,13 @@ function processKeyframes(setupFirst, callback) {
 
     if (intervalometer.currentProgram.scheduled) return callback();
 
+    // Nothing to move — every axis off and no focus nudge waiting, as in any time-lapse without a motion rig: skip it.
+    var active = !!intervalometer.status.focusDiffNew;
+    for (var a in intervalometer.currentProgram.axes) {
+        if (!intervalometer.currentProgram.axes[a] || intervalometer.currentProgram.axes[a].type != 'disabled') active = true;
+    }
+    if (!active) return callback && callback();
+
     var checkDone = function (item) {
         axesDone++;
         log("KF: " + item + "completed");
