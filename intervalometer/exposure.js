@@ -79,7 +79,6 @@ exp.calculate = function (algorithm, direction, currentEv, lastPhotoLum, lastPho
 
     if (['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
 
-    console.log("lastPhotoHistogram = ", JSON.stringify(lastPhotoHistogram));
     fs.appendFileSync(local.datajs, "{ \n" +
         "frame: " + frame + ", \n" +
         "lastPhotoHistogram: " + JSON.stringify(lastPhotoHistogram) + ", \n" +
@@ -224,7 +223,6 @@ exp.calculate_TLPAuto = function (currentEv, lastPhotoLum, lastPhotoHistogram, m
         const u = underexposedF(lastPhotoHistogram, lastPhotoHistogram.length);
         const o = overexposedF(lastPhotoHistogram, lastPhotoHistogram.length);
         const h = highlightsF(lastPhotoHistogram, lastPhotoHistogram.length);
-        const overexposed = 100 * o / (u + o);
         const underexposed = 100 * u / (u + o);
         const highlights = 100 * h / (u + o);
         const shouldProtect = (highlights > 30 && underexposed <= 51) // this check is for overexposed highlights. blacks and half midtones should be less 51%
@@ -241,18 +239,6 @@ exp.calculate_TLPAuto = function (currentEv, lastPhotoLum, lastPhotoHistogram, m
         // var tempArray = local.highlightArray.slice(0).sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length);
         // exp.status.highlights = tempArray.reduce(function(sum, val) { return sum + val}) / tempArray.length;
         // // if(local.targetHighlights === null) local.targetHighlights = Math.max(exp.status.highlights, 2);
-
-
-        console.log("HIGHLIGHTS: maxHist = ", maxHist);
-        console.log("HIGHLIGHTS: u = ", u);
-        console.log("HIGHLIGHTS: o = ", o);
-        console.log("HIGHLIGHTS: h = ", h);
-        console.log("HIGHLIGHTS: over = ", overexposed);
-        console.log("HIGHLIGHTS: under = ", underexposed);
-        console.log("HIGHLIGHTS: hi = ", highlights);
-        console.log("HIGHLIGHTS: local.highlightArray = ", local.highlightArray);
-        console.log("HIGHLIGHTS: saturatedFrames = ", saturatedFrames);
-
 
         if (saturatedFrames >= config.highlightIntegrationFrames - 1) { // 2 >= 3 - 1
             exp.status.highlightProtection += 0.333;
