@@ -17,6 +17,19 @@ try {
 	console.log("ERROR: cannot connect to IMU!");
 }
 
+// The MPU-9250 (I2C bus 2, 0x68, RTIMULib.ini) is used only by calibrateBacklash below, yet RTIMULib leaves it
+// sampling all the time: 3.7 mA against 8 µA asleep (datasheet PS-MPU-9250A-01 §3.4.1), ≈12 mW for nothing. Sleep bit
+// 6 of PWR_MGMT_1 (0x6B) keeps every other register, so RTIMULib's set-up survives; CLKSEL=1 (PLL) on wake, as
+// RTIMULib sets it. One i2cset each way, at start and around a calibration (2026-10-21).
+function imuPower(on, cb) {
+	if(!IMU) return cb && cb();
+	require('child_process').exec('i2cset -y 2 0x68 0x6b ' + (on ? '0x01' : '0x40'), function(err) {
+		if(err) console.log("IMU: failed to put the MPU-9250 to " + (on ? "wake" : "sleep") + ":", err);
+		cb && cb(err);
+	});
+}
+setTimeout(function() { imuPower(false); }, 3000); // after RTIMULib's own set-up
+
 var motion = new EventEmitter();
 
 motion.status = {
@@ -61,6 +74,12 @@ motion.calibrateBacklash = function(driver, motorId, callback) {
 	var preSamples = [];
 
 	if(!IMU) return callback && callback("unable to access IMU");
+	var calibrationDone = callback; // the sensor sleeps between calibrations (imuPower): wake it, sleep it again when done
+	callback = function() {
+		var args = arguments;
+		imuPower(false, function() { calibrationDone && calibrationDone.apply(null, args); });
+	};
+	imuPower(true);
 
 	var stop = false;
 	var detectMove = function(startMotorCb, moveCb) {
