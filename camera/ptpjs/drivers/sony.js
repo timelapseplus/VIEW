@@ -805,7 +805,9 @@ driver.refresh = function(camera, callback, noEvent) {
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
                         if(!current) {
-                            _logD(prop, "item not found:", data_current);
+                            if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) { // once per value, as "prop =" below: refresh() runs every 50 ms during a capture
+                                _logD(prop, "item not found:", data_current);
+                            }
                             current = {
                                 name: "UNKNOWN",
                                 ev: null,
