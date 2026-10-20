@@ -297,6 +297,9 @@ function thumbnailFileFromIndex(index, cameraIndex, hqVersion) {
 
 function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
     var indexStr = (index + 1).toString();
+    // the path now: on the last frame the run ends while count.txt is written, timelapseFolder goes back to false and the
+    // thumbnail went to 'false/cam-1-000NN.jpg'
+    var thumbFile = thumbnailFileFromIndex(index, cameraIndex, false);
     fs.writeFile(intervalometer.timelapseFolder + "/count.txt", indexStr, function () {
 
         //image.downsizeJpeg(jpgBuffer, {x: 320, q: 80}, null, function(err1, jpgHQBuf) {
@@ -306,7 +309,7 @@ function saveThumbnail(jpgBuffer, index, cameraIndex, exposureCompensation) {
         try {
             image.downsizeJpeg(jpgBuffer, {x: 160, q: 80}, null, function (err2, jpgBuf) {
                 if (!err2 && jpgBuf) {
-                    fs.writeFile(thumbnailFileFromIndex(index, cameraIndex, false), jpgBuf, function (err) {
+                    fs.writeFile(thumbFile, jpgBuf, function (err) {
                         if (err) logErr("error writing thumbnail:", err);
                     });
                 } else {
