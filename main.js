@@ -4552,6 +4552,30 @@ if (VIEW_HARDWARE) {
             action: newDriverMenu,
             help: help.enableNewDriver
         }, {
+            name: "Backup clip database",
+            help: help.dbBackupMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    db.backupTimelapse(function(err, info) {
+                        ui.alert('Database backup', err ? ("Backup failed:\n" + err) : ("Saved " + info.files.length + " files to\n" + info.dir.replace('/root/', '')));
+                        cb();
+                    });
+                }
+            }
+        }, {
+            name: "Archive old clips",
+            help: help.archiveClipsMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    archiveClips(function(err, info) {
+                        ui.alert('Archive old clips', err ? ("Archiving failed:\n" + err) : (info.moved ? ("Moved " + info.moved + " of " + info.total + " clips\nto the archive") : (info.total + " clips, nothing\nolder than the newest 20")));
+                        cb();
+                    });
+                }
+            }
+        }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
@@ -5499,6 +5523,18 @@ app.on('message', function(msg) {
                 core.updateProgram(msg.updates);
                 break;
 
+            case 'dbBackup': // copies the clip databases to /root/time-lapse/db-backup/<stamp>/; fetch them with /download?file=<path>
+                db.backupTimelapse(function(err, info) {
+                    msg.reply('dbBackup', {error: err ? String(err) : null, dir: info && info.dir, files: info && info.files});
+                });
+                break;
+
+            case 'archiveClips': // keeps the newest 20 clips in the working database, the older ones go to the archive file
+                archiveClips(function(err, info) {
+                    msg.reply('archiveClips', {error: err ? String(err) : null, total: info && info.total, moved: info && info.moved});
+                });
+                break;
+
             case 'dynamicChange':
                 core.dynamicChange(msg.parameter, msg.newValue, msg.frames);
                 break;
@@ -6060,6 +6096,21 @@ var frameWatch = require('./intervalometer/frame-watch.js')(function(minutes, fr
 setInterval(function() {
     frameWatch.check(Date.now());
 }, 30000);
+
+// The clip catalogue keeps its newest 20 clips; the older ones move to the archive file (system/db.js
+// archiveTimelapses, 2026-10-21): once at start, when the core reports it is not shooting, and on request (the
+// "Archive old clips" menu item, WS archiveClips). Nothing runs after a time-lapse — the user's decision.
+var archiveClips = function(cb) {
+    if (core.intervalometerStatus && core.intervalometerStatus.running) return cb && cb("a time-lapse is running");
+    db.archiveTimelapses(20, function (err, info) {
+        if (!err && info && info.moved) console.log("MAIN: archived", info.moved, "of", info.total, "clips");
+        if (cb) cb(err, info);
+    });
+};
+core.once('core.ready', function(state) {
+    if (state && state.running) return;
+    setTimeout(archiveClips, 20000);
+});
 
 core.on('intervalometer.status', function(msg) {
     frameWatch.status(msg, Date.now());
