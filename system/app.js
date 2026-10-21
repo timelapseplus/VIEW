@@ -133,7 +133,15 @@ app.remote = false;
 app.authCode = null;
 var wsRemote;
 var remotePingHandle = null;
-
+// Retry pause after a failed or dropped relay connection: 5 s, then doubling up to 5 min while the network has no way
+// to app.view.tl (a field router without internet); back to 5 s on every successful connection and on every new Wi-Fi
+// connection (enableRemote). Before 2026-10-21 it retried every 5 s for as long as the Wi-Fi link lasted.
+var remoteRetryMs = 5000;
+function scheduleRemoteRetry() {
+    var ms = remoteRetryMs;
+    remoteRetryMs = Math.min(remoteRetryMs * 2, 300000);
+    setTimeout(connectRemote, ms);
+}
 
 function connectRemote(version) {
     if (app.remote || !app.remoteEnabled) return;
@@ -158,6 +166,7 @@ function connectRemote(version) {
                     app.emit('auth-complete', msg.email);
                     app.emit('connected', true);
                     console.log("Connected to view.tl");
+                    remoteRetryMs = 5000;
                     remotePingHandle = setInterval(function () {
                         send_message('ping', null, wsRemote);
                     }, 10000);
@@ -183,7 +192,7 @@ function connectRemote(version) {
         console.log("Disconnected from view.tl (closed)");
         app.emit('connected', false);
         app.remote = false;
-        setTimeout(connectRemote, 5000);
+        scheduleRemoteRetry();
     });
 
     wsRemote.once('error', function () {
@@ -193,7 +202,7 @@ function connectRemote(version) {
         app.emit('connected', false);
         wsRemote.terminate();
         app.remote = false;
-        setTimeout(connectRemote, 5000);
+        scheduleRemoteRetry();
     });
 }
 
@@ -403,6 +412,7 @@ function receive_message(msg_string, socket) {
 
 app.enableRemote = function (version) {
     app.remoteEnabled = true;
+    remoteRetryMs = 5000; // a new network: try at once and often again
     connectRemote(version);
 }
 
