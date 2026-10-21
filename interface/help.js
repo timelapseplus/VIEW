@@ -205,3 +205,31 @@ exports.dayLuminance = "This is the target luminance for evaluating the day expo
 exports.dbBackupMenu = "Copies the clip databases (the working one with the newest 20 clips, the archive with the older ones, and the settings) to the VIEW storage under time-lapse/db-backup/<date>/; only the two newest backups are kept there. Download them from the app or a browser: http://<VIEW address>/download?file=db-backup/<date>/view-timelapse.db";
 
 exports.archiveClipsMenu = "Moves the clips older than the newest 20 from the working clip database to the archive database next to it (view-timelapse-archive.db). The clip folders stay on the VIEW; archived clips just leave the clip list. This also runs once when the VIEW starts, never after a time-lapse.";
+
+exports.cableMenu = "Cable Release turns the VIEW into a plain shutter-release intervalometer: the camera is fired through a cable in an AUX jack (tip = shutter, ring = focus) instead of USB, so there is no download, no preview and no exposure ramping, but intervals down to 0.3 seconds and no dark time beyond the camera's own. Set the camera to manual focus and manual exposure. Nothing here touches the Time-lapse menu.";
+
+exports.cableInterval = "Time from one shot to the next, in seconds. The shortest interval is release time + pre-focus + 0.05 s, rounded up to 0.1 s (0.3 s with the defaults). Whether the camera keeps up is up to the camera: an A6300 needs about 0.5 s per single shot.";
+
+exports.cableFrames = "How many shots to take before stopping; 'unlimited' keeps going until you stop it. Shown only while Duration is unlimited: a timed run takes whatever frames fit into its time.";
+
+exports.cableReleaseTime = "How long the shutter line stays closed for each shot. 200 ms suits most cameras; if the camera skips frames, make it longer.";
+
+exports.cablePrefocus = "Closes the focus (half-press) line this long before the shutter line. 0 closes both together, which is all a camera in manual focus needs. Use it only for cameras that want a focus signal first.";
+
+exports.cableHoldFocus = "Keeps the focus line closed from the first shot until you stop, for intervals under a second on cameras that want the half-press held.";
+
+exports.cableWakeUp = "Closes the focus line one second before each shot to wake a camera that went to sleep between shots. Only applies when the interval leaves room for it. On Sony bodies 'IR Remote Ctrl: On' keeps the camera awake without this.";
+
+exports.cableDelay = "Pause between START and the first shot, so pressing the button does not shake the first frame.";
+
+exports.cablePort = "Which AUX jack the camera cable is plugged into. AUX1 is the one nearer the SD slot. AUX2 is also the motion-sync output of the time-lapse, so use it only when AUX1 is busy.";
+
+exports.cablePulse = "Closes both lines of the selected port for one second: check the cable with a meter, or that the camera fires, without starting a run.";
+
+exports.cableStart = "Starts shooting with the settings above. While it runs this menu shows the status screen; the time-lapse cannot be started at the same time, and the VIEW will not power itself off.";
+
+exports.cableStatus = "The cable release is running. Frames taken (and the limit), time since the first shot, and the interval and port in use. Press the cancel button to go to other menus; it keeps running.";
+
+exports.cableStop = "Stops the cable release and opens both lines. The frames already taken stay on the camera's card.";
+
+exports.cableDuration = "How long to keep shooting after the first shot, whatever number of frames that turns out to be; 'unlimited' keeps going until you stop it. With a duration set, the Frames limit is hidden and ignored.";

@@ -739,7 +739,7 @@ oled.writeMenu = function() {
     } else { // menu mode
         //console.log("MENU mode");
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
-        if (itemArray.length <= 3) {
+        if (itemArray.length <= 4) { // four lines fit (y 35..110 at 25 px): a menu this short never scrolls
             list = itemArray;
             selected = oled.selected;
         } else if (oled.selected == itemArray.length - 1) {

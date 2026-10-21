@@ -79,6 +79,9 @@ console.log('Wifi module loaded in ' + (new Date() - startupTime) + 'ms');
 
 if(power) wifi.power = power; // allow wifi module to control power
 var db = require("./system/db.js");
+var cable = require('./cable/cable-release.js'); // the AUX-jack shutter release, nothing to do with the core
+cable.init({db: db});
+cable.load();
 
 //var suncalc = require('suncalc');
 // meeusjs and eclipse.js are only needed by the sun/moon and eclipse info screens and take ~0.5 s to load, so
@@ -2112,7 +2115,17 @@ if (VIEW_HARDWARE) {
            name: "START",
             help: help.startTimelapse,
             condition: function() {
-                return !core.cameraConnected;
+                return cable.status.running;
+            },
+            action: function(){
+                ui.back();
+                ui.alert('Error', "The cable release is running.\nStop it first (main menu > Cable Release).");
+            }
+        }, {
+           name: "START",
+            help: help.startTimelapse,
+            condition: function() {
+                return !core.cameraConnected && !cable.status.running;
             },
             action: function(){
                 ui.back();
@@ -2122,7 +2135,7 @@ if (VIEW_HARDWARE) {
            name: "START",
             help: help.startTimelapse,
             condition: function() {
-                return core.cameraConnected;
+                return core.cameraConnected && !cable.status.running;
             },
             action: {
                 type: "function",
@@ -2383,6 +2396,7 @@ if (VIEW_HARDWARE) {
         }]);
         oled.update();
         if (core.intervalometerStatus.running) core.stopIntervalometer();
+        cable.shutdown(); // releases the jack lines before killall node reaches the worker
         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
         closeSystem(function(){
             console.log("closeSystem complete, running power.shutdown()");
@@ -4674,6 +4688,10 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    // Cable Release: the VIEW as a plain shutter-release intervalometer on an AUX jack, no camera on USB
+    // (docs/2026-10-19-cable-release-research.md §7). Logic in cable/cable-release.js, menus in cable/menu.js.
+    var cableMenu = require('./cable/menu.js')({ui: ui, help: help, core: core, cable: cable});
+
     var mainMenu = {
         name: "main menu",
         type: "menu",
@@ -4681,6 +4699,13 @@ if (VIEW_HARDWARE) {
             name: "Time-lapse",
             action: timelapseMenu,
             help: help.timelapseMenu
+        }, {
+            name: "Cable Release",
+            action: cableMenu,
+            help: help.cableMenu,
+            condition: function() {
+                return !core.intervalometerStatus.running;
+            }
         }, {
             name: "Capture",
             action: captureMenu,
@@ -4970,7 +4995,7 @@ if (VIEW_HARDWARE) {
         if(gestureString.length > 500) gestureString = "";
         power.activity();
         if (blockInputs) return;
-        if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
+        if(!core.intervalometerStatus.running && !cable.status.running) return; // only use gesture sensor when a time-lapse (or the cable release) is running
         if(inputs.gestureStatus != 'enabled') return; // respect the gesture-sensor setting
         if (blockGesture) {
             console.log("(blocked)");
@@ -5040,6 +5065,11 @@ var systemClosed = false;
 var closeSystem = function(callback) {
     systemClosed = true;
     console.log("Shutting down!");
+    try {
+        cable.shutdown(); // the worker gets its stop and SIGTERM now, so the jack lines are open before this process is gone
+    } catch(e) {
+        console.log("cable shutdown failed:", e);
+    }
     app.close();
     if (VIEW_HARDWARE) {
         console.log("closing inputs...");
@@ -5500,7 +5530,43 @@ app.on('message', function(msg) {
                 msg.reply('timelapseProgram', {program: core.currentProgram});
                 break;
 
+            case 'cableGet': // the AUX-jack shutter release (cable/cable-release.js): settings and status
+                msg.reply('cable', {settings: cable.settings, status: cable.status});
+                break;
+
+            case 'cableSet': // msg.settings: any of intervalS, frames, releaseMs, prefocusMs, holdFocus, wakeUp, delayS, port
+                cable.update(msg.settings, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableStart':
+                if (core.intervalometerStatus.running) {
+                    msg.reply('cable', {error: "a time-lapse is running", settings: cable.settings, status: cable.status});
+                    break;
+                }
+                cable.start(function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableStop':
+                cable.stop(function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cablePulse': // closes both lines of the selected port for msg.ms (default 1000)
+                cable.pulse(msg.ms, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
             case 'run':
+                if (cable.status.running) {
+                    app.send('intervalometerError', {msg: "The cable release is running. Stop it before starting a time-lapse."});
+                    break;
+                }
                 if(!msg.program.coords || msg.program.coords.src != 'app') msg.program.coords = mcu.validCoordinates();
                 core.loadProgram(msg.program);
                 core.currentProgram = reconfigureProgram(core.currentProgram, true);
@@ -6082,6 +6148,40 @@ core.on('intervalometer.currentProgram', function(msg) {
     app.send('timelapseProgram', {program: core.currentProgram});
 });
 
+// Cable release events: auto power-off is held off while it runs (like a time-lapse), the status goes to the
+// app and, when its screen is up, to the OLED; a 1 s ticker keeps the elapsed time moving between frames.
+var cableTicker = null;
+var cableScreenUp = function() {
+    return VIEW_HARDWARE && oled.visible && ui.name == 'cable status';
+};
+cable.on('start', function() {
+    if (VIEW_HARDWARE) power.disableAutoOff();
+    if (cableTicker) clearInterval(cableTicker);
+    cableTicker = setInterval(function() {
+        if (cableScreenUp()) ui.reload();
+    }, 1000);
+});
+cable.on('status', function(status) {
+    app.send('cableStatus', {status: status});
+    if (cableScreenUp()) ui.reload();
+});
+cable.on('done', function(reason, status) {
+    if (cableTicker) clearInterval(cableTicker);
+    cableTicker = null;
+    if (VIEW_HARDWARE) {
+        power.enableAutoOff();
+        ui.status("cable: " + reason + ", " + status.frames + " frames");
+        if (ui.name == 'cable status' || ui.name == 'cable release') ui.reload();
+    }
+});
+cable.on('error', function(message) {
+    app.send('intervalometerError', {msg: "Cable release: " + message});
+    if (VIEW_HARDWARE && !blockInputs) {
+        if (ui.currentOrigin() == 'alert') ui.back();
+        ui.alert('ERROR', "Cable release: " + message, null, true);
+    }
+});
+
 var frameWatch = require('./intervalometer/frame-watch.js')(function(minutes, frames) {
     var msg = "No new frames for " + minutes + " minutes (last frame " + frames + ").\nThe camera may have powered off or disconnected.";
     console.log("FRAME WATCH: " + msg.replace("\n", " "));
@@ -6215,5 +6315,3 @@ core.on('motion.status', function(status) {
 });
 
 nodeModuleCache.stop();
-
-
