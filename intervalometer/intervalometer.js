@@ -40,6 +40,7 @@ var aux2out = require('node-aux2out');
 //var _ = require('underscore');
 //var suncalc = require('suncalc');
 var meeus = require('meeusjs');
+var tsl2561 = require('hardware/tsl2561.js'); // the light sensor, see lightStart (i2c-bus itself loads at the first run)
 //var eclipse = require('intervalometer/eclipse.js');
 var moment = require('moment');
 
@@ -570,14 +571,75 @@ function motionSyncPulse(callback) {
     }
 }
 
+// The VIEW's light sensor (TSL2561, hardware/tsl2561.js) is on for the run and read as each shot starts; details.csv
+// gets it next to the EV the shot was taken with. That is calibration data for ramping by the sensor where the
+// camera's frames can't be metered (Cable Release, docs/2026-10-23-cable-release-auto-ramp.md §8): the scene's light
+// is shotEv + lastPhotoLum whatever the exposure. rampEv in the same row is already the ramp's target for the next
+// frame, hence shotEv. The sensor costs two word reads a frame in the libuv pool (3-4 ms on the unit, 2026-10-22).
+var lightSensor = null; // tsl2561 while it is on for this run
+var frameLog = null;    // {shotEv, light, clipLo, clipHi} of the shot under way
+
+function lightStart() {
+    if (tsl2561.state() == 'on') { // left on by a run that ended without its stop (a core crash would leave it too)
+        lightSensor = tsl2561;
+        return;
+    }
+    tsl2561.start(function (err) {
+        if (err) {
+            if (err != 'stopped') logErr("LIGHT: no light sensor, details.csv goes without it:", err);
+            return;
+        }
+        lightSensor = tsl2561;
+        logEvent("LIGHT: TSL2561 on for this run");
+    });
+}
+
+function lightStop() {
+    lightSensor = null;
+    if (tsl2561.state() == 'off') return;
+    tsl2561.stop(function (err) {
+        if (err) logErr("LIGHT: powering the sensor down failed:", err);
+    });
+}
+
+function startFrameLog() {
+    var entry = frameLog = {shotEv: intervalometer.status.cameraEv, light: null, clipLo: null, clipHi: null};
+    if (!lightSensor) return;
+    lightSensor.read(function (err, reading) {
+        if (err) {
+            logErr("LIGHT: reading the sensor failed, it stays off for the rest of the run:", err);
+            return lightStop();
+        }
+        entry.light = reading;
+    });
+}
+
+// Share of the metered pixels in one bin (0: crushed blacks, 255: clipped highlights). The metered image has no black
+// bars (image.thumbnailFromExif crops them off the EXIF thumbnail). jpeg-lum scales its histogram to the highest bin
+// (= 256) in integers, so bins under 1/256 of the peak read 0: good enough to drop clipped frames from a calibration.
+function binShare(histogram, bin) {
+    if (!histogram || !histogram.length) return null;
+    var sum = 0;
+    for (var i = 0; i < histogram.length; i++) sum += histogram[i];
+    return sum > 0 ? histogram[bin] / sum : null;
+}
+
+function csvNumber(v, format) {
+    if (v == null || isNaN(v)) return '';
+    return format ? format(v) : String(v);
+}
+
 function fileInit() {
     // fs.writeFileSync(intervalometer.status.timelapseFolder + "/details.csv", "frame, error, target, setting, rate, interval, timestamp, file, p, i, d, direction\n");
     fs.writeFileSync(intervalometer.status.timelapseFolder + "/details.csv",
-        "frame, evDiff, targetEv, rampEv, rate, lastPhotoLum, intervalMs, lastPhotoTime, file, pComponent, iComponent, dComponent, direction\n");
+        "frame, evDiff, targetEv, rampEv, rate, lastPhotoLum, intervalMs, lastPhotoTime, file, pComponent, iComponent, dComponent, direction, shotEv, lux, ch0, ch1, gain, clipLo, clipHi\n");
 
 }
 
 function writeFile() {
+    var f = frameLog || {};
+    var light = f.light || {};
+    frameLog = null;
     fs.appendFileSync(intervalometer.status.timelapseFolder + "/details.csv",
         intervalometer.status.frames + ", " +
         intervalometer.status.evDiff + "," +
@@ -591,7 +653,14 @@ function writeFile() {
         exp.status.pComponent + "," +
         exp.status.iComponent + "," +
         exp.status.dComponent + "," +
-        exp.status.direction + "\n");
+        exp.status.direction + "," +
+        csvNumber(f.shotEv) + "," +
+        csvNumber(light.lux, function (v) { return Number(v.toPrecision(5)); }) + "," +
+        csvNumber(light.ch0) + "," +
+        csvNumber(light.ch1) + "," +
+        csvNumber(light.gain) + "," +
+        csvNumber(f.clipLo, function (v) { return v.toFixed(4); }) + "," +
+        csvNumber(f.clipHi, function (v) { return v.toFixed(4); }) + "\n");
     //image.writeXMP(name, intervalometer.status.evDiff);
 }
 
@@ -1682,6 +1751,7 @@ function runPhoto(isRetry) {
                 var msDelayPulse = camera.lists.getSecondsFromEv(shutterEv) * 1000 + 1500;
                 setTimeout(motionSyncPulse, msDelayPulse);
                 intervalometer.status.lastPhotoTime = new Date() / 1000 - intervalometer.status.startTime;
+                startFrameLog();
             }
             if (intervalometer.status.hdrCount && intervalometer.status.hdrCount > 1 && intervalometer.status.hdrStops > 0) {
                 captureOptions.hdrCount = intervalometer.status.hdrCount;
@@ -1716,6 +1786,10 @@ function runPhoto(isRetry) {
                         }
                     } else {
                         frameRows.push([getDetails(), 1, referencePhotoRes.thumbnailPath]);
+                    }
+                    if (frameLog) {
+                        frameLog.clipLo = binShare(referencePhotoRes.histogram, 0);
+                        frameLog.clipHi = binShare(referencePhotoRes.histogram, 255);
                     }
                     // The padding reserves the measured exposure-change time (0.73-0.85 s for an ISO step on the A6600, doc
                     // §H4) instead of a fixed half second, so the ramp's longest shutter leaves room for it.
@@ -1968,6 +2042,7 @@ intervalometer.cancel = function (reason, callback) {
                     if (intervalometer.status.useLiveview) remap('camera.ptp.lvOff');
                     collectGarbage(); // the last frame's collectGarbage ran while status.running was still true
                     cpuBoostOn = null; // the UI puts the clock and the voltage back (performance('low'))
+                    lightStop();
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("==========> END TIMELAPSE", intervalometer.status.tlName, "(", reason, ")");
                     callback && callback();
@@ -2153,6 +2228,7 @@ intervalometer.run = function (program, date, timeOffsetSeconds, autoExposureTar
                         intervalometer.status.timelapseFolder + "/data.js"
                     );
                     intervalometer.status.running = true;
+                    lightStart();
                     intervalometer.emit("intervalometer.status", intervalometer.status);
                     logEvent("program:", "starting", program);
 
