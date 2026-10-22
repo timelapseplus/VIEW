@@ -204,7 +204,7 @@ exports.dayLuminance = "This is the target luminance for evaluating the day expo
 
 exports.dbBackupMenu = "Copies the clip databases (the working one with the newest 20 clips, the archive with the older ones, and the settings) to the VIEW storage under time-lapse/db-backup/<date>/; only the two newest backups are kept there. Download them from the app or a browser: http://<VIEW address>/download?file=db-backup/<date>/view-timelapse.db";
 
-exports.archiveClipsMenu = "Moves the clips older than the newest 20 from the working clip database to the archive database next to it (view-timelapse-archive.db). The clip folders stay on the VIEW; archived clips just leave the clip list. This also runs once when the VIEW starts, never after a time-lapse.";
+exports.archiveClipsMenu = "Moves the clips older than the newest 20 from the working clip database to the archive database next to it (view-timelapse-archive.db). The clip folders stay on the VIEW; archived clips just leave the clip list. It runs only from this menu (or the app), never by itself.";
 
 exports.cableMenu = "Cable Release turns the VIEW into a plain shutter-release intervalometer: the camera is fired through a cable in an AUX jack (tip = shutter, ring = focus) instead of USB, so there is no download, no preview and no exposure ramping, but intervals down to 0.3 seconds and no dark time beyond the camera's own. Set the camera to manual focus and manual exposure. Nothing here touches the Time-lapse menu.";
 

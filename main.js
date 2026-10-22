@@ -6198,8 +6198,8 @@ setInterval(function() {
 }, 30000);
 
 // The clip catalogue keeps its newest 20 clips; the older ones move to the archive file (system/db.js
-// archiveTimelapses, 2026-10-21): once at start, when the core reports it is not shooting, and on request (the
-// "Archive old clips" menu item, WS archiveClips). Nothing runs after a time-lapse — the user's decision.
+// archiveTimelapses, 2026-10-21) only on request: the "Archive old clips" menu item and WS archiveClips. Never
+// by itself, neither at start nor after a time-lapse — the user's decision (2026-10-22).
 var archiveClips = function(cb) {
     if (core.intervalometerStatus && core.intervalometerStatus.running) return cb && cb("a time-lapse is running");
     db.archiveTimelapses(20, function (err, info) {
@@ -6207,10 +6207,6 @@ var archiveClips = function(cb) {
         if (cb) cb(err, info);
     });
 };
-core.once('core.ready', function(state) {
-    if (state && state.running) return;
-    setTimeout(archiveClips, 20000);
-});
 
 core.on('intervalometer.status', function(msg) {
     frameWatch.status(msg, Date.now());
