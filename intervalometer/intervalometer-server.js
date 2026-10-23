@@ -23,9 +23,9 @@ message                  args                     response
 'camera-liveview'      enable (bool)              camera_status (obj)
 
 
-event                  payload                    
+event                  payload
 --------------------------------------------------
-'error'                message (str)              
+'error'                message (str)
 'status'               intervalometerStatus (obj)
 'motion-status'        motionStatus (obj)
 'camera-status'        cameraStatus (obj)
@@ -36,6 +36,10 @@ event                  payload
 
 */
 
+// Remember where each node module was found, as main.js does for the UI: saves the path search on every start, and
+// start.sh reads the list to pull these files into the page cache before they are needed.
+var nodeModuleCache = require('fast-boot');
+nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache-core.json"});
 require('rootpath')();
 var camera = require('camera/camera.js');
 var image = require('camera/image/image.js');
@@ -268,6 +272,9 @@ var server = net.createServer(function(c) {
     sendEvent('motion.status', motion.status);
     sendEvent('process.pid', process.pid);
     if(intervalometerStatus) sendEvent('intervalometer.status', intervalometerStatus);
+    // Tells the UI that the core is up and whether it is shooting (main.js restarts an interrupted scheduled program
+    // on it); unlike intervalometer.status above it is sent even before the first time-lapse.
+    sendEvent('core.ready', {running: !!intervalometer.status.running});
     while(ev = eventQueue.shift()) c.write(ev);
     if(!c.wdtInterval) {
         sendEvent('watchdog.set', process.pid);
@@ -316,10 +323,11 @@ var server = net.createServer(function(c) {
 server.on('error', function(err) {
   console.log("server error", err);
 });
-fs.unlink('/tmp/intervalometer.sock', function(){
-  server.listen('/tmp/intervalometer.sock',  function() {
-    console.log('server bound');
-  });
+// Bound right here rather than from an fs.unlink callback: that callback only ran after the camera API had loaded and
+// tested its drivers (an fs.readdir callback queued earlier in camera/ptpjs/api.js), ~0.5 s later.
+try { fs.unlinkSync('/tmp/intervalometer.sock'); } catch(e) {}
+server.listen('/tmp/intervalometer.sock',  function() {
+  console.log('server bound');
 });
 
 function broadcast(data) {
@@ -393,6 +401,11 @@ function parseData(data, client) {
   }
 }
 
+var previewFrames = 0;
+function previewCollect() { // live view frames are buffers outside the V8 heap, which only a full collection frees
+  if(++previewFrames % 20 == 0 && global.gc) global.gc(); // every ~4 s at the A6600's 4.5 frames/s
+}
+
 function runCommand(type, args, callback, client) {
   var cameraCallback = function(err, res) {
     if(intervalometerStatus && !intervalometerStatus.running && !camera.ptp.lvOn && camera.ptp.model && camera.ptp.model.match(/nikon/i)) {
@@ -450,6 +463,7 @@ function runCommand(type, args, callback, client) {
       camera.ptp.connectSonyWifi(callback);
       break;
     case 'camera.ptp.lvOff':
+      if(global.gc) global.gc(); // what live view left since the last previewCollect()
       if(camera.ptp.new.available) {
         camera.ptp.new.liveviewMode(false, cameraCallback);
       } else {
@@ -496,6 +510,7 @@ function runCommand(type, args, callback, client) {
             cameraCallback(err);
             console.log("PREVIEW: enabled, fetching image...");
             camera.ptp.new.liveviewImage(function(err, img) {
+              previewCollect();
               if(!err && img) {
                 var obj = {
                   base64: new Buffer(img).toString('base64'),
@@ -511,12 +526,38 @@ function runCommand(type, args, callback, client) {
           //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
+            previewCollect();
             if(!err && img) {
-              var obj = {
-                base64: new Buffer(img).toString('base64'),
-                type: 'preview'
-              };
-              sendEvent('camera.photo', obj);
+
+                    var size = {
+                        x: 160,
+                        q: 128-15
+                    }
+                    image.downsizeJpeg(img, size, null, function (err, lowResJpg) {
+                        var img2;
+                        if (!err && lowResJpg) {
+                            img2 = lowResJpg;
+                        } else {
+                            im2g = img;
+                        }
+                        var photoRes = {
+                            base64: new Buffer(img2).toString('base64'),
+                            type: 'preview',
+                            ev: null
+                        }
+                        image.exposureValue(img2, function (err, ev, histogram) {
+                            photoRes.ev = ev;
+                            photoRes.histogram = histogram;
+                            var r = intervalometer.estimateDayNightLuminance(ev);
+                            photoRes.nightRatio = r.nightRatio;
+                            photoRes.currentEv = r.currentEv;
+                            photoRes.dayRefEv = r.dayRefEv;
+                            photoRes.nightRefEv = r.nightRefEv;
+
+                            sendEvent('camera.photo', photoRes);
+                            callback && callback(err, photoRes);
+                        });
+                    });
             } else {
               console.log("PREVIEW: err:", err);
             }
@@ -534,6 +575,7 @@ function runCommand(type, args, callback, client) {
           camera.ptp.new.liveviewMode(true, function(err){
             cameraCallback(err);
             camera.ptp.new.liveviewImage(function(err, img) {
+              previewCollect();
               if(!err && img) {
                 var obj = {
                   base64: new Buffer(img).toString('base64'),
@@ -549,6 +591,7 @@ function runCommand(type, args, callback, client) {
           //console.log("PREVIEW: fetching image...");
           camera.ptp.new.liveviewImage(function(err, img) {
             cameraCallback(err);
+            previewCollect();
             if(!err && img) {
               var obj = {
                 base64: new Buffer(img).toString('base64'),
@@ -566,7 +609,7 @@ function runCommand(type, args, callback, client) {
       break;
     case 'camera.ptp.getSettings':
       if(camera.ptp.new.available) {
-        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status);
+        var newSettings = getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status, camera.ptp.new.cameras[0].camera.config);
         sendEvent('camera.settings', newSettings);
           cameraCallback(null, newSettings);
       } else {
@@ -588,7 +631,7 @@ function runCommand(type, args, callback, client) {
         camera.ptp.new.switchPrimary(args.cameraObject, callback);
       } else {
         camera.ptp.switchPrimary(args.cameraObject, callback);
-      }    
+      }
       break;
     case 'camera.ptp.capture':
       remap('camera.ptp.capture')(args.options, cameraCallback);
@@ -712,18 +755,19 @@ function runCommand(type, args, callback, client) {
   }
 }
 
-function getNewSettings(settings, status) {
+function getNewSettings(settings, status, config) {
   return {
         shutter: settings.shutter && settings.shutter.name,
         aperture: settings.aperture && settings.aperture.name,
         iso: settings.iso && settings.iso.name,
         battery: status && status.battery,
         focusPos: status && status.focusPos,
+        driveMode: config && config.driveMode && config.driveMode.name,
         lists: {
           shutter: settings.shutter && settings.shutter.list,
           aperture: settings.aperture && settings.aperture.list,
           iso: settings.iso && settings.iso.list
-        }, 
+        },
         details: {
           shutter: settings.shutter,
           aperture: settings.aperture,
@@ -833,7 +877,7 @@ camera.ptp.new.on('connected', function(model) {
   if(camera.ptp.new.cameras.length == 1) intervalometer.resume();
 });
 camera.ptp.new.on('settings', function(settings) {
- sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status));
+ sendEvent('camera.settings', getNewSettings(camera.ptp.new.cameras[0].camera.exposure, camera.ptp.new.cameras[0].camera.status, camera.ptp.new.cameras[0].camera.config));
 });
 camera.ptp.on('exiting', function(model) {
   console.log("CORE: camera disconnected.  Count =", camera.ptp.count);

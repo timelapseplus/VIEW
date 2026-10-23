@@ -1,14 +1,12 @@
-var Express = require('express');
-var express = Express();
-var http = require('http');
-//var server = http.Server(express);
-var server = http.createServer(express);
-var WebSocket = require('ws');
-var WebSocketServer = WebSocket.Server;
+// express, http and ws take ~1.5 s to load on this single core and nothing needs them before the first menu is on
+// the screen, so they are loaded after it: createServer() runs in the callback of the process check below, which
+// cannot fire before main.js has finished its synchronous start-up (the menu is drawn in it), and ws is loaded
+// where its servers and the view.tl connection are created.
 var exec = require('child_process').exec;
 var async = require('async');
 var fs = require('fs');
 var db = require("./db.js");
+var clips = require('../intervalometer/clips.js');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -25,23 +23,66 @@ app.remoteEnabled = false;
 
 fs.writeFile("/proc/sys/net/ipv4/tcp_low_latency", "0"); // favor low latency over high throughput (reversed now to support high-throughput for LV)
 
-express.use(Express.static('/home/view/current/frontend/www'));
+function createServer() {
+    var Express = require('express');
+    var express = Express();
 
-express.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, access-control-allow-origin, x-view-session");
-  next();
-});
+    express.use(Express.static('/home/view/current/frontend/www'));
 
-express.get('/socket/address', function(req, res) {
-    var host = req.headers.host;
-    var domain = host.split(':')[0];
-    res.send({
-        address: 'ws://' + domain + ':' + CLIENT_WS_PORT,
-        server: 'local'
+    express.use(function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, access-control-allow-origin, x-view-session");
+        next();
     });
-});
+
+    express.get('/socket/address', function (req, res) {
+        var host = req.headers.host;
+        var domain = host.split(':')[0];
+        res.send({
+            address: 'ws://' + domain + ':' + CLIENT_WS_PORT,
+            server: 'local'
+        });
+    });
+
+    express.get('/clips', function (req, res) {
+        console.log("API: getting clips");
+        clips.getRecentTimelapseClips(30, true, function (err, clips) {
+            console.log("API: err" + clips);
+            try {
+                var ss = res.send(clips.map(function (clip) {
+                    console.log("API: mm" + clip.name);
+                    return clip;
+                }));
+                console.log("API: " + ss);
+            } catch (e) {
+                console.log("API: e" + e);
+                res.send(400, e)
+            }
+        });
+    });
+
+    express.get('/clipinfo', function (req, res) {
+        try {
+            db.getTimelapseByName(req.query.name, function (err, dbClip) {
+                // if (dbClip) {
+                res.send(dbClip);
+                // }
+            });
+        } catch (e) {
+            res.status(400)
+        }
+
+    });
+
+    express.get('/download', function (req, res) {
+        var q = req.query.file; //tl-329/cam-1-03252.jpg
+        var file = '/root/time-lapse/' + q;
+        res.download(file); // Set disposition and send it.
+    });
+
+    return require('http').createServer(express);
+}
 
 var jpegFrame = null;
 
@@ -75,10 +116,10 @@ var connectedStreams = [];
 });
 streamServer.listen(9000);*/
 
-app.addJpegFrame = function(frameBuffer) {
+app.addJpegFrame = function (frameBuffer) {
     jpegFrame = frameBuffer;
     console.log("APP: writing frame to " + connectedStreams.length + " streams...");
-    for(var i = 0; i < connectedStreams.length; i++) {
+    for (var i = 0; i < connectedStreams.length; i++) {
         connectedStreams[i].write("--myboundary\nContent-Type: image/jpg\nContent-length: " + frameBuffer.length + "}\n\n");
         connectedStreams[i].write(frameBuffer);
     }
@@ -92,11 +133,20 @@ app.remote = false;
 app.authCode = null;
 var wsRemote;
 var remotePingHandle = null;
-
+// Retry pause after a failed or dropped relay connection: 5 s, then doubling up to 5 min while the network has no way
+// to app.view.tl (a field router without internet); back to 5 s on every successful connection and on every new Wi-Fi
+// connection (enableRemote). Before 2026-10-21 it retried every 5 s for as long as the Wi-Fi link lasted.
+var remoteRetryMs = 5000;
+function scheduleRemoteRetry() {
+    var ms = remoteRetryMs;
+    remoteRetryMs = Math.min(remoteRetryMs * 2, 300000);
+    setTimeout(connectRemote, ms);
+}
 
 function connectRemote(version) {
     if (app.remote || !app.remoteEnabled) return;
     console.log("connecting to view.tl");
+    var WebSocket = require('ws');
     wsRemote = new WebSocket('wss://app.view.tl/socket/device', {
         headers: {
             'x-view-id': app.serial
@@ -105,23 +155,24 @@ function connectRemote(version) {
 
     wsRemote.on('message', function incoming(message) {
         //if (message.type != "pong") console.log('remote: %s', message);
-        if(app.remote) {
+        if (app.remote) {
             receive_message(message, wsRemote);
         } else {
             try {
                 var msg = JSON.parse(message);
-                if(msg.connected) {
+                if (msg.connected) {
                     app.remote = true;
                     app.authCode = null;
                     app.emit('auth-complete', msg.email);
                     app.emit('connected', true);
                     console.log("Connected to view.tl");
-                    remotePingHandle = setInterval(function() {
+                    remoteRetryMs = 5000;
+                    remotePingHandle = setInterval(function () {
                         send_message('ping', null, wsRemote);
                     }, 10000);
-                    if(version) send_message('version', {version: version}, wsRemote);
+                    if (version) send_message('version', {version: version}, wsRemote);
                     sendLogs();
-                } else if(msg.code) {
+                } else if (msg.code) {
                     app.authCode = msg.code;
                     app.emit('auth-required', app.authCode);
                 }
@@ -132,26 +183,26 @@ function connectRemote(version) {
         }
     });
 
-    wsRemote.once('open', function() {
+    wsRemote.once('open', function () {
     });
 
-    wsRemote.once('close', function() {
+    wsRemote.once('close', function () {
         if (remotePingHandle) clearInterval(remotePingHandle);
         remotePingHandle = null;
         console.log("Disconnected from view.tl (closed)");
         app.emit('connected', false);
         app.remote = false;
-        setTimeout(connectRemote, 5000);
+        scheduleRemoteRetry();
     });
 
-    wsRemote.once('error', function() {
+    wsRemote.once('error', function () {
         if (remotePingHandle) clearInterval(remotePingHandle);
         remotePingHandle = null;
         console.log("Disconnected from view.tl (error)");
         app.emit('connected', false);
         wsRemote.terminate();
         app.remote = false;
-        setTimeout(connectRemote, 5000);
+        scheduleRemoteRetry();
     });
 }
 
@@ -161,53 +212,53 @@ var reg = {
     viewId: ""
 }
 async.series([
-    function(cb) {
-        db.get('registrationEmail', function(err, email) {
-            if(!err && email) {
-                reg.email = email;
-                reg.useNew = false;
-            }
-            cb(err);
-        });
-    }, function(cb) {
-        db.get('registrationNewId', function(err, id) {
-            if(!err && id) reg.useNew = id;
-            cb(err);
-        });
-    }, function(cb) {
-        exec('cat /proc/cpuinfo', function(error, stdout, stderr) {
-            lines = stdout.split('\n');
-            for(var i = 0; i < lines.length; i++) {
-                if(lines[i].indexOf('Serial') === 0) {
-                    var matches = lines[i].match(/: ([0-9a-f]+)/i);
-                    if(matches.length > 1) {
-                        reg.viewId = matches[1];
-                        break;
-                    }
+        function (cb) {
+            db.get('registrationEmail', function (err, email) {
+                if (!err && email) {
+                    reg.email = email;
+                    reg.useNew = false;
                 }
-            }
-            cb();
-        });
-    }, function(cb) {
-        if(reg.useNew) {
-            exec('udevadm info -a -n /dev/mmcblk0 | grep "ATTRS{serial}=="', function(error, stdout, stderr) {
-                res = stdout.trim();
-                var matches = res.match(/=="0x([0-9a-f]+)/i);
-                if(matches.length > 1) {
-                    reg.viewId = reg.viewId.substring(reg.viewId.length - 8) + matches[1];
+                cb(err);
+            });
+        }, function (cb) {
+            db.get('registrationNewId', function (err, id) {
+                if (!err && id) reg.useNew = id;
+                cb(err);
+            });
+        }, function (cb) {
+            exec('cat /proc/cpuinfo', function (error, stdout, stderr) {
+                lines = stdout.split('\n');
+                for (var i = 0; i < lines.length; i++) {
+                    if (lines[i].indexOf('Serial') === 0) {
+                        var matches = lines[i].match(/: ([0-9a-f]+)/i);
+                        if (matches.length > 1) {
+                            reg.viewId = matches[1];
+                            break;
+                        }
+                    }
                 }
                 cb();
             });
-        } else {
-            cb();
-        } 
-    },], 
-    function(err) {
+        }, function (cb) {
+            if (reg.useNew) {
+                exec('udevadm info -a -n /dev/mmcblk0 | grep "ATTRS{serial}=="', function (error, stdout, stderr) {
+                    res = stdout.trim();
+                    var matches = res.match(/=="0x([0-9a-f]+)/i);
+                    if (matches.length > 1) {
+                        reg.viewId = reg.viewId.substring(reg.viewId.length - 8) + matches[1];
+                    }
+                    cb();
+                });
+            } else {
+                cb();
+            }
+        },],
+    function (err) {
         console.log("APP: VIEW_ID" + (reg.useNew ? " (new)" : "(legacy)") + ":", reg.viewId);
         app.serial = reg.viewId;
         connectRemote();
-        if(reg.useNew && reg.useNew != reg.viewId) {
-            db.set('registrationNewId', reg.viewId, function(err) {
+        if (reg.useNew && reg.useNew != reg.viewId) {
+            db.set('registrationNewId', reg.viewId, function (err) {
                 console.log("APP: Switched to new registration id.");
             });
         }
@@ -217,10 +268,10 @@ async.series([
 function closeApp() {
     app.remoteEnabled = false;
     closeHttpServer();
-    if(wsRemote && wsRemote.destroy) {
+    if (wsRemote && wsRemote.destroy) {
         wsRemote.close();
     }
-    if(wss && wss.clients) wss.clients.forEach(function (client) {
+    if (wss && wss.clients) wss.clients.forEach(function (client) {
         try {
             if (client && client.close) client.close();
         } catch (err) {
@@ -230,18 +281,18 @@ function closeApp() {
 }
 
 function sendLog(logfile, logname, callback) {
-    if(app.remote) {
+    if (app.remote) {
         console.log("Reading", logfile);
-        fs.readFile(logfile, function(err, file) {
-            if(!err) {
-                if(file) {
+        fs.readFile(logfile, function (err, file) {
+            if (!err) {
+                if (file) {
                     console.log("sending log file to proxy: ", logfile);
                     var obj = {
                         logname: logname,
                         bzip2: file.toString('base64')
                     }
-                    send_message('log', obj, wsRemote, function(err2) {
-                        if(err2) {
+                    send_message('log', obj, wsRemote, function (err2) {
+                        if (err2) {
                             console.log("error sending log via ws:", err2);
                             callback(err2);
                         } else {
@@ -263,27 +314,27 @@ function sendLog(logfile, logname, callback) {
 }
 
 function sendLogs(callback, uploaded) {
-    if(!uploaded) uploaded = 0;
-    if(app.remote) {
+    if (!uploaded) uploaded = 0;
+    if (app.remote) {
         console.log("Checking for logs to upload...", uploaded);
         var logs = null;
         try {
             logs = fs.readdirSync("/home/view/logsForUpload");
-            logs = logs.filter(function(log) {
+            logs = logs.filter(function (log) {
                 return log.match(/^(log|TL|view-)/) ? true : false;
             });
-        } catch(e) {
+        } catch (e) {
             logs = null;
         }
 
-        if(logs && logs.length > 0) {
+        if (logs && logs.length > 0) {
             var nextLogName = logs.pop();
             var nextLog = "/home/view/logsForUpload/" + nextLogName;
-            sendLog(nextLog, nextLogName, function(err) {
-                if(!err) {
-                    fs.unlink(nextLog, function() {
+            sendLog(nextLog, nextLogName, function (err) {
+                if (!err) {
+                    fs.unlink(nextLog, function () {
                         uploaded++;
-                        setTimeout(function() {
+                        setTimeout(function () {
                             sendLogs(callback, uploaded);
                         }, 15 * 1000);
                     });
@@ -295,7 +346,7 @@ function sendLogs(callback, uploaded) {
         } else {
             console.log("log uploads complete (" + uploaded + ")");
             callback && callback(null, uploaded);
-            if(uploaded > 0) app.emit('logs-uploaded', uploaded);
+            if (uploaded > 0) app.emit('logs-uploaded', uploaded);
         }
     } else {
         callback && callback("not connected");
@@ -304,9 +355,9 @@ function sendLogs(callback, uploaded) {
 
 function send_message(type, object, socket, callback) {
     if (!object) object = {};
-    if (typeof(type) === "string") {
+    if (typeof (type) === "string") {
         object.type = type;
-    } else if (typeof(type) === "object" && type.type) {
+    } else if (typeof (type) === "object" && type.type) {
         object = type;
     }
 
@@ -321,7 +372,7 @@ function send_message(type, object, socket, callback) {
         if (socket) {
             socket.send(msg_string, callback);
         } else {
-            if(wss) wss.broadcast(msg_string);
+            if (wss) wss.broadcast(msg_string);
             if (app.remote) wsRemote.send(msg_string);
         }
     } catch (err) {
@@ -332,15 +383,15 @@ function send_message(type, object, socket, callback) {
 
 function receive_message(msg_string, socket) {
     try {
-    	var buildReply = function(nMsg, nSocket) {
-    		return function(type, object, callback) {
-    			if(!object) object = {};
-    			object.ack = nMsg.ack;
-    			object._cbId = nMsg._cbId;
+        var buildReply = function (nMsg, nSocket) {
+            return function (type, object, callback) {
+                if (!object) object = {};
+                object.ack = nMsg.ack;
+                object._cbId = nMsg._cbId;
 
                 send_message(type, object, nSocket, callback);
-    		}
-    	}
+            }
+        }
 
         var msg = JSON.parse(msg_string);
         if (!msg || !msg.type) {
@@ -350,8 +401,8 @@ function receive_message(msg_string, socket) {
         } else if (msg.type == "pong") {
             // ignoring...
         } else {
-        	msg.reply = buildReply(msg, socket);
-        	app.emit("message", msg);
+            msg.reply = buildReply(msg, socket);
+            app.emit("message", msg);
         }
     } catch (err) {
         console.log("Error while parsing message:", msg_string, err);
@@ -359,14 +410,15 @@ function receive_message(msg_string, socket) {
     }
 }
 
-app.enableRemote = function(version) {
-    app.remoteEnabled = true;    
+app.enableRemote = function (version) {
+    app.remoteEnabled = true;
+    remoteRetryMs = 5000; // a new network: try at once and often again
     connectRemote(version);
 }
 
-app.disableRemote = function() {
+app.disableRemote = function () {
     app.remoteEnabled = false;
-    if(wsRemote && wsRemote.close) {
+    if (wsRemote && wsRemote.close) {
         wsRemote.close();
     }
     app.remote = false;
@@ -378,21 +430,39 @@ app.sendLogs = sendLogs;
 app.close = closeApp;
 
 var httpServer;
+// Building the HTTP and WebSocket servers (express, ws) keeps this single-threaded process busy for over a second,
+// longer while the core is starting next to it, and nothing else runs meanwhile, the knob and buttons included. So
+// main.js says when: once the core is up (app.startHttp). Phones cannot reach the VIEW before Wi-Fi or the hotspot
+// is up anyway, which takes longer. The timer covers a core that never comes up.
+var httpWanted = false;
+var httpWaiting = null;
+app.startHttp = function () {
+    httpWanted = true;
+    if (httpWaiting) httpWaiting();
+    httpWaiting = null;
+};
+setTimeout(app.startHttp, 20000);
+function whenHttpWanted(start) {
+    if (httpWanted) start();
+    else httpWaiting = start;
+}
 var sockets = {}, nextSocketId = 0;
 
-exec('ps aux | grep "/main.js"', function(err, res) {
-    if(!err && res) {
+exec('ps aux | grep "/main.js"', function (err, res) {
+    if (!err && res) {
         //console.log("res:", res);
         var killedProcess = false;
         var lines = res.split('\n');
-        for(var i = 0; i < lines.length; i++) {
-            if(lines[i].indexOf('grep') > 0) continue;
-            if(lines[i].indexOf('forever') > 0) continue;
+        for (var i = 0; i < lines.length; i++) {
+            if (lines[i].indexOf('grep') > 0) continue;
+            if (lines[i].indexOf('forever') > 0) continue;
+            if (lines[i].indexOf('view-supervise') > 0) continue; // the restart loop from start.sh, not a UI instance
+            if (!/[\s\/]node\s.*\/main\.js/.test(lines[i])) continue; // only node running main.js, not e.g. the file pre-read in start.sh
             //console.log("line:", lines[i]);
             var matches = lines[i].match(/root\s+([0-9]+)/);
-            if(matches && matches.length > 1) {
+            if (matches && matches.length > 1) {
                 var pid = parseInt(matches[1].trim());
-                if(pid == process.pid) continue;
+                if (pid == process.pid) continue;
                 console.log("Terminating existing process: PID", pid);
                 process.kill(pid, 'SIGKILL');
                 killedProcess = true;
@@ -400,32 +470,33 @@ exec('ps aux | grep "/main.js"', function(err, res) {
         }
     }
     console.log("Booting: prior process:", killedProcess);
-    setTimeout(function() {
-        httpServer = server.listen(CLIENT_SERVER_PORT, function() {
+    setTimeout(whenHttpWanted, killedProcess ? 30000 : 0, function () {
+        httpServer = createServer().listen(CLIENT_SERVER_PORT, function () {
             console.log('listening on *:' + CLIENT_SERVER_PORT);
         });
 
         httpServer.on('connection', function (socket) {
-          // Add a newly connected socket
-          var socketId = nextSocketId++;
-          sockets[socketId] = socket;
-          console.log('socket', socketId, 'opened');
+            // Add a newly connected socket
+            var socketId = nextSocketId++;
+            sockets[socketId] = socket;
+            console.log('socket', socketId, 'opened');
 
-          // Remove the socket when it closes
-          socket.on('close', function () {
-            console.log('socket', socketId, 'closed');
-            delete sockets[socketId];
-          });
+            // Remove the socket when it closes
+            socket.on('close', function () {
+                console.log('socket', socketId, 'closed');
+                delete sockets[socketId];
+            });
 
-          // Extend socket lifetime for demo purposes
-          socket.setTimeout(4000);
+            // Extend socket lifetime for demo purposes
+            socket.setTimeout(4000);
         });
 
+        var WebSocketServer = require('ws').Server;
         wss = new WebSocketServer({
             port: CLIENT_WS_PORT
         });
 
-        wss.on('err', function(err){
+        wss.on('err', function (err) {
             console.log("APP: websocket server error:", err);
         });
 
@@ -447,19 +518,21 @@ exec('ps aux | grep "/main.js"', function(err, res) {
             });
         });
 
-    }, killedProcess ? 30000 : 5000);
+    }); // a fresh boot has nothing to wait for; only a killed predecessor needs 30 s to free the ports
 });
 
 
 function closeHttpServer() {
     // Close the server
-    if(httpServer) httpServer.close(function () { console.log('Server closed!'); });
+    if (httpServer) httpServer.close(function () {
+        console.log('Server closed!');
+    });
     // Destroy all open sockets
     for (var socketId in sockets) {
         console.log('socket', socketId, 'destroyed');
         sockets[socketId].destroy();
     }
 }
-    
+
 
 module.exports = app;

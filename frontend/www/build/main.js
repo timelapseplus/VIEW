@@ -859,6 +859,10 @@ var RampingModalContentPage = (function () {
                 { label: '-1 stop', value: -1 },
                 { label: '-0.5 stops', value: -0.5 },
                 { label: '0 stops', value: 0 },
+                { label: '0.5 stops', value: 0.5 },
+                { label: '1 stop', value: 1 },
+                { label: '1.5 stops', value: 1.5 },
+                { label: '2 stops', value: 2 },
             ],
             dayLuminance: [
                 { label: '-1.5 stops', value: -1.5 },

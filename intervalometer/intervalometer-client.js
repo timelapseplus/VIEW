@@ -75,10 +75,21 @@ watchdog.onKill(function(pid){
 
 var dataBuf = new Buffer(0);
 var client;
+var waitingForServer = false;
+var reconnectTimer = null;
+function scheduleConnect(ms) { // one pending connect at a time, whatever closed the socket
+    if(reconnectTimer) return;
+    reconnectTimer = setTimeout(function() {
+        reconnectTimer = null;
+        connect();
+    }, ms);
+}
 function connect() {
     client = net.connect('/tmp/intervalometer.sock', function() {
       console.log('connected to server!');
+      waitingForServer = false;
       client.ready = true;
+      client.established = true;
       core.connected = true;
       if(restartProgram) {
         core.startIntervalometer(restartProgram, null, restartProgram._timeOffsetSeconds, restartProgram._exposureReferenceEv);
@@ -168,20 +179,35 @@ function connect() {
     client.on('end', function() {
       client.ready = false;
       core.connected = false;
-      checkRestart();
       console.log('disconnected from server');
-      setTimeout(connect, 2000);
     });
     client.on('error', function(err) {
         if(err && err.code && (err.code == 'ECONNREFUSED' || err.code == 'ENOENT' || err.code == 'ECONNRESET')) {
-            console.log("Error: server not ready");
-            setTimeout(connect, 1000);
+            // The core binds its socket once it has loaded: log the wait once; 'close' below retries every 250 ms
+            // so the connection does not add up to a second to that.
+            if(!waitingForServer) console.log("Error: server not ready");
+            waitingForServer = true;
         } else {
             console.log("error: ", err);
         }
         core.connected = false;
         client.ready = false;
         client.end();
+    });
+    // Every way the socket goes away ends here: the core's FIN ('end'), a refused connection or a write error (both
+    // 'error'; the socket is destroyed after it, so no 'end' follows). Until 2026-10-20 only 'end' and the refused
+    // branch of 'error' reconnected: a core killed while the UI was writing to it gave `write EPIPE`, and the UI stayed
+    // without the core (every call queued for ever, the watchdog kills a silent core but never reconnects) until it
+    // was restarted.
+    client.on('close', function() {
+      var established = client.established;
+      client.established = false;
+      client.ready = false;
+      core.connected = false;
+      if(established) checkRestart();
+      var ms = waitingForServer ? 250 : 2000;
+      if(established) console.log('connection to the core closed, reconnecting in ' + ms + ' ms');
+      scheduleConnect(ms);
     });
 }
 setTimeout(connect, 5000);

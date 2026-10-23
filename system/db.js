@@ -13,6 +13,14 @@ dbSys.serialize(function(){
 });
 
 dbTl.serialize(function(){
+	// Every time-lapse frame writes two transactions here (UPDATE clips, INSERT clip_frames): in the default rollback
+	// journal with synchronous=FULL that was 8 fsync() a frame on the SD card's ext3, ~150 ms of kernel CPU in the libuv
+	// pool per frame (2026-10-21 E5, doc 2026-10-20 §7.8). WAL with synchronous=NORMAL syncs only at checkpoints (every
+	// ~1000 pages, i.e. every few hundred frames): 84 -> 8 fsync for 20 frames on the unit (docs/profiling/2026-10-21-sqlite).
+	// The database stays consistent after a power cut; the last frames since the checkpoint may be lost from it (they are
+	// all in the clip's details.csv). The mode is stored in the file, so the UI, which opens the same file, follows.
+	dbRun(dbTl, "PRAGMA journal_mode = WAL");
+	dbRun(dbTl, "PRAGMA synchronous = NORMAL");
 	dbRun(dbTl, "CREATE TABLE IF NOT EXISTS clips (id INTEGER PRIMARY KEY AUTOINCREMENT,\
 													 name TEXT,\
 													 date TEXT,\
@@ -251,7 +259,6 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 	if(closed) return callback && callback(true);
 	var date = (new Date()).toISOString();
 	details = serialize(details);
-	console.log("cameraNumber:", cameraNumber);
 	evCorrection = evCorrection || 0;
 	cameraNumber = parseInt(cameraNumber);
 	cameraNumber = cameraNumber || 0;
@@ -284,7 +291,6 @@ exports.setTimelapseFrame = function(clipId, evCorrection, details, cameraNumber
 					dbRun(dbTl, "UPDATE clips SET `frames` = '" + frames.toString() + "' WHERE id = '" + clipId + "'");
 				}
 			});
-			console.log("FRAME clip:", clipId, "camera:", cameraNumber, "thumbnail:", thumbnail, " clip thumbnail:'" + data.thumbnail + "'");
 			setTimeout(function(){ dbRun(dbTl, "INSERT INTO clip_frames (clip_id, ev_correction, details, camera, thumbnail) VALUES ('" + clipId.toString() + "', '" + evCorrection.toString() + "', '" + details + "', '" + cameraNumber.toString() + "', '" + thumbnail + "')", callback);});
 		}
 	});});
@@ -366,6 +372,134 @@ exports.getWifi = function(address, callback) {
 }
 
 // WARNING! This erases all saved settings! //
+var ARCHIVE_DB = '/var/local/sqlite/view-timelapse-archive.db';
+var BACKUP_DIR = '/root/time-lapse/db-backup';
+
+function runSeq(database, sqls, cb) { // the statements one after another; stops at the first error, naming it
+	var i = 0;
+	var next = function(err) {
+		if(err) return cb(err, sqls[i - 1]);
+		if(i >= sqls.length) return cb(null);
+		database.run(sqls[i++], [], next);
+	};
+	next();
+}
+
+// Keeps the newest `keep` clips in the working database and moves the older ones (their rows of clips and
+// clip_frames) into view-timelapse-archive.db next to it, then VACUUMs the working file so it shrinks. It had grown to
+// 111 MB with a row for every frame of every clip ever shot, and every INSERT INTO clip_frames then cost the libuv
+// pool ≈50 ms of kernel time reading B-tree pages off the SD card (doc 2026-10-20 §9.3). The clip folders under
+// /root/time-lapse are untouched; archived clips only leave the device's clip list. Run it when no time-lapse is
+// writing (main.js: at start and on request, never after a run — the user's decision) — the first VACUUM on a big file
+// holds it for a while. callback(err, {total, moved})
+exports.archiveTimelapses = function(keep, callback) {
+	if(closed) return callback && callback(true);
+	keep = parseInt(keep) || 20;
+	dbTl.get("SELECT COUNT(*) AS n FROM clips", function(err, row) {
+		if(err) return callback && callback(err);
+		var total = row ? row.n : 0;
+		if(total <= keep) return callback && callback(null, {total: total, moved: 0});
+		runSeq(dbTl, [
+			"ATTACH DATABASE '" + ARCHIVE_DB + "' AS archive",
+			"CREATE TABLE IF NOT EXISTS archive.clips AS SELECT * FROM main.clips WHERE 0",
+			"CREATE TABLE IF NOT EXISTS archive.clip_frames AS SELECT * FROM main.clip_frames WHERE 0",
+			"CREATE INDEX IF NOT EXISTS archive.clip_id ON clip_frames (clip_id)",
+			"BEGIN",
+			"CREATE TEMP TABLE old_clips AS SELECT id FROM main.clips ORDER BY id DESC LIMIT -1 OFFSET " + keep,
+			"INSERT INTO archive.clips SELECT * FROM main.clips WHERE id IN (SELECT id FROM old_clips)",
+			"INSERT INTO archive.clip_frames SELECT * FROM main.clip_frames WHERE clip_id IN (SELECT id FROM old_clips)",
+			"DELETE FROM main.clip_frames WHERE clip_id IN (SELECT id FROM old_clips)",
+			"DELETE FROM main.clips WHERE id IN (SELECT id FROM old_clips)",
+			"DROP TABLE old_clips",
+			"COMMIT"
+		], function(err, sql) {
+			var finish = function() {
+				dbTl.run("DETACH DATABASE archive", function() {
+					if(err) {
+						console.log("DB: archiving clips failed at", sql, err);
+						return callback && callback(err);
+					}
+					dbTl.run("VACUUM", function(err3) {
+						if(err3) console.log("DB: VACUUM after archiving failed:", err3);
+						console.log("DB: archived " + (total - keep) + " of " + total + " clips to " + ARCHIVE_DB);
+						callback && callback(null, {total: total, moved: total - keep});
+					});
+				});
+			};
+			if(err) dbTl.run("ROLLBACK", function() { finish(); }); else finish();
+		});
+	});
+}
+
+// Copies a file through one reused buffer with fs.read/fs.write. On node 0.10 fs.createReadStream().pipe() keeps every
+// 64 KB chunk alive until V8 collects them: copying the 106 MB archive that way left the UI process 46-97 MB fatter and
+// took 7 s instead of 1 (docs/profiling/2026-10-21-dbarchive/copytest.js, 2026-10-21).
+function copyFile(src, dst, cb) {
+	var buf = new Buffer(256 * 1024);
+	fs.open(src, 'r', function(err, fd) {
+		if(err) return cb(err);
+		fs.open(dst, 'w', function(err2, ofd) {
+			if(err2) return fs.close(fd, function() { cb(err2); });
+			var finish = function(e) { fs.close(fd, function() { fs.close(ofd, function() { cb(e); }); }); };
+			var loop = function() {
+				fs.read(fd, buf, 0, buf.length, null, function(err3, n) {
+					if(err3) return finish(err3);
+					if(!n) return finish(null);
+					fs.write(ofd, buf, 0, n, null, function(err4) {
+						if(err4) return finish(err4);
+						loop();
+					});
+				});
+			};
+			loop();
+		});
+	});
+}
+
+// Removes all but the newest `keep` backup folders (each holds a copy of the archive, 100+ MB).
+function pruneBackups(keep) {
+	var dirs;
+	try { dirs = fs.readdirSync(BACKUP_DIR).sort(); } catch(e) { return; }
+	dirs.slice(0, Math.max(0, dirs.length - keep)).forEach(function(d) {
+		var dir = BACKUP_DIR + '/' + d;
+		try {
+			fs.readdirSync(dir).forEach(function(f) { fs.unlinkSync(dir + '/' + f); });
+			fs.rmdirSync(dir);
+			console.log("DB: removed old backup", dir);
+		} catch(e) { console.log("DB: removing old backup failed:", dir, e); }
+	});
+}
+
+// A copy of the clip databases (the working one, the archive and the settings) into /root/time-lapse/db-backup/<stamp>/
+// after a WAL checkpoint, so each is one plain consistent file; the app or a browser fetches them with
+// /download?file=db-backup/<stamp>/<name>. Only the two newest backup folders are kept.
+// callback(err, {dir, files: [paths relative to /root/time-lapse]})
+exports.backupTimelapse = function(callback) {
+	if(closed) return callback && callback(true);
+	var stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15); // 20261022T071500
+	var dir = BACKUP_DIR + '/' + stamp;
+	dbTl.run("PRAGMA wal_checkpoint(TRUNCATE)", function(err) {
+		if(err) console.log("DB: checkpoint before backup failed:", err);
+		try { fs.mkdirSync(BACKUP_DIR); } catch(e) {}
+		try { fs.mkdirSync(dir); } catch(e) { return callback && callback(e); }
+		var sources = ['/var/local/sqlite/view-timelapse.db', ARCHIVE_DB, '/var/local/sqlite/view-system.db'].filter(function(p) { return fs.existsSync(p); });
+		var files = [];
+		var next = function(i) {
+			if(i >= sources.length) {
+				pruneBackups(2);
+				return callback && callback(null, {dir: dir, files: files});
+			}
+			var name = sources[i].replace(/.*\//, '');
+			copyFile(sources[i], dir + '/' + name, function(err2) {
+				if(err2) return callback && callback(err2);
+				files.push('db-backup/' + stamp + '/' + name);
+				next(i + 1);
+			});
+		};
+		next(0);
+	});
+}
+
 exports.eraseAll = function() {
 	if(closed) return callback && callback(true);
 	dbRun(dbSys, "DELETE FROM wifi WHERE 1");

@@ -1,0 +1,150 @@
+Aug 15 19:13:17 localhost kernel: [    8.656460] RTL871X: module init start
+Aug 15 19:13:17 localhost kernel: [    8.716741] RTL871X: rtl8723bu v4.3.6.11_12942.20141204_BTCOEX20140507-4E40
+Aug 15 19:13:17 localhost kernel: [    8.723726] RTL871X: rtl8723bu BT-Coex version = BTCOEX20140507-4E40
+Aug 15 19:13:17 localhost kernel: [    9.402948] RTL871X: rtw_ndev_init(wlan0)
+Aug 15 19:13:17 localhost kernel: [    9.446094] RTL871X: rtw_ndev_init(wlan1)
+Aug 15 19:13:17 localhost kernel: [    9.556786] RTL871X: module init ret=0
+Aug 15 19:14:05 localhost kernel: [   62.482261] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 19:14:05 localhost kernel: [   62.496615] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 19:14:09 localhost kernel: [   66.454937] RTL871X: nolinked power save enter
+Aug 15 19:14:17 localhost kernel: [   74.344926] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 19:14:17 localhost kernel: [   74.351686] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 19:14:18 localhost kernel: [   76.032640] RTL871X: nolinked power save leave
+Aug 15 19:14:20 localhost kernel: [   77.183168] RTL871X: rtw_cmd_thread: DriverStopped(0) SurpriseRemoved(1) break at line 480
+Aug 15 19:14:20 localhost kernel: [   77.226864] RTL871X: rtw_ndev_uninit(wlan0)
+Aug 15 19:14:20 localhost kernel: [   77.283075] RTL871X: rtw_ndev_uninit(wlan1)
+Aug 15 19:14:20 localhost kernel: [   77.372388] RTL871X: rtw_dev_unload: driver not in IPS
+Aug 15 19:14:25 localhost kernel: [   83.082946] RTL871X: rtw_ndev_init(wlan0)
+Aug 15 19:14:25 localhost kernel: [   83.110328] RTL871X: rtw_ndev_init(wlan1)
+Aug 15 19:14:29 localhost kernel: [   87.085586] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 19:14:29 localhost kernel: [   87.104893] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 19:14:32 localhost kernel: [   89.653528] RTL871X: nolinked power save enter
+Aug 15 19:14:34 localhost kernel: [   91.984886] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 19:14:34 localhost kernel: [   92.014516] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 19:14:36 localhost kernel: [   93.721764] RTL871X: nolinked power save leave
+Aug 15 19:14:41 localhost kernel: [   99.311997] RTL871X: assoc success
+Aug 15 19:14:42 localhost kernel: [   99.329235] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 19:15:49 localhost kernel: [  166.949364] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 19:15:49 localhost kernel: [  166.958264] RTL871X: send eapol packet
+Aug 15 19:15:49 localhost kernel: [  166.965226] RTL871X: send eapol packet
+Aug 15 19:15:49 localhost kernel: [  166.989856] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 19:24:41 localhost kernel: [  699.261567] RTL871X: send eapol packet
+Aug 15 19:24:42 localhost kernel: [  699.361650] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 19:34:41 localhost kernel: [ 1299.231568] RTL871X: send eapol packet
+Aug 15 19:34:42 localhost kernel: [ 1299.251004] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 19:44:41 localhost kernel: [ 1899.200152] RTL871X: send eapol packet
+Aug 15 19:44:42 localhost kernel: [ 1899.216522] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 19:46:32 localhost kernel: [ 2009.487933] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 19:48:49 localhost kernel: [ 2146.518656] RTL871X: send eapol packet
+Aug 15 19:48:49 localhost kernel: [ 2146.540484] RTL871X: send eapol packet
+Aug 15 19:48:49 localhost kernel: [ 2146.571311] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 19:50:37 localhost kernel: [ 2254.910505] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 19:53:39 localhost kernel: [ 2436.584422] RTL871X: send eapol packet
+Aug 15 19:53:39 localhost kernel: [ 2436.635068] RTL871X: send eapol packet
+Aug 15 19:53:39 localhost kernel: [ 2436.665802] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 19:54:32 localhost kernel: [ 2489.934922] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 19:54:42 localhost kernel: [ 2499.172747] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 19:59:36 localhost kernel: [ 2793.802277] RTL871X: send eapol packet
+Aug 15 19:59:36 localhost kernel: [ 2793.821649] RTL871X: send eapol packet
+Aug 15 19:59:36 localhost kernel: [ 2793.834104] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 20:00:20 localhost kernel: [ 2837.961170] RTL871X: ap recv deauth reason code(3) sta:d6:10:bb:ae:81:17
+Aug 15 20:00:20 localhost kernel: [ 2837.968301] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 20:04:42 localhost kernel: [ 3099.136039] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 20:06:00 localhost kernel: [ 3177.566590] RTL871X: send eapol packet
+Aug 15 20:06:00 localhost kernel: [ 3177.581897] RTL871X: send eapol packet
+Aug 15 20:06:00 localhost kernel: [ 3177.601098] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 20:14:42 localhost kernel: [ 3699.098277] RTL871X: send eapol packet
+Aug 15 20:14:42 localhost kernel: [ 3699.203118] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 20:16:19 localhost kernel: [ 3796.628604] RTL871X: ap recv deauth reason code(3) sta:d6:10:bb:ae:81:17
+Aug 15 20:16:19 localhost kernel: [ 3796.635676] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 20:18:07 localhost kernel: [ 3904.936831] RTL871X: send eapol packet
+Aug 15 20:18:07 localhost kernel: [ 3904.958498] RTL871X: send eapol packet
+Aug 15 20:18:07 localhost kernel: [ 3904.970490] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 20:24:42 localhost kernel: [ 4299.065229] RTL871X: send eapol packet
+Aug 15 20:24:42 localhost kernel: [ 4299.164468] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 20:25:41 localhost kernel: [ 4358.776103] RTL871X: ap recv deauth reason code(3) sta:d6:10:bb:ae:81:17
+Aug 15 20:25:41 localhost kernel: [ 4358.783291] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 20:25:44 localhost kernel: [ 4361.832388] RTL871X: send eapol packet
+Aug 15 20:25:44 localhost kernel: [ 4361.851233] RTL871X: send eapol packet
+Aug 15 20:25:44 localhost kernel: [ 4361.879780] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 20:34:42 localhost kernel: [ 4899.030593] RTL871X: send eapol packet
+Aug 15 20:34:42 localhost kernel: [ 4899.058328] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 20:44:42 localhost kernel: [ 5499.006499] RTL871X: send eapol packet
+Aug 15 20:44:42 localhost kernel: [ 5499.136454] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 20:54:42 localhost kernel: [ 6098.973632] RTL871X: send eapol packet
+Aug 15 20:54:42 localhost kernel: [ 6099.056660] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 21:02:31 localhost kernel: [ 6568.121365] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 21:04:42 localhost kernel: [ 6698.951309] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 21:14:42 localhost kernel: [ 7298.915557] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 21:24:32 localhost kernel: [ 7889.784470] RTL871X: rtw_cmd_thread: DriverStopped(0) SurpriseRemoved(1) break at line 480
+Aug 15 21:24:33 localhost kernel: [ 7889.844152] RTL871X: rtw_ndev_uninit(wlan0)
+Aug 15 21:24:33 localhost kernel: [ 7889.924285] RTL871X: rtw_ndev_uninit(wlan1)
+Aug 15 21:24:33 localhost kernel: [ 7889.984572] RTL871X: rtw_dev_unload: driver not in IPS
+Aug 15 21:24:38 localhost kernel: [ 7895.467068] RTL871X: rtw_ndev_init(wlan0)
+Aug 15 21:24:38 localhost kernel: [ 7895.478921] RTL871X: rtw_ndev_init(wlan1)
+Aug 15 21:24:42 localhost kernel: [ 7899.091647] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 21:24:42 localhost kernel: [ 7899.107293] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 21:24:45 localhost kernel: [ 7902.634800] RTL871X: nolinked power save enter
+Aug 15 21:24:48 localhost kernel: [ 7905.720512] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 21:24:48 localhost kernel: [ 7905.727371] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 21:24:49 localhost kernel: [ 7906.479488] RTL871X: nolinked power save leave
+Aug 15 21:24:50 localhost kernel: [ 7906.913085] RTL871X: rtw_ndev_uninit(wlan0)
+Aug 15 21:24:50 localhost kernel: [ 7906.923837] RTL871X: rtw_cmd_thread: DriverStopped(1) SurpriseRemoved(1) break at line 480
+Aug 15 21:24:50 localhost kernel: [ 7906.993097] RTL871X: rtw_ndev_uninit(wlan1)
+Aug 15 21:24:50 localhost kernel: [ 7907.053455] RTL871X: rtw_dev_unload: driver not in IPS
+Aug 15 21:24:55 localhost kernel: [ 7912.744336] RTL871X: rtw_ndev_init(wlan0)
+Aug 15 21:24:55 localhost kernel: [ 7912.751281] RTL871X: rtw_ndev_init(wlan1)
+Aug 15 21:24:59 localhost kernel: [ 7916.396340] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 21:24:59 localhost kernel: [ 7916.410137] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 21:25:02 localhost kernel: [ 7918.813668] RTL871X: nolinked power save enter
+Aug 15 21:25:02 localhost kernel: [ 7919.708169] RTL871X: RTW_ADAPTIVITY_EN_AUTO, chplan:0x20, Regulation:3,3
+Aug 15 21:25:02 localhost kernel: [ 7919.725028] RTL871X: RTW_ADAPTIVITY_MODE_NORMAL
+Aug 15 21:25:03 localhost kernel: [ 7920.378670] RTL871X: nolinked power save leave
+Aug 15 21:25:08 localhost kernel: [ 7925.748573] RTL871X: assoc success
+Aug 15 21:25:08 localhost kernel: [ 7925.754431] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 21:25:40 localhost kernel: [ 7957.536425] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 21:25:40 localhost kernel: [ 7957.544923] RTL871X: send eapol packet
+Aug 15 21:25:40 localhost kernel: [ 7957.554695] RTL871X: send eapol packet
+Aug 15 21:25:40 localhost kernel: [ 7957.575561] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 21:35:08 localhost kernel: [ 8525.708715] RTL871X: send eapol packet
+Aug 15 21:35:09 localhost kernel: [ 8525.831685] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 21:45:08 localhost kernel: [ 9125.681247] RTL871X: send eapol packet
+Aug 15 21:45:09 localhost kernel: [ 9125.728926] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 21:55:08 localhost kernel: [ 9725.651448] RTL871X: send eapol packet
+Aug 15 21:55:09 localhost kernel: [ 9725.759430] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 22:05:08 localhost kernel: [10325.621020] RTL871X: send eapol packet
+Aug 15 22:05:09 localhost kernel: [10325.695959] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 22:15:08 localhost kernel: [10925.589685] RTL871X: send eapol packet
+Aug 15 22:15:09 localhost kernel: [10925.730205] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 22:25:09 localhost kernel: [11525.560797] RTL871X: send eapol packet
+Aug 15 22:25:09 localhost kernel: [11525.665082] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 22:35:09 localhost kernel: [12125.530035] RTL871X: send eapol packet
+Aug 15 22:35:09 localhost kernel: [12125.584028] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 22:45:09 localhost kernel: [12725.497809] RTL871X: send eapol packet
+Aug 15 22:45:09 localhost kernel: [12725.712672] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 22:49:14 localhost kernel: [12970.508051] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 22:50:16 localhost kernel: [13032.575552] RTL871X: send eapol packet
+Aug 15 22:50:16 localhost kernel: [13032.593931] RTL871X: send eapol packet
+Aug 15 22:50:16 localhost kernel: [13032.603804] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 22:55:09 localhost kernel: [13325.464993] RTL871X: send eapol packet
+Aug 15 22:55:09 localhost kernel: [13325.645594] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 22:56:05 localhost kernel: [13382.320124] RTL871X: clear key for addr:d6:10:bb:ae:81:17, camid:4
+Aug 15 22:58:28 localhost kernel: [13524.835334] RTL871X: send eapol packet
+Aug 15 22:58:28 localhost kernel: [13524.881742] RTL871X: send eapol packet
+Aug 15 22:58:28 localhost kernel: [13524.898667] RTL871X: set pairwise key camid:4, addr:d6:10:bb:ae:81:17, kid:0, type:AES
+Aug 15 23:05:09 localhost kernel: [13925.433337] RTL871X: send eapol packet
+Aug 15 23:05:09 localhost kernel: [13925.479199] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 23:15:09 localhost kernel: [14525.413545] RTL871X: send eapol packet
+Aug 15 23:15:09 localhost kernel: [14525.522198] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 23:25:09 localhost kernel: [15125.379762] RTL871X: send eapol packet
+Aug 15 23:25:09 localhost kernel: [15125.490861] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 23:35:09 localhost kernel: [15725.345094] RTL871X: send eapol packet
+Aug 15 23:35:09 localhost kernel: [15725.492917] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 15 23:45:09 localhost kernel: [16325.309955] RTL871X: send eapol packet
+Aug 15 23:45:09 localhost kernel: [16325.398319] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 15 23:55:09 localhost kernel: [16925.283788] RTL871X: send eapol packet
+Aug 15 23:55:09 localhost kernel: [16925.470273] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES
+Aug 16 00:05:09 localhost kernel: [17525.254668] RTL871X: send eapol packet
+Aug 16 00:05:09 localhost kernel: [17525.603562] RTL871X: set group key camid:1, addr:00:00:00:00:00:00, kid:1, type:AES
+Aug 16 00:15:09 localhost kernel: [18125.232718] RTL871X: send eapol packet
+Aug 16 00:15:09 localhost kernel: [18125.382011] RTL871X: set group key camid:2, addr:00:00:00:00:00:00, kid:2, type:AES

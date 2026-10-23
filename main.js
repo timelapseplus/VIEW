@@ -3,6 +3,30 @@
 var startupTime = new Date();
 var VIEW_HARDWARE = true; // is this running on official VIEW hardware?
 
+// stdout/stderr are a pipe to the log writer in start.sh. At shutdown that writer gets the same SIGTERM as we do
+// and is often gone before our SIGTERM handler logs its first line; the unhandled EPIPE 'error' then makes node
+// leave through exit(), which never returns here: it joins the button reader thread (blocked in evdev_read).
+// The process then hangs forever and so does systemd's stop of rc.local, which has no timeout. Lost log lines
+// are fine, a process that cannot exit is not.
+process.stdout.on('error', function() {});
+process.stderr.on('error', function() {});
+
+// A normal exit() never completes in this process: libuv's thread-pool destructor joins its threads, and
+// gpio-button keeps two pool threads blocked reading /dev/input forever (fs.createReadStream on the button event
+// files). So every way out has to end in SIGKILL, after which the supervisor in start.sh starts the UI again.
+// Until the nodeCleanup handler near the end of this file is installed, these two do it; afterwards it does.
+var exitHandledByCleanup = false;
+process.on('uncaughtException', function(err) {
+    if(exitHandledByCleanup) return;
+    try {
+        console.log("Uncaught exception during start-up:", (err && err.stack) || err);
+    } catch(e) {}
+    process.kill(process.pid, 'SIGKILL');
+});
+process.on('exit', function() {
+    if(!exitHandledByCleanup) process.kill(process.pid, 'SIGKILL');
+});
+
 var nodeModuleCache = require('fast-boot');
 nodeModuleCache.start({cacheFile: "/home/view/current/module-locations-cache.json"});
 
@@ -11,7 +35,6 @@ console.log('Starting up...');
 var _ = require('underscore');
 var async = require('async');
 var exec = require('child_process').exec;
-var crypto = require('crypto');
 var fs = require('fs');
 var moment = require('moment');
 console.log('Basic modules loaded in ' + (new Date() - startupTime) + 'ms');
@@ -20,14 +43,14 @@ var sys = require('sys')
 console.log('System modules loaded in ' + (new Date() - startupTime) + 'ms');
 
 require('rootpath')();
+var app = require("./system/app.js");
+
 var lists = require('./camera/ptp/lists.js');
 console.log('Lists module loaded in ' + (new Date() - startupTime) + 'ms');
 var updates = require('./system/updates.js');
 console.log('Updates module loaded in ' + (new Date() - startupTime) + 'ms');
 var clips = require('./intervalometer/clips.js');
 console.log('Clips module loaded in ' + (new Date() - startupTime) + 'ms');
-var eclipse = require('./intervalometer/eclipse.js');
-console.log('Eclipse module loaded in ' + (new Date() - startupTime) + 'ms');
 var core = require('./intervalometer/intervalometer-client.js');
 console.log('Core client module loaded in ' + (new Date() - startupTime) + 'ms');
 var image = require('./camera/image/image.js');
@@ -36,8 +59,8 @@ console.log('Image module loaded in ' + (new Date() - startupTime) + 'ms');
 if (VIEW_HARDWARE) {
     var power = require('./hardware/power.js');
     console.log('Power module loaded in ' + (new Date() - startupTime) + 'ms');
-    var light = require('./hardware/light.js');
-    console.log('Light module loaded in ' + (new Date() - startupTime) + 'ms');
+    //var light = require('./hardware/light.js');
+    //console.log('Light module loaded in ' + (new Date() - startupTime) + 'ms');
     var oled = require('./hardware/oled.js');
     console.log('Oled module loaded in ' + (new Date() - startupTime) + 'ms');
     var ui = require('./interface/ui.js');
@@ -55,11 +78,14 @@ var wifi = require('./system/wifi.js');
 console.log('Wifi module loaded in ' + (new Date() - startupTime) + 'ms');
 
 if(power) wifi.power = power; // allow wifi module to control power
-var app = require("./system/app.js");
 var db = require("./system/db.js");
+var cable = require('./cable/cable-release.js'); // the AUX-jack shutter release, nothing to do with the core
+cable.init({db: db});
+cable.load();
 
 //var suncalc = require('suncalc');
-var meeus = require('meeusjs');
+// meeusjs and eclipse.js are only needed by the sun/moon and eclipse info screens and take ~0.5 s to load, so
+// they are loaded there, once the menu is up.
 
 console.log('System loaded in ' + (new Date() - startupTime) + 'ms');
 
@@ -120,15 +146,10 @@ if (VIEW_HARDWARE) {
                         if(wifiStatus.enabled) {
                             wifi.btEnabled = true;
                             wifi.enable(function(){
-                                setTimeout(function(){
-                                    db.get('bt-status', function(err, status) {
-                                        if(status && status.enabled) {
-                                            wifi.enableBt();
-                                            console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                        } else {
-                                            wifi.disableBt();
-                                            console.log("MAIN: disabling bluetooth", wifi.btEnabled);
-                                        }
+                                db.get('bt-status', function(err, status) {
+                                    // Connect (or start the AP) as soon as the Bluetooth module has been switched,
+                                    // instead of after a fixed 5 s: ~0.3 s when BT is off, ~3 s when it is reset.
+                                    var btSettled = function() {
                                         if(!wifi.connected) {
                                             if(wifiStatus.apMode) {
                                                 wifi.enableAP();
@@ -137,8 +158,15 @@ if (VIEW_HARDWARE) {
                                                 wifi.connect(wifiStatus.connect, wifiStatus.password);
                                             }
                                         }
-                                    });
-                                },5000);
+                                    };
+                                    if(status && status.enabled) {
+                                        wifi.enableBt(btSettled);
+                                        console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                    } else {
+                                        wifi.disableBt(btSettled);
+                                        console.log("MAIN: disabling bluetooth", wifi.btEnabled);
+                                    }
+                                });
                             });
                         } else {
                             wifi.disable();
@@ -146,21 +174,20 @@ if (VIEW_HARDWARE) {
                     } else {
                         wifi.btEnabled = true;
                         wifi.enable(function(){
-                            setTimeout(function(){
-                                db.get('bt-status', function(err, status) {
-                                    if(status && status.enabled) {
-                                        wifi.enableBt();
-                                        console.log("MAIN: enabling bluetooth", wifi.btEnabled);
-                                    } else {
-                                        wifi.disableBt();
-                                        console.log("MAIN: disabling bluetooth", wifi.btEnabled);
+                            db.get('bt-status', function(err, status) {
+                                var btSettled = function() {
+                                    if(!wifi.connected) {
+                                        wifi.enableAP();
                                     }
-                                });
-
-                                if(!wifi.connected) {
-                                    wifi.enableAP();
+                                };
+                                if(status && status.enabled) {
+                                    wifi.enableBt(btSettled);
+                                    console.log("MAIN: enabling bluetooth", wifi.btEnabled);
+                                } else {
+                                    wifi.disableBt(btSettled);
+                                    console.log("MAIN: disabling bluetooth", wifi.btEnabled);
                                 }
-                            },5000);
+                            });
                         });
                     }
                 });
@@ -211,7 +238,7 @@ if (VIEW_HARDWARE) {
         }
     });
     wifi.on('connect', function(ssid) {
-        app.enableRemote(updates.version);
+        app.enableRemote(updates.version); // the app.view.tl relay; retries back off in system/app.js (2026-10-21)
         oled.setIcon('wifi', true);
         wifiConnectionTime = new Date().getTime();
         ui.status('wifi connected to ' + ssid);
@@ -234,6 +261,19 @@ if (VIEW_HARDWARE) {
     });
     wifi.on('error', function(message) {
         ui.alert('Error', message);
+    });
+    wifi.on('apIdle', function() {
+        wifi.apDiagnostics(function(report) {
+            console.log("WIFI: AP idle, diagnostics:\n" + report);
+            // reloading the WiFi module drops BT (shared chip), so leave a running BT motion rig alone
+            var btMotion = core.motionStatus.nmxConnectedBt || core.motionStatus.gmConnectedBt;
+            if(wifi.noReset || (core.intervalometerStatus.running && btMotion)) {
+                console.log("WIFI: AP idle, not restarting (BT motion or camera WiFi in use)");
+                return;
+            }
+            console.log("WIFI: AP idle, restarting AP");
+            wifi.enableAP();
+        });
     });
     wifi.on('disconnect', function(previousConnection) {
         app.disableRemote();
@@ -889,7 +929,7 @@ if (VIEW_HARDWARE) {
     var intervalPlan = function(planIndex) {
         if(!core.currentProgram.exposurePlans[planIndex]) core.currentProgram.exposurePlans[planIndex] = {};
         if(!core.currentProgram.exposurePlans[planIndex].interval) core.currentProgram.exposurePlans[planIndex].interval = 6;
-    
+
         var res = {
             name: "interval",
             type: "options",
@@ -1202,107 +1242,56 @@ if (VIEW_HARDWARE) {
         }
     }
 
+    var nightLuminance = [-3, -2.5];
+    for (var i = -2; i <= 2.1; i += 0.1) {
+        nightLuminance.push(i.toFixed(1));
+    }
     var rampingNightLuminance = {
         name: "Night Luminance Target",
         type: "options",
-        items: [{
-            name: "Night Luminance Target",
-            value: "-3 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -3)
-        }, {
-            name: "Night Luminance Target",
-            value: "-2.5 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -2.5)
-        }, {
-            name: "Night Luminance Target",
-            value: "-2 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -2)
-        }, {
-            name: "Night Luminance Target",
-            value: "-1.5 stops (default)",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -1.5)
-        }, {
-            name: "Night Luminance Target",
-            value: "-1 stop",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -1)
-        }, {
-            name: "Night Luminance Target",
-            value: "-0.5 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', -0.5)
-        }, {
-            name: "Night Luminance Target",
-            value: "0 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', 0)
-        }, {
-            name: "Night Luminance Target",
-            value: "+0.5 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', 0.5)
-        }, {
-            name: "Night Luminance Target",
-            value: "+1 stop",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', 1)
-        }, {
-            name: "Night Luminance Target",
-            value: "+1.5 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', 1.5)
-        }, {
-            name: "Night Luminance Target",
-            value: "2 stops",
-            help: help.nightLuminance,
-            action: ui.set(core.currentProgram, 'nightLuminance', 2)
-        }]
+        items: nightLuminance.map(function (i) {
+            var n = (i > 0) ? '+' + i : ( i < 0? '-': '') + Math.abs(i);
+
+            var s = "stops"
+            if (i == -1.5) {
+                s += " (default)";
+            }
+            if (i == 1 || i == -1) {
+                s = "stop";
+            }
+            return {
+                name: "Night Luminance Target",
+                value: n + " " + s,
+                help: help.nightLuminance,
+                action: ui.set(core.currentProgram, 'nightLuminance', i)
+            }
+        })
     }
 
-
+    var dayLuminance = [];
+    for (var i = -1.5; i <= 1.6; i += 0.1) {
+        dayLuminance.push(i.toFixed(1));
+    }
     var rampingDayLuminance = {
         name: "Day Luminance Target",
         type: "options",
-        items: [{
-            name: "Day Luminance Target",
-            value: "-1.5 stops",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', -1.5)
-        }, {
-            name: "Day Luminance Target",
-            value: "-1 stop",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', -1)
-        }, {
-            name: "Day Luminance Target",
-            value: "-0.5 stops",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', -0.5)
-        }, {
-            name: "Day Luminance Target",
-            value: "0 stops (default)",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', 0)
-        }, {
-            name: "Day Luminance Target",
-            value: "+0.5 stops",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', 0.5)
-        }, {
-            name: "Day Luminance Target",
-            value: "+1 stop",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', 1)
-        }, {
-            name: "Day Luminance Target",
-            value: "+1.5 stops",
-            help: help.dayLuminance,
-            action: ui.set(core.currentProgram, 'dayLuminance', 1.5)
-        }]
+        items: dayLuminance.map(function (i) {
+            var n = (i > 0) ? '+' + i : ( i < 0? '-': '') + Math.abs(i);
+
+            var s = "stops"
+            if (i == 0) {
+                s += " (default)";
+            }
+            if (i == 1 || i == -1) {
+                s = "stop";
+            }
+            return {
+                name: "Night Luminance Target",
+                value: n + " " + s,
+                help: help.nightLuminance,
+                action: ui.set(core.currentProgram, 'nightLuminance', i)
+            }
+        })
     }
 
     var hdrCountPlan = function(planIndex) {
@@ -1356,7 +1345,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrCount', 15)
             }]
         }
-    } 
+    }
 
     var hdrCountOptions = {
         name: "HDR Exposures",
@@ -1445,7 +1434,7 @@ if (VIEW_HARDWARE) {
                 action: ui.set(core.currentProgram.exposurePlans[planIndex], 'hdrStops', 2)
             }]
         }
-    } 
+    }
 
     var hdrStopsOptions = {
         name: "HDR Bracket Step",
@@ -1636,6 +1625,8 @@ if (VIEW_HARDWARE) {
                     inputs.removeListener('D', captureDialHandler);
                     setTimeout(cb, 500);
                     ui.status("liveview error");
+                } else {
+                    showLiveViewScreen();
                 }
             });
             lists.fixedApertureEv = core.currentProgram.manualAperture;
@@ -1690,7 +1681,7 @@ if (VIEW_HARDWARE) {
                         core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
                             if(framesPaths) {
                                 oled.video(null, framesPaths, 30, cb);
-                            }                            
+                            }
                         });
                     }
                 }
@@ -1711,7 +1702,7 @@ if (VIEW_HARDWARE) {
             //                            oled.video(null, framesPaths, 30, cb);
             //                        }
             //                    });
-            //                } 
+            //                }
             //            });
             //        }
             //    },
@@ -1735,7 +1726,7 @@ if (VIEW_HARDWARE) {
                     oled.video(null, framesPaths, 30, function(){
                         ui.reload();
                     });
-                }                            
+                }
             });
         },
         button3: function(){
@@ -1871,7 +1862,7 @@ if (VIEW_HARDWARE) {
 
     var getMotor = function(motorName, callback) {
         db.get('motion-'+motorName, callback);
-    } 
+    }
 
     var exposurePlansReview = function() {
         var info = "";
@@ -1881,11 +1872,11 @@ if (VIEW_HARDWARE) {
             var plan = core.currentProgram.exposurePlans[i];
             info += plan.name + '\t';
             if(i < core.currentProgram.exposurePlans.length - 1 && core.currentProgram.exposurePlans[i + 1].start < now) {
-                info += pad + "(skipping)\n"; 
+                info += pad + "(skipping)\n";
                 continue;
             }
             if(i > 0) info += pad + moment(plan.start).fromNow() + '\t';
-            info += pad; 
+            info += pad;
             if(plan.mode == 'preset') {
                 info += lists.getNameFromEv(lists.shutter, plan.shutter) + ', ';
                 info += 'f/' + lists.getNameFromEv(lists.aperture, plan.aperture) + ', ';
@@ -1926,7 +1917,7 @@ if (VIEW_HARDWARE) {
     var motorOrientationKnown = function() {
         if(!core.motionStatus.motors) return false;
 
-        var motors = [];        
+        var motors = [];
         for(var i = 0; i < core.motionStatus.motors.length; i++) {
             if(core.motionStatus.motors[i].connected) motors.push(core.motionStatus.motors[i]);
         }
@@ -2124,7 +2115,17 @@ if (VIEW_HARDWARE) {
            name: "START",
             help: help.startTimelapse,
             condition: function() {
-                return !core.cameraConnected;
+                return cable.status.running;
+            },
+            action: function(){
+                ui.back();
+                ui.alert('Error', "The cable release is running.\nStop it first (main menu > Cable Release).");
+            }
+        }, {
+           name: "START",
+            help: help.startTimelapse,
+            condition: function() {
+                return !core.cameraConnected && !cable.status.running;
             },
             action: function(){
                 ui.back();
@@ -2134,7 +2135,7 @@ if (VIEW_HARDWARE) {
            name: "START",
             help: help.startTimelapse,
             condition: function() {
-                return core.cameraConnected;
+                return core.cameraConnected && !cable.status.running;
             },
             action: {
                 type: "function",
@@ -2309,7 +2310,7 @@ if (VIEW_HARDWARE) {
 
     var clipsMenu = function(cb) {
         console.log("fetching clips...");
-        clips.getRecentTimelapseClips(15, function(err, clips) {
+        clips.getRecentTimelapseClips(15, false,function(err, clips) {
             //console.log("########################################################################################################################");
             if (clips && clips.length > 0) {
                 var cm = {
@@ -2368,7 +2369,7 @@ if (VIEW_HARDWARE) {
                                 });
                                 checkDone();
                             });
-                        
+
                         })(clips[i]);
                     } else {
                         checkDone();
@@ -2395,6 +2396,7 @@ if (VIEW_HARDWARE) {
         }]);
         oled.update();
         if (core.intervalometerStatus.running) core.stopIntervalometer();
+        cable.shutdown(); // releases the jack lines before killall node reaches the worker
         setTimeout(power.shutdown, 5000); // in case something freezes on the closeSystem() call
         closeSystem(function(){
             console.log("closeSystem complete, running power.shutdown()");
@@ -2596,7 +2598,8 @@ if (VIEW_HARDWARE) {
             if(core.processId) {
                 killServer = '; kill -s 9 ' + core.processId;
             }
-            exec('nohup /bin/sh -c "killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
+            // supervisors first, see power.shutdown in hardware/power.js
+            exec('nohup /bin/sh -c "pkill -f \'[v]iew-supervise\'; killall node; sleep 2' + killServer + '; kill -s 9 ' + process.pid + '; /root/startup.sh"', function() {}); // restarting system
             //exec('nohup /bin/sh -c "killall node; sleep 2; killall -s 9 node; /root/startup.sh"', function() {}); // restarting system
         });
     }
@@ -2765,7 +2768,7 @@ if (VIEW_HARDWARE) {
                                     }
                                 });
                             }
-                        }, 
+                        },
                         condition: function() {
                             return core.sdPresent;
                         }
@@ -2888,9 +2891,10 @@ if (VIEW_HARDWARE) {
             //    }
             //});
         }
-    }    
+    }
 
     var wifiScanWait = function() {
+        wifi.wantScan(120); // the list is on screen: keep scanning (while connected the scan is otherwise off)
         if(wifi.list.length > 0) {
             process.nextTick(function(){
                 ui.back();
@@ -2903,6 +2907,7 @@ if (VIEW_HARDWARE) {
     }
 
     var wifiConnectMenu = function(cb) {
+        wifi.wantScan(120); // scan now and for the next two minutes: the menu shows the last scan's list
         if(wifi.list.length == 0) {
             cb(null, {
                 name: "wifi connect",
@@ -2918,7 +2923,7 @@ if (VIEW_HARDWARE) {
             type: "menu"
         }
         m.items = wifi.list.map(function(item){return {
-            name:item.ssid + ((wifi.connected && wifi.connected.address == item.address) ? "~connected" : ""), 
+            name:item.ssid + ((wifi.connected && wifi.connected.address == item.address) ? "~connected" : ""),
             help: help.wifiConnect,
             action: {
                 type: 'function',
@@ -2974,7 +2979,7 @@ if (VIEW_HARDWARE) {
                     details += "Encryption: WPA2\t";
                 } else {
                     details += "Encryption: NONE\t";
-                } 
+                }
                 details += "BSSID: " + w.address + "\t";
                 details += "Channel: " + w.channel + "\t";
                 ui.alert('Wifi details', details);
@@ -4343,7 +4348,7 @@ if (VIEW_HARDWARE) {
         var info = "";
         var coords = mcu.validCoordinates();
         if(coords) {
-            var sunmoon = meeus.sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
+            var sunmoon = require('meeusjs').sunmoon(new Date(), coords.lat, coords.lon, coords.alt);
             var now = mcu.now();
             var sunrise = moment(sunmoon.suntimes.rise).utcOffset(mcu.timezoneOffset());
             var sunset = moment(sunmoon.suntimes.set).utcOffset(mcu.timezoneOffset());
@@ -4357,8 +4362,8 @@ if (VIEW_HARDWARE) {
             info += "Moon sets at " + moonset.format("h:mm:ss A") + "\t   (" + moonset.fromNow() + ")\t";
             var phase = "unknown";
             var phaseNumber = (sunmoon.mooninfo.phase * 180 / Math.PI) / 180 + 0.5
-            if(phaseNumber == 0 || phaseNumber == 1) phase = "New Moon"; 
-            else if(phaseNumber < 0.25) phase = "Waxing Crescent"; 
+            if(phaseNumber == 0 || phaseNumber == 1) phase = "New Moon";
+            else if(phaseNumber < 0.25) phase = "Waxing Crescent";
             else if(phaseNumber == 0.25) phase = "First Quarter";
             else if(phaseNumber > 0.25 && phaseNumber < 0.5) phase = "Waxing Gibbous";
             else if(phaseNumber == 0.5) phase = "Full Moon";
@@ -4376,6 +4381,7 @@ if (VIEW_HARDWARE) {
     var getEclipseData = function() {
         var coords = mcu.validCoordinates();
         if(coords) {
+            var eclipse = require('./intervalometer/eclipse.js');
             var data = eclipse.data;
             if(!data || data.lat != coords.lat || data.lon != coords.lon) {
                 data = eclipse.calculate({lat: coords.lat, lon: coords.lon, alt: 300}); // hardcode altitude for now
@@ -4414,10 +4420,10 @@ if (VIEW_HARDWARE) {
                         info += "This is a partial eclipse with " + Math.round(data.coverage * 100) + "% coverage observable from the current location " + currentLocation + ".";
                     }
                 } else {
-                    info += "No upcoming eclipses were found for the current location " + currentLocation + ".";                
+                    info += "No upcoming eclipses were found for the current location " + currentLocation + ".";
                 }
             } else {
-                info += "No upcoming eclipses were found for the current location " + currentLocation + ".";                
+                info += "No upcoming eclipses were found for the current location " + currentLocation + ".";
             }
         } else {
            info = "GPS position info unavailable\t";
@@ -4560,6 +4566,30 @@ if (VIEW_HARDWARE) {
             action: newDriverMenu,
             help: help.enableNewDriver
         }, {
+            name: "Backup clip database",
+            help: help.dbBackupMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    db.backupTimelapse(function(err, info) {
+                        ui.alert('Database backup', err ? ("Backup failed:\n" + err) : ("Saved " + info.files.length + " files to\n" + info.dir.replace('/root/', '')));
+                        cb();
+                    });
+                }
+            }
+        }, {
+            name: "Archive old clips",
+            help: help.archiveClipsMenu,
+            action: {
+                type: 'function',
+                fn: function(arg, cb) {
+                    archiveClips(function(err, info) {
+                        ui.alert('Archive old clips', err ? ("Archiving failed:\n" + err) : (info.moved ? ("Moved " + info.moved + " of " + info.total + " clips\nto the archive") : (info.total + " clips, nothing\nolder than the newest 20")));
+                        cb();
+                    });
+                }
+            }
+        }, {
             name: "Factory Reset",
             action: factoryResetConfirmMenu,
             help: help.eraseAllSettingsMenu
@@ -4658,6 +4688,10 @@ if (VIEW_HARDWARE) {
         }]
     }
 
+    // Cable Release: the VIEW as a plain shutter-release intervalometer on an AUX jack, no camera on USB
+    // (docs/2026-10-19-cable-release-research.md §7). Logic in cable/cable-release.js, menus in cable/menu.js.
+    var cableMenu = require('./cable/menu.js')({ui: ui, help: help, core: core, cable: cable});
+
     var mainMenu = {
         name: "main menu",
         type: "menu",
@@ -4665,6 +4699,13 @@ if (VIEW_HARDWARE) {
             name: "Time-lapse",
             action: timelapseMenu,
             help: help.timelapseMenu
+        }, {
+            name: "Cable Release",
+            action: cableMenu,
+            help: help.cableMenu,
+            condition: function() {
+                return !core.intervalometerStatus.running;
+            }
         }, {
             name: "Capture",
             action: captureMenu,
@@ -4689,10 +4730,22 @@ if (VIEW_HARDWARE) {
 
     ui.init(oled);
     ui.load(mainMenu);
+    oled.onShow = function() {
+        ui.reload();
+    };
+    console.log("Main menu drawn at uptime " + fs.readFileSync('/proc/uptime', 'utf8').split(' ')[0] + " s, " + (new Date() - startupTime) + " ms after start-up");
 
     inputs.on('D', function(move) {
         power.activity();
-        if(oled.videoRunning) return;
+        if(oled.videoRunning) {
+            if (move == "U") {
+                oled.increaseVideoSpeed();
+            }
+            if (move == "D") {
+                oled.decreaseVideoSpeed();
+            }
+            return;
+        }
 
         blockGestureTimer();
         if (blockInputs) return;
@@ -4757,7 +4810,7 @@ if (VIEW_HARDWARE) {
                     } else {
                         cb();
                     }
-                }); 
+                });
             } else {
                 ui.back();
                 //cb();
@@ -4780,7 +4833,7 @@ if (VIEW_HARDWARE) {
                     } else {
                         cb();
                     }
-                }); 
+                });
             } else {
                 ui.back();
                 //cb();
@@ -4875,7 +4928,7 @@ if (VIEW_HARDWARE) {
     });
 
     app.on('logs-uploaded', function(count) {
-        ui.alert('Success', help.logFilesUploaded);    
+        ui.alert('Success', help.logFilesUploaded);
     })
 
     core.on('media.insert', function(type) {
@@ -4914,6 +4967,8 @@ if (VIEW_HARDWARE) {
     }
 
     var gestureVideoPlaying = false;
+    var gesturePreviewArmed = false;
+    var gesturePreviewArmHandle = null;
     var gestureModeTimer = function() {
         if (gestureModeHandle) clearTimeout(gestureModeHandle);
         if (!gestureMode) {
@@ -4940,7 +4995,8 @@ if (VIEW_HARDWARE) {
         if(gestureString.length > 500) gestureString = "";
         power.activity();
         if (blockInputs) return;
-        if(!core.intervalometerStatus.running) return; // only use gesture sensor when a time-lapse is running
+        if(!core.intervalometerStatus.running && !cable.status.running) return; // only use gesture sensor when a time-lapse (or the cable release) is running
+        if(inputs.gestureStatus != 'enabled') return; // respect the gesture-sensor setting
         if (blockGesture) {
             console.log("(blocked)");
             return;
@@ -4974,7 +5030,18 @@ if (VIEW_HARDWARE) {
                 oled.show();
             } else if(gestureVideoPlaying) {
                 oled.videoSkipFrames(30*10);
+            } else if(!gesturePreviewArmed) {
+                // require a second deliberate swipe to start the preview, so a single
+                // spurious gesture reading doesn't launch playback during a time-lapse
+                gesturePreviewArmed = true;
+                ui.status("swipe again to preview");
+                if(gesturePreviewArmHandle) clearTimeout(gesturePreviewArmHandle);
+                gesturePreviewArmHandle = setTimeout(function() {
+                    gesturePreviewArmed = false;
+                }, 2000);
             } else {
+                if(gesturePreviewArmHandle) clearTimeout(gesturePreviewArmHandle);
+                gesturePreviewArmed = false;
                 console.log("running preview via gesture...");
                 gestureVideoPlaying = true;
                 core.getCurrentTimelapseFrames(null, function(err, framesPaths) {
@@ -4986,8 +5053,8 @@ if (VIEW_HARDWARE) {
                     } else {
                         gestureVideoPlaying = false;
                         gestureModeTimer();
-                    }                            
-                }) 
+                    }
+                })
             }
         }
     });
@@ -4998,6 +5065,11 @@ var systemClosed = false;
 var closeSystem = function(callback) {
     systemClosed = true;
     console.log("Shutting down!");
+    try {
+        cable.shutdown(); // the worker gets its stop and SIGTERM now, so the jack lines are open before this process is gone
+    } catch(e) {
+        console.log("cable shutdown failed:", e);
+    }
     app.close();
     if (VIEW_HARDWARE) {
         console.log("closing inputs...");
@@ -5045,14 +5117,22 @@ var closeSystem = function(callback) {
 }
 
 nodeCleanup(function (exitCode, signal) {
-    if(signal) {
-        console.log("Shutting down from signal", signal);
-    } else if (exitCode) {
-        console.log("Shutting down from error", exitCode);
-    } else {
-        console.log("Shutting down normally, assuming closeSystem is already called.");
+    if(!signal) {
+        // Called from process 'exit': process.exit() or an uncaught exception. No timer or async callback runs
+        // any more, and returning would let node go on into exit(), which never completes in this process (see
+        // the top of the file). End with SIGKILL so the supervisor starts the UI again.
+        console.log(exitCode ? "Shutting down from error " + exitCode : "Shutting down from process.exit()");
+        if(!systemClosed) {
+            try {
+                closeSystem();
+            } catch(e) {
+                console.log("closeSystem failed:", e);
+            }
+        }
+        process.kill(process.pid, 'SIGKILL');
         return;
     }
+    console.log("Shutting down from signal", signal);
     if(updates.updatingKernel) {
         console.log("Kernel update in progress, delaying shutdown by 10 seconds...");
         setTimeout(function() {
@@ -5081,28 +5161,30 @@ nodeCleanup(function (exitCode, signal) {
     }
     return false;
 });
+exitHandledByCleanup = true;
 
+// The saved program is in the UI's own settings database, so it is loaded right away and the time-lapse menu shows it
+// from the first frame (it used to wait for the core with a fixed 30 s retry, showing the default program until
+// then). Only restarting an interrupted scheduled program needs the core, which may still be shooting if just the UI
+// restarted: it tells in the 'core.ready' message it sends as soon as the UI connects.
 function loadSavedProgram() {
-    if(!core.connected || !core.intervalometerStatus) {
-        return setTimeout(loadSavedProgram, 30000);
-    } else {
-        return db.get('intervalometer.currentProgram', function(err, data) {
-            if(!err && data) {
-                console.log("MAIN: Loading saved intervalometer settings...", data);
-                core.loadProgram(data);
-                if(core.currentProgram.scheduled && core.currentProgram.autoRestart && !core.intervalometerStatus.running) {
-                    db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
-                        if(!err && !isNaN(parseFloat(ref))) {
-                            db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
-                                console.log("MAIN: Restarting scheduled program...", ref, offset);
-                                core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
-                            });
-                        }
+    db.get('intervalometer.currentProgram', function(err, data) {
+        if(err || !data) return;
+        console.log("MAIN: Loading saved intervalometer settings...", data);
+        core.loadProgram(data);
+        if(!core.currentProgram.scheduled || !core.currentProgram.autoRestart) return;
+        core.once('core.ready', function(state) {
+            if(state.running || !core.currentProgram.scheduled || !core.currentProgram.autoRestart) return;
+            db.get('intervalometer.currentProgramReferenceEv', function(err, ref) {
+                if(!err && !isNaN(parseFloat(ref))) {
+                    db.get('intervalometer.currentProgramTimeOffset', function(err, offset) {
+                        console.log("MAIN: Restarting scheduled program...", ref, offset);
+                        core.startIntervalometer(core.currentProgram, null, parseInt(offset) || 0, parseFloat(ref));
                     });
                 }
-            }
+            });
         });
-    }
+    });
 }
 loadSavedProgram();
 
@@ -5211,9 +5293,10 @@ mcu.on('gps', function(index) {
     ui.reload();
 });
 
-light.start();
+// light.start();
 
 core.watchdogEnable();
+core.once('core.ready', app.startHttp); // see app.startHttp in system/app.js
 
 app.on('message', function(msg) {
     power.activity();
@@ -5286,7 +5369,7 @@ app.on('message', function(msg) {
                 });
                 break;
 
-            case 'motion':            
+            case 'motion':
                 if (msg.key == "move" && msg.motor && msg.driver) {
                     console.log("moving motor " + msg.motor);
                     (function(driver, motor, steps, reply) {
@@ -5426,7 +5509,7 @@ app.on('message', function(msg) {
                     });
                 })(liveviewOn);
                 break;
-    
+
             case 'capture-test':
                 core.captureTest(function(err){
                     if(err) {
@@ -5447,7 +5530,56 @@ app.on('message', function(msg) {
                 msg.reply('timelapseProgram', {program: core.currentProgram});
                 break;
 
+            case 'cableGet': // the AUX-jack shutter release (cable/cable-release.js): settings and status
+                msg.reply('cable', {settings: cable.settings, status: cable.status});
+                break;
+
+            case 'cableSet': // msg.settings: any of intervalS, frames, durationS, releaseMs, prefocusMs, holdFocus, wakeUp, delayS, port,
+                             // rampToS (0 = no planned ramp), rampOverS, rampAfterS
+                cable.update(msg.settings, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableStart':
+                if (core.intervalometerStatus.running) {
+                    msg.reply('cable', {error: "a time-lapse is running", settings: cable.settings, status: cable.status});
+                    break;
+                }
+                cable.start(function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableStop':
+                cable.stop(function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cablePulse': // closes both lines of the selected port for msg.ms (default 1000)
+                cable.pulse(msg.ms, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableRamp': // a running cable release's interval goes linearly to msg.toS seconds over msg.overS (0 = at once)
+                cable.ramp(msg.toS, msg.overS, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableRampStop': // the ramp stops where it is
+                cable.stopRamp(function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
             case 'run':
+                if (cable.status.running) {
+                    app.send('intervalometerError', {msg: "The cable release is running. Stop it before starting a time-lapse."});
+                    break;
+                }
                 if(!msg.program.coords || msg.program.coords.src != 'app') msg.program.coords = mcu.validCoordinates();
                 core.loadProgram(msg.program);
                 core.currentProgram = reconfigureProgram(core.currentProgram, true);
@@ -5470,6 +5602,18 @@ app.on('message', function(msg) {
                 core.updateProgram(msg.updates);
                 break;
 
+            case 'dbBackup': // copies the clip databases to /root/time-lapse/db-backup/<stamp>/; fetch them with /download?file=<path>
+                db.backupTimelapse(function(err, info) {
+                    msg.reply('dbBackup', {error: err ? String(err) : null, dir: info && info.dir, files: info && info.files});
+                });
+                break;
+
+            case 'archiveClips': // keeps the newest 20 clips in the working database, the older ones go to the archive file
+                archiveClips(function(err, info) {
+                    msg.reply('archiveClips', {error: err ? String(err) : null, total: info && info.total, moved: info && info.moved});
+                });
+                break;
+
             case 'dynamicChange':
                 core.dynamicChange(msg.parameter, msg.newValue, msg.frames);
                 break;
@@ -5479,7 +5623,7 @@ app.on('message', function(msg) {
                 break
 
             case 'timelapse-clips':
-                clips.getRecentTimelapseClips(30, function(err, clips) {
+                clips.getRecentTimelapseClips(30, false, function(err, clips) {
                     if (clips) {
                         msg.reply('timelapse-clips', {
                             clips: clips.map(function(clip) {
@@ -5553,7 +5697,7 @@ app.on('message', function(msg) {
                             };
                             sendFragment(msg.start);
                         }
-                    }                            
+                    }
                 });
                 break;
 
@@ -5781,9 +5925,9 @@ app.on('message', function(msg) {
                         });
                     }
                 } else if (msg.key == "light") {
-                    msg.reply('light', {
-                        light: light.ev()
-                    });
+                    // msg.reply('light', {
+                    //     light: light.ev()
+                    // });
                 } else if (msg.key == "battery") {
                     updateAppBattery();
                 } else if (msg.key == "motion") {
@@ -5872,6 +6016,11 @@ core.on('camera.photo', function() {
             } else {
                 //app.addJpegFrame(core.photo.jpeg);
                 //app.addJpegFrame(core.photo.jpeg);
+                var lastPhotoLum
+                if (core.photo.ev)
+                     lastPhotoLum = (Math.round(core.photo.ev * 10) / 10).toString() + " L";
+                oled.setEvHistogram(lastPhotoLum, core.photo.histogram);
+
                 var size = {
                     x: 160,
                     q: 80
@@ -5891,7 +6040,6 @@ core.on('camera.photo', function() {
                 }
             }
         }
-
         previewImage = {
             jpeg: core.photo.base64,
             zoomed: core.photo.zoomed,
@@ -5899,6 +6047,10 @@ core.on('camera.photo', function() {
             histogram: core.photo.histogram,
             time: new Date()
         };
+        if (core.intervalometerStatus.running) {
+            previewImage.tlName = core.intervalometerStatus.tlName;
+            previewImage.frameIndex = core.intervalometerStatus.frames + 1; //not sure if it is correct
+        }
 
         if (previewImage.imageType == "photo" || previewImage.imageType == "test" || previewImage.imageType == "thumbnail" || liveviewRequestStart) {
             liveviewRequestStart = false;
@@ -5967,7 +6119,7 @@ ui.defaultStatus(defaultStatus);
 ui.status(defaultStatus);
 console.log("Setting default status to '" + defaultStatus + "'")
 
-core.on('camera.exiting', function() {    
+core.on('camera.exiting', function() {
     if(btBlockedForSony) {
         wifi.unblockBt();
         wifi.noReset = false;
@@ -6009,7 +6161,77 @@ core.on('intervalometer.currentProgram', function(msg) {
     app.send('timelapseProgram', {program: core.currentProgram});
 });
 
+// Cable release events: auto power-off is held off while it runs (like a time-lapse). The status screen, when it is
+// up, is redrawn on every frame (at most 3.3 times a second at 0.3 s; the time-lapse status screen draws every 150 ms)
+// and once a second between frames for the clock and the ramp's countdown; the app gets the status at most every
+// 0.5 s (cable-release.js emitStatus), which used to pace the screen too: every other frame at 0.4 s.
+var cableTicker = null;
+var cableDrawnAt = 0;
+var cableScreenUp = function() {
+    return VIEW_HARDWARE && oled.visible && ui.name == 'cable status';
+};
+var cableRedraw = function() {
+    if (!cableScreenUp()) return;
+    cableDrawnAt = Date.now();
+    ui.reload();
+};
+cable.on('start', function() {
+    if (VIEW_HARDWARE) power.disableAutoOff();
+    if (cableTicker) clearInterval(cableTicker);
+    cableTicker = setInterval(function() {
+        if (Date.now() - cableDrawnAt >= 900) cableRedraw();
+    }, 1000);
+});
+cable.on('frame', cableRedraw);
+cable.on('status', function(status) {
+    app.send('cableStatus', {status: status});
+    if (Date.now() - cableDrawnAt >= 100) cableRedraw(); // a ramp change; a frame's own status comes right after its redraw
+});
+cable.on('done', function(reason, status) {
+    if (cableTicker) clearInterval(cableTicker);
+    cableTicker = null;
+    if (VIEW_HARDWARE) {
+        power.enableAutoOff();
+        ui.status("cable: " + reason + ", " + status.frames + " frames");
+        if (ui.name == 'cable status' || ui.name == 'cable release') ui.reload();
+    }
+});
+cable.on('error', function(message) {
+    app.send('intervalometerError', {msg: "Cable release: " + message});
+    if (VIEW_HARDWARE && !blockInputs) {
+        if (ui.currentOrigin() == 'alert') ui.back();
+        ui.alert('ERROR', "Cable release: " + message, null, true);
+    }
+});
+
+var frameWatch = require('./intervalometer/frame-watch.js')(function(minutes, frames) {
+    var msg = "No new frames for " + minutes + " minutes (last frame " + frames + ").\nThe camera may have powered off or disconnected.";
+    console.log("FRAME WATCH: " + msg.replace("\n", " "));
+    if (VIEW_HARDWARE) {
+        if(ui.currentOrigin() == 'alert') ui.back();
+        ui.alert('ERROR', msg, null, true);
+    }
+    app.send('intervalometerError', {
+        msg: msg
+    });
+});
+setInterval(function() {
+    frameWatch.check(Date.now());
+}, 30000);
+
+// The clip catalogue keeps its newest 20 clips; the older ones move to the archive file (system/db.js
+// archiveTimelapses, 2026-10-21) only on request: the "Archive old clips" menu item and WS archiveClips. Never
+// by itself, neither at start nor after a time-lapse — the user's decision (2026-10-22).
+var archiveClips = function(cb) {
+    if (core.intervalometerStatus && core.intervalometerStatus.running) return cb && cb("a time-lapse is running");
+    db.archiveTimelapses(20, function (err, info) {
+        if (!err && info && info.moved) console.log("MAIN: archived", info.moved, "of", info.total, "clips");
+        if (cb) cb(err, info);
+    });
+};
+
 core.on('intervalometer.status', function(msg) {
+    frameWatch.status(msg, Date.now());
     //console.log("intervalometer.status", core.intervalometerStatus);
     //console.log("core.cameraSettings", core.cameraSettings);
     //return;
@@ -6041,13 +6263,15 @@ core.on('intervalometer.status', function(msg) {
     }
 
 //img116x70, isoText, apertureText, shutterText, intervalSeconds, intervalModeChar, hist60, ramp30, frames, remaining, durationSeconds, bufferSeconds, shutterSeconds
-    
+
     var evText = (Math.round(lists.getEvFromSettings(msg.cameraSettings) * 10) / 10).toString();
+    var lastPhotoLum = (Math.round(msg.lastPhotoLum * 10) / 10).toString();
     var statusScreen = {
         isoText: msg.cameraSettings ? ((typeof msg.cameraSettings.iso == 'object') ? msg.cameraSettings.iso.name : msg.cameraSettings.iso) : "--",
         shutterText: msg.cameraSettings ? ((typeof msg.cameraSettings.shutter == 'object') ? msg.cameraSettings.shutter.name : msg.cameraSettings.shutter) : "--",
         apertureText: msg.cameraSettings ? (((msg.cameraSettings.aperture && msg.cameraSettings.aperture.ev != null) || (msg.cameraSettings.details && msg.cameraSettings.details.aperture && msg.cameraSettings.details.aperture.ev != null)) ? ("f/" + (msg.cameraSettings.details ? msg.cameraSettings.details.aperture.name : msg.cameraSettings.aperture.name)) : ("f/" + lists.getNameFromEv(lists.aperture, core.currentProgram.manualAperture) + ' (m)')) : "--",
         evText: evText + " EV",
+        lastPhotoLum: lastPhotoLum + " L",
         intervalSeconds: msg.intervalMs / 1000,
         bufferSeconds: msg.autoSettings ? msg.autoSettings.paddingTimeMs / 1000 : 5,
         rampModeText: core.currentProgram.rampMode,
@@ -6061,7 +6285,7 @@ core.on('intervalometer.status', function(msg) {
     }
     //console.log("statusScreen", statusScreen);
     oled.updateTimelapseStatus(statusScreen);
-    ui.reload();
+    if (oled.visible) ui.reload(); // a hidden menu is redrawn by oled.onShow when the screen comes back on
     if (msg.message != "running" && !blockInputs && VIEW_HARDWARE) {
         ui.status(msg.message);
     }
@@ -6109,5 +6333,3 @@ core.on('motion.status', function(status) {
 });
 
 nodeModuleCache.stop();
-
-

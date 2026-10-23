@@ -3,7 +3,14 @@ var UFRAW = "/usr/bin/ufraw-batch";
 var TMPFOLDER = "/tmp/tlp";
 var execFile = require('child_process').execFile;
 var epeg = require('epeg');
-var sharp = require('sharp');
+// sharp is only used past the early return in downsizeJpegSharp, and its JS half (bluebird, semver, color) costs
+// ~1 s at start-up, so that half is loaded on first use. The native half stays loaded up front: it brings sharp's
+// own pango/cairo/fontconfig, and the OLED (pitft, loaded after this in the UI) has always drawn with those.
+require('sharp/build/Release/sharp.node');
+var sharp = function(input, options) {
+    sharp = require('sharp');
+    return sharp(input, options);
+};
 var fs = require('fs');
 //var pixelr = require('pixelr');
 var luminance = require('jpeg-lum');
@@ -83,7 +90,7 @@ exports.writeXMP = function(fileName, exposureCompensation, description, name, l
   </rdf:Description>\n\
   </rdf:RDF>\n\
 </x:xmpmeta>';
-    
+
     var gpsData = "";
     if(lat != null && lat != null) {
         if(lat < 0) {
@@ -213,9 +220,73 @@ exports.downsizeJpeg = function(jpeg, size, crop, callback) {
     if (callback) callback(err, thm);
 }
 
+// The EXIF thumbnail of a camera JPEG (IFD1 in APP1): {data, width, height} or null. The DCF standard has cameras
+// write a 160x120 one; a 3:2 picture sits in it between black bars (7 rows top and bottom on the Sony A6600, where it
+// starts ≈39 KB into the file — a probe of the first 32 KB misses it). Decoding it costs ≈6 ms on the VIEW against
+// 150-430 ms for the 1/8-scale decode of the whole file (docs/2026-10-20-frame-time-cpu-research.md §7.1).
+exports.exifThumbnail = function(d) {
+    try {
+        if (!d || d.length < 4 || d[0] != 0xFF || d[1] != 0xD8) return null;
+        var i = 2;
+        while (i < d.length - 4) {
+            if (d[i] != 0xFF) return null;
+            var m = d[i + 1];
+            if (m == 0xD8 || m == 0x01 || (m >= 0xD0 && m <= 0xD7)) { i += 2; continue; }
+            if (m == 0xDA) return null; // the scan: no APP1 before it
+            var L = d.readUInt16BE(i + 2);
+            if (m == 0xE1 && d.toString('binary', i + 4, i + 10) == 'Exif\0\0') {
+                var t = i + 10, le = d[t] == 0x49;
+                var u16 = function(o) { return le ? d.readUInt16LE(o) : d.readUInt16BE(o); };
+                var u32 = function(o) { return le ? d.readUInt32LE(o) : d.readUInt32BE(o); };
+                var ifd0 = t + u32(t + 4), n0 = u16(ifd0);
+                var ifd1 = u32(ifd0 + 2 + 12 * n0);
+                if (!ifd1) return null;
+                ifd1 += t;
+                var n1 = u16(ifd1), off = 0, len = 0;
+                for (var k = 0; k < n1; k++) {
+                    var e = ifd1 + 2 + 12 * k, tag = u16(e);
+                    if (tag == 0x0201) off = u32(e + 8); // JPEGInterchangeFormat
+                    if (tag == 0x0202) len = u32(e + 8); // JPEGInterchangeFormatLength
+                }
+                if (!off || !len || t + off + len > d.length) return null;
+                var thumb = d.slice(t + off, t + off + len);
+                var sz = jpegSize(thumb);
+                if (!sz || !sz.width || !sz.height) return null;
+                return { data: thumb, width: sz.width, height: sz.height };
+            }
+            i += 2 + L;
+        }
+    } catch (e) {}
+    return null;
+}
+
+// The EXIF thumbnail cropped to the picture, as a JPEG of quality q: the bars follow from the main image's aspect
+// ratio (a 3:2 picture in a 160x120 thumbnail is 160x106 from row 7; a 4:3 one fills it). callback(err, jpeg, info)
+// with info = {width, height, bars (rows cut at the top and at the bottom), bytes (of the thumbnail in the file)}.
+exports.thumbnailFromExif = function(jpegBuf, q, callback) {
+    var th = exports.exifThumbnail(jpegBuf);
+    if (!th) return callback && callback("no EXIF thumbnail");
+    var info = { width: th.width, height: th.height, bars: 0, bytes: th.data.length };
+    try {
+        var full = jpegSize(jpegBuf);
+        var h = th.height, y = 0;
+        if (full && full.width && full.height) {
+            h = Math.floor(th.width * full.height / full.width);
+            if (h > th.height) h = th.height;
+            y = Math.floor((th.height - h) / 2);
+            info.bars = y;
+        }
+        var img = new epeg.Image({ data: th.data });
+        var out = (y > 0) ? img.crop(0, y, th.width, h, q || 80).process() : img.downsize(th.width, th.height, q || 80).process();
+        callback && callback(null, out, info);
+    } catch (e) {
+        callback && callback(e);
+    }
+}
+
 exports.downsizeJpegSharp = function(jpeg, size, crop, exposureCompensation, callback) {
     return exports.downsizeJpeg(jpeg, size, crop, callback);
-    
+
 
 
     console.log("IMAGE: (sharp) Resizing photo...");
@@ -329,7 +400,7 @@ exports.histogramArray = function(jpegBuffer, callback) {
     fs.writeFile(TMP_IMAGE_THUMB, new Buffer(jpegBuffer), function() {
         luminance.read(TMP_IMAGE_THUMB, function(err, res) {
             var histArray = null;
-            if(!err && res && res.histogram) histArray = res.histogram; 
+            if(!err && res && res.histogram) histArray = res.histogram;
             if (callback) callback(err, histArray);
         });
         /*pixelr.read(TMP_IMAGE_THUMB, "jpeg", function(err, data) {
@@ -358,10 +429,10 @@ exports.exposureValue = function(jpegBuffer, callback) {
             var lum = 0;
             if(!err && res && res.luminance) {
                 lum = res.luminance;
-                if(res.clipped && highlightProtection) {
+               /* if(res.clipped && highlightProtection) {
                     console.log("IMAGE: Compensating for clipped highlights: ", res.clipped * highlightProtection);
                     lum += res.clipped * highlightProtection;
-                }
+                }*/
             }
             if (callback) callback(err, lum, res.histogram);
         });

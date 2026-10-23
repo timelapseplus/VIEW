@@ -701,7 +701,7 @@ function getImage(camera, timeout, callback) {
                 }
                 getHandles();
             } else {
-                setTimeout(check, 50);
+                setTimeout(check, ptp.pollDelay(camera, startTime));
             }
         });
     }

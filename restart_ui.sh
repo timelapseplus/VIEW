@@ -1,0 +1,25 @@
+
+#!/bin/bash
+
+# Find the PIDs of Node.js processes associated with main.js
+PIDS=$(pgrep -f "main.js")
+
+cat /home/view/current/media/view-splash.rgb565 > /dev/fb0 2>/dev/null # the splash, see start.sh
+
+# If processes persist, forcefully terminate them
+for PID in $PIDS; do
+        echo "$PID"
+        kill -s 9 "$PID"  # SIGKILL (forceful termination)
+done
+
+
+
+cd /home/view/current;
+DATE=`date +"%Y%m%d-%H%M%S"`
+UILOGFILE="/var/log/view-ui-$DATE.txt"
+prepend_date() { bash -c 'while IFS= read -r line; do printf "%(%Y%m%d-%H%M%S)T %s\n" -1 "$line"; done'; } # see start.sh
+trap '' PIPE # see start.sh: keep the log pipeline alive when the SSH session that started it closes
+# See start.sh: keeps the sharp-bundled fontconfig from rescanning all fonts at every start.
+export FONTCONFIG_FILE=/home/view/current/fonts/fonts.conf
+echo "starting UI...";
+sh /home/view/current/bin/view-supervise ui node --max_old_space_size=128 /home/view/current/main.js 2>&1 | prepend_date >> $UILOGFILE &

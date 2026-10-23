@@ -40,6 +40,9 @@ function objCopy(sourceObj, destObj) {
 }
 
 driver.supportsNativeHDR = false;
+// api.setEv may set shutter and ISO at once where both are relative shifts (each set() then waits for its own value in
+// waitForValue); bodies with the absolute ISO (newISO) keep one after the other, untried
+driver.setsInParallel = function(camera) { return !(camera.supports && camera.supports.newISO); };
 
 driver.supportedCameras = {
     '054c:02e7': { name: "Sony DSC-A900", supports: { shutter: true, aperture: true, iso: true, liveview: false, destination: false, focus: false, _bufTime: 3500, newISO: false } },
@@ -159,7 +162,6 @@ var properties = {
             { name: "1.2",      ev: -7 - 1 / 3,  code: 120  },
             { name: "1.4",      ev: -7,          code: 140  },
             { name: "1.6",      ev: -6 - 2 / 3,  code: 160  },
-            { name: "1.7",      ev: -6 - 1 / 2,  code: 170  },
             { name: "1.8",      ev: -6 - 1 / 3,  code: 180  },
             { name: "2.0",      ev: -6,          code: 200  },
             { name: "2.2",      ev: -5 - 2 / 3,  code: 220  },
@@ -260,10 +262,12 @@ var properties = {
             //{ name: "409600",   ev: -12,         code: 409600 }
         ]
     },
-    'format': {
+    'format': { // Compression Setting (docs/Camera Control PTP 2 Reference, 0x5004, UINT8): the v2 reference has no standard SetDevicePropValue, so write it with 0x9205
         name: 'format',
         category: 'config',
-        getSetFunction: function(camera) { return ptp.setPropU8; },
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 2, callback);
+        } },
         getFunction: null,
         listFunction: null,
         listWorks: true,
@@ -325,6 +329,24 @@ var properties = {
             { name: "MF",         value: 'mf',        code: 1  },
         ]
     },
+    'imageSize': { // JPEG image size (docs/Camera Control PTP 2 Reference, Image Size 0xD203, UINT8); RAW is always full size
+        name: 'imageSize',
+        category: 'config',
+        getSetFunction: function(camera) { return function(dev, propcode, value, callback) {
+            setDeviceControlValueA (dev, propcode, value, 2, callback);
+        } },
+        getFunction: null,
+        listFunction: null,
+        listWorks: false,
+        code: 0xD203,
+        typeCode: 2,
+        ev: false,
+        values: [
+            { name: "L", value: 'l', code: 0x01 },
+            { name: "M", value: 'm', code: 0x02 },
+            { name: "S", value: 's', code: 0x03 },
+        ]
+    },
     'driveMode': {
         name: 'driveMode',
         category: 'config',
@@ -338,14 +360,161 @@ var properties = {
         typeCode: 4,
         ev: false,
         values: [
-            { name: "Single",           value: 'single', code: 1  },
-            { name: "High Speed",       value: 'high',   code: 2  },
-            { name: "10s Timer",        value: null,     code: 32772  },
-            { name: "10s Timer 3 img",  value: null,     code: 32776  },
-            { name: "Cont. BRK0.3EV3",  value: null,     code: 33591  },
-            { name: "Single BRK0.3EV3", value: null,     code: 33590  },
-            { name: "BRK WB LO",        value: null,     code: 32792  },
-            { name: "BRK DRO LO",       value: null,     code: 32793  },
+            // All Still Capture Mode values of docs/Camera Control PTP 2 Reference (0x5013); 0x0001 is "Normal" there.
+            // Unknown values read as UNKNOWN, and capture() then leaves the drive mode as it is.
+            { name: "Single", value: 'single', code: 0x0001 },
+            { name: "Continuous Shooting Hi", value: 'high', code: 0x0002 },
+            { name: "Continuous Shooting Hi+", value: null, code: 0x8010 },
+            { name: "Continuous Shooting Hi-Live", value: null, code: 0x8011 },
+            { name: "Continuous Shooting Lo", value: null, code: 0x8012 },
+            { name: "Continuous Shooting", value: null, code: 0x8013 },
+            { name: "Continuous Shooting Speed Priority", value: null, code: 0x8014 },
+            { name: "Continuous Shooting Mid", value: null, code: 0x8015 },
+            { name: "Continuous Shooting Mid-Live", value: null, code: 0x8016 },
+            { name: "Continuous Shooting Lo-Live", value: null, code: 0x8017 },
+            { name: "Timelapse", value: null, code: 0x0003 },
+            { name: "Self Timer 5 Sec.", value: null, code: 0x8003 },
+            { name: "Self Timer 10 Sec.", value: null, code: 0x8004 },
+            { name: "Self Timer 2 Sec.", value: null, code: 0x8005 },
+            { name: "Continuous Bracket 0.3 EV 2 Img. +", value: null, code: 0xC237 },
+            { name: "Continuous Bracket 0.3 EV 2 Img. -", value: null, code: 0xC23F },
+            { name: "Continuous Bracket 0.3 EV 3 Img.", value: null, code: 0x8337 },
+            { name: "Continuous Bracket 0.3 EV 5 Img.", value: null, code: 0x8537 },
+            { name: "Continuous Bracket 0.3 EV 7 Img.", value: null, code: 0x8737 },
+            { name: "Continuous Bracket 0.3 EV 9 Img.", value: null, code: 0x8937 },
+            { name: "Continuous Bracket 0.5 EV 2 Img. +", value: null, code: 0xC257 },
+            { name: "Continuous Bracket 0.5 EV 2 Img. -", value: null, code: 0xC25F },
+            { name: "Continuous Bracket 0.5 EV 3 Img.", value: null, code: 0x8357 },
+            { name: "Continuous Bracket 0.5 EV 5 Img.", value: null, code: 0x8557 },
+            { name: "Continuous Bracket 0.5 EV 7 Img.", value: null, code: 0x8757 },
+            { name: "Continuous Bracket 0.5 EV 9 Img.", value: null, code: 0x8957 },
+            { name: "Continuous Bracket 0.7 EV 2 Img. +", value: null, code: 0xC277 },
+            { name: "Continuous Bracket 0.7 EV 2 Img. -", value: null, code: 0xC27F },
+            { name: "Continuous Bracket 0.7 EV 3 Img.", value: null, code: 0x8377 },
+            { name: "Continuous Bracket 0.7 EV 5 Img.", value: null, code: 0x8577 },
+            { name: "Continuous Bracket 0.7 EV 7 Img.", value: null, code: 0x8777 },
+            { name: "Continuous Bracket 0.7 EV 9 Img.", value: null, code: 0x8977 },
+            { name: "Continuous Bracket 1.0 EV 2 Img. +", value: null, code: 0xC211 },
+            { name: "Continuous Bracket 1.0 EV 2 Img. -", value: null, code: 0xC219 },
+            { name: "Continuous Bracket 1.0 EV 3 Img.", value: null, code: 0x8311 },
+            { name: "Continuous Bracket 1.0 EV 5 Img.", value: null, code: 0x8511 },
+            { name: "Continuous Bracket 1.0 EV 7 Img.", value: null, code: 0x8711 },
+            { name: "Continuous Bracket 1.0 EV 9 Img.", value: null, code: 0x8911 },
+            { name: "Continuous Bracket 1.3 EV 2 Img. +", value: null, code: 0xC241 },
+            { name: "Continuous Bracket 1.3 EV 2 Img. -", value: null, code: 0xC249 },
+            { name: "Continuous Bracket 1.3 EV 3 Img.", value: null, code: 0x8341 },
+            { name: "Continuous Bracket 1.3 EV 5 Img.", value: null, code: 0x8541 },
+            { name: "Continuous Bracket 1.3 EV 7 Img.", value: null, code: 0x8741 },
+            { name: "Continuous Bracket 1.5 EV 2 Img. +", value: null, code: 0xC261 },
+            { name: "Continuous Bracket 1.5 EV 2 Img. -", value: null, code: 0xC269 },
+            { name: "Continuous Bracket 1.5 EV 3 Img.", value: null, code: 0x8361 },
+            { name: "Continuous Bracket 1.5 EV 5 Img.", value: null, code: 0x8561 },
+            { name: "Continuous Bracket 1.5 EV 7 Img.", value: null, code: 0x8761 },
+            { name: "Continuous Bracket 1.7 EV 2 Img. +", value: null, code: 0xC281 },
+            { name: "Continuous Bracket 1.7 EV 2 Img. -", value: null, code: 0xC289 },
+            { name: "Continuous Bracket 1.7 EV 3 Img.", value: null, code: 0x8381 },
+            { name: "Continuous Bracket 1.7 EV 5 Img.", value: null, code: 0x8581 },
+            { name: "Continuous Bracket 1.7 EV 7 Img.", value: null, code: 0x8781 },
+            { name: "Continuous Bracket 2.0 EV 2 Img. +", value: null, code: 0xC221 },
+            { name: "Continuous Bracket 2.0 EV 2 Img. -", value: null, code: 0xC229 },
+            { name: "Continuous Bracket 2.0 EV 3 Img.", value: null, code: 0x8321 },
+            { name: "Continuous Bracket 2.0 EV 5 Img.", value: null, code: 0x8521 },
+            { name: "Continuous Bracket 2.0 EV 7 Img.", value: null, code: 0x8721 },
+            { name: "Continuous Bracket 2.3 EV 2 Img. +", value: null, code: 0xC251 },
+            { name: "Continuous Bracket 2.3 EV 2 Img. -", value: null, code: 0xC259 },
+            { name: "Continuous Bracket 2.3 EV 3 Img.", value: null, code: 0x8351 },
+            { name: "Continuous Bracket 2.3 EV 5 Img.", value: null, code: 0x8551 },
+            { name: "Continuous Bracket 2.5 EV 2 Img. +", value: null, code: 0xC271 },
+            { name: "Continuous Bracket 2.5 EV 2 Img. -", value: null, code: 0xC279 },
+            { name: "Continuous Bracket 2.5 EV 3 Img.", value: null, code: 0x8371 },
+            { name: "Continuous Bracket 2.5 EV 5 Img.", value: null, code: 0x8571 },
+            { name: "Continuous Bracket 2.7 EV 2 Img. +", value: null, code: 0xC291 },
+            { name: "Continuous Bracket 2.7 EV 2 Img. -", value: null, code: 0xC299 },
+            { name: "Continuous Bracket 2.7 EV 3 Img.", value: null, code: 0x8391 },
+            { name: "Continuous Bracket 2.7 EV 5 Img.", value: null, code: 0x8591 },
+            { name: "Continuous Bracket 3.0 EV 2 Img. +", value: null, code: 0xC231 },
+            { name: "Continuous Bracket 3.0 EV 2 Img. -", value: null, code: 0xC239 },
+            { name: "Continuous Bracket 3.0 EV 3 Img.", value: null, code: 0x8331 },
+            { name: "Continuous Bracket 3.0 EV 5 Img.", value: null, code: 0x8531 },
+            { name: "Single Bracket 0.3 EV 2 Img. +", value: null, code: 0xC236 },
+            { name: "Single Bracket 0.3 EV 2 Img. -", value: null, code: 0xC23E },
+            { name: "Single Bracket 0.3 EV 3 Img.", value: null, code: 0x8336 },
+            { name: "Single Bracket 0.3 EV 5 Img.", value: null, code: 0x8536 },
+            { name: "Single Bracket 0.3 EV 7 Img.", value: null, code: 0x8736 },
+            { name: "Single Bracket 0.3 EV 9 Img.", value: null, code: 0x8936 },
+            { name: "Single Bracket 0.5 EV 2 Img. +", value: null, code: 0xC256 },
+            { name: "Single Bracket 0.5 EV 2 Img. -", value: null, code: 0xC25E },
+            { name: "Single Bracket 0.5 EV 3 Img.", value: null, code: 0x8356 },
+            { name: "Single Bracket 0.5 EV 5 Img.", value: null, code: 0x8556 },
+            { name: "Single Bracket 0.5 EV 7 Img.", value: null, code: 0x8756 },
+            { name: "Single Bracket 0.5 EV 9 Img.", value: null, code: 0x8956 },
+            { name: "Single Bracket 0.7 EV 2 Img. +", value: null, code: 0xC276 },
+            { name: "Single Bracket 0.7 EV 2 Img. -", value: null, code: 0xC27E },
+            { name: "Single Bracket 0.7 EV 3 Img.", value: null, code: 0x8376 },
+            { name: "Single Bracket 0.7 EV 5 Img.", value: null, code: 0x8576 },
+            { name: "Single Bracket 0.7 EV 7 Img.", value: null, code: 0x8776 },
+            { name: "Single Bracket 0.7 EV 9 Img.", value: null, code: 0x8976 },
+            { name: "Single Bracket 1.0 EV 2 Img. +", value: null, code: 0xC210 },
+            { name: "Single Bracket 1.0 EV 2 Img. -", value: null, code: 0xC218 },
+            { name: "Single Bracket 1.0 EV 3 Img.", value: null, code: 0x8310 },
+            { name: "Single Bracket 1.0 EV 5 Img.", value: null, code: 0x8510 },
+            { name: "Single Bracket 1.0 EV 7 Img.", value: null, code: 0x8710 },
+            { name: "Single Bracket 1.0 EV 9 Img.", value: null, code: 0x8910 },
+            { name: "Single Bracket 1.3 EV 2 Img. +", value: null, code: 0xC240 },
+            { name: "Single Bracket 1.3 EV 2 Img. -", value: null, code: 0xC248 },
+            { name: "Single Bracket 1.3 EV 3 Img.", value: null, code: 0x8340 },
+            { name: "Single Bracket 1.3 EV 5 Img.", value: null, code: 0x8540 },
+            { name: "Single Bracket 1.3 EV 7 Img.", value: null, code: 0x8740 },
+            { name: "Single Bracket 1.5 EV 2 Img. +", value: null, code: 0xC260 },
+            { name: "Single Bracket 1.5 EV 2 Img. -", value: null, code: 0xC268 },
+            { name: "Single Bracket 1.5 EV 3 Img.", value: null, code: 0x8360 },
+            { name: "Single Bracket 1.5 EV 5 Img.", value: null, code: 0x8560 },
+            { name: "Single Bracket 1.5 EV 7 Img.", value: null, code: 0x8760 },
+            { name: "Single Bracket 1.7 EV 2 Img. +", value: null, code: 0xC280 },
+            { name: "Single Bracket 1.7 EV 2 Img. -", value: null, code: 0xC288 },
+            { name: "Single Bracket 1.7 EV 3 Img.", value: null, code: 0x8380 },
+            { name: "Single Bracket 1.7 EV 5 Img.", value: null, code: 0x8580 },
+            { name: "Single Bracket 1.7 EV 7 Img.", value: null, code: 0x8780 },
+            { name: "Single Bracket 2.0 EV 2 Img. +", value: null, code: 0xC220 },
+            { name: "Single Bracket 2.0 EV 2 Img. -", value: null, code: 0xC228 },
+            { name: "Single Bracket 2.0 EV 3 Img.", value: null, code: 0x8320 },
+            { name: "Single Bracket 2.0 EV 5 Img.", value: null, code: 0x8520 },
+            { name: "Single Bracket 2.0 EV 7 Img.", value: null, code: 0x8720 },
+            { name: "Single Bracket 2.3 EV 2 Img. +", value: null, code: 0xC250 },
+            { name: "Single Bracket 2.3 EV 2 Img. -", value: null, code: 0xC258 },
+            { name: "Single Bracket 2.3 EV 3 Img.", value: null, code: 0x8350 },
+            { name: "Single Bracket 2.3 EV 5 Img.", value: null, code: 0x8550 },
+            { name: "Single Bracket 2.5 EV 2 Img. +", value: null, code: 0xC270 },
+            { name: "Single Bracket 2.5 EV 2 Img. -", value: null, code: 0xC278 },
+            { name: "Single Bracket 2.5 EV 3 Img.", value: null, code: 0x8370 },
+            { name: "Single Bracket 2.5 EV 5 Img.", value: null, code: 0x8570 },
+            { name: "Single Bracket 2.7 EV 2 Img. +", value: null, code: 0xC290 },
+            { name: "Single Bracket 2.7 EV 2 Img. -", value: null, code: 0xC298 },
+            { name: "Single Bracket 2.7 EV 3 Img.", value: null, code: 0x8390 },
+            { name: "Single Bracket 2.7 EV 5 Img.", value: null, code: 0x8590 },
+            { name: "Single Bracket 3.0 EV 2 Img. +", value: null, code: 0xC230 },
+            { name: "Single Bracket 3.0 EV 2 Img. -", value: null, code: 0xC238 },
+            { name: "Single Bracket 3.0 EV 3 Img.", value: null, code: 0x8330 },
+            { name: "Single Bracket 3.0 EV 5 Img.", value: null, code: 0x8530 },
+            { name: "White Balance Bracket Lo", value: null, code: 0x8018 },
+            { name: "White Balance Bracket Hi", value: null, code: 0x8028 },
+            { name: "DRO Bracket Lo", value: null, code: 0x8019 },
+            { name: "DRO Bracket Hi", value: null, code: 0x8029 },
+            { name: "LPF Bracket", value: null, code: 0x801A },
+            { name: "Remote Commander", value: null, code: 0x800A },
+            { name: "Mirror Up", value: null, code: 0x800B },
+            { name: "Self Portrait 1 Person", value: null, code: 0x8006 },
+            { name: "Self Portrait 2 People", value: null, code: 0x8007 },
+            { name: "Continuous Self Timer 3 Img.", value: null, code: 0x8008 },
+            { name: "Continuous Self Timer 5 Img.", value: null, code: 0x8009 },
+            { name: "Continuous Self Timer 3 Img. 5 Sec.", value: null, code: 0x800C },
+            { name: "Continuous Self Timer 5 Img. 5 Sec.", value: null, code: 0x800D },
+            { name: "Continuous Self Timer 3 Img. 2 Sec.", value: null, code: 0x800E },
+            { name: "Continuous Self Timer 5 Img. 2 Sec.", value: null, code: 0x800F },
+            { name: "Spot Burst Shooting Lo", value: null, code: 0x8030 },
+            { name: "Spot Burst Shooting Mid", value: null, code: 0x8031 },
+            { name: "Spot Burst Shooting Hi", value: null, code: 0x8032 },
+            { name: "Focus Bracket", value: null, code: 0x8040 },
         ]
     },
     'shutterMode': {
@@ -461,8 +630,13 @@ driver._event = function(camera, data) { // events received
     //_logD("EVENT:", data);
     ptp.parseEvent(data, function(type, event, param1, param2, param3) {
         if(event == SONY_EVENT_OBJECT_CREATED) {
-            _logD("object added:", param1);
+            // SDIE_ObjectRemoved, despite the name: the shot file was transferred
+        } else if(event == SONY_EVENT_CAPTURE) { // SDIE_ObjectAdded: "a shot file is ready to transfer" (v2 reference, p.96)
+            if(camera._shotReady) camera._shotReady();
         } else if(event == SONY_EVENT_CHANGE) {
+            if(camera._propWaiters && camera._propWaiters.length) { // a set() waits for its value (waitForValue): look now
+                return camera._propWaiters.slice().forEach(function(look) { look(); });
+            }
             var check = function() {
                 if(camera._eventTimer) clearTimeout(camera._eventTimer);            
                 camera._eventTimer = setTimeout(function() {
@@ -516,6 +690,16 @@ driver.refresh = function(camera, callback, noEvent) {
         var data_size;
 
         if(err || !data) return callback && callback(err || "no data received");
+
+        // The dump is the same ~10 KB for every property the camera has; parsing it costs 7-9 ms of CPU and most reads
+        // during a time-lapse (the polls before the file is ready, the refresh after each 0xC203) bring back exactly
+        // the previous bytes. Identical dump -> nothing changed -> nothing to parse or emit (2026-10-21). The cache is
+        // dropped wherever the driver resets a parsed value itself (getImage, capture), so a repeat of an old dump
+        // can never hide a reset value.
+        if(camera._lastDump && camera._lastDump.length == data.length && camera._lastDump.toString('binary') == data.toString('binary')) {
+            return callback && callback();
+        }
+        camera._lastDump = data;
 
         while(i < data.length) {
             var list = [];
@@ -639,7 +823,9 @@ driver.refresh = function(camera, callback, noEvent) {
                     } else {
                         var current = mapPropertyItem(data_current, p.values);
                         if(!current) {
-                            _logD(prop, "item not found:", data_current);
+                            if(unknownProps[property_code] === undefined || unknownProps[property_code] != data_current) { // once per value, as "prop =" below: refresh() runs every 50 ms during a capture
+                                _logD(prop, "item not found:", data_current);
+                            }
                             current = {
                                 name: "UNKNOWN",
                                 ev: null,
@@ -843,8 +1029,54 @@ function equalEv(ev1, ev2) {
     }
     return Math.abs(ev1 - ev2) < 0.15;
 }
-driver.set = function(camera, param, value, callback, tries) {
+// After a relative shift (shutter, and ISO on older bodies) the A6600 shows the new value 0.73-0.78 s later and sends
+// DevicePropChanged (0xC203) then; it sends two more 0xC203 before that, moves one step per shift whatever the delta, and
+// while still busy with a shot shifts only afterwards (doc §24). So look on every 0xC203 and every 250 ms in case one is
+// missed; once it has moved but is not there yet, shift again by what is left at once; with no move give up only after
+// 1.5 s: shifting again while the camera is merely slow would move it a step too far. callback(reached, moved).
+function waitForValue(camera, param, code, callback) {
+    var deadline = Date.now() + 1500;
+    var start = camera[properties[param].category][param].code;
+    var timer = null, busy = false, again = false, finished = false;
+    var finish = function(reached) {
+        finished = true;
+        clearTimeout(timer);
+        var i = camera._propWaiters.indexOf(look);
+        if(i !== -1) camera._propWaiters.splice(i, 1);
+        callback(reached, camera[properties[param].category][param].code != start);
+    }
+    var look = function() {
+        if(finished) return;
+        if(busy) { again = true; return; }
+        busy = true;
+        clearTimeout(timer);
+        timer = null;
+        if(camera._eventTimer) {
+            clearTimeout(camera._eventTimer);
+            camera._eventTimer = null;
+        }
+        driver.refresh(camera, function() {
+            busy = false;
+            var now = camera[properties[param].category][param].code;
+            if(now == code) return finish(true);
+            if(now != start || Date.now() >= deadline) return finish(false);
+            if(again) {
+                again = false;
+                return look();
+            }
+            timer = setTimeout(look, 250);
+        });
+    }
+    if(!camera._propWaiters) camera._propWaiters = [];
+    camera._propWaiters.push(look);
+    timer = setTimeout(look, 250);
+}
+
+// tries: shifts the camera did not follow (up to 6); moves: shifts it followed part of the way. The A6600 moves ISO one step
+// per shift, so a 14-step change is 14 shifts; those must not count as failures, only be capped in case it never arrives.
+driver.set = function(camera, param, value, callback, tries, moves) {
     if(!tries) tries = 0;
+    if(!moves) moves = 0;
     tries++;
     async.series([
         function(cb){
@@ -896,46 +1128,16 @@ driver.set = function(camera, param, value, callback, tries) {
                         //    delta += ((abs - 4) * 2) * sign;
                         //}
                         properties[param].getSetFunction(camera)(camera._dev, getCode(camera, properties[param].code), delta, function(err) {
-                            if(!err) {
-                                //if(delta > 1 || tries > 1) {
-                                    var refreshTries = 8 + Math.abs(delta) * 2;
-                                    var refresh = function() {
-                                        if(camera._eventTimer) {
-                                            clearTimeout(camera._eventTimer);
-                                            camera._eventTimer = null;
-                                        }
-                                        driver.refresh(camera, function(){
-                                            _logD("read settings...");
-                                            if(camera[properties[param].category][param].code == cameraValue) {
-                                                return cb();
-                                            } else if(tries > 5) {
-                                                return cb("failed to reach target value");
-                                            } else {
-                                                if(refreshTries <= 0) {
-                                                    return setTimeout(function(){
-                                                        driver.refresh(camera, function(){
-                                                            driver.set(camera, param, value, callback, tries);
-                                                        }, true);
-                                                    }, 300);
-                                                } else {
-                                                    refreshTries--;
-                                                    return setTimeout(refresh, 50);
-                                                }
-                                            }
-                                        });
-                                    }
-                                    setTimeout(refresh, 50);
-                                //} else {
-                                //    var newItem = mapPropertyItem(cameraValue, properties[param].values);
-                                //    for(var k in newItem) {
-                                //        if(newItem.hasOwnProperty(k)) camera[properties[param].category][param][k] = newItem[k];
-                                //    }
-                                //    return cb(err);
-                                //}
-                            } else {
+                            if(err) {
                                 _logE("error setting (shift) " + ptp.hex(getCode(camera, properties[param].code)) + ": " + err);
                                 return cb(err);
                             }
+                            waitForValue(camera, param, cameraValue, function(reached, moved) {
+                                if(reached) return cb();
+                                if(moved && moves < 60) return driver.set(camera, param, value, callback, tries - 1, moves + 1); // the rest
+                                if(tries > 5) return cb("failed to reach target value");
+                                driver.set(camera, param, value, callback, tries, moves); // shift again by what is left
+                            });
                         });
                     } else {
                         _logD("setFunction:", ptp.hex(getCode(camera, properties[param].code)), "=>", cameraValue);
@@ -949,7 +1151,6 @@ driver.set = function(camera, param, value, callback, tries) {
                                             camera._eventTimer = null;
                                         }
                                         driver.refresh(camera, function(){
-                                            _logD("read settings...");
                                             if(camera[properties[param].category][param].code == cameraValue) {
                                                 return cb();
                                             } else if(tries > 3) {
@@ -1025,15 +1226,21 @@ function exposureEvent(camera) {
     for(var k in camera.exposure) {
         if((camera.exposure[k] && camera.exposure[k].ev) != camera._expCache[k]) {
            camera._expCache[k] = camera.exposure[k] && camera.exposure[k].ev;
-           update = true; 
+           update = true;
         }
+    }
+    var driveMode = camera.config && camera.config.driveMode && camera.config.driveMode.code; // also sent with the settings
+    if(driveMode != camera._expCache.driveMode) {
+        camera._expCache.driveMode = driveMode;
+        update = true;
     }
     if(update) {
         driver.emit('settings', camera);
     }
 }
 
-function getImage(camera, timeout, callback) {
+// onImage (optional): gets the JPEG as soon as its bytes are in, before the camera answers the GetObject (doc §20)
+function getImage(camera, timeout, callback, onImage) {
     var results = {
         thumb: null,
         filename: null,
@@ -1045,8 +1252,13 @@ function getImage(camera, timeout, callback) {
 
     async.series([
         function(cb){
+            var timer = null;
+            var woken = false;
             var check = function() {
+                timer = null;
+                woken = false;
                 if(Date.now() - startTime > timeout) {
+                    camera._shotReady = null;
                     _logD("getImage: timed out");
                     return cb && cb("timeout");
                 }
@@ -1056,14 +1268,24 @@ function getImage(camera, timeout, callback) {
                 }
                 driver.refresh(camera, function() {
                     if(camera[properties['objectsAvailable'].category] && camera[properties['objectsAvailable'].category]['objectsAvailable'] && camera[properties['objectsAvailable'].category]['objectsAvailable'].value > 0) {
-                        _logD("OBJECTS AVAILABLE:", camera[properties['objectsAvailable'].category]['objectsAvailable'].value);
+                        camera._shotReady = null;
                         camera[properties['objectsAvailable'].category]['objectsAvailable'] = properties['objectsAvailable'].values[0]; // reset to 0 in case it's not updated before the next frame
+                        camera._lastDump = null; // a parsed value was reset by hand: the next dump must be parsed (refresh)
                         results.indexNumber = 1;
                         return cb();
                     } else {
-                        return setTimeout(check, 50);
+                        // 250 ms, not 50, after the exposure: SDIE_ObjectAdded below ends the wait as soon as the file is there
+                        timer = setTimeout(check, woken ? 0 : ptp.pollDelay(camera, startTime, 250));
                     }
                 });
+            }
+            camera._shotReady = function() { // SDIE_ObjectAdded (0xC201): look now, not at the next poll
+                if(timer) {
+                    clearTimeout(timer);
+                    check();
+                } else {
+                    woken = true; // a refresh is on its way and may have missed the file: look again right after it
+                }
             }
             check();
         },
@@ -1073,16 +1295,16 @@ function getImage(camera, timeout, callback) {
             ptp.getObjectInfo(camera._dev, 0xffffc001, function(err, oi) {
                 if(!err && oi) {
                     results.filename = oi.filename;
-                    _logD("filename =", oi.filename);
                 }
                 cb(err);
             });
         },
         function(cb){
             //_logD("getting object");
+            var isJpeg = results.filename && results.filename.slice(-3).toLowerCase() == 'jpg';
             ptp.getObject(camera._dev, 0xffffc001, function(err, image) {
                 //ptp.deleteObject(camera._dev, 0xffffc001, function() {
-                    if(results.filename && results.filename.slice(-3).toLowerCase() == 'jpg') {
+                    if(isJpeg) {
                         results.thumb = image;
                     } else {
                         results.thumb = ptp.extractJpeg(image);
@@ -1090,7 +1312,7 @@ function getImage(camera, timeout, callback) {
                     }
                     cb(err);
                 //});
-            });
+            }, isJpeg ? onImage : null);
         },
     ], function(err) {
         camera._blockEvents = false;
@@ -1104,9 +1326,9 @@ driver.capture = function(camera, target, options, callback, tries) {
             driver.capture(camera, target, options, callback, tries);
         }, 100);
     }
-    _logD("triggering capture...");
     var targetValue = (!target || target == "camera") ? 2 : 4;
     camera.thumbnail = true;
+    camera._lastDump = null; // a new shot changes the dump (0xD215): parse the next one (refresh)
     var thumb = null;
     var filename = null;
     var rawImage = null;
@@ -1123,8 +1345,38 @@ driver.capture = function(camera, target, options, callback, tries) {
             if(!camera.config || !camera.config.driveMode || camera.config.driveMode.value == 'single' || camera.config.driveMode.name == 'UNKNOWN') {
                 cb();
             } else {
-                driver.set(camera, 'driveMode', 'single', cb);
+                // set() matches by name ('single' never matched). It never ran before 2026-10: the A6600's
+                // Continuous Shooting Lo read as UNKNOWN. A failed switch must not cost the frame.
+                _logD("drive mode is", camera.config.driveMode.name, "- switching to Single");
+                driver.set(camera, 'driveMode', 'Single', function(err) {
+                    if(err) _logE("unable to switch drive mode to Single:", err);
+                    cb();
+                });
             }
+        },
+        function(cb){ // with RAW+JPEG the VIEW gets only the JPEG, for the meter and the thumbnails: make it S Standard, once
+            var format = camera.config && camera.config.format && camera.config.format.name;
+            var size = camera.config && camera.config.imageSize;
+            if(camera._smallJpegTried || !format || !/^RAW\+JPEG/.test(format)) return cb();
+            camera._smallJpegTried = true;
+            async.series([
+                function(cb){ // the meter decodes at 1/8 scale, from the block averages: Fine and Extra Fine only cost transfer and decode time
+                    if(format == 'RAW+JPEG Standard') return cb();
+                    _logD("format is", format, "- switching the JPEG to Standard");
+                    driver.set(camera, 'format', 'RAW+JPEG Standard', function(err) {
+                        if(err) _logE("unable to switch the JPEG to Standard:", err);
+                        cb();
+                    });
+                },
+                function(cb){
+                    if(!size || size.name == 'S' || size.name == 'UNKNOWN') return cb();
+                    _logD("JPEG size is", size.name, "- switching the JPEG to S");
+                    driver.set(camera, 'imageSize', 'S', function(err) {
+                        if(err) _logE("unable to switch the JPEG size to S:", err);
+                        cb();
+                    });
+                }
+            ], function() { cb(); });
         },
         function(cb){setDeviceControlValueB(camera._dev, 0xD2C1, 2, 4, cb);}, // activate half-press
         function(cb){ setTimeout(cb, 20); },
@@ -1140,14 +1392,10 @@ driver.capture = function(camera, target, options, callback, tries) {
                 filename = fn;
                 rawImage = rw;
                 cb(err);
-            });
+            }, options && options.onImage);
         },
     ], function(err) {
-        if(err) {
-            _logE("error during capture:", err);
-        } else {
-            _logD("capture complete:", filename);
-        }
+        if(err) _logE("error during capture:", err); // a good frame is logged once by the intervalometer
         camera.busyCapture = false;
         callback && callback(err, thumb, filename, rawImage);
     });

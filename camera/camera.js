@@ -286,7 +286,7 @@ camera.setEv = function(ev, options, cb) {
     if (!options) options = {};
     var doSet = function(settings) {
         var shutter = settings.details ? settings.details.shutter : settings.shutter;
-        var aperture = settings.details ? settings.details.aperture : settings.sperture;
+        var aperture = settings.details ? settings.details.aperture : settings.aperture;
         var iso = settings.details ? settings.details.iso : settings.iso;
 
         var apertureEnabled = false;

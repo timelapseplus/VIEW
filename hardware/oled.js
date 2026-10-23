@@ -14,6 +14,8 @@ oled.items = [];
 oled.selected = 0;
 oled.visible = false;
 oled.blocked = false;
+oled.onShow = null; // set by main.js: redraws the current menu when the screen comes back on
+var pendingBlit = false; // a frame drawn while the screen was off, sent out by oled.show()
 
 var oledSize = fb.size();
 oled.width = oledSize.width;
@@ -158,7 +160,7 @@ function textInitPos(setMode) {
         for(var i = 0; i < TEXT_MODES.length; i++) {
             mode = textGetMode(TEXT_MODES[i]);
             var list = TEXT_LIST[mode];
-            if(TEXT_MODES[i] == 'lcase') list = list.toLowerCase();       
+            if(TEXT_MODES[i] == 'lcase') list = list.toLowerCase();
             if(list.indexOf(textValue.charAt(oled.selected)) !== -1) {
                 textMode = TEXT_MODES[i];
                 console.log("set text mode to", textMode);
@@ -183,7 +185,7 @@ function textUpdateCurrent() {
 
 oled.textMoveForward = function() {
     if(oled.mode == 'text' || oled.mode == 'number') {
-        if(oled.selected < TEXT_MAX_CHARS) oled.selected++;    
+        if(oled.selected < TEXT_MAX_CHARS) oled.selected++;
         if(textMode == 'number') {
             var textLength = textValue.length;
             textValue = textValue.replace(/ /g, '');
@@ -191,7 +193,7 @@ oled.textMoveForward = function() {
         }
         textInitPos(true);
     } else if(oled.mode == 'time' || oled.mode == "date") {
-        if(oled.selected < 2) oled.selected++; else oled.selected = 0;  
+        if(oled.selected < 2) oled.selected++; else oled.selected = 0;
     }
     oled.writeMenu();
     oled.update();
@@ -213,7 +215,7 @@ oled.textMoveBackward = function() {
 function textGetMode(currentMode) {
     if(!currentMode) currentMode = textMode;
     var mode;
-    if(currentMode == 'ucase' || currentMode == 'lcase') mode = 'alpha'; else mode = currentMode == 'number' ? 'num' : currentMode;    
+    if(currentMode == 'ucase' || currentMode == 'lcase') mode = 'alpha'; else mode = currentMode == 'number' ? 'num' : currentMode;
     return mode;
 }
 
@@ -236,7 +238,7 @@ function getTextList() {
             return TEXT_LIST['num'].concat(['.']);
         } else {
             return TEXT_LIST['num'];
-        }        
+        }
     } else {
         return TEXT_LIST[textGetMode()];
     }
@@ -274,7 +276,7 @@ function drawTimeLapseStatus(status) {
     fb.text(upperTextStart, 37, status.apertureText || "---");
     fb.text(upperTextStart, 50, status.shutterText || "---");
     fb.text(upperTextStart, 63, status.evText || "---");
-    fb.text(upperTextStart, 76, status.rampModeText);
+    fb.text(upperTextStart, 76, status.lastPhotoLum || "---");
 
     var m = Math.round(status.durationSeconds / 60);
     var hours = Math.floor(m / 60);
@@ -284,7 +286,7 @@ function drawTimeLapseStatus(status) {
 
     fb.text(0, 100, "Interval: " + (Math.round(status.intervalSeconds * 10) / 10).toString() + "s (" + status.intervalModeText + ")");
     fb.text(0, 113, "Frames:   " + (status.frames || 0).toString() + "/" + status.remaining.toString());
-    fb.text(0, 126, "Duration: " + hours.toString() + "h" + minutes.toString() + "m");
+    fb.text(0, 126, "Dur: " + hours.toString() + "h" + minutes.toString() + "m " + status.rampModeText);
 
     // ramp chart window
     //color("background");
@@ -305,7 +307,7 @@ function drawTimeLapseStatus(status) {
             fb.line(x, histY + 1 + histH - h, x, histY + 1 + histH, 1);
         }
     } else {
-        fb.rect(histX, histY, histW, histH, false); 
+        fb.rect(histX, histY, histW, histH, false);
     }
 
     // interval/exposure status line
@@ -324,9 +326,9 @@ function drawTimeLapseStatus(status) {
     var bufferLineEnd = shutterLineEnd + Math.ceil(status.bufferSeconds * secondsRatio);
 
     color("background");
-    fb.line(4, 84.5, lw, 84.5, 1); 
+    fb.line(4, 84.5, lw, 84.5, 1);
     color("alert");
-    fb.line(shutterLineStart, 84.5, shutterLineEnd, 84.5, 1); 
+    fb.line(shutterLineStart, 84.5, shutterLineEnd, 84.5, 1);
     color("secondary");
     fb.line(bufferLineStart, 84.5, bufferLineEnd, 84.5, 1);
 
@@ -349,7 +351,7 @@ oled.updateTimelapseStatus = function(status) {
     if(status) {
         oled.timelapseStatus = status;
         if(status.running) {
-            if(oled.mode == 'timelapse') statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 150); 
+            if(oled.mode == 'timelapse') statusIntervalHandle = setInterval(function(){drawTimeLapseStatus(status);}, 150);
         } else {
             statusDetails = {};
         }
@@ -364,6 +366,10 @@ oled.updateHistogram = function(histogram) {
     setTimeout(function(){
         statusDetails.histogram = histogram;
     }, 100);
+}
+oled.setEvHistogram = function (ev, histogram) {
+    statusDetails.histogram = histogram;
+    statusDetails.ev = ev;
 }
 
 oled.setTimelapseMode = function(set) {
@@ -545,7 +551,7 @@ oled.writeMenu = function() {
                     color("primary");
                 } else {
                     color("secondary");
-                }           
+                }
                 fb.text(160 - 48 + i * xAdvance, 125, modes[i]);
             }
 
@@ -733,7 +739,7 @@ oled.writeMenu = function() {
     } else { // menu mode
         //console.log("MENU mode");
         if (oled.selected >= itemArray.length) selected = itemArray.length - 1;
-        if (itemArray.length <= 3) {
+        if (itemArray.length <= 4) { // four lines fit (y 35..110 at 25 px): a menu this short never scrolls
             list = itemArray;
             selected = oled.selected;
         } else if (oled.selected == itemArray.length - 1) {
@@ -767,7 +773,7 @@ oled.writeMenu = function() {
             var parts = list[i].split('~');
 
             var textSize = fb.text(MENU_XOFFSET, MENU_YOFFSET + i * MENU_LINE_HEIGHT, parts[0]);
-            
+
             if(parts[1]) { // menu item value
                 color("secondary");
                 fb.text(MENU_XOFFSET + textSize.width, MENU_YOFFSET + i * MENU_LINE_HEIGHT, ' ' + parts[1]);
@@ -958,7 +964,12 @@ oled.activity = function() {
 }
 
 oled.update = function(override) {
-    if(!oled.blocked || override) fb.blit();
+    if(oled.blocked && !override) return;
+    if(!oled.visible && !override) { // nothing to see: skip the SPI transfer to the panel
+        pendingBlit = true;
+        return;
+    }
+    fb.blit();
 }
 
 oled.up = function() {
@@ -1024,13 +1035,28 @@ oled.down = function() {
 oled.hide = function() {
     if(oled.videoRunning) return oled.activity();
     console.log("power off  OLED");
-    exec("echo 0 | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    setBacklight(0);
     oled.visible = false;
 }
 
+// Written directly (the app runs as root) rather than through a forked `sudo tee`.
+function setBacklight(value) {
+    try {
+        fs.writeFileSync('/sys/class/leds/view-oled-backlight/brightness', String(value));
+    } catch(e) {
+        exec("echo " + value + " | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    }
+}
+
 oled.show = function() {
-    exec("echo 255 | sudo tee /sys/class/leds/view-oled-backlight/brightness");
+    var wasHidden = !oled.visible;
+    setBacklight(255);
     oled.visible = true;
+    if(pendingBlit) {
+        pendingBlit = false;
+        fb.blit();
+    }
+    if(wasHidden && oled.onShow) oled.onShow();
 }
 
 oled.close = function() {
@@ -1055,12 +1081,28 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
     } else {
         fb.rect(0, 15, 160, 128 - 15, true);
     }
-    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
+
+    var histX = 110;
+    var histY = 76;
+    var histH = 37;
+    var histW = 50;
+    if(statusDetails.histogram) {
+        color("background");
+        fb.rect(histX, histY, histW, histH, false);
+        color("primary");
+        for(var i = 0; i < 256; i++) {
+            var x = histX + 1 + (histW - 2) * (i/255);
+            var h = statusDetails.histogram[i] ? (histH - 2) * (statusDetails.histogram[i]/256) : 0;
+            fb.line(x, histY + 1 + histH - h, x, histY + 1 + histH, 1);
+        }
+    }
+
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);  fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     color("primary");
     var sectionSize = 160 / textArray.length;
     for(var i = 0; i < textArray.length; i++) {
         var textSize = fb.textSize(textArray[i]);
-        var x = sectionSize * i + sectionSize / 2 - textSize.width / 2; 
+        var x = sectionSize * i + sectionSize / 2 - textSize.width / 2;
         //console.log("OLED: writing", textArray[i], "at x =", x, "textSize =", textSize.width);
         fb.text(x, 126, textArray[i]);
         if(highlightTextIndex === i) {
@@ -1068,6 +1110,15 @@ oled.exposure = function(jpegFile, textArray, highlightTextIndex) {
             fb.rect(i * sectionSize + 0.5, 116.5, sectionSize - 0.5, 11, false);
             color("primary");
         }
+    }
+    if (statusDetails.ev) {
+        var textSize = fb.textSize(statusDetails.ev);
+        var x = 160 - textSize.width - 4;
+        fb.color(0, 0, 0);
+        var  y = 76 - 12;
+        fb.rect(x - 2, y - textSize.height, textSize.width + 4, textSize.height + 4, true);
+        color("primary");
+        fb.text(x, y, statusDetails.ev);
     }
     oled.update(true);
 }
@@ -1105,6 +1156,7 @@ oled.batteryPercentage = function(percentage) {
 var videoIntervalHandle = null;
 var videoCallback = null;
 var skipFrames = 0;
+var fpsMultiplier = 0;
 oled.video = function(videoPathFormat, frames, fps, callback) {
     console.log("playing video, mode=", typeof frames);
     if(oled.videoRunning) return callback && setTimeout(callback);
@@ -1124,7 +1176,7 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
     var indexString, paddingLength;
     var frameComplete = true;
     var frameLineFactor = (160 - 6) / frames;
-
+    fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);  fb.font(MENU_STATUS_FONT_SIZE, false, FONT_DEFAULT);
     videoIntervalHandle = setInterval(function(){
         if(!frameComplete) {
             console.log("dropping frame #" + index);
@@ -1133,7 +1185,9 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
         frameComplete = false;
         frameIndex += skipFrames;
         skipFrames = 0;
-        if(frameIndex > frames) oled.stopVideo();
+        if (fpsMultiplier > 0)
+            frameIndex += fpsMultiplier;
+        if(frameIndex > frames) return oled.stopVideo();
 
         if(frameArray) {
             fb.jpeg(0, 0, frameArray[frameIndex]);
@@ -1153,6 +1207,16 @@ oled.video = function(videoPathFormat, frames, fps, callback) {
         fb.line(3, 127 - 3, 159 - 3, 127 - 3, 2);
         color("primary");
         fb.line(3, 127 - 3, frameIndex * frameLineFactor, 127 - 3, 2);
+
+        var s = "x" + (fpsMultiplier + 1);
+        var textSize = fb.textSize(s);
+        var x = 160 - textSize.width - 4;
+        fb.color(0, 0, 0);
+        var y = 50;
+        fb.rect(x - 2, y - textSize.height, textSize.width + 4, textSize.height + 4, true);
+        color("primary");
+        fb.text(x, y, s);
+
         fb.blit();
         frameComplete = true;
     }, 1000 / (fps||24));
@@ -1168,5 +1232,13 @@ oled.videoSkipFrames = function(frames) {
     if(oled.videoRunning) {
         skipFrames = frames;
     }
+}
+oled.increaseVideoSpeed = function () {
+    fpsMultiplier++;
+    if (fpsMultiplier > 15) fpsMultiplier = 15;
+}
+oled.decreaseVideoSpeed = function () {
+    fpsMultiplier--;
+    if (fpsMultiplier <=0) fpsMultiplier = 0;
 }
 module.exports = oled;

@@ -201,3 +201,49 @@ exports.hdrStops = "Number of stops between each exposure in a bracket";
 exports.nightLuminance = "This is the target luminance for evaluating the night exposure when going from day to night.  The value is defined in stops relative to a 'normally exposed' scene.  For night to day, this value is not used, but instead the luminance of the starting image becomes the luminance target, and as it changes to day the day luminance target is used instead.  A positive night luminance is not recommended unless there are ISO/shutter/aperture limits to prevent overexposure at night.";
 
 exports.dayLuminance = "This is the target luminance for evaluating the day exposure when going from night to day.  The value is defined in stops relative to a 'normally exposed' scene.  For day to night, this value is not used, but instead the luminance of the starting image becomes the luminance target, and as it changes to night the night luminance target is used instead.";
+
+exports.dbBackupMenu = "Copies the clip databases (the working one with the newest 20 clips, the archive with the older ones, and the settings) to the VIEW storage under time-lapse/db-backup/<date>/; only the two newest backups are kept there. Download them from the app or a browser: http://<VIEW address>/download?file=db-backup/<date>/view-timelapse.db";
+
+exports.archiveClipsMenu = "Moves the clips older than the newest 20 from the working clip database to the archive database next to it (view-timelapse-archive.db). The clip folders stay on the VIEW; archived clips just leave the clip list. It runs only from this menu (or the app), never by itself.";
+
+exports.cableMenu = "Cable Release turns the VIEW into a plain shutter-release intervalometer: the camera is fired through a cable in an AUX jack (tip = shutter, ring = focus) instead of USB, so there is no download, no preview and no exposure ramping, but intervals down to 0.3 seconds and no dark time beyond the camera's own. Set the camera to manual focus and manual exposure. Nothing here touches the Time-lapse menu.";
+
+exports.cableInterval = "Time from one shot to the next: 0.1 s steps up to 5 s, coarser after that, up to 2 hours; 'Custom...' at the end of the list takes any value to 0.1 s. The shortest interval is release time + pre-focus + 0.05 s, rounded up to 0.1 s (0.3 s with the defaults). Whether the camera keeps up is up to the camera: an A6300 needs about 0.5 s per single shot.";
+
+exports.cableIntervalRamp = "Plans a change of the interval during the run: from the Interval above to Ramp To, linearly in time over Ramp Time, beginning Ramp After the first shot. 'off' keeps the interval fixed. While running, the interval line of the status screen starts, changes or stops a ramp on the spot; that replaces the planned one.";
+
+exports.cableRampTo = "The interval the planned ramp ends at; 'off' plans no ramp. It cannot be shorter than the shortest interval for the release time and pre-focus.";
+
+exports.cableRampTime = "How long the planned ramp takes. The interval changes linearly in time: each gap between shots takes the interval at the shot it starts from, so a short ramp makes a few big steps and a long one many small ones.";
+
+exports.cableRampAfter = "When the planned ramp begins, counted from the first shot. Until then the run keeps the Interval above.";
+
+exports.cableRampLive = "Changes the interval of the running cable release. Pick Ramp To and Ramp Time, then Start Ramp: the interval goes linearly in time from where it is now to Ramp To. While it ramps the line shows the interval now, the target and the time left (Ramp 5.9s>16s 0:42); a planned ramp shows how long until it starts (Ramp 5s>16s in 9:41). Set Now switches to Ramp To at once. A ramp started here replaces the planned one.";
+
+exports.cableRampNow = "Switches the interval to Ramp To at once. The shot waiting for its time is moved too: it follows the previous shot by the new interval, or comes right away if that moment has passed.";
+
+exports.cableRampStop = "Stops the ramp where it is: the interval keeps the value it has reached.";
+
+exports.cableFrames = "How many shots to take before stopping; 'unlimited' keeps going until you stop it. Shown only while Duration is unlimited: a timed run takes whatever frames fit into its time.";
+
+exports.cableReleaseTime = "How long the shutter line stays closed for each shot. 200 ms suits most cameras; if the camera skips frames, make it longer.";
+
+exports.cablePrefocus = "Closes the focus (half-press) line this long before the shutter line. 0 closes both together, which is all a camera in manual focus needs. Use it only for cameras that want a focus signal first.";
+
+exports.cableHoldFocus = "Keeps the focus line closed from the first shot until you stop, for intervals under a second on cameras that want the half-press held.";
+
+exports.cableWakeUp = "Closes the focus line one second before each shot to wake a camera that went to sleep between shots. Only applies when the interval leaves room for it. On Sony bodies 'IR Remote Ctrl: On' keeps the camera awake without this.";
+
+exports.cableDelay = "Pause between START and the first shot, so pressing the button does not shake the first frame.";
+
+exports.cablePort = "Which AUX jack the camera cable is plugged into. AUX1 is the one nearer the SD slot. AUX2 is also the motion-sync output of the time-lapse, so use it only when AUX1 is busy.";
+
+exports.cablePulse = "Closes both lines of the selected port for one second: check the cable with a meter, or that the camera fires, without starting a run.";
+
+exports.cableStart = "Starts shooting with the settings above. While it runs this menu shows the status screen; the time-lapse cannot be started at the same time, and the VIEW will not power itself off.";
+
+exports.cableStatus = "The cable release is running. Frames taken (and the limit), time since the first shot, and the interval and port in use; select the interval line to ramp or change the interval. Press the cancel button to go to other menus; it keeps running.";
+
+exports.cableStop = "Stops the cable release and opens both lines. The frames already taken stay on the camera's card.";
+
+exports.cableDuration = "How long to keep shooting after the first shot, whatever number of frames that turns out to be; 'unlimited' keeps going until you stop it. With a duration set, the Frames limit is hidden and ignored.";

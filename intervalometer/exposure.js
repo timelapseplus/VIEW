@@ -1,5 +1,7 @@
-var tv = require('intervalometer/time-value.js');
-var interpolate = require('intervalometer/interpolate.js');
+var tv = require('./time-value.js');
+var interpolate = require('./interpolate.js');
+var fs = require('fs');
+
 
 var exp = {};
 var local = {};
@@ -8,9 +10,9 @@ exp.config = {};
 
 
 //exp.init = function(minEv, maxEv, nightCompensation, highlightProtection) {
-exp.init = function(minEv, maxEv, nightLuminance, dayLuminance, highlightProtection) {
-    if(nightLuminance == null) nightLuminance = -1.5;
-    if(dayLuminance == null) dayLuminance = 0;
+exp.init = function (minEv, maxEv, nightLuminance, dayLuminance, highlightProtection, datajs) {
+    if (nightLuminance == null) nightLuminance = -1.5;
+    if (dayLuminance == null) dayLuminance = 0;
 
     local = {
         lumArray: [],
@@ -20,7 +22,8 @@ exp.init = function(minEv, maxEv, nightLuminance, dayLuminance, highlightProtect
         rateHistoryArray: [],
         targetHighlights: null,
         targetLum: null,
-        first: true
+        first: true,
+        datajs: datajs
     };
 
     exp.status = {
@@ -33,11 +36,11 @@ exp.init = function(minEv, maxEv, nightLuminance, dayLuminance, highlightProtect
 
     exp.config = {
         sunrise: {
-            p: 0.9,
-            i: 0.4,
+            p: 0.97,
+            i: 0.5,
             d: 0.6,
-            targetTimeSeconds: 300,
-            evIntegrationSeconds: 300,
+            targetTimeSeconds: 360,
+            evIntegrationSeconds: 360,
             historyIntegrationSeconds: 480,
             highlightIntegrationFrames: 3,
         },
@@ -48,38 +51,66 @@ exp.init = function(minEv, maxEv, nightLuminance, dayLuminance, highlightProtect
             targetTimeSeconds: 480,
             evIntegrationSeconds: 480,
             historyIntegrationSeconds: 480,
-            highlightIntegrationFrames: 5,
+            highlightIntegrationFrames: 3,
         },
         maxEv: maxEv,
         minEv: minEv,
         maxRate: 30,
         hysteresis: 0.4,
         nightCompensationDayEv: 10,
-        nightCompensationNightEv: -2,
+        nightCompensationNightEv: -1,
         nightCompensation: 'auto',
         nightLuminance: nightLuminance,
         dayLuminance: dayLuminance,
         highlightProtection: highlightProtection,
         highlightProtectionLimit: 1
     };
-
+    fs.writeFileSync(datajs, "var datajs = {}\n" +
+        "module.exports = datajs\n" +
+        "\n" +
+        "datajs.config = " + JSON.stringify(exp.config) + "\n" +
+        "datajs.data = [ ");
     return exp.config;
 }
 
-exp.calculate = function(algorithm, direction, currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
-    if(minEv != null) exp.config.minEv = minEv;
-    if(maxEv != null) exp.config.maxEv = maxEv;
-    lastPhotoHistogram = normalizeHistogram(lastPhotoHistogram);
+exp.calculate = function (algorithm, direction, currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv, frame) {
+    if (minEv != null) exp.config.minEv = minEv;
+    if (maxEv != null) exp.config.maxEv = maxEv;
+    //// lastPhotoHistogram = normalizeHistogram(lastPhotoHistogram);
 
-    if(['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
+    if (['auto', 'sunset', 'sunrise'].indexOf(direction) === -1) direction = 'auto';
+
+    fs.appendFileSync(local.datajs, "{ \n" +
+        "frame: " + frame + ", \n" +
+        "time: " + Date.now() + ", \n" + // the ramp's step follows the real interval between frames: a replay needs it
+        "lastPhotoHistogram: " + JSON.stringify(lastPhotoHistogram) + ", \n" +
+        "currentEv: " + currentEv + ", \n" +
+        "lastPhotoLum: " + lastPhotoLum + ", \n" +
+        "minEv: " + minEv + ", \n" +
+        "maxEv: " + maxEv + ", \n" +
+        "},"
+    );
 
     //if(algorithm == "lrt") {
     //    return exp.calculate_LRTtimelapse(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
     //} else {
-        return exp.calculate_TLPAuto(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
+    var rampEv = exp.calculate_TLPAuto(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv);
+    return rampEv;
     //}
 }
 
+exp.estimateDayNightLuminance = function (currentEv, lastPhotoLum) {
+    var nightRatio = calculateNightRatio(currentEv);
+    var r = calculateDayNightReferences(currentEv, lastPhotoLum, nightRatio);
+    return {
+        currentEv: currentEv,
+        nightRatio: nightRatio,
+        dayRefEv: r.dayRefEv,
+        nightRefEv: r.nightRefEv
+    }
+}
+
+/*
 exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     var lum = 0;
     for(var i = 0; i < 256; i++) {
@@ -96,7 +127,7 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
         exp.status.rampEv = currentEv;
         local.lrtLumArray = [];
         local.targetLum = lum;
-    
+
         if(direction == 'sunrise') {
             local.direction = 1;
         } else if(direction == 'sunset') {
@@ -132,15 +163,33 @@ exp.calculate_LRTtimelapse = function(currentEv, direction, lastPhotoLum, lastPh
     console.log("LRT Lum:", lum, local.direction, local.targetLum, " currentEv:", currentEv, ", newEv:", exp.status.rampEv, ", Dir:", direction);
 
     return exp.status.rampEv;
+}*/
+
+function highlightsF(histogram, size) {
+    return histogram.slice(size * 0.75, size).reduce(function (acc, val) {
+        return acc + val;
+    }, 0);
 }
 
-exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
+function underexposedF(histogram, size) {
+    return histogram.slice(0, size / 2).reduce(function (acc, val) {
+        return acc + val;
+    }, 0);
+}
+
+function overexposedF(histogram, size) {
+    return histogram.slice(size / 2, size).reduce(function (acc, val) {
+        return acc + val;
+    }, 0);
+}
+
+exp.calculate_TLPAuto = function (currentEv, lastPhotoLum, lastPhotoHistogram, minEv, maxEv) {
     // measure the interval
     exp.status.intervalSeconds = 0;
     var thisPhotoTime = new Date();
     if (local.lastPhotoTime) {
         var intervalSeconds = (thisPhotoTime - local.lastPhotoTime) / 1000;
-        if(intervalSeconds > 0) {
+        if (intervalSeconds > 0) {
             exp.status.intervalSeconds = intervalSeconds; // in case the time changes while running, make sure this is never negative
         }
     }
@@ -154,14 +203,13 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
 
     // get the current rate of change
     exp.status.rate = calculateRate(currentEv, lastPhotoLum, config);
-    console.log("rate: ", exp.status.rate);
 
     // don't change if within hysteresis setting
     if (Math.abs(exp.status.rate) < exp.config.hysteresis) exp.status.rate = 0;
 
     // limit to max rate
-    if(exp.status.rate > exp.config.maxRate) exp.status.rate = exp.config.maxRate;
-    if(exp.status.rate < -exp.config.maxRate) exp.status.rate = -exp.config.maxRate;
+    if (exp.status.rate > exp.config.maxRate) exp.status.rate = exp.config.maxRate;
+    if (exp.status.rate < -exp.config.maxRate) exp.status.rate = -exp.config.maxRate;
 
     // don't swing quickly past zero (stops oscillation)
     if (exp.status.rate > 3 && exp.status.direction < -0.5) exp.status.rate = 0;
@@ -170,34 +218,46 @@ exp.calculate_TLPAuto = function(currentEv, lastPhotoLum, lastPhotoHistogram, mi
     // adjust exposure according to rate in stops/hour
     exp.status.rampEv += (exp.status.rate / 3600) * exp.status.intervalSeconds;
 
-    if(exp.config.highlightProtection) {
-        var highlights = lastPhotoHistogram[255] + lastPhotoHistogram[254] / 2;
+    if (exp.config.highlightProtection) {
+
+        const maxHist = Math.max.apply(null, lastPhotoHistogram);
+        const u = underexposedF(lastPhotoHistogram, lastPhotoHistogram.length);
+        const o = overexposedF(lastPhotoHistogram, lastPhotoHistogram.length);
+        const h = highlightsF(lastPhotoHistogram, lastPhotoHistogram.length);
+        const underexposed = 100 * u / (u + o);
+        const highlights = 100 * h / (u + o);
+        const shouldProtect = (highlights > 30 && underexposed <= 51) // this check is for overexposed highlights. blacks and half midtones should be less 51%
+            || (lastPhotoHistogram[lastPhotoHistogram.size - 1] == maxHist && underexposed < 70); // when highlights are clipped but that is a hdr scene, don't clip. 70 backs and midtones enough for hdr
 
         // highlight protection
-        local.highlightArray.unshift(highlights);
+        local.highlightArray.unshift(shouldProtect);
         local.highlightArray = local.highlightArray.slice(0, config.highlightIntegrationFrames);
-        var tempArray = local.highlightArray.slice(0).sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length);
-        exp.status.highlights = tempArray.reduce(function(sum, val) { return sum + val}) / tempArray.length;
-        if(local.targetHighlights === null) local.targetHighlights = Math.max(exp.status.highlights, 2);
+        var saturatedFrames = local.highlightArray.filter(function (i) {
+            return i;
+        }).length
 
-        if(exp.status.highlights > local.targetHighlights * 2 && lastPhotoHistogram[255] > local.targetHighlights && exp.status.highlightProtection < exp.config.highlightProtectionLimit) {
+
+        // var tempArray = local.highlightArray.slice(0).sort(function (a, b) {  return a - b;  }).slice(local.highlightArray.length > 2 ? 1 : 0, local.highlightArray.length > 2 ? local.highlightArray.length - 1 : local.highlightArray.length);
+        // exp.status.highlights = tempArray.reduce(function(sum, val) { return sum + val}) / tempArray.length;
+        // // if(local.targetHighlights === null) local.targetHighlights = Math.max(exp.status.highlights, 2);
+
+        if (saturatedFrames >= config.highlightIntegrationFrames - 1) { // 2 >= 3 - 1
             exp.status.highlightProtection += 0.333;
             exp.status.manualOffsetEv -= 0.333;
             exp.status.rampEv += 0.333;
-        } else if(exp.status.highlights < local.targetHighlights / 2 && exp.status.highlightProtection > 0.3) {
+            console.log("HIGHLIGHTS: protecting", exp.status.highlightProtection);
+        } else if ((saturatedFrames < config.highlightIntegrationFrames - 1) && (exp.status.highlightProtection > 0.3)) {
             exp.status.highlightProtection -= 0.333;
             exp.status.manualOffsetEv += 0.333;
-            exp.status.rampEv -= 0.333;
+            console.log("HIGHLIGHTS: restoring", exp.status.highlightProtection);
         }
         exp.status.highlightProtection = Math.round(exp.status.highlightProtection * 1000) / 1000;
     }
 
-    console.log("status: ", exp.status);
     //console.log("local: ", local);
 
     return exp.status.rampEv;
 }
-
 
 
 // ******* Private Functions ******* //
@@ -237,6 +297,7 @@ function calculateRate(currentEv, lastPhotoLum, config) {
 
     var rate = delta * (3600 / config.targetTimeSeconds);
 
+
     local.rateHistoryArray.push({
         val: rate,
         time: new Date()
@@ -245,6 +306,25 @@ function calculateRate(currentEv, lastPhotoLum, config) {
     exp.status.direction = tv.mean(local.rateHistoryArray);
 
     return rate;
+}
+
+function calculateNightRatio(currentEv) {
+    var evScale = [{
+        x: exp.config.nightCompensationNightEv,
+        y: 1
+    }, {
+        x: exp.config.nightCompensationDayEv,
+        y: 0
+    }]
+    return interpolate.linear(evScale, currentEv);
+}
+
+function calculateDayNightReferences(currentEv, lastPhotoLum, nightRatio) {
+    var duration = (exp.config.dayLuminance - exp.config.nightLuminance)
+    return {
+        nightRefEv: lastPhotoLum - duration * (1 - nightRatio),
+        dayRefEv: lastPhotoLum + duration * (nightRatio),
+    }
 }
 
 function calculateDelta(currentEv, lastPhotoLum, config) {
@@ -257,33 +337,31 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
         val: currentEv + lastPhotoLum,
         time: new Date()
     });
-
-    var evScale = [{
-        x: exp.config.nightCompensationNightEv,
-        y: 1
-    }, {
-        x: exp.config.nightCompensationDayEv,
-        y: 0
-    }]
-    exp.status.nightRatio = interpolate.linear(evScale, currentEv);
+    exp.status.nightRatio = calculateNightRatio(currentEv);
 
     if (local.first) {
+
 //        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + -1.5 * (1 - exp.status.nightRatio);
 //        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio);
-        exp.status.nightRefEv = lastPhotoLum * exp.status.nightRatio + exp.config.nightLuminance * (1 - exp.status.nightRatio);
-        exp.status.dayRefEv = lastPhotoLum * (1 - exp.status.nightRatio) + exp.config.dayLuminance * exp.status.nightRatio;
+
+        var r = calculateDayNightReferences(currentEv, lastPhotoLum, exp.status.nightRatio);
+
+        exp.status.nightRefEv = r.nightRefEv;
+        exp.status.dayRefEv = r.dayRefEv;
         exp.status.fixedRefEv = lastPhotoLum;
-        exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv, lastPhotoLum);
-        console.log("EXPOSURE: lastPhotoLum =", lastPhotoLum);
-        console.log("EXPOSURE: exp.status.manualOffsetEv =", exp.status.manualOffsetEv);
-        console.log("EXPOSURE: getEvOffsetScale(currentEv, lastPhotoLum) =", getEvOffsetScale(currentEv, lastPhotoLum));
+        exp.status.manualOffsetEv = lastPhotoLum - getEvOffsetScale(currentEv);
         //exp.status.offsetEv = getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv;
-        console.log("EXPOSURE: lastPhotoLum - exp.status.manualOffsetEv =", lastPhotoLum - exp.status.manualOffsetEv);
         local.first = false;
     }
 
     local.lumArray = tv.purgeArray(local.lumArray, config.evIntegrationSeconds);
     local.evArray = tv.purgeArray(local.evArray, config.evIntegrationSeconds);
+    // console.log("local.lumArray = ", local.lumArray.map(function (item) {
+    //     return item.val;
+    // }));
+    // console.log("local.evArray = ", local.evArray.map(function (item) {
+    //     return item.val;
+    // }));
 
     var trim = 1;
     if (exp.status.intervalSeconds) {
@@ -293,30 +371,23 @@ function calculateDelta(currentEv, lastPhotoLum, config) {
     exp.status.evMean = filteredMean(local.lumArray, trim);
     exp.status.evSlope = filteredSlope(local.evArray, trim) * config.targetTimeSeconds;
 
-    return lastPhotoLum - (getEvOffsetScale(currentEv, lastPhotoLum) + exp.status.manualOffsetEv);
+    var evOffsetScale = getEvOffsetScale(currentEv);
+
+    return lastPhotoLum - (evOffsetScale + exp.status.manualOffsetEv);
 }
 
 
-function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
+function getEvOffsetScale(ev, noAuto) {
     var evScale
-    if(exp.config.nightCompensation == 'auto') {
-        if(noAuto) { // for LRT algorithm
-            evScale = [{
-                ev: exp.config.nightCompensationNightEv,
-                offset: -1.333333
-            }, {
-                ev: exp.config.nightCompensationDayEv,
-                offset: 0
-            }]
-        } else { // auto calculate night exposure
-            evScale = [{
-                ev: exp.config.nightCompensationNightEv,
-                offset: exp.status.nightRefEv
-            }, {
-                ev: exp.config.nightCompensationDayEv,
-                offset: exp.status.dayRefEv
-            }]
-        }
+    if (exp.config.nightCompensation == 'auto') {
+        // auto calculate night exposure
+        evScale = [{
+            ev: exp.config.nightCompensationNightEv,
+            offset: exp.status.nightRefEv
+        }, {
+            ev: exp.config.nightCompensationDayEv,
+            offset: exp.status.dayRefEv
+        }]
     } else {
         evScale = [{
             ev: exp.config.nightCompensationNightEv,
@@ -327,25 +398,30 @@ function getEvOffsetScale(ev, lastPhotoLum, noAuto) {
         }]
     }
 
-    var values = evScale.map(function(item) {
+    var values = evScale.map(function (item) {
         return {
             x: item.ev,
             y: item.offset
         }
     });
-    return interpolate.linear(values, ev);
+
+    var result = interpolate.linear(values, ev);
+
+    return result;
 }
 
 function normalizeHistogram(histogramArray) {
     var lum = 0, sum = 0;
-    for(var i = 0; i < 256; i++) {
+    for (var i = 0; i < 256; i++) {
         sum += histogramArray[i];
     }
     sum /= 256;
-    for(var i = 0; i < 256; i++) {
+    for (var i = 0; i < 256; i++) {
         histogramArray[i] = histogramArray[i] / sum;
     }
     return histogramArray;
 }
+
+exp.normalizeHistogram = normalizeHistogram
 
 module.exports = exp;

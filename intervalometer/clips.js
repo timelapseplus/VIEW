@@ -6,50 +6,41 @@ var fs = require('fs');
 var async = require('async');
 var TLROOT = "/root/time-lapse";
 
-var startupTime = new Date();
 var db = require('system/db.js');
-console.log('DB module loaded in ' + (new Date() - startupTime) + 'ms');
 
 var clips = {};
 
 function getClipFramesCount(clipNumber, callback) {
     var folder = TLROOT + "/tl-" + clipNumber;
-    //console.log("reading frame count for", clipNumber);
     db.getTimelapseByName('tl-' + clipNumber, function(err, clip) {
         if(!err && clip) {
-            return callback(null, clip.frames);            
-        } else { // old way
+            return callback(null, clip.frames);
+        } else {
             fs.readFile(folder + "/count.txt", function(err, frames) {
                 if(err) {
-                    //console.log("clip frames err:", clipNumber, err, frames);
                     return callback(null, null);
                 } else if (!parseInt(frames)) {
-                    //console.log("recovering count for " + clipNumber);
                     clips.getTimelapseData(clipNumber, 0, function(err2, data) {
                         if(!err2 && data && data.length > 0) {
                             frames = data.length;
                             fs.writeFile(folder + "/count.txt", frames.toString());
-                            //console.log("clip frames recovery", clipNumber, frames);
                             return callback(null, frames);
                         } else {
-                            console.log("clip frames recovery err:", clipNumber, err2, data);
                             return callback(null, null);
-                        } 
+                        }
                     });
                 } else {
                     frames = parseInt(frames);
-                    //console.log("clip frames:", clipNumber, frames);
                     return callback(null, frames);
                 }
-            });        
+            });
         }
     });
 }
 
 clips.getClipFramesCount = getClipFramesCount;
 
-clips.getTimelapseClip = function(clipNumber, callback) {
-    //console.log("fetching timelapse clip " + clipNumber);
+clips.getTimelapseClip = function(clipNumber, withoutImages, callback) {
     var clip = {};
     var folder = TLROOT + "/tl-" + clipNumber;
     db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
@@ -58,30 +49,37 @@ clips.getTimelapseClip = function(clipNumber, callback) {
             clip.id = dbClip.id;
             clip.frames = dbClip.frames;
             clip.name = "TL-" + clipNumber;
-            if(dbClip.thumbnail) {
+
+            // Don't return clips with null frames
+            if (!clip.frames) {
+                return callback(null, null);
+            }
+
+            if(dbClip.thumbnail && !withoutImages) {
                 fs.readFile(dbClip.thumbnail, function(err, jpegData) {
                     clip.image = jpegData;
-                    //if (err) console.log("clip fetch err:", err, clip);
                     callback(null, err ? null : clip);
                 });
             } else {
-                callback(null, null);
+                callback(null, clip);
             }
         } else {
             getClipFramesCount(clipNumber, function(err, frames) {
                 clip.frames = frames;
                 if (!clip.frames) {
-                    if (err) console.log("clip frames err:", err, clip);
                     return callback(null, null);
                 }
                 clip.index = clipNumber;
                 clip.name = "TL-" + clipNumber;
                 clip.path = folder + "/img%05d.jpg";
-                fs.readFile(folder + "/img00001.jpg", function(err, jpegData) {
-                    clip.image = jpegData;
-                    //if (err) console.log("clip fetch err:", err, clip);
-                    callback(null, err ? null : clip);
-                });
+                if (!withoutImages) {
+                    fs.readFile(folder + "/img00001.jpg", function(err, jpegData) {
+                        clip.image = jpegData;
+                        callback(null, err ? null : clip);
+                    });
+                } else {
+                    callback(null, clip);
+                }
             });
         }
     });
@@ -94,56 +92,57 @@ clips.getLastTimelapse = function(callback) {
         } else {
             tlIndex = parseInt(tlIndex);
         }
-        return clips.getTimelapseClip(tlIndex, callback);
+        return clips.getTimelapseClip(tlIndex, false, callback);
     });
 }
 
-clips.getRecentTimelapseClips = function(count, callback) {
+clips.getRecentTimelapseClips = function(count, withoutImages, callback) {
     db.getTimelapseIndex(function(err, tlIndex) {
-        if (!tlIndex) {
-            if (callback) callback(false);
-            return;
+        if (err || !tlIndex) {
+            return callback && callback(err || "No timelapse index found");
         }
+
+        tlIndex = parseInt(tlIndex);
 
         var clipsResults = [];
         fs.readdir(TLROOT, function(err, files) {
+            if (err) {
+                return callback && callback(err);
+            }
+
             files = files.map(function(file) {
                 return file.toLowerCase();
             });
-            var getNextClip = function() {
-                if(tlIndex > 0 && clipsResults.length < count) {
-                    if(files.indexOf('tl-' + tlIndex) === -1) {
-                        tlIndex--;
-                        getNextClip();
-                    } else {
-                        clips.getTimelapseClip(tlIndex, function(err, clip) {
-                            if(!err && clip && clip.name) {
-                                clipsResults.push(clip);
-                            }
-                            tlIndex--;
-                            getNextClip();
-                        });
-                    }
-                } else {
-                    setTimeout(function(){
-                        //console.log("clipsResults:", clipsResults);
-                        clipsResults = clipsResults.sort(function(a, b){
-                            if(a.index < b.index) {
-                                return 1;
-                            }
-                            if(a.index > b.index) {
-                                return -1;
-                            }
-                            return 0;
-                        });
-                        callback(null, clipsResults); 
-                    });
+
+            var currentIndex = tlIndex;
+            var pendingClips = [];
+
+            while (currentIndex > 0 && pendingClips.length < count) {
+                if (files.indexOf('tl-' + currentIndex) !== -1) {
+                    pendingClips.push(currentIndex);
                 }
+                currentIndex--;
             }
-            getNextClip();
+
+            async.each(pendingClips, function (clipIndex, cb) {
+                clips.getTimelapseClip(clipIndex, withoutImages, function (err, clip) {
+                    if (!err && clip && clip.name && clip.frames !== null) {
+                        clipsResults.push(clip);
+                    }
+                    cb();
+                });
+            }, function (err) {
+                clipsResults = clipsResults.sort(function (a, b) {
+                    if (a.index < b.index) return 1;
+                    if (a.index > b.index) return -1;
+                    return 0;
+                });
+
+                callback(null, clipsResults);
+            });
         });
     });
-}
+};
 
 clips.getTimelapseImagesFromPaths = function(framesPaths, hq, callback) {
     if(!framesPaths || framesPaths.length == 0) return callback && callback();
@@ -182,7 +181,6 @@ clips.getTimelapseImages = function(clipNumber, startFrame, limitFrames, callbac
 
 var getTimelapseImages = function(clipNumber, startFrame, limitFrames, hq, callback) {
     try {
-        //console.log("fetching timelapse clip " + clipNumber);
         var clip = {};
         var folder = TLROOT + "/tl-" + clipNumber;
         db.getTimelapseByName('tl-' + clipNumber, function(err, dbClip) {
@@ -209,7 +207,6 @@ var getTimelapseImages = function(clipNumber, startFrame, limitFrames, hq, callb
                 getClipFramesCount(clipNumber, function(err, frames) {
                     clip.frames = frames;
                     if (!clip.frames) {
-                        //if (err) console.log("clip frames err:", err, clip);
                         return callback(null, null);
                     }
                     clip.name = "TL-" + clipNumber;
@@ -326,7 +323,6 @@ clips.saveSpreadsheetToCard = function(clipNumber, callback) {
         core.mountSd(function() {
             if (core.sdMounted) {
                 var destPath = "/media/tl-" + clipNumber + "-data.csv";
-                console.log("writing CSV to " + destPath);
                 clips.getSpreadsheet(clipNumber, 0, function(err, csv){
                     if(!err && csv) {
                         fs.writeFile(destPath, csv, function(err){
