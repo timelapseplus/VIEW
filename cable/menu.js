@@ -11,27 +11,81 @@ module.exports = function (deps) {
     var core = deps.core;
     var cable = deps.cable;
 
-    // one options screen per setting: the value is saved as soon as it is picked
-    var optionsMenu = function (title, key, values, format, helpText) {
+    // The times every list here offers, the interval and the ramp's alike: the steps of the time-lapse menu's interval
+    // list (main.js), from 0.3 s and up to 2 hours, 116 values; "Custom..." takes any other value to 0.1 s.
+    var TIMES = (function () {
+        var t = [], i;
+        for (i = 3; i < 50; i++) t.push(i / 10);    // 0.3 - 4.9 s by 0.1
+        for (i = 10; i < 24; i++) t.push(i / 2);    // 5 - 11.5 s by 0.5
+        for (i = 12; i < 35; i++) t.push(i);        // 12 - 34 s by 1
+        for (i = 35; i < 90; i += 5) t.push(i);     // 35 - 85 s by 5
+        t.push(90);
+        for (i = 2; i < 15; i++) t.push(i * 60);    // 2 - 14 min by 1
+        [15, 20, 30, 45, 60, 90, 120].forEach(function (m) {
+            t.push(m * 60);
+        });
+        return t;
+    })();
+
+    // An options screen that sets target[key]: after() runs once a value is picked (the settings save themselves).
+    // With custom, the last item opens a digit-by-digit entry in seconds (numberInput, like the coordinates).
+    var pickMenu = function (title, target, key, values, format, helpText, custom, after) {
+        var items = values.map(function (v) {
+            return {
+                name: title,
+                value: format(v),
+                help: helpText,
+                action: ui.set(target, key, v, function (cb) {
+                    if (after) after();
+                    cb && cb();
+                })
+            };
+        });
+        if (custom) {
+            items.push({
+                name: title,
+                value: "Custom...",
+                help: helpText,
+                action: {
+                    type: 'function',
+                    fn: function (arg, cb) {
+                        cb(null, {
+                            name: title + " (seconds)",
+                            type: "numberInput",
+                            value: target[key] || 0,
+                            help: helpText,
+                            onSave: function (v) { // the entry goes back to the menu the list was opened from
+                                v = Math.round(parseFloat(v) * 10) / 10;
+                                if (!(v > 0)) return;
+                                target[key] = v;
+                                if (after) after();
+                            }
+                        });
+                    }
+                }
+            });
+        }
         return {
             name: title,
             type: "options",
-            items: values.map(function (v) {
-                return {
-                    name: title,
-                    value: format(v),
-                    help: helpText,
-                    action: ui.set(cable.settings, key, v, function (cb) {
-                        cable.save();
-                        cb && cb();
-                    })
-                };
-            })
+            items: items
         };
+    };
+
+    // one options screen per setting: the value is saved as soon as it is picked
+    var optionsMenu = function (title, key, values, format, helpText, custom) {
+        return pickMenu(title, cable.settings, key, values, format, helpText, custom, function () {
+            cable.save();
+        });
     };
 
     var seconds = function (v) {
         return v + " seconds";
+    };
+    var timeValue = function (v) { // a list value: 4.5 seconds, 1.5 minutes, 2 hours
+        if (v < 90) return v + " seconds";
+        if (v >= 3600 && v % 3600 == 0) return (v / 3600) + (v == 3600 ? " hour" : " hours");
+        return (v / 60) + " minutes";
     };
     var millis = function (v) {
         return v + "ms";
@@ -53,6 +107,26 @@ module.exports = function (deps) {
         if (v < 60) return v + " seconds";
         if (v < 3600) return (v / 60) + " minutes";
         return (v / 3600) + (v == 3600 ? " hour" : " hours");
+    };
+
+    var shortTime = function (secs) { // a menu line's value: 4.5s, 1:00, 1:00:00
+        return secs < 60 ? secs + "s" : clock(secs);
+    };
+
+    var tenths = function (ms) {
+        return Math.round(ms / 100) / 10;
+    };
+
+    // The status screen's interval line (redrawn every second while it runs): "Interval 5s AUX1"; with a ramp the
+    // interval now, the target and the time left, "Ramp 5.9s>16s 0:42", or "Ramp 5s>16s in 9:41" while a planned one
+    // waits for its start. "Ramp" instead of "Interval" keeps the line inside the 160 px of the screen.
+    var intervalLine = function (st) {
+        var r = st.ramp;
+        if (!r) return "Interval~" + tenths(st.intervalMs) + "s " + st.port;
+        var change = shortTime(tenths(st.intervalMs)) + ">" + shortTime(tenths(r.toMs));
+        var wait = (r.startTime - Date.now()) / 1000;
+        if (wait > 0) return "Ramp~" + change + " in " + clock(Math.ceil(wait));
+        return "Ramp~" + change + " " + clock(Math.ceil(Math.max(0, wait + r.overMs / 1000)));
     };
 
     var stopConfirm = {
@@ -88,6 +162,105 @@ module.exports = function (deps) {
         }
     };
 
+    // The ramp started from the status screen: target and time are
+    // picked first, kept for the run, and start from the planned ramp's or the interval's values.
+    var live = {toS: 1, overS: 60};
+    cable.on('start', function () {
+        live.toS = cable.settings.rampToS || cable.settings.intervalS;
+        live.overS = cable.settings.rampOverS || 60;
+    });
+
+    // Starts the ramp (overS 0 = at once) and goes back to the status screen, two levels up.
+    var rampAction = function (overS) {
+        return {
+            type: 'function',
+            fn: function (arg, cb) {
+                cable.ramp(live.toS, overS == null ? live.overS : overS, function (err) {
+                    ui.back();
+                    if (err) return ui.alert('Error', "Interval ramp failed:\n" + err);
+                    ui.back();
+                });
+            }
+        };
+    };
+
+    var liveRampMenu = {
+        name: "interval ramp now",
+        type: "menu",
+        items: [{
+            name: function () {
+                return "Ramp To~" + shortTime(live.toS);
+            },
+            help: help.cableRampLive,
+            action: pickMenu("Ramp To", live, 'toS', TIMES, timeValue, help.cableRampLive, true)
+        }, {
+            name: function () {
+                return "Ramp Time~" + shortTime(live.overS);
+            },
+            help: help.cableRampLive,
+            action: pickMenu("Ramp Time", live, 'overS', TIMES, timeValue, help.cableRampLive, true)
+        }, {
+            name: "Start Ramp",
+            help: help.cableRampLive,
+            action: rampAction()
+        }, {
+            name: "Set Now",
+            help: help.cableRampNow,
+            action: rampAction(0)
+        }, {
+            name: "Stop Ramp",
+            help: help.cableRampStop,
+            condition: function () {
+                return !!cable.status.ramp;
+            },
+            action: {
+                type: 'function',
+                fn: function (arg, cb) {
+                    cable.stopRamp(function (err) {
+                        ui.back();
+                        if (err) return ui.alert('Error', "Stopping the ramp failed:\n" + err);
+                        ui.back();
+                    });
+                }
+            }
+        }]
+    };
+
+    // The ramp planned with the start, in the settings.
+    var rampSettingsMenu = {
+        name: "interval ramp",
+        type: "menu",
+        items: [{
+            name: function () {
+                return "Ramp To~" + (cable.settings.rampToS ? shortTime(cable.settings.rampToS) : "off");
+            },
+            help: help.cableRampTo,
+            action: optionsMenu("Ramp To", 'rampToS', [0].concat(TIMES), function (v) {
+                return v ? timeValue(v) : "off";
+            }, help.cableRampTo, true)
+        }, {
+            name: function () {
+                return "Ramp Time~" + shortTime(cable.settings.rampOverS);
+            },
+            help: help.cableRampTime,
+            condition: function () {
+                return cable.settings.rampToS > 0;
+            },
+            action: optionsMenu("Ramp Time", 'rampOverS', TIMES, timeValue, help.cableRampTime, true)
+        }, {
+            name: function () {
+                return "Ramp After~" + (cable.settings.rampAfterS ? shortTime(cable.settings.rampAfterS) : "first shot");
+            },
+            help: help.cableRampAfter,
+            condition: function () {
+                return cable.settings.rampToS > 0;
+            },
+            action: optionsMenu("Ramp After", 'rampAfterS', [0].concat(TIMES), function (v) {
+                return v ? timeValue(v) : "at the first shot";
+            }, help.cableRampAfter, true)
+        }]
+    };
+
     // Four lines: the OLED shows a menu of up to four items whole, without scrolling (hardware/oled.js writeMenu).
     var statusMenu = function () {
         var st = cable.status;
@@ -104,9 +277,9 @@ module.exports = function (deps) {
                 help: help.cableStatus,
                 action: noAction
             }, {
-                name: "Interval~" + (st.intervalMs / 1000) + "s " + st.port,
-                help: help.cableStatus,
-                action: noAction
+                name: intervalLine(st),
+                help: help.cableRampLive,
+                action: liveRampMenu
             }, {
                 name: "Stop Cable Release",
                 help: help.cableStop,
@@ -126,7 +299,13 @@ module.exports = function (deps) {
                 return "Interval~" + cable.settings.intervalS + "s";
             },
             help: help.cableInterval,
-            action: optionsMenu("Interval", 'intervalS', [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 15, 20, 30, 45, 60, 90, 120, 180, 300, 600], seconds, help.cableInterval)
+            action: optionsMenu("Interval", 'intervalS', TIMES, timeValue, help.cableInterval, true)
+        }, {
+            name: function () {
+                return "Interval Ramp~" + (cable.settings.rampToS > 0 ? "to " + shortTime(cable.settings.rampToS) : "off");
+            },
+            help: help.cableIntervalRamp,
+            action: rampSettingsMenu
         }, {
             name: function () {
                 return "Duration~" + (cable.settings.durationS ? clock(cable.settings.durationS) : "unlimited");

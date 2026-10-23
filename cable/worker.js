@@ -5,7 +5,13 @@
 //   nice -n -10 node cable/worker.js
 // Commands come as JSON lines on stdin, events go out as JSON lines on stdout:
 //   {"cmd":"start","port":"AUX1","intervalMs":500,"releaseMs":200,"prefocusMs":0,"holdFocus":false,
-//    "wakeUp":false,"frames":0,"delayMs":2000}   -> {"ev":"started"} then {"ev":"frame","n":1,"t":2000,"late":0.3,"skipped":0} ...
+//    "wakeUp":false,"frames":0,"delayMs":2000}   -> {"ev":"started"} then
+//                                                   {"ev":"frame","n":1,"t":2000,"late":0.3,"skipped":0,"intervalMs":500} ...
+//    (optional "ramp":{"toMs":16000,"overMs":60000,"afterMs":600000}: a ramp planned from the start)
+//   {"cmd":"ramp","toMs":16000,"overMs":60000}   -> {"ev":"ramp","reason":"set","intervalMs":5000,"ramp":{...}} or
+//                                                   {"ev":"ramp","error":"..."}; overMs 0 = at once
+//   {"cmd":"rampStop"}                           -> {"ev":"ramp","reason":"stop","intervalMs":9800,"ramp":null}
+//   (a ramp that has run its course)             -> {"ev":"ramp","reason":"done","intervalMs":16000,"ramp":null}
 //   {"cmd":"stop"}                               -> {"ev":"done","reason":"stopped","frames":12}
 //   {"cmd":"pulse","port":"AUX1","ms":1000}      -> {"ev":"pulse"}
 //   {"cmd":"release"}, {"cmd":"quit"}
@@ -30,6 +36,16 @@ function now() {
 
 function send(ev, cb) {
     process.stdout.write(JSON.stringify(ev) + '\n', cb);
+}
+
+function rampEvent(reason, state) {
+    var r = state.ramp;
+    return {
+        ev: 'ramp',
+        reason: reason,
+        intervalMs: Math.round(state.intervalMs),
+        ramp: r ? {fromMs: Math.round(r.fromMs), toMs: r.toMs, overMs: r.overMs, elapsedMs: Math.round(r.elapsedMs)} : null
+    };
 }
 
 function releaseAll() {
@@ -59,11 +75,14 @@ var sched = createScheduler({
         }
     },
     onFrame: function (n, info) {
-        send({ev: 'frame', n: n, t: Math.round(info.t), late: Math.round(info.late * 10) / 10, skipped: info.skipped});
+        send({ev: 'frame', n: n, t: Math.round(info.t), late: Math.round(info.late * 10) / 10, skipped: info.skipped, intervalMs: Math.round(info.intervalMs)});
     },
     onDone: function (reason, frames) {
         releaseAll();
         send({ev: 'done', reason: reason, frames: frames});
+    },
+    onRamp: function (state) {
+        send(rampEvent('done', state));
     }
 });
 
@@ -99,6 +118,12 @@ function handle(cmd) {
         case 'stop':
             if (sched.running()) sched.stop(); // onDone sends the event
             else send({ev: 'done', reason: 'stopped', frames: 0});
+            break;
+        case 'ramp':
+        case 'rampStop':
+            var rampErr = cmd.cmd == 'ramp' ? sched.rampTo(cmd.toMs, cmd.overMs) : sched.stopRamp();
+            if (rampErr) return send({ev: 'ramp', error: rampErr});
+            send(rampEvent(cmd.cmd == 'ramp' ? 'set' : 'stop', sched.state()));
             break;
         case 'pulse':
             if (sched.running()) return send({ev: 'error', message: 'running'});

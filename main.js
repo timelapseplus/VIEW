@@ -5534,7 +5534,8 @@ app.on('message', function(msg) {
                 msg.reply('cable', {settings: cable.settings, status: cable.status});
                 break;
 
-            case 'cableSet': // msg.settings: any of intervalS, frames, releaseMs, prefocusMs, holdFocus, wakeUp, delayS, port
+            case 'cableSet': // msg.settings: any of intervalS, frames, durationS, releaseMs, prefocusMs, holdFocus, wakeUp, delayS, port,
+                             // rampToS (0 = no planned ramp), rampOverS, rampAfterS
                 cable.update(msg.settings, function(err) {
                     msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
                 });
@@ -5558,6 +5559,18 @@ app.on('message', function(msg) {
 
             case 'cablePulse': // closes both lines of the selected port for msg.ms (default 1000)
                 cable.pulse(msg.ms, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableRamp': // a running cable release's interval goes linearly to msg.toS seconds over msg.overS (0 = at once)
+                cable.ramp(msg.toS, msg.overS, function(err) {
+                    msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
+                });
+                break;
+
+            case 'cableRampStop': // the ramp stops where it is
+                cable.stopRamp(function(err) {
                     msg.reply('cable', {error: err ? String(err) : null, settings: cable.settings, status: cable.status});
                 });
                 break;
@@ -6148,22 +6161,31 @@ core.on('intervalometer.currentProgram', function(msg) {
     app.send('timelapseProgram', {program: core.currentProgram});
 });
 
-// Cable release events: auto power-off is held off while it runs (like a time-lapse), the status goes to the
-// app and, when its screen is up, to the OLED; a 1 s ticker keeps the elapsed time moving between frames.
+// Cable release events: auto power-off is held off while it runs (like a time-lapse). The status screen, when it is
+// up, is redrawn on every frame (at most 3.3 times a second at 0.3 s; the time-lapse status screen draws every 150 ms)
+// and once a second between frames for the clock and the ramp's countdown; the app gets the status at most every
+// 0.5 s (cable-release.js emitStatus), which used to pace the screen too: every other frame at 0.4 s.
 var cableTicker = null;
+var cableDrawnAt = 0;
 var cableScreenUp = function() {
     return VIEW_HARDWARE && oled.visible && ui.name == 'cable status';
+};
+var cableRedraw = function() {
+    if (!cableScreenUp()) return;
+    cableDrawnAt = Date.now();
+    ui.reload();
 };
 cable.on('start', function() {
     if (VIEW_HARDWARE) power.disableAutoOff();
     if (cableTicker) clearInterval(cableTicker);
     cableTicker = setInterval(function() {
-        if (cableScreenUp()) ui.reload();
+        if (Date.now() - cableDrawnAt >= 900) cableRedraw();
     }, 1000);
 });
+cable.on('frame', cableRedraw);
 cable.on('status', function(status) {
     app.send('cableStatus', {status: status});
-    if (cableScreenUp()) ui.reload();
+    if (Date.now() - cableDrawnAt >= 100) cableRedraw(); // a ramp change; a frame's own status comes right after its redraw
 });
 cable.on('done', function(reason, status) {
     if (cableTicker) clearInterval(cableTicker);

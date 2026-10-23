@@ -45,6 +45,7 @@ FakeClock.prototype.advance = function (to) {
 function build(clock, cfgOverrides) {
     var edges = [];
     var frames = [];
+    var ramps = [];
     var done = null;
     var sched = createScheduler({
         now: clock.now,
@@ -60,10 +61,13 @@ function build(clock, cfgOverrides) {
             }
         },
         onFrame: function (n, info) {
-            frames.push({n: n, t: info.t, late: info.late, skipped: info.skipped});
+            frames.push({n: n, t: info.t, late: info.late, skipped: info.skipped, intervalMs: info.intervalMs});
         },
         onDone: function (reason, n) {
             done = {reason: reason, frames: n};
+        },
+        onRamp: function (state) {
+            ramps.push(state);
         }
     });
     var cfg = {intervalMs: 500, releaseMs: 200, prefocusMs: 0, holdFocus: false, wakeUp: false, frames: 0, delayMs: 2000};
@@ -73,6 +77,7 @@ function build(clock, cfgOverrides) {
         cfg: cfg,
         edges: edges,
         frames: frames,
+        ramps: ramps,
         done: function () {
             return done;
         },
@@ -250,6 +255,114 @@ describe('cable scheduler', function () {
         assert.equal(createScheduler.minIntervalMs({releaseMs: 100, prefocusMs: 0}), 200);
         assert.ok(v({intervalMs: 0, releaseMs: 200}));
         assert.ok(v(null));
+    });
+
+    describe('interval ramp', function () {
+        function relative(list, base) {
+            return list.map(function (t) {
+                return Math.round((t - base) * 100) / 100;
+            });
+        }
+
+        it('5 -> 16 s over a minute: each gap takes the interval at the shot it starts from', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 5000, delayMs: 0});
+            var T = clock.t;
+            s.sched.start(s.cfg);
+            clock.advance(T + 200); // the first shot is done, the next one is armed for T + 5000
+            assert.equal(s.sched.rampTo(16000, 60000), null); // the ramp starts now, at T + 200
+            assert.equal(s.sched.state().ramp.fromMs, 5000);
+            clock.advance(T + 95000);
+            // I(t) = 5000 + 11000 * (t - 200) / 60000 until T + 60200, then 16000
+            assert.deepEqual(relative(s.shutterCloses(), T), [0, 5000, 10880, 17838, 26071.63, 35814.77, 47344.14, 60987.23, 76987.23, 92987.23]);
+            assert.equal(s.ramps.length, 1, 'the end of the ramp is reported once');
+            assert.deepEqual(s.ramps[0], {intervalMs: 16000, ramp: null});
+            assert.equal(s.frames[8].intervalMs, 16000);
+            assert.deepEqual(s.sched.state(), {intervalMs: 16000, ramp: null});
+        });
+
+        it('ramps down the same way', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 16000, delayMs: 0});
+            var T = clock.t;
+            s.sched.start(s.cfg);
+            clock.advance(T + 200);
+            s.sched.rampTo(5000, 30000);
+            clock.advance(T + 120000);
+            var shots = s.shutterCloses();
+            var gaps = [];
+            for (var i = 1; i < shots.length; i++) gaps.push(shots[i] - shots[i - 1]);
+            assert.equal(gaps[0], 16000);
+            for (i = 1; i < gaps.length; i++) assert.ok(gaps[i] <= gaps[i - 1], 'gaps never grow: ' + gaps.join(', '));
+            assert.equal(gaps[gaps.length - 1], 5000);
+        });
+
+        it('"set now" (no ramp time) moves the waiting shot: 10 min -> 5 s does not wait out the 10 min', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 600000, delayMs: 0});
+            var T = clock.t;
+            s.sched.start(s.cfg);
+            clock.advance(T + 10000);
+            assert.equal(s.sched.rampTo(5000, 0), null);
+            clock.advance(T + 21000);
+            assert.deepEqual(relative(s.shutterCloses(), T), [0, 10000, 15000, 20000]);
+            assert.equal(s.sched.state().intervalMs, 5000);
+        });
+
+        it('stop ramp keeps the interval where the ramp got to, and moves the waiting shot to it', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 5000, delayMs: 0});
+            var T = clock.t;
+            s.sched.start(s.cfg);
+            clock.advance(T + 200);
+            s.sched.rampTo(15000, 10000);
+            clock.advance(T + 6000); // shot at 5000; the next one was armed at 5000 + I(5000) = 14800
+            assert.equal(s.sched.stopRamp(), null);
+            assert.deepEqual(s.sched.state(), {intervalMs: 10800, ramp: null}); // I(6000) = 5000 + 10000 * 5800 / 10000
+            clock.advance(T + 30000);
+            assert.deepEqual(relative(s.shutterCloses(), T), [0, 5000, 15800, 26600]);
+        });
+
+        it('a ramp planned with the start begins afterMs after the first shot', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 500, delayMs: 0, ramp: {toMs: 1000, overMs: 0, afterMs: 2000}});
+            var T = clock.t;
+            assert.equal(s.sched.start(s.cfg), null);
+            assert.equal(s.sched.state().ramp.elapsedMs, -2000, 'waits for its start');
+            clock.advance(T + 4700);
+            assert.deepEqual(relative(s.shutterCloses(), T), [0, 500, 1000, 1500, 2000, 2500, 3500, 4500]);
+            assert.equal(s.ramps.length, 1);
+        });
+
+        it('refuses a target shorter than the shortest interval, and anything while not running', function () {
+            var clock = new FakeClock();
+            var s = build(clock);
+            assert.equal(s.sched.rampTo(1000, 0), 'not running');
+            assert.equal(s.sched.stopRamp(), 'not running');
+            s.sched.start(s.cfg);
+            assert.ok(/shorter/.test(s.sched.rampTo(200, 1000)));
+            assert.ok(/negative/.test(s.sched.rampTo(1000, -1)));
+            assert.equal(s.sched.state().intervalMs, 500, 'a refused ramp changes nothing');
+            assert.ok(/shorter/.test(createScheduler.validate({intervalMs: 500, releaseMs: 200, ramp: {toMs: 100, overMs: 0, afterMs: 0}})));
+            assert.ok(/before the first shot/.test(createScheduler.validate({intervalMs: 500, releaseMs: 200, ramp: {toMs: 1000, overMs: 0, afterMs: -1}})));
+        });
+
+        it('wake-up is checked against the gap before each shot', function () {
+            var clock = new FakeClock();
+            var s = build(clock, {intervalMs: 5000, delayMs: 0, wakeUp: true});
+            var T = clock.t;
+            s.sched.start(s.cfg);
+            clock.advance(T + 1000); // the next shot (T + 5000) would close the focus line at T + 4000
+            s.sched.rampTo(800, 0); // now: 1000 ms after the first shot, too short for a 1 s lead
+            clock.advance(T + 2700);
+            var focusCloses = s.edges.filter(function (e) {
+                return e.line == 'focus' && e.closed;
+            }).map(function (e) {
+                return e.t - T;
+            });
+            assert.deepEqual(focusCloses, [0, 1000, 1800, 2600]);
+            assert.deepEqual(relative(s.shutterCloses(), T), [0, 1000, 1800, 2600]);
+        });
     });
 
     it('a test pulse closes both lines for the given time', function () {

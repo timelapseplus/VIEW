@@ -27,7 +27,10 @@ var DEFAULTS = {
     holdFocus: false,   // keep the focus line closed between shots
     wakeUp: false,      // close the focus line 1 s before each shot to wake a sleeping camera
     delayS: 2,          // pause before the first shot
-    port: 'AUX1'        // which jack the camera cable is in
+    port: 'AUX1',       // which jack the camera cable is in
+    rampToS: 0,         // a ramp planned with the start: the interval goes linearly to this many seconds (0 = none)...
+    rampOverS: 60,      // ...over this long...
+    rampAfterS: 0       // ...beginning this long after the first shot (docs/2026-10-23-cable-interval-ramp.md)
 };
 
 var cable = new EventEmitter();
@@ -54,13 +57,18 @@ function idleStatus() {
         total: 0,
         durationMs: 0,
         startTime: 0,
-        intervalMs: 0,
+        intervalMs: 0,      // the interval now (a ramp changes it)
+        ramp: null,         // {fromMs, toMs, overMs, startTime}: a ramp planned or under way
         lastFrameTime: 0,
         late: 0,
         skipped: 0,
         port: '',
         reason: ''
     };
+}
+
+function rampStatus(r) { // the worker's ramp (elapsedMs on its own clock) as the status shows it
+    return r ? {fromMs: r.fromMs, toMs: r.toMs, overMs: r.overMs, startTime: Date.now() - r.elapsedMs} : null;
 }
 
 // opts: {db, spawn, log} — the latter two are for the tests
@@ -101,7 +109,7 @@ cable.update = function (obj, cb) {
 };
 
 function workerConfig(s) {
-    return {
+    var cfg = {
         cmd: 'start',
         port: s.port,
         intervalMs: Math.round(s.intervalS * 1000),
@@ -113,6 +121,10 @@ function workerConfig(s) {
         durationMs: Math.round(s.durationS * 1000) || 0,
         delayMs: Math.round(s.delayS * 1000)
     };
+    if (s.rampToS > 0) {
+        cfg.ramp = {toMs: Math.round(s.rampToS * 1000), overMs: Math.round(s.rampOverS * 1000) || 0, afterMs: Math.round(s.rampAfterS * 1000) || 0};
+    }
+    return cfg;
 }
 
 // null when the settings can run, otherwise the reason
@@ -136,7 +148,8 @@ function emitStatus(force) {
 function describe(s) {
     return 'interval ' + s.intervalS + ' s, release ' + s.releaseMs + ' ms, pre-focus ' + s.prefocusMs + ' ms' +
         (s.holdFocus ? ', hold focus' : '') + (s.wakeUp ? ', wake-up' : '') + ', frames ' + (s.frames || 'unlimited') +
-        ', duration ' + (s.durationS ? s.durationS + ' s' : 'unlimited') + ', delay ' + s.delayS + ' s, port ' + s.port;
+        ', duration ' + (s.durationS ? s.durationS + ' s' : 'unlimited') + ', delay ' + s.delayS + ' s, port ' + s.port +
+        (s.rampToS > 0 ? ', ramp to ' + s.rampToS + ' s over ' + s.rampOverS + ' s from ' + s.rampAfterS + ' s' : '');
 }
 
 function handleEvent(ev) {
@@ -158,13 +171,28 @@ function handleEvent(ev) {
             cable.status.lastFrameTime = Date.now();
             cable.status.late = ev.late;
             cable.status.skipped = ev.skipped;
+            if (ev.intervalMs > 0) cable.status.intervalMs = ev.intervalMs;
             if (ev.n == 1 || ev.n % LOG_EVERY_FRAMES == 0 || ev.skipped != loggedSkipped) {
                 log('CABLE: frame ' + ev.n + (cable.status.total ? '/' + cable.status.total : '') + ' at ' + (ev.t / 1000).toFixed(1) +
-                    ' s, late ' + ev.late + ' ms' + (ev.skipped ? ', skipped ' + ev.skipped : ''));
+                    ' s, late ' + ev.late + ' ms' + (ev.skipped ? ', skipped ' + ev.skipped : '') +
+                    (cable.status.ramp ? ', interval ' + (cable.status.intervalMs / 1000) + ' s' : ''));
                 loggedSkipped = ev.skipped;
             }
             cable.emit('frame', ev);
             emitStatus(ev.n == 1);
+            break;
+        case 'ramp': // the answer to ramp / rampStop, or a ramp that has run its course (reason 'done', unasked)
+            if (ev.reason != 'done') {
+                cb = pending.ramp;
+                delete pending.ramp;
+            }
+            if (!ev.error) {
+                cable.status.intervalMs = ev.intervalMs;
+                cable.status.ramp = rampStatus(ev.ramp);
+                if (ev.reason == 'done') log('CABLE: interval ramp done: ' + (ev.intervalMs / 1000) + ' s');
+                emitStatus(true);
+            }
+            if (cb) cb(ev.error || null);
             break;
         case 'done':
             finish(ev.reason, ev.frames);
@@ -319,6 +347,9 @@ cable.start = function (cb) {
         cable.status.intervalMs = cfg.intervalMs;
         cable.status.startTime = Date.now() + cfg.delayMs;
         cable.status.port = cfg.port;
+        if (cfg.ramp) {
+            cable.status.ramp = {fromMs: cfg.intervalMs, toMs: cfg.ramp.toMs, overMs: cfg.ramp.overMs, startTime: cable.status.startTime + cfg.ramp.afterMs};
+        }
         if (!sendCommand(cfg)) {
             cable.status = idleStatus();
             delete pending.started;
@@ -346,6 +377,38 @@ cable.stop = function (cb) {
         stopWorker();
         cb(null);
     }, STOP_TIMEOUT_MS);
+};
+
+function rampCommand(cmd, cb) {
+    if (!cable.status.running) return cb('not running');
+    if (pending.ramp) return cb('busy');
+    pending.ramp = cb;
+    if (!sendCommand(cmd)) {
+        delete pending.ramp;
+        cb('worker is not running');
+    }
+}
+
+// Ramps the running cable release's interval linearly in time from what it is now to toS seconds over overS seconds
+// (0 = at once); replaces a planned ramp. The worker times it.
+cable.ramp = function (toS, overS, cb) {
+    cb = cb || function () {};
+    var toMs = Math.round(parseFloat(toS) * 1000);
+    var overMs = Math.round((parseFloat(overS) || 0) * 1000);
+    if (!(toMs > 0)) return cb('ramp target must be set');
+    rampCommand({cmd: 'ramp', toMs: toMs, overMs: overMs}, function (err) {
+        if (!err) log('CABLE: interval ramp from ' + (cable.status.intervalMs / 1000) + ' s to ' + (toMs / 1000) + ' s over ' + (overMs / 1000) + ' s');
+        cb(err);
+    });
+};
+
+// Stops a ramp where it is: the interval keeps its current value.
+cable.stopRamp = function (cb) {
+    cb = cb || function () {};
+    rampCommand({cmd: 'rampStop'}, function (err) {
+        if (!err) log('CABLE: interval ramp stopped at ' + (cable.status.intervalMs / 1000) + ' s');
+        cb(err);
+    });
 };
 
 // Closes both lines of the selected port for ms, for checks with a meter and the first try with a camera.

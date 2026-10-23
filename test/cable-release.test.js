@@ -180,7 +180,7 @@ describe('cable release controller', function () {
     it('update takes known keys with type coercion, saves them, and load restores them', function (done) {
         var t = setup();
         cable.update({intervalS: '0.7', frames: 25, holdFocus: 'yes', port: 'AUX2', bogus: 1}, function () {
-            assert.deepEqual(t.db.store.cableRelease, {intervalS: 0.7, frames: 25, durationS: 0, releaseMs: 200, prefocusMs: 0, holdFocus: true, wakeUp: false, delayS: 2, port: 'AUX2'});
+            assert.deepEqual(t.db.store.cableRelease, {intervalS: 0.7, frames: 25, durationS: 0, releaseMs: 200, prefocusMs: 0, holdFocus: true, wakeUp: false, delayS: 2, port: 'AUX2', rampToS: 0, rampOverS: 60, rampAfterS: 0});
             cable.settings = JSON.parse(JSON.stringify(cable.DEFAULTS));
             cable.load(function () {
                 assert.equal(cable.settings.intervalS, 0.7);
@@ -205,6 +205,94 @@ describe('cable release controller', function () {
         });
         t.children[0].say({ev: 'ready'});
         t.children[0].say({ev: 'started'});
+    });
+
+    describe('interval ramp', function () {
+        function running(t, cb) {
+            cable.start(function () {
+                cb(t.children[0]);
+            });
+            t.children[0].say({ev: 'ready'});
+            t.children[0].say({ev: 'started'});
+        }
+
+        it('sends the ramp to the worker and takes the interval and the ramp from its answer', function (done) {
+            var t = setup();
+            cable.settings.intervalS = 5;
+            running(t, function (c) {
+                var before = Date.now();
+                cable.ramp(16, 60, function (err) {
+                    assert.strictEqual(err, null);
+                    assert.deepEqual(c.commands[1], {cmd: 'ramp', toMs: 16000, overMs: 60000});
+                    assert.equal(cable.status.intervalMs, 5000);
+                    assert.equal(cable.status.ramp.toMs, 16000);
+                    assert.equal(cable.status.ramp.overMs, 60000);
+                    assert.ok(Math.abs(cable.status.ramp.startTime - before) < 1000);
+                    assert.ok(/interval ramp from 5 s to 16 s over 60 s/.test(t.logs.join('\n')));
+                    // the worker reports the end of the ramp by itself
+                    c.say({ev: 'ramp', reason: 'done', intervalMs: 16000, ramp: null});
+                    setTimeout(function () {
+                        assert.equal(cable.status.intervalMs, 16000);
+                        assert.strictEqual(cable.status.ramp, null);
+                        assert.ok(/interval ramp done: 16 s/.test(t.logs.join('\n')));
+                        done();
+                    }, 5);
+                });
+                c.say({ev: 'ramp', reason: 'set', intervalMs: 5000, ramp: {fromMs: 5000, toMs: 16000, overMs: 60000, elapsedMs: 0}});
+            });
+        });
+
+        it('passes the worker\'s refusal on and leaves the status alone', function (done) {
+            var t = setup();
+            running(t, function (c) {
+                cable.ramp(0.1, 10, function (err) {
+                    assert.ok(/shorter/.test(err));
+                    assert.strictEqual(cable.status.ramp, null);
+                    assert.equal(cable.status.intervalMs, 1000);
+                    done();
+                });
+                c.say({ev: 'ramp', error: 'ramp target 0.1 s is shorter than release + pre-focus + 50 ms = 0.3 s'});
+            });
+        });
+
+        it('stop ramp sends rampStop and keeps the interval the worker reports', function (done) {
+            var t = setup();
+            running(t, function (c) {
+                cable.stopRamp(function (err) {
+                    assert.strictEqual(err, null);
+                    assert.deepEqual(c.commands[1], {cmd: 'rampStop'});
+                    assert.equal(cable.status.intervalMs, 9800);
+                    assert.ok(/interval ramp stopped at 9.8 s/.test(t.logs.join('\n')));
+                    done();
+                });
+                c.say({ev: 'ramp', reason: 'stop', intervalMs: 9800, ramp: null});
+            });
+        });
+
+        it('refuses a ramp while nothing runs', function (done) {
+            setup();
+            cable.ramp(16, 60, function (err) {
+                assert.equal(err, 'not running');
+                done();
+            });
+        });
+
+        it('a ramp planned in the settings goes with the start command and into the status', function (done) {
+            var t = setup();
+            cable.settings.intervalS = 5;
+            cable.settings.rampToS = 16;
+            cable.settings.rampOverS = 60;
+            cable.settings.rampAfterS = 600;
+            running(t, function (c) {
+                assert.deepEqual(c.commands[0].ramp, {toMs: 16000, overMs: 60000, afterMs: 600000});
+                assert.equal(cable.status.ramp.toMs, 16000);
+                assert.equal(cable.status.ramp.startTime, cable.status.startTime + 600000);
+                // and a target the scheduler cannot run is refused before any worker starts
+                cable.settings.rampToS = 0.1;
+                assert.ok(/shorter/.test(cable.validate()));
+                done();
+            });
+        });
     });
 
     it('a test pulse starts a worker, sends pulse with the port, and quits it afterwards', function (done) {
